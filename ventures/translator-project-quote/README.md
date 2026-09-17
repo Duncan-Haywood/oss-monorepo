@@ -12,6 +12,33 @@ network, API key, or paid service.
 After using this, you can compare a translation quote with your own minimum and
 target margin, which used to take a spreadsheet and several hidden assumptions.
 
+## The client's quote
+
+The number the calculator produces is for the translator. **Print quote / Save
+as PDF** produces the document the *client* receives: the language pair, what
+the project covers, the total, the deposit split, how long the price stands,
+and a line to sign.
+
+It is the same `platform/proposal` module the portfolio's 102 bid calculators
+use, and this is the first venture outside the trades to adopt it. Three things
+had to change for that, all of them in the shared code rather than here:
+
+- **The currency.** `money()` printed a hard `$`. Translation is an
+  international trade; a quote a client pays in euros cannot say `$580.00`.
+  The venture now passes its own currency label through to every figure on the
+  sheet.
+- **Optional charges.** Scope lines are guarded on the field they describe, and
+  an `<input>`'s value is the *string* `"0"`, which is truthy — so a rush fee
+  left at zero still printed "Rush or weekend delivery" on the client's quote,
+  promising work the price did not cover. Numeric fields are read as numbers.
+- **The wording.** The form said "Customer name" and "Job address". A
+  translation client is a company with an address, not a job site, so a trade
+  may now supply its own field labels.
+
+The translator's own figures — hourly rate, direct cost, target margin — are
+not on the client's copy and are not printed. Business details are saved in
+this browser so they are typed once; the client's details are never saved.
+
 ## Model
 
 - Weighted words = new words + fuzzy-match words multiplied by the supplied fuzzy rate.

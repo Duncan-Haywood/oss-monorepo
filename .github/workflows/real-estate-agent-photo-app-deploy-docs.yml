@@ -12,14 +12,26 @@ on:
 permissions:
   contents: read
 
+# `cancel-in-progress` flipped true -> false on 2026-09-17, found by
+# `ventures/deploy-concurrency-check` scanning this repository's own workflows.
+#
+# Cancelling a superseded run is right for a test job, where the only cost is
+# the minutes it had already spent. This job deploys. By the time the cancel
+# signal arrives it may have uploaded part of a batch of files, and the run then
+# stops where it is with nothing coming back to finish it -- leaving a state
+# neither revision produced, which is worse than either of them being live.
+#
+# Queueing gets the ordering this setting was reaching for anyway: the newer run
+# waits and applies last.
 concurrency:
   group: real-estate-agent-photo-app-deploy-docs
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
     name: Build and deploy to Cloudflare Pages
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: read
       deployments: write
@@ -63,6 +75,7 @@ jobs:
     needs: deploy
     if: github.event_name == 'workflow_dispatch'
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: read
     env:

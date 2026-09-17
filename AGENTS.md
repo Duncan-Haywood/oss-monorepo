@@ -1,7 +1,24 @@
 # Agent instructions
 
-Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first. That is the
-company strategy; this file is how to execute it in this repo.
+Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — if your brief
+is "set direction" for the fleet, start with its "Before rewriting this brief
+again" note: that exact brief was already re-answered three times in three
+hours immediately before that note was added, and none of the three shipped
+a venture. Before pushing a direction-only change, run
+`python3 portfolio/ledger/check_direction_only.py` — it exits 1 if this file
+and `portfolio/DIRECTION.md` are the only files in the diff, which is the
+mechanical version of the same check (added 2026-09-08 after the prose
+warning alone didn't stop a dozen more restatements). Otherwise, or once that
+check clears, start with its
+"North star" section for the six-point version (deploy what's built, new
+ventures rank first as the owner's standing preference, donations only, keep
+customers happy by shipping working/honest products, market the products
+within the fair-use rules — enforced automatically in CI, not a manual
+re-derivation — and legal exposure is the one hard stop), then its "Owner
+direction, relayed again" section right after for the five-minute version of
+the same brief with today's numbers attached, and its "Fast scan for what
+should this session do" checklist right after that. This file is how to
+execute that strategy in this repo.
 
 ## Your job
 
@@ -34,17 +51,102 @@ venture on `main` still has no public URL, that deploy is the next task.
 See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
 Do not open a second `deploy-settings` ask.
 
+**As of 2026-09-06 the primary deploy (GitHub Pages) is done and confirmed
+current** — `deploy-settings` is granted, ~175 products are live at
+`https://duncan-haywood.github.io/monorepo-projects/`, and the standing job
+is just keeping the snapshot fresh (`python3 platform/ci/pages_state.py`,
+then `platform/pages/publish-branch.sh` if stale). With distribution solved,
+default to reading [`portfolio/usage/usage.yaml`](portfolio/usage/README.md)
+first and improving a product with an actual signal, over adding depth to
+one that has had a fair run at zero. See `portfolio/DIRECTION.md`
+"What changes now that distribution is solved" for the full priority order,
+including when a new venture is and isn't the better use of the session.
+
+**Before copying a feature onto a venture just because a sibling venture has
+it** (a share link, a save slot, an export format), check that venture's row
+in `portfolio/usage/usage.yaml`. As of 2026-09-06, 55 of 185 ventures had a
+`share.mjs` added this way with zero usage signal on any of them to justify
+it, while new, non-duplicative niches are always welcome. See
+`portfolio/DIRECTION.md` "The fleet-parity trap, and where new ventures
+actually stand" — a new venture or a real discoverability fix now outranks a
+parity feature on a product nobody has visited yet.
+
+**New ventures now rank first, not last, and the pipeline's `build-now`
+queue is genuinely empty** (added 2026-09-06) — five candidates that had
+already shipped were still marked unbuilt in `candidates.yaml` (a
+`session_gate.py` misdirection risk, now fixed). The next new-venture
+session screens a fresh niche against `portfolio/pipeline/screened-out.md`
+and the liability/ethics gates, not the queue. Run
+`python3 portfolio/pipeline/duplicate_check.py "<one-line niche description>"`
+first — at 199 ventures, most a `<trade>-bid-calculator` shape, eyeballing
+that list is no longer reliable (added 2026-09-07). See `portfolio/DIRECTION.md`
+"Owner direction, 2026-09-06" for the full read, including why legal
+exposure (not speed) is still the one hard stop.
+
+**Raise the bar on graduating the next one, not just the count** (added
+2026-09-06, North star point 2) — 195 ventures now exist with zero confirmed
+visitors anywhere in `usage/usage.yaml`. Before graduating a fresh niche,
+name where its first real visitor comes from (a specific forum, subreddit,
+or search phrase with real volume), the same evidence `PRODUCT_PLAYBOOK.md`
+§1 already asks for. And do not read the fleet-wide `usage.yaml` zero as
+"nobody wants these" — GitHub Pages, the route actually serving, self-reports
+nothing, so right now that field is unmeasured, not measured-and-zero; see
+`portfolio/DIRECTION.md` North star point 2 for the full correction.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 
 ## Ship fast
 
 - **Merge when CI is green.** No human code review gate. Fix forward.
+- **Touched a venture page? Regenerate the served surface before you push:**
+
+  ```
+  node platform/marketing/regen.mjs
+  ```
+
+  The apex is the only host serving anything, and what it serves is a
+  *committed* artifact under `gitops/prod/front-door*` built from the venture
+  tree by two generators. Editing a venture page does not update it. Nothing
+  else you run will tell you: `platform/pages/build.mjs` and `check.mjs` build
+  `tools.marisstella.dev`, a different host, and both pass happily while the
+  apex is stale.
+
+  On 2026-09-05 #3256 added a comparison page and skipped this. The page was
+  mirrored nowhere and missing from the apex's sitemap — built, deployed, and
+  findable by nobody — and `main` went red on six tests. #3257 and #3258 then
+  each ran *one* of the two generators, because that is what the failing test
+  named, and each reported success. Three sessions, three hours, one page
+  still dark. The hints now name `regen.mjs`, which runs every generator, but
+  that only reaches you once a test is already failing; this bullet is for the
+  case where you never run those tests at all, which is what #3256 did.
 - **Do not re-verify** PRs recorded in `portfolio/ledger/verifications.yaml`
   unless `python3 portfolio/ledger/verification_status.py` says drift
   invalidated them.
-- **Do not open ledger-only PRs** that re-state known blockers. Build the
-  unblocked parts instead.
+- **Never land a change that is only ledger prose.** Not "avoid" — never.
+  Gate it mechanically before you push:
+
+  ```
+  python3 portfolio/ledger/check_ledger_only.py
+  ```
+
+  Exit 1 means every file in your branch is `portfolio/ledger/` data, and the
+  branch is not a deliverable. This bullet used to read "do not open
+  ledger-only PRs *that re-state known blockers*", and that escape hatch ate
+  the rule: in the seven days to 2026-09-02 the fleet landed **381 commits on
+  `main` touching nothing but ledger YAML — 34.6% of 1,102** — because every
+  session read its own entry as the new one. A third of the fleet's output
+  went into describing the other two thirds.
+
+  Recording an outcome is still right, and still cheap. It just **rides with
+  the work it describes** — same commit, or same PR. The ledger is a footnote
+  to a shipped thing, not a thing that ships.
+
+  If a session genuinely found a blocker instead of shipping: say so in the
+  reply and leave `main` alone. An unshipped session is a real outcome and
+  does not need a commit to be true. The ledger *tooling* (`.py` under
+  `portfolio/ledger/`) is exempt and passes the check — it is ordinary
+  platform code.
 - **Do not close a PR as "already on main"** until
   `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints the
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been
@@ -57,15 +159,25 @@ AI-wrap by default.
   in. Merging that branch adds a duplicate button or a weaker copy of a live
   function; it is not new work. It is still not a licence to close unread — the
   one word that differs can be the point of the branch.
-- **A red check is not a failed check right now.** The repo-wide runner outage
-  (owner decision #1849) fails every workflow in 3-6 seconds with no runner, so
-  checks arrive *red*, not absent — including on `main` and on the commit that
-  queued the outage. An outage job has empty check-run output and 404s on log
-  download; a real `Portfolio validate` installs Python and Node and runs 36
-  steps, so it cannot finish in five seconds. Verify locally, record what you
-  ran, and do not "fix" code the check never executed. See `CLAUDE.md`. The
-  single field that settles it is `runner_id: 0` with an empty `runner_name` —
-  no runner was ever assigned, so no step ran.
+- **A red check is a failed check again, as of 2026-09-01.** This bullet read
+  "a red check is not a failed check right now" for five days, and that is no
+  longer true: Actions began assigning real runners again at
+  2026-09-01T00:00:53Z, and #2601 went green on merit that evening (`gitops`
+  ran `kustomize build`, `kubeconform` and 193 pytest cases on runner
+  `1000040xxx`). Treat red as red, and fix it.
+
+  The old signature is still worth knowing, because the ceiling appears to
+  **cycle** rather than to be gone — the recovery landed at 00:00:53Z on the
+  first of the month, which is what a metered minute allowance resetting looks
+  like. If starvation returns it looks like this: every workflow fails in 3-6
+  seconds with no runner, so checks arrive *red* rather than absent, including
+  on `main`; the job has empty check-run output and 404s on log download; and a
+  real `Portfolio validate` installs Python and Node and runs 36 steps, so it
+  cannot finish in five seconds. The single field that settles it is
+  `runner_id: 0` with an empty `runner_name` — no runner was ever assigned, so
+  no step ran. Do not judge that by eye: run
+  `python3 platform/ci/ci_starvation.py --run <run_id>`, which votes on that
+  one field. See `CLAUDE.md`.
 - **Verify with the workflow's own step list, not a subset you chose — and
   with every workflow your change would start, not just the one you know.**
 
@@ -147,7 +259,10 @@ product PR?"
 1. **Liability disclaimers** — no advice-of-record, no compliance warranties,
    and no SLA on hosted URLs. Copy the wording from
    [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it goes in the README
-   *and* somewhere the user sees it (footer, about, `--help`).
+   *and* somewhere the user sees it (footer, about, `--help`). A page that
+   names a specific competitor (`vs-<competitor>.html`) needs a second,
+   separate disclaimer — §5f, nominative fair use plus a "not affiliated
+   with" line — checked by `node platform/pages/clauses.mjs <slug>`.
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).

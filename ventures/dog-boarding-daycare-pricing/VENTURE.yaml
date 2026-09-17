@@ -1,0 +1,41 @@
+name: dog-boarding-daycare-pricing
+description: Free browser calculator for independent dog boarding and daycare facility owners to price a reservation from staff time, supplies, overhead, a long-stay discount, and a multi-dog discount, then check whether their kennel/run occupancy clears a monthly break-even.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent boarding and daycare operators (home-based boarders and small kennel/run facilities, not a marketplace app) will use a calculator that prices a reservation from real staff time, supplies, and allocated overhead, since a single flat nightly rate ignores multi-dog handling, long-stay economics, and add-ons.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Searchers asking "how much to charge for dog boarding" or "dog daycare
+      pricing" are underserved by generic dollar-range answers because they
+      hide the variable that actually decides margin -- staff minutes per
+      dog-day and facility overhead, not a headline nightly number. Real
+      demand -- r/dogboarding and r/DogTrainingTips discuss pricing new
+      services routinely, Facebook groups for pet-sitting and boarding
+      businesses (e.g. "Pet Boarding & Sitting Business Owners") field this
+      exact question weekly, and "dog boarding pricing calculator" / "how
+      much should I charge for dog boarding" are search phrases the niche
+      actually types.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An operator who prices one reservation will also want to know whether their whole facility's occupancy clears a monthly break-even at that rate, not just whether one stay clears a margin -- the same two-scale need dog-walking-route-pricing found for a route rather than a facility.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dog-boarding-daycare-pricing/
+  analytics: null

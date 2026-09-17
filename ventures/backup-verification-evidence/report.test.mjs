@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyRun, buildTrend, parseRunPayload, trendSummary } from "./report.mjs";
+import { classifyRun, buildTrend, parseRunPayload, trendSummary, markdownTrend, formatBytes } from "./report.mjs";
 import { TREND_EXAMPLE_NIGHTS } from "./examples.mjs";
 
 test("example nights stay verified while the last night is flagged as shrinking", () => {
@@ -32,6 +32,48 @@ test("status regression is flagged when size is unchanged", () => {
 test("classifyRun matches the Python verified path for a healthy artifact", () => {
   const result = classifyRun(TREND_EXAMPLE_NIGHTS[0]);
   assert.equal(result.status, "verified");
+});
+
+test("classifyRun formats undersized-artifact reasons with human-readable sizes", () => {
+  // Same regression as the Python suite: the shrink-alert / markdown paths
+  // already called formatBytes, but the undersized-artifact reason still
+  // dumped raw integers into the string an operator copies into a ticket.
+  const result = classifyRun({
+    tool: "pg_dump",
+    exit_code: 0,
+    started_at: "2026-08-24T03:00:00Z",
+    finished_at: "2026-08-24T03:04:00Z",
+    artifact: {
+      exists: true,
+      size_bytes: 51_200_000_000,
+      modified_at: "2026-08-24T03:03:59Z",
+    },
+    expected: { min_size_bytes: 60_000_000_000 },
+  });
+  assert.equal(result.status, "suspicious");
+  assert.match(result.reasons[0], /51\.2 GB/);
+  assert.match(result.reasons[0], /60\.0 GB/);
+  assert.equal(result.reasons[0].includes("51200000000"), false);
+  assert.equal(result.reasons[0].includes("60000000000"), false);
+});
+
+test("classifyRun keeps plain wording when the artifact size is unknown", () => {
+  const result = classifyRun({
+    tool: "pg_dump",
+    exit_code: 0,
+    started_at: "2026-08-24T03:00:00Z",
+    finished_at: "2026-08-24T03:04:00Z",
+    artifact: {
+      exists: true,
+      size_bytes: null,
+      modified_at: "2026-08-24T03:03:59Z",
+    },
+    expected: { min_size_bytes: 1_000_000 },
+  });
+  assert.equal(result.status, "suspicious");
+  assert.match(result.reasons[0], /an unknown number of bytes/);
+  assert.match(result.reasons[0], /1\.0 MB/);
+  assert.equal(result.reasons[0].includes("1000000"), false);
 });
 
 test("classifyRun requires an integrity read when asked, even if exit code and size are fine", () => {
@@ -109,6 +151,33 @@ test("orders records by the actual instant, not the raw finished_at string, acro
   assert.equal(trend.latest.finished_at, late.finished_at);
   assert.equal(trend.latest.shrinking_vs_previous, true);
   assert.equal(trend.alerts.some((alert) => alert.kind === "shrinking_vs_previous"), true);
+});
+
+test("markdownTrend renders each row's size the same human-readable way the on-page table does, not raw bytes", () => {
+  const trend = buildTrend(TREND_EXAMPLE_NIGHTS);
+  const markdown = markdownTrend(trend);
+  for (const row of trend.rows) {
+    assert.equal(markdown.includes(`${row.size_bytes} bytes`), false, `markdown report should not contain the raw byte count ${row.size_bytes}`);
+    assert.ok(markdown.includes(formatBytes(row.size_bytes)), `markdown report should contain ${formatBytes(row.size_bytes)}`);
+  }
+});
+
+test("shrink alert details are human-readable, not raw byte counts (shared by the page and the copied markdown)", () => {
+  const trend = buildTrend(TREND_EXAMPLE_NIGHTS);
+  assert.ok(trend.alerts.length > 0);
+  for (const alert of trend.alerts) {
+    if (alert.kind === "status_regression") continue;
+    assert.doesNotMatch(alert.detail, /\d+ bytes to \d+ bytes/, `alert detail should not carry raw byte counts: ${alert.detail}`);
+    assert.match(alert.detail, /\d+(\.\d+)? (bytes|KB|MB|GB) to \d+(\.\d+)? (bytes|KB|MB|GB)/);
+  }
+});
+
+test("formatBytes handles null and each unit boundary", () => {
+  assert.equal(formatBytes(null), "unknown");
+  assert.equal(formatBytes(500), "500 bytes");
+  assert.equal(formatBytes(1_500), "1.5 KB");
+  assert.equal(formatBytes(1_500_000), "1.5 MB");
+  assert.equal(formatBytes(51_200_000_000), "51.2 GB");
 });
 
 test("parseRunPayload accepts a single record, an array, or a records wrapper", () => {

@@ -1,0 +1,31 @@
+name: ada-title-ii-evidence
+description: A deadline lookup and browser-local WCAG 2.1 AA evidence report for state/local government and special-district webmasters preparing for ADA Title II's April 2027/2028 compliance dates.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small-city, county, school, and special-district webmasters do not yet know which ADA Title II date (April 2027 or April 2028) applies to them, and will search for a specific answer now that the DOJ's 2026 extension is recent news.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A government-website audience wants findings split into "what WCAG 2.1 AA actually requires" versus "best-practice extras" rather than one undifferentiated axe-core rule list.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A useful evidence record can be produced from customer-supplied axe-core JSON alone, with no crawling of the entity's site and no server-side data retention.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three distinct government or school-district visitors use the deadline lookup or evidence report within 90 days of being indexed.
+  - Users report the deadline dates or standard as wrong for their entity type after checking the cited source.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ada-title-ii-evidence/
+  analytics: null

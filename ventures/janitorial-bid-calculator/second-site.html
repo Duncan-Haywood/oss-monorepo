@@ -64,9 +64,9 @@
         <p class="hint">Same method as the first-building calculator: cleanable square feet divided by the rate your crew really hits. Put only incremental equipment here — do not re-enter the first site&rsquo;s truck.</p>
         <div class="fields">
           <label>Office / open floor (sq ft) <input id="officeSqFt" type="number" min="0" step="10" value="2000"></label>
-          <label>Office sq ft / hour <input id="officeRate" type="number" min="1" step="50" value="4000"></label>
+          <label>Office sq ft / hour <input id="officeRate" type="number" min="1" step="any" value="4000"></label>
           <label>Restrooms (sq ft) <input id="restroomSqFt" type="number" min="0" step="10" value="200"></label>
-          <label>Restroom sq ft / hour <input id="restroomRate" type="number" min="1" step="50" value="1200"></label>
+          <label>Restroom sq ft / hour <input id="restroomRate" type="number" min="1" step="any" value="1200"></label>
           <label>Cleans per week <input id="cleaningsPerWeek" type="number" min="0" max="21" step="1" value="3"></label>
           <label>Cleaner hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="17"></label>
           <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
@@ -119,12 +119,12 @@
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge or whether to take a job. Verify every figure against your own payroll, insurance, fuel, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your buildings, wages, costs, or prices.</p>
-    <p>Free and open source. Support via the <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors page</a> is optional and never changes what the tool does. <a href="./">First-building calculator</a> · <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">Source</a></p>
+    <p>Free and open source. Support via the <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors page</a> is optional and never changes what the tool does. <a href="./">First-building calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
   </footer>
 
   <script type="module">
     import { compareSecondSite, secondSiteNote } from './second-site.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
     const FIELD_IDS = [
       'officeSqFt','officeRate','restroomSqFt','restroomRate','cleaningsPerWeek',
@@ -261,6 +261,19 @@
     });
 
     update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

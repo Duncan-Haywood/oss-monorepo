@@ -1,0 +1,87 @@
+name: Pages freshness
+
+# Is the site a stranger reaches right now the same as `main`?
+#
+# GitHub Pages serves the `gh-pages` branch, which is a *committed artifact*:
+# `platform/pages/publish-branch.sh` builds it and commits it, and nothing
+# rebuilds it when `main` moves. So a merge that changes a served surface
+# leaves the live site behind, and there is no error anywhere to say so.
+#
+# The documented remedy has been a paragraph in CLAUDE.md since 2026-09-05
+# telling each session to re-run the publish script by hand. It did not hold:
+# on 2026-09-06 the snapshot was found stale -- built from `1afe50c5` while
+# `main` was at `565cc635` -- by a session that had read that paragraph.
+# `pages_state.py --require-current` was added the same day to turn the
+# reminder into an exit code, on the stated grounds that "a reminder competes
+# with everything else in a long file; an exit code does not".
+#
+# **And then nothing ever ran it.** Measured 2026-09-07: `portfolio-validate.yml`
+# runs `test_pages_state` -- the tool's own *unit tests* -- and no workflow in
+# this repository invokes the tool itself. A guard that ships with tests and no
+# caller is the exact "correct, current, and shouting into an empty room" shape
+# CLAUDE.md already records against `validate_doc_consistency.py`,
+# `score_ventures.py --check` and `platform/proposal/term-ids.test.mjs`. This
+# is the caller.
+#
+# Deliberately NOT a `pull_request` workflow. The question is about `main` and
+# `gh-pages`, not about the diff, so on a PR it would go red for staleness the
+# PR did not cause -- and a check that fails for something the author cannot
+# fix is one the fleet learns to skim, which costs on the day the drift is
+# real. It is in `run_workflow_locally.py`'s VERIFICATION_ONLY set instead, so
+# `--tree` asks it against the checkout as it stands. That is the mode that
+# matters while Actions minutes are starved and no runner picks this up at all.
+#
+# The `paths:` filter is the same set `publish-pages-branch.yml` publishes on,
+# because that filter *is* the set of inputs `build.mjs` reads. A docs-only
+# merge changes nothing the site serves and must not ask anyone to force-push
+# an identical 2,000-file artifact; `freshness()` in `pages_state.py` compares
+# against that filter for the same reason, and its docstring records the false
+# alarm that taught it to.
+#
+# It reports and never publishes. Publishing rewrites a branch, which is not
+# something a check should do as a side effect -- so a failure names the one
+# command that fixes it and stops there.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**"
+      - "platform/pages/**"
+      - "platform/marketing/**"
+      - ".github/workflows/pages-freshness-ci.yml"
+  workflow_dispatch:
+
+# Read-only, and narrower than it looks: `pages_state.py` reads the repository
+# object, the `gh-pages` branch, a compare between two commits (`contents`),
+# and the managed Pages builder's run history (`actions`). It writes nothing.
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: pages-freshness-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pages-freshness:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # One repository read and one compare. Capped like every other job here
+    # because minutes on this account are metered.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install pyyaml
+      # `--require-current` is a separate contract from a bare run: the bare
+      # exit code answers "is this route worth having?", which barely changes,
+      # and this one answers "is the live site serving what `main` contains?",
+      # which changes on every merge that touches a served surface. Folding
+      # them together would make a green run mean two different things.
+      - name: The live site is serving what main contains
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 platform/ci/pages_state.py --require-current

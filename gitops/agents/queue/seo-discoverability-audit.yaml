@@ -62,11 +62,28 @@ prompt: |
 
   Fix the gaps for that one venture: real search phrases a niche user
   would type, accurate JSON-LD, working Open Graph tags. Do not fabricate
-  traction, testimonials, or benchmarks. Verify the change with
+  traction, testimonials, or benchmarks.
+
+  Verify before opening the PR. **The maintained list is the block in
+  CLAUDE.md under "Ship without review ceremony" -- read it there and run
+  it**, rather than treating the line below as the whole set. This item
+  edits what a page emits, so two of that block's lines apply directly and
+  this prompt used to name neither:
+
+    node platform/marketing/regen.mjs   # then commit whatever it rewrites
+    node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+
+  Metadata work changes the mirrored copy of a page as well as the page,
+  and `front-door-tools.test.mjs` is what catches a surface that landed
+  without the generator being re-run. Run `python3 -m pytest gitops/tests
+  -q` too whenever your commit ends up containing changes under `gitops/`,
+  including ones `regen.mjs` made for you.
+
+  Then the pages build itself:
   `node platform/pages/build.mjs --out=dist && node platform/pages/check.mjs dist`
-  (dead links, stale origins) before opening the PR. Open the PR, note
-  what you verified, and merge it yourself once sound, per this repo's
-  no-review-gate rule for product PRs.
+  (dead links, stale origins). Record exactly what you ran and what it
+  said. Open the PR, note what you verified, and merge it yourself once
+  sound, per this repo's no-review-gate rule for product PRs.
 
   Make the smallest correct change for that one venture. Do not start
   unrelated new work in this run.

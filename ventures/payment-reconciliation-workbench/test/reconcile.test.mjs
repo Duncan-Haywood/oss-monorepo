@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readRecords, reconcile, explanation } from '../src/reconcile.mjs';
+import { readRecords, reconcile, explanation } from '../reconcile.mjs';
 
 const csv = `date,net\n2026-08-20,100.00\n2026-08-21,25.50`;
 test('normalizes common CSV headers and matches within settlement tolerance', () => {

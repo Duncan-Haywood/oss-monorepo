@@ -4,4 +4,7 @@
   <url><loc>./does-a-cdn-cut-s3-egress.html</loc></url>
   <url><loc>./does-a-replica-beat-cross-region-pull.html</loc></url>
   <url><loc>./does-infrequent-access-still-beat-standard.html</loc></url>
+  <url><loc>./vs-aws-pricing-calculator.html</loc></url>
+  <url><loc>./vs-google-cloud-pricing-calculator.html</loc></url>
+  <url><loc>./vs-azure-pricing-calculator.html</loc></url>
 </urlset>

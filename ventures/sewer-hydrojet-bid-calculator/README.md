@@ -61,6 +61,11 @@ the **walk-away price** — total cost, below which the job makes
 nothing. Entering a price already on the table scores it against the
 same cost base. **Copy bid summary** turns the result into a
 plain-text draft with wages omitted, ready to paste into a proposal.
+**Copy share link** encodes the whole takeoff — every rate, the work
+type, access, line, and the deposit/terms from the proposal panel — into
+a URL fragment a shop can send to an office manager, a second tech, or
+the customer; nothing is uploaded, and opening the link reopens the same
+bid instead of the form's defaults. See [`share.mjs`](share.mjs).
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
@@ -83,7 +88,7 @@ Control. See [`usage.mjs`](usage.mjs) and
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `preset_applied`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `share_link_copied`.
 
 ## Limitations
 

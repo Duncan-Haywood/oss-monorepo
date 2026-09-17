@@ -43,6 +43,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { onlySlugs, keepPagePath, describeFilter, requireNonEmpty } from './only-slugs.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -94,7 +95,12 @@ if (!fs.existsSync(DIST)) {
 
 // The 404 page is served for paths that do not exist, so it has no URL of its
 // own to ask for; everything else is reachable.
-const pages = publishedPages(DIST).filter((rel) => !rel.startsWith('404'));
+const only = onlySlugs();
+const pages = publishedPages(DIST)
+  .filter((rel) => !rel.startsWith('404'))
+  .filter((rel) => keepPagePath(rel, only));
+if (only) console.log(describeFilter(only));
+requireNonEmpty(pages, only, 'built pages');
 
 const browser = await playwright.chromium.launch(LAUNCH);
 const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } });
@@ -147,6 +153,6 @@ for (const f of failures.sort((a, b) => (b.over || 0) - (a.over || 0))) {
   else console.log(`  +${String(f.over).padStart(4)}px  ${f.rel}${f.widest ? `  — widest: ${f.widest.tag}` : ''}`);
 }
 console.log('\nA page wider than the window zooms out to fit, so every figure on it '
-  + 'renders smaller. See platform/pages/reflow.mjs for the two causes this '
+  + 'renders smaller. See platform/pages/reflow.mjs for the causes this '
   + 'build already fixes and how they were measured.');
 process.exit(1);

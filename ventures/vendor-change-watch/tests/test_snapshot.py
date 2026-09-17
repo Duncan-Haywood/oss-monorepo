@@ -1,11 +1,6 @@
 import urllib.error
 
-from vendor_watch.snapshot import (
-    FetchResult,
-    build_snapshot,
-    extract_sections,
-    fetch_page,
-)
+from vendor_watch.snapshot import FetchResult, build_snapshot, extract_sections, fetch_page
 
 SAMPLE_HTML = """
 <html><head><title>Terms</title><style>.x{color:red}</style></head>

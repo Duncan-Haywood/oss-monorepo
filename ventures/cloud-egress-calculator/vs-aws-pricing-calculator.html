@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. the AWS Pricing Calculator</title>
+  <meta name="description" content="How this free storage-and-egress comparison differs from AWS's own Pricing Calculator, and when to use each one. Not affiliated with Amazon Web Services.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-aws-pricing-calculator.html">
+  <meta property="og:title" content="This calculator vs. the AWS Pricing Calculator">
+  <meta property="og:description" content="Two different jobs: AWS's own tool is the authoritative line-item estimate for one AWS service; this one is a break-even comparison between two price sheets, from your own workload.">
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #172033; background: #f5f7fb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9e0eb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #58657a; }
+    .note { font-size: .85rem; color: #58657a; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #58657a; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or AWS's own Pricing Calculator?","acceptedAnswer":{"@type":"Answer","text":"Most people get more use out of both. AWS's own Pricing Calculator, at calculator.aws, is the authoritative source for what a specific AWS service configuration will cost, because it reads AWS's live published price list for the region and options you select. This page does not try to replace that lookup. What it adds is the decision AWS's tool is not built for: comparing two price sheets you already have — AWS against another provider, one storage class against another, or last year's rate against a new quote — on the same storage-plus-request-plus-egress workload, with the outbound-transfer volume where the cheaper-storage option stops being cheaper."}},{"@type":"Question","name":"Is this page affiliated with Amazon Web Services?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Amazon.com, Inc. or its affiliates. AWS, Amazon S3, and AWS Pricing Calculator are trademarks of Amazon.com, Inc. or its affiliates, named here only to describe what this calculator is for."}}]}</script>
+</head>
+<body>
+  <p><a href="./">← Cloud Egress Cost Calculator</a></p>
+  <h1>This calculator vs. the AWS Pricing Calculator</h1>
+  <p>
+    AWS publishes its own free estimation tool, the <strong>AWS Pricing
+    Calculator</strong>, at
+    <a href="https://calculator.aws/" rel="nofollow noopener">calculator.aws</a>,
+    with background and FAQs at
+    <a href="https://aws.amazon.com/aws-cost-management/aws-pricing-calculator/faqs" rel="nofollow noopener">aws.amazon.com/aws-cost-management/aws-pricing-calculator/faqs</a>.
+    You pick a service such as S3, a region, a storage class, and expected
+    usage, and it prices that configuration against AWS's own published rate
+    card, either as a one-off workload estimate or a full consolidated bill.
+  </p>
+  <p>
+    That makes it the right tool for one job: <strong>what a specific AWS
+    configuration will cost, on AWS's current published prices.</strong> It
+    reads AWS's own price list, so it is authoritative in a way no
+    third-party page, including this one, can be. This site does not
+    publish AWS's current per-GB rates or claim to, and it prices only AWS
+    services -- it has no notion of a non-AWS provider's rate card, because
+    there is no "other cloud" line item to select. If you need a current AWS
+    estimate, that is the tool to open, and this page says so.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What will this exact AWS S3 configuration cost this month, on AWS's current price list?</td>
+        <td>AWS's own Pricing Calculator — it is the live source.</td>
+      </tr>
+      <tr>
+        <td>Given the two rate sheets I was actually quoted, which one is cheaper for my workload?</td>
+        <td>This calculator — storage, requests, and egress on one screen, from the numbers you paste in.</td>
+      </tr>
+      <tr>
+        <td>At what outbound-transfer volume does the cheaper-storage option stop winning?</td>
+        <td>This calculator's break-even outbound volume.</td>
+      </tr>
+      <tr>
+        <td>Does a CDN, a same-region replica, or infrequent-access storage still beat the alternative on this workload?</td>
+        <td>This calculator's linked follow-on pages, back on <a href="./">the calculator</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    This calculator is deliberately provider-agnostic: it never fetches or
+    stores a published price for AWS, another cloud provider, or anyone
+    else. Every rate is one you type in, so it stays correct when a price
+    sheet changes and works equally well for an AWS-to-AWS storage-class
+    comparison, an AWS-versus-another-provider comparison, or a proposed
+    price increase from your current vendor.
+  </p>
+  <p>
+    It needs no AWS account and no sign-in: it is a static page, the
+    arithmetic runs in your browser, and once it has loaded it keeps working
+    with the connection off. Nothing you type is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or AWS's own Pricing Calculator?</h3>
+  <p>Most people get more use out of both. AWS's own Pricing Calculator, at calculator.aws, is the authoritative source for what a specific AWS service configuration will cost, because it reads AWS's live published price list for the region and options you select. This page does not try to replace that lookup. What it adds is the decision AWS's tool is not built for: comparing two price sheets you already have — AWS against another provider, one storage class against another, or last year's rate against a new quote — on the same storage-plus-request-plus-egress workload, with the outbound-transfer volume where the cheaper-storage option stops being cheaper.</p>
+  <h3>Is this page affiliated with Amazon Web Services?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Amazon.com, Inc. or its affiliates. AWS, Amazon S3, and AWS Pricing Calculator are trademarks of Amazon.com, Inc. or its affiliates, named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Open the <a href="./">Cloud Egress Cost Calculator</a> to run the
+    comparison on your own rates.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice. Verify every rate against AWS's own Pricing Calculator, or the other provider's current price sheet, before relying on a result.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

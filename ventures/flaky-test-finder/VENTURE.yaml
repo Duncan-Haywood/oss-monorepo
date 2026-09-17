@@ -1,0 +1,45 @@
+name: flaky-test-finder
+description: Free tool that classifies tests as flaky, broken, or stable from two or more JUnit-XML test reports across CI runs — a deterministic pass/fail comparison, not a guess — with a matching zero-dependency Python CLI for scripted use as a CI gate.
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up: same shape as
+# ventures/actions-runner-starvation-check (developer CLI/browser tool, not a
+# trade calculator) -- see portfolio/pipeline/README.md's archetype-saturation
+# note. Flaky tests are a well-established, widely-discussed developer pain
+# point (existing partial solutions include pytest-rerunfailures,
+# jest-junit + ad hoc scripts, Maven Surefire's own <flakyFailure> rerun
+# support, and paid SaaS such as Launchable and BuildPulse), which is real
+# evidence of demand rather than a novel guess -- and also means the wedge
+# here is deliberately narrow: free, local-only, and framework-agnostic via
+# the JUnit-XML format nearly every test runner already emits, rather than
+# trying to out-feature funded incumbents that require an account and a
+# CI integration.
+hypotheses:
+  - claim: A developer staring at a red CI check that mixes real regressions and reruns-until-green flakiness will search for a way to tell them apart and land on a tool that reads reports they already have, instead of manually diffing two console logs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team that already generates JUnit XML from multiple CI attempts (rerun-failed-only jobs, parallel shards, nightly repeats) will wire check.py into their own pipeline as a flaky-test gate or report step, since it needs no account and no new CI integration beyond files they already produce.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring check.py into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/flaky-test-finder/
+  analytics: null

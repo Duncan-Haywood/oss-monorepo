@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { companyKey, declaredRowFields, detectFunctions, disclaimerFor, jsString, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
+import { companyKey, declaredFields, declaredRowFields, detectFunctions, inspect, disclaimerFor, jsString, markup, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VENTURES = path.resolve(HERE, '../../ventures');
@@ -90,6 +90,20 @@ test('every trade names a price field the calculator actually returns', () => {
     if (!keys.includes(field)) wrong.push(`${slug}: no result.${field}`);
   }
   assert.deepEqual(wrong, []);
+});
+
+test('a one-line return is read from the entry function, not the next one', () => {
+  // `appliance-repair-quote-calculator` returns its result on a single line and
+  // declares `compareServiceCallVsReplace` — which returns over many lines —
+  // below it. The multi-line matcher is greedy, so before the region was
+  // bounded it ran past the entry and reported the *comparison's* keys: the
+  // price field `target` looked absent, and `proposed` detection would have
+  // been decided by the wrong function's shape.
+  const keys = resultKeysOf('appliance-repair-quote-calculator');
+  assert.ok(keys.includes('target'), `entry function's own keys, got ${JSON.stringify(keys)}`);
+  assert.ok(keys.includes('walkAway'), 'a shorthand key after a `key: value` one is still a key');
+  assert.ok(keys.includes('effectiveRate'), 'a value carrying its own comma must not split the key list');
+  assert.ok(!keys.includes('replacementPrice'), 'read past the entry function into the next declaration');
 });
 
 test('storage keys are unique across ventures', () => {
@@ -220,4 +234,120 @@ test('every component a hood-cleaning bid can list has customer wording', async 
   for (const preset of COMPONENT_PRESETS) {
     assert.ok(map[preset.label], `no customer wording for component preset "${preset.label}"`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Reaching past the trades
+//
+// The proposal is the artifact that wins the job, and until now it could only
+// be generated for a `*-bid-calculator`: a US contractor, quoting in dollars,
+// for a customer at a job address. Everything below is what a freelancer
+// quoting a translation needed, and each one is a defect the trades never hit
+// because their own answer happened to be the hard-coded one.
+// ---------------------------------------------------------------------------
+
+test('a numeric field left at zero keeps its line off the customer sheet', () => {
+  // An `<input>`'s value is a string, and `"0"` is truthy. Read with `input`,
+  // a `when` guarding an optional charge the user left at zero passed anyway
+  // and printed "Rush or weekend delivery" on a quote with nothing for it in
+  // the price — the sheet promising work the price does not cover.
+  const generated = declaredFields({ rushFee: { number: 'rush_fee' } });
+  assert.match(generated, /"rushFee": Number\(el\('rush_fee'\)\?\.value\)/);
+
+  // `input` still yields the trimmed string, which is what a language name or
+  // a reference number needs.
+  const asText = declaredFields({ sourceLang: { input: 'source_lang' } });
+  assert.match(asText, /"sourceLang": el\('source_lang'\)\?\.value\?\.trim\(\)/);
+});
+
+test('a trade may rename the form fields without a fork of the generator', () => {
+  const renamed = markup({
+    labels: {
+      heading: 'Send the client a quote',
+      clientName: 'Client name',
+      clientAddress: 'Client company and address',
+      printButton: 'Print quote / Save as PDF',
+    },
+  });
+  assert.match(renamed, /<h2>Send the client a quote<\/h2>/);
+  assert.match(renamed, /<label>Client name /);
+  assert.match(renamed, /<label>Client company and address /);
+  assert.match(renamed, /id="printProposal">Print quote \/ Save as PDF</);
+  // The words it replaced are gone, not merely joined.
+  assert.doesNotMatch(renamed, /Hand the customer a proposal/);
+  assert.doesNotMatch(renamed, /<label>Job address /);
+});
+
+test('a trade that renames nothing gets exactly the wording it has today', () => {
+  // The 102 adopters pass no `labels`, and their pages are committed. A
+  // default that drifted would rewrite all of them on the next sweep.
+  const plain = markup({});
+  assert.match(plain, /<h2>Hand the customer a proposal<\/h2>/);
+  assert.match(plain, /<label>Customer name /);
+  assert.match(plain, /<label>Job address /);
+  assert.match(plain, /<label>Licence number \(optional\) /);
+  assert.match(plain, /id="printProposal">Print proposal \/ Save as PDF</);
+  assert.deepEqual(markup({}), markup({ labels: {} }), 'an empty labels block is not a change');
+});
+
+test('a label supplied by a trade cannot inject markup', () => {
+  const hostile = markup({ labels: { clientName: '<script>alert(1)</script>' } });
+  assert.doesNotMatch(hostile, /<script>alert/);
+  assert.match(hostile, /&lt;script&gt;/);
+});
+
+test('a blank label falls back rather than printing an empty one', () => {
+  assert.match(markup({ labels: { clientName: '   ' } }), /<label>Customer name /);
+});
+
+test('a trade may name the pricing function when the page does not call it inline', () => {
+  // Every bid calculator prices the job inline -- `calculateBid(readInput())`
+  // -- because its render loop has nothing to catch. A page whose calculator
+  // throws does not: `notary-trip-quote` renders through `quoteResult()`, a
+  // non-throwing wrapper, so no call of the inferred shape exists anywhere on
+  // it. The throwing one is still the right function for the proposal, where
+  // the throw is what retires a sheet the figures no longer support.
+  const page = "function readInput(){}\nconst r = quoteResult(readInput())";
+  assert.equal(detectFunctions(page).calcFn, undefined, 'a wrapper call is not a call site');
+  assert.equal(detectFunctions(page, 'calculateQuote').calcFn, 'calculateQuote');
+  // An explicit name never silently disagrees with a real call site.
+  assert.equal(
+    detectFunctions('function readInput(){}\nconst r = calculateBid(readInput())').calcFn,
+    'calculateBid',
+    'inference still applies when no name is given',
+  );
+});
+
+test('a named calculator the page cannot resolve is refused before it reaches a customer', () => {
+  // The failure this guards against is silent at every text level: the page
+  // looks adopted, the tests pass, and the ReferenceError arrives the first
+  // time someone presses print -- in front of the client the sheet exists for.
+  const named = Object.entries(trades).filter(([, trade]) => trade.calcFn);
+  assert.ok(named.length > 0, 'no trade names a calculator, so this test proves nothing');
+  for (const [slug, trade] of named) {
+    assert.deepEqual(
+      inspect(slug, trade).problems,
+      [],
+      `${slug} names calcFn "${trade.calcFn}" but does not resolve cleanly`,
+    );
+    const problems = inspect(slug, { ...trade, calcFn: 'noSuchCalculator' }).problems;
+    assert.ok(
+      problems.some((p) => p.includes('noSuchCalculator')),
+      `${slug} accepted a calculator name its page never defines or imports`,
+    );
+  }
+});
+
+test('the usage.mjs anchor reads a compact import as readily as a spaced one', () => {
+  // Spacing around the braces, and whether a statement follows on the same
+  // line, are formatting rather than anything adoption depends on. Refusing
+  // the compact spelling reported it as "no usage.mjs import" on a page whose
+  // import was right there -- the same misreading the quote-style fix above
+  // was written for.
+  const compact = fs.readFileSync(path.join(VENTURES, 'notary-trip-quote/index.html'), 'utf8');
+  // The name list grew when this page learned to remember the visitor's
+  // opt-out; the spelling being asserted against is still the compact one,
+  // which is the whole point of the fixture.
+  assert.match(compact, /import \{recordUsage,readOptOut,writeOptOut\} from '\.\/usage\.mjs'/, 'the compact spelling is what this asserts against');
+  assert.match(compact, /from '\.\/proposal\.mjs'/, 'the proposal import was never anchored');
 });

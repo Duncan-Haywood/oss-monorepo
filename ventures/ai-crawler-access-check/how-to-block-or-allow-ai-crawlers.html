@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Block or Allow GPTBot, ClaudeBot &amp; Other AI Crawlers in robots.txt</title>
+  <meta name="description" content="Exact robots.txt lines to block or allow GPTBot, ChatGPT-User, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, PerplexityBot, Bytespider, Amazonbot, Meta-ExternalAgent, and Diffbot — plus what llms.txt is and isn't.">
+  <link rel="canonical" href="./how-to-block-or-allow-ai-crawlers.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I block GPTBot (OpenAI) from crawling my site?","acceptedAnswer":{"@type":"Answer","text":"Add a dedicated group to robots.txt: \"User-agent: GPTBot\" followed by \"Disallow: /\". A wildcard \"User-agent: *\" block does not cover GPTBot if a more specific GPTBot group also exists — the most specific matching group wins, not the sum of both."}},{"@type":"Question","name":"How do I block every AI crawler at once?","acceptedAnswer":{"@type":"Answer","text":"There is no single standard token meaning \"all AI crawlers\" — each operator uses its own token. The reliable way is one Disallow: / group per named token you want blocked, or a broad \"User-agent: *\" / \"Disallow: /\" block if you intend to block all automated crawling, AI or not, which will also stop most search-engine indexing."}},{"@type":"Question","name":"Does Google-Extended block Google Search from indexing my site?","acceptedAnswer":{"@type":"Answer","text":"No. Google-Extended controls only whether Google's generative-AI products (Gemini, Vertex AI) may use the content for training and grounding. Blocking it does not affect Googlebot or normal Search indexing, which is a separate user-agent."}},{"@type":"Question","name":"What's the difference between GPTBot and ChatGPT-User?","acceptedAnswer":{"@type":"Answer","text":"GPTBot crawls to train OpenAI's models. ChatGPT-User fetches a specific page because a live ChatGPT user's session asked it to (browsing, plugins, actions). Blocking one does not block the other, and many sites intentionally allow ChatGPT-User while blocking GPTBot."}},{"@type":"Question","name":"Do I need an llms.txt file?","acceptedAnswer":{"@type":"Answer","text":"No — it's an optional, emerging convention (see llmstxt.org), not a standard any crawler is documented to require. It's a plain-text file at /llms.txt giving an AI assistant a short map of your key pages: an H1 title, an optional one-line summary, and Markdown link sections."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { color: #55606f; text-transform: uppercase; font-size: .75rem; letter-spacing: .04em; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 14px; overflow-x: auto; font-size: .88rem; line-height: 1.6; }
+    code { overflow-wrap: anywhere; }
+    footer { margin-top: 32px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a.back { display: inline-block; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <a class="back" href="./">&larr; Back to AI Crawler Access Check</a>
+  <h1>Exact robots.txt lines for each named AI crawler</h1>
+  <p>Each block below is a complete, self-contained <code>robots.txt</code> group. Stack as many as you need in the same file. A crawler that matches a named group ignores your wildcard (<code>User-agent: *</code>) group entirely — the most specific matching group wins, groups are never combined.</p>
+
+  <h2>Block a crawler entirely</h2>
+  <pre><code>User-agent: GPTBot
+Disallow: /</code></pre>
+  <p>Swap in any token from the table below. To block several with the same rule, list them as consecutive <code>User-agent</code> lines before the shared <code>Disallow</code>:</p>
+  <pre><code>User-agent: GPTBot
+User-agent: Google-Extended
+User-agent: CCBot
+Disallow: /</code></pre>
+
+  <h2>Explicitly allow a crawler even when your wildcard group blocks everything</h2>
+  <pre><code>User-agent: *
+Disallow: /
+
+User-agent: ClaudeBot
+Allow: /</code></pre>
+
+  <h2>Known AI crawler tokens</h2>
+  <table>
+    <thead><tr><th>Token</th><th>Operator</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>GPTBot</code></td><td>OpenAI</td><td>Training</td></tr>
+      <tr><td><code>ChatGPT-User</code></td><td>OpenAI</td><td>Fetches on behalf of a live ChatGPT user</td></tr>
+      <tr><td><code>OAI-SearchBot</code></td><td>OpenAI</td><td>ChatGPT search index</td></tr>
+      <tr><td><code>ClaudeBot</code></td><td>Anthropic</td><td>Training</td></tr>
+      <tr><td><code>Claude-User</code></td><td>Anthropic</td><td>Fetches on behalf of a live Claude user</td></tr>
+      <tr><td><code>Claude-SearchBot</code></td><td>Anthropic</td><td>Claude search/citation index</td></tr>
+      <tr><td><code>Google-Extended</code></td><td>Google</td><td>Gemini/Vertex AI training &amp; grounding (not Search indexing)</td></tr>
+      <tr><td><code>Applebot-Extended</code></td><td>Apple</td><td>Apple Intelligence training (not Siri/Spotlight indexing)</td></tr>
+      <tr><td><code>CCBot</code></td><td>Common Crawl Foundation</td><td>General web archive, widely used as a training input</td></tr>
+      <tr><td><code>PerplexityBot</code></td><td>Perplexity</td><td>Search/answer index</td></tr>
+      <tr><td><code>Perplexity-User</code></td><td>Perplexity</td><td>Fetches on behalf of a live user query</td></tr>
+      <tr><td><code>Bytespider</code></td><td>ByteDance</td><td>Training</td></tr>
+      <tr><td><code>Amazonbot</code></td><td>Amazon</td><td>Product/service improvement, including AI features</td></tr>
+      <tr><td><code>Meta-ExternalAgent</code></td><td>Meta</td><td>Training &amp; search features</td></tr>
+      <tr><td><code>Diffbot</code></td><td>Diffbot</td><td>Commercial extraction, resold as a data feed</td></tr>
+    </tbody>
+  </table>
+  <p>This list is a snapshot summarized from public reporting and each operator's own documentation — operators add crawlers and change stated purposes over time. Check the <a href="./">AI Crawler Access Check tool</a> against your current <code>robots.txt</code>, and confirm anything load-bearing directly with the operator.</p>
+
+  <h2>What llms.txt is (and isn't)</h2>
+  <p><a href="https://llmstxt.org/" rel="noopener">llms.txt</a> is an emerging, optional convention for a plain-text file at <code>/llms.txt</code>: an H1 title, an optional one-line blockquote summary, and Markdown-linked sections pointing an AI assistant at your most important pages. It is not a standard any crawler is documented to require, and it does not control crawling — <code>robots.txt</code> still does that. A minimal one looks like this:</p>
+  <pre><code># Your Site
+
+&gt; One sentence describing what this site is.
+
+## Docs
+- [Getting started](https://example.com/docs/start)
+- [API reference](https://example.com/docs/api)</code></pre>
+  <p>The <a href="./">AI Crawler Access Check tool</a> checks the basic shape above and flags what's missing.</p>
+
+  <h2>Common questions</h2>
+  <h3>How do I block GPTBot (OpenAI) from crawling my site?</h3>
+  <p>Add a dedicated group to robots.txt: "User-agent: GPTBot" followed by "Disallow: /". A wildcard "User-agent: *" block does not cover GPTBot if a more specific GPTBot group also exists — the most specific matching group wins, not the sum of both.</p>
+  <h3>How do I block every AI crawler at once?</h3>
+  <p>There is no single standard token meaning "all AI crawlers" — each operator uses its own token. The reliable way is one Disallow: / group per named token you want blocked, or a broad "User-agent: *" / "Disallow: /" block if you intend to block all automated crawling, AI or not, which will also stop most search-engine indexing.</p>
+  <h3>Does Google-Extended block Google Search from indexing my site?</h3>
+  <p>No. Google-Extended controls only whether Google's generative-AI products (Gemini, Vertex AI) may use the content for training and grounding. Blocking it does not affect Googlebot or normal Search indexing, which is a separate user-agent.</p>
+  <h3>What's the difference between GPTBot and ChatGPT-User?</h3>
+  <p>GPTBot crawls to train OpenAI's models. ChatGPT-User fetches a specific page because a live ChatGPT user's session asked it to (browsing, plugins, actions). Blocking one does not block the other, and many sites intentionally allow ChatGPT-User while blocking GPTBot.</p>
+  <h3>Do I need an llms.txt file?</h3>
+  <p>No — it's an optional, emerging convention (see llmstxt.org), not a standard any crawler is documented to require. It's a plain-text file at /llms.txt giving an AI assistant a short map of your key pages: an H1 title, an optional one-line summary, and Markdown link sections.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational, provided free and as-is, without warranty of any kind. Crawler tokens, stated purposes, and behavior change over time — verify anything load-bearing directly with the operator's own current documentation before relying on it.</p>
+    <p><a href="./">&larr; Back to the tool</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support on GitHub Sponsors</a> (optional)</p>
+  </footer>
+</body>
+</html>

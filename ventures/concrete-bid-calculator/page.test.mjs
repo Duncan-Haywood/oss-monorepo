@@ -141,3 +141,27 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: same concrete trade, but a mudjacking/polyjacking lift rather
+// than a new pour. Without a crawlable link here, a crawler entering on the pour
+// calculator never reaches the lifting tool in one hop — same one-way orphan
+// class as #3709 / #3729 / #3743.
+test('index links one hop to the concrete-lifting-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/concrete-lifting-bid-calculator\/"/,
+    'index must link ../concrete-lifting-bid-calculator/ so crawlers reach the lifting calculator in one hop',
+  );
+});
+
+// Closest coating sibling: same site-work subcategory, but an epoxy /
+// polyaspartic garage floor rather than a new pour. Without a crawlable link
+// here, a crawler entering on the pour calculator never reaches the epoxy tool
+// in one hop.
+test('index links one hop to the epoxy-garage-floor-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/epoxy-garage-floor-bid-calculator\/"/,
+    'index must link ../epoxy-garage-floor-bid-calculator/ so crawlers reach the epoxy garage floor calculator in one hop',
+  );
+});

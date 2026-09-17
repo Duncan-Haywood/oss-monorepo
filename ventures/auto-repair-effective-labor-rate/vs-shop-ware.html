@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Shop-Ware's shop dashboard</title>
+  <meta name="description" content="How a free, single-purpose effective labor rate calculator differs from the KPI reporting inside Shop-Ware's cloud shop management software. No account, no migration, one month of numbers in, the gap explained in a minute. Not affiliated with Shop-Ware.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-shop-ware.html">
+  <meta property="og:title" content="Effective Labor Rate Calculator vs. Shop-Ware's shop dashboard">
+  <meta property="og:description" content="Shop-Ware's reporting computes an effective labor rate once your whole shop already runs through it. This page reads the same rate from numbers you already have, no account and no migration, and splits the gap to your door rate into the three pieces that have different fixes.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Shop-Ware's dashboard?","acceptedAnswer":{"@type":"Answer","text":"They answer the question at two different costs. Shop-Ware is a paid, subscription cloud shop management system: repair orders, digital vehicle inspections, parts ordering, technician time clocks, scheduling and customer communication all run through it, and its reporting computes an effective labor rate automatically once a shop's whole workflow lives inside the platform. This page computes the same underlying number — labor dollars collected over labor hours billed — from twelve figures you type once, taken from whatever management system or spreadsheet you already use, with no account, no migration and no monthly cost. It is not a shop management system and does not touch repair orders, parts, or scheduling."}},{"@type":"Question","name":"Does Shop-Ware split the gap the way this page does?","acceptedAnswer":{"@type":"Answer","text":"Shop-Ware's public description of its dashboard reports effective labor rate as one figure among the metrics it surfaces; this page was built to answer nothing else. It takes the gap between your posted door rate and your collected rate and splits it three ways — customer-pay discounting the shop controls, warranty shortfall it does not, and comeback or internal hours priced as forgone capacity — because those three have different fixes and a total on its own tends to get attacked as one problem instead of three. Read your own dashboard's definitions before assuming the two numbers are computed identically; this page's arithmetic is in calc.mjs, in the open, for exactly that comparison."}},{"@type":"Question","name":"Is this page affiliated with Shop-Ware?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Shop-Ware. Shop-Ware is a trademark of its owner, named here only to describe what this calculator is and is not, based on Shop-Ware's own public description of its shop management software and reporting."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #2f5d50; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cbd4e0; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5b6c; }
+    .note { font-size: .85rem; color: #4d5b6c; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4d5b6c; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Effective Labor Rate Calculator</a></p>
+  <h1>This calculator vs. Shop-Ware's shop dashboard</h1>
+  <p>
+    <strong>Shop-Ware</strong>, a
+    <a href="https://www.shopwareinc.com/" rel="nofollow noopener">cloud-based shop management system for independent auto repair shops</a>,
+    is where a subscribing shop runs its repair orders, digital vehicle
+    inspections, parts ordering, technician time clocks, scheduling and
+    customer communication. Its reporting includes a dashboard figure for
+    effective labor rate, computed automatically from the shop's own activity
+    once that activity lives inside the platform.
+  </p>
+  <p>
+    That makes it a different tool for a different moment than this page:
+    <strong>an ongoing operating system a shop pays for and runs its whole
+    workflow through, versus a single free calculator for the one question
+    &ldquo;what did an hour of labor actually collect last month, and where
+    did the rest of it go.&rdquo;</strong> This page does not manage repair
+    orders, parts, scheduling or technician clock-ins, and it never will —
+    it takes twelve figures you already know, from any management system or
+    a spreadsheet, and divides them.
+  </p>
+  <div class="scroll">
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I want repair orders, DVIs, parts ordering, scheduling and technician time clocks running through one system, with the effective labor rate reported as part of that.</td>
+        <td>Shop-Ware &mdash; that is what a shop management system is for, and the figure is one of many reports it produces once your operations live inside it.</td>
+      </tr>
+      <tr>
+        <td>I want this month's effective labor rate right now, from numbers I can already read off my current system or P&amp;L, with no account and no migration.</td>
+        <td>This calculator &mdash; type twelve figures, get the rate and the breakdown in under a minute.</td>
+      </tr>
+      <tr>
+        <td>I want the gap between my door rate and my collected rate split into discounting, warranty and unbilled hours, with each priced separately.</td>
+        <td>This calculator &mdash; that split, and the posted rate a target gross profit would really require after realization, is what this page exists to compute.</td>
+      </tr>
+      <tr>
+        <td>I want the number to update itself automatically every month as repair orders close, with no retyping.</td>
+        <td>Shop-Ware or a comparable shop management system &mdash; this page has no connection to your point-of-sale and reads nothing automatically; you save a month's figures to this browser instead.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p>
+    The two are not competing for the same job. A shop already running (or
+    ready to run) its whole operation through a management system gets the
+    number as a byproduct of that system's reporting. A shop that is not —
+    or one that wants the breakdown this month, on the numbers it already
+    has, before deciding whether a new system is worth the switch — gets it
+    here for free, with no account and nothing installed.
+  </p>
+  <p>
+    This calculator needs no account and no integration: it is a static
+    page, and every number is computed in your browser from what you type.
+    Nothing about your labor sales, payroll or overhead is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Shop-Ware's dashboard?</h3>
+  <p>They answer the question at two different costs. Shop-Ware is a paid, subscription cloud shop management system: repair orders, digital vehicle inspections, parts ordering, technician time clocks, scheduling and customer communication all run through it, and its reporting computes an effective labor rate automatically once a shop's whole workflow lives inside the platform. This page computes the same underlying number &mdash; labor dollars collected over labor hours billed &mdash; from twelve figures you type once, taken from whatever management system or spreadsheet you already use, with no account, no migration and no monthly cost. It is not a shop management system and does not touch repair orders, parts, or scheduling.</p>
+  <h3>Does Shop-Ware split the gap the way this page does?</h3>
+  <p>Shop-Ware's public description of its dashboard reports effective labor rate as one figure among the metrics it surfaces; this page was built to answer nothing else. It takes the gap between your posted door rate and your collected rate and splits it three ways &mdash; customer-pay discounting the shop controls, warranty shortfall it does not, and comeback or internal hours priced as forgone capacity &mdash; because those three have different fixes and a total on its own tends to get attacked as one problem instead of three. Read your own dashboard's definitions before assuming the two numbers are computed identically; this page's arithmetic is in calc.mjs, in the open, for exactly that comparison.</p>
+  <h3>Is this page affiliated with Shop-Ware?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Shop-Ware. Shop-Ware is a trademark of its owner, named here only to describe what this calculator is and is not, based on Shop-Ware's own public description of its shop management software and reporting.</p>
+  <p class="note">
+    Open the <a href="./">Effective Labor Rate Calculator</a> to work out
+    your own shop's number and the posted rate your target gross profit
+    would really require.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, accounting, employment or financial advice, and it does not replace a qualified professional. Verify every figure against your own management system and accounts before relying on it or pricing work with it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working.</p>
+    <p>Free and open source. If it changed what you charge, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

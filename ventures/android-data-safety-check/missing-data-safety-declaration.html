@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Google Play flags your Data safety declaration, and how to fix it</title>
+<meta name="description" content="What causes a Play Console Data safety policy warning or listing removal, the permissions and SDKs that most often trigger an undeclared category, and how to find the exact gap -- with a free scanner that finds it for you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/android-data-safety-check/missing-data-safety-declaration.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix an undeclared Google Play Data safety category",
+  "step": [
+    { "@type": "HowToStep", "name": "Find which permission or SDK implies a category", "text": "Check your AndroidManifest.xml for dangerous/runtime permissions (location, camera, microphone, contacts, calendar, SMS, storage, sensors) and your Gradle dependencies for known analytics, ads, or crash-reporting SDKs -- each maps to a Google Play Data safety category." },
+    { "@type": "HowToStep", "name": "Add or correct the declaration in Play Console", "text": "For each category your app actually collects, go to App content > Data safety in Play Console and declare it: whether it's collected, whether it's shared, and for what purpose. Only you know the real purpose and whether collection is optional." },
+    { "@type": "HowToStep", "name": "Re-check before your next release", "text": "Re-scan your manifest and Gradle files against your updated declared list to confirm every detected category is accounted for before you publish the update." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+</head>
+<body>
+<h1>Why Google Play flags your Data safety declaration</h1>
+
+<p>
+  Google Play's <strong>Data safety</strong> section (App content &gt; Data safety in
+  Play Console) asks every developer to declare what user data their app collects
+  and shares, and for what purpose. Google's policy requires that declaration to be
+  <em>accurate</em> -- and the most common way it stops being accurate is silent
+  drift: a permission or a third-party SDK starts collecting a category of data
+  that the form was never updated to mention.
+</p>
+
+<h2>What actually triggers a mismatch</h2>
+<p>
+  Two sources, both easy to miss because neither shows up as a compile error:
+</p>
+<table>
+<thead><tr><th>Source</th><th>Example</th><th>Implied category</th></tr></thead>
+<tbody>
+<tr><td>A requested permission</td><td><code>ACCESS_FINE_LOCATION</code>, <code>READ_CONTACTS</code>, <code>RECORD_AUDIO</code></td><td>Location, Contacts, Audio files</td></tr>
+<tr><td>A third-party SDK</td><td>Firebase Analytics, AdMob, a crash reporter, an ad network</td><td>App activity, Device or other IDs, App info and performance</td></tr>
+</tbody>
+</table>
+<p>
+  A permission added for one feature (say, location for a store-locator screen)
+  is trivial to forget when the Data safety form was filled in months earlier at
+  first submission. An SDK is worse: many are added transitively by another
+  dependency, so nobody on the team consciously chose to add data collection at
+  all.
+</p>
+
+<h2>Find the exact gap</h2>
+<p>
+  <a href="index.html">The checker on this site</a> scans your
+  <code>AndroidManifest.xml</code> and Gradle files for the permissions and known
+  SDKs that imply a category, and compares the result against a plain list of
+  what you've already ticked in Play Console -- naming the exact file and line
+  behind anything undeclared. It runs as a browser tool (nothing uploaded) or a
+  Node CLI you can add to your own pre-release check.
+</p>
+
+<p>
+  This is evidence of what the manifest, the Gradle files, and your declared list
+  say -- not a determination that Play Console will accept the submission. See
+  <a href="index.html">the checker</a> and its disclaimer for what it can and
+  can't see, and verify against
+  <a href="https://support.google.com/googleplay/android-developer/answer/10787469" rel="noopener">Google Play's current Data safety documentation</a>
+  before you publish.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Google Play's own policy review
+  process. To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Google LLC. Google Play, Play Console, Android, and
+  Data safety are trademarks of Google LLC, named here only to describe the feature this page explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

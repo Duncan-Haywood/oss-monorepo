@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three music teachers use the calculator twice within 90 days after a public URL is available.
   - Users cannot identify a recurring lesson price or capacity leak they would otherwise miss.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/music-lesson-break-even/
   analytics: null

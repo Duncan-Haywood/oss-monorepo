@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified TikTok Shop sellers use the calculator twice within 90 days.
   - Users do not find the organic-vs-affiliate or return-clawback comparison materially different from a single 6% referral estimate.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/tiktok-shop-fee-calculator/
   analytics: null

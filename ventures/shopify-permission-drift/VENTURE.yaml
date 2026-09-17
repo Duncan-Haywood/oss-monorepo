@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified Shopify operators run the local fixture workflow within 90 days.
   - No pilot operator returns with a second inventory comparison within 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-permission-drift/
   analytics: null

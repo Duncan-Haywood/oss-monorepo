@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   calculateAstable,
   designAstable,
+  designAstableWithDiode,
   calculateMonostable,
   designMonostable,
   nearestStandardResistor,
@@ -157,6 +158,82 @@ test("designAstable carries the buildability warnings of the chosen parts", () =
   // A high frequency with a large cap drives the resistors below 1 kΩ.
   const d = designAstable({ frequencyHz: 100000, dutyCyclePercent: 60, capacitanceFarads: 10e-6 });
   assert.ok(d.notes.some((n) => n.severity === "error"));
+});
+
+test("designAstableWithDiode reaches a duty cycle the plain astable refuses", () => {
+  // 30% is below the plain astable's 50% floor, so this is the whole point
+  // of the diode mod — it must succeed where designAstable(30%) throws.
+  const target = { frequencyHz: 1000, dutyCyclePercent: 30, capacitanceFarads: 100e-9 };
+  assert.throws(() => designAstable(target));
+  const d = designAstableWithDiode(target);
+  const highSeconds = Math.LN2 * d.exactR1 * target.capacitanceFarads;
+  const lowSeconds = Math.LN2 * d.exactR2 * target.capacitanceFarads;
+  close((highSeconds / (highSeconds + lowSeconds)) * 100, 30, 1e-6);
+  close(1 / (highSeconds + lowSeconds), 1000, 1e-6);
+});
+
+test("designAstableWithDiode gives R1 = R2 for an exact 50% duty cycle", () => {
+  const d = designAstableWithDiode({ frequencyHz: 1000, dutyCyclePercent: 50, capacitanceFarads: 100e-9 });
+  close(d.exactR1, d.exactR2, 1e-9);
+});
+
+test("designAstableWithDiode also reaches duty cycles above 50%", () => {
+  const d = designAstableWithDiode({ frequencyHz: 1000, dutyCyclePercent: 80, capacitanceFarads: 100e-9 });
+  assert.ok(d.exactR1 > d.exactR2);
+  close(d.achievedDutyCyclePercent, 80, 1);
+});
+
+test("designAstableWithDiode reports what the buyable E24 pair really produces", () => {
+  const d = designAstableWithDiode({ frequencyHz: 1000, dutyCyclePercent: 25, capacitanceFarads: 100e-9 });
+  const highSeconds = Math.LN2 * d.nearestR1 * 100e-9;
+  const lowSeconds = Math.LN2 * d.nearestR2 * 100e-9;
+  close(d.achievedFrequencyHz, 1 / (highSeconds + lowSeconds));
+  close(d.achievedDutyCyclePercent, (highSeconds / (highSeconds + lowSeconds)) * 100);
+  assert.ok(Math.abs(d.frequencyErrorPercent) < 10);
+  assert.ok(Math.abs(d.dutyErrorPercent) < 10);
+});
+
+test("designAstableWithDiode rejects a duty cycle outside (0, 100)", () => {
+  for (const duty of [0, 100, -5, 120]) {
+    assert.throws(
+      () => designAstableWithDiode({ frequencyHz: 1000, dutyCyclePercent: duty, capacitanceFarads: 100e-9 }),
+      /duty cycle/i,
+      `duty ${duty}% should be rejected`,
+    );
+  }
+});
+
+test("designAstableWithDiode rejects a non-positive frequency or capacitance", () => {
+  assert.throws(() => designAstableWithDiode({ frequencyHz: 0, dutyCyclePercent: 30, capacitanceFarads: 1e-7 }));
+  assert.throws(() => designAstableWithDiode({ frequencyHz: 100, dutyCyclePercent: 30, capacitanceFarads: 0 }));
+});
+
+test("designAstableWithDiode always warns about the diode's forward-voltage drop", () => {
+  const d = designAstableWithDiode({ frequencyHz: 1000, dutyCyclePercent: 30, capacitanceFarads: 100e-9 });
+  assert.ok(d.notes.some((n) => /forward|drop/i.test(n.message)));
+});
+
+test("designAstableWithDiode carries the buildability warnings of the chosen parts", () => {
+  const d = designAstableWithDiode({ frequencyHz: 100000, dutyCyclePercent: 5, capacitanceFarads: 10e-6 });
+  assert.ok(d.notes.some((n) => n.severity === "error"));
+});
+
+test("designAstableWithDiode checks discharge current when a supply voltage is given", () => {
+  const d = designAstableWithDiode({
+    frequencyHz: 500,
+    dutyCyclePercent: 10,
+    capacitanceFarads: 100e-9,
+    supplyVolts: 15,
+  });
+  assert.ok(Array.isArray(d.notes));
+  assert.throws(() =>
+    designAstableWithDiode({
+      frequencyHz: 500,
+      dutyCyclePercent: 10,
+      capacitanceFarads: 100e-9,
+      supplyVolts: -5,
+    }),
+  );
 });
 
 test("monostable matches ln(3)·R·C", () => {

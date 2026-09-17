@@ -1,3 +1,5 @@
+import { csvCell, csvNumber, toCSV } from './csv.mjs';
+
 const LINE = /^(\d+(?:\.\d+)?)\s*(?:x|\*|,)?\s*(\d+)?$/i;
 
 function parseLengthList(text, label) {
@@ -37,6 +39,15 @@ export function parseStock(text) {
  * how a shop actually wants its rack drawn down. With no on-hand stock the
  * bin list is empty at the start and this reduces exactly to the original
  * plain first-fit-decreasing packing.
+ *
+ * A cut that cannot be placed — too long for any stock this plan could buy or
+ * has on the rack, or one that would fit some on-hand piece in principle but
+ * every long-enough one is already claimed by an earlier, larger cut — is
+ * returned in `oversize` rather than thrown. A single mistyped length (a
+ * comma where a decimal point belonged, an extra digit) used to erase the
+ * plan for every other, correctly-sized cut on the list; now the rest still
+ * gets a real cutting plan and the bad line is called out on its own, the
+ * same trade-off `optimizeSheets` already makes for sheet goods.
  */
 export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockCost = null }) {
   if (!Number.isFinite(stockLength) || stockLength <= 0 || !Number.isFinite(kerf) || kerf < 0) {
@@ -44,13 +55,20 @@ export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockCos
   }
   if (!Array.isArray(cuts) || cuts.length === 0) throw new Error('Add at least one required cut');
   if (stockCost !== null && (!Number.isFinite(Number(stockCost)) || Number(stockCost) < 0)) throw new Error('Stock cost must be a non-negative number');
+  if (cuts.some(cut => !Number.isFinite(cut) || cut <= 0)) throw new Error('Every required cut must be a positive, finite number');
   const sorted = [...cuts].sort((a, b) => b - a);
   const onHandSorted = [...onHand].sort((a, b) => a - b);
-  const longestBin = Math.max(stockLength, ...onHandSorted);
-  if (sorted.some(cut => !Number.isFinite(cut) || cut <= 0 || cut > longestBin)) throw new Error('Every required cut must fit inside one stock length');
+  const longestBin = Math.max(stockLength, ...onHandSorted, 0);
 
   const bins = onHandSorted.map(length => ({ cuts: [], remaining: length, used: 0, length, source: 'on-hand' }));
+  const oversize = [];
   for (const cut of sorted) {
+    if (cut > longestBin) {
+      // Too long for new stock and for the longest offcut on the rack — no
+      // reordering of the rest of the list changes that.
+      oversize.push(cut);
+      continue;
+    }
     let placed = false;
     for (const bin of bins) {
       const added = cut + (bin.cuts.length ? kerf : 0);
@@ -63,10 +81,13 @@ export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockCos
       }
     }
     if (!placed) {
-      // A cut longer than new stock is only ever satisfiable from a long
-      // offcut. If none is still free, buying more stock cannot help, so say
-      // that rather than opening a bar the cut does not fit in.
-      if (cut > stockLength) throw new Error(`No on-hand piece is long enough for the ${cut} cut, and it will not fit a new ${stockLength} stock piece`);
+      if (cut > stockLength) {
+        // Fits some on-hand piece in principle, but every long-enough one is
+        // already claimed by an earlier, larger cut, and new stock is too
+        // short to help. Report it and keep packing the rest of the list.
+        oversize.push(cut);
+        continue;
+      }
       bins.push({ cuts: [cut], remaining: stockLength - cut, used: cut, length: stockLength, source: 'purchase' });
     }
   }
@@ -76,18 +97,22 @@ export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockCos
   const bars = bins.filter(bin => bin.cuts.length);
   const purchased = bars.filter(bin => bin.source === 'purchase').length;
   const onHandUsed = bars.length - purchased;
+  const placedCount = bars.reduce((sum, bin) => sum + bin.cuts.length, 0);
   const totalStock = bars.reduce((sum, bin) => sum + bin.length, 0);
-  const totalCuts = sorted.reduce((sum, cut) => sum + cut, 0);
-  const kerfAllowance = Math.max(0, sorted.length - bars.length) * kerf;
+  // Only cuts actually placed count as required material — an oversize line
+  // was never cut from anything, so it must not inflate what this plan used.
+  const totalCuts = bars.reduce((sum, bin) => sum + bin.cuts.reduce((s, c) => s + c, 0), 0);
+  const kerfAllowance = Math.max(0, placedCount - bars.length) * kerf;
 
   const result = {
     bars,
+    oversize,
     purchased,
     onHandUsed,
     totalStock,
     totalCuts,
     waste: totalStock - totalCuts - kerfAllowance,
-    utilization: totalCuts / totalStock,
+    utilization: totalStock > 0 ? totalCuts / totalStock : 0,
     stockCost: stockCost === null ? null : Number(stockCost),
     // Only pieces actually bought cost money. An offcut off the rack is already
     // paid for, so it must not be multiplied into the total — that difference
@@ -98,9 +123,10 @@ export function optimizeCutList({ stockLength, kerf, cuts, onHand = [], stockCos
   };
 
   // What the same job would cost buying everything new. This is the number
-  // that answers "was it worth digging through the rack?". Skipped when a cut
-  // only fits an offcut, because then the all-new plan does not exist.
-  if (onHandSorted.length && sorted[0] <= stockLength) {
+  // that answers "was it worth digging through the rack?". `optimizeCutList`
+  // never throws on its own oversize cuts any more, so this can run
+  // unconditionally whenever the rack was actually used.
+  if (onHandUsed > 0) {
     const baseline = optimizeCutList({ stockLength, kerf, cuts, stockCost });
     result.purchasesAvoided = Math.max(0, baseline.purchased - purchased);
     result.savings = stockCost === null ? null : result.purchasesAvoided * Number(stockCost);
@@ -140,7 +166,43 @@ export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf, 
     lines.push(`${label}: ${bar.cuts.map((cut) => cut.toFixed(2)).join(' + ')} ${stockUnit}`);
     lines.push(`  ${bar.remaining.toFixed(2)} ${stockUnit} remaining after kerf allowance`);
   });
+
+  if (result.oversize && result.oversize.length) {
+    lines.push('');
+    lines.push('Does not fit any stock length on hand or to buy — check the length:');
+    result.oversize.forEach((cut) => lines.push(`  ${cut.toFixed(2)} ${stockUnit}`));
+  }
+
   return lines.join('\n');
+}
+
+/**
+ * The same cutting plan as a CSV, one row per required cut: which bar it
+ * belongs to, whether that bar is a new purchase or an on-hand offcut, the
+ * bar's stock length, and the cut's own length. A shop pastes this into a
+ * spreadsheet or job-tracking sheet rather than retyping the plan by hand.
+ * A cut too long for any stock on hand or to buy still gets a row — `bar`
+ * blank, `source` "unplaced" — so the CSV never silently drops a line the
+ * on-screen warning already calls out.
+ */
+export function formatCutPlanCSV(result, { stockUnit = 'units' } = {}) {
+  const header = ['bar', 'source', 'stock_length', 'cut_length', 'unit'];
+  const rows = [];
+  result.bars.forEach((bar, index) => {
+    bar.cuts.forEach((cut) => {
+      rows.push([
+        csvNumber(index + 1),
+        csvCell(bar.source),
+        csvNumber(bar.length.toFixed(2)),
+        csvNumber(cut.toFixed(2)),
+        csvCell(stockUnit),
+      ]);
+    });
+  });
+  (result.oversize || []).forEach((cut) => {
+    rows.push(['', csvCell('unplaced'), '', csvNumber(cut.toFixed(2)), csvCell(stockUnit)]);
+  });
+  return toCSV(header, rows);
 }
 
 const LENGTH_EPS = 1e-9;
@@ -188,6 +250,17 @@ function rankStockRows(a, b) {
 function packStockCandidate(size, { cuts, kerf }) {
   try {
     const result = optimizeCutList({ stockLength: size.length, kerf, cuts });
+    // `optimizeCutList` never throws over a single cut that is too long for
+    // this stock length — it reports that cut in `oversize` and still packs
+    // everything else, so a candidate with a mid-length majority and one
+    // over-length outlier used to come back with `bars.length > 0` (the
+    // short cuts packed fine) and therefore `fits: true`, even though the
+    // long cut has nowhere to go on this stock at all. That let the ranking
+    // below pick it as the cheapest "buy this" size and the page render a
+    // working "Use this length" button for a length that cannot actually
+    // produce every piece on the list. Every cut has to be placed, not just
+    // some of them, for this size to count as fitting.
+    const fits = result.bars.length > 0 && result.oversize.length === 0;
     return {
       id: size.id,
       label: size.label,
@@ -197,7 +270,8 @@ function packStockCandidate(size, { cuts, kerf }) {
       buyLength: result.bars.length * size.length,
       waste: result.waste,
       utilization: result.utilization,
-      fits: result.bars.length > 0,
+      fits,
+      oversizeCount: result.oversize.length,
     };
   } catch (error) {
     return {

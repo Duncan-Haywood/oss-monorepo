@@ -299,7 +299,10 @@
       <strong>whether matching a lower offer still leaves a profit</strong>.
       The referral floor also bites on cheap items.
       <a href="wfs-vs-seller-fulfilled.html">WFS vs seller fulfilled: which path leaves more?</a>
-      walks through that in search-query words.
+      walks through that in search-query words. This is not the same job as
+      Walmart's own official fee lookup —
+      <a href="vs-wfs-cost-estimator.html">this calculator vs. Walmart's WFS Cost Estimator</a>
+      says which one to open for which question.
       A 2-day Buy Box weight is a further mix:
       <a href="should-i-offer-two-day-shipping-on-walmart.html">Should I offer 2-day shipping on Walmart?</a>
       compares WFS (2-day included) against a seller-fulfilled 2-day label
@@ -355,7 +358,9 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it saved you from an unprofitable buy, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Comparing Walmart to other marketplaces on the same item? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks Walmart against eBay, Etsy, Amazon, TikTok Shop and your own store side by side from one set of inputs, then points here for the parts a headline referral rate cannot carry.</p>
+    <p>Selling the same SKU on TikTok Shop too? The <a href="../tiktok-shop-fee-calculator/">TikTok Shop fee calculator</a> prices the referral fee, creator commission, returns that keep the affiliate payout, and the announced October 2026 rate change for the same item.</p>
+    <p>Free and open source. If it saved you from an unprofitable buy, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
     import {
@@ -373,7 +378,7 @@
       walmartAdsNote,
       matchTakeNote,
     } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
     import { decodeInputs, encodeInputs } from "./share.mjs";
 
     const ids = [
@@ -584,6 +589,19 @@
     document.getElementById("share").addEventListener("click", shareLink);
     restoreInputs();
     update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

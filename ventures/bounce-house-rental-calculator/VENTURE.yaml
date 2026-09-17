@@ -1,0 +1,42 @@
+name: bounce-house-rental-calculator
+description: >-
+  A private browser calculator for independent bounce house and inflatable
+  party rental companies that prices a booking from the costs a flat
+  per-unit-per-day rate sheet never carries: the truck's two round trips (one
+  to deliver, one to pick up, even same-day), the crew's setup and teardown
+  minutes, a generator when the site has no outlet, a paid attendant for a
+  water slide or dunk tank, and general-liability insurance sized to the
+  fleet's own replacement value rather than to the quote. Reports the
+  walk-away price, the quoted price at a target margin, a full cost
+  breakdown, a margin check against a price already on the table, and a flag
+  for a quoted wet unit with no attendant time budgeted.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent bounce house / inflatable rental operators price bookings off a flat per-unit-per-day rate sheet that omits delivery labor, the truck's second round trip, a generator, a wet-unit attendant, and fleet-sized insurance, and correcting that gap changes what they quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The inputs this needs — fleet quantities and rates, setup/teardown minutes, crew size and labor rate, delivery miles and fees, generator and attendant costs, and an insurance rate on replacement value — are figures an operator already knows or can read off their own rate sheet and policy, so the tool can be completed without an analyst.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Flagging a quoted wet unit with zero attendant hours budgeted catches a real, recurring omission in how these bookings get quoted, distinct from a legal determination about whether an attendant is required.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three bounce house / inflatable rental operators use the calculator twice within 90 days.
+  - Operators report that their existing rate sheet or booking software already prices delivery, labor, the generator, and insurance correctly, so the gap this tool corrects does not exist for them.
+  - Operators report that entering a fleet's replacement value and an insurance rate is more friction than the flat per-unit guess it replaces.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bounce-house-rental-calculator/
+  analytics: null

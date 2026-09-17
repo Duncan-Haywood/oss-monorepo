@@ -73,6 +73,45 @@ class Detection(unittest.TestCase):
         # would mark retail-pilot-intel live on a run whose deploy job skipped.
         self.assertIsNone(ps.publish_marker({"uses": "actions/upload-pages-artifact@v3"}))
 
+    # `platform/pages/publish-branch.sh` is the only entry in PUBLISH_COMMANDS
+    # that is a path inside this repository, so a plain substring match also
+    # hits steps that merely name the file. These four pin the discrimination.
+
+    def test_running_the_branch_publisher_is_publishing(self):
+        step = {
+            "run": "./platform/pages/publish-branch.sh",
+            "env": {"CONFIRM": "publish-pages-branch", "PUSH": "1"},
+        }
+        self.assertEqual(ps.publish_marker(step), "runs 'publish-branch.sh'")
+
+    def test_shellchecking_the_branch_publisher_is_not_publishing(self):
+        # The real shape from hetzner-gitops-ci.yml's `scripts` job: the path
+        # is an argument to a linter. Before the CONFIRM check, adding the
+        # script to PUBLISH_COMMANDS reclassified that whole workflow as
+        # `live` -- a false claim that every merge to main publishes the site.
+        step = {
+            "run": (
+                "pip install shellcheck-py\n"
+                "shellcheck bootstrap/preflight.sh \\\n"
+                "  platform/pages/publish-branch.sh\n"
+            )
+        }
+        self.assertIsNone(ps.publish_marker(step))
+
+    def test_the_branch_publisher_with_push_off_is_not_publishing(self):
+        # It builds and runs check.mjs but transmits nothing. Counting it
+        # would print its `if:` gate as the condition under which the site
+        # goes live -- the negation of the real one.
+        step = {
+            "run": "./platform/pages/publish-branch.sh",
+            "env": {"CONFIRM": "publish-pages-branch", "PUSH": "0"},
+        }
+        self.assertIsNone(ps.publish_marker(step))
+
+    def test_an_inline_confirm_token_still_counts(self):
+        step = {"run": "CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh"}
+        self.assertEqual(ps.publish_marker(step), "runs 'publish-branch.sh'")
+
 
 GATED = """
 on:
@@ -675,7 +714,20 @@ class GitOpsLiveRepository(unittest.TestCase):
         prod = next(r for r in rows if r["application"] == "prod")
         content = next(h for h in prod["hosts"] if h["host"] == "tools.marisstella.dev")
         self.assertEqual(content["unmet_secrets"], ["portfolio-site-repo"])
-        self.assertTrue(ps.dead_end_redirects(rows), "the apex 301s to a host serving nothing")
+
+        # The apex used to 301 into that same dark host, and this line used to
+        # assert exactly that. It stopped being true on 2026-09-02: the apex
+        # now serves `portfolio-front`, a ConfigMap-backed page that needs
+        # nothing sealed, so there is no dead-end redirect left to detect.
+        # `dead_end_redirects` stays exercised by the unit tests above on
+        # synthetic manifests; here the assertion is the one that matters —
+        # the two names a stranger types answer with content of their own
+        # while the tools host waits.
+        self.assertEqual(ps.dead_end_redirects(rows), [])
+        for host in ("marisstella.dev", "www.marisstella.dev"):
+            row = next(h for h in prod["hosts"] if h["host"] == host)
+            self.assertEqual(row["serves"], "workload")
+            self.assertEqual(row["unmet_secrets"], [])
 
     def test_the_snapshot_pins_the_gitops_surface(self):
         rows, _ = ps.gitops_survey()
@@ -690,3 +742,246 @@ class GitOpsLiveRepository(unittest.TestCase):
         problems = ps.check_gitops([], {"workflows": []})
         self.assertEqual(len(problems), 1)
         self.assertIn("predates the GitOps section", problems[0])
+
+
+def fake_git(*, gh_pages=None, main=None, message="", behind=None):
+    """A stand-in for ps._git that answers only the four calls the survey makes.
+
+    Patching at this seam rather than building real repositories keeps these
+    tests able to assert the shallow-clone and force-push cases, which a fixture
+    repo cannot easily be put into.
+    """
+
+    def run(*args):
+        if args[0] == "rev-parse":
+            ref = args[-1]
+            if ref.startswith(f"refs/heads/{ps.PAGES_BRANCH}") or ref.startswith(
+                f"refs/remotes/origin/{ps.PAGES_BRANCH}"
+            ):
+                return gh_pages
+            if ref.startswith(f"refs/heads/{ps.DEFAULT_BRANCH}") or ref.startswith(
+                f"refs/remotes/origin/{ps.DEFAULT_BRANCH}"
+            ):
+                return main
+            return None
+        if args[0] == "log":
+            return message
+        if args[0] == "rev-list":
+            return behind
+        raise AssertionError(f"unexpected git call: {args}")
+
+    return run
+
+
+SOURCE = "5f22eaea05396acb09b4372cd6feb0e6291bf769"
+STAGED = "62e735c23589202840a1bcc32be06dcc2d253496"
+PUBLISHED = f"Publish site built from {SOURCE}\n\nGenerated by platform/pages/publish-branch.sh.\n"
+
+
+class PagesBranchSurvey(unittest.TestCase):
+    def survey(self, **kwargs):
+        with unittest.mock.patch.object(ps, "_git", fake_git(**kwargs)):
+            return ps.pages_branch_survey()
+
+    def test_artifact_built_from_the_tip_is_current(self):
+        row = self.survey(gh_pages=STAGED, main=SOURCE, message=PUBLISHED, behind="0")
+        self.assertEqual(row["state"], "current")
+        self.assertEqual(row["behind"], 0)
+        self.assertEqual(row["source"], SOURCE)
+
+    def test_artifact_built_from_an_ancestor_reports_how_far_behind(self):
+        row = self.survey(gh_pages=STAGED, main="a" * 40, message=PUBLISHED, behind="7")
+        self.assertEqual(row["state"], "behind")
+        self.assertEqual(row["behind"], 7)
+
+    def test_a_missing_ref_is_unfetched_and_never_a_count(self):
+        # The distinction this whole reading turns on: a shallow CI clone has no
+        # gh-pages ref, and reporting that as "0 files staged" or as "behind"
+        # would be an absent measurement reading as a healthy one.
+        row = self.survey(gh_pages=None, main=SOURCE)
+        self.assertEqual(row["state"], "unfetched")
+        self.assertIsNone(row["behind"])
+
+    def test_a_commit_without_the_marker_is_unknown_not_current(self):
+        row = self.survey(gh_pages=STAGED, main=SOURCE, message="hand-edited the branch\n")
+        self.assertEqual(row["state"], "unknown")
+        self.assertIsNone(row["source"])
+
+    def test_an_unreachable_source_commit_is_unknown_not_zero(self):
+        # `rev-list` fails when the source object is absent (shallow clone) or
+        # was force-pushed away. Either way the honest answer is "cannot tell",
+        # not the falsy 0 that would render as "current".
+        row = self.survey(gh_pages=STAGED, main="a" * 40, message=PUBLISHED, behind=None)
+        self.assertEqual(row["state"], "unknown")
+        self.assertIsNone(row["behind"])
+
+    def test_a_missing_main_ref_is_unknown(self):
+        row = self.survey(gh_pages=STAGED, main=None, message=PUBLISHED)
+        self.assertEqual(row["state"], "unknown")
+
+    def test_git_failing_entirely_degrades_to_unfetched(self):
+        with unittest.mock.patch.object(ps, "_git", lambda *a: None):
+            self.assertEqual(ps.pages_branch_survey()["state"], "unfetched")
+
+
+def fake_git_by_ref(*, refs, message="", counts=None):
+    """Like fake_git, but answers each ref SEPARATELY rather than by prefix.
+
+    `fake_git` above returns one answer for `refs/heads/main` and
+    `refs/remotes/origin/main` alike, which is exactly why the suite could not
+    see the bug these tests pin: a survey reading the wrong one of the two is
+    indistinguishable from a survey reading the right one. `refs` maps the full
+    ref name to a sha (or None), and `counts` maps a `<source>..<main>` range
+    to what `rev-list --count` says about it.
+    """
+    counts = counts or {}
+
+    def run(*args):
+        if args[0] == "rev-parse":
+            return refs.get(args[-1].removesuffix("^{commit}"))
+        if args[0] == "log":
+            return message
+        if args[0] == "rev-list":
+            return counts.get(args[-1])
+        raise AssertionError(f"unexpected git call: {args}")
+
+    return run
+
+
+class PagesBranchPrefersTheRemoteRef(unittest.TestCase):
+    """The comparison must read `origin/main`, not a stale local `main`.
+
+    A web session's clone carries a local `main` at whatever commit its branch
+    was cut from, and `git fetch origin main` updates only the remote-tracking
+    ref -- so the local one is stale on the default path, not in a corner case.
+    """
+
+    STALE_LOCAL = "b" * 40
+
+    def survey(self, **kwargs):
+        with unittest.mock.patch.object(ps, "_git", fake_git_by_ref(**kwargs)):
+            return ps.pages_branch_survey()
+
+    def test_a_stale_local_main_does_not_fabricate_a_behind_count(self):
+        # Measured 2026-09-11: gh-pages was staged from the tip of origin/main
+        # and the local `main` sat 6829 commits away on a diverged branch. The
+        # tool called the live deploy route "6829 commit(s) behind" and told
+        # the reader to restage an artifact that was already current.
+        row = self.survey(
+            refs={
+                "refs/remotes/origin/gh-pages": STAGED,
+                "refs/remotes/origin/main": SOURCE,
+                "refs/heads/main": self.STALE_LOCAL,
+            },
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{SOURCE}": "0", f"{SOURCE}..{self.STALE_LOCAL}": "6829"},
+        )
+        self.assertEqual(row["state"], "current")
+        self.assertEqual(row["behind"], 0)
+
+    def test_a_local_main_behind_the_snapshot_does_not_read_as_current(self):
+        # The direction that matters. When the stale local ref is BEHIND the
+        # snapshot's source, `source..main` is 0 and the row renders `current`
+        # -- an artifact genuinely lagging `main` reporting as fresh, with no
+        # error anywhere to say so.
+        row = self.survey(
+            refs={
+                "refs/remotes/origin/gh-pages": STAGED,
+                "refs/remotes/origin/main": "c" * 40,
+                "refs/heads/main": self.STALE_LOCAL,
+            },
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{'c' * 40}": "12", f"{SOURCE}..{self.STALE_LOCAL}": "0"},
+        )
+        self.assertEqual(row["state"], "behind")
+        self.assertEqual(row["behind"], 12)
+
+    def test_the_local_ref_is_still_the_fallback_when_no_remote_ref_exists(self):
+        # A CI clone that fetched only the branch under test has no
+        # remote-tracking ref, and a local ref is a better answer than
+        # `unfetched` there. Preferring the remote must not become requiring it.
+        row = self.survey(
+            refs={"refs/heads/gh-pages": STAGED, "refs/heads/main": SOURCE},
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{SOURCE}": "0"},
+        )
+        self.assertEqual(row["state"], "current")
+        self.assertEqual(row["ref"], "refs/heads/gh-pages")
+
+    def test_an_unpushed_local_gh_pages_does_not_mask_the_served_artifact(self):
+        # Serving reads the pushed branch, so when both exist the remote one is
+        # what a visitor receives. A local build that was never pushed must not
+        # be reported as what is staged.
+        row = self.survey(
+            refs={
+                "refs/remotes/origin/gh-pages": STAGED,
+                "refs/heads/gh-pages": "d" * 40,
+                "refs/remotes/origin/main": SOURCE,
+            },
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{SOURCE}": "0"},
+        )
+        self.assertEqual(row["ref"], "refs/remotes/origin/gh-pages")
+        self.assertEqual(row["tip"], STAGED)
+
+
+class PagesBranchRendering(unittest.TestCase):
+    def test_unfetched_says_it_is_not_evidence_of_absence(self):
+        out = ps.render_pages_branch({"branch": "gh-pages", "state": "unfetched", "source": None, "behind": None})
+        self.assertIn("not evidence", out)
+        self.assertIn("git fetch origin gh-pages", out)
+
+    def test_behind_names_the_count_and_how_to_restage(self):
+        out = ps.render_pages_branch(
+            {"branch": "gh-pages", "state": "behind", "source": SOURCE, "behind": 7}
+        )
+        self.assertIn("7 commit(s) behind", out)
+        self.assertIn("publish-branch.sh", out)
+
+    def test_current_does_not_claim_the_artifact_is_served(self):
+        # A fresh artifact is the easiest thing to misread as a live site, and
+        # this repository has made exactly that mistake before. That is still
+        # the thing being guarded.
+        out = ps.render_pages_branch(
+            {"branch": "gh-pages", "state": "current", "source": SOURCE, "behind": 0}
+        )
+        self.assertNotIn("is served", out)
+        self.assertNotIn("is live", out)
+
+    def test_current_does_not_claim_the_artifact_is_UNserved_either(self):
+        # The other half, and the one that actually went wrong. This assertion
+        # used to be `assertIn("Staged, not served", out)`: a guard against
+        # overclaiming, written as a hard-coded claim in the opposite
+        # direction. On 2026-09-06 GitHub's managed builder ran on `gh-pages`
+        # and succeeded -- which happens only for the configured Pages source
+        # -- so the branch was served and `deploy-settings` granted, while this
+        # renderer went on printing "Staged, not served: enabling Pages is the
+        # account owner's decision" to every session that ran it.
+        #
+        # Cost of that direction: a duplicate owner ask for a switch already
+        # flipped, and a granted delivery route ranked as blocking. Neither
+        # claim belongs in a tool that reads only git and the manifests, so
+        # pin the absence of both and pin the pointer to the tool that does
+        # measure it.
+        out = ps.render_pages_branch(
+            {"branch": "gh-pages", "state": "current", "source": SOURCE, "behind": 0}
+        )
+        self.assertNotIn("Staged, not served", out)
+        self.assertNotIn("not served", out)
+        self.assertIn("not visible from here", out)
+        self.assertIn("pages_state.py", out)
+
+    def test_behind_also_refuses_both_claims_and_names_the_measuring_tool(self):
+        # The same block is printed for `behind`, where the pull toward
+        # "therefore it is dark" is strongest: a stale artifact says nothing
+        # about whether the site is up, only about what it would serve.
+        out = ps.render_pages_branch(
+            {"branch": "gh-pages", "state": "behind", "source": SOURCE, "behind": 7}
+        )
+        self.assertNotIn("not served", out)
+        self.assertIn("pages_state.py", out)
+
+    def test_the_survey_is_absent_from_the_pinned_snapshot(self):
+        # Pinning a value that moves on every merge would make --check cry wolf.
+        snapshot = ps.load_snapshot()
+        self.assertNotIn("pages_branch", snapshot)

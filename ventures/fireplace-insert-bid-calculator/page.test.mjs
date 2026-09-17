@@ -93,3 +93,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same chimney trade, but a sweep (flue, stories, creosote)
+// rather than insert install (liner, hearth, stack). Related-tool chrome may
+// never surface that pair across subcategory boundaries, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the chimney-sweep-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/chimney-sweep-bid-calculator\/"/,
+    'index must link ../chimney-sweep-bid-calculator/ so crawlers reach the sweep calculator in one hop',
+  );
+  assert.match(html, /chimney sweep bid calculator/i);
+});

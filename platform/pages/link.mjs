@@ -69,8 +69,10 @@
 //     refuses. A dead link is worse than no button, so those pages get neither.
 
 import {
+  BID_REPEAT_HELPERS,
   EXCLUDED_FIELD_IDS,
   normalizeHeadlineAmount,
+  pageRepeatPrefixes,
   pageTakesSavedBids,
   restoreMismatch,
   stripForInjection,
@@ -322,6 +324,11 @@ export function pageTakesBidLink(html, { hasShareModule = false } = {}) {
   if (!pageTakesSavedBids(html)) return false;
   if (hasShareModule) return false;
   if (pageHasOwnShareLink(html)) return false;
+  // A page that generates its rows is offered the control once it says how:
+  // `data-pf-repeat` on its add button is the page's own assertion that the
+  // script can rebuild the sender's rows, which is the whole of what the
+  // exclusion below was protecting against. See `jobs.mjs`'s row-group section.
+  if (pageRepeatPrefixes(html).length > 0) return true;
   return !pageBuildsFieldsAtRuntime(html);
 }
 
@@ -452,6 +459,7 @@ const LINK_NOTE = '<p class="pf-link-note" id="pf-link-note" role="status" hidde
  */
 const LINK_SCRIPT = () => `
 ${BID_LINK_HELPERS}
+${BID_REPEAT_HELPERS}
 (function(){
   var tag = document.querySelector('script[${LINK_AMOUNT_ATTR}]');
   var amountSelector = tag ? tag.getAttribute('${LINK_AMOUNT_ATTR}') || '' : '';
@@ -491,6 +499,50 @@ ${BID_LINK_HELPERS}
       out.push(node);
     }
     return out;
+  };
+
+  // The row-group half, spelled the same way as in the saved-bids script: the
+  // page declares which control appends a row and what prefix the row's ids
+  // carry, and everything else follows from the two shared pure helpers.
+  var repeatControls = function(){
+    var out = [];
+    var nodes = document.querySelectorAll('[' + REPEAT_ATTR + ']');
+    for (var i = 0; i < nodes.length; i++) {
+      var prefix = (nodes[i].getAttribute(REPEAT_ATTR) || '').trim();
+      if (prefix !== '') out.push({ prefix: prefix, node: nodes[i] });
+    }
+    return out;
+  };
+
+  var repeatPrefixes = function(controls){
+    var out = [];
+    for (var i = 0; i < controls.length; i++) {
+      if (out.indexOf(controls[i].prefix) === -1) out.push(controls[i].prefix);
+    }
+    return out;
+  };
+
+  var fieldIds = function(nodes){
+    var out = [];
+    for (var i = 0; i < nodes.length; i++) out.push(nodes[i].id);
+    return out;
+  };
+
+  var growRows = function(wantedIds){
+    var controls = repeatControls();
+    if (controls.length === 0) return formFields();
+    var prefixes = repeatPrefixes(controls);
+    var grow = rowsToGrow(
+      normalizeRepeatIds(wantedIds, prefixes).counts,
+      normalizeRepeatIds(fieldIds(formFields()), prefixes).counts,
+      prefixes
+    );
+    for (var i = 0; i < controls.length; i++) {
+      var todo = grow[controls[i].prefix] || 0;
+      grow[controls[i].prefix] = 0;
+      for (var n = 0; n < todo; n++) controls[i].node.click();
+    }
+    return formFields();
   };
 
   var isToggle = function(node){
@@ -552,33 +604,53 @@ ${BID_LINK_HELPERS}
   };
 
   var apply = function(incoming){
-    var fields = formFields();
-    var byId = {};
-    var formIds = [];
-    for (var i = 0; i < fields.length; i++) { byId[fields[i].id] = fields[i]; formIds.push(fields[i].id); }
-
     var linkIds = Object.keys(incoming.fields);
-    var form = {}; var link = {};
-    for (var f = 0; f < formIds.length; f++) form[formIds[f]] = 1;
-    for (var l = 0; l < linkIds.length; l++) link[linkIds[l]] = 1;
     // A field the sender's encoder set aside for length is accounted for: the
     // link says so by name. It is not a control this form has and the link had
     // never heard of, which is the only thing the guard below is asking about.
     var skipped = incoming.omitted || [];
-    for (var s = 0; s < skipped.length; s++) link[skipped[s]] = 1;
+
+    // Itemised pages: the sender's rows do not exist on a freshly opened page,
+    // so build them before asking whether the two forms agree. Both id lists
+    // are then read by position within their group, which is what lets a link
+    // written with t1,t2,t3 open on a page that numbers them differently.
+    // A no-op, and the plain exact-id rule, wherever no row group is declared.
+    var fields = growRows(linkIds.concat(skipped));
+    var prefixes = repeatPrefixes(repeatControls());
+
+    var formIds = [];
+    for (var i = 0; i < fields.length; i++) formIds.push(fields[i].id);
+
+    var linkKeys = normalizeRepeatIds(linkIds.concat(skipped), prefixes).map;
+    var formKeys = normalizeRepeatIds(formIds, prefixes).map;
+
+    var byKey = {};
+    var form = {}; var link = {};
+    for (var b = 0; b < fields.length; b++) {
+      byKey[formKeys[fields[b].id]] = fields[b];
+      form[formKeys[fields[b].id]] = 1;
+    }
+    for (var l = 0; l < linkIds.length; l++) link[linkKeys[linkIds[l]]] = 1;
+    for (var s = 0; s < skipped.length; s++) link[linkKeys[skipped[s]]] = 1;
 
     var missing = []; var extra = [];
-    for (var m = 0; m < linkIds.length; m++) if (!form[linkIds[m]]) missing.push(linkIds[m]);
-    for (var e = 0; e < formIds.length; e++) if (!link[formIds[e]]) extra.push(formIds[e]);
+    for (var m = 0; m < linkIds.length; m++) if (!form[linkKeys[linkIds[m]]]) missing.push(linkIds[m]);
+    for (var e = 0; e < formIds.length; e++) if (!link[formKeys[formIds[e]]]) extra.push(formIds[e]);
 
     if (missing.length > 0 || extra.length > 0) {
       var parts = [];
       if (missing.length > 0) parts.push(missing.length + ' this form does not have');
       if (extra.length > 0) parts.push(extra.length + ' this form has that the link never priced');
+      // On a page with generated rows the form has already been grown to the
+      // link's row count, so a remaining difference is one this page cannot
+      // reach — reloading before touching the form is the fix, not a question
+      // for the sender.
+      var advice = prefixes.length > 0
+        ? 'Nothing on the page was changed — reload this page and open the link again before adding rows of your own, '
+        : 'Nothing on the page was changed — ask whoever sent it for the tool they used, ';
       say(
         'This bid link was not opened. It carries ' + parts.join(', and ') +
-        ', so the numbers in it do not describe the job this form would price. ' +
-        'Nothing on the page was changed — ask whoever sent it for the tool they used, ' +
+        ', so the numbers in it do not describe the job this form would price. ' + advice +
         'because a partly opened bid would show a different price than they sent.',
         true
       );
@@ -589,7 +661,7 @@ ${BID_LINK_HELPERS}
     var written = 0;
     for (var id in incoming.fields) {
       if (!Object.prototype.hasOwnProperty.call(incoming.fields, id)) continue;
-      var node = byId[id];
+      var node = byKey[linkKeys[id]];
       var value = incoming.fields[id];
       if (isToggle(node)) node.checked = !!value; else node.value = String(value);
       node.dispatchEvent(new Event('input', { bubbles: true }));

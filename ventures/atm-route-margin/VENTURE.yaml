@@ -1,0 +1,31 @@
+name: atm-route-margin
+description: Free browser calculator for independent ATM route operators to find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then check a location list against a monthly income goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent ATM route operators will use a per-location profit calculator that nets out the surcharge split, processor fees, and vault cash cost of capital, since judging a placement by transaction count alone hides which locations are actually unprofitable.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how much an ATM business makes or how to calculate ATM placement commission are underserved by generic small-business profit calculators because the surcharge-split, per-transaction processor fee, and vault-cash-as-capital-cost arithmetic is specific to this business.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators who price one location will also want to see whether their whole route clears a monthly income goal, not just whether one placement clears a margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/atm-route-margin/
+  analytics: null

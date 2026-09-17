@@ -37,6 +37,15 @@ export function aggregateEvent(overrides: Partial<AggregateEvent> = {}): Aggrega
   };
 }
 
+/** A synthetic event as produced by `--sample` (packages/edge's stub CLI). */
+export function stubAggregateEvent(overrides: Partial<AggregateEvent> = {}): AggregateEvent {
+  return aggregateEvent({
+    event_id: "agg-stub-1",
+    metadata: { model: "stub", version: "0.1.0" },
+    ...overrides,
+  });
+}
+
 export function saleEvent(overrides: Partial<SaleEvent> = {}): SaleEvent {
   return {
     event_id: "sale-1",
@@ -49,4 +58,13 @@ export function saleEvent(overrides: Partial<SaleEvent> = {}): SaleEvent {
     payment_class: "card",
     ...overrides,
   };
+}
+
+/** A synthetic sale as produced by `--sample` (packages/pos's stub CLI). */
+export function stubSaleEvent(overrides: Partial<SaleEvent> = {}): SaleEvent {
+  return saleEvent({
+    event_id: "sale-stub-1",
+    pos_vendor: "stub",
+    ...overrides,
+  });
 }

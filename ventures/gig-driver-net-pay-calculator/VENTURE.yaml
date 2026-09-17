@@ -1,0 +1,32 @@
+name: gig-driver-net-pay-calculator
+description: Free browser calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers that turns one session's gross app pay into real net pay per hour and per mile after gas, maintenance, and a prorated share of insurance, plus a self-employment tax reserve and a target-take-home solver.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Gig delivery and rideshare drivers will use a private calculator that subtracts vehicle cost from gross app pay, because the app itself only ever shows the gross figure and never the cost of the car that earned it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking whether gig driving is "worth it" after gas, or how much to set aside for 1099 taxes, are underserved by generic mileage-deduction calculators that report a tax write-off rather than a session's actual take-home.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Drivers who compute net pay for one session will also want to see the gross pay needed to hit an hourly take-home goal, not just whether the last session cleared cost.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three drivers use the calculator twice within 90 days.
+  - Drivers report that the app's own weekly summary already answers this well enough, without changing whether they drive a given session.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gig-driver-net-pay-calculator/
+  analytics: null

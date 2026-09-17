@@ -1,0 +1,95 @@
+name: call-recording-consent-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that looks up whether a US state requires all-party consent to record a phone call or follows the federal one-party-consent baseline (18 U.S.C. section 2511(2)(d)), assesses a call between a caller and recipient in (possibly different) states with a stated, cited interstate-combining rule, cites the exact statute for each of the 14 all-party jurisdictions, discloses the two states (Nevada, Michigan) with a real ambiguity between statute text and applied law, and generates a ready-to-read call-opening disclosure script. A reference lookup against a fixed table of default state rules, never a legal determination for a specific call -- not advice-of-record, no compliance warranty, and it says so on every page.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype with a genuinely new object, chosen deliberately per
+# portfolio/pipeline/README.md's "archetype itself" section (2026-09-07,
+# widened 2026-09-11), which flags both the <trade>-bid-calculator shape
+# (141+ tries) and the generic -check/-checker shape (52+ tries at last
+# count) as needing a new angle, not just a new niche, to count as evidence
+# of novelty on their own. This checks something no existing venture reads
+# at all -- US state call-recording consent statutes -- rather than a new
+# instance of an existing misconfiguration class (the 52 *-check ventures
+# are GitHub Actions hardening, web/SEO header hygiene, and file-format
+# spec compliance; none reads a wiretap/eavesdropping statute or reasons
+# about which of two US states' law applies to a call).
+#
+# duplicate_check.py (run 2026-09-17) scored every existing venture,
+# screened-out row, ai-first-markets idea, and pipeline candidate against
+# this idea's description at or below 0.11 -- nowhere near the 0.45
+# read-this-first bar. Closest by score: affiliate-disclosure-checker
+# (shares only "disclosure" vocabulary -- FTC/Amazon affiliate-link
+# disclosure, unrelated to call recording), wordpress-plugin-review-check
+# and npm-lifecycle-script-check (pure lexical noise on "check"). A hand
+# grep of every VENTURE.yaml and screened-out.md for "call recording",
+# "wiretap", "two-party consent", and "one-party consent" turned up nothing
+# except consent-change-record, which is a website cookie/tracking-consent
+# diff tool -- a completely different consent problem (see its own
+# VENTURE.yaml) that this page links to and distinguishes explicitly rather
+# than leaving a reader to wonder.
+#
+# Distribution channel, named rather than assumed: any sales, support,
+# recruiting, or telehealth team calling people in more than one state hits
+# this question, and it is a long-documented, heavily-published compliance
+# topic ("call recording laws by state", "is [state] one-party or two-party
+# consent") -- the single-state version of this question already has
+# abundant free content answering it (state bar pages, the Reporters
+# Committee for Freedom of the Press's long-running public guide, law-firm
+# and call-center-compliance blogs). What is underserved is the interstate
+# case an actual distributed team has (caller in one state, recipient in
+# another) and the "now give me the words to say" step once the rule is
+# known -- both of which this tool answers in one step rather than two
+# separate searches plus writing a script by hand. No external
+# search-volume tool was queried to confirm magnitude, matching this
+# pipeline's standing caveat for every checker at graduation.
+#
+# Liability is the dimension this write-up spent the most care on, because
+# getting a wiretap-consent classification wrong has a more serious worst
+# case than most of this portfolio's checkers (potential per-violation
+# statutory damages in several all-party states, e.g. Cal. Penal Code
+# section 637.2's $5,000/violation; rare criminal exposure under some
+# states' eavesdropping statutes). The mitigation is disclosure, not
+# confidence: every page states this is not legal advice and not a
+# determination for a specific call; the two states with real, disclosed
+# ambiguity (Nevada, Michigan) are named as ambiguous rather than resolved
+# to look authoritative; the interstate guidance is framed as "the
+# commonly recommended conservative reading, backed by one cited precedent"
+# rather than a universal rule; and pinpoint statute citations are given
+# only for the 14 all-party states this build is most confident in, never
+# invented for the other 36 where only the federal baseline and the
+# classification (not a specific section number) are asserted. See the
+# mitigation field below and why-call-recording-consent-laws-differ-by-state.html
+# for the full disclosure.
+hypotheses:
+  - claim: A remote sales, support, recruiting, or telehealth team scaling into a new state will search a variant of "is [state] one-party or two-party consent for recording calls," find this tool via web/AI-assistant search, and run the interstate check at least once before adding that state to a live call script.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will use the disclosure-script generator to standardize their call opening across reps rather than each rep improvising one, and will return to re-generate it when their stated purpose or company name changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser page looks everything up from a
+  # fixed table shipped with the page (nothing uploaded, nothing fetched),
+  # and the CLI is a pure in-memory table lookup with no network call at
+  # all. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's classification for an actual call without independently verifying it, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/call-recording-consent-check/
+  analytics: null

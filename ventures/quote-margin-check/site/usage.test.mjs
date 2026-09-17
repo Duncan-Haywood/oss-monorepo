@@ -139,3 +139,14 @@ test("seeding cancels a pending count rather than leaving it armed", () => {
   timers.settle();
   assert.deepEqual(recorded, []);
 });
+
+test("a settled report still honours the opt-out, since it routes through recordEvent", () => {
+  globalThis.localStorage = new FakeStorage();
+  setUsageCountingEnabled(false);
+  const timers = fakeTimers();
+  const counter = createReportCounter({ ...timers });
+  counter.count('{"price":2400}');
+  timers.settle();
+  assert.deepEqual(readLocalUsage(), {});
+  setUsageCountingEnabled(true);
+});

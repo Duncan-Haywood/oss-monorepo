@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Does Poshmark Take Per Sale? (Worked Examples)</title>
+  <meta name="description" content="Poshmark's US seller fees worked through: the flat $2.95 fee under $15, 20% at $15+, the $14.75 break-even price, and why a $10 item really pays a 29.5% effective rate.">
+  <meta property="og:title" content="How Much Does Poshmark Take Per Sale?">
+  <meta property="og:description" content="The flat $2.95 fee under $15, 20% at $15+, and the $14.75 break-even price where the two are equal.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./how-much-does-poshmark-take.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does Poshmark take on a $50 sale?","acceptedAnswer":{"@type":"Answer","text":"Poshmark's own published example: a $50 item pays 20% commission, which is $10.00, leaving a $40.00 payout. That is the standard rate for any sale of $15.00 or more."}},{"@type":"Question","name":"How much does Poshmark take on a $10 sale?","acceptedAnswer":{"@type":"Answer","text":"$2.95 — the flat fee that applies under $15.00, regardless of how far under. On a $10 item that is a 29.5% effective rate, well above the 20% rate that applies at $15 and up."}},{"@type":"Question","name":"What is the Poshmark break-even price?","acceptedAnswer":{"@type":"Answer","text":"$14.75. Twenty percent of $14.75 is exactly $2.95, the flat fee. Above $14.75 (and below $15) the flat fee is cheaper than 20% would be. Below $14.75 the flat fee costs more than 20% would, and the gap widens the cheaper the item gets."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #211327; background: #f6eef2; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; margin-bottom: .3em; }
+    h2 { margin-top: 1.6em; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+    th, td { text-align: left; border-bottom: 1px solid #e3c6d4; padding: 6px 10px; }
+    td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    code { background: #f6dde9; padding: 1px 5px; border-radius: 4px; }
+    .callout { background: #fdf3f8; border: 1px solid #e3c6d4; border-radius: 10px; padding: 14px 16px; margin: 1.2em 0; }
+    a { color: #b3175e; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #5c4351; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Back to the Poshmark fee calculator</a></p>
+  <h1>How much does Poshmark take per sale?</h1>
+  <p>Poshmark publishes one schedule with two rules, not a single percentage. <strong>Sales under $15.00</strong> pay a flat <strong>$2.95</strong> fee. <strong>Sales of $15.00 or more</strong> pay <strong>20%</strong> of the sale price. That is a real cliff — the whole price is taxed under whichever rule applies, not just the part above $15 — and it is why "Poshmark takes 20%" is only true above the line.</p>
+
+  <h2>The formula</h2>
+  <p><code>commission = price &lt; $15.00 ? $2.95 : 20% × price</code></p>
+  <p><code>payout = price − commission</code></p>
+  <p>Poshmark's flat buyer-paid shipping fee is not part of this at all — it funds a prepaid label and Poshmark takes no commission on it, unlike a marketplace that commissions the checkout total.</p>
+
+  <h2>Worked example 1: Poshmark's own $50 sale</h2>
+  <table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Sale price</td><td>$50.00</td></tr>
+      <tr><td>Commission (20% of $50)</td><td>$10.00</td></tr>
+      <tr><td>Payout</td><td>$40.00</td></tr>
+    </tbody>
+  </table>
+  <p>This is the number on Poshmark's own "How Selling Works" page: sell for $50, keep $40.</p>
+
+  <h2>Worked example 2: a $10 item — the flat fee is a worse deal than it looks</h2>
+  <table>
+    <thead><tr><th>Line</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr><td>Sale price</td><td>$10.00</td></tr>
+      <tr><td>Commission (flat fee, under $15)</td><td>$2.95</td></tr>
+      <tr><td>Payout</td><td>$7.05</td></tr>
+      <tr><td>Effective rate</td><td>29.5%</td></tr>
+    </tbody>
+  </table>
+  <p>29.5%, not 20% and not "a small flat fee." The cheaper the item, the worse this gets: a $5 item pays $2.95 on a $5 sale — an effective <strong>59%</strong> rate.</p>
+
+  <div class="callout">
+    <h2 style="margin-top:0">The break-even price: $14.75</h2>
+    <p>Twenty percent of $14.75 is exactly $2.95. That makes $14.75 the price where the flat fee and the percent rate cost the same. <strong>Above $14.75</strong> (and still under $15.00) the flat fee is a bargain against 20%. <strong>Below $14.75</strong> the flat fee costs more than 20% would, and the gap widens fast as price drops — which matters most for jewelry, accessories, and other low-price closet items where $2.95 is a large share of the sale.</p>
+  </div>
+
+  <h2>Worked example 3: right at the $15.00 line</h2>
+  <table>
+    <thead><tr><th>Sale price</th><th>Tier</th><th>Commission</th><th>Payout</th></tr></thead>
+    <tbody>
+      <tr><td>$14.99</td><td>Flat</td><td>$2.95</td><td>$12.04</td></tr>
+      <tr><td>$15.00</td><td>20%</td><td>$3.00</td><td>$12.00</td></tr>
+    </tbody>
+  </table>
+  <p>One cent of price crossing the $15.00 line is worth four cents of payout — in the seller's favor, at the lower price. See <a href="./is-a-lower-offer-worth-it-on-poshmark.html">is a lower offer worth it on Poshmark?</a> for what this means when you are negotiating an offer or a bundle discount near the line.</p>
+
+  <h2>Do this with your own listings</h2>
+  <p>The <a href="./">Poshmark fee calculator</a> runs this same arithmetic on your own sale price, item cost, and prep cost, and solves for the price you need to hit a target profit. Nothing you type leaves your browser.</p>
+
+  <h2>Common questions</h2>
+  <h3>How much does Poshmark take on a $50 sale?</h3>
+  <p>Poshmark's own published example: a $50 item pays 20% commission, which is $10.00, leaving a $40.00 payout. That is the standard rate for any sale of $15.00 or more.</p>
+  <h3>How much does Poshmark take on a $10 sale?</h3>
+  <p>$2.95 — the flat fee that applies under $15.00, regardless of how far under. On a $10 item that is a 29.5% effective rate, well above the 20% rate that applies at $15 and up.</p>
+  <h3>What is the Poshmark break-even price?</h3>
+  <p>$14.75. Twenty percent of $14.75 is exactly $2.95, the flat fee. Above $14.75 (and below $15) the flat fee is cheaper than 20% would be. Below $14.75 the flat fee costs more than 20% would, and the gap widens the cheaper the item gets.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free arithmetic, not legal, tax, financial, or selling advice. Rates change and are set by Poshmark, not by this site. Verify every figure against your own Poshmark payout statement before you price a listing. Not affiliated with, endorsed by, or sponsored by Poshmark; Poshmark is a trademark of its owner, named here only to describe the published fee schedule.</p>
+    <p><a href="./">Open the calculator</a> · <a href="./is-a-lower-offer-worth-it-on-poshmark.html">Is a lower offer worth it?</a></p>
+  </footer>
+</body>
+</html>

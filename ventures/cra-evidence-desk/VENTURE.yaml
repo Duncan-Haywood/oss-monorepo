@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified software vendors run two reports within 90 days.
   - Users cannot identify an actionable component/advisory match in a supplied fixture within five minutes.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/cra-evidence-desk/
   analytics: null

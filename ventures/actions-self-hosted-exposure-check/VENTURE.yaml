@@ -1,0 +1,93 @@
+name: actions-self-hosted-exposure-check
+description: "Free, read-only checker that scans a repository's GitHub Actions workflow files and flags every job running on a `self-hosted` runner label inside a workflow triggered by `pull_request`, `pull_request_target`, `workflow_run`, or `issue_comment` -- GitHub's own documented reason not to use self-hosted runners on a public repository, printing which trigger matched for each finding."
+stage: prototype
+
+owner: duncan
+
+# Screened this session with `python3 portfolio/pipeline/duplicate_check.py
+# "GitHub Action security checker: flags workflows with runs-on self-hosted
+# that can be triggered by pull_request from forks on a public repo,
+# exposing the self-hosted runner (and any internal network it can reach)
+# to arbitrary attacker code"` -- top score 0.14 (actions-cache-poisoning-check
+# and actions-injection-check, tied), well below the 0.45 read-this-first
+# bar. Not a duplicate of any sibling: actions-cache-poisoning-check flags a
+# cache write reachable from an untrusted trigger; actions-injection-check
+# flags a pwn-request checkout or an interpolated `github.event` expression;
+# actions-permissions-check flags the token's own permission scope;
+# pinned-actions-check flags a mutable @tag on a `uses:` line. This is a
+# fifth, orthogonal axis of the same "Security hardening for GitHub Actions"
+# guidance: *which machine* the job runs on, and whether a stranger can
+# reach it at all -- the other four are all about what a compromised step
+# can do once it is already running; this is about who gets to make a step
+# run in the first place. Also the same category of risk the OpenSSF
+# Scorecard project's `Dangerous-Workflow` check flags on public
+# repositories, not a novel claim.
+#
+# Distribution channel: the same audience the four `actions-*-check`
+# siblings already reach -- a maintainer who reads GitHub's own "Security
+# hardening for GitHub Actions" guidance (which explicitly recommends
+# against self-hosted runners on public repos), or GitHub's "About
+# self-hosted runners" security section, and searches "github actions
+# self-hosted runner public repository security" or "self-hosted runner
+# fork pull request risk". This is also literally the condition the OpenSSF
+# Scorecard project's Dangerous-Workflow check flags on public GitHub
+# repositories, so a maintainer whose repo gets flagged by Scorecard (a
+# widely adopted, GitHub-recommended supply-chain scanner run against
+# hundreds of thousands of public repos) and searches for how to fix it is
+# a second, concrete route to a first visitor -- the same kind of channel
+# `actions-permissions-check`'s own VENTURE.yaml already names for the
+# Token-Permissions half of the same project. r/devops and r/netsec threads
+# on "self-hosted runner RCE" and "pwn request" incidents are a third route;
+# this exact runner-exposure pattern (not the pwn-request checkout pattern
+# actions-injection-check already covers) is the mechanism behind several
+# publicly written up CI compromises.
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself"
+# section found 141 of 200 ventures are <trade>-bid-calculator clones with
+# zero measured visitors, and told sessions to weigh a CLI/checker shape
+# over a 143rd calculator when there is no unusually strong named channel --
+# this follows actions-permissions-check's, actions-injection-check's,
+# actions-cache-poisoning-check's and pinned-actions-check's precedent (a
+# generalized dev-tool CLI + browser port + SEO landing page), extending an
+# already-validated-by-repetition shape rather than inventing a new one.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high -- mechanical, read-only linter with no advice-of-record, no
+# compliance claim, no data leaving the user's device, and no scraping. It
+# makes no network calls of its own anywhere in the code (check.py,
+# classify.mjs) and explicitly discloses what it cannot see: whether the
+# repository is actually public, whether required-approval settings are
+# already on, and whether a named runner group is actually self-hosted.
+# Comparable to all four `actions-*-check` siblings, already graduated and
+# live on this exact reasoning.
+hypotheses:
+  - claim: A maintainer who reads GitHub's "Security hardening for GitHub Actions" guidance, or is flagged by the OpenSSF Scorecard project's Dangerous-Workflow check on a public repository, will run this after finding no existing tool that stays entirely local -- no upload, no API call, no token needed -- to find every fork-exposed self-hosted job at once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A visitor arriving at any of the other four actions-*-check siblings for one hardening step will follow the cross-link in its footer to this tool for the runner-exposure step, the same reciprocal-referral pattern already live among those four.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire `check.py --fail-on-risk` into their own CI to block a newly-added fork-exposed self-hosted job before it merges, the same way the sibling tools' CLI convention is meant to be used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-self-hosted-exposure-check/
+  analytics: null

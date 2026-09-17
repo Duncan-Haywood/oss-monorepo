@@ -182,3 +182,16 @@ test("the expected-horizon row is marked as the seller's own, not as the best on
   }).holdAdvantage;
   assert.ok(at(1) > at(3), "a shorter horizon nets more, so the typed row is not the best row");
 });
+
+test("both result panels are announced to screen readers when they update", () => {
+  // This page renders two independent result sections (keep-vs-return-vs-
+  // dispose, and hold-vs-remove-now), each re-rendering in place on every
+  // keystroke with no page reload. Neither had aria-live, so a screen-reader
+  // user changing an input in either block got no announcement.
+  const matches = html.match(/<section class="result" aria-live="polite">/g) || [];
+  assert.equal(
+    matches.length,
+    2,
+    "expected both result sections to be live regions",
+  );
+});

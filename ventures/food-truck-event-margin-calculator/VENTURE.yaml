@@ -1,0 +1,32 @@
+name: food-truck-event-margin-calculator
+description: Free browser calculator for independent food truck and trailer operators to find the real price for one private event, catering, or festival booking after commissary prep/breakdown time, travel, staff labor, propane, the one-off special-event permit fee, and turnout risk, then check a price already on the table against the breakeven.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent food truck operators will use a per-booking price calculator that adds commissary prep and breakdown time and travel to the service hours, since a "$8/head, 100-guest minimum" quote prices only the food and quietly cuts the real hourly rate the operator earns.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators quoting a flat event price will use a calculator that reports what share of the price the food line already represents, because actual turnout depends on how the event goes and is the cost line most likely to erase a thin margin without the operator noticing until after the booking.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators who already quoted a price will use the "check a price you're already considering" comparison to see the margin it actually leaves, more than they will build a quote from scratch every time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Operators report that pricing prep/breakdown and turnout risk separately is more work than their existing flat per-head price without changing the number they would have quoted.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/food-truck-event-margin-calculator/
+  analytics: null

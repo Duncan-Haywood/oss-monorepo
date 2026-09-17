@@ -56,6 +56,25 @@ export function parseTradeTerms(value) {
     .filter(Boolean);
 }
 
+// Portal exports rarely give a bare integer: "value" comes through as
+// "£5,000", "$85,000.00", "1,200,000 GBP", or blank. `Number()` on any of
+// those is `NaN`, and `NaN < minimum` is always `false` -- so the minimum-value
+// filter's exclusion branch below never fired for a formatted cell, no matter
+// how far under the threshold the tender actually was. A £5,000 job slipped
+// straight into a shortlist filtered to "£20,000 minimum" because its cell
+// could not be read as a number, which is the opposite of what that filter
+// promises. Stripping thousands separators and reading the first signed
+// number out of what is left turns the common cases (currency symbols,
+// currency codes, comma grouping) into the plain number the filter already
+// handled; a cell with no number left in it reads as 0, matching how a truly
+// blank cell was already treated (excluded once a positive minimum is set).
+export function parseValueNumber(raw) {
+  const text = String(raw ?? "").trim();
+  if (!text) return 0;
+  const match = text.replace(/,/g, "").match(/-?\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) : 0;
+}
+
 // Rows whose deadline has already passed are, by default, excluded from the
 // shortlist. A portal export usually still contains last week's notices, and
 // nothing can be done about a closed tender, so leaving it in the list mixed
@@ -72,7 +91,7 @@ export function filterTenders(rows, { category = "", minimum = 0, through = "", 
         const haystack = `${row.category || ""} ${row.title || ""}`.toLowerCase();
         if (!terms.some((term) => haystack.includes(term))) return false;
       }
-      if (Number(row.value || 0) < min) return false;
+      if (parseValueNumber(row.value) < min) return false;
       if (through && row.deadline > through) return false;
       if (hideClosed && today && row.deadline < today) return false;
       return true;
@@ -83,7 +102,7 @@ export function filterTenders(rows, { category = "", minimum = 0, through = "", 
 // Days from `today` to `deadline`, both "YYYY-MM-DD". Parsed as UTC calendar
 // dates (not `new Date(string)`, which is DST/timezone-sensitive) so a
 // deadline of "tomorrow" reads as 1 regardless of the visitor's offset.
-function daysUntil(deadline, today) {
+export function daysUntil(deadline, today) {
   const toUTCDays = (value) => {
     const [year, month, day] = String(value).split("-").map(Number);
     return Date.UTC(year, month - 1, day) / 86400000;

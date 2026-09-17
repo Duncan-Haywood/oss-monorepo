@@ -69,8 +69,31 @@ TABLE_ROW = re.compile(
 
 
 def normalise_dimension(text):
-    """`time_to_revenue` and `time to revenue` are the same dimension."""
-    return text.strip().lower().replace("_", " ")
+    """`time_to_revenue` and `time to revenue` are the same dimension.
+
+    Markdown emphasis around the name is stripped too. A write-up that spelled
+    its floor as ``(`ai_leverage`)`` -- one file out of 31, every sibling plain
+    -- failed here with "headline attributes the floor to `ai leverage`,
+    candidates.yaml says ai leverage": two strings that differ only by
+    backticks the reader cannot easily see, on a validator whose whole job is
+    to tell someone which of three places is stale. Backticks, asterisks and
+    underscores-as-emphasis carry no meaning in a dimension name, so they are
+    not a disagreement worth failing on.
+    """
+    return text.strip().strip("`*_").strip().lower().replace("_", " ")
+
+
+def _display_path(path):
+    """Repo-relative where possible, absolute otherwise.
+
+    `relative_to` raises rather than falling back, so a path outside the repo
+    root turned this reporting line into a ValueError -- a crash in the branch
+    whose only job is to explain what is wrong with a file.
+    """
+    try:
+        return path.relative_to(PIPELINE_DIR.parent.parent)
+    except ValueError:
+        return path
 
 
 def parse_headline(path, errors):
@@ -78,7 +101,7 @@ def parse_headline(path, errors):
     match = HEADLINE.search(path.read_text())
     if not match:
         errors.append(
-            f"{path.relative_to(PIPELINE_DIR.parent.parent)}: no "
+            f"{_display_path(path)}: no "
             "'Composite X · floor Y (dimension)' headline found"
         )
         return None

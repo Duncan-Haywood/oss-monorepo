@@ -9,6 +9,9 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const article = readFileSync(new URL('./deadhead-miles.html', import.meta.url), 'utf8');
 const detention = readFileSync(new URL('./does-detention-pay-cover-the-wait.html', import.meta.url), 'utf8');
+const vsAtbs = readFileSync(new URL('./vs-atbs.html', import.meta.url), 'utf8');
+const vsDatRateview = readFileSync(new URL('./vs-dat-rateview.html', import.meta.url), 'utf8');
+const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -122,4 +125,102 @@ test('the detention explainer uses the same locked week as the calculator', () =
   assert.match(detention, /keeps \$183\.04/);
   assert.match(detention, /0\.68 hours/);
   assert.match(scriptSource, /accessorials_compared/);
+});
+
+test('index links the ATBS incumbent-comparison page and the sitemap lists it too', () => {
+  assert.match(markup, /vs-atbs\.html/);
+  assert.match(sitemap, /vs-atbs\.html/);
+});
+
+test('the ATBS incumbent-comparison page links back, names the incumbent honestly, and cites a checkable source instead of a number only ATBS could confirm', () => {
+  assert.match(vsAtbs, /<a href="\.\/">/);
+  // Names ATBS's own pricing page so a reader can check the source directly
+  // -- this page must never state a dollar figure for ATBS's service that
+  // only ATBS's own current pricing page could confirm.
+  assert.match(vsAtbs, /atbs\.com\/pricing/);
+  // Blanket, not scoped to a sentence or a month/year suffix: this page has
+  // no legitimate reason to print a dollar figure at all, so the earlier,
+  // narrower regexes here missed a plain "$20/week" (they only matched a
+  // dollar immediately followed by month/year, or one in the same sentence
+  // as the literal string "ATBS"). Same pattern cloud-egress-calculator's
+  // own comparison-page test already uses.
+  assert.doesNotMatch(vsAtbs, /\$\d/);
+  assert.match(vsAtbs, /not affiliated with, endorsed by, or sponsored by ATBS/i);
+  assert.match(vsAtbs, /No warranty/);
+  assert.match(vsAtbs, /Best-effort hosting, no SLA/);
+  assert.match(vsAtbs, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('index links the DAT RateView comparison page and the sitemap lists it too', () => {
+  assert.match(markup, /vs-dat-rateview\.html/);
+  assert.match(sitemap, /vs-dat-rateview\.html/);
+});
+
+test('the DAT RateView comparison page links back, names the incumbent honestly, and cites a checkable source', () => {
+  assert.match(vsDatRateview, /<a href="\.\/">/);
+  // Names DAT's own RateView page so a reader can check the source directly.
+  assert.match(vsDatRateview, /dat\.com\/rateview/);
+  // This page has no legitimate reason to state a dollar figure for a
+  // market rate or a DAT subscription price -- only DAT's own current data
+  // and pricing could confirm either.
+  assert.doesNotMatch(vsDatRateview, /\$\d/);
+  assert.match(vsDatRateview, /not affiliated with, endorsed by, or sponsored by DAT/i);
+  assert.match(vsDatRateview, /No warranty/);
+  assert.match(vsDatRateview, /Best-effort hosting, no SLA/);
+  assert.match(vsDatRateview, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the tax reserve is wired end to end and disclaims what it is not', () => {
+  // Every one of these is a place the field has to appear for the reserve to
+  // work: the input, the read loop, the two output rows, and the clear path
+  // that blanks them on an invalid input. Missing the last one leaves a stale
+  // take-home on screen next to an error message.
+  assert.match(markup, /id="taxReservePercent"/);
+  assert.match(scriptSource, /'taxReservePercent'/);
+  assert.match(markup, /id="taxReserve"/);
+  assert.match(markup, /id="weeklyTakeHome"/);
+  assert.match(scriptSource, /'taxReserve', 'weeklyTakeHome'/);
+
+  // The page must not appear to know the operator's rate. It asks for a
+  // percentage and says whose job it is to supply it.
+  assert.match(markup, /Nothing withholds tax for you/);
+  assert.match(markup, /Ask your tax preparer/i);
+});
+
+test('the reserve input defaults to zero so the page opens on its old behaviour', () => {
+  // A non-zero default would be a claim about what the operator owes, and it
+  // would silently change every figure for a returning visitor.
+  assert.match(markup, /id="taxReservePercent"[^>]*value="0"/);
+});
+
+test('"you keep" in the verdict means take-home once a reserve is set', () => {
+  // The bug this feature fixes was a pre-tax number labelled as kept money.
+  // Reintroducing it in the verdict line would undo the fix in the one place
+  // the operator actually reads.
+  assert.match(scriptSource, /weeklyTakeHome\)\}<\/strong> this week after setting aside/);
+});
+
+// Both are self-employed driver economics tools this calculator's own
+// visitors ask about, and neither linked the other before this: a
+// commercial-truck owner-operator and a personal-vehicle gig delivery /
+// rideshare driver. Without a crawlable link here, a crawler entering on the
+// owner-operator page never reaches the gig-driver page in one hop.
+test('index links one hop to the gig-driver-net-pay-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/gig-driver-net-pay-calculator\/"/,
+    'index must link ../gig-driver-net-pay-calculator/ so crawlers reach the gig driver net pay calculator in one hop',
+  );
+});
+
+// Both cost a route's economics per vehicle-hour or per mile for a
+// self-employed driver -- a long-haul owner-operator and a medical courier.
+// Without a crawlable link here, a crawler entering on this page never
+// reaches the medical-courier page in one hop.
+test('index links one hop to the medical-courier-route-margin sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/medical-courier-route-margin\/"/,
+    'index must link ../medical-courier-route-margin/ so crawlers reach the medical courier route margin calculator in one hop',
+  );
 });

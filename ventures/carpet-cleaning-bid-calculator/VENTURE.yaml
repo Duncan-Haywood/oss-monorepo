@@ -28,5 +28,5 @@ kill_criteria:
   - Technicians report that splitting rooms, stairs, pet treatment, and drive time is more work than their existing method without changing the price they would have quoted.
   - The starting extraction rates prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/carpet-cleaning-bid-calculator/
   analytics: null

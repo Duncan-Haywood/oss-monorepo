@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SQL Migration Lock Check — Will This Migration Take Your Database Down?</title>
+  <meta name="description" content="Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.">
+  <meta property="og:title" content="Will this migration take your database down?">
+  <meta property="og:description" content="Most migrations that cause an outage look completely routine. Paste your PostgreSQL migration and get every statement that can block reads or writes — with the rewrite that avoids it.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"SQL Migration Lock Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reads a PostgreSQL schema migration and reports every statement that can take a blocking lock or rewrite a table, including relational checks a per-statement linter cannot make: a missing lock_timeout ahead of an exclusive-lock statement, NOT VALID and VALIDATE inside one transaction, and CREATE INDEX CONCURRENTLY inside a transaction block. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it never connects to a database."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"My migration is one line and takes milliseconds. How can it cause an outage?","acceptedAnswer":{"@type":"Answer","text":"Because the time a statement takes to run and the time it takes to start are different numbers. An ALTER TABLE needs an ACCESS EXCLUSIVE lock, which conflicts with every other lock — including the ACCESS SHARE that a plain SELECT holds. If any query is still running on that table when your migration arrives, the migration waits. While it waits it sits at the head of the lock queue, and every query arriving after it queues behind it, because PostgreSQL will not let a weaker lock jump ahead of a stronger one that is already waiting. So one slow analytics SELECT, a forgotten open transaction, or a pg_dump is enough to make the table unavailable to everyone for as long as that query runs. SET lock_timeout = '3s' converts that from an outage into a migration that fails and can be retried."}},{"@type":"Question","name":"Isn't ADD COLUMN with a DEFAULT safe now?","acceptedAnswer":{"@type":"Answer","text":"With a constant default, yes — since PostgreSQL 11 that is a metadata-only change, and this tool does not flag it. The exception is a VOLATILE default, which has to be evaluated separately for every existing row and therefore rewrites the whole table under an exclusive lock. gen_random_uuid() and random() are volatile; now() and CURRENT_TIMESTAMP are STABLE and are not. The two statements look nearly identical, which is exactly why this is worth a checker rather than a habit."}},{"@type":"Question","name":"Why does SET NOT NULL get flagged when it changes no data?","acceptedAnswer":{"@type":"Answer","text":"Because it has to prove no existing row is null, and it does that with a full table scan while holding an ACCESS EXCLUSIVE lock — so reads and writes both block for the length of the scan. PostgreSQL 12 and later have a fast path: if a validated CHECK constraint already proves the column is not null, the scan is skipped. This tool reads the rest of your file to see whether you took that path, and stays quiet if you did. That is a fact about the file rather than about the statement, which is why a per-statement linter cannot tell the two apart."}},{"@type":"Question","name":"Does a clean result mean the migration is safe to run?","acceptedAnswer":{"@type":"Answer","text":"No. This checks a specific, named list of statement-level patterns — the whole list is on this page and behind --list-checks, and there is nothing hidden. It cannot see how large your tables are, how much traffic they take, how long your existing queries run, what your migration runner does around the file, whether a backfill in application code is batched, or whether the change is backwards compatible with the version of your app that is still running during a rolling deploy. A clean result means these checks found nothing; it is not a review of your migration."}},{"@type":"Question","name":"Does this connect to my database?","acceptedAnswer":{"@type":"Answer","text":"No, and it has no way to. It reads SQL text and nothing else — no connection string, no credentials, no driver, no network calls at all. The browser page parses what you paste on your own device, and the CLI reads files from your own disk. That is what makes it safe to run against the migration you are about to apply to production: there is no connection to point at the wrong database."}},{"@type":"Question","name":"Which databases does this apply to?","acceptedAnswer":{"@type":"Answer","text":"PostgreSQL. The lock levels, the rewrite rules, the NOT VALID / VALIDATE CONSTRAINT split and the CONCURRENTLY forms are all PostgreSQL semantics, and the advice would be wrong in places for MySQL, which has its own online-DDL rules, or SQLite, which rewrites tables for most ALTERs regardless. Running it against a MySQL migration will still flag statements that are risky there too, but read the reasoning rather than the verdict."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 230px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #8a2c0d; }
+    .verdict.warn { color: #6b4708; }
+    .finding { border: 1px solid #e6eaf0; border-left-width: 5px; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+    .finding.risk { border-left-color: #8a2c0d; }
+    .finding.warn { border-left-color: #8a6508; }
+    .finding h3 { margin: 0 0 4px; font-size: 1rem; }
+    .finding p { margin: 6px 0 0; font-size: .92rem; }
+    .where { font-family: ui-monospace, monospace; font-size: .82rem; color: #55606f; overflow-wrap: anywhere; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.risk { background: #fde8e8; color: #8a2c0d; }
+    .pill.warn { background: #fdf1d8; color: #6b4708; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #8a2c0d; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    ul.checks { font-size: .88rem; columns: 2; column-gap: 28px; }
+    @media (max-width: 640px) { ul.checks { columns: 1; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SQL MIGRATION LOCK CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Will this migration take your database down?</h1>
+    <p>Almost every migration that causes an outage looks completely routine in review. The statement itself takes milliseconds — but it needs a lock that conflicts with ordinary reads, and if anything is still running on that table it waits, with <em>every</em> later query queued behind it. Paste your PostgreSQL migration below.</p>
+    <p class="note">Nothing is uploaded. The SQL you paste is parsed in this browser and never leaves your device; this tool makes no network calls and never connects to a database.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your migration</h2>
+    <p class="note">One migration file, or several concatenated. Comments, dollar-quoted function bodies and <code>BEGIN</code>/<code>COMMIT</code> blocks are all handled — and the transaction blocks matter, because three of the checks are about what shares a transaction with what.</p>
+    <label for="sql" class="note">PostgreSQL migration SQL</label>
+    <textarea id="sql" spellcheck="false" placeholder="ALTER TABLE users ADD COLUMN ...&#10;CREATE INDEX ...&#10;"></textarea>
+    <p>
+      <button type="button" id="check">Check this migration</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a migration above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="scope"></p>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same engine, zero dependencies, no database connection:</p>
+    <pre class="cmd"><code>node check.mjs                     # scan every .sql under the current directory
+node check.mjs db/migrate          # scan one directory or one file
+node check.mjs --format json       # machine-readable
+node check.mjs --list-checks       # exactly what is checked, and at what severity
+node check.mjs --fail-on-risk      # exit 2 if a statement can block the table</code></pre>
+    <p class="note">Save the three files this page itself runs on — <a href="check.mjs" download>check.mjs</a>, <a href="engine.mjs" download>engine.mjs</a> and <a href="sql.mjs" download>sql.mjs</a> — into one directory. Node's standard library only, nothing to install, no network calls, no connection string. Wiring <code>--fail-on-risk</code> into CI is the point: it catches the <code>CREATE INDEX</code> that someone added without <code>CONCURRENTLY</code> while the migration is still a pull request, which is the only moment fixing it is free.</p>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <p class="note">The whole list — there is nothing hidden behind it. The three marked <strong>relational</strong> are the ones a per-statement linter cannot make, because the answer depends on another statement in the file.</p>
+    <ul class="checks" id="check-list"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>My migration is one line and takes milliseconds. How can it cause an outage?</h3>
+    <p>Because the time a statement takes to <em>run</em> and the time it takes to <em>start</em> are different numbers. An <code>ALTER TABLE</code> needs an <code>ACCESS EXCLUSIVE</code> lock, which conflicts with every other lock — including the <code>ACCESS SHARE</code> that a plain <code>SELECT</code> holds. If any query is still running on that table when your migration arrives, the migration waits. While it waits it sits at the head of the lock queue, and every query arriving after it queues behind it, because PostgreSQL will not let a weaker lock jump ahead of a stronger one that is already waiting. So one slow analytics <code>SELECT</code>, a forgotten open transaction, or a <code>pg_dump</code> is enough to make the table unavailable to everyone for as long as that query runs. <code>SET lock_timeout = '3s'</code> converts that from an outage into a migration that fails and can be retried.</p>
+    <h3>Isn't <code>ADD COLUMN</code> with a <code>DEFAULT</code> safe now?</h3>
+    <p>With a <em>constant</em> default, yes — since PostgreSQL 11 that is a metadata-only change, and this tool does not flag it. The exception is a <code>VOLATILE</code> default, which has to be evaluated separately for every existing row and therefore rewrites the whole table under an exclusive lock. <code>gen_random_uuid()</code> and <code>random()</code> are volatile; <code>now()</code> and <code>CURRENT_TIMESTAMP</code> are <code>STABLE</code> and are not. The two statements look nearly identical, which is exactly why this is worth a checker rather than a habit.</p>
+    <h3>Why does <code>SET NOT NULL</code> get flagged when it changes no data?</h3>
+    <p>Because it has to prove no existing row is null, and it does that with a full table scan while holding an <code>ACCESS EXCLUSIVE</code> lock — so reads and writes both block for the length of the scan. PostgreSQL 12 and later have a fast path: if a <em>validated</em> <code>CHECK</code> constraint already proves the column is not null, the scan is skipped. This tool reads the rest of your file to see whether you took that path, and stays quiet if you did. That is a fact about the file rather than about the statement, which is why a per-statement linter cannot tell the two apart.</p>
+    <h3>Does a clean result mean the migration is safe to run?</h3>
+    <p>No. This checks a specific, named list of statement-level patterns — the whole list is on this page and behind <code>--list-checks</code>, and there is nothing hidden. It cannot see how large your tables are, how much traffic they take, how long your existing queries run, what your migration runner does around the file, whether a backfill in application code is batched, or whether the change is backwards compatible with the version of your app that is still running during a rolling deploy. A clean result means these checks found nothing; it is not a review of your migration.</p>
+    <h3>Does this connect to my database?</h3>
+    <p>No, and it has no way to. It reads SQL text and nothing else — no connection string, no credentials, no driver, no network calls at all. The browser page parses what you paste on your own device, and the CLI reads files from your own disk. That is what makes it safe to run against the migration you are about to apply to production: there is no connection to point at the wrong database.</p>
+    <h3>Which databases does this apply to?</h3>
+    <p>PostgreSQL. The lock levels, the rewrite rules, the <code>NOT VALID</code> / <code>VALIDATE CONSTRAINT</code> split and the <code>CONCURRENTLY</code> forms are all PostgreSQL semantics, and the advice would be wrong in places for MySQL, which has its own online-DDL rules, or SQLite, which rewrites tables for most <code>ALTER</code>s regardless. Running it against a MySQL migration will still flag statements that are risky there too, but read the reasoning rather than the verdict.</p>
+    <p>More: <a href="why-your-migration-locked-the-table.html">why your migration locked the table</a>. Already using <a href="vs-squawk.html">squawk</a>? See <a href="vs-squawk.html">how this checker compares</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a database review, a performance audit, or a guarantee that a migration will not cause downtime or data loss, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including testing any suggested change against a copy of your own data before applying it to production. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, save <a href="check.mjs" download>check.mjs</a>, <a href="engine.mjs" download>engine.mjs</a> and <a href="sql.mjs" download>sql.mjs</a> and run them yourself.</p>
+    <p>Everything runs in your browser. The SQL you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>A migration is one step in a deploy that can break quietly: <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> asks whether the rollout shipping this change drops requests, and <a href="../pinned-actions-check/">Pinned Actions Check</a> asks whether the workflow that ships it is pinned to immutable references — three slices of the same question.</p>
+    <p class="support">Free and open source. If this caught a migration that would have locked your table, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyzeSql, summaryLine, CHECKS } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      sql: $("#sql"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), findings: $("#findings"), scope: $("#scope"),
+    };
+
+    // The three relational checks, named on the list so the page's claim that
+    // they exist is verifiable against the list itself rather than just
+    // asserted in prose above it.
+    const RELATIONAL = new Set([
+      "no-lock-timeout", "validate-in-same-transaction", "create-index-concurrently-in-tx",
+    ]);
+
+    // Deliberately a migration that would pass code review: every statement
+    // is something a careful engineer writes, and four of them can take the
+    // table down. That is the point the page is making.
+    const EXAMPLE = `BEGIN;
+
+-- give every user an API token
+ALTER TABLE users ADD COLUMN api_token uuid DEFAULT gen_random_uuid();
+
+-- and an index to look them up by
+CREATE INDEX idx_users_api_token ON users (api_token);
+
+-- tighten a column we have always populated anyway
+ALTER TABLE users ALTER COLUMN email SET NOT NULL;
+
+-- and link orders to organisations properly
+ALTER TABLE orders ADD CONSTRAINT fk_orders_org
+  FOREIGN KEY (org_id) REFERENCES organisations (id);
+
+COMMIT;
+`;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    /** Render `code spans` in the finding prose without trusting it as HTML:
+     * everything is escaped first, then only backtick pairs become <code>. */
+    function prose(text) {
+      return escapeHtml(text).replace(/`([^`]+)`/g, "<code>$1</code>");
+    }
+
+    function renderFindings(result) {
+      if (!result.findings.length) {
+        els.findings.innerHTML = `<p class="note">None of the checks below found a problem. That is not a review of the migration &mdash; see the FAQ for what these checks cannot see, starting with the size of your tables.</p>`;
+        return;
+      }
+      els.findings.innerHTML = result.findings.map((f) => `
+        <div class="finding ${f.severity}">
+          <h3><span class="pill ${f.severity}">${f.severity === "risk" ? "can block" : "review"}</span>${escapeHtml(f.title)}</h3>
+          <p class="where">line ${f.line}${f.table ? ` &middot; ${escapeHtml(f.table)}` : ""} &middot; <code>${escapeHtml(f.statement)}</code></p>
+          <p>${prose(f.impact)}</p>
+          <p><strong>Fix:</strong> ${prose(f.fix)}</p>
+        </div>`).join("");
+    }
+
+    function runCheck(text) {
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste a PostgreSQL migration first.</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const result = analyzeSql(text);
+      els.verdict.className = `verdict ${result.verdict === "can-block" ? "risk" : result.verdict === "review" ? "warn" : ""}`;
+      els.verdict.textContent = summaryLine(result);
+      els.scope.textContent = `Read ${result.statements} statement${result.statements === 1 ? "" : "s"}${result.kinds.length ? ` (${result.kinds.join(", ")})` : ""}.`;
+      renderFindings(result);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check-list").innerHTML = CHECKS
+      .map((c) => `<li><span class="pill ${c.severity}">${c.severity === "risk" ? "can block" : "review"}</span>${escapeHtml(c.title)}${RELATIONAL.has(c.id) ? " <strong>(relational)</strong>" : ""}</li>`)
+      .join("");
+
+    $("#check").addEventListener("click", () => runCheck(els.sql.value));
+
+    $("#load-example").addEventListener("click", () => {
+      els.sql.value = EXAMPLE;
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: an ordinary migration that would pass review — a volatile column default, a non-concurrent index, a SET NOT NULL with no CHECK to lean on, a validating foreign key, and no lock_timeout anywhere.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.sql.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste a migration above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off, but a
+    // button that came back saying "turn counting off" tells the visitor their
+    // click did not take -- and a control that appears not to have worked is
+    // one they click again, or stop believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

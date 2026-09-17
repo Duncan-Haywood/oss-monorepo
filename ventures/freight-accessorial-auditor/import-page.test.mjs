@@ -284,3 +284,38 @@ test("the explainer's per-unit worked example is recomputed, not asserted", () =
   );
   assert.equal(noQuantity.rows[0].expected, "");
 });
+
+// The page opens with an empty file picker, an empty paste box, a mapping UI
+// and a rate card -- a lot of apparatus with nothing to apply it to. The
+// placeholder text in the textarea looks like a sample but cannot be run, so
+// until this button existed nobody could see the auditor work without first
+// producing a carrier invoice. Pinned to the findings it is meant to show: a
+// fixture that quietly stopped flagging would leave the demo claiming less
+// than the tool does.
+test("the worked example runs through the real importer and produces the findings it advertises", () => {
+  assert.match(index, /id="loadExample"/);
+  assert.match(index, /Load a worked example/);
+
+  const match = index.match(/const example = \[([\s\S]*?)\]\.join\("\\n"\);/);
+  assert.ok(match, "index.html must carry the inline worked-example rows");
+  const csv = match[1]
+    .split("\n")
+    .map((line) => line.trim().replace(/^"|",?$/g, ""))
+    .filter(Boolean)
+    .join("\n");
+
+  const table = readTable(csv, { hasHeader: true });
+  const built = buildImportedRows(table, suggestMapping(table.header), {});
+  assert.equal(built.rows.length, 5, "the example should import five accessorial lines");
+
+  const results = auditCharges(built.rows);
+  const flagged = results.filter((row) => row.flags.length);
+  const allFlags = flagged.flatMap((row) => row.flags);
+
+  assert.ok(allFlags.some((f) => /Over expected by/.test(f)), "needs a line billed above the contracted amount");
+  assert.ok(allFlags.includes("Possible duplicate"), "needs a line billed twice on the same PRO");
+  assert.ok(results.some((row) => !row.flags.length), "needs a line that is billed correctly and stays quiet");
+
+  const totals = auditTotals(results);
+  assert.ok(totals.billed > totals.expected, "the example should show a real overage against expected");
+});

@@ -1,0 +1,168 @@
+name: terraform-plan-blast-radius-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a Terraform structured plan (terraform show -json) and reports its blast radius before apply -- a per-type and per-module action summary, every destroy and replace called out individually with the replace_paths attribute and action_reason code the plan JSON carries, a loud flag when a replace lands on a resource type that holds data (database, disk, bucket, DNS record, load balancer, secret, stateful k8s object, queue, search cluster), and a true-deletion list for resources going away that nothing re-creates. A deterministic report over the plan file you already have -- not a policy engine, not a cost estimator, not a Terraform Cloud or Sentinel clone.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, and portfolio/pipeline/README.md's "archetype itself"
+# section (updated 2026-09-11) says explicitly that picking this shape is
+# necessary but NOT sufficient novelty evidence -- 38 slugs already end in
+# `-check`. So the argument for this one is not the shape. It is that the gap
+# it fills was reported upstream and closed as working-as-designed, which
+# means the first-party tool is not going to close it (see the channel notes
+# below), and that the failure it catches is the most expensive one in this
+# whole product family: everything else in `ventures/` that ends in `-check`
+# reports a misconfiguration, this one reports a pending data loss.
+#
+# Screened 2026-09-11. duplicate_check.py, run on this description:
+#
+#    score  source                    label
+#     0.26  venture                   terraform-plan-secret-exposure-check
+#     0.13  venture                   package-exports-drift-check
+#     0.10  venture                   structured-data-drift-check
+#     0.10  venture                   merchant-feed-check
+#     0.09  venture                   k8s-rollout-safety-check
+#     0.09  venture                   env-example-drift-check
+#     0.09  venture                   affiliate-disclosure-checker
+#     0.08  pipeline candidate        social-preview-check
+#     0.08  pipeline candidate        redirect-chain-check
+#     0.08  venture                   sri-check
+#
+# Nothing scored >= 0.45. The top hit is read rather than waved past: this
+# reads the *same input file* as terraform-plan-secret-exposure-check and
+# answers an unrelated question about it. That one asks "does this plan print
+# a credential in plaintext" (a pattern match on unmarked string values); this
+# asks "what does this apply take away" (action classification, replace_paths,
+# action_reason, and a stateful-type heuristic). No code is shared, neither
+# subsumes the other, and each page links the other as the complementary
+# check. `screened-out.md` has no Terraform row at all.
+#
+# Distribution channels, verified 2026-09-11 by reading the actual sources
+# rather than asserting them. No engagement numbers are invented here; where
+# a figure could not be confirmed it says so:
+#
+#   - hashicorp/terraform#36097, "`terraform plan` hides unchanged `forces
+#     replacement` attributes", is **closed as working-as-designed**. The
+#     reporter's case was a TLS certificate replaced because of
+#     `ready_for_renewal`, an attribute that never appeared in the plan
+#     output at all. This is the single best piece of evidence for the
+#     venture: upstream has confirmed both that the gap exists and that the
+#     text output will not close it, and `change.replace_paths` in the JSON
+#     format (added in hashicorp/terraform#28608, backported in #28622,
+#     explicitly so consumers can determine which paths caused a
+#     replacement) is the supported way a third party is meant to answer it.
+#   - hashicorp/terraform#16724 -- Terraform insisting on destroy/recreate of
+#     RDS instances whose identifiers had not changed -- is one of a
+#     recurring class of "why is it replacing my database" reports across
+#     hashicorp/terraform and the provider repos (azurerm #22363, #22407,
+#     #13443 are the same shape). The audience that has already been bitten
+#     is findable at the source.
+#   - GitLab's infrastructure team published a post-incident corrective
+#     action, gitlab-com/gl-infra/production-engineering#24078, "Improve
+#     safety around Terraform destroy operations (disks)", after an
+#     accidental deletion of three Gitaly nodes cost roughly 30 minutes of
+#     data loss on each. Its ask is literally this tool's default gate: "An
+#     apply should fail if multiple critical resources containing data
+#     (disks) are being deleted." A public, dated, named-organisation
+#     corrective action asking for the exact check is stronger evidence than
+#     any search-volume estimate.
+#   - AWS re:Post carries a public "Accidentally destroyed prod RDS via
+#     mis-configured Terraform -- any chance of recovery?" thread whose
+#     own post-mortem lists "no prevent_destroy on RDS, nothing blocked the
+#     destroy plan" as a cause.
+#   - r/Terraform exists and is an active channel for this audience.
+#     Third-party trackers disagree on its size (83k and 44.5k were both
+#     returned this session) and neither was independently confirmed, so no
+#     membership figure is claimed here. Treat it as a real venue of
+#     unverified size, not as a number.
+#
+# Scored against portfolio/pipeline/README.md's 8-dimension rubric, reasoned
+# rather than copied from the sibling:
+#
+#   ai_leverage 1 -- no model anywhere. Action classification is set
+#     arithmetic over `change.actions`; the stateful-type heuristic is a
+#     token list matched against `_`-separated segments of the type name.
+#     Deliberate: the answer has to be identical every run for a CI gate to
+#     be worth wiring in.
+#   autonomous_ops 10 -- a static page and a single-file CLI. No queue, no
+#     account, no job only a person can drain.
+#   time_to_revenue 5 -- one lower than the secret-exposure sibling, for a
+#     stated reason: its strongest referral surface (#36097) is a *closed*
+#     issue, which is read far less than an open one, and revenue is
+#     donation-only across this whole fleet. Scored on what the channels
+#     actually are rather than reinterpreted upward.
+#   gross_margin 10 -- browser page parses locally, CLI reads a local file.
+#     No network call in either, so one more user costs a static file.
+#   defensibility 3 -- one below the sibling and honestly so. The logic is
+#     a few hundred lines over a publicly documented JSON schema, and real
+#     adjacent prior art exists (tf-summarize, Spacelift/Atlantis plan
+#     renderers, OPA/Conftest policies people write by hand). Mitigation,
+#     per the rubric's rule 2: the defensible part is not the parser but the
+#     curated stateful-type token list plus the deliberate
+#     false-positive-biased design and the exemption suffixes -- the part
+#     that takes iterations against real plans to get right, and the part a
+#     hand-rolled `jq` one-liner never accumulates.
+#   distribution 6 -- four named, verifiable venues above (one of them a
+#     named organisation's public corrective action) plus a subreddit whose
+#     size is deliberately not claimed. Not higher, because none of them is
+#     an audience this portfolio owns or can post to on a schedule.
+#   liability_containment 8 -- pure information about a file the user
+#     supplies and fully controls; no filing, signature, or determination on
+#     anyone's behalf. The one real exposure is over-reliance -- a user
+#     treating a clean report as permission to apply -- which is why both
+#     the page and the CLI say in so many words that it cannot prove an
+#     apply is safe, only report what it matched.
+#   ethical_robustness 9 -- free, no paid tier gating accuracy, no
+#     adversarial dynamic, and it gets strictly better for users as it
+#     scales. It helps people not lose data; there is no version of it that
+#     gets worse for the user at volume.
+#
+# Composite over the six scored dimensions 5.833, floor 1 (ai_leverage).
+# Both hard gates clear the 5 cutoff.
+#
+# One design decision worth recording because it is the difference between a
+# report people read and one they mute: the stateful heuristic is
+# **deliberately biased toward false positives**, because the costs are
+# asymmetric by orders of magnitude -- an extra flag costs five seconds of
+# reading, a missed one costs a database. The counterweight is that every
+# flag names the token that matched, so a false positive is dismissable at a
+# glance, and the CLI's default gate is `replace-stateful` rather than "any
+# destroy": a gate that fires on every plan in a repo that uses `count` is one
+# somebody adds `continue-on-error` to within a week.
+
+hypotheses:
+  - claim: A platform or SRE engineer who has been surprised by a Terraform replacement -- or who has read one of the incident write-ups above -- will wire cli.mjs into their pipeline between `terraform plan` and `terraform apply` as a pre-apply gate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A reviewer looking at a plan in a pull request will prefer a report that leads with "these three things are being destroyed and this one is a database" over scrolling a several-hundred-line diff for `# forces replacement` comments.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The type-name token heuristic classifies stateful resources accurately enough on real multi-provider plans that engineers trust the flag rather than muting it. Untested against any real-world plan corpus -- only against the fixtures in engine.test.mjs.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only a file loaded or
+  # pasted in the visitor's own browser (no fetch, no upload), and the CLI
+  # reads only a local file with no network call at all. Serving one more
+  # user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI pipeline between plan and apply within 90 days.
+  - The stateful-type heuristic is reported wrong (a missed data-holding type, or a false positive nobody can dismiss) by two separate users without a fix landing -- a blast-radius report people do not trust is worse than none, because it displaces the careful read it was supposed to replace.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/terraform-plan-blast-radius-check/
+  analytics: null

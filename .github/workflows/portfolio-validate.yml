@@ -60,6 +60,23 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
+      # The apex tool mirror is generated from whole venture directories,
+      # so a venture's module, script, stylesheet or licence going stale in
+      # `gitops/prod/front-door-tools/` is exactly as invisible as a page
+      # would be. The mirror-staleness step below is what reads them.
+      # `.css`/`.js` joined `.mjs` here on 2026-09-02: `front-door-tools.mjs`'s
+      # own SERVABLE_EXTENSIONS has mirrored all four since the mirror shipped
+      # (construction-evidence-log's app.js and style.css are in the mirror
+      # today), but neither extension had a path here or in
+      # hetzner-gitops-ci.yml, so an edit to either file triggered no workflow
+      # that runs the staleness check at all -- confirmed by editing
+      # ventures/construction-evidence-log/app.js locally and watching
+      # `front-door-tools.test.mjs` fail with the change unreverted.
+      - "ventures/**/*.mjs"
+      - "ventures/**/*.css"
+      - "ventures/**/*.js"
+      - "ventures/**/LICENSE"
+      - "platform/marketing/**"
       - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
@@ -89,6 +106,16 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
+      # The apex tool mirror is generated from whole venture directories,
+      # so a venture's module, script, stylesheet or licence going stale in
+      # `gitops/prod/front-door-tools/` is exactly as invisible as a page
+      # would be. The mirror-staleness step below is what reads them. See the
+      # `push:` block above for why `.css`/`.js` are here too.
+      - "ventures/**/*.mjs"
+      - "ventures/**/*.css"
+      - "ventures/**/*.js"
+      - "ventures/**/LICENSE"
+      - "platform/marketing/**"
       - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
@@ -121,6 +148,14 @@ permissions:
 jobs:
   validate:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # This job runs on every PR that touches any of the paths above and chains
+    # roughly fifty checks and unit-test modules in sequence; it has taken
+    # 3-4 minutes in recent runs. Uncapped, a hung pip install or a stalled
+    # step anywhere in that chain would ride GitHub's default 360-minute
+    # ceiling instead of failing fast -- see hetzner-gitops-ci.yml's own
+    # timeout-minutes addition for why that matters on a metered-minutes
+    # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -139,6 +174,34 @@ jobs:
 
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
+
+      # The apex serves a mirrored copy of 14 whole ventures so that the front
+      # door's cards work while `portfolio-site-repo` is unsealed. The copy is
+      # committed (Argo CD delivers it; no CI job builds it), so editing one of
+      # those ventures without regenerating leaves the apex serving the old
+      # tool. `hetzner-gitops-ci.yml` runs the same suite but triggers on
+      # `gitops/**` and `platform/marketing/**` -- neither of which a venture
+      # edit touches, which is the gap this step closes.
+      - name: Check the apex tool mirror is not stale
+        run: node --test "platform/marketing/*.test.mjs"
+
+      # `MIRROR_BYTE_CEILING` is a wall with no approach lights: `buildMirror`
+      # throws on it, and that throw lands in the step above -- which this
+      # workflow runs on every PR touching a venture page. So the first session
+      # to cross it does not learn that the mirror is full, it learns that
+      # *nothing in the catalogue can publish* until someone frees room, in the
+      # middle of shipping something unrelated. The apex is the portfolio's
+      # entire public surface and the fleet adds tools daily.
+      #
+      # This step fails at `MIRROR_HEADROOM_WARN_RATIO` (85%) instead, leaving
+      # roughly a third of the runway to land the remedy as an ordinary
+      # reviewed change. It was at 76.3% when the step was added -- 173 tools,
+      # ~53 from the wall -- so it passes today and exists for the day it does
+      # not. Its output also names the 18.5% of the mirror that is byte-
+      # identical duplication, which is the remedy the constant's comment
+      # spells out; raising the ceiling is not the first answer.
+      - name: Check the apex tool mirror has room left
+        run: node platform/marketing/front-door-tools.mjs --headroom
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
@@ -173,6 +236,15 @@ jobs:
       - name: MLS photo-spec probe tests
         working-directory: portfolio/pipeline/probes/mls-photo-spec
         run: python3 -m pytest tests -q
+
+      # The gate itself lives in `checklist-coverage.yml`, not here: it has to
+      # fire on a new test directory *anywhere*, and this workflow's trigger
+      # list is a hand-maintained enumeration of paths that would not include
+      # one. These are its unit tests, which belong here because
+      # `platform/ci/**` already triggers this workflow.
+      - name: Checklist-coverage unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_checklist_coverage
 
       - name: Check the measurement record in candidates.yaml is still readable
         run: python3 portfolio/pipeline/score_sensitivity.py
@@ -212,12 +284,30 @@ jobs:
         working-directory: portfolio/usage
         run: python3 -m unittest test_validate_usage
 
+      # `validate_usage.py` above checks the file's *shape*. This checks what
+      # the tree says the file *means*: `live_url_visitors` is null on all 399
+      # readings -- never measured -- and eleven places had turned that into
+      # "zero observed users", which is an absence rendered as a negative
+      # result. Measured-zero licenses retiring a product; never-measured
+      # licenses nothing. It passes the moment either the sentence or the data
+      # changes, so it is a gate that opens.
+      - name: No steering document reports the unmeasured usage rows as an observed zero
+        run: python3 platform/ci/usage_state.py --require-honest
+
+      - name: Usage-state unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_usage_state
+
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
 
       - name: Workflow-validator unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
+
+      - name: Agent cross-review unit tests
+        working-directory: platform/ci/agent_review
+        run: python3 -m unittest test_review
 
       # The local workflow runner is what sessions verify with while no
       # runner picks up a job here, so its own tests have to run somewhere.
@@ -232,6 +322,67 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_ci_starvation
 
+      # Same argument again, one route over: this reads the Pages route's
+      # state for `infra_state.yaml`'s `github-pages-plan` row, and that row
+      # decides whether an owner's thirty seconds in Settings is worth
+      # spending. A tool that turns one API field into an owner-facing
+      # verdict has to be the thing that is right.
+      - name: Pages-route reader unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_pages_state
+
+      # And the tool that says which guards did not run at all. Same reason a
+      # third time: a session reads `533 passed, 25 skipped` and calls the
+      # tree green, so the thing that distinguishes a skip from a pass must
+      # not be the thing that is broken. Its own refusals are the behaviour
+      # under test -- an unrecognised skip reason must never be filed as
+      # "does not apply here", and a suite that could not run at all must
+      # never exit 0 under `--require-runnable`.
+      - name: Guard-state reader unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_guard_state
+
+      # The counter-sync tool. It rewrites committed files, so the tests that
+      # matter are the ones proving it can be wrong safely: a reworded
+      # sentence must be reported rather than silently skipped, and a
+      # derivation that breaks must raise rather than return a zero the tool
+      # would then write. Both of those happened while it was being written --
+      # the first draft filtered on a status string that does not exist,
+      # derived 0, and would have rewritten a live constant to 0.
+      - name: Tree-count sync unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_sync_tree_counts
+
+      # And the reader for the three standalone host-mode routes. Same
+      # argument as the two above, at the point where it is most expensive to
+      # be wrong: this one is read while the owner is holding the private key,
+      # during the single session the recovery gets, and it is the thing that
+      # says which of the three drivers is worth that session. Its own
+      # refusals are the behaviour under test -- it must parse the box and
+      # installer out of the drivers rather than restating them (a restated
+      # constant is how this repo has twice shipped a claim that went quietly
+      # wrong), and it must never imply it measured whether a box answers,
+      # which no session can do.
+      - name: Host-route reader unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_host_routes_state
+
+      # `test_publish_pages_branch.py` pins the invariants of
+      # `publish-pages-branch.yml` itself -- the workflow that keeps the
+      # `gh-pages` branch snapshot from silently lagging `main` (see that
+      # workflow's own header). The test module has existed since the
+      # workflow was added on 2026-09-06 but ran in no CI workflow at all:
+      # `.github/workflows/**` and `platform/ci/**` are both in this job's
+      # `paths:` filter, so it was one `run:` line away the whole time. A
+      # green run of this job was silently not proving the one thing whose
+      # breakage this job exists to catch quietly -- the exact failure mode
+      # `checklist_coverage.py` was written to close for the shell-script
+      # checklist in CLAUDE.md, arrived at here from the workflow side
+      # instead.
+      - name: Publish-Pages-branch workflow unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_publish_pages_branch
+
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
       # the page's own handler never runs and the button silently does nothing.
@@ -242,6 +393,22 @@ jobs:
       - name: Form-default checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_form_defaults
+
+      # A calculator with both a saved draft and a shareable link restores the
+      # draft first and lets the link win. That only works if the link REPLACES
+      # the form: encode omits a blank, decode omits the missing key, and a
+      # `hasOwnProperty` guard then skips it -- so a field the sender cleared
+      # keeps the recipient's own number and the two of them read different
+      # figures from the same link, with nothing on screen saying so.
+      # Two products shipped that way on 2026-09-10 (#4424) from one pattern
+      # being rolled out a venture at a time, which is why this is a gate and
+      # not a third repair.
+      - name: Check a shared link replaces the form instead of patching it
+        run: python3 platform/ci/check_shared_link_clears.py
+
+      - name: Shared-link checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_shared_link_clears
 
       # The other direction of the same question. `check_form_defaults.py` asks
       # whether the values a page ships with satisfy the constraints it
@@ -258,6 +425,23 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_input_bounds
 
+      # The third question in that family: not "is the shipped value legal" or
+      # "is the bound wide enough", but "is the grid these attributes describe
+      # one a human can land on at all". `min` doubles as the step base, so
+      # `min="0.01" step="0.1"` accepts 0.01, 0.11, 0.21, ... and no whole
+      # number -- which nobody writes on purpose, and which is fatal and silent
+      # inside a `<form>`: the browser refuses the submit before dispatching
+      # the event, so the page's handler never runs and the button does
+      # nothing. `cam-reconciliation-check`'s occupancy gross-up shipped that
+      # way and had never once worked in a browser. 58 inputs across 33 files
+      # were in that state on 2026-09-06.
+      - name: Check no number input's step grid excludes whole numbers
+        run: python3 platform/ci/check_step_grid.py
+
+      - name: Step-grid checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_step_grid
+
       # Every venture vendors its own money() -- 322 copies of one function --
       # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
       # -0 as "$-0.00". 11,172 unit tests went green over both, because not one
@@ -269,6 +453,94 @@ jobs:
       - name: Money-sign checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_money_sign
+
+      # Every check above asks whether the code that is HERE is correct. None of
+      # them can see a product that is no longer here: deleting a venture
+      # deletes its tests along with it, so the assertions leave with the
+      # thing they guarded and the suite goes green on a smaller catalogue.
+      #
+      # PR #3740 was that, measured 2026-09-07. An unattended agent committed a
+      # working tree captured before #3727 merged onto #3727's own merge
+      # commit, which deleted the venture #3727 had graduated two minutes
+      # earlier -- checker, 620 lines of passing tests, landing page, guide
+      # page, CI workflow, ledger entry and scoring row. `regen.mjs` then
+      # re-rendered every generated surface for 197 tools instead of 198, so
+      # the diff arrived as `+84 -1985` across 833 files whose only insertions
+      # were counter decrements. Nothing was red.
+      #
+      # With up to four sessions inside a 15-minute window here, a tree older
+      # than its parent commit is the ordinary case. This asks the one question
+      # the rest of the suite structurally cannot.
+      #
+      # Needs the base branch to compare against, which `actions/checkout@v4`'s
+      # shallow default does not fetch. On a pull_request event the checkout is
+      # the merge commit, so this reads as "would merging this remove a live
+      # venture?" -- which is the question, and is why a venture main gained
+      # after the branch forked does not false-positive.
+      #
+      # Fetched into `refs/ci/base-main` rather than `refs/remotes/origin/main`,
+      # and forced. Writing the tracking ref is what a first draft did, and
+      # `run_workflow_locally.py` rejected it here: in any checkout that already
+      # has `origin/main` at a different commit, a `--depth=1` fetch is a
+      # non-fast-forward and the step exits 1. That is every local run and the
+      # `push: branches: [main]` event. A private ref namespace cannot collide
+      # with anything, so the step means the same thing everywhere it runs.
+      #
+      # `--depth=1` only when the clone is ALREADY shallow, and this is not a
+      # micro-optimisation (measured 2026-09-17). A `--depth` fetch does not
+      # just limit what it downloads -- it writes `.git/shallow` and truncates
+      # the WHOLE repository. On a runner that is free, because
+      # `actions/checkout@v4` already checked out depth 1. On a full clone it
+      # is destructive: a 7,289-commit checkout of `main` becomes one commit,
+      # `git rev-parse --is-shallow-repository` flips to `true`, and every
+      # history-shaped question in the session starts lying -- `merge-base`
+      # returns nothing, `git merge origin/main` refuses with "unrelated
+      # histories", and `git rev-list --count origin/main..<branch>` reports a
+      # branch's entire history for every branch. CLAUDE.md's "Duplicate PRs"
+      # section documents that state at length as a clone artifact to recover
+      # from; what it did not know is that this step CREATES it.
+      #
+      # The self-inflicted part is the expensive part. `check_venture_regression.py`
+      # on the very next line needs `merge-base --is-ancestor` to tell "a
+      # venture was deleted" from "your tree is simply behind the base", and
+      # a shallow clone cannot answer that -- so it exits 1 by design rather
+      # than pass an unproven removal. Run `run_workflow_locally.py --tree` on
+      # a full clone and the sweep shallows the repo at this step and then
+      # reports `main` RED at the next one, for a deletion that never
+      # happened. That sweep is the one command CLAUDE.md prescribes for "is
+      # `main` green right now?" during a starvation window -- i.e. precisely
+      # when no runner is checking and a false red has nothing to contradict
+      # it. It cost this session a diagnosis before the reproduction landed on
+      # the step rather than on the tree.
+      - name: Fetch the base branch for the venture-regression check
+        run: |
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main
+          else
+            git fetch --no-tags origin +refs/heads/main:refs/ci/base-main
+          fi
+
+      - name: Check no live venture disappears from the served catalogue
+        run: python3 platform/ci/check_venture_regression.py --base refs/ci/base-main
+
+      - name: Venture-regression checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_venture_regression
+
+      # PRODUCT_PLAYBOOK.md §6 / DIRECTION.md "Legal guardrails" forbid payment
+      # collection fleet-wide ("no checkout, no card fields, no billing code,
+      # not even disabled"), but that sentence had no check behind it. Two
+      # ventures had real Stripe checkout code on `main` with no matching
+      # decision row before 2026-09-06 -- one already flagged
+      # (local-site-studio, #731), one found only when this check was written
+      # (print-atelier). This fails a third silent instance instead of relying
+      # on a session remembering the sentence above.
+      - name: Check no venture ships payment-SDK code without a decision-queue row
+        run: python3 platform/ci/check_no_payment_code.py
+
+      - name: Payment-SDK checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_no_payment_code
 
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
@@ -288,6 +560,22 @@ jobs:
 
       - name: Clause-checker unit tests
         run: node --test platform/pages/clauses.test.mjs
+
+      # Sibling of the check above, budgeting the class of page that check
+      # exempts. Three sessions built a comparison page for
+      # `overtime-pay-calculator` on 2026-09-16, the afternoon it shipped, each
+      # after an honest overlap check that was clean when it ran -- the
+      # collisions landed in the window between reading open PRs and pushing.
+      # This reads the tree instead, so it cannot be raced, and it budgets only
+      # the generic-method page ("vs. a spreadsheet", "vs. doing it by hand"),
+      # of which there is one real angle per tool. Comparisons against distinct
+      # named products are unbudgeted; see the module header for why a naive
+      # per-venture count gets that backwards.
+      - name: No venture accumulates duplicate generic-method comparison pages
+        run: node platform/pages/surface-budget.mjs --check
+
+      - name: Surface-budget unit tests
+        run: node --test platform/pages/surface-budget.test.mjs
 
       # The FAQ backlog was drained by six concurrent sessions on 2026-08-30,
       # each appending a "Common questions" section to whichever ventures its
@@ -319,12 +607,56 @@ jobs:
       - name: Usage counters honour Do Not Track and Global Privacy Control
         run: node platform/privacy/browser-signals.mjs
 
-      - name: Browser-signal checker unit tests
-        run: node --test platform/privacy/browser-signals.test.mjs
+      # The other half of the same promise. `browser-signals.mjs` finds its
+      # subjects by filename (`usage.mjs` / `usage.js`), and 11 ventures keep
+      # the counter inline in the page or in `app.mjs` instead -- so the step
+      # above reported a clean run over a fifteenth of the catalogue it never
+      # looked at. This checks those structurally: the signal must be consulted
+      # before the write, with a branch between them.
+      #
+      - name: Inline usage counters honour Do Not Track and Global Privacy Control
+        run: node platform/privacy/inline-signals.mjs
+
+      # GLOBBED, and the comment this replaces is why. It said the suites were
+      # "named explicitly rather than globbed, matching the steps around it",
+      # and noted in the same breath that a suite not named here "would have
+      # run *nowhere* in CI -- the same defect being fixed, one layer up".
+      #
+      # That prediction came true on 2026-09-12. `optout-persistence.test.mjs`
+      # was added with a catalogue-wide assertion that all 69 ventures offering
+      # an opt-out keep it across a reload, `CLAUDE.md`'s local list covered it
+      # via `platform/privacy/*.test.mjs` so every session ran it, and CI ran
+      # it nowhere. A reviewer caught it before the merge.
+      #
+      # A hand-maintained list of filenames in a directory whose whole purpose
+      # is catching promises nobody checks will lose the next file too. The
+      # glob cannot: `checklist_coverage.py` already fails when a new test
+      # DIRECTORY appears, and this closes the same gap one level down, for
+      # files inside a directory CI already knows about.
+      - name: Privacy checker unit tests
+        run: node --test platform/privacy/*.test.mjs
 
       - name: Publish-surface unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_publish_surface
+
+      # The other half of that pair. `publish_surface.py` reads what a merge
+      # *ships*; `public_surface.py` reads what the hostnames actually
+      # *serve*, and only the second can contradict a stale claim. These tests
+      # open no socket -- the probe itself runs in `public-surface-check.yml`,
+      # which needs a runner's unrestricted egress and no credential at all.
+      - name: Public-surface prober unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_public_surface
+
+      # The third of the set. The prober above detects an outage; this one
+      # decides *which owner action would end it*, which is the question the
+      # decision queue ranks on. Its verdict branches are the tested surface:
+      # one of them invalidates the currently top-ranked ask, so a regression
+      # here would send the owner after the wrong credential.
+      - name: Outage-triage decision-tree tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_outage_triage
 
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci

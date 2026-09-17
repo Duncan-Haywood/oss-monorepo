@@ -402,6 +402,48 @@ test('an amount that is zero at cent precision has no sign', () => {
   assert.equal(money(0.004), '$0.00');
 });
 
+test('a figure carries the currency the venture quotes in, not always a dollar', () => {
+  // The default is what all 102 bid calculators render and must not move.
+  assert.equal(money(1234.5), '$1,234.50');
+  // A label is spaced off the figure; a symbol is not. This is the whole
+  // difference a reader sees, and it is why the separator is derived rather
+  // than left to each caller to remember.
+  assert.equal(money(1234.5, 'USD'), 'USD\u00a01,234.50');
+  assert.equal(money(1234.5, 'EUR'), 'EUR\u00a01,234.50');
+  assert.equal(money(1234.5, '€'), '€1,234.50');
+  assert.equal(money(1234.5, '£'), '£1,234.50');
+  // Sign stays outside the currency, whichever form it takes.
+  assert.equal(money(-9.24, 'USD'), '-USD\u00a09.24');
+  assert.equal(money(-9.24, '€'), '-€9.24');
+  // A cleared currency box must not produce a bare number on a document
+  // someone pays against.
+  assert.equal(money(9.24, ''), '$9.24');
+  assert.equal(money(9.24, '   '), '$9.24');
+  assert.equal(money(9.24, undefined), '$9.24');
+});
+
+test('the rendered sheet prices in the currency it was given', () => {
+  const proposal = buildProposal({
+    companyName: 'Ines Delacroix Translations',
+    clientName: 'Brunner Medizintechnik GmbH',
+    price: 580,
+    depositPercent: 30,
+    issuedOn: '2026-09-03',
+  });
+  const html = renderProposalHtml(proposal, { currency: 'EUR' });
+  // Every figure on the sheet, not just the total: a deposit line still
+  // reading "$174.00" beside a "EUR 580.00" total is the same misstatement.
+  assert.match(html, /EUR\u00a0580\.00/);
+  assert.match(html, /EUR\u00a0174\.00/);
+  assert.match(html, /EUR\u00a0406\.00/);
+  assert.equal(html.includes('$'), false, 'no dollar figure survives on a euro quote');
+
+  // And the default is unchanged for every caller that passes nothing.
+  const dollars = renderProposalHtml(proposal);
+  assert.match(dollars, /\$580\.00/);
+  assert.match(dollars, /\$174\.00/);
+});
+
 test('rounding is symmetric about zero', () => {
   // Half a cent rounds away from zero on both sides; a magnitude-then-sign
   // implementation gets this right only if it rounds the magnitude.

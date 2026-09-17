@@ -13,7 +13,10 @@ an over-target quote must move. Optional provider names make the result easier t
 share, and the page shows monthly, annual, and percentage savings against the
 higher quote.
 Download the comparison as a named CSV record for spreadsheet review, including
-an optional target-budget decision and the review safeguard.
+an optional target-budget decision and the review safeguard. Copy a comparison
+link to send the same provider names and totals to a coworker or negotiator
+without retyping them — the link carries only the compared fields and never
+touches a server.
 Use [Volume sensitivity](./sensitivity.html) to see how minimum charges and
 true cost per order change at 25, 50, 100, 250, and 500 monthly orders.
 Use [When return fees flip the quote](./returns-sensitivity.html) to hold the

@@ -93,3 +93,17 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same interior-enclosure subcategory, but glazed sunroom /
+// three-season (glass, thermal floor, insulated roof) rather than screened
+// porch / lanai (wall-screen, knee wall, mesh). Without a crawlable link here,
+// a crawler entering on the screened-porch calculator never reaches the
+// sunroom tool in one hop.
+test('index links one hop to the sunroom-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/sunroom-bid-calculator\/"/,
+    'index must link ../sunroom-bid-calculator/ so crawlers reach the sunroom calculator in one hop',
+  );
+  assert.match(html, /sunroom bid calculator/i);
+});

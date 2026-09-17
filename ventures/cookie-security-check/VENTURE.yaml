@@ -1,0 +1,67 @@
+name: cookie-security-check
+description: >-
+  A free CLI (+ a browser report viewer) for web developers and security
+  researchers: sends one real HTTP GET request to a URL and classifies the
+  response's Set-Cookie headers into named misconfiguration patterns -- a
+  SameSite=None cookie missing Secure (which current browsers reject
+  outright rather than merely weaken), a __Host-/__Secure- prefixed cookie
+  that violates the attribute rules those prefixes require (also a silent
+  browser rejection, not just a weaker cookie), plus lower-severity notices
+  for a missing Secure flag, a missing HttpOnly flag, and no SameSite
+  attribute at all. Parses Set-Cookie correctly from Node's already-split
+  header array rather than joining and re-splitting on commas, which breaks
+  on the comma inside an Expires date.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer or security researcher checking a site's cookies for
+      misconfiguration will search the exact terminology ("SameSite=None
+      without Secure", "__Host- cookie prefix rules", "__Secure- cookie
+      rejected") and find this tool, since no existing free tool packages
+      the browser-rejection cases (not just the weaker-protection cases)
+      behind one command with a plain-English report naming the exact
+      Set-Cookie attribute that proves each finding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      security-headers-check's own README explicitly lists cookie flags as
+      out of scope, and no sibling venture in this portfolio covers them --
+      so this fills a gap the portfolio's own most similar tool already
+      named rather than duplicating existing coverage.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or security team that gets a clean report will wire the
+      CLI into their own staging-environment CI as a regression gate,
+      producing return usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free tool covering the same SameSite=None-without-
+    Secure and __Host-/__Secure- prefix-rejection patterns with the same
+    zero-install bar becomes the obvious default, such that this tool's
+    differentiation (one command, plain-English report, shared
+    classification core tested independently of the network layer) no
+    longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cookie-security-check/
+  analytics: null

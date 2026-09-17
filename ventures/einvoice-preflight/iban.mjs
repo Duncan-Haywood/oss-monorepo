@@ -55,7 +55,17 @@ function mod97Ok(compact) {
 export function looksLikeCompleteIban(value) {
   const compact = normalizeIban(value);
   if (compact === null) return false;
-  return classify(compact) === "checksum" || classify(compact) === "format";
+  // "checksum" is a known-length (or unknown-country) shape ready for the
+  // mod-97 check; "bad-format" is a known country whose length is wrong.
+  // Both are IBAN-shaped enough for the cross-field checks that gate on this
+  // (BIC country match, remittance-missing, payment-means-needs-IBAN) --
+  // only "unknown" (no country-shaped prefix at all, e.g. an internal
+  // account id) should read as "there is no IBAN here". This used to check
+  // for a classify() result of "format", which classify() never returns, so
+  // every wrong-length IBAN silently read as "not an IBAN" and skipped those
+  // checks instead of surfacing them alongside the length finding.
+  const kind = classify(compact);
+  return kind === "checksum" || kind === "bad-format";
 }
 
 function checkExplicit(value, path) {

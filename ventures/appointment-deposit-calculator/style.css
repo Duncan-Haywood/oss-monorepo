@@ -8,3 +8,10 @@
 .usage-table th, .usage-table td { border-bottom: 1px solid #ddd7ca; padding: 8px 6px; text-align: right; vertical-align: top; }
 .usage-table th:first-child, .usage-table td:first-child { text-align: left; }
 .shell { max-width: 860px; margin: auto; padding: 28px 18px 60px; }
+
+/* The net-revenue figure in the "Does the deposit pay for itself?" panel. The
+   sign is the whole answer, so it gets a colour as well as the +/- the script
+   writes -- and the contrast is checked against the #f4f1eb result tile these
+   sit on, not against the #fffdf8 card, which is what surrounds the tile. */
+dd[data-direction="gain"] { color: #1f5b38; }
+dd[data-direction="loss"] { color: #9c231c; }

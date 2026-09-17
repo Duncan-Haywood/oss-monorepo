@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. ExpressIFTA | IFTA Quarterly Fuel Tax Calculator</title>
+<meta name="description" content="ExpressIFTA is a paid, account-based IFTA return preparation service that ships a built-in, auto-updating rate table and costs $24.95 per quarterly return. This is a free, private, no-account browser worksheet that ships no rate table by design and flags the surcharge and data-entry errors an audit looks for. Not affiliated with ExpressIFTA or ExpressTruckTax.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-expressifta.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. ExpressIFTA">
+<meta property="og:description" content="ExpressIFTA prepares your IFTA return in a paid account and keeps its own rate table current for you. This page is a free, private worksheet that ships no rate table on purpose and exists to catch the surcharge-netting error and the audit-shaped mistakes a filer makes by hand.">
+<meta property="og:url" content="https://example.invalid/ifta-quarterly-fuel-tax-calculator/vs-expressifta.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or ExpressIFTA?","acceptedAnswer":{"@type":"Answer","text":"They solve different parts of the same quarter. ExpressIFTA, from ExpressTruckTax/SPAN Enterprises, is a paid, account-based service: you enter your trip and fuel data for free, and it charges $24.95 per quarterly return (regardless of fleet size, no subscription) to generate your state-specific IFTA return, using a fuel-tax rate table it updates itself each quarter. It does not file the return with your base jurisdiction for you — you still submit what it prepares. This calculator does one narrower thing for free, with no account: given the miles and gallons you already pulled from your trip sheets or fuel-card statements, it works out fleet MPG, taxable and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged — on every taxable gallon burned there, with no credit for fuel bought there — and flags three data-entry errors an IFTA audit looks for. It ships no rate table on purpose: you type in this quarter's rate from the official sheet, so nothing here can go stale between quarters. A carrier who wants a service to hold their rate table and produce the filing paperwork is better served by ExpressIFTA or a comparable provider. A carrier who has their miles and gallons in hand and wants an instant, private check on the surcharge and the common transcription errors before they file is in the right place here."}},{"@type":"Question","name":"Does ExpressIFTA handle the surcharge correctly?","acceptedAnswer":{"@type":"Answer","text":"This page does not know, and does not claim to. ExpressIFTA's own marketing describes automatic per-jurisdiction rate updates and accurate fuel tax calculations; it does not publish enough detail in public view to confirm how it nets a surcharge state against a fuel-tax credit elsewhere. What is verifiable is the error this calculator exists to catch: a return that treats a state's surcharge as an ordinary tax rate, netted against that state's fuel credit, understates what is owed — $328.42 on the worked example this calculator opens with, because a surcharge applies to every taxable gallon burned there with nothing credited back. Whichever tool you use, check that its surcharge line survives being netted against a credit before you file from it."}},{"@type":"Question","name":"Do I need an account to use either one?","acceptedAnswer":{"@type":"Answer","text":"For ExpressIFTA, yes: its own site describes creating an account and entering your business and vehicle details before you can generate a return. This calculator needs no account and no sign-in — it is a static page, the arithmetic runs in your browser, and it keeps working with the connection off once it has loaded."}},{"@type":"Question","name":"Why doesn't this calculator ship a rate table the way ExpressIFTA does?","acceptedAnswer":{"@type":"Answer","text":"Because a rate table baked into a free, rarely-updated static page goes stale, and IFTA rates change every quarter across 58 jurisdictions, sometimes mid-quarter. ExpressIFTA is a maintained paid service and can credibly promise to keep its table current; a tool like this one cannot make that promise honestly, so instead of guessing it asks you to type in the rate and surcharge from the official quarterly sheet for the jurisdictions you actually ran in. That is more typing than a service with a built-in table asks for, and it is the trade this calculator makes on purpose rather than the trade every filer wants."}},{"@type":"Question","name":"Is this page affiliated with ExpressIFTA?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by ExpressIFTA, ExpressTruckTax, or SPAN Enterprises. ExpressIFTA is a trademark of its owner, named here only to describe what this calculator is and is not."}}]}</script>
+<style>
+  :root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b2430;background:#eef0f2}
+  body{max-width:900px;margin:0 auto;padding:1.5rem}
+  a{color:#143a5e;overflow-wrap:anywhere}
+  .eyebrow{font-weight:700}
+  header{margin:1rem 0}
+  h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.04em}
+  .lede{font-size:1.05rem;max-width:66ch;color:#47535e}
+  section{background:#fbfcfd;border:1px solid #ccd4da;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #12283310;margin:1rem 0}
+  h2{margin-top:0}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d5dce1;vertical-align:top}
+  th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#47535e}
+  .fine,.note{font-size:.88rem;color:#47535e}
+  footer{color:#47535e;font-size:.86rem}
+  footer p{margin:.6rem 0}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; IFTA Quarterly Fuel Tax Calculator</a></p>
+<header>
+<h1>This calculator vs. ExpressIFTA</h1>
+<p class="lede">Two different shapes: ExpressIFTA is a paid, account-based service that holds a fuel-tax rate table for you and generates the state-specific return. This is a free, private, no-account browser worksheet that ships no rate table on purpose and exists to catch the surcharge-netting error and the transcription mistakes an IFTA audit looks for.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>ExpressIFTA</strong>, from ExpressTruckTax / SPAN Enterprises, is an
+  IFTA return preparation service. Entering your mileage and fuel data costs
+  nothing; generating the actual jurisdiction-by-jurisdiction return costs
+  <strong>$24.95 per quarterly filing</strong>, regardless of how many vehicles
+  are on it, with no separate monthly subscription. It requires creating an
+  account and entering your business and vehicle details. It carries a fuel
+  tax rate table that it updates itself each quarter, along with trip-sheet
+  entry and GPS-upload features for building up your mileage record. It
+  prepares a state-specific return for you to review and file &mdash; it does
+  not submit that return to your base jurisdiction on your behalf; you remain
+  the filer.
+</p>
+<p>
+  This calculator does none of what ExpressIFTA does. It does not hold your
+  trip history, take a GPS feed, keep an account, or maintain a rate table.
+  Given the miles and gallons you have already pulled together per
+  jurisdiction &mdash; from trip sheets, an ELD export, or fuel-card
+  statements &mdash; and this quarter's rates from the official IFTA sheet, it
+  computes fleet-wide average MPG, taxable and net taxable gallons per
+  jurisdiction, the Indiana/Kentucky/Virginia surcharge charged on every
+  taxable gallon burned there with no credit for fuel bought there, interest
+  on a late return accrued per jurisdiction owed, and three checks aimed at
+  the errors an IFTA audit looks for: an implausible fleet MPG, fuel bought
+  where no miles were recorded, and taxable miles sitting at a zero rate. It
+  runs free in any browser, keeps no account, and uploads nothing you type.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want a service that keeps a current rate table and generates my state-specific IFTA return.</td><td>ExpressIFTA, or a comparable paid IFTA filing service &mdash; that is what it is built for.</td></tr>
+<tr><td>I already have my per-jurisdiction miles and gallons and want an instant check on the surcharge and the common transcription errors, without an account.</td><td>This calculator &mdash; free, private, no sign-up.</td></tr>
+<tr><td>Does my return understate what I owe by netting a surcharge state against a fuel-tax credit somewhere else?</td><td>This calculator's surcharge-gap panel, which quotes the exact shortfall.</td></tr>
+<tr><td>What is my fleet's average MPG this quarter, computed the way the return requires?</td><td>This calculator, fleet-wide across every jurisdiction entered.</td></tr>
+<tr><td>I need trip-sheet entry, a GPS mileage feed, or an account my whole office can use across quarters.</td><td>ExpressIFTA or a comparable service &mdash; this calculator keeps no history and no account.</td></tr>
+<tr><td>How does the math behind an IFTA quarterly return actually work?</td><td>This calculator's own <a href="./how-to-calculate-ifta-quarterly-tax.html">worked example</a>.</td></tr>
+<tr><td>Do I need to create an account or pay to use the tool?</td><td>This calculator: no, for either. ExpressIFTA: an account, and $24.95 to generate the return.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most carriers who file their own IFTA get different value from each:
+  ExpressIFTA (or a comparable paid service) for a maintained rate table and a
+  generated, filing-ready return across quarters, and a private calculator
+  like this one for an instant, no-login gut-check on the surcharge and the
+  transcription errors before you commit to a return &mdash; whichever tool
+  produces the numbers you actually file.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this calculator or ExpressIFTA?</h3>
+<p>They solve different parts of the same quarter. ExpressIFTA, from ExpressTruckTax/SPAN Enterprises, is a paid, account-based service: you enter your trip and fuel data for free, and it charges $24.95 per quarterly return (regardless of fleet size, no subscription) to generate your state-specific IFTA return, using a fuel-tax rate table it updates itself each quarter. It does not file the return with your base jurisdiction for you &mdash; you still submit what it prepares. This calculator does one narrower thing for free, with no account: given the miles and gallons you already pulled from your trip sheets or fuel-card statements, it works out fleet MPG, taxable and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged &mdash; on every taxable gallon burned there, with no credit for fuel bought there &mdash; and flags three data-entry errors an IFTA audit looks for. It ships no rate table on purpose: you type in this quarter's rate from the official sheet, so nothing here can go stale between quarters. A carrier who wants a service to hold their rate table and produce the filing paperwork is better served by ExpressIFTA or a comparable provider. A carrier who has their miles and gallons in hand and wants an instant, private check on the surcharge and the common transcription errors before they file is in the right place here.</p>
+<h3>Does ExpressIFTA handle the surcharge correctly?</h3>
+<p>This page does not know, and does not claim to. ExpressIFTA's own marketing describes automatic per-jurisdiction rate updates and accurate fuel tax calculations; it does not publish enough detail in public view to confirm how it nets a surcharge state against a fuel-tax credit elsewhere. What is verifiable is the error this calculator exists to catch: a return that treats a state's surcharge as an ordinary tax rate, netted against that state's fuel credit, understates what is owed &mdash; $328.42 on the worked example this calculator opens with, because a surcharge applies to every taxable gallon burned there with nothing credited back. Whichever tool you use, check that its surcharge line survives being netted against a credit before you file from it.</p>
+<h3>Do I need an account to use either one?</h3>
+<p>For ExpressIFTA, yes: its own site describes creating an account and entering your business and vehicle details before you can generate a return. This calculator needs no account and no sign-in &mdash; it is a static page, the arithmetic runs in your browser, and it keeps working with the connection off once it has loaded.</p>
+<h3>Why doesn't this calculator ship a rate table the way ExpressIFTA does?</h3>
+<p>Because a rate table baked into a free, rarely-updated static page goes stale, and IFTA rates change every quarter across 58 jurisdictions, sometimes mid-quarter. ExpressIFTA is a maintained paid service and can credibly promise to keep its table current; a tool like this one cannot make that promise honestly, so instead of guessing it asks you to type in the rate and surcharge from the official quarterly sheet for the jurisdictions you actually ran in. That is more typing than a service with a built-in table asks for, and it is the trade this calculator makes on purpose rather than the trade every filer wants.</p>
+<h3>Is this page affiliated with ExpressIFTA?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by ExpressIFTA, ExpressTruckTax, or SPAN Enterprises. ExpressIFTA is a trademark of its owner, named here only to describe what this calculator is and is not.</p>
+<p class="note">
+  Open the <a href="./">IFTA Quarterly Fuel Tax Calculator</a> to work your own quarter.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about what your base jurisdiction requires, which miles any jurisdiction exempts, whether your vehicle is qualified, what rate applies to your fuel type, or what you owe &mdash; and the figures it opens with are an illustrative example rather than a rate table. It is arithmetic on the numbers you type. Verify every figure against your own trip and fuel records, the official IFTA rate table for the quarter you are filing, and a qualified tax professional before you file from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your mileage, fuel purchases, jurisdictions and the figures worked out here are never uploaded and never appear in a usage count.</p>
+<p class="support">Free and open source. If it saves you a quarter&rsquo;s worth of arguing with a spreadsheet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

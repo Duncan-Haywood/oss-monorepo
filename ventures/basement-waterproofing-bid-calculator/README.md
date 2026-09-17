@@ -20,6 +20,13 @@ npx http-server ventures/basement-waterproofing-bid-calculator -p 8080
 cd ventures/basement-waterproofing-bid-calculator && node --test
 ```
 
+See [this calculator vs. Oblyss](vs-oblyss.html) for which job fits a
+one-off bid check versus an ongoing, paid CRM and warranty-tracking
+platform, and
+[this calculator vs. a flat rate per lineal foot](vs-a-flat-rate-per-lineal-foot.html)
+for why a shorter, well- and pit-heavy job can cost more than a longer,
+simpler one.
+
 After using this, you can now send a walk-away price that includes the first
 window well and a new pit, which used to take a per-lineal-foot guess that
 matched a cheaper brochure job.

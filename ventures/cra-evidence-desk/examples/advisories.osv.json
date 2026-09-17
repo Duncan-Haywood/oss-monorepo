@@ -1,0 +1,22 @@
+{
+  "vulns": [
+    {
+      "id": "GHSA-demo-1234",
+      "summary": "Example parser issue requiring review",
+      "affected": [
+        { "package": { "ecosystem": "npm", "name": "demo-parser" }, "versions": ["1.2.3"] }
+      ],
+      "references": [{ "type": "ADVISORY", "url": "https://osv.dev/GHSA-demo-1234" }]
+    },
+    {
+      "id": "GHSA-range-only-5678",
+      "summary": "Example advisory expressed as a version range",
+      "affected": [
+        {
+          "package": { "ecosystem": "Maven", "name": "org.apache.commons:commons-lang3" },
+          "ranges": [{ "type": "ECOSYSTEM", "events": [{ "introduced": "0" }, { "fixed": "9.9.9" }] }]
+        }
+      ]
+    }
+  ]
+}

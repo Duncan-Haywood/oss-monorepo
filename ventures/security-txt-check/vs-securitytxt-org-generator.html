@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>security.txt Checker vs. securitytxt.org's Generator and Validator</title>
+  <meta name="description" content="securitytxt.org is the reference site for RFC 9116 and the place to generate a security.txt in the first place. This tool is for the question that comes after: is the file you already published still valid a year later? An honest comparison of what each is for, including where securitytxt.org is the better answer.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-securitytxt-org-generator.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="security.txt Checker vs. securitytxt.org">
+  <meta property="og:description" content="One generates the file, the other keeps checking it. Which you want depends on whether you are publishing a security.txt for the first time or finding out whether last year's has expired.">
+  <meta property="og:url" content="./vs-securitytxt-org-generator.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this or securitytxt.org?","acceptedAnswer":{"@type":"Answer","text":"If you do not have a security.txt yet, start at securitytxt.org: filling in a form is a better way to produce a first file than reading an RFC. Come back here for the question that arrives later, which is whether the file you already published is still doing anything. The two cover the start and the middle of the same job, and using both is the sensible answer."}},{"@type":"Question","name":"Why does a security.txt need re-checking at all?","acceptedAnswer":{"@type":"Answer","text":"Because Expires is a date. A generator is used once, but RFC 9116 makes the expiry field mandatory and time-bound, so conformance is not a one-time state — which means the useful tool is the one you can put on a schedule and forget, rather than the one you have to remember to revisit."}},{"@type":"Question","name":"When is securitytxt.org the better answer?","acceptedAnswer":{"@type":"Answer","text":"When you are publishing for the first time, since a form that emits a correct file beats a checker that tells you the file you do not have is missing. When you want the canonical reading of the spec, since it is the format's own site and this is a third-party checker with no special authority. And when you want to sign the file interactively, since nothing here generates or signs keys — this tool only reads what you already have."}},{"@type":"Question","name":"Is this comparison a live feature audit?","acceptedAnswer":{"@type":"Answer","text":"No. This page describes securitytxt.org from its well-known role as the format's reference site rather than from a fetch made while writing it, and a site can change. Check it yourself before treating any row as current — and if it now does the thing you need, use it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.6rem, 4.6vw, 2.2rem); line-height: 1.12; color: #17324a; margin: .3rem 0; }
+    h2 { font-size: 1.1rem; margin: 1.4rem 0 .4rem; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 1rem 0; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    pre.example { background: #f7f9fb; padding: 10px 12px; border-radius: 8px; font-size: .84rem; overflow-x: auto; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; security.txt Checker</a></p>
+  <h1>This tool vs. securitytxt.org's generator and validator</h1>
+  <p>
+    <a href="https://securitytxt.org/" rel="noopener nofollow">securitytxt.org</a> is the reference
+    site for the format — it is where most people first meet <code>security.txt</code>, and it
+    offers a form that generates a file and a validator that checks one. If you do not have a
+    <code>security.txt</code> yet, start there: filling in a form is a better way to produce a first
+    file than reading an RFC.
+  </p>
+  <p>
+    This tool is aimed at a different moment. Not <em>"help me write one"</em>, but <em>"the one we
+    wrote eighteen months ago — is it still doing anything?"</em> Those turn out to want different
+    shapes.
+  </p>
+
+  <h2>The difference in one sentence</h2>
+  <p>
+    A generator is used once. <code>Expires</code> is a date, so conformance is not a one-time
+    state — which means the useful tool is the one you can put on a schedule and forget, rather
+    than the one you have to remember to revisit.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th>securitytxt.org</th><th>This tool</th></tr></thead>
+      <tbody>
+        <tr><td>Main job</td><td>Generate a conforming file, and validate one interactively</td><td>Re-check a file you already publish, by hand or on a schedule</td></tr>
+        <tr><td>Interface</td><td>Web form</td><td>Web page <em>and</em> a zero-dependency Node CLI</td></tr>
+        <tr><td>Usable in CI</td><td>Not its purpose</td><td>Yes — exit code 1 on a must-fix finding</td></tr>
+        <tr><td>Fetches your live file</td><td>—</td><td>Yes: tries <code>/.well-known/security.txt</code>, then the legacy root copy</td></tr>
+        <tr><td>Checks the served location and media type</td><td>—</td><td>Yes, in CLI mode (a paste cannot show either)</td></tr>
+        <tr><td>Separates must-fix from worth-knowing</td><td>—</td><td>Yes: RFC MUSTs are dangers, SHOULDs and typos are notices</td></tr>
+        <tr><td>Runs without sending your file anywhere</td><td>—</td><td>Yes — browser-local, or your own machine via the CLI</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">
+    The dashes are "not what that tool is for", not "does it badly". The two columns are also not a
+    live feature audit: this page describes securitytxt.org from its well-known role as the
+    format's reference site rather than from a fetch made while writing it, and a site can change.
+    Check it yourself before treating the row as current — and if it now does the thing you need,
+    use it.
+  </p>
+
+  <h2>When securitytxt.org is the better answer</h2>
+  <ul>
+    <li><strong>You are publishing for the first time.</strong> A form that emits a correct file
+      beats a checker that tells you the file you do not have is missing.</li>
+    <li><strong>You want the canonical reading of the spec.</strong> It is the format's own site;
+      this is a third-party checker with no special authority.</li>
+    <li><strong>You want to sign the file interactively.</strong> Nothing here generates or signs
+      keys — this tool only reads what you already have.</li>
+  </ul>
+
+  <h2>When this one is</h2>
+  <ul>
+    <li><strong>You want to find out before a researcher does.</strong> An expired file serves a
+      200, reads correctly, and publishes nothing to a conforming consumer. Only a deliberate check
+      catches that.</li>
+    <li><strong>You want it automated.</strong> One scheduled job, no account, no form:</li>
+  </ul>
+  <pre class="example">node check.mjs example.com   # exit 1 once Expires has passed</pre>
+  <ul>
+    <li><strong>You manage more than one domain.</strong> A form is per-file; a CLI is a loop.</li>
+    <li><strong>You would rather not paste it into a website at all.</strong> The browser page here
+      never uploads what you type, and the CLI talks only to the host you name.</li>
+  </ul>
+
+  <h2>Using both is the sensible answer</h2>
+  <p>
+    Generate the file at securitytxt.org, publish it at
+    <code>/.well-known/security.txt</code>, then put <code>node check.mjs yourdomain.com</code> on a
+    monthly schedule so the expiry date stops being something you have to hold in your head. The
+    two tools are not really competing; they cover the start and the middle of the same job.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>Should I use this or securitytxt.org?</h3>
+  <p>If you do not have a <code>security.txt</code> yet, start at securitytxt.org: filling in a form is a better way to produce a first file than reading an RFC. Come back here for the question that arrives later, which is whether the file you already published is still doing anything. The two cover the start and the middle of the same job, and using both is the sensible answer.</p>
+  <h3>Why does a security.txt need re-checking at all?</h3>
+  <p>Because <code>Expires</code> is a date. A generator is used once, but RFC 9116 makes the expiry field mandatory and time-bound, so conformance is not a one-time state — which means the useful tool is the one you can put on a schedule and forget, rather than the one you have to remember to revisit.</p>
+  <h3>When is securitytxt.org the better answer?</h3>
+  <p>When you are publishing for the first time, since a form that emits a correct file beats a checker that tells you the file you do not have is missing. When you want the canonical reading of the spec, since it is the format's own site and this is a third-party checker with no special authority. And when you want to sign the file interactively, since nothing here generates or signs keys — this tool only reads what you already have.</p>
+  <h3>Is this comparison a live feature audit?</h3>
+  <p>No. This page describes securitytxt.org from its well-known role as the format's reference site rather than from a fetch made while writing it, and a site can change. Check it yourself before treating any row as current — and if it now does the thing you need, use it.</p>
+
+  <p class="note">Back to the tool: <a href="./">security.txt Checker</a>. Background: <a href="why-security-txt-expires.html">why RFC 9116 made <code>Expires</code> mandatory</a>.</p>
+  <footer>
+    <p><strong>Not affiliated with, endorsed by, or sponsored by securitytxt.org</strong> or the authors of RFC 9116. All names and trademarks belong to their respective owners, and this comparison reflects a good-faith reading of each tool's publicly described purpose, not a live feature audit.</p>
+    <p><strong>No warranty.</strong> This page and the tool it documents are provided free and as-is, without warranty of any kind, express or implied. Nothing here is legal or security advice. <strong>You are responsible for reviewing and verifying any output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. The code is under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -115,4 +115,76 @@ test("ticket summary is review-ready and does not invent a verdict", () => {
   assert.match(text, /added shop\/update/);
   assert.match(text, /not a security certification/);
   assert.equal(formatChange({ app: "x", kind: "app_added" }), "App added: x");
+});
+
+test("absent webhook coverage is not reported as webhooks removed", () => {
+  // Capture writes webhooks: [] + webhook_coverage: "absent" when the GraphQL
+  // dump omitted webhookSubscriptions. Diffing that against a complete before
+  // inventory used to invent "removed app/uninstalled" — the product's core
+  // false-positive on its own evidence axis.
+  const afterAbsent = {
+    ...EXAMPLE_BEFORE,
+    captured_at: "2026-08-24T12:00:00Z",
+    limitations: ["webhooks_not_in_export"],
+    apps: EXAMPLE_BEFORE.apps.map((app) => ({
+      ...app,
+      webhooks: [],
+      webhook_coverage: "absent",
+    })),
+  };
+  const report = compare(EXAMPLE_BEFORE, afterAbsent);
+  assert.equal(report.status, "inconclusive");
+  assert.equal(report.review_required, true);
+  assert.deepEqual(
+    report.changes.map((change) => change.kind),
+    ["webhooks_not_compared", "webhooks_not_compared"],
+  );
+  assert.ok(!report.changes.some((change) => change.kind === "webhooks_changed"));
+  assert.match(
+    formatChange(report.changes[0]),
+    /Webhooks not compared on app-analytics.*Do not treat webhook diffs as evidence/,
+  );
+});
+
+test("scope drift still surfaces when webhooks cannot be compared", () => {
+  const afterAbsent = {
+    ...EXAMPLE_AFTER,
+    apps: EXAMPLE_AFTER.apps.map((app) =>
+      app.id === "app-analytics"
+        ? { ...app, webhooks: [], webhook_coverage: "absent" }
+        : app,
+    ),
+  };
+  const report = compare(EXAMPLE_BEFORE, afterAbsent);
+  assert.equal(report.status, "changed");
+  const kinds = report.changes.map((change) => change.kind);
+  assert.ok(kinds.includes("scopes_changed"));
+  assert.ok(kinds.includes("webhooks_not_compared"));
+  assert.ok(!kinds.includes("webhooks_changed"));
+});
+
+test("browser compare matches the Python CLI when webhook coverage is absent", () => {
+  const afterAbsent = {
+    ...EXAMPLE_BEFORE,
+    captured_at: "2026-08-24T12:00:00Z",
+    apps: EXAMPLE_BEFORE.apps.map((app) => ({
+      ...app,
+      webhooks: [],
+      webhook_coverage: "absent",
+    })),
+  };
+  const fromJs = compare(EXAMPLE_BEFORE, afterAbsent);
+  // Write under the venture tree — system tmpdir is not writable in every
+  // agent sandbox (errno -122), and the existing fixture parity tests already
+  // shell out to the Python CLI against paths on disk.
+  const dir = mkdtempSync(join(root, ".parity-"));
+  try {
+    const beforeFile = join(dir, "before.json");
+    const afterFile = join(dir, "after.json");
+    writeFileSync(beforeFile, JSON.stringify(EXAMPLE_BEFORE));
+    writeFileSync(afterFile, JSON.stringify(afterAbsent));
+    assert.deepEqual(fromJs, pythonReport(beforeFile, afterFile));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

@@ -198,3 +198,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same gutter-contractor trade, but a new hang (miters,
+// drops, tear-off) rather than leaf guards on existing trough. Related-tool
+// chrome rotates inside the trades category, so without an explicit one-hop
+// a crawler on this page may never land on that tool.
+test('index links one hop to the gutter-install-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/gutter-install-bid-calculator\/"/,
+    'index must link ../gutter-install-bid-calculator/ so crawlers reach the install calculator in one hop',
+  );
+  assert.match(html, /gutter install bid calculator/i);
+});

@@ -1,0 +1,43 @@
+name: actions-runner-starvation-check
+description: Free tool that tells you whether a red GitHub Actions check is a real failure or a job GitHub never assigned a runner to, by reading the run's own runner_id field instead of guessing from duration.
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up: this generalizes an already-built,
+# already-tested internal tool (platform/ci/ci_starvation.py and its test
+# suite), built to solve this exact problem for this monorepo during the
+# CI-starvation incidents CLAUDE.md documents at length from 2026-08-26
+# onward. The classify/report logic here is a faithful port -- same
+# behaviour, same test cases -- generalized to any GitHub repository rather
+# than staying repo-specific prose. See portfolio/pipeline/README.md's
+# archetype-saturation note for why this venture is a different product
+# shape (CLI/library, developer niche) rather than another arithmetic bid
+# calculator.
+hypotheses:
+  - claim: A maintainer or agent whose CI just went red across every check within seconds will search for why and land on a tool that reads the one field that actually decides, instead of guessing from duration.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team running CI-heavy agent fleets or bot PRs (where minutes exhaust faster and less visibly than for a human contributor) will wire the CLI into their own workflow to fail fast and clearly on starvation instead of a confusing red check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring check.py into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-runner-starvation-check/
+  analytics: null

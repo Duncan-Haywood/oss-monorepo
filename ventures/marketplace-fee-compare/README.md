@@ -65,6 +65,12 @@ reorder rate rather than one retail order. Ranking it beside six retail
 channels would produce a number that looks comparable and is not. It gets a
 pointer instead of a row.
 
+**Whatnot is excluded for the same reason in a different shape.** It is a
+livestream auction: commission is on the hammer and processing is on the
+checkout total (item plus buyer-paid shipping and tax), with published category
+caps a flat retail referral rate cannot express. It gets a pointer to
+`whatnot-seller-payout` instead of a row.
+
 **The own-store row carries a caveat attached to the win, not to the footnotes.**
 A Shopify checkout charges no referral fee and therefore tops the table on
 almost any item — arithmetically true and operationally misleading, because it

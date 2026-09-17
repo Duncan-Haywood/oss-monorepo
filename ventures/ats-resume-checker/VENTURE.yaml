@@ -1,0 +1,67 @@
+name: ats-resume-checker
+description: Free, no-upload tool that runs the "copy-paste test" career coaches already recommend by hand — paste the text copied out of your resume file and it flags the specific, well-documented symptoms of an ATS-breaking format (icon-font bullets, corrupted characters, missing section headings, buried contact info, missing dates, collapsed multi-column layouts) — entirely client-side, nothing uploaded.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: this is a
+# different product shape (browser checker, job-seeker audience) built the
+# same session per portfolio/pipeline/README.md's archetype-saturation note
+# -- 141 of ~200 ventures share the trade-bid-calculator shape with zero
+# recorded visitors, so this session weighed a different shape and a
+# different audience entirely rather than a 202nd calculator. Followed the
+# same lightweight precedent as ventures/actions-runner-starvation-check
+# (also screened and scored inline rather than through a full
+# candidates.yaml write-up, for the same reason: a generalized checker
+# needing no market research, not a compliance/evidence business needing
+# the pipeline's full liability review).
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- being wrong costs nothing but a missed
+#     signal on one of several format checks a job seeker reviews
+#     themselves; no advice-of-record, no filing, no professional
+#     liability. Every finding is phrased as evidence ("this pattern was
+#     found, here is why it matters"), never as a determination
+#     ("this resume will/won't pass ATS") -- ATS behavior is vendor- and
+#     employer-specific and the tool says so.
+#   ethical_robustness: 8 -- a static, deterministic ruleset that does not
+#     get worse for users as traffic grows, no dark patterns, no upsell,
+#     no data collected server-side to monetize. Does not encourage
+#     keyword-stuffing or deception -- it only flags structural artifacts
+#     that break text extraction regardless of who reads it.
+#
+# Distribution: r/resumes and r/jobs are large, active subreddits with
+# constant "will this resume pass ATS" threads; "ats resume checker free"
+# and "ats resume checker no sign up" are established search phrases in
+# the career-advice niche. The differentiator against incumbents (Jobscan,
+# ResyMatch, Rezi, TopResume, VMock) is real: those require an account,
+# often a paid tier or credits, and usually a server-side upload of the
+# resume content -- this is 100% client-side with nothing to sign up for.
+hypotheses:
+  - claim: A job seeker who lands here from an "ats resume checker free" search or an r/resumes thread will run the copy-paste test and find at least one actionable formatting issue they did not already know about.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The "paste text you already copied, nothing uploaded" positioning converts better than incumbents' upload-and-sign-up flow for at least some visitors, measurable as return visits or a completed check without bouncing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ats-resume-checker/
+  analytics: null

@@ -141,6 +141,14 @@ a:hover {
   margin-top: 1.5rem;
 }
 
+.doc-support {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 3rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

@@ -62,6 +62,10 @@ dependency. See [`calc.test.mjs`](calc.test.mjs).
 A short answer to the search query lives in
 [`how-much-to-charge-to-install-solar-panels.html`](how-much-to-charge-to-install-solar-panels.html).
 
+How this differs from Aurora Solar (remote roof design and sales-proposal
+software) is covered in
+[`vs-aurora-solar.html`](vs-aurora-solar.html).
+
 ## Starting rates
 
 Roof factors and electrical extras ship with common ballpark figures.

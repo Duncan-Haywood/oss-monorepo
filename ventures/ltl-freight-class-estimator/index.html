@@ -25,12 +25,12 @@
   </style>
 </head>
 <body>
-  <header><p class="eyebrow">FOR SMALL SHIPPERS AND FREIGHT BROKERS</p><h1>Estimate the freight class before the quote.</h1><p>Enter the outside dimensions, weight, and number of identical pieces. You will see shipment cube, density, and a density-based LTL class estimate you can verify with your carrier.</p><p><a href="./how-to-calculate-freight-class.html">How do I calculate LTL freight class?</a></p></header>
+  <header><p class="eyebrow">FOR SMALL SHIPPERS AND FREIGHT BROKERS</p><h1>Estimate the freight class before the quote.</h1><p>Enter the outside dimensions, weight, and number of identical pieces. You will see shipment cube, density, and a density-based LTL class estimate you can verify with your carrier.</p><p><a href="./how-to-calculate-freight-class.html">How do I calculate LTL freight class?</a> &middot; <a href="./vs-smc3-fastclass.html">This calculator vs. SMC&sup3; FastClass</a></p></header>
   <main class="grid">
     <section><h2>Your freight</h2><p class="hint">Use the packed outside dimensions. Weight is per piece; pieces can be pallets, crates, or cartons.</p><div class="fields">
       <label>Length (inches)<input id="length" type="number" min="0.01" step="0.01" value="48"></label><label>Width (inches)<input id="width" type="number" min="0.01" step="0.01" value="40"></label><label>Height (inches)<input id="height" type="number" min="0.01" step="0.01" value="36"></label><label>Weight per piece (lb)<input id="weight" type="number" min="0.01" step="0.01" value="500"></label><label>Identical pieces<input id="pieces" type="number" min="1" step="1" value="1"></label>
     </div><div class="actions"><button id="copy" type="button">Copy estimate</button><button id="repack" type="button">Copy repack target</button><button id="share" type="button">Copy shareable link</button><button class="secondary" id="reset" type="button">Reset example</button></div><p id="status" class="hint" role="status"></p></section>
-     <section class="result"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><div class="levers"><p class="lever" id="leverCheaper"></p><p class="lever" id="leverDearer"></p></div><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
+     <section class="result" aria-live="polite"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><div class="levers"><p class="lever" id="leverCheaper"></p><p class="lever" id="leverDearer"></p></div><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
     <section id="faq">
       <h2>Common questions</h2>
 
@@ -99,10 +99,14 @@
         over a saved draft when you open one.</p>
     </section>
   </main>
-  <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></p>
+    <p>Auditing an accessorial invoice rather than estimating class? The <a href="../freight-accessorial-auditor/">freight accessorial invoice auditor</a> checks duplicate and over-expected charges against your rate card &mdash; nothing uploaded.</p>
+    <p>Free and open source. If it saved you a reclass dispute with the carrier, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
   <script type="module">
     import { estimateFreightClass } from './calc.mjs';
-    import { recordUsage, clearUsage } from './usage.mjs';
+    import { recordUsage, clearUsage, usageAllowed } from './usage.mjs';
     import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS as ids } from './share.mjs';
     import { leverText } from './levers.mjs';
     const value = id => document.getElementById(id).value;
@@ -170,7 +174,11 @@
       catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; }
     });
     document.getElementById('reset').addEventListener('click', () => { [['length',48],['width',40],['height',36],['weight',500],['pieces',1]].forEach(([id, val]) => { document.getElementById(id).value = val; }); countedSignature = ''; update(false); });
-    document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; });
+    const paintUsage = () => { document.getElementById('clearUsage').textContent = usageAllowed() ? 'Clear local usage count' : 'Local usage counting is off'; };
+    document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; paintUsage(); });
+    // Say so on arrival too: the choice survives in the module, and the
+    // control said nothing about it until the visitor clicked again.
+    paintUsage();
     document.getElementById('share').addEventListener('click', async () => {
       history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
       try { await navigator.clipboard.writeText(location.href); document.getElementById('status').textContent = 'Link copied — it reopens this page with the same numbers.'; }

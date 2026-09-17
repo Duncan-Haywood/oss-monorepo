@@ -116,6 +116,50 @@ class PermissionDriftTests(unittest.TestCase):
         self.assertTrue(report["review_required"])
         self.assertEqual(report["changes"][-1]["kind"], "capture_order_invalid")
 
+    def test_absent_webhook_coverage_is_not_reported_as_webhooks_removed(self):
+        # Capture writes webhooks: [] + webhook_coverage: "absent" when the
+        # GraphQL dump omitted webhookSubscriptions. Diffing that against a
+        # complete before inventory used to invent removals.
+        after_absent = {
+            **self.before,
+            "captured_at": "2026-08-24T12:00:00Z",
+            "limitations": ["webhooks_not_in_export"],
+            "apps": [
+                {**app, "webhooks": [], "webhook_coverage": "absent"}
+                for app in self.before["apps"]
+            ],
+        }
+        report = compare(self.before, after_absent)
+        self.assertEqual(report["status"], "inconclusive")
+        self.assertTrue(report["review_required"])
+        self.assertEqual(
+            [change["kind"] for change in report["changes"]],
+            ["webhooks_not_compared", "webhooks_not_compared"],
+        )
+        self.assertFalse(any(change["kind"] == "webhooks_changed" for change in report["changes"]))
+        rendered = render_markdown(report)
+        self.assertIn("Webhooks Not Compared", rendered)
+        self.assertIn("do not treat webhook diffs as evidence", rendered)
+
+    def test_scope_drift_still_surfaces_when_webhooks_cannot_be_compared(self):
+        after_absent = {
+            **self.after,
+            "apps": [
+                (
+                    {**app, "webhooks": [], "webhook_coverage": "absent"}
+                    if app["id"] == "app-analytics"
+                    else app
+                )
+                for app in self.after["apps"]
+            ],
+        }
+        report = compare(self.before, after_absent)
+        self.assertEqual(report["status"], "changed")
+        kinds = [change["kind"] for change in report["changes"]]
+        self.assertIn("scopes_changed", kinds)
+        self.assertIn("webhooks_not_compared", kinds)
+        self.assertNotIn("webhooks_changed", kinds)
+
 
 def load_inventory_from_data(data):
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json", encoding="utf-8") as handle:

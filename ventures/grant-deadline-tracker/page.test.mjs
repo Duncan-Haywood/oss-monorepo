@@ -7,6 +7,7 @@ import { faqEntries, injectChrome } from "../../platform/pages/build.mjs";
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const dueSeo = readFileSync(new URL("./when-is-my-next-grant-report-due.html", import.meta.url), "utf8");
 const writerSeo = readFileSync(new URL("./should-i-hire-a-grant-writer-to-file-this-report.html", import.meta.url), "utf8");
+const instrumentlSeo = readFileSync(new URL("./vs-instrumentl.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 
 test("the tracker page wires the late-report comparison without a build step", () => {
@@ -28,9 +29,21 @@ test("the tracker page wires the late-report comparison without a build step", (
   assert.match(html, /id="fill-risk"/);
   assert.match(html, /late_report_compared/);
   assert.match(html, /late_report_note_copied/);
+  assert.match(html, /id="copyRiskLink"/);
+  assert.match(html, /risk_share_link_copied/);
+  assert.match(html, /risk_shared_link_opened/);
+  assert.match(html, /from "\.\/share\.mjs"/);
   assert.match(html, /should-i-hire-a-grant-writer-to-file-this-report\.html/);
   assert.match(html, /Best-effort hosting, no SLA/);
   assert.match(html, /GitHub Sponsors/);
+});
+
+test("the tracker wires the calendar (.ics) export without a build step", () => {
+  assert.match(html, /icsCalendar/);
+  assert.match(html, /id="exportIcs"/);
+  assert.match(html, /text\/calendar/);
+  assert.match(html, /grant-deadlines\.ics/);
+  assert.match(html, /ics-exported/);
 });
 
 test("the due-date landing page stays crawlable and sends people to the tracker", () => {
@@ -71,6 +84,41 @@ test("the grant-writer landing page uses the same worked example the tests lock"
   assert.equal(comparison.yourself.net, 20912);
   assert.equal(comparison.writer.net, 20820);
   assert.match(sitemap, /should-i-hire-a-grant-writer-to-file-this-report\.html/);
+});
+
+test("the tracker links to its Instrumentl comparison page and is listed in the sitemap", () => {
+  assert.match(html, /vs-instrumentl\.html/);
+  assert.match(sitemap, /vs-instrumentl\.html/);
+});
+
+// Closest sibling: same nonprofit grant-reporting job, but it builds the
+// review queue from award dates and reporting intervals. Related-tool chrome
+// rotates inside the whole evidence category, so without an explicit one-hop
+// a crawler on this page reaches that tool only via /c/evidence/.
+test("index links one hop to the grant-reporting-tracker sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/grant-reporting-tracker\/"/,
+    "index must link ../grant-reporting-tracker/ so crawlers reach the reporting queue in one hop",
+  );
+  assert.match(html, /grant reporting tracker/i);
+});
+
+test("the vs-Instrumentl comparison page names what each tool is for, disclaims affiliation, and carries the standard disclaimer", () => {
+  assert.match(instrumentlSeo, /<title>This tracker vs\. Instrumentl/);
+  assert.match(instrumentlSeo, /name="description"/);
+  assert.match(instrumentlSeo, /"@type":"FAQPage"/);
+  assert.match(instrumentlSeo, /href="\.\/"/);
+  assert.match(instrumentlSeo, /instrumentl\.com\/pricing/);
+  assert.match(instrumentlSeo, /rel="nofollow noopener"/);
+  assert.match(instrumentlSeo, /not affiliated with, endorsed by, or sponsored by Instrumentl/i);
+  // No dollar figure for Instrumentl's own pricing is asserted anywhere on this
+  // page: that number could not be verified against a primary source reachable
+  // from this environment, so the comparison stays functional (what job each
+  // tool does) rather than citing a price this repo cannot confirm.
+  assert.doesNotMatch(instrumentlSeo, /Instrumentl[^.]*\$\d/);
+  assert.match(instrumentlSeo, /Best-effort hosting, no SLA/);
+  assert.match(instrumentlSeo, /GitHub Sponsors/);
 });
 
 test("an invalid risk input clears the stale comparison instead of leaving it next to a silent error", () => {

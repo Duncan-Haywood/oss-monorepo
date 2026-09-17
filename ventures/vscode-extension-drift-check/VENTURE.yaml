@@ -1,0 +1,80 @@
+name: vscode-extension-drift-check
+description: 'Free, read-only CLI/browser tool that snapshots which VS Code (or Cursor/Windsurf/VSCodium) extensions are installed and diffs two point-in-time snapshots to flag exactly which ones changed their activation surface -- a new startup-activation trigger, a new extension dependency, or a changed entry point -- since the last check, plus a live CLI-only lookup against the VS Code Marketplace to flag an installed extension that no longer resolves there. Neither VS Code nor the Marketplace notifies an existing installer when an extension it already trusts is later pulled for being malicious. Browser or zero-dependency CLI, no upload, no account.'
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up, and not a trade-bid calculator: same
+# "paste two point-in-time snapshots, get a deterministic diff" archetype as
+# ventures/license-drift-check and ventures/npm-lifecycle-script-check, which
+# portfolio/pipeline/README.md's "archetype itself" section (2026-09-07)
+# argues for over a 143rd <trade>-bid-calculator, since 141+ of 200+ ventures
+# already share that shape with zero recorded visitors between them.
+#
+# duplicate_check.py (2026-09-07) scored every existing venture,
+# screened-out.md row, and pipeline candidate below 0.12 for "CLI that
+# detects VS Code / Cursor extension marketplace drift - publisher change,
+# delisting, or permission escalation on already-installed extensions" --
+# nothing close to the 0.45 review bar. Read against the closest existing
+# ventures by eye as well: shopify-permission-drift tracks a merchant's
+# already-authorized Shopify *app* grants, a different platform and a
+# different customer entirely; license-drift-check and
+# npm-lifecycle-script-check both diff npm dependency-tree snapshots, not
+# editor extensions; mcp-supply-chain-watch monitors MCP server manifests a
+# customer has already connected. None of them read an installed VS
+# Code-family extension's own package.json, and none checks whether an
+# installed extension still resolves on the marketplace it came from.
+#
+# Distribution channel this was picked for: not "searchable, like the other
+# 141" -- real, dated, event-driven demand, confirmed by web search on
+# 2026-09-07. Two separate, current supply-chain incidents used exactly the
+# mechanism this tool watches: GlassWorm (ongoing since 2026-01-31, at least
+# 72 malicious Open VSX extensions mimicking common developer tools) and the
+# Nx Console VS Code Marketplace compromise (2026-05-18, a credential-stealing
+# trojanized build live for ~18 minutes before takedown, covered by
+# TheHackerNews and multiple security vendors). Confirmed the same day: no
+# existing free tool in this portfolio, and no widely known free tool
+# generally, diffs an *already-installed* extension's declared activation
+# surface across time or checks it against live marketplace delisting --
+# the closest public tools (trailofbits/vsix-audit, vscan.dev) perform
+# one-shot static malware analysis of a named extension, not a
+# point-in-time drift check of a developer's own installed set, and neither
+# extension host uninstalls or warns a user whose already-installed copy of
+# a since-pulled extension keeps running with no notice. The audience this
+# targets first: developers who lived through the GlassWorm or Nx Console
+# incident directly or by reading about it (heavy coverage on
+# thehackernews.com, Wiz, Aikido, and elsewhere), and anyone searching
+# "vscode extension supply chain", "is my vscode extension safe", or
+# "glassworm vscode extensions list" in the aftermath.
+hypotheses:
+  - claim: A developer who lived through the GlassWorm or Nx Console incident (directly or by reading about it) will search for a way to check whether their own installed extensions changed surface or were pulled from the marketplace, and will run the CLI against their own extensions directory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A security-conscious team standardizing an extension allowlist will prefer a one-command snapshot diff over manually re-reading every updated extension's package.json for a new activation event or dependency.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted into
+  # it, in the visitor's own browser, and `snapshot`/`diff` read only local
+  # files with no network call at all. `check` does call the network, but
+  # from the user's own machine against a public API this project pays
+  # nothing to serve. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/vscode-extension-drift-check/
+  analytics: null

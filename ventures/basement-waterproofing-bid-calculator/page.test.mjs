@@ -142,3 +142,27 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: same basement shop, but a finish rather than waterproofing.
+// Without a crawlable link here, a crawler entering on the waterproofing
+// calculator never reaches the finishing tool in one hop — same one-way orphan
+// class as #3709 / #3729 / #3743.
+test('index links one hop to the basement-finishing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/basement-finishing-bid-calculator\/"/,
+    'index must link ../basement-finishing-bid-calculator/ so crawlers reach the finishing calculator in one hop',
+  );
+});
+
+// Closest moisture-remediation sibling: same cleaning/restoration subcategory,
+// but mold containment and demo after the wet basement. Without a crawlable
+// link here, a crawler entering on the waterproofing calculator never reaches
+// the mold-remediation tool in one hop.
+test('index links one hop to the mold-remediation-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/mold-remediation-bid-calculator\/"/,
+    'index must link ../mold-remediation-bid-calculator/ so crawlers reach the mold remediation calculator in one hop',
+  );
+});

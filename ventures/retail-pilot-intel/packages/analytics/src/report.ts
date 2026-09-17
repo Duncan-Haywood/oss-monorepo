@@ -15,19 +15,19 @@ export function dailySummary(dbPath: string, day: string): DailySummary {
   const entries = db
     .prepare(
       `SELECT COALESCE(SUM(value), 0) AS v FROM aggregate_events
-       WHERE metric = 'entry' AND date(bucket_start) = ?`,
+       WHERE metric = 'entry' AND synthetic = 0 AND date(bucket_start) = ?`,
     )
     .get(day) as { v: number };
   const bounces = db
     .prepare(
       `SELECT COALESCE(SUM(value), 0) AS v FROM aggregate_events
-       WHERE metric = 'bounce' AND date(bucket_start) = ?`,
+       WHERE metric = 'bounce' AND synthetic = 0 AND date(bucket_start) = ?`,
     )
     .get(day) as { v: number };
   const purchases = db
     .prepare(
       `SELECT COUNT(*) AS c, COALESCE(SUM(total_cents), 0) AS revenue
-       FROM sale_events WHERE date(closed_at) = ?`,
+       FROM sale_events WHERE synthetic = 0 AND date(closed_at) = ?`,
     )
     .get(day) as { c: number; revenue: number };
   const entryCount = Number(entries.v);
@@ -80,10 +80,10 @@ export function shiftIsoDate(isoDate: string, days: number): string {
 export function latestDayWithActivity(dbPath: string): string | null {
   const db = openDb(dbPath);
   const aggregate = db
-    .prepare(`SELECT MAX(date(bucket_start)) AS d FROM aggregate_events`)
+    .prepare(`SELECT MAX(date(bucket_start)) AS d FROM aggregate_events WHERE synthetic = 0`)
     .get() as { d: string | null };
   const sale = db
-    .prepare(`SELECT MAX(date(closed_at)) AS d FROM sale_events`)
+    .prepare(`SELECT MAX(date(closed_at)) AS d FROM sale_events WHERE synthetic = 0`)
     .get() as { d: string | null };
   const candidates = [aggregate.d, sale.d].filter(
     (value): value is string => typeof value === "string" && isIsoDate(value),

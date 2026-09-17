@@ -151,6 +151,17 @@ export function ProfileView() {
         <Link href="/terms" className="underline underline-offset-2">
           Terms of use
         </Link>
+        <p className="mt-1">
+          Free to use.{" "}
+          <a
+            href="https://github.com/sponsors/Duncan-Haywood"
+            rel="noopener"
+            className="underline underline-offset-2"
+          >
+            Support
+          </a>{" "}
+          is entirely optional and never changes what the app does.
+        </p>
       </section>
     </main>
   );

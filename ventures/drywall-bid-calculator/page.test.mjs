@@ -15,7 +15,7 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /Do not keep anonymous local usage counts/);
-  assert.match(html, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(html, /href="LICENSE"/);
   assert.match(html, /how-much-to-charge\.html/);
   assert.match(html, /engineering/);
 });
@@ -36,4 +36,18 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /drywall-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
+});
+
+// Closest sibling: same interior-finish trade, but popcorn scrape-and-skim
+// rather than hang-and-finish. Related-tool chrome rotates inside the
+// subcategory, so without an explicit one-hop a crawler on this page may
+// never land on that tool.
+test('index links one hop to the popcorn-ceiling-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/popcorn-ceiling-bid-calculator\/"/,
+    'index must link ../popcorn-ceiling-bid-calculator/ so crawlers reach the popcorn removal calculator in one hop',
+  );
+  assert.match(html, /popcorn ceiling bid calculator/i);
 });

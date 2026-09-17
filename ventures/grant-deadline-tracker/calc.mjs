@@ -31,7 +31,7 @@ export function parseDate(value) {
 
 export function addMonths(value, months) {
   const date = parseDate(value);
-  if (!date || !Number.isFinite(months) || months < 1) return null;
+  if (!date || !Number.isFinite(months) || !Number.isInteger(months) || months < 1) return null;
   const day = date.getUTCDate();
   date.setUTCDate(1);
   date.setUTCMonth(date.getUTCMonth() + Math.floor(months));
@@ -114,6 +114,17 @@ export function normalizeGrant(input, today) {
       : Number(input.intervalMonths),
   };
   if (!grant.name) throw new Error("Each grant needs a name.");
+  // Validated before it drives `nextDueFromInterval` below, not after: a
+  // fractional interval (1.5 months, typed or JSON-imported) used to reach
+  // `addMonths`, which floored it to 1 and saved a due date one interval
+  // early with no error at all -- the exact silent-wrong-deadline failure
+  // this tracker exists to prevent. A sub-one-month value (0.5) failed
+  // differently: `addMonths` already refused it, so `nextDate` stayed empty
+  // and the grant was rejected with "Invalid date" instead of naming the
+  // interval as the actual problem.
+  if (grant.intervalMonths != null && (!Number.isFinite(grant.intervalMonths) || !Number.isInteger(grant.intervalMonths) || grant.intervalMonths < 1)) {
+    throw new Error(`Reporting interval for ${grant.name} must be a whole number of months.`);
+  }
   if (!grant.nextDate && grant.awardDate && grant.intervalMonths) {
     grant.nextDate = nextDueFromInterval(
       grant.awardDate,
@@ -129,9 +140,6 @@ export function normalizeGrant(input, today) {
   }
   if (grant.spent > grant.award && grant.award > 0) {
     throw new Error(`Spent cannot exceed the award for ${grant.name}.`);
-  }
-  if (grant.intervalMonths != null && (!Number.isFinite(grant.intervalMonths) || grant.intervalMonths < 1)) {
-    throw new Error(`Reporting interval for ${grant.name} must be a whole number of months.`);
   }
   if (grant.awardDate && !parseDate(grant.awardDate)) {
     throw new Error(`Invalid award date for ${grant.name}.`);
@@ -284,6 +292,137 @@ export function lateReportNote(comparison) {
       ? `Hiring a writer (${comparison.writerHours} h at ${money(comparison.writerRate)}/hr = ${money(comparison.writerCost)}) still leaves ${money(comparison.writer.net)} — ${money(comparison.writerCost)} to protect ${money(comparison.remainingAtRisk)}.`
       : `Hiring a writer would cost ${money(comparison.writerCost)} against only ${money(comparison.remainingAtRisk)} at risk.`;
   return [dueLine, atRisk, miss, self, hire].join(" ");
+}
+
+/**
+ * Escape one value for use inside an ICS TEXT property (RFC 5545 §3.3.11).
+ * A grant or funder name is free text a person typed, so a comma or
+ * semicolon in it (a company name, "Ross, Foundation for the Arts") must
+ * not be read as a property delimiter by the calendar app importing the
+ * file, and a literal backslash must not be read as the start of an
+ * escape sequence that was never intended.
+ */
+function icsEscape(value) {
+  return String(value ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r\n|\r|\n/g, "\\n");
+}
+
+/**
+ * Fold one unfolded ICS content line to RFC 5545's 75-octet limit,
+ * inserting a CRLF followed by a single leading space before each
+ * continuation. A long grant name plus funder in a DESCRIPTION line can
+ * easily run past 75 octets, and several real calendar apps (not just
+ * pedantic parsers) truncate or garble an unfolded long line rather than
+ * reject it outright -- silently dropping part of the reminder text.
+ * Splits are kept on UTF-8 character boundaries so a multi-byte character
+ * (an accented funder name) is never cut in half.
+ */
+function foldLine(line) {
+  const bytes = new TextEncoder().encode(line);
+  if (bytes.length <= 75) return line;
+  const parts = [];
+  let start = 0;
+  let limit = 75;
+  while (start < bytes.length) {
+    let end = Math.min(start + limit, bytes.length);
+    while (end < bytes.length && (bytes[end] & 0xc0) === 0x80) end--;
+    parts.push(new TextDecoder().decode(bytes.slice(start, end)));
+    start = end;
+    limit = 74; // a continuation line's own leading space counts toward its 75.
+  }
+  return parts.join("\r\n ");
+}
+
+/** `YYYY-MM-DD` -> `YYYYMMDD`, the ICS all-day DATE form. */
+function icsDate(value) {
+  return String(value).replaceAll("-", "");
+}
+
+/** The calendar day after `value` (`YYYY-MM-DD`), as the same shape. */
+function nextCalendarDay(value) {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * A stable per-grant identifier so re-exporting the same list updates the
+ * same calendar events instead of duplicating them on a second import.
+ * Built from the row's position and due date rather than a random value,
+ * since neither this function nor the browser session holds any state
+ * between exports.
+ */
+function icsUid(row, index) {
+  const slug = String(row.name ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "grant";
+  return `${index}-${slug}-${icsDate(row.nextDate)}@grant-deadline-tracker.marisstella.dev`;
+}
+
+/**
+ * Grant obligations as an RFC 5545 .ics calendar, one all-day VEVENT per
+ * row with a 3-day-ahead reminder alarm -- so "stop missing grant
+ * reports" extends past this tab into whatever calendar the nonprofit
+ * already checks, rather than requiring them to remember to come back
+ * here. Deliberately minimal: no attendees, no location, no recurrence
+ * rule (a report every 6 months is not the same as a calendar RRULE once
+ * `nextDueFromInterval` has already rolled it forward past a missed one),
+ * and nothing beyond the fields already shown in the tracker table.
+ *
+ * `rows` is the output of `summarize()`. An empty or invalid list still
+ * produces a structurally valid calendar with zero events, so "export
+ * with nothing added yet" is a working empty file rather than an error.
+ */
+export function icsCalendar(rows, now = new Date()) {
+  const list = Array.isArray(rows) ? rows : [];
+  const stamp = new Date(now.getTime());
+  const dtstamp = Number.isNaN(stamp.getTime())
+    ? "19700101T000000Z"
+    : stamp.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    foldLine("PRODID:-//grant-deadline-tracker.marisstella.dev//Grant Deadline Tracker//EN"),
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+  ];
+
+  list.forEach((row, index) => {
+    if (!row || !parseDate(row.nextDate)) return;
+    const remaining = Number.isFinite(row.remaining)
+      ? `$${row.remaining.toLocaleString("en-US")}`
+      : null;
+    const descriptionParts = [
+      row.funder ? `Funder: ${row.funder}` : null,
+      row.status ? `Status: ${row.status}` : null,
+      remaining != null ? `Award remaining: ${remaining}` : null,
+      "Planning reminder only -- not a funder deadline confirmation.",
+    ].filter(Boolean);
+    lines.push(
+      "BEGIN:VEVENT",
+      foldLine(`UID:${icsUid(row, index)}`),
+      `DTSTAMP:${dtstamp}`,
+      `DTSTART;VALUE=DATE:${icsDate(row.nextDate)}`,
+      `DTEND;VALUE=DATE:${icsDate(nextCalendarDay(row.nextDate))}`,
+      foldLine(`SUMMARY:${icsEscape(`${row.name} — ${row.nextType || "Report"} due`)}`),
+      foldLine(`DESCRIPTION:${icsEscape(descriptionParts.join("\n"))}`),
+      "BEGIN:VALARM",
+      "ACTION:DISPLAY",
+      foldLine(`DESCRIPTION:${icsEscape(`${row.name}: ${row.nextType || "Report"} due soon`)}`),
+      "TRIGGER:-P3D",
+      "END:VALARM",
+      "END:VEVENT",
+    );
+  });
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
 }
 
 export function csvReport(rows) {

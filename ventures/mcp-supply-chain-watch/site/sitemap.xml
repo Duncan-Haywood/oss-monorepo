@@ -8,4 +8,8 @@
     <loc>./what-is-mcp-tool-poisoning.html</loc>
     <changefreq>monthly</changefreq>
   </url>
+  <url>
+    <loc>./vs-snyk.html</loc>
+    <changefreq>monthly</changefreq>
+  </url>
 </urlset>

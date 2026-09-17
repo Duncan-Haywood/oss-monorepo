@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, PANE_PRESETS } from './calc.mjs';
+import { calculateBid, PANE_PRESETS, VISIT_FREQUENCY_PRESETS } from './calc.mjs';
 
 const storefront = () => ({
   groups: [
@@ -161,4 +161,34 @@ test('pane presets are usable positive numbers with 1 or 2 default sides', () =>
     assert.ok(Number.isFinite(preset.minutesPerPane) && preset.minutesPerPane > 0);
     assert.ok(preset.defaultSides === 1 || preset.defaultSides === 2);
   }
+});
+
+test('every visit-frequency preset is a usable, distinct, non-negative visits-per-month figure', () => {
+  const ids = VISIT_FREQUENCY_PRESETS.map((preset) => preset.id);
+  assert.equal(new Set(ids).size, ids.length, 'preset ids are not unique');
+  for (const preset of VISIT_FREQUENCY_PRESETS) {
+    assert.ok(preset.label.length > 0);
+    assert.ok(Number.isFinite(preset.visitsPerMonth) && preset.visitsPerMonth >= 0);
+    // calculateBid must accept every preset's figure exactly as computed —
+    // a preset the calculator itself rejects would be a dropdown option
+    // that throws the moment someone picks it.
+    assert.doesNotThrow(() => calculateBid({ ...storefront(), visitsPerMonth: preset.visitsPerMonth }));
+  }
+});
+
+test('a quarterly cadence prices at a quarter of the monthly figure, not the full visit price', () => {
+  const quarterly = VISIT_FREQUENCY_PRESETS.find((preset) => preset.id === 'quarterly');
+  const result = calculateBid({ ...storefront(), visitsPerMonth: quarterly.visitsPerMonth });
+  // The "monthly" figure a quarterly contract shows is an average across the
+  // three months between visits, not what is billed in any single month --
+  // the reason the page labels it "monthly average" rather than "monthly".
+  assert.ok(Math.abs(result.monthlyPrice - result.pricePerVisit / 3) < 1e-9);
+});
+
+test('once-a-year is the smallest nonzero cadence, and one-off stays exactly zero', () => {
+  const nonzero = VISIT_FREQUENCY_PRESETS.filter((preset) => preset.id !== 'one-off');
+  const smallest = Math.min(...nonzero.map((preset) => preset.visitsPerMonth));
+  const annual = VISIT_FREQUENCY_PRESETS.find((preset) => preset.id === 'annual');
+  assert.equal(annual.visitsPerMonth, smallest);
+  assert.equal(VISIT_FREQUENCY_PRESETS.find((preset) => preset.id === 'one-off').visitsPerMonth, 0);
 });

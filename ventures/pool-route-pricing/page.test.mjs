@@ -40,6 +40,11 @@ test('the no-warranty disclaimer is on the page', () => {
   assert.match(html, /not tax, financial, or business advice/);
 });
 
+test('the page carries the standard sponsor link', () => {
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="LICENSE"/);
+});
+
 test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
   // Before this fix, a rejected input (a negative number, non-numeric text)
   // overwrote only the dollar hero (#price) with the error sentence and left
@@ -65,6 +70,17 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   assert.match(body, /el\('errors'\)\.hidden\s*=\s*false/, 'the error message is never shown');
 });
 
+test('the result panel announces recalculation to screen readers', () => {
+  // The panel re-renders in place on every keystroke (price, revenue, labor
+  // hours, chemicals, overhead, total cost) with no page navigation and no
+  // focus change. Without aria-live, a screen-reader user who edits an input
+  // gets no indication the numbers just changed -- the same gap already
+  // fixed in which-job-first, cam-reconciliation-check, seller-net-sheet,
+  // ltl-freight-class-estimator, chargeback-evidence-packet, and
+  // subscription-price-impact.
+  assert.match(html, /<section class="result" aria-live="polite">/);
+});
+
 test('every default field the page collects is one share.mjs round-trips', () => {
   for (const id of Object.keys(DEFAULTS)) {
     assert.match(html, new RegExp(`id="${id}"`), `${id} input is missing from the page`);
@@ -81,4 +97,22 @@ test('a link built from the page defaults decodes back to those same defaults', 
   const url = buildShareUrl('https://example.com/pool-route-pricing/', DEFAULTS);
   const hash = url.split('#')[1];
   assert.deepEqual(decodeInputs(hash), DEFAULTS);
+});
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the same recurring stop-based route business priced per
+// site after drive time and materials — inspection stops there, pool accounts
+// here. Rotating chrome may never pair them, so link explicitly.
+test('index links one hop to the fire-extinguisher-inspection-route-margin sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/fire\-extinguisher\-inspection\-route\-margin\/"/,
+    'index must link ../fire-extinguisher-inspection-route-margin/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /fire\-extinguisher/i);
 });

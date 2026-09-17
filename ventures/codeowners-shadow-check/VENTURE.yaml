@@ -1,0 +1,93 @@
+name: codeowners-shadow-check
+description: >-
+  A free CLI (+ a browser report viewer) for developers and repo maintainers:
+  parses a CODEOWNERS file, applies GitHub's own gitignore-style pattern
+  matching, and resolves ownership the way GitHub actually does -- the last
+  matching pattern wins. Reports every rule that never actually assigns
+  ownership for any file in the given list because a broader rule listed
+  later always overrides it (the single most common way a CODEOWNERS file
+  silently drifts from what its author intended), separately flags rules
+  that matched nothing in the sample (evidence of a typo, not proof of a
+  dead rule), and lists files covered by no rule at all. No network call and
+  no GitHub authentication anywhere -- everything is pasted text or files
+  already on the user's own machine.
+stage: prototype
+owner: duncan
+
+# Screened this session with `python3 portfolio/pipeline/duplicate_check.py
+# "CLI + browser tool that validates a GitHub CODEOWNERS file: parses each
+# pattern/owner rule, flags syntax errors, and -- the common real-world bug
+# -- resolves GitHub's own last-match-wins semantics against a supplied list
+# of repo file paths to show which earlier, more specific CODEOWNERS rules
+# are silently shadowed by a broader rule listed later in the file, plus
+# which paths in the tree match no rule at all when there is no trailing
+# catch-all"` -- top score 0.12 (oidc-trust-policy-check, email-auth-check),
+# well below the 0.45 read-this-first bar, and none of the top hits are
+# conceptually close (auth/DNS/extension-permission checkers, not review
+# routing). Also checked the fleet's ~40 `*-check`/`*-checker` ventures by
+# name and `screened-out.md` for "branch protection" / "codeowners" by hand
+# -- no existing venture covers CODEOWNERS resolution or review routing.
+# Distinct from `repository-branch-hygiene` (stale branch inventory and
+# recovery, not review-routing correctness) and `actions-permissions-check`
+# (workflow token scope, not code-review routing).
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# found 141 of 200 ventures were <trade>-bid-calculator clones with zero
+# measured visitors and told sessions to weigh a CLI/checker shape instead.
+# This is that shape: deterministic, zero-dependency, no LLM, no live
+# network call (unlike several sibling checkers that fetch real HTTP
+# responses -- CODEOWNERS resolution needs no network at all, since both
+# inputs are already local to the repository being checked).
+
+hypotheses:
+  - claim: >-
+      A developer or repo maintainer who notices a pull request touching
+      sensitive code did not request the reviewer their CODEOWNERS rule was
+      supposed to require will search the exact terminology ("codeowners not
+      working", "codeowners last match wins", "codeowners rule not
+      triggering") and find a tool that names the specific rule responsible,
+      rather than a general CODEOWNERS syntax explainer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      CODEOWNERS files accrete rules over months as different people add
+      entries for their own area without reading the whole file, which is
+      exactly the pattern that produces a later, broader rule silently
+      overriding an earlier, specific one -- and no existing free tool
+      resolves last-match-wins against a real file list to surface it; GitHub
+      itself only validates syntax, not whether a rule ever actually wins.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A team that gets a clean report will wire the CLI into CI as a
+      regression gate against future CODEOWNERS edits, producing return
+      usage without any action from this portfolio -- the same adoption path
+      this portfolio's other zero-dependency CLI checkers are betting on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free tool covering the same last-match-wins
+    resolution against a real file list becomes the obvious default, such
+    that this tool's differentiation (shadowed-vs-unmatched distinction,
+    shared classification core tested independently of the CLI) no longer
+    holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/codeowners-shadow-check/
+  analytics: null

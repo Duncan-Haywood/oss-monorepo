@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified contractors use the tool twice within 90 days.
   - Users cannot price a real change order faster than their spreadsheet or calculator.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/change-order-margin-calculator/
   analytics: null

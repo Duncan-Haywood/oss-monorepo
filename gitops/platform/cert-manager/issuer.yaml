@@ -1,24 +1,32 @@
 # Staging issuer first so we do not burn Let's Encrypt prod rate limits
 # against a host nobody has confirmed can reach it yet.
 #
-# The one Ingress these issuers serve today is `tools.marisstella.dev`
-# (gitops/prod/portfolio-site.yaml) -- not `cluster.duncanhaywood.dev`, which
-# this comment named until 2026-08-31 and which nothing in this repo binds an
-# Ingress to. `tools.marisstella.dev`'s DNS already resolves (verified
-# 2026-08-29, see gitops/README.md), so the stale reason above was also
-# wrong on its own terms: staging stays the default because Argo auto-syncs
-# `prod`, so the Ingress exists (and cert-manager starts HTTP-01 challenges
-# against the prod issuer, were it wired here) before anyone has confirmed a
-# certificate actually issues -- not because DNS is missing.
+# Two Ingress objects use these issuers today, not one -- this comment named
+# a single Ingress (`tools.marisstella.dev` only) until 2026-09-02, which
+# went stale the moment `gitops/prod/portfolio-apex.yaml` picked up its own
+# `letsencrypt-prod` annotation on 2026-08-31; the paragraph below already
+# said so, this opening line just never caught up:
+#
+#   - `gitops/prod/portfolio-site.yaml`  -> tools.marisstella.dev
+#   - `gitops/prod/portfolio-apex.yaml`  -> marisstella.dev, www.marisstella.dev
+#
+# (Not `cluster.duncanhaywood.dev`, which an earlier revision of this comment
+# named and which nothing in this repo binds an Ingress to.) All three
+# hostnames' DNS already resolves (verified 2026-08-29, see gitops/README.md),
+# so the stale reason above was also wrong on its own terms: staging stays the
+# default because Argo auto-syncs `prod`, so an Ingress exists (and
+# cert-manager starts HTTP-01 challenges against the prod issuer, were it
+# wired here) before anyone has confirmed a certificate actually issues --
+# not because DNS is missing.
 #
 # Both ClusterIssuers stay defined; which one an Ingress uses is that
-# Ingress's annotation. As of 2026-08-31 `gitops/prod/portfolio-site.yaml` and
-# `gitops/prod/portfolio-apex.yaml` both point at `letsencrypt-prod` -- DNS for
-# `tools.marisstella.dev` resolved on 2026-08-29, retiring the reason for the
-# staging default, and staging had to go before the site serves anyone rather
-# than after (an untrusted root would meet every visitor with an interstitial).
-# See gitops/README.md. `letsencrypt-staging` is kept here as the revert target
-# and for any future host that lands before its DNS does.
+# Ingress's annotation. As of 2026-08-31 both Ingresses above point at
+# `letsencrypt-prod` -- DNS for all three hostnames resolved on 2026-08-29,
+# retiring the reason for the staging default, and staging had to go before
+# either serves anyone rather than after (an untrusted root would meet every
+# visitor with an interstitial). See gitops/README.md. `letsencrypt-staging`
+# is kept here as the revert target and for any future host that lands
+# before its DNS does.
 #
 # HTTP-01 uses ingress-nginx on the control-plane node.
 #

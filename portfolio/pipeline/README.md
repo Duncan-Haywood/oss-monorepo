@@ -64,6 +64,79 @@ Overlap is checked in both directions. A candidate that duplicates one of the
 eight ideas in `ventures/ai-first-markets/src/data/ideas.ts`, or an existing
 venture, is screened out and recorded in [screened-out.md](screened-out.md).
 
+**Run the check before writing the check by hand.** At 199 `ventures/`
+directories, most of them a `<trade>-bid-calculator` shape, eyeballing this
+list is no longer reliable — see `duplicate_check.py`'s own module docstring
+for the near-duplicate that scored as unrelated under a naive word-overlap
+metric before this existed:
+
+```
+python3 portfolio/pipeline/duplicate_check.py "one-line description of the niche"
+```
+
+It scores the proposed niche against every venture description (including
+product lines), every `screened-out.md` row, the eight `ai-first-markets`
+ideas, and every existing pipeline candidate, and exits 1 with the closest
+matches printed when the top score clears the "read this before you write a
+candidate" bar. It is lexical overlap, not meaning — a low score is evidence
+of novelty, not proof — so read the top matches it prints either way.
+
+**The `<trade>-bid-calculator` archetype itself is now the thing to weigh,
+not just the individual niche** (added 2026-09-07). Counted directly from
+`ventures/` this session: of 200 venture directories, **141 have a slug
+ending in `-calculator`, `-margin`, `-pricing`, or containing `-route-`** —
+one deterministic arithmetic calculator for one trade, repeated. Every one
+of them clears `duplicate_check.py` on its own (a boiler is not a crown
+molding job), and every one is individually well-justified in its own
+write-up. None of that is in question. What is: `usage/usage.yaml` has
+never recorded a nonzero visitor on *any* of the 200, and the shape itself
+— not any one instance of it — has now had 141 independent tries with
+nothing to show. A 142nd instance clearing the duplicate check and the
+liability/ethics gates is necessary but no longer strong evidence that the
+*archetype* is the right next bet, separately from whether the *niche* is.
+
+This does not mean stop building bid calculators — a specific niche with an
+unusually strong, named channel (a trade forum that already discusses this
+exact pricing problem, a subreddit with real thread volume) is still worth
+building regardless of shape. It does mean: when screening a fresh niche
+with no channel stronger than "searchable, like the other 141," weigh a
+different product shape first — CLI/library, a GitHub Action or checker
+that runs in the user's own CI, or a generator (`PRODUCT_PLAYBOOK.md` §2
+ranks these above the browser calculator already, on cost grounds; this is
+the same ranking, argued from zero traffic across 141 tries rather than
+from marginal cost alone). `ventures/actions-runner-starvation-check` is
+one such attempt — a developer-niche CLI/browser tool, not a trade
+calculator, built the same session this note was added.
+
+**The alternative shape this section pointed sessions toward has since
+become a second instance of the same pattern, and "CLI/checker, not a
+calculator" is not by itself the novelty test** (added 2026-09-11). Counted
+directly from `ventures/` this session: **38 venture slugs now end in
+`-check` or `-checker`** — a scanner or single-request classifier for one
+narrow misconfiguration, repeated (six alone for GitHub Actions workflow
+hardening: artifact-poisoning, cache-poisoning, injection, permissions,
+runner-starvation, self-hosted-exposure). Most graduated in the four days
+before this note, several with a ledger entry that names picking this
+archetype specifically *because* it is not the 237th, 239th, or 247th
+`<trade>-bid-calculator` — which is the same reasoning this section gave
+2026-09-07, applied correctly, to a shape that has now absorbed enough of
+it to need the same caveat back. `usage/usage.yaml` has not recorded a
+nonzero visitor on any of the 38 either (checked 2026-09-11; 24 of the 38
+did not even carry a baseline row, which is its own small gap, now filled).
+
+Nothing here says stop building checkers — cheap, zero-dependency, no
+per-user cost, exactly what `PRODUCT_PLAYBOOK.md` §2 ranks highest, and a
+specific one with a named channel (a documented CVE class, a framework's
+own hardening guide, a subreddit that already asks this) is still worth
+building regardless of shape. What changes: clearing `duplicate_check.py`
+and picking a shape this file once flagged as underused no longer counts,
+on its own, as the evidence of novelty it was when only one venture had
+tried it. The test this file has asked for since 2026-08-18 was never
+"which shape" — it was a named distribution channel and, per
+`DIRECTION.md` North star point 2, a named first visitor. Read "not
+another calculator" and "not another checker" the same way: necessary,
+not sufficient.
+
 ## Scoring
 
 Eight dimensions, 0–10. The first six are the same dimensions
@@ -134,7 +207,7 @@ four candidates carrying a probe have moved and the table is re-ordered.
 |---|---|---|---|---|
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
 | 2 | [Invoice payment terms calculator](candidates/invoice-payment-terms-calculator.md) | 7.25 | 1 | Graduated 2026-08-26 as `ventures/invoice-payment-terms-calculator`; browser-local due-date, late-fee, exposure, and 2/10 Net 30 vs waiting arithmetic, with repeat usage and organic search demand still unmeasured |
-| 3 | [Quote margin check](candidates/quote-margin-check.md) | 7.125 | 3 | Build now as `ventures/quote-margin-check`; deterministic local calculator, with repeat usage and defensibility still unmeasured |
+| 3 | [Quote margin check](candidates/quote-margin-check.md) | 7.125 | 3 | Graduated as `ventures/quote-margin-check`; deterministic local calculator now with proposal-batch comparison and a spreadsheet-ready review export, with repeat usage and defensibility still unmeasured |
 | 4 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
 | 5 | [Etsy profit calculator](candidates/etsy-profit-calculator.md) | 7.125 | 2 | Graduated 2026-08-24 as `ventures/etsy-profit-calculator`; browser-local fee-stack arithmetic, with repeat usage and organic search demand still unmeasured |
 | 6 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
@@ -142,18 +215,43 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 8 | [Pool route pricing calculator](candidates/pool-route-pricing.md) | 7.0 | 1 | Graduated 2026-08-24 as `ventures/pool-route-pricing`; browser-local recurring-account pricing that makes drive time and chemical allowance explicit, with repeat usage and organic search demand still unmeasured |
 | 9 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
 | 10 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |
-| 11 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Build now, as a `real-estate-agent-photo-app` product line. Scored 2026-08-24 — file-spec evidence, not listing photography the venture and not web accessibility |
-| 12 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
-| 13 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
-| 14 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
-| 15 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 16 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
-| 17 | [Grant reporting tracker](candidates/grant-reporting-tracker.md) | 6.625 | 1 | Graduated 2026-08-24 as `ventures/grant-reporting-tracker`; browser-local award reporting queue and restricted-balance arithmetic for small nonprofits, with repeat usage and organic search demand still unmeasured |
-| 18 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
-| 19 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
-| 20 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 21 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 22 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 11 | [Dog walking & pet sitting route pricing calculator](candidates/dog-walking-route-pricing.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/dog-walking-route-pricing`; browser-local per-visit and route pricing for independent dog walkers and pet sitters, with repeat usage and organic search demand still unmeasured |
+| 12 | [Vending machine route profit calculator](candidates/vending-machine-route-margin.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/vending-machine-route-margin`; browser-local per-location and route profit for independent vending-machine route operators, with repeat usage and organic search demand still unmeasured |
+| 13 | [ATM route margin calculator](candidates/atm-route-margin.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/atm-route-margin`; browser-local per-location and route profit for independent ATM route operators, modeling surcharge split, processor fees, and vault cash cost of capital, with repeat usage and organic search demand still unmeasured |
+| 14 | [Custom farm rate calculator](candidates/custom-farm-rate-calculator.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/custom-farm-rate-calculator`; browser-local per-job and season pricing for custom farm operators, modeling field capacity, fuel, repairs, and annually-amortized machine ownership cost, with repeat usage and organic search demand still unmeasured |
+| 15 | [Dumpster rental margin calculator](candidates/dumpster-rental-margin-calculator.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/dumpster-rental-margin-calculator`; browser-local roll-off rental pricing, with repeat usage and organic search demand still unmeasured |
+| 16 | [Locksmith bid calculator](candidates/locksmith-bid-calculator.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/locksmith-bid-calculator`; browser-local per-call pricing for mobile locksmiths, modeling an after-hours premium scoped to billed time and a minimum-service-charge floor, with repeat usage and organic search demand still unmeasured |
+| 17 | [Pour cost calculator](candidates/pour-cost-calculator.md) | 6.875 | 1 | Graduated 2026-09-07 as `ventures/pour-cost-calculator`; browser-local liquor-cost-percentage pricing for bar and restaurant beverage programs, modeling a spirit/modifier/mixer recipe against a target pour cost and the annual dollar cost of a stated over-pour, with repeat usage and organic search demand still unmeasured |
+| 18 | [Fire extinguisher inspection route margin calculator](candidates/fire-extinguisher-inspection-route-margin.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/fire-extinguisher-inspection-route-margin`; browser-local per-site and route profit for independent fire-extinguisher/life-safety inspection route operators, modeling the recharge/hydro-test/replacement materials split and NFPA 10's annual-visit cadence, with repeat usage and organic search demand still unmeasured. |
+| 19 | [Poshmark fee calculator](candidates/poshmark-fee-calculator.md) | 6.875 | 1 | Graduated 2026-09-07 as `ventures/poshmark-fee-calculator`; browser-local flat-$2.95/20% commission arithmetic for Poshmark resellers, modeling the $14.75 break-even price and the payout swing when an offer or bundle discount crosses the $15 line, with repeat usage and organic search demand still unmeasured |
+| 20 | [Duplicate payment audit](candidates/duplicate-payment-audit.md) | 6.875 | 1 | Graduated 2026-09-07 as `ventures/duplicate-payment-audit`; browser-local checker flagging likely duplicate vendor payments in an AP CSV export, with repeat usage and false-positive rate against a real ledger still unmeasured |
+| 21 | [Affiliate disclosure checker](candidates/affiliate-disclosure-checker.md) | 6.875 | 1 | Graduated 2026-09-09 as `ventures/affiliate-disclosure-checker`; browser-local + CLI checker for affiliate/sponsored-content disclosure placement (Amazon Associates tag= links, amzn.to, rel=sponsored, known affiliate-network tracking domains) against Amazon's own required exact statement and generic FTC-style disclosure phrasing, with repeat usage and organic search demand still unmeasured |
+| 22 | [Chrome extension permission checker](candidates/chrome-extension-permission-check.md) | 6.875 | 1 | Graduated 2026-09-09 as `ventures/chrome-extension-permission-check`; browser-local + CLI checker cross-referencing manifest.json permissions against detected chrome.* API usage in both directions (declared-unused, the Chrome Web Store "Purple Potassium" rejection cause, and used-undeclared, a runtime failure), plus broad host_permissions detection, with repeat usage and organic search demand still unmeasured |
+| 23 | [WordPress plugin review checker](candidates/wordpress-plugin-review-check.md) | 6.875 | 1 | Graduated 2026-09-09 as `ventures/wordpress-plugin-review-check`; browser-local + CLI checker cross-referencing a readme.txt Stable tag against the plugin header's Version, required readme/header fields, unescaped superglobal output, and $_POST handling with no nonce check, with repeat usage and organic search demand still unmeasured |
+| 24 | [Social preview checker](candidates/social-preview-check.md) | 6.875 | 1 | Graduated 2026-09-10 as `ventures/social-preview-check`; zero-dependency CLI + browser report viewer reading a page's Open Graph/Twitter Card tags and its og:image/twitter:image real pixel dimensions (decoded from the image file's own byte header, PNG/JPEG/GIF/WebP), classifying missing tags, a relative og:image URL, an image below Facebook/Twitter's documented minimum size, and applying the twitter:image -> og:image fallback chain, plus a standalone in-browser image-dimension checker that needs no CLI step, repeat usage and organic search demand still unmeasured |
+| 25 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Graduated 2026-08-24 as a `real-estate-agent-photo-app` product line (`process/mls-compliance.ts`) — file-spec evidence, not listing photography the venture and not web accessibility |
+| 26 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
+| 27 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Graduated 2026-08-29 as `ventures/vendor-change-watch`; free CLI to monitor vendor ToS/privacy pages, with distribution and archive value still unmeasured |
+| 28 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
+| 29 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 30 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
+| 31 | [Grant reporting tracker](candidates/grant-reporting-tracker.md) | 6.625 | 1 | Graduated 2026-08-24 as `ventures/grant-reporting-tracker`; browser-local award reporting queue and restricted-balance arithmetic for small nonprofits, with repeat usage and organic search demand still unmeasured |
+| 32 | [CAT adjuster fee schedule & deployment profit calculator](candidates/cat-adjuster-fee-calculator.md) | 6.625 | 1 | Graduated 2026-09-11 as `ventures/cat-adjuster-fee-calculator`; browser-local per-deployment profit for independent catastrophe claims adjusters, modeling a blended per-claim fee against estimating-software, lodging, per diem, vehicle, and unpaid-travel-day cost, plus a fee-schedule comparison table across named IA firm offers, with repeat usage and organic search demand still unmeasured |
+| 33 | [Cron DST drift check](candidates/cron-dst-drift-check.md) | 6.625 | 1 | Graduated 2026-09-16 as `ventures/cron-dst-drift-check`; zero-dependency CLI + browser tool computing a cron expression's upcoming run times against a real IANA timezone, flagging spring-forward-gap and fall-back-overlap occurrences, plus a fixed-UTC-cron (GitHub Actions `schedule:` style) drift calculator, with repeat usage and organic search demand still unmeasured |
+| 34 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
+| 35 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
+| 36 | [CORS misconfiguration checker](candidates/cors-misconfig-check.md) | 6.5 | 1 | Graduated 2026-09-10 as `ventures/cors-misconfig-check`; zero-dependency CLI sending five real GET requests with crafted Origin headers to a URL the user names, classifying reflected-arbitrary-origin, accepted-null-origin, and unanchored startsWith/endsWith allow-list bypasses, plus wildcard-with-credentials and missing-Vary notices, with a browser report-viewer for the CLI's JSON output (the browser cannot probe itself -- Origin is a forbidden request header), repeat usage and organic search demand still unmeasured |
+| 37 | [HOA reserve fund calculator](candidates/hoa-reserve-fund-calculator.md) | 6.5 | 1 | Graduated 2026-09-16 as `ventures/hoa-reserve-fund-calculator`; browser-local reserve-fund projection against known capital component replacements (roof, repaving, painting, pool, elevator, HVAC), naming the first year a special assessment or reserve loan is likely and solving for the minimum contribution that avoids it, timed to post-Surfside state reserve-study mandates (Florida SB 4-D / SIRS and similar), with repeat usage and organic search demand still unmeasured |
+| 38 | [Agent instructions drift check](candidates/agent-instructions-drift-check.md) | 6.5 | 1 | Graduated 2026-09-16 as `ventures/agent-instructions-drift-check`; zero-dependency CLI + browser tool checking an AI-coding-agent instruction file (AGENTS.md/CLAUDE.md) for broken file references, undefined npm scripts, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m), with one live broken reference found in this repo's own AGENTS.md during graduation; external adoption and organic search demand still unmeasured |
+| 39 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 40 | [hreflang reciprocity checker](candidates/hreflang-reciprocity-check.md) | 6.375 | 1 | Graduated 2026-09-11 as `ventures/hreflang-reciprocity-check`; zero-dependency CLI fetching a target URL and its hreflang alternates over real HTTP, checking missing reciprocal confirmation, invalid/malformed language-region codes against the full ISO 639-1/ISO 3166-1 lists (naming the en-uk -> en-GB mistake by name), a missing x-default, a missing self-reference, and duplicate/conflicting hreflang values, with a browser page that works from pasted HTML plus a best-effort per-alternate automatic fetch (the browser usually can't read a cross-origin response without the target's own CORS opt-in), repeat usage and organic search demand still unmeasured |
+| 41 | [Sitemap lastmod freshness checker](candidates/sitemap-lastmod-freshness-check.md) | 6.25 | 1 | Graduated 2026-09-11 as `ventures/sitemap-lastmod-freshness-check`; zero-dependency CLI fetching a sitemap.xml and every <loc>'s live headers over real HTTP, checking invalid/malformed W3C-Datetime <lastmod> format (including calendar validity), a future-dated lastmod, duplicate <loc> entries with conflicting lastmod values, a suspiciously uniform lastmod date across nearly every URL (the "freshness-faking" pattern Google's own sitemap documentation warns about), and a lastmod not confirmed by the live page's own HTTP Last-Modified header, with a browser page that works entirely from pasted sitemap XML for the four checks that need no live fetch, repeat usage and organic search demand still unmeasured |
+| 42 | [Redirect chain checker](candidates/redirect-chain-check.md) | 6.25 | 1 | Graduated 2026-09-11 as `ventures/redirect-chain-check`; zero-dependency CLI walking a URL's real HTTP redirect chain one hop at a time, checking a redirect loop, a chain longer than Google's own recommended single hop, an HTTPS-to-HTTP protocol downgrade, a same-path scheme/host normalization using a temporary 302/303/307 instead of a permanent 301/308, and a chain ending in an error or still redirecting with nowhere further to go, with a browser page that works entirely from a pasted "<status> <url>" hop list (a browser tab cannot reliably read a cross-origin redirect chain's own intermediate headers), repeat usage and organic search demand still unmeasured |
+| 43 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 44 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 45 | [PDF accessibility tag checker](candidates/pdf-accessibility-tag-check.md) | 6.125 | 1 | Graduated 2026-09-16 as `ventures/pdf-accessibility-tag-check`; zero-dependency CLI + no-upload browser checker reading a PDF's own tag structure, title, language, alt text, and form-field labels against PDF/UA and Section 508, with organic search demand against five established free competitors still unmeasured |
+| 46 | [Commissary kitchen cost split calculator](candidates/commissary-kitchen-cost-split-calculator.md) | 6.125 | 1 | Graduated 2026-09-16 as `ventures/commissary-kitchen-cost-split-calculator`; browser-local largest-remainder split of a shared commissary kitchen's pooled monthly costs across multiple food-truck tenants by hours booked and/or storage used, with defensibility and distribution scored deliberately modest (no regulatory driver, easily copied), repeat usage and organic search demand still unmeasured |
+| 47 | [Call recording consent check](candidates/call-recording-consent-check.md) | 5.875 | 1 | Graduated 2026-09-17 as `ventures/call-recording-consent-check`; zero-dependency CLI + browser tool classifying all 50 states + DC as one-party or all-party call-recording consent, assessing an interstate call with a cited combining rule (Kearney v. Salomon Smith Barney precedent), disclosing Nevada's and Michigan's real statute-text-vs-applied-law ambiguity, and generating a call-opening disclosure script, with `liability_containment` deliberately scored at the gate (5) rather than above it given the subject matter's real statutory-damages/criminal-exposure worst case, repeat usage and organic search demand still unmeasured |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

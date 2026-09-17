@@ -204,7 +204,7 @@
       </section>
     </div>
 
-    <section class="result">
+    <section class="result" aria-live="polite">
       <h2>Expected profit on this order</h2>
       <div id="expectedProfit" class="hero-number">$—</div>
       <div id="profitLabel">after returns, on the rates above</div>
@@ -290,6 +290,9 @@
     <p>
       <a href="should-i-bundle-tiktok-shop-orders.html">Should I bundle orders into a multi-buy discount? The discount ceiling that still matches selling separately.</a>
     </p>
+    <p>
+      <a href="vs-tiktok-shops-seller-university.html">This calculator vs. TikTok Shop's own Seller University fee pages.</a>
+    </p>
   </section>
 
   <h2>Common questions</h2>
@@ -307,7 +310,10 @@
     </label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your prices, costs, or creator rates.</p>
-    <p>Free and open source. If it saves you from a losing SKU, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Comparing TikTok Shop to other marketplaces on the same item? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks TikTok Shop against eBay, Etsy, Amazon, Walmart and your own store side by side from one set of inputs, then points here for the parts a headline referral rate cannot carry.</p>
+    <p>Selling the same SKU on Walmart Marketplace too? The <a href="../walmart-marketplace-calculator/">Walmart marketplace calculator</a> compares WFS against seller-fulfilled shipping, returns, and Buy Box match economics for the same item.</p>
+    <p>Want returns, shelf time, and price-to-match-the-leader in the same ranking? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks TikTok Shop against eBay, Etsy, Amazon, Reverb and your own store side by side, plus what each is worth per day of wait and per month of shelf time — it opens with this order's item price, shipping and cost already filled in and TikTok Shop switched on, no retyping.</p>
+    <p>Free and open source. If it saves you from a losing SKU, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -318,18 +324,13 @@
       compareFeeSchedules,
       compareFreeShipping,
       compareOrganicVsAffiliate,
+      FIELD_IDS,
       freeShippingNote,
       maxBuyCost,
       priceForTargetMargin,
     } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
-
-    const FIELD_IDS = [
-      "itemPrice", "shippingCharged", "referralRate", "facilitationRate",
-      "affiliateRate", "returnRate", "cogs", "fulfillmentCost", "otherPerOrder",
-      "adSpend", "unsellableRate", "returnShipping", "targetMargin",
-      "unitsPerDay", "paymentRate", "platformDiscount", "freeShipPrice",
-    ];
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { whereToSellUrl } from "./to-where-to-sell.mjs";
 
     const money = (value) => {
       if (value === null || value === undefined) return "n/a";
@@ -352,21 +353,33 @@
       recordUsage(localStorage, el("usageOptOut").checked, event);
     }
 
+    // The scenario rides in the fragment. The copy button's own status line
+    // tells the seller "the link contains your assumptions" -- their cost of
+    // goods, ad spend and margin -- and a query string would make that
+    // sentence true of the recipient's server logs and of the `Referer`
+    // header on any outbound click too. A fragment is stripped from both by
+    // the browser, so the assumptions stay between sender and recipient.
     function scenarioLink() {
       const params = new URLSearchParams();
       FIELD_IDS.forEach((id) => params.set(id, el(id).value));
       params.set("affiliateRefundedOnReturn", el("affiliateRefundedOnReturn").checked ? "1" : "0");
       params.set("affiliateOnItemOnly", el("affiliateOnItemOnly").checked ? "1" : "0");
-      return `${window.location.href.split("?")[0]}?${params}`;
+      return `${window.location.href.split("?")[0].split("#")[0]}#${params}`;
     }
 
     function restoreScenario() {
-      const params = new URLSearchParams(window.location.search);
+      // Fragment first, query string second: scenario links copied before this
+      // page moved to the fragment are already out there and must keep opening.
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const search = new URLSearchParams(window.location.search);
+      const pick = (id) => (hash.has(id) ? hash : search.has(id) ? search : null);
       FIELD_IDS.forEach((id) => {
-        if (params.has(id)) el(id).value = params.get(id);
+        const params = pick(id);
+        if (params) el(id).value = params.get(id);
       });
       ["affiliateRefundedOnReturn", "affiliateOnItemOnly"].forEach((id) => {
-        if (params.has(id)) el(id).checked = params.get(id) === "1";
+        const params = pick(id);
+        if (params) el(id).checked = params.get(id) === "1";
       });
     }
 
@@ -424,6 +437,7 @@
       el("targetMarginPrice").textContent = targetPrice === null ? "n/a" : money(targetPrice);
       el("maxBuy").textContent = money(buy);
       el("monthlyProfit").textContent = money(result.monthlyProfit);
+      el("whereToSellLink").href = whereToSellUrl(input);
 
       el("affiliateCompare").innerHTML = `
         <tr>
@@ -480,15 +494,21 @@
 
       const verdict = el("verdict");
       verdict.hidden = false;
+      // expectedMargin is null whenever expectedRevenue is 0 -- a 100% return
+      // rate (every order comes back) is the realistic way a seller hits
+      // this, and it does not imply belowBreakEven: a SKU with no per-order
+      // costs to lose on a return breaks exactly even. Render a placeholder
+      // instead of calling .toFixed on null.
+      const marginText = result.expectedMargin === null ? "n/a" : `${result.expectedMargin.toFixed(1)}%`;
       if (result.belowBreakEven) {
         verdict.className = "verdict bad";
         verdict.innerHTML = `On these assumptions this SKU <strong>loses ${money(Math.abs(result.expectedProfit))} per order</strong> after returns. The walk-away price is ${bePrice === null ? "above any price this model can find" : money(bePrice)}.`;
       } else if (!result.hitsTargetMargin) {
         verdict.className = "verdict";
-        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> (${result.expectedMargin.toFixed(1)}%), which is under the ${result.targetMargin}% target. Price at ${targetPrice === null ? "a higher figure than this model can reach" : money(targetPrice)} to hit it.`;
+        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> (${marginText}), which is under the ${result.targetMargin}% target. Price at ${targetPrice === null ? "a higher figure than this model can reach" : money(targetPrice)} to hit it.`;
       } else {
         verdict.className = "verdict";
-        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> — ${result.expectedMargin.toFixed(1)}%, at or above the ${result.targetMargin}% target.`;
+        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> — ${marginText}, at or above the ${result.targetMargin}% target.`;
       }
     }
 
@@ -524,8 +544,34 @@
       }
     });
 
+    el("whereToSellLink").addEventListener("click", () => {
+      // Records only that the handoff happened, never the order — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      count("handoff_where_to_sell");
+    });
+
     restoreScenario();
+    // Someone opening a scenario link copied before this page moved to the
+    // fragment is still carrying their assumptions in the query string, and
+    // would keep resending them on every subsequent request from this tab.
+    // Rewrite the address to the fragment form once, in place.
+    if (window.location.search) {
+      history.replaceState(null, "", scenarioLink());
+    }
     paint();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

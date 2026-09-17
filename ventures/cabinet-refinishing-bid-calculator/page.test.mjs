@@ -93,3 +93,15 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same interior-refinish shop job, but hardwood floors rather
+// than cabinets. Without a crawlable link here, a crawler entering on the
+// cabinet calculator never reaches the hardwood tool in one hop — same one-way
+// orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the hardwood-refinishing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/hardwood-refinishing-bid-calculator\/"/,
+    'index must link ../hardwood-refinishing-bid-calculator/ so crawlers reach the hardwood calculator in one hop',
+  );
+});

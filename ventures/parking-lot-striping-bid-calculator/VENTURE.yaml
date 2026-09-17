@@ -28,5 +28,5 @@ kill_criteria:
   - Contractors report that the stall-line / ADA-hash model is more work than their existing per-stall method without changing the price they would have bid.
   - The starting coverage and hour rates prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/parking-lot-striping-bid-calculator/
   analytics: null

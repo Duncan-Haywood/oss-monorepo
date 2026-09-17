@@ -1,0 +1,31 @@
+name: hoa-reserve-fund-calculator
+description: Free browser calculator for HOA/condo board treasurers and community association managers to project whether the current reserve contribution rate covers known future capital component replacements (roof, repaving, painting, pool, elevator, HVAC) or heads toward a special assessment, and to solve for the minimum contribution that avoids one.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: HOA/condo board treasurers will use a component-based reserve projection calculator because generic savings calculators don't model cyclical component replacement, inflation, or the standard "percent funded" reserve-study metric.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Post-Surfside reserve-study mandates (Florida SB 4-D / SIRS and similar state rules) are driving real search volume for "HOA reserve fund calculator" and "special assessment calculator" that a free, no-account tool can capture.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A board that sees its own "do nothing" special-assessment size and the phased monthly dues increase that avoids it, in per-unit dollars, is more likely to act before a shortfall year than one that sees only a fund balance.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hoa-reserve-fund-calculator/
+  analytics: null

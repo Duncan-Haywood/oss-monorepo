@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. guessing from Apple's docs or waiting for App Review to reject the build</title>
+<meta name="description" content="Apple's own documentation lists the Required Reason API categories and reason codes. It does not read your source or your manifest for you -- that has always meant either guessing which categories apply, or finding out for certain from an App Store Connect rejection days later. This free scanner does the cross-check before you submit.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/ios-privacy-manifest-check/vs-waiting-for-app-review.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. guessing from Apple's docs or waiting for App Review to reject the build">
+<meta property="og:description" content="Apple's documentation names the categories and codes. It doesn't cross-check them against your source or your manifest -- that step has always been either a guess or a rejection email. This free scanner does it before you submit.">
+<meta property="og:url" content="https://example.invalid/ios-privacy-manifest-check/vs-waiting-for-app-review.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't Apple's own documentation already explain this?","acceptedAnswer":{"@type":"Answer","text":"It lists the five Required Reason API categories and the published reason codes for each, and it is the source of truth this tool's own category and code list is checked against. What it doesn't do is read your specific source files or your specific PrivacyInfo.xcprivacy and tell you which category you actually triggered, in which file, on which line, or whether the code you declared is even one of the valid ones for that category. That cross-check is what used to mean either guessing from the docs or finding out from a rejection."}},{"@type":"Question","name":"What does waiting for App Review actually cost?","acceptedAnswer":{"@type":"Answer","text":"A submission-review-rejection cycle, at minimum -- often a day or more before ITMS-91061 or ITMS-91055 comes back, and then the same wait again after the fix. For a category buried in a third-party SDK's compiled binary rather than your own code, the first rejection may be the only way you learn the SDK uses a Required Reason API at all. Scanning your source and manifest before you submit catches the same defect without spending a review cycle to find it."}},{"@type":"Question","name":"Can I just search my code by hand for these API calls?","acceptedAnswer":{"@type":"Answer","text":"You can, and for a small project it may be faster than downloading a tool. The risk is coverage: five categories, each with several trigger symbols (stat(), systemUptime, UserDefaults, and more), across every .swift, .m, .mm, and .h file in the project plus whatever a dependency's own compiled binary calls -- Apple's own review checks the compiled symbol table, not just the files you remembered to grep. This tool runs the same symbol list against every file you point it at, in the browser or as a CI-gating CLI, so a category buried in a file you didn't think to check is not the one that reaches App Review first."}},{"@type":"Question","name":"Does a clean report from this tool replace App Review?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. This is pattern-matching against known API symbol names in the source and manifest you point it at -- it cannot see reflection, dynamically loaded code, or the internals of a third-party SDK's compiled binary, and Apple can add categories or reason codes at any time. A clean report means your current source and manifest agree with each other and with Apple's published list; it is not a guarantee App Review will pass, so verify against Apple's current documentation before you submit."}}]}</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; iOS Privacy Manifest Checker</a></p>
+<h1>This checker vs. guessing from Apple's docs or waiting for App Review to reject the build</h1>
+<p>
+  Apple's documentation names the five Required Reason API categories and
+  the reason codes it publishes for each -- it is the source of truth this
+  tool's own category and code list is checked against. What it does not do
+  is read your specific source files or your specific
+  <code>PrivacyInfo.xcprivacy</code> and tell you which category you
+  actually triggered, in which file, or whether the code you declared is
+  even valid for that category. That cross-check has always meant either a
+  guess informed by the docs, or a definite answer from an
+  <strong>ITMS-91061</strong>/<strong>ITMS-91055</strong> rejection days
+  later.
+</p>
+
+<h2>What each approach actually gives you</h2>
+<p>
+  <strong>Apple's documentation</strong> is complete and authoritative about
+  what the categories and codes are. It is not a scanner: it cannot look at
+  your project and tell you that <code>DiskSpaceChecker.swift</code> line 6
+  calls <code>systemFreeSize</code> with no matching manifest entry, because
+  it has never seen your code.
+</p>
+<p>
+  <strong>App Review</strong> will eventually tell you, with certainty --
+  after a submission, a review cycle, and a rejection naming the exact code.
+  For a Required Reason API call buried inside a third-party SDK's compiled
+  binary rather than your own source, that rejection may be the first time
+  anyone on the team learns the dependency uses one at all.
+</p>
+<p>
+  <strong>This checker</strong> runs the same category-and-code cross-check
+  App Review runs, against your source and manifest, before you submit --
+  in the browser (nothing uploaded) or as a Node CLI you can gate CI on.
+</p>
+
+<table>
+<thead><tr><th>Question</th><th>Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which category does my code trigger, and where?</td><td>This checker's scan -- file and line, free, nothing uploaded.</td></tr>
+<tr><td>What are the valid reason codes for a category?</td><td>This checker lists them per category; both it and Apple's docs agree, since this tool's list is checked against Apple's published one.</td></tr>
+<tr><td>Will App Review actually approve my build?</td><td>Neither. Only Apple's own review determines that -- this is evidence about your source and manifest as they stand today.</td></tr>
+<tr><td>Is my source code uploaded anywhere?</td><td>No. The browser tool reads files with the File API; the CLI never makes a network call.</td></tr>
+</tbody>
+</table>
+
+<h2>Common questions</h2>
+<h3>Doesn't Apple's own documentation already explain this?</h3>
+<p>It lists the five Required Reason API categories and the published reason codes for each, and it is the source of truth this tool's own category and code list is checked against. What it doesn't do is read your specific source files or your specific PrivacyInfo.xcprivacy and tell you which category you actually triggered, in which file, on which line, or whether the code you declared is even one of the valid ones for that category. That cross-check is what used to mean either guessing from the docs or finding out from a rejection.</p>
+<h3>What does waiting for App Review actually cost?</h3>
+<p>A submission-review-rejection cycle, at minimum -- often a day or more before ITMS-91061 or ITMS-91055 comes back, and then the same wait again after the fix. For a category buried in a third-party SDK's compiled binary rather than your own code, the first rejection may be the only way you learn the SDK uses a Required Reason API at all. Scanning your source and manifest before you submit catches the same defect without spending a review cycle to find it.</p>
+<h3>Can I just search my code by hand for these API calls?</h3>
+<p>You can, and for a small project it may be faster than downloading a tool. The risk is coverage: five categories, each with several trigger symbols (<code>stat()</code>, <code>systemUptime</code>, <code>UserDefaults</code>, and more), across every <code>.swift</code>, <code>.m</code>, <code>.mm</code>, and <code>.h</code> file in the project plus whatever a dependency's own compiled binary calls -- Apple's own review checks the compiled symbol table, not just the files you remembered to grep. This tool runs the same symbol list against every file you point it at, in the browser or as a CI-gating CLI, so a category buried in a file you didn't think to check is not the one that reaches App Review first.</p>
+<h3>Does a clean report from this tool replace App Review?</h3>
+<p>No, and it is not built to. This is pattern-matching against known API symbol names in the source and manifest you point it at -- it cannot see reflection, dynamically loaded code, or the internals of a third-party SDK's compiled binary, and Apple can add categories or reason codes at any time. A clean report means your current source and manifest agree with each other and with Apple's published list; it is not a guarantee App Review will pass, so verify against Apple's current documentation before you submit.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Apple's own review process. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The checker this page describes reads files you select
+  locally with the File API and never uploads them.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Apple Inc. Apple, Xcode, App Store, and
+  PrivacyInfo.xcprivacy are trademarks of Apple Inc., named here only to describe what this tool checks.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

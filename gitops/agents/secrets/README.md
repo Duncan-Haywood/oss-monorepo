@@ -28,8 +28,32 @@ and **one** of the two Codex credentials.
 | `CODEX_AUTH_JSON` | The whole contents of `~/.codex/auth.json` after `codex login`. Spends a ChatGPT plan's included usage instead of billing per token. |
 
 Seal both credentials and the subscription wins, because it is the one that
-does not bill. The worker prints which mode it authenticated in on every run,
-so no tick is ambiguous about whose budget it spent.
+does not bill. The worker prints an `auth mode:` line naming the budget on
+every run, so no tick is ambiguous about whose it spent.
+
+**How that tie is actually decided (fixed 2026-09-02).** Until then this
+paragraph was a claim about which `if` branch `worker.sh` took, and the test
+behind it compared the two branches' positions in the file. Taking a branch in
+bash does nothing to the environment, though, and `codex exec` inherits it — so
+a Secret carrying both handed the CLI a live `OPENAI_API_KEY` on a run that had
+just announced itself as the plan's. Which credential the CLI prefers there is
+not something this repo controls, and the failure is silent in the direction
+that costs money. `worker.sh` now `unset`s the metered key on the plan route
+and says so in the log, which makes the preference above true by construction
+rather than by hope. `test_worker_run.py` asserts it against the environment
+the stub CLI is actually handed, in both directions — the key must be gone on
+the plan route and still present when it is the only credential sealed.
+
+Note that `seal-owner-secrets.sh` writes one credential at a time, so its own
+output never reaches this state. `codex-token.template.yaml` carries both keys
+and the manual `kubeseal` path below is over that template, which is how a
+Secret with both gets made.
+
+One consequence worth knowing: a credential cached on the `codex-home` volume
+no longer outranks a freshly sealed `OPENAI_API_KEY`. The volume is a cache and
+the Secret is your current intent, so switching from the plan to a metered key
+now takes effect on the next tick instead of being shadowed by the old login
+until it expired.
 
 ## Which one to seal
 
@@ -86,6 +110,29 @@ wedged credential, and doing it when nothing is wrong is harmless.
 A rejected credential exits **43**, distinct from the **42** a quota limit
 exits with. Backing off for an hour does not fix an expired login, and the two
 should not be read as the same event.
+
+**Wired on the governor side 2026-09-02.** Until then only the worker knew
+that: `governor.py` branched on 42 and on the no-op marker and read 43 as an
+ordinary crash, so the CronJob went on firing every five minutes and each Job
+`apt-get`ed `gh` and `npm install -g`ed the Codex CLI on the 4 GB cpx22 before
+discovering the same dead credential — around 288 of them a day, none of which
+could ever succeed, because no amount of retrying re-runs `codex login` on
+your laptop. That mattered most on this page's *plan* route: an
+`OPENAI_API_KEY` is static, but `CODEX_AUTH_JSON` is the one Codex rotates on
+use, so a wedged credential is its ordinary failure mode rather than a
+hypothetical.
+
+Now the worker also writes a `codex-auth-rejected:` marker to
+`/dev/termination-log` (so `kubectl describe job` states the reason after the
+Job's logs have been TTL'd away), and the governor holds the queue for
+`cooldownOnAuthFailureSeconds` — 6 h in `policy.json`, deliberately longer than
+the 1 h limit cooldown, because the limit clears itself and this does not.
+
+It is a cooldown, not a latch. The governor's Role grants no access to
+`codex-secrets`, so it cannot watch for your re-seal, and widening it to watch
+a credential it must never read would be a bad trade. Instead the hold simply
+expires: re-run `codex login`, re-seal, and the first Job after the sleep
+re-seeds the volume from the new fingerprint on its own. Nothing to flip.
 
 ## Not in this namespace
 

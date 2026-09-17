@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS, TEXT_FIELD_IDS } from './share.mjs';
+import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS, TEXT_FIELD_IDS, TERM_TEXT_FIELD_IDS } from './share.mjs';
+
+// The proposal panel's deposit and validity window (`platform/proposal/
+// adopt.mjs`), folded into NUMBER_FIELD_IDS -- see the "matches the ids"
+// test below, which checks the calculator's own fields separately from
+// these.
+const TERM_NUMBER_IDS = ['depositPercent', 'validDays'];
 
 const sample = {
   currency: 'USD',
@@ -14,6 +20,11 @@ const sample = {
   rush_fee: 0,
   minimum_price: 250,
   target_margin: 25,
+  depositPercent: 30,
+  validDays: 30,
+  proposalExclusions: 'Rush translation of source files delivered late',
+  paymentTerms: 'Half up front, balance on delivery.',
+  proposalNotes: 'Certified translation available on request.',
 };
 
 test('round-trips every field this calculator has', () => {
@@ -21,8 +32,9 @@ test('round-trips every field this calculator has', () => {
 });
 
 test('matches the ids the page actually reads', () => {
-  const ids = [...NUMBER_FIELD_IDS, ...TEXT_FIELD_IDS];
-  assert.deepEqual([...ids].sort(), Object.keys(sample).sort());
+  const ids = [...NUMBER_FIELD_IDS.filter((id) => !TERM_NUMBER_IDS.includes(id)), ...TEXT_FIELD_IDS];
+  const quoteKeys = Object.keys(sample).filter((id) => !TERM_NUMBER_IDS.includes(id) && !TERM_TEXT_FIELD_IDS.includes(id));
+  assert.deepEqual([...ids].sort(), quoteKeys.sort());
 });
 
 test('drops unknown fields and negative numbers', () => {
@@ -55,4 +67,22 @@ test('a currency label is trimmed and truncated to the input maxlength', () => {
 test('a blank or whitespace-only currency label is dropped', () => {
   const encoded = encodeInputs({ ...sample, currency: '   ' });
   assert.equal('currency' in decodeInputs(encoded), false);
+});
+
+test('a proposal term is carried in full, not truncated to the currency maxlength', () => {
+  const longTerm = 'Deposit due on acceptance; balance due on delivery of final files.';
+  const encoded = encodeInputs({ ...sample, paymentTerms: longTerm });
+  assert.equal(decodeInputs(encoded).paymentTerms, longTerm);
+});
+
+test('an over-long proposal term is dropped rather than truncated', () => {
+  const encoded = encodeInputs({ ...sample, proposalNotes: 'x'.repeat(513) });
+  assert.equal('proposalNotes' in decodeInputs(encoded), false);
+  const atLimit = encodeInputs({ ...sample, proposalNotes: 'x'.repeat(512) });
+  assert.equal(decodeInputs(atLimit).proposalNotes, 'x'.repeat(512));
+});
+
+test('a blank proposal term is dropped, not carried as an empty string', () => {
+  const encoded = encodeInputs({ ...sample, proposalExclusions: '   ' });
+  assert.equal('proposalExclusions' in decodeInputs(encoded), false);
 });

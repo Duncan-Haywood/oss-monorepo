@@ -127,3 +127,16 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: same wet-basement / site-water problem, but exterior French
+// drain (trench, outlet, soil) rather than helical/push piers and straps.
+// Without a crawlable link here, a crawler entering on the foundation-repair
+// calculator never reaches the French-drain tool in one hop.
+test('index links one hop to the french-drain-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/french-drain-bid-calculator\/"/,
+    'index must link ../french-drain-bid-calculator/ so crawlers reach the French drain calculator in one hop',
+  );
+  assert.match(html, /French drain bid calculator/i);
+});

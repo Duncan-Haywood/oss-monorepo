@@ -96,3 +96,16 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same floor-covering trade, but carpet (yards, stairs,
+// stretch-in / glue-down) rather than hard-surface LVP / hardwood / tile.
+// Related-tool chrome may never surface that pair, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the carpet-install-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/carpet-install-bid-calculator\/"/,
+    'index must link ../carpet-install-bid-calculator/ so crawlers reach the carpet calculator in one hop',
+  );
+  assert.match(html, /carpet installation bid calculator/i);
+});

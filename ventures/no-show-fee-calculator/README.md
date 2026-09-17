@@ -58,7 +58,7 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    double-booked chair costs you; leave it blank to price overflow as one
    session.
 
-All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
+All the arithmetic is in [`calc.mjs`](calc.mjs), covered by
 [`test/calc.test.mjs`](test/calc.test.mjs). Nothing here is AI-generated
 guesswork — it's your numbers, run through a fixed formula you can read.
 
@@ -130,7 +130,7 @@ in `localStorage` on your own device, visible to you in the page's "Usage"
 section, and clearable or disable-able at any time (a "don't count my usage"
 checkbox is right there, and the tool also honors your browser's Do Not
 Track / Global Privacy Control signal automatically). See
-[`src/usage.mjs`](src/usage.mjs) for the full implementation and
+[`usage.mjs`](usage.mjs) for the full implementation and
 [`portfolio/usage/README.md`](../../portfolio/usage/README.md) for the
 portfolio-wide rules this follows.
 

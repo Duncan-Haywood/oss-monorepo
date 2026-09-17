@@ -90,7 +90,7 @@ def fetch_page(url: str, timeout: float = 15.0) -> FetchResult:
     """
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
             status = response.status
             body = response.read().decode(response.headers.get_content_charset() or "utf-8", errors="replace")
     except urllib.error.HTTPError as exc:

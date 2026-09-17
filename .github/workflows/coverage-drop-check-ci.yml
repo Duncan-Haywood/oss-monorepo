@@ -1,0 +1,57 @@
+name: coverage-drop-check CI
+
+# Zero-dependency CLI/browser tool: `check.py` is the canonical comparator and
+# `compare.mjs` is the same logic reimplemented for the in-browser page, with
+# `page.test.mjs` covering the page wiring on top. Keep all three covered
+# independently of the portfolio-wide validation workflow, which only checks
+# published pages and does not run venture unit tests.
+#
+# Added 2026-09-07, one merge after the venture graduated in #3649. Between the
+# two, `validate_workflows.py` was red on `main` -- `compare.test.mjs` and
+# `page.test.mjs` ran in no workflow at all, so 15 assertions guarding a live
+# tool executed only on whichever contributor's machine last happened to type
+# `node --test`. That is the "a guard nobody runs is worth less than no guard"
+# defect CLAUDE.md records against `platform/proposal/`, `platform/privacy/`
+# and the browser checks; the validator exists precisely so a venture cannot
+# graduate into that state unnoticed, and here it worked.
+on:
+  pull_request:
+    paths:
+      - "ventures/coverage-drop-check/**"
+      - ".github/workflows/coverage-drop-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/coverage-drop-check/**"
+      - ".github/workflows/coverage-drop-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-drop-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/coverage-drop-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run comparator tests (Python — the canonical CLI)
+        run: python3 -m unittest test_check -v
+      - name: Run comparator tests (browser page logic)
+        run: node --test compare.test.mjs
+      - name: Run page-wiring tests
+        run: node --test page.test.mjs

@@ -7,7 +7,9 @@ As of 2026-08-26 the repo carries ~30 finished browser calculators and not one
 of them has a public URL. `platform/ci/publish_surface.py` reports that no
 workflow publishes anything on a push to `main`; the single Pages workflow in
 the repo ships one venture's docs. So the owner flip everyone is waiting on
-(`GITHUB_PAGES_ENABLED`) would, on its own, publish none of the products.
+(`PAGES_ENABLED`, originally spelled `GITHUB_PAGES_ENABLED` -- see
+`portfolio/hosting/README.md` for why that name never actually worked) would,
+on its own, publish none of the products.
 
 This builder is the missing half. It lays out
 

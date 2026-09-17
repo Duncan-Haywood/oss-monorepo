@@ -4,6 +4,8 @@ The free SaaS price increase churn calculator answers a concrete question: **how
 
 Open `index.html` in a browser. It needs no account, network request, API key, or customer export. The math is a planning aid, not a forecast: validate assumptions against your own retention data and run a controlled test where appropriate.
 
+[How much can I raise my SaaS price?](how-much-can-i-raise-my-saas-price.html) answers the search question directly. [This calculator vs. Baremetrics](vs-baremetrics.html) explains why a free, no-signup what-if calculator and a paid, connected analytics platform answer different questions.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your numbers are never uploaded and there are no accounts, cookies, tracking pixels, or analytics vendor. Unless opted out, the page stores only an aggregate event name and day in local storage. It stores no identity, IP address, URL, or pricing inputs. Do Not Track and Global Privacy Control disable counting.

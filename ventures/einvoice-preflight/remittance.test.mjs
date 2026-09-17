@@ -70,6 +70,16 @@ test("internal account does not require remittance", () => {
   assert.deepEqual(inspectPaymentRemittance(invoice()), []);
 });
 
+test("wrong-length IBAN without remittance is still INV-030", () => {
+  // Truncated (20 chars, DE needs 22), but still an IBAN, not an internal
+  // account id -- a buyer still needs a remittance reference to quote on
+  // the transfer. This used to be silently skipped because
+  // looksLikeCompleteIban read any wrong-length IBAN as "no IBAN here".
+  const findings = inspectPaymentRemittance(invoice({ iban: "DE893704004405320130" }));
+  assert.deepEqual(findings.map((item) => item.rule), ["INV-030"]);
+  assert.equal(findings[0].path, "/payment/remittance");
+});
+
 test("unstructured and valid RF pass through checkInvoice", () => {
   assert.deepEqual(checkInvoice(invoice({
     iban: "DE89370400440532013000",

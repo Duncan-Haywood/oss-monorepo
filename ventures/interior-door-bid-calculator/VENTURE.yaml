@@ -36,5 +36,5 @@ kill_criteria:
   - Contractors report that splitting opening, leaf, and extras is more work than their existing installed-price method without changing the price they would have bid.
   - The starting hours and millwork invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/interior-door-bid-calculator/
   analytics: null

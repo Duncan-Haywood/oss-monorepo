@@ -7,6 +7,16 @@
 
 const REQUIRED = ["captured_at", "api_version", "source", "authorization_state", "apps"];
 const USAGE_KEY = "shopify-permission-drift-usage";
+// The opt-out lives in its own key, not in the counters: opting out *removes*
+// the counters, so a flag stored inside them would be deleted by the very act
+// it records. Kept here rather than only in `globalThis.__usageOptOut`, which
+// is a fresh realm on every page load -- the visitor switched counting off and
+// the next visit started counting again while offering the switch back.
+// The venture already had this key, in `site/usage.mjs`, for the checker
+// page's own counter. One venture, one opt-out: a visitor who switches
+// counting off on either page has switched it off, and two keys would mean
+// doing it twice without being told so.
+const USAGE_OPT_OUT = "shopify-permission-drift:usage-opt-out";
 
 export const EXAMPLE_INSTALLATIONS = {
   data: {
@@ -89,32 +99,81 @@ export function extractAppRecords(payload) {
     return payload.length === 0 ? [] : null;
   }
   if (!payload || typeof payload !== "object") return null;
-  if (Array.isArray(payload.apps)) return payload.apps.filter((item) => item && typeof item === "object");
+  if (Array.isArray(payload.apps)) return payload.apps;
 
   const body = unwrapData(payload);
   if (body && typeof body === "object") {
     for (const key of ["appInstallations", "currentAppInstallations", "applications"]) {
       if (key in body) {
         const found = nodes(body[key]);
-        if (found) return found.filter((item) => item && typeof item === "object");
+        if (found) return found;
       }
     }
     if (body.currentAppInstallation && typeof body.currentAppInstallation === "object") {
       return [body.currentAppInstallation];
     }
-    if (Array.isArray(body.apps)) return body.apps.filter((item) => item && typeof item === "object");
+    if (Array.isArray(body.apps)) return body.apps;
   }
   for (const key of ["appInstallations", "applications"]) {
     if (key in payload) {
       const found = nodes(payload[key]);
-      if (found) return found.filter((item) => item && typeof item === "object");
+      if (found) return found;
     }
   }
   return null;
 }
 
+/**
+ * GraphQL enums whose action segment contains underscores. Splitting on the
+ * last "_" invents a different REST topic (CUSTOMERS_DATA_REQUEST →
+ * customers_data/request instead of customers/data_request) and makes an
+ * unchanged GraphQL vs REST inventory look like webhook drift.
+ */
+const GRAPHQL_TOPIC_REST = {
+  APP_SCOPES_UPDATE: "app/scopes_update",
+  APP_SUBSCRIPTIONS_APPROACHING_CAPPED_AMOUNT: "app_subscriptions/approaching_capped_amount",
+  AUDIT_EVENTS_ADMIN_API_ACTIVITY: "audit_events/admin_api_activity",
+  CUSTOMERS_DATA_REQUEST: "customers/data_request",
+  CUSTOMERS_PURCHASING_SUMMARY: "customers/purchasing_summary",
+  DISCOUNTS_REDEEMCODE_ADDED: "discounts/redeemcode_added",
+  DISCOUNTS_REDEEMCODE_REMOVED: "discounts/redeemcode_removed",
+  FULFILLMENT_ORDERS_CANCELLATION_REQUEST_ACCEPTED: "fulfillment_orders/cancellation_request_accepted",
+  FULFILLMENT_ORDERS_CANCELLATION_REQUEST_REJECTED: "fulfillment_orders/cancellation_request_rejected",
+  FULFILLMENT_ORDERS_CANCELLATION_REQUEST_SUBMITTED: "fulfillment_orders/cancellation_request_submitted",
+  FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_ACCEPTED: "fulfillment_orders/fulfillment_request_accepted",
+  FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_REJECTED: "fulfillment_orders/fulfillment_request_rejected",
+  FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_SUBMITTED: "fulfillment_orders/fulfillment_request_submitted",
+  FULFILLMENT_ORDERS_FULFILLMENT_SERVICE_FAILED_TO_COMPLETE: "fulfillment_orders/fulfillment_service_failed_to_complete",
+  FULFILLMENT_ORDERS_HOLD_RELEASED: "fulfillment_orders/hold_released",
+  FULFILLMENT_ORDERS_LINE_ITEMS_PREPARED_FOR_LOCAL_DELIVERY: "fulfillment_orders/line_items_prepared_for_local_delivery",
+  FULFILLMENT_ORDERS_LINE_ITEMS_PREPARED_FOR_PICKUP: "fulfillment_orders/line_items_prepared_for_pickup",
+  FULFILLMENT_ORDERS_ORDER_ROUTING_COMPLETE: "fulfillment_orders/order_routing_complete",
+  FULFILLMENT_ORDERS_PLACED_ON_HOLD: "fulfillment_orders/placed_on_hold",
+  FULFILLMENT_ORDERS_SCHEDULED_FULFILLMENT_ORDER_READY: "fulfillment_orders/scheduled_fulfillment_order_ready",
+  INVENTORY_SHIPMENTS_ADD_ITEMS: "inventory_shipments/add_items",
+  INVENTORY_SHIPMENTS_MARK_IN_TRANSIT: "inventory_shipments/mark_in_transit",
+  INVENTORY_SHIPMENTS_RECEIVE_ITEMS: "inventory_shipments/receive_items",
+  INVENTORY_SHIPMENTS_REMOVE_ITEMS: "inventory_shipments/remove_items",
+  INVENTORY_SHIPMENTS_UPDATE_ITEM_QUANTITIES: "inventory_shipments/update_item_quantities",
+  INVENTORY_SHIPMENTS_UPDATE_TRACKING: "inventory_shipments/update_tracking",
+  INVENTORY_TRANSFERS_ADD_ITEMS: "inventory_transfers/add_items",
+  INVENTORY_TRANSFERS_READY_TO_SHIP: "inventory_transfers/ready_to_ship",
+  INVENTORY_TRANSFERS_REMOVE_ITEMS: "inventory_transfers/remove_items",
+  INVENTORY_TRANSFERS_UPDATE_ITEM_QUANTITIES: "inventory_transfers/update_item_quantities",
+  ORDERS_PARTIALLY_FULFILLED: "orders/partially_fulfilled",
+  ORDERS_RISK_ASSESSMENT_CHANGED: "orders/risk_assessment_changed",
+  ORDERS_SHOPIFY_PROTECT_ELIGIBILITY_CHANGED: "orders/shopify_protect_eligibility_changed",
+  PRODUCT_FEEDS_FULL_SYNC: "product_feeds/full_sync",
+  PRODUCT_FEEDS_FULL_SYNC_FINISH: "product_feeds/full_sync_finish",
+  PRODUCT_FEEDS_INCREMENTAL_SYNC: "product_feeds/incremental_sync",
+  REVERSE_DELIVERIES_ATTACH_DELIVERABLE: "reverse_deliveries/attach_deliverable",
+  VARIANTS_IN_STOCK: "variants/in_stock",
+  VARIANTS_OUT_OF_STOCK: "variants/out_of_stock",
+};
+
 export function canonicalizeTopic(topic) {
   if (!topic || topic.includes("/")) return topic;
+  if (GRAPHQL_TOPIC_REST[topic]) return GRAPHQL_TOPIC_REST[topic];
   if (topic === topic.toUpperCase() && topic.includes("_")) {
     const index = topic.lastIndexOf("_");
     return `${topic.slice(0, index).toLowerCase()}/${topic.slice(index + 1).toLowerCase()}`;
@@ -204,7 +263,8 @@ export function normalizeApp(app) {
     webhooks: present ? stringList(webhooks, "webhooks", id) : [],
   };
   if (declared !== undefined) record.declared_scopes = stringList(declared, "declared_scopes", id);
-  if (!present) record.webhook_coverage = "absent";
+  // A normalized capture uses [] for omitted webhooks; preserve that uncertainty.
+  if (!present || app.webhook_coverage === "absent") record.webhook_coverage = "absent";
   else record.webhook_coverage = "complete";
   return record;
 }
@@ -322,7 +382,7 @@ export function captureSummary(inventory) {
 }
 
 export function recordCaptureUsage(event, storage = globalThis.localStorage, optOut = false) {
-  if (optOut || !storage) return;
+  if (optOut || !storage || usageOptedOut(storage)) return;
   let current = {};
   try {
     current = JSON.parse(storage.getItem(USAGE_KEY) || "{}");
@@ -338,13 +398,27 @@ export function recordCaptureUsage(event, storage = globalThis.localStorage, opt
   }
 }
 
+/** Whether counting is switched off, including on a later visit. */
+export function usageOptedOut(storage = globalThis.localStorage) {
+  if (globalThis.__usageOptOut) return true;
+  try {
+    return storage?.getItem(USAGE_OPT_OUT) === "1";
+  } catch {
+    // A blocked or full store must never be read as consent.
+    return false;
+  }
+}
+
 export function setUsageOptOut(value, storage = globalThis.localStorage) {
-  globalThis.__usageOptOut = Boolean(value);
-  if (value && storage) {
-    try {
-      storage.removeItem(USAGE_KEY);
-    } catch {
-      /* storage is optional */
-    }
+  const off = Boolean(value);
+  globalThis.__usageOptOut = off;
+  if (!storage) return;
+  // Independent writes, counters first: sharing one try means a setItem that
+  // throws on a full quota skips the delete, and the visitor gets neither half.
+  if (off) {
+    try { storage.removeItem(USAGE_KEY); } catch { /* storage is optional */ }
+    try { storage.setItem(USAGE_OPT_OUT, "1"); } catch { /* storage is optional */ }
+  } else {
+    try { storage.removeItem(USAGE_OPT_OUT); } catch { /* storage is optional */ }
   }
 }

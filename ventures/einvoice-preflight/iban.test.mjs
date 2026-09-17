@@ -32,6 +32,16 @@ test("short internal accounts are not complete IBANs", () => {
   assert.equal(looksLikeCompleteIban("NL91ABNA0417164300"), true);
 });
 
+test("a wrong-length IBAN for a known country still looks like an IBAN", () => {
+  // Country-shaped and known (DE), just short a group -- a typo'd or
+  // truncated IBAN, not an internal account id. inspectPaymentIban already
+  // flags this on its own (INV-024); looksLikeCompleteIban is the gate the
+  // cross-field checks (BIC country match, remittance-missing,
+  // means-needs-IBAN) use to decide whether an IBAN is present at all, and
+  // it used to say no here, silently skipping all three.
+  assert.equal(looksLikeCompleteIban("DE893704004405320130"), true);
+});
+
 test("valid published IBANs produce no finding", () => {
   const valid = [
     "DE89 3704 0044 0532 0130 00",

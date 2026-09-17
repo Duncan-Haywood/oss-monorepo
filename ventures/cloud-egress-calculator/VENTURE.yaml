@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three operators run two scenarios twice within 90 days.
   - No user reports finding a material difference between advertised storage price and workload cost.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/cloud-egress-calculator/
   analytics: null

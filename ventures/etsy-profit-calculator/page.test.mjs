@@ -2,7 +2,7 @@
 // column mismatch or an advertised-but-unrendered figure would stay green.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareOffsiteAdRates, maxAffordableOffsiteRate, compareProductionPartner, compareStarSeller, compareShopSale, compareFreeShipping, compareEtsyLabels } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -15,6 +15,7 @@ const starSeo = readFileSync(new URL('./is-etsy-star-seller-worth-it.html', impo
 const saleSeo = readFileSync(new URL('./should-i-put-my-etsy-shop-on-sale.html', import.meta.url), 'utf8');
 const freeShipSeo = readFileSync(new URL('./should-i-offer-free-shipping-on-etsy.html', import.meta.url), 'utf8');
 const labelsSeo = readFileSync(new URL('./should-i-buy-etsy-shipping-labels.html', import.meta.url), 'utf8');
+const vsEtsySeo = readFileSync(new URL('./vs-etsys-listing-form-calculator.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -487,4 +488,77 @@ test('Copy order summary is wired to the calculated result', () => {
   assert.match(html, /id="copySummary"/);
   assert.match(scriptSource, /formatOrderSummary/);
   assert.match(scriptSource, /summary_copied/);
+});
+
+test('the incumbent-comparison page links back, names Etsy\'s own tool honestly, and gives no unverifiable Etsy dollar figures', () => {
+  assert.match(html, /vs-etsys-listing-form-calculator\.html/);
+  assert.match(vsEtsySeo, /<a href="\.\/">/);
+  // Names Etsy's own tool and links to Etsy's own domain so a reader can
+  // check the source directly -- this page must never claim a dollar or
+  // percentage figure for Etsy's own calculator that only Etsy's live
+  // schedule could confirm.
+  assert.match(vsEtsySeo, /etsy\.com\/seller-handbook/);
+  // This page must never claim a dollar or percentage figure as something
+  // Etsy's own calculator charges or shows -- only structural facts about
+  // where it lives and what it estimates. The 12%/15% mentioned on the page
+  // describe this calculator's own Offsite Ads comparison (already on
+  // index.html), not a number attributed to Etsy's tool, so those stay
+  // narrowly scoped rather than banned outright.
+  assert.doesNotMatch(vsEtsySeo, /Etsy('s)? (charges|fee is|costs?) \$/i);
+  assert.doesNotMatch(vsEtsySeo, /Etsy('s)? (own )?(Profit )?Calculator[^.]*\d+(\.\d+)?%/i);
+  assert.match(vsEtsySeo, /not affiliated with, endorsed by, or sponsored by Etsy/i);
+  assert.match(vsEtsySeo, /trademarks of Etsy, Inc\./i);
+});
+
+test('the incumbent-comparison page carries the standard disclaimer and sponsor link', () => {
+  assert.match(vsEtsySeo, /No warranty/);
+  assert.match(vsEtsySeo, /Best-effort hosting, no SLA/);
+  assert.match(vsEtsySeo, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders the hero profit number, the dl
+  // breakdown, and the reprice-for-a-goal scenario table in place on every
+  // keystroke, with no page reload. Before this fix the only aria-live
+  // element on the page was #status (a copy/share message render() never
+  // writes the result figures into), so a screen-reader user changing an
+  // input got no announcement that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
+// Regression: sitemap.xml was missing vs-etsys-listing-form-calculator.html,
+// a real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test('every .html file in the venture is reachable from the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
+});
+
+// where-to-sell-calculator already hands an Etsy comparison into this page;
+// without a crawlable link back, a visitor who landed on Etsy first has no
+// path to the multi-channel ranking that owns the handoff. Amazon, Reverb,
+// and Shopify already close this loop; Etsy was the remaining gap with eBay.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// marketplace-fee-compare already deep-links here for fees a headline rate
+// cannot carry; without a crawlable link back, a visitor on Etsy never
+// reaches the six-channel triage (same orphan class as #3637).
+test('index links to the marketplace fee comparison', () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});
+
+test('index links to the Faire wholesale fee calculator', () => {
+  assert.match(html, /href="\.\.\/faire-wholesale-calculator\/"/);
 });

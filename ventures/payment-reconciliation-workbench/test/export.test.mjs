@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readRecords, reconcile } from '../src/reconcile.mjs';
-import { reviewCsv, csvCell, csvNumber, REVIEW_HEADER } from '../src/export.mjs';
+import { readRecords, reconcile } from '../reconcile.mjs';
+import { reviewCsv, csvCell, csvNumber, REVIEW_HEADER } from '../export.mjs';
 
 test('the review CSV carries the header, the amounts, and the explanation', () => {
   const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');

@@ -1,8 +1,8 @@
 # Construction Daily Log Evidence Pack
 
-A free, browser-local construction daily log and change-order documentation tool for small contractors. Record observable work, site conditions, crew, delays, and scope changes, then download a dated JSON evidence pack before details disappear into texts and memory.
+A free, browser-local construction daily log and change-order documentation tool for small contractors. Record observable work, site conditions, crew, delays, and scope changes, then download a dated JSON evidence pack before details disappear into texts and memory. Each entry is saved in your browser, so at the end of a job you can pull one combined, multi-day pack instead of hunting down a week of separate downloads.
 
-**After using this, you can now** hand a project manager or customer a dated record of what was entered and what still needs review, **which used to take** reconstructing a site day from scattered messages.
+**After using this, you can now** hand a project manager or customer a dated record spanning the whole job — every day, in order, with review notes carried through — **which used to take** reconstructing a site day from scattered messages, one download at a time, with nothing tying the days together.
 
 ## Run it
 
@@ -14,9 +14,21 @@ The tool is intentionally evidence-only. It does not certify work, determine ent
 
 The target user is a small general contractor or subcontractor searching for a construction daily log template or change-order documentation workflow. The painful alternative is a lost or disputed record assembled after the fact. Project-management suites provide broader workflows but require accounts, setup, and recurring cost; this tool is a fast private capture-and-export path. It can later support optional customer-supplied AI for summarization without making inference a dependency.
 
+## Layout
+
+| File | What it holds |
+|---|---|
+| `record.mjs` | Per-day record building, review-note findings, and `buildEvidencePack` / `packSummary`, which combine several saved days into one dated, sorted evidence pack. Imported by the page; unit-tested directly. |
+| `record.test.mjs` | Behavioural tests for a single day's record and for combining multiple days into a pack. |
+| `app.js` | Page wiring: the form, local persistence of every submitted entry, the saved-entries history list (filterable by project), and the combined-pack / per-entry-delete / clear-all actions. |
+| `index.html` | The page markup, disclaimer, privacy notice, and FAQ. |
+| `page.test.mjs` | Checks the page and script stay wired together — every id `app.js` looks up exists in the markup, and the FAQ text matches its JSON-LD. |
+
+Run `node --test` in this directory.
+
 ## Privacy and usage
 
-Everything runs in the browser. Project data is never uploaded and there is no account, cookie, IP collection, or analytics vendor. Local counting is opt-in and records only aggregate event names (`daily_log_created`, `evidence_pack_downloaded`, `summary_copied`), never the log contents. Do Not Track and Global Privacy Control disable counting automatically.
+Everything runs in the browser. Project data is never uploaded and there is no account, cookie, IP collection, or analytics vendor. Each entry you submit is saved in this browser's local storage — not to any server — so you can build a combined pack across days; delete a single entry or clear everything at any time from the project log history section, or by clearing the browser's site data. Local usage counting is a separate, opt-in signal that records only aggregate event names (`daily_log_created`, `entry_saved`, `entry_deleted`, `all_entries_cleared`, `combined_pack_downloaded`, `evidence_pack_downloaded`, `summary_copied`), never the log contents. Do Not Track and Global Privacy Control disable counting automatically.
 
 ## Disclaimer
 

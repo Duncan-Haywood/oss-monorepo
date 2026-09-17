@@ -159,7 +159,9 @@
     ));
 
     function money(value) {
-      return value == null ? 'add a price' : `$${value.toFixed(2)}`;
+      if (value == null) return 'add a price';
+      const text = `$${Math.abs(value).toFixed(2)}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
 
     function render() {

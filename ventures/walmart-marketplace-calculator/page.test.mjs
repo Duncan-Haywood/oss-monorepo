@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+const vsWfsSeo = readFileSync(new URL("./vs-wfs-cost-estimator.html", import.meta.url), "utf8");
 
 const RAW_TEXT_ELEMENTS = ["textarea", "script", "style"];
 
@@ -116,4 +117,44 @@ test("the Buy Box match-take table is wired to the comparison", () => {
   assert.match(scriptSource, /matchTakeNote/);
   assert.match(scriptSource, /match_take_compared/);
   assert.match(markup, /should-i-match-the-walmart-buy-box\.html/);
+});
+
+test("the incumbent-comparison page links back, names Walmart's own tool honestly, and gives no unverifiable Walmart numbers", () => {
+  assert.match(markup, /vs-wfs-cost-estimator\.html/);
+  assert.match(vsWfsSeo, /<a href="\.\/">/);
+  // Names Walmart's own tool and links to Walmart's own domains so a reader
+  // can check the source directly -- this page must never claim a number
+  // for Walmart's estimator that only Walmart's own live schedule could
+  // confirm.
+  assert.match(vsWfsSeo, /seller\.walmart\.com/);
+  assert.match(vsWfsSeo, /marketplacelearn\.walmart\.com/);
+  assert.doesNotMatch(vsWfsSeo, /Walmart('s)? (charges|fee is|costs?) \$/i);
+  assert.match(vsWfsSeo, /not affiliated with, endorsed by, or sponsored by Walmart/i);
+  assert.match(vsWfsSeo, /trademarks of Walmart Inc\./i);
+});
+
+test("the incumbent-comparison page carries the standard disclaimer and sponsor link", () => {
+  assert.match(vsWfsSeo, /No warranty/);
+  assert.match(vsWfsSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsWfsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+// marketplace-fee-compare already deep-links here for fees a headline
+// referral rate cannot carry; without a crawlable link back, a visitor on
+// Walmart never reaches the six-channel triage (same orphan class as #3637).
+test("index links to the marketplace fee comparison", () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});
+
+// Closest sibling: another marketplace seller comparing take rates on the
+// same SKU. Related-tool chrome rotates inside the marketplace subcategory,
+// so without an explicit one-hop a crawler landing here may never reach the
+// TikTok Shop calculator (platform/pages/siblings.mjs --check orphan class).
+test("index links one hop to the tiktok-shop-fee-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/tiktok-shop-fee-calculator\/"/,
+    'index must link ../tiktok-shop-fee-calculator/ so crawlers reach the TikTok Shop calculator in one hop',
+  );
+  assert.match(html, /TikTok Shop fee calculator/i);
 });

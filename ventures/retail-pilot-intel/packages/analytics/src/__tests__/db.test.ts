@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { DatabaseSync } from "node:sqlite";
 import { test } from "node:test";
-import { insertAggregate, insertSale, openDb } from "../db.js";
-import { aggregateEvent, saleEvent, withTempDb } from "./test-db.js";
+import { insertAggregate, insertSale, isSyntheticAggregate, isSyntheticSale, openDb } from "../db.js";
+import { aggregateEvent, saleEvent, stubAggregateEvent, stubSaleEvent, withTempDb } from "./test-db.js";
 
 test("openDb creates both tables and is idempotent", () => {
   withTempDb((dbPath) => {
@@ -80,5 +81,83 @@ test("insertSale defaults optional total_cents / payment_class to null", () => {
       .get("sale-min") as Record<string, unknown>;
     assert.equal(row.total_cents, null);
     assert.equal(row.payment_class, null);
+  });
+});
+
+test("isSyntheticAggregate flags only stub-model events, not real door_cv output", () => {
+  assert.equal(isSyntheticAggregate(stubAggregateEvent()), true);
+  assert.equal(isSyntheticAggregate(aggregateEvent()), false);
+  assert.equal(
+    isSyntheticAggregate(aggregateEvent({ metadata: { model: "yolo-v8-door", version: "1.2.0" } })),
+    false,
+    "a real model name in metadata must not be mistaken for the stub",
+  );
+});
+
+test("isSyntheticSale flags only pos_vendor stub, not a real POS integration", () => {
+  assert.equal(isSyntheticSale(stubSaleEvent()), true);
+  assert.equal(isSyntheticSale(saleEvent()), false);
+  assert.equal(isSyntheticSale(saleEvent({ pos_vendor: "lightspeed" })), false);
+});
+
+test("insertAggregate marks a stub sample event synthetic so it can be excluded from real KPIs", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, stubAggregateEvent({ event_id: "agg-stub" }));
+    insertAggregate(db, aggregateEvent({ event_id: "agg-real" }));
+    const rows = db
+      .prepare("SELECT event_id, synthetic FROM aggregate_events ORDER BY event_id")
+      .all() as { event_id: string; synthetic: number }[];
+    assert.equal(rows.length, 2);
+    assert.equal(rows[0]!.event_id, "agg-real");
+    assert.equal(rows[0]!.synthetic, 0);
+    assert.equal(rows[1]!.event_id, "agg-stub");
+    assert.equal(rows[1]!.synthetic, 1);
+  });
+});
+
+test("insertSale marks a stub sample sale synthetic so it can be excluded from real KPIs", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertSale(db, stubSaleEvent({ event_id: "sale-stub" }));
+    insertSale(db, saleEvent({ event_id: "sale-real" }));
+    const rows = db
+      .prepare("SELECT event_id, synthetic FROM sale_events ORDER BY event_id")
+      .all() as { event_id: string; synthetic: number }[];
+    assert.equal(rows.length, 2);
+    assert.equal(rows[0]!.event_id, "sale-real");
+    assert.equal(rows[0]!.synthetic, 0);
+    assert.equal(rows[1]!.event_id, "sale-stub");
+    assert.equal(rows[1]!.synthetic, 1);
+  });
+});
+
+test("openDb migrates an existing database file created before the synthetic column existed", () => {
+  withTempDb((dbPath) => {
+    // Simulate a pilot's pre-upgrade database: same tables, no synthetic column.
+    const legacy = new DatabaseSync(dbPath);
+    legacy.exec(`
+      CREATE TABLE aggregate_events (
+        event_id TEXT PRIMARY KEY, store_id TEXT NOT NULL, source TEXT NOT NULL,
+        metric TEXT NOT NULL, zone_id TEXT, sku TEXT, bucket_start TEXT NOT NULL,
+        bucket_end TEXT NOT NULL, value REAL NOT NULL, unit TEXT DEFAULT 'count', payload JSON NOT NULL
+      );
+      CREATE TABLE sale_events (
+        event_id TEXT PRIMARY KEY, store_id TEXT NOT NULL, basket_id TEXT NOT NULL,
+        closed_at TEXT NOT NULL, currency TEXT NOT NULL, total_cents INTEGER,
+        payment_class TEXT, payload JSON NOT NULL
+      );
+    `);
+    legacy.close();
+
+    // Opening a file whose tables predate the synthetic column must migrate
+    // in place rather than throw, and inserts afterward must succeed.
+    const db = openDb(dbPath);
+    insertAggregate(db, aggregateEvent({ event_id: "agg-post-migration" }));
+    insertSale(db, saleEvent({ event_id: "sale-post-migration" }));
+    const row = db
+      .prepare("SELECT synthetic FROM aggregate_events WHERE event_id = ?")
+      .get("agg-post-migration") as { synthetic: number };
+    assert.equal(row.synthetic, 0);
   });
 });

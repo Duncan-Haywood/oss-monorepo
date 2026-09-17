@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redirect Chain Checker vs. httpstatus.io</title>
+  <meta name="description" content="httpstatus.io is a free web tool that shows the redirect chain and headers for a single URL you enter into its own site. Redirect Chain Checker instead names specific misconfiguration patterns -- a loop, an over-long chain, an HTTPS-to-HTTP downgrade, a temporary code used for a permanent move -- from a zero-dependency CLI or a browser page that never uploads the URL to a third party. Not affiliated with httpstatus.io.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-httpstatus-io.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Redirect Chain Checker vs. httpstatus.io">
+  <meta property="og:description" content="One shows you the raw chain and headers on a hosted page. The other names the exact misconfiguration pattern -- loop, over-length, downgrade, wrong status code for a move -- from a CLI you run yourself or a browser page that uploads nothing.">
+  <meta property="og:url" content="./vs-httpstatus-io.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Redirect Chain Checker or httpstatus.io?","acceptedAnswer":{"@type":"Answer","text":"Different jobs, and many people use both. httpstatus.io, based on its own public description, is a hosted web tool: you enter a URL into its site, it follows the redirect chain from its own servers and shows you each hop's status and headers, plus checks like DNS and SSL. Redirect Chain Checker instead classifies the chain against named misconfiguration patterns — a redirect loop, a chain longer than recommended, an HTTPS-to-HTTP downgrade, a temporary status code used for what looks like a permanent move, and a dead-end error — and its zero-dependency CLI runs the real HTTP requests from your own machine rather than a third party's server."}},{"@type":"Question","name":"Does httpstatus.io classify misconfiguration patterns the way this tool does?","acceptedAnswer":{"@type":"Answer","text":"Based on its own public description, httpstatus.io shows you the raw chain, each hop's status code, and response headers — it is a viewer/inspector, and reading the significance of what it shows (is this chain too long, does this hop downgrade to HTTP, is 302 the wrong code here) is left to you. This tool automates that reading: it names each pattern explicitly, states why it matters, and exits non-zero in CI when one is found."}},{"@type":"Question","name":"Does the CLI send my URL anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The CLI makes its own HTTP requests directly from your machine to the URL you give it and to the Location header your own server sends back — nothing is proxied through this site or any other third party. httpstatus.io, by contrast, needs to send your URL to its own hosted service to follow the chain from there, which is the normal and necessary shape for a browser-only tool with no CLI."}},{"@type":"Question","name":"Is this page affiliated with httpstatus.io?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by httpstatus.io. httpstatus.io is named here only to describe what that tool does and how it differs from this one, based on its own public description."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .91rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Redirect Chain Checker</a></p>
+  <h1>Redirect Chain Checker vs. httpstatus.io</h1>
+  <p>
+    <strong>httpstatus.io</strong> is a well-known free web tool for inspecting a single URL: enter
+    it into their site, and it follows the redirect chain from their own servers, showing you each
+    hop's status code and response headers, along with checks like DNS resolution and SSL
+    certificate details. For a quick, ad-hoc look at what a URL does, it is a solid, established
+    first stop.
+  </p>
+  <p>
+    Redirect Chain Checker does a narrower and more specific job: it does not just show you the
+    chain, it <strong>classifies</strong> it against five named misconfiguration patterns — a
+    redirect loop, a chain longer than the single hop search engines recommend, an HTTPS-to-HTTP
+    downgrade, a temporary status code used for what looks like a permanent site move, and a
+    dead-end error — and states in plain English why each one matters. Its zero-dependency CLI
+    also runs the real requests from <em>your own machine</em>, never a hosted third-party service,
+    so nothing about the URL you're checking is sent anywhere else.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I just want to see the raw chain, headers, DNS, and SSL info for one URL, quickly.</td>
+        <td>httpstatus.io — that broad inspection is its job.</td>
+      </tr>
+      <tr>
+        <td>I want to know whether this chain has a loop, is too long, downgrades to HTTP, or used the wrong status code for a permanent move.</td>
+        <td>Redirect Chain Checker — this tool names the pattern instead of leaving you to read the raw headers.</td>
+      </tr>
+      <tr>
+        <td>I want this checked automatically on every build, before it ships, with nothing sent to a third party.</td>
+        <td>Redirect Chain Checker's CLI — <code>node check.mjs &lt;url&gt;</code> runs from your own machine and exits non-zero on a finding, wireable into any CI as an ordinary step.</td>
+      </tr>
+      <tr>
+        <td>I'd rather not paste a URL into a third-party site at all.</td>
+        <td>Redirect Chain Checker's browser page works entirely from hops you paste in yourself (from your own DevTools Network panel), never sending the URL anywhere.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Neither tool replaces the other. httpstatus.io is a fine first look at a chain you don't yet
+    understand. Once you know the chain exists, this tool answers the question a raw inspector
+    doesn't: does it actually do anything wrong, by name, and will it stay that way in CI?
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use Redirect Chain Checker or httpstatus.io?</h3>
+  <p>Different jobs, and many people use both. httpstatus.io, based on its own public description, is a hosted web tool: you enter a URL into its site, it follows the redirect chain from its own servers and shows you each hop's status and headers, plus checks like DNS and SSL. Redirect Chain Checker instead classifies the chain against named misconfiguration patterns — a redirect loop, a chain longer than recommended, an HTTPS-to-HTTP downgrade, a temporary status code used for what looks like a permanent move, and a dead-end error — and its zero-dependency CLI runs the real HTTP requests from your own machine rather than a third party's server.</p>
+  <h3>Does httpstatus.io classify misconfiguration patterns the way this tool does?</h3>
+  <p>Based on its own public description, httpstatus.io shows you the raw chain, each hop's status code, and response headers — it is a viewer/inspector, and reading the significance of what it shows (is this chain too long, does this hop downgrade to HTTP, is 302 the wrong code here) is left to you. This tool automates that reading: it names each pattern explicitly, states why it matters, and exits non-zero in CI when one is found.</p>
+  <h3>Does the CLI send my URL anywhere?</h3>
+  <p>No. The CLI makes its own HTTP requests directly from your machine to the URL you give it and to the Location header your own server sends back — nothing is proxied through this site or any other third party. httpstatus.io, by contrast, needs to send your URL to its own hosted service to follow the chain from there, which is the normal and necessary shape for a browser-only tool with no CLI.</p>
+  <h3>Is this page affiliated with httpstatus.io?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by httpstatus.io. httpstatus.io is named here only to describe what that tool does and how it differs from this one, based on its own public description.</p>
+  <p class="note">More: <a href="why-redirect-chains-matter.html">why redirect chains matter</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports whether the redirect chain you provided satisfies specific, mechanically checkable rules, not a legal opinion or a ranking guarantee. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a redirect loop before your visitors did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

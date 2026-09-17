@@ -354,17 +354,22 @@ def _ie_shape(body: str) -> bool:
 def _ie(body: str) -> bool:
     alphabet = "WABCDEFGHIJKLMNOPQRSTUV"
     if len(body) == 8:
-        source = body[:7] if body[1].isdigit() else body[0] + "7" + body[2:7]
-        numeric = []
-        for char in source:
-            if char.isdigit():
-                numeric.append(int(char))
-            elif char in alphabet:
-                numeric.append(alphabet.index(char))
-            else:
-                return False
-        if len(numeric) != 7:
+        # Two 8-character shapes share this branch. The common one is 7
+        # digits plus a check letter, weighed as-is. The older one (digit,
+        # letter, 5 digits, check letter -- e.g. the legacy "8Z49289F"
+        # shape) cannot be weighed as typed: Revenue's own check-digit
+        # definition first rearranges it to "0" + the middle 5 digits + the
+        # leading digit before applying the same mod-23 weights. The prior
+        # version instead spliced a literal "7" in for the letter and left
+        # the leading digit in place -- it never moved anything, so it was
+        # computing a checksum for a number that was not the one on the
+        # invoice. Every valid legacy-format Irish VAT number failed this
+        # check, silently: it read as a typo the same way a correctly-typed
+        # one would.
+        source = body[:7] if body[1].isdigit() else "0" + body[2:7] + body[0]
+        if not source.isdigit() or len(source) != 7:
             return False
+        numeric = [int(char) for char in source]
         total = sum(value * weight for value, weight in zip(numeric, range(8, 1, -1)))
         return body[7] == alphabet[total % 23]
     if len(body) == 9 and body[:7].isdigit():

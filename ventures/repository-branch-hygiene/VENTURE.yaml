@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified teams run a read-only pilot within 90 days.
   - No pilot team returns to run a second inventory within 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/repository-branch-hygiene/
   analytics: null

@@ -5,6 +5,7 @@ import {
   parseOnHandSheets,
   optimizeSheets,
   formatSheetPlan,
+  formatSheetPlanCSV,
   compareSheetSizes,
   formatSheetComparison,
   sheetSizeLabel,
@@ -366,6 +367,27 @@ test('an on-hand piece bigger than the configured sheet size is not marked overs
   assertCuttable(result);
 });
 
+test('a second piece that only fits an already-consumed on-hand offcut is reported oversize, not a crash', () => {
+  // Both required pieces fit the 100x100 on-hand offcut but neither fits a
+  // fresh purchased sheet on its own. Whichever one the packer places first
+  // consumes the offcut's free space, so the second reaches the "no existing
+  // free rect fits" branch with nothing left that can hold it -- regression
+  // for a bug where that branch always assumed a fresh sheet would fit and
+  // threw reading `.width` off an undefined orientation option instead.
+  const result = optimizeSheets({
+    sheetWidth: 48,
+    sheetHeight: 96,
+    trim: 1,
+    kerf: 0.125,
+    onHand: [{ width: 100, height: 100 }],
+    panels: parsePanels('A: 90 x 90\nB: 95 x 95'),
+  });
+  assert.equal(result.oversize.length, 1);
+  assert.equal(result.sheets.length, 1);
+  assert.equal(result.sheets[0].source, 'on-hand');
+  assertCuttable(result);
+});
+
 test('rejects an on-hand list that is not an array, or a non-positive piece in it', () => {
   const panels = parsePanels('10 x 10');
   assert.throws(() => optimizeSheets({ sheetWidth: 96, sheetHeight: 48, panels, onHand: 'nope' }), /must be a list/);
@@ -432,6 +454,45 @@ test('compareSheetSizes ranks by sheets still needing to be bought when offcuts 
 
 const CABINET_DOORS = 'Door: 28 x 28 x 4';
 const BOOKCASE = 'Side: 72 x 11.25 x 2\nShelf: 30 x 11.25 x 4\nTop: 31.5 x 11.25 x 2';
+
+test('CSV export has one row per placed piece, with sheet number, source, and position', () => {
+  const result = optimizeSheets({ sheetWidth: 96, sheetHeight: 48, kerf: 0.125, panels: parsePanels(CABINET_DOORS) });
+  const csv = formatSheetPlanCSV(result, { unit: 'in' });
+  const [header, ...rows] = csv.trim().split('\r\n');
+  assert.equal(header, 'sheet,source,label,width,height,x,y,rotated,unit');
+  const placedCount = result.sheets.reduce((n, s) => n + s.placements.length, 0);
+  assert.equal(rows.length, placedCount);
+  assert.ok(rows.every((row) => row.endsWith(',in')));
+  assert.ok(rows.every((row) => /^\d+,purchase,Door,28\.00,28\.00,\d+\.\d\d,\d+\.\d\d,(yes|no),in$/.test(row)), rows.join('\n'));
+});
+
+test('CSV export tags an on-hand sheet and marks an oversize piece unplaced with no sheet or position', () => {
+  const result = optimizeSheets({
+    sheetWidth: 24,
+    sheetHeight: 24,
+    kerf: 0,
+    panels: parsePanels('Big: 30 x 30\nSmall: 10 x 10 x 4'),
+    onHand: [{ width: 40, height: 40 }],
+  });
+  const csv = formatSheetPlanCSV(result, { unit: 'cm' });
+  assert.match(csv, /^sheet,source,label,width,height,x,y,rotated,unit\r\n/);
+  // "Big" only fits the 40x40 on-hand offcut, not a fresh 24x24 sheet.
+  assert.match(csv, /,on-hand,Big,30\.00,30\.00,\d+\.\d\d,\d+\.\d\d,(yes|no),cm\r\n/);
+  assert.equal(result.oversize.length, 0, 'both parts should fit somewhere in this setup');
+});
+
+test('CSV export reports a piece that fits nowhere as unplaced, not silently dropped', () => {
+  const result = optimizeSheets({ sheetWidth: 24, sheetHeight: 24, kerf: 0, panels: parsePanels('Huge: 30 x 30') });
+  assert.equal(result.oversize.length, 1);
+  const csv = formatSheetPlanCSV(result, { unit: 'in' });
+  assert.match(csv, /^,unplaced,Huge,30\.00,30\.00,,,,in\r\n/m);
+});
+
+test('a comma or quote in a piece label is quoted in the CSV', () => {
+  const result = optimizeSheets({ sheetWidth: 48, sheetHeight: 48, kerf: 0, panels: parsePanels('Shelf, oak: 10 x 10') });
+  const csv = formatSheetPlanCSV(result, { unit: 'in' });
+  assert.match(csv, /"Shelf, oak"/);
+});
 
 test('names common inch sheets the way a shop orders them', () => {
   assert.equal(sheetSizeLabel(96, 48), '4×8');

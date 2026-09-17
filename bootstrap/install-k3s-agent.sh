@@ -4,8 +4,8 @@
 set -euo pipefail
 
 K3S_CHANNEL="${K3S_CHANNEL:-stable}"
-SERVER_URL="${SERVER_URL:-https://10.42.0.10:6443}"
-NODE_IP="${NODE_IP:-10.42.0.11}"
+SERVER_URL="${SERVER_URL:-https://10.10.0.10:6443}"
+NODE_IP="${NODE_IP:-10.10.0.11}"
 
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "run as root (sudo $0)" >&2

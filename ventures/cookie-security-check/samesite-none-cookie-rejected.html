@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why a SameSite=None cookie disappears instead of just weakening</title>
+<meta name="description" content="Why Chrome, Firefox, and Safari reject a SameSite=None cookie outright when it lacks Secure, why __Host-/__Secure- prefix violations are rejected the same way, and how to check your own site with a free tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cookie-security-check/samesite-none-cookie-rejected.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether a cookie's SameSite=None or __Host-/__Secure- prefix will be silently rejected",
+  "step": [
+    { "@type": "HowToStep", "name": "Fetch the page and read its Set-Cookie response headers", "text": "Send an ordinary GET request to the page and read back every Set-Cookie header in the response -- no login or special access needed, this is public response data the server chose to send." },
+    { "@type": "HowToStep", "name": "Check SameSite first", "text": "If a cookie carries SameSite=None, it must also carry Secure. Current Chrome, Firefox, and Safari all reject the Set-Cookie header outright -- not just restrict it to same-site requests -- when Secure is missing. The cookie the response describes is never actually stored." },
+    { "@type": "HowToStep", "name": "Check the cookie's name for a __Host- or __Secure- prefix", "text": "A __Secure- prefixed cookie must carry Secure. A __Host- prefixed cookie must carry Secure, must not carry a Domain attribute, and must have Path=/. Violate any one of those and, again, the browser silently refuses to store the cookie -- the prefix is a contract the browser itself enforces, not documentation." },
+    { "@type": "HowToStep", "name": "Automate it", "text": "A free tool that reads a response's Set-Cookie headers, applies these rejection rules correctly, and reports exactly which cookie and which rule failed is at ../cookie-security-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+</head>
+<body>
+<h1>Why a <code>SameSite=None</code> cookie disappears instead of just weakening</h1>
+
+<p>
+  <code>SameSite=None</code> is how a site opts a cookie in to being sent on cross-site requests --
+  an embedded widget, a cross-site payment redirect, a federated login flow all depend on it. It is
+  natural to assume that forgetting the accompanying <code>Secure</code> attribute just makes that
+  cookie a little less protected. It does not: the current SameSite specification requires
+  <code>Secure</code> whenever <code>SameSite=None</code> is set, and Chrome, Firefox, and Safari all
+  enforce that by <strong>rejecting the Set-Cookie header entirely</strong>. No cookie is stored. The
+  feature it existed for -- the embed staying logged in, the payment flow remembering its session --
+  simply breaks, with nothing in the response that says why.
+</p>
+
+<h2>The same shape applies to <code>__Host-</code> and <code>__Secure-</code></h2>
+<p>
+  Cookie name prefixes are usually just a naming convention. These two are not -- they are a
+  contract the browser itself checks before it will store the cookie at all:
+</p>
+<table>
+<thead><tr><th>Prefix</th><th>Required for the browser to store the cookie</th></tr></thead>
+<tbody>
+<tr><td><code>__Secure-</code></td><td><code>Secure</code> attribute present</td></tr>
+<tr><td><code>__Host-</code></td><td><code>Secure</code> present, no <code>Domain</code> attribute, <code>Path=/</code></td></tr>
+</tbody>
+</table>
+<p>
+  Miss any one of those rules and the browser silently refuses to store the cookie -- again, no
+  error visible anywhere in the response or the page. A server that checks an incoming
+  <code>__Host-session</code> cookie and trusts that its name alone proves it was set by this exact
+  secure origin is relying on the browser having enforced that when the cookie was created; a
+  malformed <code>Set-Cookie</code> header means that guarantee was never established, and the
+  session simply does not exist rather than existing in some weaker form.
+</p>
+
+<h2>Why this reads as a functional bug before it reads as a security one</h2>
+<p>
+  Both patterns fail the same way: a person hits the flow, the cookie the server thinks it set is
+  never actually present on the next request, and whatever depended on it -- being logged in, a
+  cart surviving a redirect, a CSRF token matching -- silently stops working. It is usually reported
+  as "login is broken on Safari" or "the checkout redirect logs people out" long before anyone
+  connects it to a missing <code>Secure</code> attribute.
+</p>
+
+<h2>Check your own site automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> sends one real request, reads every Set-Cookie
+  header exactly as Node's HTTP client already splits them (never joined and re-split on commas,
+  which corrupts a cookie carrying an <code>Expires</code> date), and reports exactly which cookie
+  and which rule triggered a rejection -- plus notices for a missing <code>Secure</code>,
+  <code>HttpOnly</code>, or <code>SameSite</code> attribute that weaken a cookie without causing an
+  outright rejection. The request comes from a Node CLI you run yourself against a system you own or
+  are authorised to test; the browser page only renders a report you paste in.
+</p>
+<p>
+  This is evidence from that one response, not a full security assessment -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it does and doesn't cover.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review
+  or penetration test. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

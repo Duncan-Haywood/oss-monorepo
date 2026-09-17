@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. miniOrange | Shopify Permission Drift Record</title>
+<meta name="description" content="miniOrange sells Shopify Activity Monitoring &amp; Anomaly Detection, an ongoing subscription app that connects to your store to watch live third-party app API activity and flag anomalies. This is a free, private, no-account page that diffs two app-permission exports you already captured. Not affiliated with miniOrange.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-miniorange.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. miniOrange">
+<meta property="og:description" content="Two different shapes: miniOrange is a live, connected monitoring subscription that watches ongoing app activity across your store. This page is a free, offline, point-in-time diff of two exports you already have.">
+<meta property="og:url" content="https://example.invalid/shopify-permission-drift/vs-miniorange.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or miniOrange's Shopify monitoring?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs. miniOrange sells Shopify Activity Monitoring & Anomaly Detection as part of its broader CASB product line: an installed app that connects to your store's API, records what installed apps actually do, compares granted scopes against that behaviour on an ongoing basis, and assigns a composite risk score to anomalies such as a new IP address, an odd access time, or a spike in requests. It is sold as a continuing subscription and it watches your store live. This tool does none of that. It never connects to Shopify and holds no ongoing session with your store. You capture two app-permission inventories yourself, at whatever two points in time you choose, and paste or upload them; the page lists exactly which apps, granted scopes, webhook topics, or authorization states changed between the two, then lets you download a portable JSON evidence record or copy a plain-text ticket summary. A store that wants continuous, live anomaly monitoring across every app's behaviour is better served by miniOrange or a comparable CASB; an agency or merchant who needs a fast, private, before-and-after record for one specific approval or ticket is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with miniOrange?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by miniOrange. miniOrange is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #0d6b45; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.04em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3d5649; }
+  section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #17382a10; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c5d9cc; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3d5649; }
+  .fine, .note { font-size: .88rem; color: #3d5649; }
+  footer { color: #3d5649; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Shopify Permission Drift Record</a></p>
+<header>
+<h1>This tool vs. miniOrange</h1>
+<p class="lede">Two different shapes: miniOrange sells an ongoing, connected monitoring subscription that watches every installed app's live activity across your store. This page is a free, offline worksheet for one question &mdash; exactly what changed between two permission exports you already captured, before you approve or escalate a specific install.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>miniOrange</strong> sells Shopify Activity Monitoring &amp; Anomaly
+  Detection as part of its broader CASB (Cloud Access Security Broker) product
+  line. It is an installed app that connects to your store's API, records
+  which installed app performed each operation (including mutations and
+  high-risk actions), compares granted scopes against what an app actually
+  does, and watches for anomalies &mdash; a new IP address, an odd access
+  time, a spike in request volume &mdash; assigning each a composite risk
+  score. It runs continuously and is sold as an ongoing subscription.
+  miniOrange's own current plan names and prices are not reachable from this
+  session to confirm, so no dollar figure for it is invented here: only its
+  well-documented identity and category &mdash; a connected, continuous
+  Shopify activity-monitoring and anomaly-detection service &mdash; are
+  stated.
+</p>
+<p>
+  This tool does none of what miniOrange does. It never connects to Shopify
+  and holds no ongoing session with your store. You export an app-permission
+  inventory yourself &mdash; app ids, granted scopes, webhook topics,
+  authorization state, API version, source, and capture time &mdash; at
+  whatever two points in time you choose, using the GraphQL query, the CLI, or
+  the browser capture page this site also provides. Paste or upload both
+  exports and the page lists exactly which apps, scopes, webhooks, or
+  authorization states changed, marks a reversed capture order as
+  inconclusive rather than unchanged, and lets you download a portable JSON
+  evidence record or copy a ticket-ready summary. It runs free in any
+  browser, keeps no account, and uploads nothing you paste.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want every installed app's live activity watched continuously, with anomalies flagged and risk-scored as they happen.</td><td>miniOrange, or a comparable CASB &mdash; ongoing live monitoring is not something this tool does.</td></tr>
+<tr><td>Exactly which scopes, webhooks, or authorization states changed between two exports I already captured?</td><td>This tool &mdash; free, instant, private, no account, no Shopify connection.</td></tr>
+<tr><td>I only have a GraphQL <code>appInstallations</code> dump, not the inventory shape this page compares.</td><td>This site's own <a href="./capture.html">capture page</a> normalizes it first, still with no Shopify call.</td></tr>
+<tr><td>I need my whole security team watching one connected dashboard across every store and every app, continuously.</td><td>miniOrange &mdash; built as an ongoing, connected subscription for exactly that job.</td></tr>
+<tr><td>Do I need to install an app or grant Shopify API access to use the tool?</td><td>This tool: no. miniOrange is used as an installed, connected app.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most agencies and merchants get different value from each: miniOrange (or a
+  comparable CASB) for continuous, connected monitoring of every app's live
+  behaviour across a store, and a free point-in-time tool like this one for a
+  fast, private, no-login record of what changed between two specific
+  captures before one approval or ticket. This page's own output is a
+  before-and-after evidence record, not a live monitoring feed, a risk score,
+  or a security certification.
+</p>
+<p class="fine">This tool needs no account, no sign-in, and no Shopify API access: it is a static page, the comparison runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or miniOrange's Shopify monitoring?</h3>
+<p>They do different jobs. miniOrange sells Shopify Activity Monitoring &amp; Anomaly Detection as part of its broader CASB product line: an installed app that connects to your store's API, records what installed apps actually do, compares granted scopes against that behaviour on an ongoing basis, and assigns a composite risk score to anomalies such as a new IP address, an odd access time, or a spike in requests. It is sold as a continuing subscription and it watches your store live. This tool does none of that. It never connects to Shopify and holds no ongoing session with your store. You capture two app-permission inventories yourself, at whatever two points in time you choose, and paste or upload them; the page lists exactly which apps, granted scopes, webhook topics, or authorization states changed between the two, then lets you download a portable JSON evidence record or copy a plain-text ticket summary. A store that wants continuous, live anomaly monitoring across every app's behaviour is better served by miniOrange or a comparable CASB; an agency or merchant who needs a fast, private, before-and-after record for one specific approval or ticket is in the right place here.</p>
+<h3>Is this page affiliated with miniOrange?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by miniOrange. miniOrange is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+<p class="note">
+  Open the <a href="./">Shopify Permission Drift Record</a> to compare your own exports.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> This page makes no live connection to Shopify and no live comparison against miniOrange &mdash; it is a static page describing publicly documented facts about miniOrange's product category.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> support never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

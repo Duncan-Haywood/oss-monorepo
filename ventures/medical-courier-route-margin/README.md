@@ -16,6 +16,8 @@ Every one of these fields defaults to the neutral value, so the worked example i
 
 Open `index.html` in a browser, or serve this directory with `python3 -m http.server`. The default example is a six-stop clinic loop. Change the revenue to the broker or facility offer and the red loss result shows when the route does not cover its own cost.
 
+**Copy share link** puts every route field, including route type, in the URL after a `#`, which a browser never sends to a server. Send that link to a dispatcher, accountant, or another courier and it reopens with the same figures already calculated, instead of them retyping thirteen numbers off a screenshot.
+
 ## Opportunity assessment
 
 The target user is an independent medical courier or small fleet owner pricing clinic, lab, pharmacy, and STAT work. Existing route planners optimize dispatch and tracking; generic delivery calculators focus on miles. This wedge answers the earlier decision: whether a recurring route pays for all paid time and vehicle cost. Search phrases include `medical courier per stop pricing`, `courier route profitability`, and `medical courier wait time pricing`. The product is static, free, and browser-local, so it has no hosting or per-user inference cost. A later paid version could add user-supplied AI contract summarization or an export workflow, but the deterministic calculator is complete without a key.
@@ -24,7 +26,7 @@ This is distinct from the portfolio's restaurant delivery margin tool: it models
 
 ## Privacy and safety
 
-Everything runs in your browser. Your data is never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We count anonymous local events (`route_calculated`, `summary_copied`) only; the counter is off when Do Not Track or Global Privacy Control is enabled and can be cleared from browser storage.
+Everything runs in your browser. Your data is never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We count anonymous local events (`route_calculated`, `summary_copied`, `share_link_copied`, `shared_link_opened`) only; the counter is off when Do Not Track or Global Privacy Control is enabled and can be cleared from browser storage.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or medical advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 

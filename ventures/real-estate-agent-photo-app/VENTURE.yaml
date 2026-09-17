@@ -29,7 +29,7 @@ kill_criteria:
   - Phase 1 interviews (process/interview-script.ts) never run, leaving the core pricing/demand hypothesis untested.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/real-estate-agent-photo-app/
   analytics: null
 
 # Session-gate marker. mls-photo-spec-preflight graduates as a product

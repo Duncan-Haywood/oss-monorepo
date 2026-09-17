@@ -69,3 +69,22 @@ test('robots and sitemap let crawlers find the new page', () => {
   assert.match(sitemap, /sponsor-ready\/<\/loc>/);
   assert.match(sitemap, /github-sponsors-readiness-checklist\.html/);
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the same solo earner monetising published work, but
+// affiliate links on a blog rather than sponsorship of a repo — and the
+// disclosure obligation the other tool checks is the one this audience meets
+// next. Rotating chrome may never pair the two, so link explicitly.
+test('index links one hop to the affiliate-disclosure-checker sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/affiliate\-disclosure\-checker\/"/,
+    'index must link ../affiliate-disclosure-checker/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /affiliate disclosure checker/i);
+});

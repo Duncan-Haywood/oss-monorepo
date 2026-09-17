@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WordPress Plugin Review Checker vs. Plugin Check</title>
+  <meta name="description" content="Plugin Check is the WordPress Plugin Review Team's own official plugin: install it into a real (or virtual) WordPress site and it runs a broad battery of coding-standards, security, performance, accessibility and i18n checks. This free page checks four specific, common review-rejection patterns from your readme.txt and PHP source directly, with no WordPress install, no PHP runtime, and no upload.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-plugin-check.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="WordPress Plugin Review Checker vs. Plugin Check">
+  <meta property="og:description" content="Plugin Check runs inside a real WordPress install and checks broadly. This page checks four specific rejection patterns -- Stable tag mismatch, missing fields, unescaped output, missing nonce checks -- from just your files, free, in your browser, no WordPress needed.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/vs-plugin-check.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or wordpress.org's own Plugin Check?","acceptedAnswer":{"@type":"Answer","text":"They cover an overlapping goal at different depth and setup cost. Plugin Check (the wordpress.org Plugin Review Team's own official plugin, published at wordpress.org/plugins/plugin-check/) is a broad, comprehensive gate: once installed and activated on a real or virtual WordPress site, it runs a wide battery of automated checks -- coding-standards, security patterns including escaping and nonce/CSRF issues, performance, accessibility, and internationalization -- through its wp-admin screen or wp plugin check on WP-CLI. This page checks four specific, narrow patterns straight from your readme.txt and PHP source -- a Stable tag/Version mismatch, missing required readme/header fields, unescaped superglobal output, and a $_POST handler with no nonce check -- with no WordPress install, no PHP runtime, and no database, because it never talks to WordPress at all. If you want the broad, official, in-environment gate, run Plugin Check. If you want a fast answer to these four specific questions on files sitting on your machine right now, with nothing to install, this is the narrower tool for that."}},{"@type":"Question","name":"Does Plugin Check already do everything this tool does?","acceptedAnswer":{"@type":"Answer","text":"For the four patterns this tool checks, yes, Plugin Check's broader battery covers similar ground -- readme/header field validation and security-pattern sniffs are part of what it runs. The difference is where and how you get the answer. Plugin Check needs an actual WordPress environment (a real site or a local one such as wp-env) with the plugin installed and activated before it can run at all, then reports through wp-admin or WP-CLI. This tool needs only the readme.txt and PHP files themselves -- a git checkout, an unzipped download, a folder that has never been near a WordPress install -- opened in a browser tab or passed to a Node CLI, with no setup step in between."}},{"@type":"Question","name":"Why would I need a WordPress-free checker if Plugin Check already exists?","acceptedAnswer":{"@type":"Answer","text":"Three reasons this tool exists alongside it. First, Plugin Check has to run inside WordPress -- you install it as a plugin and either open its admin screen or run it through WP-CLI against a live or local site -- so it cannot check a plugin's files before they are placed into a WordPress environment at all; this tool reads the files directly, wherever they sit. Second, Plugin Check's battery is broad by design (coding standards, performance, accessibility and i18n alongside security and repo requirements), which is exactly right for a full pre-submission pass but slower to reach for when the question is only one of these four specific, high-frequency rejection causes. Third, this tool's browser page uploads nothing and its CLI makes no network call, so it works the same on a private plugin you have not pushed anywhere as on one already live in the directory."}},{"@type":"Question","name":"Is this page affiliated with wordpress.org, Plugin Check, or the WordPress Foundation?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by the WordPress Foundation, Automattic Inc., wordpress.org, or the Plugin Check project. WordPress and Plugin Check are named here only to describe what this checker is and is not, using facts drawn from Plugin Check's own public wordpress.org listing at wordpress.org/plugins/plugin-check/. WordPress® is a registered trademark of the WordPress Foundation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; WordPress Plugin Review Checker</a></p>
+    <h1>WordPress Plugin Review Checker vs. Plugin Check</h1>
+    <p class="lede">A shared goal, at very different depth and setup cost. Plugin Check is wordpress.org's
+      own official plugin: install it into a real or virtual WordPress site and it runs a broad battery of
+      automated checks. This page checks four specific, common review-rejection patterns directly from your
+      readme.txt and PHP source -- free, with no WordPress install, no PHP runtime, and no upload.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>Plugin Check</strong> (<code>wordpress.org/plugins/plugin-check/</code>) is an official plugin
+        published by the WordPress Plugin Review Team. You install and activate it on an actual WordPress
+        site -- a live one, or a local environment such as <code>wp-env</code> -- and then run it from its
+        Tools admin screen or via <code>wp plugin check &lt;plugin&gt;</code> on WP-CLI. Once running, it
+        checks broadly: coding-standards sniffs, security patterns (including escaping and nonce/CSRF
+        issues), performance, accessibility, and internationalization, aiming to surface many of the same
+        automated issues the plugin review process looks for before you submit.
+      </p>
+      <p>
+        <strong>This checker</strong> does the narrower version of one part of that job: you paste or select
+        your plugin's <code>readme.txt</code> and PHP source, and it reports four specific, common
+        review-rejection patterns -- a <code>Stable tag</code>/<code>Version</code> mismatch, missing required
+        readme/header fields, a superglobal value echoed with no escaping function, and a
+        <code>$_POST</code> handler with no nonce check anywhere in the file. It runs entirely in your
+        browser or as a zero-dependency Node CLI, needs no WordPress install, no PHP runtime, and no
+        database, and makes no network call of its own -- so it works on a plugin's files before they have
+        ever been placed into a WordPress environment at all.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want the broad, official, in-environment pass -- coding standards, accessibility, performance and i18n, not just these four patterns.</td><td>Plugin Check -- that is its job, and this tool does not attempt the rest of it.</td></tr>
+          <tr><td>My plugin's files are not in a WordPress install yet -- a git checkout, an unzipped download, a folder I have not activated anywhere.</td><td>This checker -- it reads the files directly and needs no WordPress site, real or local, to run against.</td></tr>
+          <tr><td>I just want to know if <code>Stable tag</code> matches <code>Version</code>, or catch an unescaped echo or a missing nonce check, right now, with nothing to install.</td><td>This checker -- a fast, narrow answer to exactly those four questions.</td></tr>
+          <tr><td>I want the official pre-submission gate the review team's own tooling is built around.</td><td>Plugin Check -- install it and run it before you submit or update.</td></tr>
+          <tr><td>I want this wired into my own CI with no PHP/WordPress runtime in the pipeline.</td><td>This checker's <code>node check.mjs .</code> -- zero dependencies, reads local files only.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">The two are complementary, not competing: install Plugin Check for the broad, official,
+        in-environment pass, and reach for this tool the moment the question is only these four specific
+        patterns on files that are not (yet) sitting inside a WordPress install.</p>
+      <p><a class="cta" href="./">Run the free plugin review checker</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or wordpress.org's own Plugin Check?</h3>
+      <p>They cover an overlapping goal at different depth and setup cost. Plugin Check (the wordpress.org Plugin Review Team's own official plugin, published at <code>wordpress.org/plugins/plugin-check/</code>) is a broad, comprehensive gate: once installed and activated on a real or virtual WordPress site, it runs a wide battery of automated checks -- coding-standards, security patterns including escaping and nonce/CSRF issues, performance, accessibility, and internationalization -- through its wp-admin screen or <code>wp plugin check</code> on WP-CLI. This page checks four specific, narrow patterns straight from your readme.txt and PHP source -- a Stable tag/Version mismatch, missing required readme/header fields, unescaped superglobal output, and a <code>$_POST</code> handler with no nonce check -- with no WordPress install, no PHP runtime, and no database, because it never talks to WordPress at all. If you want the broad, official, in-environment gate, run Plugin Check. If you want a fast answer to these four specific questions on files sitting on your machine right now, with nothing to install, this is the narrower tool for that.</p>
+      <h3>Does Plugin Check already do everything this tool does?</h3>
+      <p>For the four patterns this tool checks, yes, Plugin Check's broader battery covers similar ground -- readme/header field validation and security-pattern sniffs are part of what it runs. The difference is where and how you get the answer. Plugin Check needs an actual WordPress environment (a real site or a local one such as wp-env) with the plugin installed and activated before it can run at all, then reports through wp-admin or WP-CLI. This tool needs only the readme.txt and PHP files themselves -- a git checkout, an unzipped download, a folder that has never been near a WordPress install -- opened in a browser tab or passed to a Node CLI, with no setup step in between.</p>
+      <h3>Why would I need a WordPress-free checker if Plugin Check already exists?</h3>
+      <p>Three reasons this tool exists alongside it. First, Plugin Check has to run inside WordPress -- you install it as a plugin and either open its admin screen or run it through WP-CLI against a live or local site -- so it cannot check a plugin's files before they are placed into a WordPress environment at all; this tool reads the files directly, wherever they sit. Second, Plugin Check's battery is broad by design (coding standards, performance, accessibility and i18n alongside security and repo requirements), which is exactly right for a full pre-submission pass but slower to reach for when the question is only one of these four specific, high-frequency rejection causes. Third, this tool's browser page uploads nothing and its CLI makes no network call, so it works the same on a private plugin you have not pushed anywhere as on one already live in the directory.</p>
+      <h3>Is this page affiliated with wordpress.org, Plugin Check, or the WordPress Foundation?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by the WordPress Foundation, Automattic Inc., wordpress.org, or the Plugin Check project. WordPress and Plugin Check are named here only to describe what this checker is and is not, using facts drawn from Plugin Check's own public wordpress.org listing at wordpress.org/plugins/plugin-check/. WordPress&reg; is a registered trademark of the WordPress Foundation.</p>
+    </section>
+
+    <footer>
+      <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the
+      files you selected -- known readme.txt/plugin-header field names, and known WordPress escaping and
+      nonce function calls. It is a line-level and file-level heuristic, not data-flow analysis, and a clean
+      report is not a guarantee wordpress.org Plugin Review will pass -- verify against
+      <a href="https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/" rel="noopener">the Plugin Directory's current guidelines</a>
+      before you submit.</p>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+      express or implied. It is not legal or security advice, and it does not replace a qualified
+      professional or wordpress.org's own review process. <strong>You are responsible for reviewing and
+      verifying its output before relying on it</strong>, including running the official Plugin Check
+      yourself before submitting. To the maximum extent permitted by law, the authors accept no liability
+      for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow,
+      broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep
+      working.</p>
+      <p>Everything runs in your browser or as a local CLI. The files you select are never uploaded, and
+      this page makes no live comparison against Plugin Check -- it is a static page describing category
+      facts sourced from Plugin Check's own public wordpress.org listing, not a live scan of any plugin. We
+      count only anonymous local feature events, never people or file contents, with an opt-out on the
+      checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Not affiliated with, endorsed by, or sponsored by the WordPress Foundation, Automattic Inc., or
+      WordPress.org. WordPress&reg; is a registered trademark of the WordPress Foundation, named here only
+      to describe what this tool checks and compares against.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT
+      licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

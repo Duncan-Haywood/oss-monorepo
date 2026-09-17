@@ -16,7 +16,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any browser",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, compare 8ft vs 10ft vs 12ft boards, material cost estimate for sheets and linear stock, printable job ticket",
+    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, compare 8ft vs 10ft vs 12ft boards, material cost estimate for sheets and linear stock, printable job ticket, CSV export of the cut plan",
     "description": "A free browser tool that turns a parts list into a low-waste cutting plan and ranks common sheet and board sizes by the material you would actually buy. Runs entirely on the visitor's device."
   }
   </script>
@@ -217,6 +217,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         <div class="compare" id="sheet-compare"></div>
         <div class="actions">
           <button type="button" id="sheet-copy" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="sheet-csv" disabled>Download CSV</button>
           <button type="button" class="secondary" id="sheet-print">Print</button>
           <span class="muted" id="sheet-copy-status" role="status" aria-live="polite"></span>
         </div>
@@ -282,9 +283,11 @@ Top: 31.5 x 11.25 x 2</textarea>
           <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
           <dt>Stock utilization</dt><dd id="utilization">—</dd>
         </dl>
+        <div class="warn" id="linear-oversize"></div>
         <div id="plan"></div>
         <div class="actions">
           <button type="button" id="copy-plan" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="linear-csv" disabled>Download CSV</button>
           <button type="button" class="secondary" id="linear-print">Print</button>
           <span class="muted" id="copy-status" role="status" aria-live="polite"></span>
         </div>
@@ -319,11 +322,14 @@ Top: 31.5 x 11.25 x 2</textarea>
     <p>Yes, on both tabs. Cuts and panels are placed into your listed offcuts first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the sheet-goods tab an offcut is sized as <code>width x height</code> and can be larger than the sheet you'd otherwise buy — a leftover full sheet, say. On both tabs an untouched offcut stays off the plan entirely, since it's still on the rack, not consumed. On the default examples, the on-hand list already covers part of the required list, which is why "Sheets to buy" or "New pieces to buy" can come in lower than the raw part count would suggest.</p>
     <h3>Is my cut list uploaded anywhere?</h3>
     <p>No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below.</p>
+    <p>Weighing this against a hosted optimizer? See <a href="vs-opticutter-and-cutlist-optimizer.html">this cut list optimizer vs. optiCutter and CutList Optimizer</a>.</p>
+    <p>Pricing a different kind of print run instead of sheet goods? See the <a href="../3d-print-price-calculator/">3D Print Price Calculator</a>, which prices a print from filament, electricity, and printer wear the same way this tool prices a cutting plan from sheet and board cost.</p>
   </section>
 
   <footer>
     <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
     <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite">Drafts are saved only on this device.</span></div>
+    <div class="actions"><button type="button" id="share-link" class="draft-button">Copy link to this plan</button><span id="share-status" role="status" aria-live="polite">Sends whoever opens it the same layout, not just the list of cuts. Nothing is uploaded &mdash; the sizes ride in the part of the address browsers never send to a server.</span></div>
     <p>
       <strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied.
       It is not engineering, financial, or business advice and does not replace a qualified professional.
@@ -342,22 +348,68 @@ Top: 31.5 x 11.25 x 2</textarea>
     </p>
     <p>
       Free and open source. If it saved you a sheet or a stick of stock, the
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> —
+      <a href="LICENSE">code is under an MIT licence</a> —
       <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
     </p>
   </footer>
 
   <script type="module">
-    import { parseCuts, parseStock, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison } from './calc.mjs';
-    import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
+    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'cut-list-optimizer-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('optout');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+    import { parseCuts, parseStock, optimizeCutList, formatCutPlan, formatCutPlanCSV, compareStockLengths, formatStockComparison } from './calc.mjs';
+    import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, formatSheetPlanCSV, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
-    import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
+    import { loadDraft, saveDraft, clearDraft, DRAFT_FIELDS } from './draft.mjs';
+    import { decodeInputs, shareUrl, isSafeLength } from './share.mjs';
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $('optout').checked;
     const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => (
       { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
     ));
+
+    // A plain-text plan is for pasting into a job ticket; a CSV is for a
+    // spreadsheet, a CNC nesting import, or another cut-list app. Both stay
+    // on-device — this creates and revokes a local object URL and never
+    // touches the network.
+    function downloadCSV(filename, text) {
+      const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
 
     // Re-rendering is cheap and runs on every keystroke, but a usage count that
     // ticks per keystroke measures typing, not cut plans. `ready` lets the
@@ -516,6 +568,8 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('sheet-copy').dataset.plan = comparison
           ? `${planText}\n${formatSheetComparison(comparison, { unit })}`
           : planText;
+        $('sheet-csv').disabled = false;
+        $('sheet-csv').dataset.csv = formatSheetPlanCSV(result, { unit });
         ready.sheet = true;
       } catch (error) {
         // Every message thrown by sheet.mjs is written for the user, so it is
@@ -528,6 +582,8 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('sheet-diagrams').innerHTML = '<p class="empty">The layout for each sheet appears here.</p>';
         $('sheet-copy').disabled = true;
         $('sheet-copy').dataset.plan = '';
+        $('sheet-csv').disabled = true;
+        $('sheet-csv').dataset.csv = '';
         ready.sheet = false;
         ready.sheetCompare = false;
       }
@@ -542,7 +598,11 @@ Top: 31.5 x 11.25 x 2</textarea>
         return null;
       }
       const comparison = compareSheetSizes({ panels, kerf, trim, allowRotation, unit, candidates });
-      const money = (value) => value == null ? 'add a price' : `$${value.toFixed(2)}`;
+      const money = (value) => {
+        if (value == null) return 'add a price';
+        const text = `$${Math.abs(value).toFixed(2)}`;
+        return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+      };
       const rows = comparison.rows.map((row) => {
         const pick = row === comparison.winner
           ? '<span class="pick">Buy this size</span>'
@@ -644,16 +704,25 @@ Top: 31.5 x 11.25 x 2</textarea>
           onHand: parseStock($('onhand').value),
           stockCost,
         });
-        $('headline').textContent = result.purchased === 0
-          ? 'Nothing to buy'
-          : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
-        $('message').textContent = 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.';
+        $('headline').textContent = !result.bars.length
+          ? 'No cut fits this stock size'
+          : result.purchased === 0
+            ? 'Nothing to buy'
+            : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
+        $('message').textContent = result.bars.length
+          ? 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.'
+          : 'No cut on this list fits your stock length or on-hand offcuts.';
         $('bars').textContent = result.bars.length;
         $('purchased').textContent = result.purchased;
         $('used').textContent = format(result.totalCuts);
         $('waste').textContent = format(result.waste);
         $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
         $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : money(result.totalCost);
+        $('linear-oversize').innerHTML = result.oversize.length
+          ? `<strong>${result.oversize.length} cut${result.oversize.length === 1 ? ' does' : 's do'} not fit any stock length on hand or to buy:</strong> `
+            + result.oversize.map((cut) => format(cut)).join(', ')
+            + '. Check the length, or use a longer stock size.'
+          : '';
 
         const saved = $('saved');
         if (result.purchasesAvoided > 0) {
@@ -687,6 +756,8 @@ Top: 31.5 x 11.25 x 2</textarea>
           kerf: $('kerf').value,
           currency,
         });
+        $('linear-csv').disabled = false;
+        $('linear-csv').dataset.csv = formatCutPlanCSV(result, { stockUnit: unit });
         renderLinearComparison(parseCuts($('cuts').value));
         ready.linear = true;
       } catch (error) {
@@ -694,9 +765,12 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('message').textContent = error.message;
         $('saved').hidden = true;
         LINEAR_STATS.forEach((id) => { $(id).textContent = '—'; });
+        $('linear-oversize').innerHTML = '';
         $('plan').textContent = '';
         $('copy-plan').disabled = true;
         $('copy-plan').dataset.plan = '';
+        $('linear-csv').disabled = true;
+        $('linear-csv').dataset.csv = '';
         ready.linear = false;
         try {
           renderLinearComparison(parseCuts($('cuts').value));
@@ -707,11 +781,6 @@ Top: 31.5 x 11.25 x 2</textarea>
     }
 
     /* ---------------- Wiring ---------------- */
-
-    const DRAFT_FIELDS = [
-      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand', 'sheet-unit', 'sheet-rotate',
-      'stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency',
-    ];
 
     function draftValues() {
       return Object.fromEntries(DRAFT_FIELDS.map((id) => [id, $(id).type === 'checkbox' ? $(id).checked : $(id).value]));
@@ -794,6 +863,20 @@ Top: 31.5 x 11.25 x 2</textarea>
     $('sheet-print').addEventListener('click', () => window.print());
     $('linear-print').addEventListener('click', () => window.print());
 
+    function wireCSV(buttonId, statusId, filename, downloadEvent) {
+      $(buttonId).addEventListener('click', () => {
+        const csv = $(buttonId).dataset.csv;
+        if (!csv) return;
+        downloadCSV(filename, csv);
+        recordUsage(localStorage, optedOut(), downloadEvent);
+        const status = $(statusId);
+        status.textContent = 'CSV downloaded.';
+        setTimeout(() => { status.textContent = ''; }, 4000);
+      });
+    }
+    wireCSV('sheet-csv', 'sheet-copy-status', 'cut-list-optimizer-sheet-plan.csv', 'sheet-csv-downloads');
+    wireCSV('linear-csv', 'copy-status', 'cut-list-optimizer-linear-plan.csv', 'csv-downloads');
+
     function closestFromEvent(event, selector) {
       const start = event.target instanceof Element ? event.target : event.target.parentElement;
       return start?.closest(selector) ?? null;
@@ -826,10 +909,59 @@ Top: 31.5 x 11.25 x 2</textarea>
       setTimeout(() => { $('draft-status').textContent = ''; }, 4000);
     });
 
+    function currentTab() {
+      return $('tab-linear').getAttribute('aria-selected') === 'true' ? 'linear' : 'sheet';
+    }
+
+    $('share-link').addEventListener('click', async () => {
+      const status = $('share-status');
+      const url = shareUrl(location.href, draftValues(), currentTab());
+      if (!isSafeLength(url)) {
+        // A long parts list makes a link that some browsers and most chat apps
+        // cut short, and a truncated cutting plan is worse than none: it opens,
+        // it looks complete, and the parts that were dropped are simply not
+        // cut. The CSV export has no such limit, so send them there instead of
+        // copying something that will silently lose parts.
+        status.textContent = 'This parts list is too long to fit in a link. Use the CSV or the copied plan for a job this size.';
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        status.textContent = 'Link copied. Whoever opens it sees this layout and can change it.';
+        recordUsage(localStorage, optedOut(), 'share-links');
+      } catch {
+        // Clipboard access is refused in more places than it is granted (an
+        // insecure origin, a permissions policy, a browser wanting a closer
+        // user gesture). Putting the payload in the address bar leaves the
+        // visitor something to copy by hand rather than a button that lies.
+        location.hash = url.split('#')[1] ?? '';
+        status.textContent = 'Clipboard access was blocked. The address bar now holds the link — copy it from there.';
+      }
+      setTimeout(() => { status.textContent = ''; }, 6000);
+    });
+
+    // A link wins over the saved draft, and so is applied after it: someone who
+    // opened a shared plan asked for those parts specifically, and blending
+    // them with whatever this browser last held would be a cutting list neither
+    // person checked. Fields absent from the link keep the draft's value, which
+    // is what lets a short link carry only the panel that was actually shared.
     const restored = restoreDraft();
+    const shared = decodeInputs(location.hash);
+    const fromLink = Object.keys(shared.values).length > 0;
+    if (fromLink) {
+      for (const id of DRAFT_FIELDS) {
+        if (!(id in shared.values)) continue;
+        if ($(id).type === 'checkbox') $(id).checked = Boolean(shared.values[id]);
+        else $(id).value = String(shared.values[id]);
+      }
+      if (shared.tab) selectTab(shared.tab);
+      recordUsage(localStorage, optedOut(), 'share-opens');
+    }
     renderSheet();
     renderLinear();
-    if (restored) $('draft-status').textContent = 'Saved draft restored.';
-  </script>
+    if (fromLink) $('share-status').textContent = 'Opened from a shared link. Check the sizes against your own stock before cutting.';
+    else if (restored) $('draft-status').textContent = 'Saved draft restored.';
+  
+</script>
 </body>
 </html>

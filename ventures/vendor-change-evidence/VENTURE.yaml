@@ -28,5 +28,5 @@ kill_criteria:
   - No practitioner values portable source-linked history over existing tools in the first pilot.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/vendor-change-evidence/
   analytics: null

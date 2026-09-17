@@ -195,16 +195,20 @@
     <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you where to list or what to charge. Platform fees change by market, host type, and date. Verify every figure against your own payout statements and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rates, occupancy, or address.</p>
-    <p>Free and open source. If it changes a listing decision, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Free and open source. If it changes a listing decision, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Pricing a livestream lot instead of a nightly stay? The <a href="../whatnot-seller-payout/">Whatnot seller payout calculator</a> prices one lot through commission on the hammer and payment processing on the checkout total &mdash; nothing uploaded.</p>
     <ul class="related">
       <li><a href="./airbnb-host-fee-2026.html">Airbnb’s 15.5% host-only fee in 2026 — what changed</a></li>
       <li><a href="./airbnb-vs-vrbo-host-fees.html">Airbnb vs Vrbo host fees, compared on the same stay</a></li>
+      <li><a href="./vs-airbnb-earnings-estimator.html">This calculator vs. Airbnb’s own Estimate Your Earnings tool</a></li>
     </ul>
+    <p>Selling the property instead of hosting it? The <a href="../seller-net-sheet/">seller net sheet calculator</a> shows cash at closing on the same kind of offer &mdash; nothing uploaded.</p>
+    <p>Letting it on a long lease instead of nightly stays? The <a href="../security-deposit-return-calculator/">security deposit return calculator</a> itemizes deductions into a refund figure and prorates a partial first or last month &mdash; nothing uploaded.</p>
   </footer>
 
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
 
     const BOOKING_IDS = ["nightlyRate", "nights", "cleaningFee", "extraFees", "taxRate", "securityDeposit", "bookingsPerYear"];
@@ -228,7 +232,13 @@
 
     const state = CHANNEL_PRESETS.map((channel) => ({ ...channel, enabled: true }));
 
-    const shared = decodeComparison(new URLSearchParams(location.search).get("c"));
+    // Fragment first, query string second. The `?c=` form is only still read
+    // because links built before this page moved to the fragment are already
+    // out there and must keep opening; nothing writes one any more.
+    const sharedParam =
+      new URLSearchParams(location.hash.replace(/^#/, "")).get("c") ??
+      new URLSearchParams(location.search).get("c");
+    const shared = decodeComparison(sharedParam);
     if (shared) {
       for (const [key, value] of Object.entries(shared.booking)) {
         const field = el(key);
@@ -380,8 +390,20 @@
       }
     });
     el("copyLink").addEventListener("click", async () => {
+      // The payload goes in the fragment: a query string is sent to the server
+      // on every load and leaks in the `Referer` header of any outbound click,
+      // while a fragment never leaves the browser. That is what makes the
+      // status line below ("it holds the numbers, not your address") true of
+      // the recipient's server as well as of the link's text.
+      // Built with URLSearchParams, not string concatenation, so the fragment
+      // carries the same one-extra-level-of-escaping the `?c=` form had. The
+      // reader below parses it with URLSearchParams too, which strips exactly
+      // that level and hands `decodeComparison` the string it expects -- the
+      // payload is already `encodeURIComponent`-ed, so getting this wrong by
+      // one level silently yields an unparseable link rather than an error.
       const url = new URL(location.href);
-      url.searchParams.set("c", encodeComparison(bookingInput(), state));
+      url.search = "";
+      url.hash = new URLSearchParams({ c: encodeComparison(bookingInput(), state) }).toString();
       try {
         await navigator.clipboard.writeText(url.toString());
         el("status").textContent = "Link copied. It holds the numbers, not your address.";
@@ -390,6 +412,19 @@
         el("status").textContent = "Could not copy the link.";
       }
     });
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

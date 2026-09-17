@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three contractors use the shortlist workflow twice within 90 days of a public launch.
   - Users do not report saving at least 30 minutes per tender review during the first 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/tender-radar/
   analytics: null

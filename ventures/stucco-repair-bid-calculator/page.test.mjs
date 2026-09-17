@@ -93,3 +93,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same masonry-facade repair trade and the same scaffold, but joints rather than render. Related-tool chrome rotates inside the
+// Roofing, siding & gutters subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the tuckpointing-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/tuckpointing-bid-calculator\/"/,
+    'index must link ../tuckpointing-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /tuckpointing bid calculator/i);
+});

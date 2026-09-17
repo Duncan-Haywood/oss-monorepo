@@ -28,5 +28,5 @@ kill_criteria:
   - Contractors report that splitting units, type, and extras is more work than their existing per-unit method without changing the price they would have bid.
   - The starting hours and unit invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/skylight-install-bid-calculator/
   analytics: null

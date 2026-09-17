@@ -51,3 +51,7 @@ test("page has a Common questions FAQ section for AI/search discovery", () => {
   const questions = [...page.matchAll(/<h3>([^<]+\?)<\/h3>/g)];
   assert.ok(questions.length >= 2, "expected at least two FAQ questions");
 });
+
+test("links to the e-invoice preflight checker", () => {
+  assert.match(page, /href="\.\.\/einvoice-preflight\/"/, "the sibling-tool link is missing");
+});

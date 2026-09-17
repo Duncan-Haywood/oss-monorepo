@@ -35,5 +35,5 @@ kill_criteria:
   - Contractors report that the inputs demand records they do not keep, so the tool cannot be completed without an accountant.
   - The rates it produces prove so far from what shops actually bill that the arithmetic is rejected rather than acted on.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/shop-rate-calculator/
   analytics: null

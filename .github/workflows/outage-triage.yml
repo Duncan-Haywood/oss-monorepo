@@ -1,0 +1,89 @@
+name: Outage triage
+
+# Explain a public-surface outage without shell on the box.
+#
+# `Public surface check` (#3184) established that nothing is served: every
+# hostname refuses on 443. #3185 recorded that and raised
+# `hetzner-ssh-key-is-a-public-key` to the top of the owner queue -- rotate
+# `HETZNERSSHKEY` so `bootstrap/preflight.sh` can SSH in and look. It also
+# stated the limit honestly: "the prober detects the outage; it cannot explain
+# it."
+#
+# That ask is correct only if sshd is answering, and nothing had checked. This
+# workflow checks. Three layers, each cheaper than the last:
+#
+#   1. DNS, no credential -- do our hostnames still point at our machines?
+#   2. TCP, no credential -- does port 22 send an RST (host up, nothing bound)
+#      or nothing at all (dropped)? An HTTPS prober reports both as
+#      "unreachable"; the difference decides whether an SSH key can help.
+#   3. Hetzner API, READ-ONLY -- is the box even powered on?
+#
+# Any of the three can invalidate the queued ask before the owner acts on it.
+# The expensive mistake this exists to prevent is asking for the wrong
+# credential: an owner who rotates an SSH key for a machine whose sshd is not
+# listening loses a day, and the surface stays down.
+#
+# `HETZNERREADAPIKEY` is the Read-scope token already in this repository,
+# proven incapable of writes by `infra/scripts/assert_hcloud_read_only.sh`
+# (POST /servers must return 403). Only GETs are issued. The job creates,
+# restarts and deletes nothing, so it is not the unattended-automation kind of
+# workflow `CLAUDE.md` gates -- and it is skipped, not failed, when the token
+# is absent.
+
+on:
+  workflow_dispatch:
+  # Also on pull requests that touch the tool itself, so a change to the
+  # decision tree is exercised against the real hosts rather than only against
+  # its stubs. That is what produced the first reading: the workflow could not
+  # be dispatched before it existed on the default branch.
+  pull_request:
+    paths:
+      - "platform/ci/outage_triage.py"
+      - "platform/ci/test_outage_triage.py"
+      - ".github/workflows/outage-triage.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  triage:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Bounded by the dropped-packet case: every port is probed serially at
+    # TCP_TIMEOUT each, so the worst case is well under a minute. The ceiling
+    # matters because Actions minutes on this account are metered and have
+    # been exhausted once already.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # `outage_triage.py` imports `publish_surface` to read the hostname list
+      # rather than restating it.
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_outage_triage -v
+
+      - name: Triage the outage
+        working-directory: platform/ci
+        env:
+          # Read-scope. See the header: this token cannot create, resize or
+          # delete anything, and the tool issues no verb but GET.
+          HCLOUD_TOKEN: ${{ secrets.HETZNERREADAPIKEY }}
+        run: |
+          set -o pipefail
+          python3 outage_triage.py \
+            --json-out "${RUNNER_TEMP}/outage-triage.json" \
+            | tee -a "${GITHUB_STEP_SUMMARY}"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outage-triage-reading
+          path: ${{ runner.temp }}/outage-triage.json
+          retention-days: 30

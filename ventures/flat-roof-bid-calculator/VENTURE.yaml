@@ -28,5 +28,5 @@ kill_criteria:
   - Contractors report that counting membrane type, insulation, and parapet is more work than their existing square method without changing the price they would have bid.
   - The starting waste and membrane figures prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/flat-roof-bid-calculator/
   analytics: null

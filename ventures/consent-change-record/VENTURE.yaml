@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified agencies identify a recurring consent evidence workflow after ten conversations.
   - Users mistake an observation report for a compliance determination during the first pilot.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/consent-change-record/
   analytics: null

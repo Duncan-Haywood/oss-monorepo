@@ -15,7 +15,7 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(markup, /No warranty/);
   assert.match(markup, /Nothing leaves your browser/);
   assert.match(markup, /Do not keep anonymous local usage counts/);
-  assert.match(markup, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(markup, /href="LICENSE"/);
   assert.match(markup, /what-should-i-charge-per-hour\.html/);
   // The disclaimer has to disclaim the specific things this tool looks like it
   // is doing, which is more than the usual set: it handles payroll and comp.
@@ -130,6 +130,31 @@ test('the tool does not read or write a saved bid or a shared link', () => {
   // bid links exist to prefill fields. A shop's payroll and overhead are also
   // more than anybody should put in a URL they paste into a chat app.
   assert.doesNotMatch(script, /location\.hash|URLSearchParams|encodeBid/);
+});
+
+test('the whole scenario can be saved locally, without ever going through a link', () => {
+  // The four carried rates (wage, burden%, overhead%, target margin) already
+  // travel to the rest of the site via shop-rates.mjs, but the other fourteen
+  // fields (crew size, hours, benefits, every overhead line item) had nowhere
+  // to go -- a returning visitor to this calculator itself retyped the whole
+  // form every time. This is local-storage-only persistence for the full
+  // eighteen-field scenario, deliberately with no URL encoding, so the test
+  // above stays true while the retyping problem still gets solved.
+  for (const id of ['saveScenario', 'forgetScenario', 'scenarioStatus']) {
+    assert.ok(ids.has(id), `missing #${id}`);
+  }
+  assert.match(script, /localStorage\.setItem\(SCENARIO_KEY, JSON\.stringify\(readInput\(\)\)\)/);
+  assert.match(script, /localStorage\.removeItem\(SCENARIO_KEY\)/);
+  assert.match(script, /writeInputs\(savedScenario\)/);
+});
+
+test('a restored scenario is treated as the visitor\'s own, not as the shipped example', () => {
+  // Restoring the saved fields and then leaving `showingExample` true would
+  // make the carry button demand a fresh press of "Work out my shop rate"
+  // before a returning visitor could carry rates they already confirmed once
+  // by saving them.
+  assert.match(script, /restoredOwnScenario = true/);
+  assert.match(script, /if \(restoredOwnScenario\) \{\s*\n\s*current = example;\s*\n\s*showingExample = false;/);
 });
 
 test('SEO page answers the search question and does not claim a price table', () => {
@@ -249,4 +274,37 @@ test('every published page carries Open Graph tags', () => {
     assert.match(source, /<meta property="og:title" content="[^"]+">/, `${name} is missing og:title`);
     assert.match(source, /<meta property="og:description" content="[^"]+">/, `${name} is missing og:description`);
   }
+});
+
+// Closest sibling: mutual nearest match per `node platform/pages/siblings.mjs
+// --check` — this shop-labor rate calculator and the per-acre custom-farm
+// field-work rate calculator. Without a crawlable link here, a crawler
+// entering on the shop rate calculator never reaches the farm rate
+// calculator in one hop.
+test('index links one hop to the custom-farm-rate-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/custom-farm-rate-calculator\/"/,
+    'index must link ../custom-farm-rate-calculator/ so crawlers reach the custom farm rate calculator in one hop',
+  );
+});
+
+// staffing-markup-calculator shipped 2026-09-10 as a crawlable orphan: no tool
+// linked to it in one hop, and on the current project-Pages origin the sitemap
+// is never read, so a page nothing links to is reachable from nothing. This is
+// the closest sibling by subject — both answer "what does an hour of labor
+// really cost", one for a crew you employ and one for a worker you place.
+test('index links one hop to the staffing-markup-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/staffing-markup-calculator\/"/,
+    'index must link ../staffing-markup-calculator/ so crawlers reach the staffing markup calculator in one hop',
+  );
+});
+
+test('index links one hop to the auto-repair-effective-labor-rate sibling', () => {
+  // Closes the crawlable-orphan pair recorded in platform/pages/siblings.mjs:
+  // that tool measures a month already billed, this one prices an hour about
+  // to be sold, and a shop owner arriving at either is one hop from the other.
+  assert.match(markup, /href="\.\.\/auto-repair-effective-labor-rate\//);
 });

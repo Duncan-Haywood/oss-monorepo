@@ -1,0 +1,230 @@
+name: Agent cross-review
+
+# Four reviewer GitHub Apps (GH, Kilo, Cursor, Claude) each post an APPROVE or
+# REQUEST_CHANGES review on PRs they did not author. Review is deterministic:
+# required CI green, mergeable, and path-scoped portfolio validators pass.
+#
+# Secrets (one App each — see platform/ci/agent_review/README.md):
+#   AGENT_REVIEWER_GH_APP_ID / AGENT_REVIEWER_GH_PRIVATE_KEY
+#   AGENT_REVIEWER_KILO_APP_ID / AGENT_REVIEWER_KILO_PRIVATE_KEY
+#   AGENT_REVIEWER_CURSOR_APP_ID / AGENT_REVIEWER_CURSOR_PRIVATE_KEY
+#   AGENT_REVIEWER_CLAUDE_APP_ID / AGENT_REVIEWER_CLAUDE_PRIVATE_KEY
+#
+# A reviewer job is skipped when its App secrets are not configured.
+#
+# SECURITY: every checkout below is pinned to the base branch tip
+# (github.event.pull_request.base.sha, or github.sha for workflow_dispatch),
+# never the PR head. review.py decides whether to post an APPROVE review
+# using a write-capable reviewer App token; if it were executed from the PR's
+# own checkout, a PR could edit review.py to force a bogus APPROVE from all
+# four identities regardless of its actual content. Pinning the ref means the
+# code that runs is always the trusted version on main. review.py itself
+# still evaluates the PR's *data* (diff, checks, reviews) via read-only `gh
+# api` calls, which is safe with untrusted input.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to review
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  resolve-pr:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A single shell step with no checkout or network call -- normally a few
+    # seconds. See hetzner-gitops-ci.yml's timeout-minutes addition for why an
+    # unbounded job is worth capping on a metered-minutes account.
+    timeout-minutes: 5
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+    steps:
+      - id: pr
+        env:
+          DISPATCH_PR: ${{ github.event.inputs.pr_number }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "number=${DISPATCH_PR}" >> "$GITHUB_OUTPUT"
+          else
+            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  review-gh:
+    needs: resolve-pr
+    if: needs.resolve-pr.result == 'success'
+    continue-on-error: true
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Skips in a few seconds when the App secrets are absent; configured, it
+    # is a checkout, a pip install, and one review.py call against the GitHub
+    # API -- normally well under a minute. See hetzner-gitops-ci.yml's
+    # timeout-minutes addition for why an unbounded job is worth capping on a
+    # metered-minutes account.
+    timeout-minutes: 10
+    steps:
+      - name: Skip when reviewer App is not configured
+        id: app
+        env:
+          APP_ID: ${{ secrets.AGENT_REVIEWER_GH_APP_ID }}
+          APP_KEY: ${{ secrets.AGENT_REVIEWER_GH_PRIVATE_KEY }}
+        run: |
+          if [ -n "$APP_ID" ] && [ -n "$APP_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "AGENT_REVIEWER_GH App secrets are not configured; skipping."
+          fi
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: steps.app.outputs.configured == 'true'
+        run: pip install -r portfolio/router/requirements.txt
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/create-github-app-token@v1
+        id: token
+        with:
+          app-id: ${{ secrets.AGENT_REVIEWER_GH_APP_ID }}
+          private-key: ${{ secrets.AGENT_REVIEWER_GH_PRIVATE_KEY }}
+      - name: Post review
+        if: steps.app.outputs.configured == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: python3 platform/ci/agent_review/review.py --reviewer gh --pr "${{ needs.resolve-pr.outputs.number }}"
+
+  review-kilo:
+    needs: resolve-pr
+    if: needs.resolve-pr.result == 'success'
+    continue-on-error: true
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Same shape as review-gh above; see its comment.
+    timeout-minutes: 10
+    steps:
+      - name: Skip when reviewer App is not configured
+        id: app
+        env:
+          APP_ID: ${{ secrets.AGENT_REVIEWER_KILO_APP_ID }}
+          APP_KEY: ${{ secrets.AGENT_REVIEWER_KILO_PRIVATE_KEY }}
+        run: |
+          if [ -n "$APP_ID" ] && [ -n "$APP_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "AGENT_REVIEWER_KILO App secrets are not configured; skipping."
+          fi
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: steps.app.outputs.configured == 'true'
+        run: pip install -r portfolio/router/requirements.txt
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/create-github-app-token@v1
+        id: token
+        with:
+          app-id: ${{ secrets.AGENT_REVIEWER_KILO_APP_ID }}
+          private-key: ${{ secrets.AGENT_REVIEWER_KILO_PRIVATE_KEY }}
+      - name: Post review
+        if: steps.app.outputs.configured == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: python3 platform/ci/agent_review/review.py --reviewer kilo --pr "${{ needs.resolve-pr.outputs.number }}"
+
+  review-cursor:
+    needs: resolve-pr
+    if: needs.resolve-pr.result == 'success'
+    continue-on-error: true
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Same shape as review-gh above; see its comment.
+    timeout-minutes: 10
+    steps:
+      - name: Skip when reviewer App is not configured
+        id: app
+        env:
+          APP_ID: ${{ secrets.AGENT_REVIEWER_CURSOR_APP_ID }}
+          APP_KEY: ${{ secrets.AGENT_REVIEWER_CURSOR_PRIVATE_KEY }}
+        run: |
+          if [ -n "$APP_ID" ] && [ -n "$APP_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "AGENT_REVIEWER_CURSOR App secrets are not configured; skipping."
+          fi
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: steps.app.outputs.configured == 'true'
+        run: pip install -r portfolio/router/requirements.txt
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/create-github-app-token@v1
+        id: token
+        with:
+          app-id: ${{ secrets.AGENT_REVIEWER_CURSOR_APP_ID }}
+          private-key: ${{ secrets.AGENT_REVIEWER_CURSOR_PRIVATE_KEY }}
+      - name: Post review
+        if: steps.app.outputs.configured == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: python3 platform/ci/agent_review/review.py --reviewer cursor --pr "${{ needs.resolve-pr.outputs.number }}"
+
+  review-claude:
+    needs: resolve-pr
+    if: needs.resolve-pr.result == 'success'
+    continue-on-error: true
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Same shape as review-gh above; see its comment.
+    timeout-minutes: 10
+    steps:
+      - name: Skip when reviewer App is not configured
+        id: app
+        env:
+          APP_ID: ${{ secrets.AGENT_REVIEWER_CLAUDE_APP_ID }}
+          APP_KEY: ${{ secrets.AGENT_REVIEWER_CLAUDE_PRIVATE_KEY }}
+        run: |
+          if [ -n "$APP_ID" ] && [ -n "$APP_KEY" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "AGENT_REVIEWER_CLAUDE App secrets are not configured; skipping."
+          fi
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: steps.app.outputs.configured == 'true'
+        run: pip install -r portfolio/router/requirements.txt
+      - if: steps.app.outputs.configured == 'true'
+        uses: actions/create-github-app-token@v1
+        id: token
+        with:
+          app-id: ${{ secrets.AGENT_REVIEWER_CLAUDE_APP_ID }}
+          private-key: ${{ secrets.AGENT_REVIEWER_CLAUDE_PRIVATE_KEY }}
+      - name: Post review
+        if: steps.app.outputs.configured == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: python3 platform/ci/agent_review/review.py --reviewer claude --pr "${{ needs.resolve-pr.outputs.number }}"

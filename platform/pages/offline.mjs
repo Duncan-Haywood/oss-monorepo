@@ -17,7 +17,10 @@
 //   1. Anything you have opened before opens again offline, automatically.
 //   2. "Save all tools for offline" on the hub fetches every tool's entry page
 //      and modules up front — for the person who knows they are about to lose
-//      signal, and would rather spend ~3 MB now than find out later.
+//      signal, and would rather spend the data now than find out later. The
+//      hub's own copy states the real size, computed at build time (see
+//      OFFLINE_SIZE_MARKER below) rather than a number typed once and left to
+//      go stale as the catalog grows.
 //
 // Staleness is bounded by construction: the cache name carries a hash of the
 // built site, so a deploy lands in a *new* cache and `activate` deletes every
@@ -340,14 +343,16 @@ export function renderSocialCard(options = {}) {
 // Manifest
 // ---------------------------------------------------------------------------
 
-export function renderManifest(baseUrl, toolCount) {
+export function renderManifest(baseUrl, toolCount, hasExternalCallException = false) {
   return `${JSON.stringify(
     {
       name: 'Free Small-Business Calculators',
       short_name: 'Calculators',
       description:
         `${toolCount} free calculators for marketplace sellers, trade contractors, and small teams. ` +
-        'Everything runs in your browser, offline included — nothing you type is uploaded.',
+        (hasExternalCallException
+          ? 'Everything runs in your browser, offline included, except one lookup tool that checks a public API — see the About page for which one.'
+          : 'Everything runs in your browser, offline included — nothing you type is uploaded.'),
       start_url: baseUrl,
       scope: baseUrl,
       display: 'standalone',
@@ -572,11 +577,55 @@ export function offlineHead(rootRel) {
   </script>`;
 }
 
-const MARKER = 'rel="manifest"';
+/**
+ * A real `<link>` element whose `rel` carries the `manifest` token.
+ *
+ * `rel` is a space-separated token list, so `rel="manifest alternate"` counts
+ * and `rel="manifest-notes"` does not; the value may be double-quoted,
+ * single-quoted, or bare.
+ */
+const MANIFEST_LINK = /<link\b[^>]*\brel\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))[^>]*>/gi;
+
+/** Head content with comments, scripts and styles removed. */
+function scannableHead(html) {
+  const end = html.indexOf('</head>');
+  return (end === -1 ? html : html.slice(0, end))
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ');
+}
+
+/**
+ * Does this page already link a Web App Manifest?
+ *
+ * Exported for the test, and deliberately not a substring search. Until
+ * 2026-09-10 this was `html.includes('rel="manifest"')` against the whole
+ * file, which conflated "this page links a manifest" with "this page mentions
+ * the attribute". Any page *about* manifests — which is exactly what the PWA
+ * and AI-crawler ventures publish — that spelled the attribute unescaped in
+ * prose, a code sample, or even an HTML comment warning about this very trap
+ * was read as already-wired, so the build skipped its service worker. It was
+ * caught by build.test.mjs rather than shipped, but the fix that test demanded
+ * was to contort the copy, which is the wrong thing for a guard to ask of an
+ * author writing correctly about the subject.
+ *
+ * Scanning only the head, and only outside comments/scripts/styles, also
+ * settles the JSON-LD case by construction: an escaped `rel=\"manifest\"`
+ * inside a `<script type="application/ld+json">` block is documentation about
+ * a manifest link, never a manifest link.
+ */
+export function linksManifest(html) {
+  const head = scannableHead(html);
+  for (const match of head.matchAll(MANIFEST_LINK)) {
+    const rel = match[1] ?? match[2] ?? match[3] ?? '';
+    if (rel.trim().split(/\s+/).some((token) => token.toLowerCase() === 'manifest')) return true;
+  }
+  return false;
+}
 
 /** Insert the offline wiring into a page's head, idempotently. */
 export function injectOfflineSupport(html, rootRel) {
-  if (html.includes(MARKER)) return { html, injected: false };
+  if (linksManifest(html)) return { html, injected: false };
   const index = html.indexOf('</head>');
   if (index === -1) return { html, injected: false };
   return {
@@ -589,15 +638,31 @@ export function injectOfflineSupport(html, rootRel) {
 // Hub widget
 // ---------------------------------------------------------------------------
 
+// Written once when the catalog was ~30 tools and never updated as it grew
+// past 170 — the button said "about 3 MB" while the real fetch had reached
+// 16.8 MB, nearly 6x what someone on limited mobile data was told to expect.
+// The size is computed at build time from the actual bundle (see
+// `addOfflineSupport`'s post-write patch of this marker in build.mjs) so it
+// cannot drift from reality again.
+export const OFFLINE_SIZE_MARKER = '{{OFFLINE_BUNDLE_SIZE}}';
+
 export const OFFLINE_WIDGET_HTML = `    <div class="support offline" id="offline-box" hidden>
       <strong>Going somewhere without signal?</strong>
       <p id="offline-copy">
-        Save every tool to this device — about 3 MB — and they all keep working
-        with no connection. Nothing is uploaded either way.
+        Save every tool to this device — about ${OFFLINE_SIZE_MARKER} — and they
+        all keep working with no connection. Nothing is uploaded either way.
       </p>
       <button type="button" id="offline-save">Save all tools for offline</button>
       <p id="offline-status" role="status" aria-live="polite"></p>
     </div>`;
+
+/** "16.8 MB" style label for a byte count, rounded so the copy reads like a
+ *  person wrote it rather than a computed value with false precision. */
+export function offlineBundleSizeLabel(bytes) {
+  const mb = bytes / (1024 * 1024);
+  const rounded = mb < 10 ? Math.round(mb * 10) / 10 : Math.round(mb);
+  return `${rounded} MB`;
+}
 
 export const OFFLINE_WIDGET_SCRIPT = `
     // Offline saving is offered only where it can actually work, so the button

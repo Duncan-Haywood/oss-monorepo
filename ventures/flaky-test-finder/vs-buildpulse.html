@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flaky Test Finder vs. BuildPulse</title>
+  <meta name="description" content="BuildPulse is a paid subscription that connects to your CI and tracks flaky tests continuously over time. Flaky Test Finder is a free, no-signup browser tool for the moment you already have two test reports and want a verdict now, with nothing uploaded. Not affiliated with BuildPulse.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-buildpulse.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Flaky Test Finder vs. BuildPulse">
+  <meta property="og:description" content="Two different jobs: BuildPulse is an ongoing, paid, connected-to-your-CI flaky-test dashboard. This is a free, one-shot, nothing-uploaded verdict from reports you already have.">
+  <meta property="og:url" content="./vs-buildpulse.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Flaky Test Finder or BuildPulse?","acceptedAnswer":{"@type":"Answer","text":"They answer the same underlying question — is this test flaky — for different situations. BuildPulse is a paid subscription product that connects to your CI provider (GitHub Actions, Jenkins, Buildkite, and others) via an action or SDK that uploads every build's test results to BuildPulse's servers, then builds a historical dashboard across your whole team and auto-quarantines the worst offenders so they stop blocking merges. It answers \"which of our tests have been flaky over the last weeks or months, across everyone's builds\", continuously, without you doing anything once it is connected. Flaky Test Finder is a free tool with no account and no connection: you paste two or more JUnit-XML reports you already have — say, a failed run and its rerun — and get a deterministic classification in your browser, right now, with nothing sent anywhere. It answers \"did this specific test flip between these specific runs\", once, for whoever is staring at a red check this minute. If you want an always-on team dashboard with history, BuildPulse's job is not one this page tries to do. If you have two reports in hand and want an answer before signing up for anything, that is what this tool is for."}},{"@type":"Question","name":"Does using Flaky Test Finder require connecting my CI or creating an account?","acceptedAnswer":{"@type":"Answer","text":"No. There is nothing to connect and nothing to sign up for. The browser page parses the JUnit XML you paste entirely on your own device and never sends it anywhere; the CLI reads local files and makes no network call at all. BuildPulse's own public documentation describes the opposite model for its free tier: connect your repository and its GitHub Action uploads test results to BuildPulse so its dashboard can show your flakiest tests starting from the first build, which is a reasonable design for an always-on team tool, but it does mean your test result data leaves your infrastructure to reach BuildPulse's service."}},{"@type":"Question","name":"Does BuildPulse do anything this tool cannot?","acceptedAnswer":{"@type":"Answer","text":"Yes — continuous history across many builds and many contributors, automatic quarantine of flaky tests so they stop blocking merges without a person deciding case by case, and integrations with GitHub, Bitbucket, Jira, and Slack for a whole team's workflow, none of which a browser page with no server and no account can do. This tool has no memory between visits, quarantines nothing automatically, and only ever compares the specific reports you paste into it in that session."}},{"@type":"Question","name":"Is this page affiliated with BuildPulse?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by BuildPulse. BuildPulse is named here only to describe what this tool is and is not, based on BuildPulse's own public pricing and documentation pages."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Flaky Test Finder</a></p>
+  <h1>Flaky Test Finder vs. BuildPulse</h1>
+  <p>
+    <strong>BuildPulse</strong> is a paid subscription product that connects
+    to your CI provider &mdash; GitHub Actions, Jenkins, Buildkite, and others
+    &mdash; through an action or SDK that uploads every build's test results
+    to BuildPulse's servers. It builds a running dashboard of which tests have
+    been flaky across your whole team's history, and can auto-quarantine the
+    worst offenders so they stop blocking merges. Its free tier connects a
+    repository and shows your flakiest tests starting from the first build,
+    with paid plans priced by how many test results you send per day.
+  </p>
+  <p>
+    That is a genuinely useful job, and it is not this tool's job. This page
+    parses the JUnit-XML reports you paste &mdash; nothing is uploaded, there
+    is no account, and nothing is remembered once you close the tab.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I have a failed run and its rerun right now &mdash; did the same test flip?</td>
+        <td>Flaky Test Finder &mdash; paste both reports, get a verdict in seconds, no signup, nothing leaves your device.</td>
+      </tr>
+      <tr>
+        <td>Which of our tests have been flaky across the last month of everyone's builds?</td>
+        <td>BuildPulse or a similar connected dashboard &mdash; that needs ongoing history across many builds, which a stateless browser page never collects.</td>
+      </tr>
+      <tr>
+        <td>I want flaky tests to stop blocking merges automatically, without anyone deciding case by case.</td>
+        <td>BuildPulse's quarantine feature &mdash; this tool only classifies what you paste; it does not touch your CI configuration or your test suite.</td>
+      </tr>
+      <tr>
+        <td>I don't want to connect my CI or send test data anywhere just to check one flip.</td>
+        <td>Flaky Test Finder &mdash; the browser page never makes a network request, and the CLI never phones home either.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    The two are not substitutes. A team that wants ongoing, historical,
+    whole-organization flaky-test tracking with automatic quarantine needs a
+    connected, always-on tool like BuildPulse &mdash; a page that only looks
+    at whatever you paste into it, once, cannot do that job. A person staring
+    at one red check who already has two reports and wants an answer before
+    signing up for anything does not need a subscription or a CI integration
+    to get it.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use Flaky Test Finder or BuildPulse?</h3>
+  <p>They answer the same underlying question &mdash; is this test flaky &mdash; for different situations. BuildPulse is a paid subscription product that connects to your CI provider (GitHub Actions, Jenkins, Buildkite, and others) via an action or SDK that uploads every build's test results to BuildPulse's servers, then builds a historical dashboard across your whole team and auto-quarantines the worst offenders so they stop blocking merges. It answers "which of our tests have been flaky over the last weeks or months, across everyone's builds", continuously, without you doing anything once it is connected. Flaky Test Finder is a free tool with no account and no connection: you paste two or more JUnit-XML reports you already have &mdash; say, a failed run and its rerun &mdash; and get a deterministic classification in your browser, right now, with nothing sent anywhere. It answers "did this specific test flip between these specific runs", once, for whoever is staring at a red check this minute. If you want an always-on team dashboard with history, BuildPulse's job is not one this page tries to do. If you have two reports in hand and want an answer before signing up for anything, that is what this tool is for.</p>
+  <h3>Does using Flaky Test Finder require connecting my CI or creating an account?</h3>
+  <p>No. There is nothing to connect and nothing to sign up for. The browser page parses the JUnit XML you paste entirely on your own device and never sends it anywhere; the CLI reads local files and makes no network call at all. BuildPulse's own public documentation describes the opposite model for its free tier: connect your repository and its GitHub Action uploads test results to BuildPulse so its dashboard can show your flakiest tests starting from the first build, which is a reasonable design for an always-on team tool, but it does mean your test result data leaves your infrastructure to reach BuildPulse's service.</p>
+  <h3>Does BuildPulse do anything this tool cannot?</h3>
+  <p>Yes &mdash; continuous history across many builds and many contributors, automatic quarantine of flaky tests so they stop blocking merges without a person deciding case by case, and integrations with GitHub, Bitbucket, Jira, and Slack for a whole team's workflow, none of which a browser page with no server and no account can do. This tool has no memory between visits, quarantines nothing automatically, and only ever compares the specific reports you paste into it in that session.</p>
+  <h3>Is this page affiliated with BuildPulse?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by BuildPulse. BuildPulse is named here only to describe what this tool is and is not, based on BuildPulse's own public pricing and documentation pages.</p>
+  <p class="note">
+    More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a>.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for investigating why a test is flaky, and it does not fix your tests for you &mdash; it only tells you which ones flipped and how often. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/flaky-test-finder/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p class="support">Free and open source. If this saved you a debugging session, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

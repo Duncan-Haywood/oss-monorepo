@@ -86,7 +86,8 @@ _FALLBACK_FILENAMES = {
 # as a bare `auth.json` — host-shaped, alphabetic last label, and a file on the
 # owner's laptop rather than in this tree, so every test above accepted it as a
 # host. `Portfolio validate` went red on `main` and stayed red unseen, because
-# no Actions runner has picked up a job here since 2026-08-26.
+# no Actions runner picked up a job here between 2026-08-26 and the
+# 2026-09-01 recovery.
 #
 # The comment above explains why a blocklist of *file extensions* was rejected:
 # `.md` and `.sh` are real ccTLDs, so blocking them silently drops
@@ -100,9 +101,19 @@ _FALLBACK_FILENAMES = {
 # mode this file is written to avoid. A suffix missing from the set below fails
 # loudly instead — the check stays red and prints the token — so incompleteness
 # here costs a session a minute, not a wasted owner decision.
+#
+# `accounts` and `create` were added 2026-09-07 for a source this set had not
+# seen before: not a filename but a *code identifier*. `print-atelier-stripe-
+# checkout` quotes the SDK calls a session found in the venture --
+# `stripe.checkout.sessions.create` and `stripe.accounts` -- which are
+# lowercase, dotted and alphabetic-final, so every structural test above
+# accepts them as hostnames. They are method paths on a library object; no
+# such host exists and none could be probed. Neither is a delegated TLD, so
+# the one rule for editing this set holds.
 _NOT_TLDS = frozenset({
-    "cjs", "conf", "csv", "html", "ini", "json", "lock", "log", "mjs",
-    "png", "sql", "svg", "toml", "tsv", "txt", "xml", "yaml", "yml",
+    "accounts", "cjs", "conf", "create", "csv", "html", "ini", "json",
+    "lock", "log", "mjs", "png", "sql", "svg", "toml", "tsv", "txt",
+    "xml", "yaml", "yml",
 })
 
 # Hosts this portfolio *publishes to*, which are not egress at all.
@@ -115,9 +126,10 @@ _NOT_TLDS = frozenset({
 # allowlist entry to justify.
 #
 # Without this exemption the two deployment asks added on 2026-08-29 made
-# the check fail, and it has been failing on `main` ever since — invisibly,
-# because no GitHub Actions runner has picked up a job in this repository
-# since 2026-08-26 (`actions-runners-unavailable` in asks.yaml).
+# the check fail, and it failed on `main` unnoticed — invisibly, because no
+# GitHub Actions runner picked up a job in this repository between
+# 2026-08-26 and the 2026-09-01 recovery (`actions-runners-unavailable` in
+# asks.yaml).
 #
 # The fix the failure message proposes is actively wrong here. Probing
 # `tools.marisstella.dev` from a session records a denial for a name that is
@@ -137,6 +149,25 @@ PUBLICATION_HOSTS = {
     # infra/README.md: already resolves to the cpx52 for something else. Named
     # in asks only to say the deploy must not take it.
     "marisstella.dev",
+    # gitops/prod/portfolio-front.yaml serves the same front door here as on
+    # the apex. Added 2026-09-04 alongside `hetzner-ssh-key-is-a-public-key`'s
+    # note on the `Public surface check` reading, which names all three
+    # `gitops/prod` hostnames together — omitting this one is the same gap
+    # this set exists to close, one host short.
+    "www.marisstella.dev",
+    # The bare suffix of the Pages origin above. `github-pages-origin` asks the
+    # owner for one logged-out page load and explains why no session can make
+    # it instead: "the proxy answers `403 to CONNECT` for `github.io`". That
+    # sentence *is* a measurement, and quoting it inside backticks is what put
+    # the token here — so the check read the report of a denial as an
+    # unmeasured host and went red on `main`, on the one row about the origin
+    # that is actually serving.
+    #
+    # Exempt for the same reason `duncan-haywood.github.io` is: it is the
+    # direction this portfolio publishes, not one it fetches from. Probing it
+    # would file a denial for our own publication target in the egress table,
+    # which the note above this set calls worse than not measuring.
+    "github.io",
 }
 
 

@@ -34,6 +34,11 @@ permissions:
 jobs:
   check:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Checkout, Python setup, and a scan of tracked files for conflict
+    # markers -- normally under 15s. See hetzner-gitops-ci.yml's
+    # timeout-minutes addition for why an unbounded job is worth capping on a
+    # metered-minutes account.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseTenders, filterTenders, parseTradeTerms, escapeHtml, safeUrl, toCsv, isUrgent, isClosed } from "./calc.mjs";
+import { parseTenders, filterTenders, parseTradeTerms, parseValueNumber, escapeHtml, safeUrl, toCsv, isUrgent, isClosed, daysUntil } from "./calc.mjs";
 
 const SAMPLE = `title,buyer,deadline,category,value,url
 School roof repairs,City Council,2026-09-18,roofing,85000,https://example.test/tender
@@ -103,6 +103,48 @@ test("isClosed is true only once the deadline has passed", () => {
   assert.equal(isClosed("2026-08-29", "2026-08-30"), true, "a passed deadline is closed");
   assert.equal(isClosed("2026-08-30", "2026-08-30"), false, "due today is not yet closed");
   assert.equal(isClosed("2026-08-31", "2026-08-30"), false, "due tomorrow is not closed");
+});
+
+test("parseValueNumber reads currency symbols, thousands separators, and currency codes", () => {
+  assert.equal(parseValueNumber("£5,000"), 5000);
+  assert.equal(parseValueNumber("$85,000.00"), 85000);
+  assert.equal(parseValueNumber("1,200,000 GBP"), 1200000);
+  assert.equal(parseValueNumber("85000"), 85000);
+  assert.equal(parseValueNumber(""), 0);
+  assert.equal(parseValueNumber("TBD"), 0);
+});
+
+test("the minimum-value filter excludes a low-value tender even when its cell is currency-formatted", () => {
+  // The bug this guards: `Number("£5,000")` is NaN, and the old filter read
+  // `Number(row.value || 0) < min` -- `NaN < min` is always false, so the
+  // exclusion branch never fired for a formatted cell no matter how far
+  // under the minimum it actually was. A real portal export almost never
+  // gives a bare integer, so this was not a rare edge case: it was the
+  // normal case for the filter this tool markets itself on.
+  const rows = parseTenders(`title,buyer,deadline,category,value,url
+Cheap job,City,2026-09-18,roofing,"£5,000",https://example.test/cheap
+Big job,City,2026-09-18,roofing,"£85,000",https://example.test/big`);
+  const shortlist = filterTenders(rows, { minimum: 20000 });
+  assert.equal(shortlist.length, 1);
+  assert.equal(shortlist[0].title, "Big job");
+});
+
+test("the minimum-value filter still excludes a row whose value is blank or unreadable", () => {
+  const rows = parseTenders(`title,buyer,deadline,category,value,url
+No value listed,City,2026-09-18,roofing,,https://example.test/none
+Value marked TBD,City,2026-09-18,roofing,TBD,https://example.test/tbd`);
+  assert.equal(filterTenders(rows, { minimum: 1 }).length, 0);
+  // A zero (or unset) minimum keeps behaving exactly as before: nothing is
+  // excluded on value when the visitor has not asked for a floor.
+  assert.equal(filterTenders(rows, { minimum: 0 }).length, 2);
+});
+
+test("daysUntil counts calendar days regardless of the visitor's timezone offset", () => {
+  // Parsed as UTC calendar dates, not `new Date(string)`, so a deadline of
+  // "tomorrow" reads as 1 no matter what offset the browser is on.
+  assert.equal(daysUntil("2026-09-01", "2026-08-30"), 2);
+  assert.equal(daysUntil("2026-08-30", "2026-08-30"), 0);
+  assert.equal(daysUntil("2026-08-29", "2026-08-30"), -1);
 });
 
 test("CSV export quotes embedded quotes", () => {

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is GitHub Actions cache poisoning?</title>
+  <meta name="description" content="A pull_request_target or workflow_run job can write to a repository-scoped Actions cache that a privileged workflow later restores. Here is exactly how cache poisoning works, and how to check your own workflows for it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-github-actions-cache-poisoning.html">
+  <meta property="og:title" content="What is GitHub Actions cache poisoning?">
+  <meta property="og:description" content="Actions cache entries are scoped to the repository, not the branch. A fork-triggered job that writes to the cache can plant a payload a privileged job later restores.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is GitHub Actions cache poisoning?","acceptedAnswer":{"@type":"Answer","text":"GitHub Actions caches are scoped to the whole repository, not to a branch, a workflow, or a trust level. pull_request, the ordinary PR trigger, runs with a read-only token and no secrets — a cache it writes is not especially dangerous, because nothing valuable trusts it either. pull_request_target and workflow_run exist for jobs that need more: commenting on a PR, or building it with real credentials. They run in the context of the base repository, with the base repository's secrets — but the event that triggers them is still raised by whoever opened the pull request, who might be a stranger."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions Cache Poisoning Check</a></p>
+  <h1>What is GitHub Actions cache poisoning?</h1>
+  <p>GitHub Actions caches are scoped to the whole repository, not to a branch, a workflow, or a trust level. <code>pull_request</code>, the ordinary PR trigger, runs with a read-only token and no secrets — a cache it writes is not especially dangerous, because nothing valuable trusts it either. <code>pull_request_target</code> and <code>workflow_run</code> exist for jobs that need more: commenting on a PR, or building it with real credentials. They run in the context of the <em>base</em> repository, with the base repository's secrets — but the event that triggers them is still raised by whoever opened the pull request, who might be a stranger.</p>
+  <p>If a job on one of those two triggers writes to the cache, the stranger controls what gets written:</p>
+  <pre><code>on: pull_request_target
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ github.event.pull_request.head.sha }}
+      - run: pnpm install</code></pre>
+  <p><code>actions/cache</code> restores on a hit and saves on a miss, so this step writes a cache entry the fork PR fully controls the contents of. If a separate, privileged workflow — a release build, a deploy step, anything triggered by a push to a protected branch — later restores from the same key namespace, it can pick up the fork's poisoned entry and run it with real secrets.</p>
+  <h2>A real incident</h2>
+  <p>In May 2026, a pull request opened against TanStack Router's <code>pull_request_target</code> workflow wrote a poisoned <code>pnpm</code> store to the shared Actions cache on every push. The project's own release pipeline later restored that cache and executed the payload. Independent security researchers (AdnaneKhan's <code>ActionsCacheBlasting</code> proof-of-concept, Hive Security's cache-poisoning writeup) had already documented the underlying mechanism: caches are not segregated by workflow, event type, or trust level, and a <code>restore-keys</code> fallback can adopt an entry that merely shares a key prefix with the one you actually asked for — described as "all keys are restore keys" in practice.</p>
+  <h2>The fix</h2>
+  <ul>
+    <li>Do not write to the cache from a job reachable by <code>pull_request_target</code> or <code>workflow_run</code>. If the job genuinely needs to build the fork's code, keep that build unprivileged (plain <code>pull_request</code>) and hand off only reviewed results as artifacts to the privileged job.</li>
+    <li>If a fork-triggered job must cache something, key it so no privileged job ever restores from the same namespace — prefix the key with the untrusted run's own run ID, never a branch name or a lockfile hash a privileged job also uses.</li>
+    <li>Narrow or drop <code>restore-keys</code> fallback lists, especially on a cache a privileged workflow trusts. An exact-key miss that falls through to "anything with this prefix" is exactly the mechanism a poisoned entry rides in on.</li>
+  </ul>
+  <h2>Check your own workflows</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Cache Poisoning Check</a> to find every fork-writable cache step and unscoped <code>restore-keys</code> fallback across every workflow file at once, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any workflow has either pattern — wire it into your own CI to block a newly-added one before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe — only that these two documented patterns were not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>

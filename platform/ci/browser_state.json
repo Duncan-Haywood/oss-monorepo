@@ -1,0 +1,445 @@
+{
+  "readings": [
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "13d110748727af877b0a2bdacbef31c41dd01bf8",
+      "measured": "2026-09-16",
+      "pages": 1060,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "7f416d2fdaa15df496939a0458168a71866d33bd",
+        "ventures": "76512d4bf9b37cd145a5d969bbbc4d9e531c8418"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "d0edcc1ec2045cea09089911cbdab3d63fba6317",
+      "measured": "2026-09-16",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "obsidian-plugin-review-check",
+        "process-server-fee-calculator"
+      ],
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "7f416d2fdaa15df496939a0458168a71866d33bd",
+        "ventures": "76512d4bf9b37cd145a5d969bbbc4d9e531c8418"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "3542d8f0bf0a4a5b6cbea8b22440c60b6208ff9f",
+      "measured": "2026-09-16",
+      "pages": 1073,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "ed0148d932f273d62a81f92fc08eb0a64d588191",
+        "ventures": "16f3a16f5369c5d22145fb5dfd3898a100ad0701"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "7850f29f8b756228c495b794a0ccb4b4b5b9ba74",
+      "measured": "2026-09-16",
+      "pages": 1078,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "76093ff3444e0c51acb21b17eda7921302f9a395",
+        "ventures": "22a41e5cd7e32097115a7caf6221433779b79825"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "b0fcbbe1b7d5f9adf412eac4b1ed5ca753864c0e",
+      "measured": "2026-09-16",
+      "pages": 1079,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "e425b67a10ec33cbcd6b7de9a297c866548cdb0e",
+        "ventures": "6a86404b17f8553086099a3c81b21235e23849f9"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "10501a1f4e44d9466ac9a7334269e7b7a0d9f706",
+      "measured": "2026-09-17",
+      "pages": 1081,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "9a4ed55f34b29c668cd54737317900936c211348",
+        "ventures": "36107e9924e16eb205f66785916fb8d0dffeabad"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "2e8856e1a5da8780c1e2bcc157f34332b9b3abe0",
+      "measured": "2026-09-17",
+      "pages": 1091,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "bfc4bd599cc969c5f3336704bc1a3354c05b80a3",
+        "ventures": "bcecd0733c2bc6c8e5263fbb4cb02aed6aa7cf9d"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "de5bed6c09f60725562b3b313f984a5e56c07f7c",
+      "measured": "2026-09-17",
+      "pages": 1092,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "4a527e113fc3a43fbe12ab54ef813bc2eaa451c2",
+        "ventures": "63a4cb67ced44ad17860e2926f8fc3b5da389792"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "d61ce0fbaf42d9d3ebbce1f5b3e7039c0c8d064d",
+      "measured": "2026-09-17",
+      "pages": 1100,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "bada523ca1b3d82a238e534a80b0bafa80985330",
+        "ventures": "cb41fc2d15e5c88ecfdcddefabb71e84de41b5ba"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "052b936254c50e924335fe2d44c70d89b321546c",
+      "measured": "2026-09-17",
+      "pages": 1105,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "bd802ae690c69fdc32bd84d946608903d5421c35",
+        "ventures": "c98d8be773f477411baa77397036886929266a52"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "15b7f18338f1bb6d3c4eaca724b54031d01281f8",
+      "measured": "2026-09-17",
+      "pages": 1110,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "aac219e8fab2909873c54433166b045a7cab348f",
+        "ventures": "0416ad9106eff1eb57382918c709650def2eff91"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "6059c1effc4a8d545645c2388597664de92b803e",
+      "measured": "2026-09-17",
+      "pages": 1121,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "aee180b12f18154fe940ae79d289654ebf01b403",
+        "ventures": "e3bd8077c630db2b8c095d9d09ae025e75ed1d9f"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "942ba1fdc00ffdd61d666d9fcfcd20619ff4c718",
+      "measured": "2026-09-17",
+      "pages": 1128,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "f7be312682094789aabf322edc42f1f704bd3f74",
+        "ventures": "bca37afecaf749952dd7afc1d40905707683ad74"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "8bc021630c5f1284d5c15f743bd44f9b1d1ce727",
+      "measured": "2026-09-17",
+      "pages": 1139,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "11a5705ecd3d55e38c1a1a185e928c5655f9f08c",
+        "ventures": "bf8a59e1f31b6a6316f9d8d6a5137cac348009c4"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "aa5302360ebbfa2d1e22aac7289ed4ee8fe96147",
+      "measured": "2026-09-17",
+      "pages": 1141,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "84d3e061b382dc9acd5c1d8bf8ba208d3e6258d0",
+        "ventures": "2e7f2c4e32d7652476f5c67b0709d63d78824b0a"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "b03101bdb9c47bfc2dbf0fdf3043f6cb535aab10",
+      "measured": "2026-09-17",
+      "pages": 1149,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "f2e106a0ea31646a230f1b8804778ef767e234fc",
+        "ventures": "3202607bfd9fec6ba9b292dee611262dbb534c13"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "5a6ebe57aeec35b24e62bd2a82ce4adf65be1017",
+      "measured": "2026-09-17",
+      "pages": 1145,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "8e9d79526fda24b4eb0004cf37df293051acf9d9",
+        "ventures": "154b61750df22492a5725331102da41fc5d0f880"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "0d75a05cfd751c8ed25e803ad7101e7396ae3d75",
+      "measured": "2026-09-17",
+      "pages": 1149,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "f2e106a0ea31646a230f1b8804778ef767e234fc",
+        "ventures": "3202607bfd9fec6ba9b292dee611262dbb534c13"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "9414203b15f5628c0ec00036c7201c77733a634d",
+      "measured": "2026-09-17",
+      "pages": 1159,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "dfb06b625e75cb8c5083e9fb7959dce5d442b01e",
+        "ventures": "8ce399e06080cc5b02ebec07f2fa10e545c0b66c"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "169b149c5b929befc2199f82f7c84564722ce4da",
+      "measured": "2026-09-17",
+      "pages": 1167,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "bb758c0f09bc43ccc07aaca28e06b262883e74ad",
+        "ventures": "e712c0dc86377c30058a9aac620e670f28952a18"
+      }
+    }
+  ]
+}

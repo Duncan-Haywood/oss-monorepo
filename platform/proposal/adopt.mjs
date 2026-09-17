@@ -182,41 +182,82 @@ function stylesheet({ accent, strong, statusColor }) {
 `;
 }
 
+/**
+ * One visible string in the form, with the trade's own wording if it gave one.
+ *
+ * Every default below is the wording all 102 bid calculators carry, so a trade
+ * entry with no `labels` block regenerates byte-identically. The overrides
+ * exist because this document is not only a construction bid: a freelancer
+ * quoting a translation has a client rather than a customer, a company address
+ * rather than a job address, and a tax ID rather than a contractor's licence.
+ * Those three words were the whole reason the artifact looked wrong outside the
+ * trades, and hard-coding them here is what kept it there.
+ *
+ * Defaults are written as raw HTML because several carry entities (`&mdash;`,
+ * `&rsquo;`); a supplied override is plain text and is escaped, so a trade
+ * cannot inject markup through `trades.json`.
+ */
+function labelReader(trade) {
+  const supplied = trade.labels ?? {};
+  return (key, fallback) => (
+    typeof supplied[key] === 'string' && supplied[key].trim()
+      ? escapeAttribute(supplied[key].trim())
+      : fallback
+  );
+}
+
+/**
+ * The `currency:` option passed to `renderProposalHtml`, or nothing.
+ *
+ * A trade sets `currencyFrom` to the id of its own currency field. Omitting it
+ * — which every one of the 102 bid calculators does — emits no option at all,
+ * so the sheet keeps `renderProposalHtml`'s `'$'` default and those pages
+ * regenerate byte-identically.
+ *
+ * The `|| '$'` is not belt-and-braces: a visitor who clears the currency box
+ * would otherwise get an unlabelled figure on a document someone pays against.
+ */
+function currencyOption(trade) {
+  const id = String(trade.currencyFrom ?? '').trim();
+  return id ? `, currency: el(${jsString(id)})?.value?.trim() || '$'` : '';
+}
+
 /** The form the contractor fills in, appended inside `<main>`. */
-function markup(trade) {
+export function markup(trade) {
   const ph = trade.placeholders ?? {};
   const attr = (value) => escapeAttribute(value ?? '');
+  const label = labelReader(trade);
   return `
       <section id="proposalSection">
-        <h2>Hand the customer a proposal</h2>
-        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <h2>${label('heading', 'Hand the customer a proposal')}</h2>
+        <p class="hint">${label('intro', 'The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.')}</p>
         <div class="fields">
-          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="${attr(ph.companyName ?? 'Your Company LLC')}"></label>
-          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
-          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
-          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="${attr(ph.companyLicense ?? 'State licence #')}"></label>
-          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
-          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
-          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
-          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="${Number(trade.depositPercent ?? 30)}"></label>
-          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+          <label>${label('companyName', 'Your business name')} <input id="companyName" type="text" autocomplete="organization" placeholder="${attr(ph.companyName ?? 'Your Company LLC')}"></label>
+          <label>${label('companyPhone', 'Phone')} <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>${label('companyEmail', 'Email')} <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>${label('companyLicense', 'Licence number (optional)')} <input id="companyLicense" type="text" placeholder="${attr(ph.companyLicense ?? 'State licence #')}"></label>
+          <label>${label('companyAddress', 'Your address (optional)')} <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>${label('clientName', 'Customer name')} <input id="clientName" type="text" placeholder="${attr(ph.clientName ?? 'L. Bergstrom')}"></label>
+          <label>${label('clientAddress', 'Job address')} <input id="clientAddress" type="text" placeholder="${attr(ph.clientAddress ?? '812 Chamberlain St')}"></label>
+          <label>${label('depositPercent', 'Deposit (%)')} <input id="depositPercent" type="number" min="0" max="100" step="5" value="${Number(trade.depositPercent ?? 30)}"></label>
+          <label>${label('validDays', 'Hold this price for (days)')} <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
         </div>
         <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
-          <label>Scope lines &mdash; one per line, edit freely
+          <label>${label('scope', 'Scope lines &mdash; one per line, edit freely')}
             <textarea id="proposalScope" rows="4" placeholder="${attr(ph.scope ?? '')}"></textarea>
           </label>
-          <label>Not included &mdash; one per line (optional)
+          <label>${label('exclusions', 'Not included &mdash; one per line (optional)')}
             <textarea id="proposalExclusions" rows="2" placeholder="${attr(ph.exclusions ?? '')}"></textarea>
           </label>
-          <label>Payment terms, in your own words (optional)
-            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          <label>${label('paymentTerms', 'Payment terms, in your own words (optional)')}
+            <textarea id="paymentTerms" rows="2" placeholder="${attr(ph.paymentTerms ?? 'Deposit on acceptance, balance on completion.')}"></textarea>
           </label>
-          <label>Notes (optional)
+          <label>${label('notes', 'Notes (optional)')}
             <textarea id="proposalNotes" rows="2" placeholder="${attr(ph.notes ?? '')}"></textarea>
           </label>
         </div>
         <div class="summary-actions">
-          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="printProposal">${label('printButton', 'Print proposal / Save as PDF')}</button>
           <button type="button" id="forgetCompany">Forget my business details</button>
           <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
         </div>
@@ -294,7 +335,7 @@ ${assignments.join('\n')}
   });
 }
 
-function declaredFields(fields = {}, rowFields = {}) {
+export function declaredFields(fields = {}, rowFields = {}) {
   const rowLines = declaredRowFields(rowFields);
   const entries = Object.entries(fields);
   if (!entries.length && !rowLines.length) return '';
@@ -310,6 +351,40 @@ function declaredFields(fields = {}, rowFields = {}) {
       return map
         ? `        ${JSON.stringify(name)}: (${map})[result[${jsString(spec.from)}]],`
         : `        ${JSON.stringify(name)}: result[${jsString(spec.from)}],`;
+    }
+    // A plain `<input>` the scope needs to quote but the calculator does not
+    // return. Every spec above reads either a `<select>`'s label or a key of
+    // the result, which covers a trade whose scope is made of the choices and
+    // the figures it prices — but not one whose scope names something the
+    // customer supplied and the arithmetic never touches: a language pair, a
+    // reference number, a document title. Those had no route onto the sheet
+    // short of widening the calculator's return value, which is the wrong
+    // place to put a string nothing computes.
+    //
+    // `scopeLines` treats a blank as missing and drops the whole line, so an
+    // optional field left empty removes its sentence rather than printing a
+    // half one.
+    if (spec.input) {
+      const raw = `el(${jsString(spec.input)})?.value?.trim()`;
+      return map
+        ? `        ${JSON.stringify(name)}: (${map})[${raw}],`
+        : `        ${JSON.stringify(name)}: ${raw},`;
+    }
+    // A numeric `<input>`. Separate from `input` above rather than sniffed,
+    // because the difference is not cosmetic: an input's value is a *string*,
+    // and `"0"` is truthy, so a `when` guarding a line on an optional charge
+    // the user left at zero passed and the line printed anyway. That put "Rush
+    // or weekend delivery" on a customer's quote with nothing for it in the
+    // price — the sheet promising work the price does not cover, which is the
+    // failure mode this whole module is careful about everywhere else.
+    //
+    // `Number('')` is 0, so an empty optional field drops its line too, and
+    // `Number('abc')` is NaN, which `scopeLines` already treats as missing.
+    if (spec.number) {
+      const raw = `Number(el(${jsString(spec.number)})?.value)`;
+      return map
+        ? `        ${JSON.stringify(name)}: (${map})[${raw}],`
+        : `        ${JSON.stringify(name)}: ${raw},`;
     }
     return `        ${JSON.stringify(name)}: undefined,`;
   });
@@ -396,7 +471,7 @@ ${fields}
       ));
       el('proposalDoc').innerHTML =
         '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
-        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER${currencyOption(trade)} });
       el('proposalDoc').hidden = false;
       return proposal;
     }
@@ -479,10 +554,45 @@ ${fields}
  * is that the reader is callable with *no* arguments, and that is checked
  * directly by `readerTakesNoArguments` rather than inferred from a call site.
  */
-function detectFunctions(html) {
+/**
+ * The reader and the pricing function the generated proposal calls.
+ *
+ * `calcFn` is normally inferred from the page pricing the job inline —
+ * `calculateBid(readInput())` — which every bid calculator does because its
+ * render loop has nothing to catch. A page whose calculator *throws* on a bad
+ * figure does not: `notary-trip-quote` renders through `quoteResult()`, a
+ * non-throwing wrapper, so the throwing `calculateQuote` appears nowhere in a
+ * call of that shape and the inference finds nothing.
+ *
+ * The throwing one is nevertheless the right function for the proposal, and
+ * the two callers are not in conflict: on screen a bad figure must leave the
+ * page rendering, and on a printed sheet it must retire the sheet, which is
+ * exactly what `refreshProposal`'s `catch` does with a throw. So the trade may
+ * name the function with `"calcFn"` when the page does not call it inline.
+ * `inspect()` then checks the page really has it, because a name that resolves
+ * to nothing would generate a proposal that throws `ReferenceError` at the
+ * moment a user presses print.
+ */
+function detectFunctions(html, named) {
   const reader = /function\s+(readInputs?)\s*\(/.exec(html)?.[1];
-  const calcFn = /\b(calculate[A-Za-z]*|priceJob|priceBid)\s*\(\s*(readInputs?)\s*\(/.exec(html)?.[1];
-  return { reader, calcFn };
+  const inferred = /\b(calculate[A-Za-z]*|priceJob|priceBid)\s*\(\s*(readInputs?)\s*\(/.exec(html)?.[1];
+  return { reader, calcFn: named ?? inferred };
+}
+
+/** Whether the page defines or imports `name`, so a call to it will resolve. */
+function pageProvides(html, name) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (new RegExp(`function\\s+${escaped}\\s*\\(`).test(html)) return true;
+  if (new RegExp(`(?:const|let|var)\\s+${escaped}\\s*=`).test(html)) return true;
+  // `import { a, calculateQuote as price } from './calc.mjs'` — the binding the
+  // page ends up with is what has to match, so check the local name.
+  for (const spec of html.matchAll(/import\s*\{([^}]*)\}\s*from/g)) {
+    for (const part of spec[1].split(',')) {
+      const local = part.trim().split(/\s+as\s+/).pop()?.trim();
+      if (local === name) return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -583,9 +693,53 @@ function resultKeysOf(slug) {
   const entry = /export function (calculateBid|priceJob|priceBid)\s*\(/.exec(source)
     ?? /export function (calculate[A-Za-z]*|priceJob|priceBid)\s*\(/.exec(source);
   if (!entry) return [];
-  const returned = /\n {2}return \{\n([\s\S]*?)\n {2}\};/.exec(source.slice(entry.index));
-  if (!returned) return [];
-  return [...returned[1].matchAll(/^ {4}([A-Za-z0-9_]+)\s*[:,]/gm)].map((m) => m[1]);
+
+  // Only the entry function's *own* body. The matcher below is greedy across
+  // whatever it is given, and these modules declare more functions after the
+  // entry — so on a calculator whose entry returns on one line, it ran past
+  // the end of that function and matched the next multi-line `return {` in the
+  // file. `appliance-repair-quote-calculator` is the first such adopter: the
+  // keys came back as `compareServiceCallVsReplace`'s, so `target` read as a
+  // field the calculator does not return, when it is the field it quotes.
+  // Bounding the region is the same "looked at the wrong function" mistake the
+  // entry selection above was already fixed for, one step later in the parse.
+  const after = source.slice(entry.index);
+  const nextDeclaration = after.slice(1).search(/\n(?:export )?function /);
+  const region = nextDeclaration === -1 ? after : after.slice(0, nextDeclaration + 1);
+
+  const returned = /\n {2}return \{\n([\s\S]*?)\n {2}\};/.exec(region);
+  if (returned) {
+    return [...returned[1].matchAll(/^ {4}([A-Za-z0-9_]+)\s*[:,]/gm)].map((m) => m[1]);
+  }
+
+  // A single-line `return { ... };`, which no adopter wrote until this one.
+  const inline = /\n {2}return \{([^\n]*?)\};/.exec(region);
+  return inline ? topLevelKeys(inline[1]) : [];
+}
+
+/**
+ * Keys of a one-line object literal body, split at bracket depth zero.
+ *
+ * Splitting on every comma would break on a value that carries its own —
+ * `effectiveRate: target / Math.max(laborHours, 0.01)` is one line of a real
+ * calculator — and would then report `0.01` as a field name.
+ */
+function topLevelKeys(body) {
+  const keys = [];
+  let depth = 0;
+  let start = 0;
+  const take = (chunk) => {
+    const match = /^\s*([A-Za-z0-9_$]+)\s*(?::|$)/.exec(chunk);
+    if (match) keys.push(match[1]);
+  };
+  for (let i = 0; i < body.length; i += 1) {
+    const char = body[i];
+    if (char === '(' || char === '[' || char === '{') depth += 1;
+    else if (char === ')' || char === ']' || char === '}') depth -= 1;
+    else if (char === ',' && depth === 0) { take(body.slice(start, i)); start = i + 1; }
+  }
+  take(body.slice(start));
+  return keys;
 }
 
 /**
@@ -616,7 +770,7 @@ export function derivePalette(html) {
 }
 
 /** Preconditions. A page that fails any of these is reported, not edited. */
-function inspect(slug) {
+function inspect(slug, trade = {}) {
   const dir = path.join(VENTURES, slug);
   const file = path.join(dir, 'index.html');
   const problems = [];
@@ -641,12 +795,19 @@ function inspect(slug) {
   // trips over the `@media print` block and the `#proposalSection` it wrote
   // itself last time.
   const html = generated ? stripGenerated(raw) : raw;
-  const { reader, calcFn } = detectFunctions(html);
+  const { reader, calcFn } = detectFunctions(html, trade.calcFn);
   if (!reader) problems.push('no readInput()/readInputs() to read the job from');
   else if (!readerTakesNoArguments(html, reader)) {
     problems.push(`${reader}() has a parameter with no default, so the proposal would price the job without it`);
   }
   if (!calcFn) problems.push('no calculate*(readInput()) call to price it with');
+  else if (trade.calcFn && !pageProvides(html, trade.calcFn)) {
+    // Caught here rather than at print time: a trade naming a function the page
+    // never imports generates a proposal that looks adopted, passes every
+    // text-level test, and throws ReferenceError the first time a user presses
+    // print -- in front of the client the sheet exists for.
+    problems.push(`trades.json names calcFn "${trade.calcFn}", which the page neither defines nor imports`);
+  }
   if (!/const el = id => document\.getElementById\(id\)|function el\(/.test(html)) problems.push('no el() helper');
   if (!/function count\(/.test(html)) problems.push('no count() helper');
   if (!html.includes('</style>')) problems.push('no </style> to add the print rules before');
@@ -670,7 +831,7 @@ function adopt(slug, trades, { dry = false } = {}) {
   const trade = trades[slug];
   if (!trade) return { slug, ok: false, why: 'no entry in trades.json' };
 
-  const found = inspect(slug);
+  const found = inspect(slug, trade);
   if (found.problems.length) return { slug, ok: false, why: found.problems.join('; ') };
 
   const { file, reader, calcFn } = found;
@@ -698,20 +859,49 @@ function adopt(slug, trades, { dry = false } = {}) {
 `));
 
   // 3. The vendored module, imported next to the page's other local imports.
-  const usageImport = /import \{[^}]*\} from '\.\/usage\.mjs';\n/.exec(next);
+  //
+  // Either quote style. The single-quote spelling is this repository's house
+  // style and is what all 102 bid calculators use, but it is a formatting
+  // convention rather than anything this tool depends on — and a page that
+  // writes `from "./usage.mjs"` was refused with a message ("no usage.mjs
+  // import") that reads as if the import were missing when it is right there.
+  // The quote character is captured so the emitted import matches the page it
+  // is inserted into rather than switching styles mid-module.
+  //
+  // The same argument reaches two more pieces of spacing this pattern used to
+  // insist on, and `notary-trip-quote` fails all three: it writes
+  // `import{recordUsage}from './usage.mjs';const ids=[…]`, with no spaces
+  // around the braces and the next statement on the same line. Neither is
+  // load-bearing. The emitted region opens with a newline and closes with one,
+  // so inserting it directly after the `;` puts the generated import on its own
+  // line either way, and `stripGenerated` takes that trailing newline back out
+  // — which is what keeps a re-run idempotent on a page whose import had none.
+  const usageImport = /import\s*\{[^}]*\}\s*from\s*(['"])\.\/usage\.mjs\1;\n?/.exec(next);
   if (!usageImport) return { slug, ok: false, why: 'no usage.mjs import to anchor the proposal import to' };
+  const quote = usageImport[1];
   // The trailing newline lives inside the markers: outside them, `strip` leaves
   // it behind and every re-run adds another blank line to the page.
   next = next.replace(usageImport[0], `${usageImport[0]}${wrap('js', `
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
-    } from './proposal.mjs';
+    } from ${quote}./proposal.mjs${quote};
 `)}`);
 
   // 4. The wiring, at the very end of the page's own module. After the page's
   //    own bootstrap, so `restoreCompany()` runs against a rendered form.
-  const closing = next.lastIndexOf('  </script>');
-  if (closing < 0) return { slug, ok: false, why: 'no closing </script> to append the wiring to' };
+  //
+  // The anchor was the literal `'  </script>'` — the two-space indentation the
+  // bid calculators happen to close their module with. A page that closes at
+  // column zero was refused for having "no closing </script>" while the tag sat
+  // in plain sight, which is the same class of false negative as the quote
+  // style above. Find the tag, then walk back over its own indentation so the
+  // wiring is still spliced in before the whole line rather than into the
+  // middle of it — for a `  </script>` that lands on exactly the byte the old
+  // literal did.
+  const closingTag = next.lastIndexOf('</script>');
+  if (closingTag < 0) return { slug, ok: false, why: 'no closing </script> to append the wiring to' };
+  let closing = closingTag;
+  while (closing > 0 && (next[closing - 1] === ' ' || next[closing - 1] === '\t')) closing -= 1;
   next = next.slice(0, closing)
     + wrap('js', wiring({ slug, trade, reader, calcFn, priceExpression }))
     + next.slice(closing);
@@ -827,9 +1017,23 @@ function loadTrades() {
   return JSON.parse(fs.readFileSync(path.join(HERE, 'trades.json'), 'utf8'));
 }
 
-function bidCalculators() {
-  return fs.readdirSync(VENTURES)
-    .filter((slug) => slug.endsWith('-bid-calculator'))
+/**
+ * What `--list` reports on: every bid calculator, plus anything else
+ * `trades.json` names.
+ *
+ * The suffix alone would have hidden `translator-project-quote` — adopted,
+ * generated, and printing a client's quote — from the one command that answers
+ * "what has the proposal reached?". Adoption itself never used this filter
+ * (`adopt.mjs <slug>` takes the slug you give it), so the omission would have
+ * been reporting drift rather than a missing feature, which is the harder kind
+ * to notice.
+ */
+function adoptableVentures(trades = {}) {
+  const named = new Set([
+    ...fs.readdirSync(VENTURES).filter((slug) => slug.endsWith('-bid-calculator')),
+    ...Object.keys(trades),
+  ]);
+  return [...named]
     .filter((slug) => fs.existsSync(path.join(VENTURES, slug, 'index.html')))
     .sort();
 }
@@ -848,9 +1052,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     console.log(`repointed .proposal-status on ${changed.length} page(s)`);
   } else if (args.includes('--list')) {
     const trades = loadTrades();
-    for (const slug of bidCalculators()) {
+    for (const slug of adoptableVentures(trades)) {
       const adopted = fs.existsSync(path.join(VENTURES, slug, 'proposal.mjs'));
-      const found = adopted ? { problems: ['already adopted'] } : inspect(slug);
+      const found = adopted ? { problems: ['already adopted'] } : inspect(slug, trades[slug]);
       const state = adopted ? 'adopted'
         : found.problems.length ? `blocked: ${found.problems.join('; ')}`
           : trades[slug] ? 'ready' : 'needs trades.json copy';

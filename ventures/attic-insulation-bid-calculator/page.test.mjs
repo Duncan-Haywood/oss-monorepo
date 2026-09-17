@@ -15,7 +15,7 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /Do not keep anonymous local usage counts/);
-  assert.match(html, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(html, /href="LICENSE"/);
   assert.match(html, /how-much-to-charge\.html/);
   assert.match(html, /engineering/);
 });
@@ -133,4 +133,18 @@ test('the proposal flag is set for the customer sheet and cleared afterwards', (
   assert.match(proposalScript, /printProposal[\s\S]*?classList\.add\('printing-proposal'\)/,
     'nothing tells the stylesheet the customer sheet is the one printing');
   assert.match(proposalScript, /afterprint[\s\S]*?classList\.remove\('printing-proposal'\)/);
+});
+
+// Closest sibling: same insulation trade, but spray-foam board feet rather
+// than blown-in attic bags. Related-tool chrome rotates inside the
+// subcategory, so without an explicit one-hop a crawler on this page may never
+// land on that tool.
+test('index links one hop to the spray-foam-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/spray-foam-bid-calculator\/"/,
+    'index must link ../spray-foam-bid-calculator/ so crawlers reach the spray-foam calculator in one hop',
+  );
+  assert.match(html, /spray foam bid calculator/i);
 });

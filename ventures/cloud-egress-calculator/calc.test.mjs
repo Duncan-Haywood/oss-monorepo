@@ -11,6 +11,8 @@ import {
   replicaNote,
   compareStorageClass,
   storageClassNote,
+  parseEgressTiers,
+  breakEvenEgressGb,
 } from "./calc.mjs";
 
 test("calculates storage, request, and egress charges", () => {
@@ -51,6 +53,98 @@ test("rejects invalid inputs", () => {
   assert.throws(() => scenarioCost({ storageGb: "unknown" }), /Storage/);
   assert.throws(() => scenarioCost({ storageGb: Number.NaN }), /Storage/);
   assert.throws(() => scenarioCost({ storageGb: Infinity }), /Storage/);
+});
+
+test("a free egress allowance is subtracted before billing", () => {
+  const result = scenarioCost({
+    storageGb: 0,
+    egressGb: 120,
+    egressRate: 0.05,
+    freeEgressGb: 100,
+  });
+  assert.equal(result.egressGb, 120);
+  assert.equal(result.freeEgressGb, 100);
+  assert.equal(result.billableEgressGb, 20);
+  assert.equal(result.egress, 1);
+  assert.equal(result.total, 1);
+});
+
+test("a free egress allowance larger than usage bills nothing, not a negative amount", () => {
+  const result = scenarioCost({ storageGb: 0, egressGb: 50, egressRate: 0.09, freeEgressGb: 80 });
+  assert.equal(result.billableEgressGb, 0);
+  assert.equal(result.egress, 0);
+});
+
+test("omitting freeEgressGb reproduces the old all-billed arithmetic exactly", () => {
+  const result = scenarioCost({ storageGb: 0, egressGb: 100, egressRate: 0.01 });
+  assert.equal(result.freeEgressGb, 0);
+  assert.equal(result.billableEgressGb, 100);
+  assert.equal(result.egress, 1);
+});
+
+test("rejects a negative free egress allowance", () => {
+  assert.throws(() => scenarioCost({ storageGb: 0, egressGb: 1, freeEgressGb: -1 }), /Free egress/);
+});
+
+test("a free tier can flip which option is cheaper", () => {
+  // Same rates and workload; only option B has a 100 GB/month free allowance.
+  // Without it both would bill $9.00 of egress and tie on storage; with it
+  // option B's whole 100 GB is free.
+  const result = compareScenarios({
+    first: { storageGb: 500, egressGb: 100, storageRate: 0.023, egressRate: 0.09 },
+    second: { storageGb: 500, egressGb: 100, storageRate: 0.023, egressRate: 0.09, freeEgressGb: 100 },
+  });
+  assert.equal(result.first.egress, 9);
+  assert.equal(result.second.egress, 0);
+  assert.equal(result.cheaper, "second");
+  assert.equal(result.savings, 9);
+});
+
+test("break-even can fall inside a free-tier allowance", () => {
+  // Option A bills every GB from zero at 0.05/GB. Option B carries a fixed
+  // $5 cost (its storage) but the first 200 GB of egress are free, so its
+  // cost is flat at $5 until the allowance runs out. The lines cross at
+  // 0.05 * e = 5 -> e = 100, which is inside B's 200 GB free segment, not
+  // at the segment boundary a rate-only solve would assume.
+  const result = compareScenarios({
+    first: { storageGb: 0, egressGb: 50, egressRate: 0.05 },
+    second: { storageGb: 500, storageRate: 0.01, egressGb: 50, egressRate: 0.02, freeEgressGb: 200 },
+  });
+  assert.equal(result.breakEvenEgressGb, 100);
+});
+
+test("break-even still finds the old single-segment answer when neither option has a free tier", () => {
+  const result = compareScenarios({
+    first: { storageGb: 500, requestsMillion: 0, egressGb: 50, storageRate: 0.006, egressRate: 0.09 },
+    second: { storageGb: 500, requestsMillion: 0, egressGb: 50, storageRate: 0.023, egressRate: 0.01 },
+  });
+  assert.equal(result.breakEvenEgressGb, 106.25);
+});
+
+test("no crossing when a free tier keeps one option always cheaper", () => {
+  const result = compareScenarios({
+    first: { storageGb: 0, egressGb: 10, egressRate: 0.05 },
+    second: { storageGb: 0, egressGb: 10, egressRate: 0.05, freeEgressGb: 1000 },
+  });
+  // Same rate everywhere except B is free until 1000 GB, which this
+  // workload never reaches within any positive volume comparison — B is
+  // cheaper or tied at every volume, so there is no crossing to report.
+  assert.equal(result.breakEvenEgressGb, null);
+  assert.equal(result.cheaper, "second");
+});
+
+test("reviewRecord carries the free-tier volumes without leaking rates", () => {
+  const record = reviewRecord({
+    storageGb: 100,
+    egressGb: 120,
+    first: { name: "Current", storageRate: 0.02, egressRate: 0.09 },
+    second: { name: "Alternative", storageRate: 0.01, egressRate: 0.05, freeEgressGb: 100 },
+  });
+  assert.equal(record.options[0].freeEgressGb, 0);
+  assert.equal(record.options[0].billableEgressGb, 120);
+  assert.equal(record.options[1].freeEgressGb, 100);
+  assert.equal(record.options[1].billableEgressGb, 20);
+  assert.equal(Object.hasOwn(record.options[1], "egressRate"), false);
 });
 
 test("defaults optional usage dimensions to zero", () => {
@@ -320,4 +414,193 @@ test("storageClassNote names the cheaper class and the retrieve ceiling without 
   assert.match(note, /standard class is \$0\.75 cheaper/);
   assert.match(note, /131\.3 GB retrieved/);
   assert.doesNotMatch(note, /should|must|move|enable|archive this|turn on/i);
+});
+
+test("graduated bands bill each slice at its own rate", () => {
+  // 25,000 billable GB across 10,000 @ 0.09, 40,000 @ 0.085 -> the second
+  // band is entered but not exhausted.
+  const result = scenarioCost({
+    storageGb: 0,
+    egressGb: 25000,
+    egressTiers: [
+      { bandGb: 10000, rate: 0.09 },
+      { bandGb: 40000, rate: 0.085 },
+      { bandGb: null, rate: 0.05 },
+    ],
+  });
+  assert.equal(result.egress, 2175); // 10000*0.09 + 15000*0.085
+  assert.equal(result.egressBreakdown.length, 2);
+  assert.deepEqual(result.egressBreakdown.map((b) => b.gb), [10000, 15000]);
+  assert.deepEqual(result.egressBreakdown.map((b) => b.rate), [0.09, 0.085]);
+});
+
+test("the free allowance is consumed before the first band, not alongside it", () => {
+  const result = scenarioCost({
+    storageGb: 0,
+    egressGb: 10100,
+    freeEgressGb: 100,
+    egressTiers: [
+      { bandGb: 10000, rate: 0.09 },
+      { bandGb: null, rate: 0.05 },
+    ],
+  });
+  // 100 GB free, then exactly 10,000 billable GB — the first band and no more.
+  assert.equal(result.billableEgressGb, 10000);
+  assert.equal(result.egress, 900);
+  assert.equal(result.egressBreakdown.length, 1);
+});
+
+test("omitting egressTiers reproduces the flat-rate arithmetic exactly", () => {
+  const tiered = scenarioCost({ storageGb: 0, egressGb: 4321, egressRate: 0.09 });
+  assert.equal(tiered.egress, scenarioCost({ storageGb: 0, egressGb: 4321, egressRate: 0.09 }).egress);
+  assert.equal(tiered.egress, 388.89);
+  assert.equal(tiered.egressTiers.length, 1);
+  assert.equal(tiered.egressTiers[0].upToGb, Infinity);
+  assert.equal(tiered.egressTiers[0].rate, 0.09);
+});
+
+test("a bounded last band carries its rate onward rather than billing $0 past it", () => {
+  const result = scenarioCost({
+    storageGb: 0,
+    egressGb: 300,
+    egressTiers: [{ bandGb: 100, rate: 0.1 }, { bandGb: 100, rate: 0.05 }],
+  });
+  // 100@0.10 + 100@0.05 + the last 100 still at 0.05 — never free.
+  assert.equal(result.egress, 20);
+});
+
+test("rejects an unbounded band that is not last, and a zero-width band", () => {
+  assert.throws(
+    () => scenarioCost({ storageGb: 0, egressGb: 1, egressTiers: [{ bandGb: null, rate: 0.1 }, { bandGb: 5, rate: 0.05 }] }),
+    /only the last tier can be unbounded/,
+  );
+  assert.throws(
+    () => scenarioCost({ storageGb: 0, egressGb: 1, egressTiers: [{ bandGb: 0, rate: 0.1 }] }),
+    /size must be greater than zero/,
+  );
+  assert.throws(
+    () => scenarioCost({ storageGb: 0, egressGb: 1, egressTiers: [{ bandGb: 5, rate: -1 }] }),
+    /Tier 1 rate/,
+  );
+});
+
+test("a graduated sheet can flip which option is cheaper at volume", () => {
+  const workload = { storageGb: 0, egressGb: 60000 };
+  // A is dearer at low volume but steps down hard; B is flat.
+  const flat = compareScenarios({
+    first: { ...workload, egressRate: 0.09 },
+    second: { ...workload, egressRate: 0.08 },
+  });
+  assert.equal(flat.cheaper, "second");
+
+  const graduated = compareScenarios({
+    first: {
+      ...workload,
+      egressTiers: [{ bandGb: 10000, rate: 0.09 }, { bandGb: null, rate: 0.02 }],
+    },
+    second: { ...workload, egressRate: 0.08 },
+  });
+  assert.equal(graduated.cheaper, "first");
+});
+
+test("break-even lands inside the band where the curves actually cross", () => {
+  const result = compareScenarios({
+    first: {
+      storageGb: 0,
+      egressGb: 1,
+      requestsMillion: 1,
+      requestRate: 1000, // $1000 fixed head start for B to overcome
+      egressTiers: [{ bandGb: 10000, rate: 0.01 }, { bandGb: null, rate: 0.01 }],
+    },
+    second: { storageGb: 0, egressGb: 1, egressRate: 0.06 },
+  });
+  // A costs 1000 + 0.01e; B costs 0.06e. Equal at e = 1000/0.05 = 20000,
+  // which sits in A's second band — a flat-rate solve over A's first band
+  // rate alone would still find 20000 here, so the assertion that matters is
+  // that the segment walk does not lose the crossing by stopping at 10000.
+  assert.equal(Math.round(result.breakEvenEgressGb), 20000);
+});
+
+test("reviewRecord reports that a graduated sheet was used without carrying its rates", () => {
+  const record = reviewRecord({
+    storageGb: 100,
+    egressGb: 20000,
+    first: { name: "A", egressTiers: [{ bandGb: 10000, rate: 0.09 }, { bandGb: null, rate: 0.05 }] },
+    second: { name: "B", egressRate: 0.08 },
+  });
+  assert.equal(record.options[0].egressTierCount, 2);
+  assert.equal(record.options[1].egressTierCount, 1);
+  const json = JSON.stringify(record);
+  assert.doesNotMatch(json, /0\.09|0\.05|0\.08/);
+});
+
+test("parseEgressTiers reads a pasted rate sheet, comments and units included", () => {
+  const tiers = parseEgressTiers(`
+    # copied from the price page
+    10,240 GB @ $0.09/GB
+    40960 at 0.085
+    0.05
+  `);
+  assert.deepEqual(tiers, [
+    { bandGb: 10240, rate: 0.09 },
+    { bandGb: 40960, rate: 0.085 },
+    { bandGb: null, rate: 0.05 },
+  ]);
+});
+
+test("parseEgressTiers treats empty input as no sheet at all", () => {
+  assert.equal(parseEgressTiers(""), null);
+  assert.equal(parseEgressTiers("   \n\n # only a comment \n"), null);
+  assert.equal(parseEgressTiers(null), null);
+});
+
+test("parseEgressTiers rejects a bare rate that is not the last line", () => {
+  assert.throws(() => parseEgressTiers("0.09\n10000 0.05"), /only the last line/);
+});
+
+test("parseEgressTiers rejects a line it cannot read as numbers", () => {
+  assert.throws(() => parseEgressTiers("first ten terabytes cheap"), /Line 1/);
+  assert.throws(() => parseEgressTiers("10 20 30"), /Line 1/);
+});
+
+test("a parsed sheet and a hand-built one bill identically", () => {
+  const workload = { storageGb: 0, egressGb: 25000 };
+  const parsed = scenarioCost({ ...workload, egressTiers: parseEgressTiers("10000 0.09\n40000 0.085\n0.05") });
+  const built = scenarioCost({
+    ...workload,
+    egressTiers: [{ bandGb: 10000, rate: 0.09 }, { bandGb: 40000, rate: 0.085 }, { bandGb: null, rate: 0.05 }],
+  });
+  assert.equal(parsed.egress, built.egress);
+  assert.equal(parsed.egress, 2175);
+});
+
+test("a break-even past a band boundary is not lost to floating-point drift", () => {
+  // Regression: the segment walk asks for each option's marginal rate at
+  // exactly the boundaries it built as `free + upToGb`. Deriving the billable
+  // volume by subtracting the allowance back off gives 3963.9999999999995 for
+  // this option, which reads as "still in the 0.13 band", hands the last
+  // segment a slope of -0.05 instead of +0.06, and reports no crossing at all
+  // for a pair that plainly crosses at ~7088 GB.
+  const first = scenarioCost({
+    storageGb: 35.83, storageRate: 1, egressGb: 0,
+    freeEgressGb: 92.05, egressTiers: [{ bandGb: null, rate: 0.08 }],
+  });
+  const second = scenarioCost({
+    storageGb: 220.77, storageRate: 1, egressGb: 0,
+    freeEgressGb: 293.23,
+    egressTiers: [{ bandGb: 2817, rate: 0.06 }, { bandGb: 1147, rate: 0.13 }, { bandGb: null, rate: 0.02 }],
+  });
+  const crossing = breakEvenEgressGb(first, second);
+  assert.ok(crossing !== null, "expected a crossing, got none");
+  assert.ok(Math.abs(crossing - 7088) < 2, `expected ~7088 GB, got ${crossing}`);
+
+  // And it really is a crossing: the cheaper option flips either side of it.
+  const at = (egressGb, option) => scenarioCost({ ...option, egressGb }).total;
+  const a = { storageGb: 35.83, storageRate: 1, freeEgressGb: 92.05, egressTiers: [{ bandGb: null, rate: 0.08 }] };
+  const b = {
+    storageGb: 220.77, storageRate: 1, freeEgressGb: 293.23,
+    egressTiers: [{ bandGb: 2817, rate: 0.06 }, { bandGb: 1147, rate: 0.13 }, { bandGb: null, rate: 0.02 }],
+  };
+  assert.ok(at(crossing - 500, a) < at(crossing - 500, b), "first should be cheaper below the crossing");
+  assert.ok(at(crossing + 500, a) > at(crossing + 500, b), "second should be cheaper above the crossing");
 });

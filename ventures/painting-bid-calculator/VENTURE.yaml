@@ -28,5 +28,5 @@ kill_criteria:
   - Painters report that the per-surface model is more work than their existing method without changing the price they would have bid.
   - The starting production rates prove so far from real jobs that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/painting-bid-calculator/
   analytics: null

@@ -39,8 +39,20 @@ async function siteWith(files = {}) {
     // The hub links About from its footer rather than as a tool card, which is
     // how the real hub does it — `data-tool` is for products.
     'index.html':
-      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> No warranty.</footer>',
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> '
+      + '<a href="guides/">Guides</a> '
+      + '<a href="compare/">Comparisons</a> No warranty.</footer>',
     'about/index.html': '<p>About</p><footer>No warranty.</footer>',
+    // The comparison index, on the same footing as About: a hub-level page the
+    // build writes, linked from the hub's footer rather than as a tool card. It
+    // must list at least one `vs-` page or the check calls it an empty index.
+    'compare/index.html':
+      '<a href="../tool/vs-widget.html">Tool</a><footer>No warranty.</footer>',
+    // The guides index, on the same footing again: it must list at least one
+    // page beside a tool or the check calls it an empty index.
+    'guides/index.html':
+      '<a href="../tool/">Tool</a><a href="../tool/how-much.html">How much?</a>'
+      + '<footer>No warranty.</footer>',
     'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${url('sitemap.xml')}\n`,
     '404.html': '<p>gone</p>',
     '.nojekyll': '',
@@ -48,7 +60,7 @@ async function siteWith(files = {}) {
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
     // About is a hub-level page, so the hub sitemap is the only one that can
     // carry it — the real `renderHubSitemap` lists it here for the same reason.
-    'sitemap-hub.xml': urlset('', 'about/'),
+    'sitemap-hub.xml': urlset('', 'about/', 'compare/', 'guides/'),
     'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
     // The feed and the catalogue are a pair: the feed is the "what's new"
     // door, and the catalogue is where the check reads every tool's launch
@@ -58,7 +70,12 @@ async function siteWith(files = {}) {
       + '<entry><id>tag:marisstella.dev,2026:tool/tool</id></entry></feed>',
     'catalog.json': JSON.stringify({ tools: [{ slug: 'tool', launched: '2026-08-01' }] }),
     'tool/index.html': '<p>Tool</p><footer>No warranty.</footer>',
-    'tool/sitemap.xml': urlset('tool/'),
+    // The page `compare/index.html` above links. Without it the artifact ships
+    // an index pointing at a 404, which is the defect that check exists to see.
+    'tool/vs-widget.html': '<p>Tool vs. Widget</p><footer>No warranty.</footer>',
+    // The page `guides/index.html` above links, on the same terms.
+    'tool/how-much.html': '<p>How much?</p><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html'),
   };
 
   for (const [relative, contents] of Object.entries({ ...defaults, ...files })) {
@@ -117,6 +134,72 @@ test('a dead relative link is caught', async () => {
   assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
 });
 
+test('a JS template-literal href in a standalone .mjs is not a dead link', async () => {
+  // The epk-generator false positive: `generator.mjs` builds an href from
+  // user-supplied data at runtime with a template literal --
+  // `` `<a href="${escapeHtml(url)}">` `` -- and has no `<script>` wrapper
+  // for SCRIPT_OR_STYLE_RE to strip, unlike the tender-radar case this
+  // guards elsewhere. The literal `${escapeHtml(url)}` text is not a path.
+  const problems = await problemsFor({
+    'tool/index.html': '<script type="module" src="generator.mjs"></script>',
+    'tool/generator.mjs': 'const html = `<a href="${escapeHtml(url)}">go</a>`;',
+  });
+  assert.deepEqual(mentioning(problems, 'dead link'), []);
+});
+
+test('a page no path from the hub reaches is caught', async () => {
+  // The case the orphan check cannot see. Both pages below have an inbound
+  // link, so `inboundLinks` is satisfied -- but they link only to each other,
+  // and nothing on the site leads in. On this origin the sitemap is never read
+  // (project-Pages subpath), so a page off the hub's link graph is discoverable
+  // by nobody.
+  const problems = await problemsFor({
+    'tool/island-a.html': '<a href="island-b.html">B</a><footer>No warranty.</footer>',
+    'tool/island-b.html': '<a href="island-a.html">A</a><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html',
+      'tool/island-a.html', 'tool/island-b.html'),
+  });
+  assert.equal(mentioning(problems, 'island-a.html: no path of links').length, 1);
+  assert.equal(mentioning(problems, 'island-b.html: no path of links').length, 1);
+  // The orphan check stays quiet on exactly these two, which is the point:
+  // without the walk they ship looking correct.
+  assert.deepEqual(mentioning(problems, 'no page on the site links to it'), []);
+});
+
+test('a page reached only through another page is not reported unreachable', async () => {
+  // Reachability is transitive: depth 2 is a route, not an orphan. Guards the
+  // walk against collapsing to "linked from the hub directly".
+  const problems = await problemsFor({
+    'tool/how-much.html': '<a href="deeper.html">Deeper</a><footer>No warranty.</footer>',
+    'tool/deeper.html': '<p>Deeper</p><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html', 'tool/deeper.html'),
+  });
+  assert.deepEqual(mentioning(problems, 'no path of links'), []);
+});
+
+test('an unreachable page that declared noindex is allowed', async () => {
+  // The offline shell is the real instance: a fallback with no route to it is
+  // correct, and indexing it would put a non-computing page in search results.
+  const problems = await problemsFor({
+    'offline.html': '<meta name="robots" content="noindex"><p>Offline</p><footer>No warranty.</footer>',
+  });
+  assert.deepEqual(mentioning(problems, 'no path of links'), []);
+});
+
+test('a module import does not count as a route to a page', async () => {
+  // A crawler navigates markup; an `import` is a module fetch, not a document
+  // anyone lands on. Counting it as a hop would report an undiscoverable page
+  // as reachable -- the exact false negative this walk exists to avoid.
+  const problems = await problemsFor({
+    'tool/index.html':
+      '<script type="module">import "./widget.mjs";</script><footer>No warranty.</footer>',
+    'tool/widget.mjs': 'export const x = 1;',
+    'tool/stranded.html': '<p>Stranded</p><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html', 'tool/stranded.html'),
+  });
+  assert.equal(mentioning(problems, 'stranded.html: no path of links').length, 1);
+});
+
 test('a link that climbs out of the site root is caught', async () => {
   const problems = await problemsFor({ 'tool/index.html': '<a href="../../etc/passwd">x</a>' });
   assert.equal(mentioning(problems, 'escapes the site root').length, 1);
@@ -128,6 +211,54 @@ test('an external link is not resolved on disk', async () => {
       '<a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a><footer>No warranty.</footer>',
   });
   assert.deepEqual(problems, []);
+});
+
+test('a venture subpage nothing links to is caught', async () => {
+  // The exact shape of #2664: a comparison/SEO page that ships, resolves
+  // every link, and is listed in its own sitemap — with no `href` anywhere on
+  // the site pointing at it. Every other check here is satisfied by that
+  // shape, which is what let it ship unlinked in the first place.
+  const problems = await problemsFor({
+    'tool/compare.html': '<p>compare</p>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
+  });
+  assert.equal(
+    mentioning(problems, 'tool/compare.html: no page on the site links to it').length,
+    1,
+  );
+});
+
+test('a venture subpage linked from its own index page is not an orphan', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<a href="./compare.html">Compare</a><footer>No warranty.</footer>',
+    'tool/compare.html': '<p>compare</p>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
+  });
+  assert.deepEqual(mentioning(problems, 'no page on the site links to it'), []);
+});
+
+test('a link from a different product also clears the orphan check', async () => {
+  // The inbound link does not have to come from the page's own venture — a
+  // comparison page linked from a sibling tool's "see also" list is just as
+  // reachable as one linked from its own index.
+  const problems = await problemsFor({
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><a href="other/" data-tool="other">Other</a>'
+      + '<footer><a href="about/">About</a> No warranty.</footer>',
+    'other/index.html': '<a href="../tool/compare.html">See the comparison</a><footer>No warranty.</footer>',
+    'other/sitemap.xml': urlset('other/'),
+    'tool/compare.html': '<p>compare</p>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
+    'llms.txt': `# Tools\n\n> Two tools.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n- [Other](${url('other/')}): does another thing.\n`,
+    'catalog.json': JSON.stringify({
+      tools: [
+        { slug: 'tool', launched: '2026-08-01' },
+        { slug: 'other', launched: '2026-08-01' },
+      ],
+    }),
+  });
+  assert.deepEqual(mentioning(problems, 'no page on the site links to it'), []);
 });
 
 test('a product directory with no landing page is caught', async () => {
@@ -168,6 +299,28 @@ test('a product llms.txt does not list is caught', async () => {
 test('an llms.txt entry with no product behind it is caught', async () => {
   const problems = await problemsFor({
     'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n- [Ghost](${url('ghost/')}): gone.\n`,
+  });
+  assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
+});
+
+test('an llms.txt entry under a site-own directory is not read as a product claim', async () => {
+  // `llms.txt` names the comparison index's per-product pages individually, so
+  // an assistant asked "is there a free alternative to Jobber" can answer from
+  // this file without fetching and scanning a 167-entry index. Those URLs are
+  // `…/compare/<product>/`, and reading the last segment alone says a product
+  // called `jobber` shipped — fourteen false problems on a healthy site.
+  const problems = await problemsFor({
+    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): 32 tools compare with it.\n`,
+  });
+  assert.equal(mentioning(problems, 'no such product shipped').length, 0);
+});
+
+test('a real missing product is still caught beside a site-own link', async () => {
+  // The direction that matters more, and the one the fix above could have
+  // broken silently: widening the parse to forgive `compare/<product>/` must
+  // not forgive a bullet that genuinely names a product nothing shipped.
+  const problems = await problemsFor({
+    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): fine.\n- [Ghost](${url('ghost/')}): gone.\n`,
   });
   assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
 });
@@ -243,6 +396,29 @@ test('a dynamic import specifier is resolved', async () => {
   assert.equal(mentioning(problems, 'dead link -> ./share.mjs').length, 1);
 });
 
+test('an href template placeholder inside a raw .mjs file is not a dead link', async () => {
+  // Regression: epk-generator's generator.mjs builds result markup with
+  // `` `<a href="${escapeHtml(url)}">` `` at runtime. REFERENCE_RE strips
+  // <script>/<style> bodies before scanning HTML for href/src, but a raw
+  // .mjs file has no such wrapper -- its whole content is script -- so
+  // without the same exclusion the unevaluated `${...}` placeholder read as
+  // a literal href and failed a correct page's build.
+  const problems = await problemsFor({
+    'tool/generator.mjs': 'export const row = (u) => `<a href="${escapeHtml(u)}">x</a>`;',
+  });
+  assert.deepEqual(mentioning(problems, 'dead link'), []);
+});
+
+test('a genuinely missing import in a raw .mjs file is still caught', async () => {
+  // The fix above must not blind the checker to a real dead module: a raw
+  // .mjs/.js file's import specifiers are still worth resolving, only its
+  // href/src-shaped string literals are not.
+  const problems = await problemsFor({
+    'tool/generator.mjs': "import { escapeHtml } from './missing-helper.mjs';",
+  });
+  assert.equal(mentioning(problems, 'dead link -> ./missing-helper.mjs').length, 1);
+});
+
 test('a data-tool literal inside a script is not read as a hub link', async () => {
   // Regression: the offline widget builds hub markup by concatenation, so the
   // hub's own script contains `data-tool="' + slug + '"`. Scraped raw that
@@ -252,7 +428,8 @@ test('a data-tool literal inside a script is not read as a hub link', async () =
     'index.html':
       '<a href="tool/" data-tool="tool">Tool</a>' +
       '<script>const card = (slug) => `<a data-tool="` + slug + `">x</a>`;</script>' +
-      '<footer><a href="about/">About</a> No warranty.</footer>',
+      '<footer><a href="about/">About</a> <a href="guides/">Guides</a> '
+      + '<a href="compare/">Comparisons</a> No warranty.</footer>',
   });
   assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems)}`);
 });
@@ -484,8 +661,9 @@ const CATEGORY_SITE = {
   'index.html':
     '<a href="tool/" data-tool="tool">Tool</a>'
     + '<h2><a href="c/trades/" data-category="trades">Trades</a></h2>'
-    + '<footer><a href="about/">About</a> No warranty.</footer>',
-  'sitemap-hub.xml': urlset('', 'c/trades/', 'about/'),
+    + '<footer><a href="about/">About</a> <a href="guides/">Guides</a> '
+    + '<a href="compare/">Comparisons</a> No warranty.</footer>',
+  'sitemap-hub.xml': urlset('', 'c/trades/', 'about/', 'compare/', 'guides/'),
   'c/trades/index.html':
     '<a href="../../tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
 };
@@ -761,4 +939,131 @@ test('correctly escaped entities in the feed are not mistaken for a raw ampersan
       + '<title>Fees &amp; &quot;margins&quot; &lt;b&gt; &#39;x&#39;</title></entry></feed>',
   });
   assert.deepEqual(mentioning(problems, 'unparseable'), []);
+});
+
+// ---------------------------------------------------------------------------
+// The comparison index (`compare/`)
+//
+// Same shape as `about/`: a root directory the build writes about the site
+// rather than a venture, so the product contract must skip it — and skipping
+// it must not leave it unchecked. Its own failures are different from About's,
+// because its whole value is being a route to pages that have no other one.
+// ---------------------------------------------------------------------------
+
+test('compare/ is not held to the product contract', async () => {
+  const problems = await problemsFor();
+  assert.deepEqual(mentioning(problems, 'compare/ has no index.html'), []);
+  assert.deepEqual(mentioning(problems, 'compare/: shipped but the hub does not link'), []);
+  assert.deepEqual(mentioning(problems, 'compare/: shipped with no launch date'), []);
+});
+
+test('a missing comparison index is a problem', async () => {
+  const problems = await problemsFor({
+    'compare/index.html': null,
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> No warranty.</footer>',
+    'sitemap-hub.xml': urlset('', 'about/'),
+  });
+  assert.equal(
+    mentioning(problems, 'comparison pages have no cross-venture index').length,
+    1,
+  );
+});
+
+test('a comparison index the hub does not link is a problem', async () => {
+  const problems = await problemsFor({
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> No warranty.</footer>',
+  });
+  assert.equal(
+    mentioning(problems, 'compare/: shipped but the hub does not link it').length,
+    1,
+  );
+});
+
+test('an empty comparison index is a problem, because it looks healthy', async () => {
+  // The quiet failure: `discoverComparisons` stops matching, and the page still
+  // renders with a headline, a disclaimer and no dead links. Nothing else in
+  // this file would show it.
+  const problems = await problemsFor({
+    'compare/index.html': '<p>Nothing to compare.</p><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'lists no comparison pages').length, 1);
+});
+
+test('a comparison index linking a product that did not ship is a problem', async () => {
+  const problems = await problemsFor({
+    'compare/index.html':
+      '<a href="../gone/vs-widget.html">Gone</a><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'links "gone" but no such product shipped').length, 1);
+});
+
+test('a comparison index with no disclaimer must not ship', async () => {
+  const problems = await problemsFor({
+    'compare/index.html': '<a href="../tool/vs-widget.html">Tool</a>',
+  });
+  assert.equal(mentioning(problems, 'compare/index.html: carries no disclaimer').length, 1);
+});
+
+// ---------------------------------------------------------------------------
+// The guides index (`guides/`)
+//
+// Same shape and the same argument as `compare/`, one content type over: the
+// "how much should I charge for X" pages are the largest body of content on
+// the site and, before this index existed, 64 of them had a single inbound
+// link in the whole artifact — their own tool's entry page.
+// ---------------------------------------------------------------------------
+
+test('guides/ is not held to the product contract', async () => {
+  const problems = await problemsFor();
+  assert.deepEqual(mentioning(problems, 'guides/ has no index.html'), []);
+  assert.deepEqual(mentioning(problems, 'guides/: shipped but the hub does not link'), []);
+  assert.deepEqual(mentioning(problems, 'guides/: shipped with no launch date'), []);
+});
+
+test('a missing guides index is a problem', async () => {
+  const problems = await problemsFor({
+    'guides/index.html': null,
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> '
+      + '<a href="compare/">Comparisons</a> No warranty.</footer>',
+    'sitemap-hub.xml': urlset('', 'about/', 'compare/'),
+  });
+  assert.equal(mentioning(problems, 'guide pages have no cross-venture index').length, 1);
+});
+
+test('a guides index the hub does not link is a problem', async () => {
+  const problems = await problemsFor({
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> '
+      + '<a href="compare/">Comparisons</a> No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'guides/: shipped but the hub does not link it').length, 1);
+});
+
+test('an empty guides index is a problem, because it looks healthy', async () => {
+  // The same quiet failure as the comparison index, and likelier here:
+  // `discoverGuides` reads the built tree, so a change to `isGuidePage` or the
+  // output layout renders a page with a headline, a disclaimer and nothing in
+  // it. Every other check in this file stays green.
+  const problems = await problemsFor({
+    'guides/index.html': '<p>No guides yet.</p><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'lists no guide pages').length, 1);
+});
+
+test('a guides index linking a product that did not ship is a problem', async () => {
+  const problems = await problemsFor({
+    'guides/index.html':
+      '<a href="../gone/how-much.html">Gone</a><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'links "gone" but no such product shipped').length, 1);
+});
+
+test('a guides index with no disclaimer must not ship', async () => {
+  const problems = await problemsFor({
+    'guides/index.html': '<a href="../tool/how-much.html">How much?</a>',
+  });
+  assert.equal(mentioning(problems, 'guides/index.html: carries no disclaimer').length, 1);
 });

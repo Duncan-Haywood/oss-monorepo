@@ -188,3 +188,30 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders in place on every keystroke, with no page
+  // reload. Every sibling bid-calculator venture (fence, concrete, ...)
+  // already carries aria-live="polite" on this section; this one was the
+  // outlier, so a screen-reader user changing an input got no announcement
+  // that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
+// This venture had no inbound link from any other tool (a crawlable
+// orphan — see platform/pages/siblings.mjs). Pairing it with the septic
+// pumping calculator, another property-service trade in the same
+// front-door subcategory, gives a crawler and a reader a one-hop route in
+// rather than only the category index.
+test('index links one hop to the septic-pumping-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/septic-pumping-bid-calculator\/"/,
+    'index must link ../septic-pumping-bid-calculator/ so crawlers reach the septic calculator in one hop',
+  );
+  assert.match(html, /septic pumping bid calculator/i);
+});

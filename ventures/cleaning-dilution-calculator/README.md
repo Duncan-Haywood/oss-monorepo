@@ -21,6 +21,16 @@ This tool answers the specific question: **what does the ready-to-use gallon I
 will actually pour cost?** A user can now price a bucket or recurring job in
 seconds, which used to require a spreadsheet or mental arithmetic.
 
+It also answers the purchasing question the smooth per-gallon rate hides:
+**how much concentrate do I actually need to buy for this job, in whole
+containers?** Concentrate only comes in whole containers, and a job's usable
+gallons rarely divide evenly into them. The calculator reports the concentrate
+needed (adjusted for the same waste allowance that inflates cost per gallon),
+the number of whole containers that covers it, the real purchase cost of
+those containers, and how much concentrate is left over for the next job —
+so a bid built from the per-gallon rate does not undercount what actually has
+to be bought.
+
 ## Privacy and usage
 
 Everything runs in the browser and no inputs leave the device. There are no

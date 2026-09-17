@@ -112,3 +112,8 @@ xcodebuild test -project WorldClock.xcodeproj -scheme WorldClock \
 in both hemispheres, a sanity check against London's known summer-solstice sunrise/sunset, and
 graceful `nil` handling at polar latitudes) and the clock snapshot's day/night and
 day-offset-label logic.
+
+## Support
+
+This app is free. Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood)
+never changes what it does or costs.

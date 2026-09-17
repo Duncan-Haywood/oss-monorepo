@@ -3,7 +3,9 @@
 // calc.test.mjs stays green if the page never executes. These checks are
 // dependency-free (no jsdom) so CI stays a plain `node --test`. They catch
 // the class of defect that actually shipped on another calculator: an
-// unclosed raw-text element that swallowed the app script.
+// unclosed raw-text element that swallowed the app script. Every other
+// bid-calculator venture in this repo carries this file; this one did not
+// until now, so a regression here had no automated guard at all.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -63,18 +65,58 @@ test('every element the script reaches for exists in the markup', () => {
 
 test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
-    'shape', 'depth', 'mil', 'bead', 'stairs', 'lengthFeet', 'widthFeet',
+    'shape', 'depth', 'mil', 'bead', 'stairs', 'pattern', 'access',
+    'lengthFeet', 'widthFeet', 'wallHeightFeet',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'copySummary', 'copyLink', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
 });
 
-test('the landing page names the problem in the shop\'s words', () => {
+test('the share link wires encode, terms, and restore, not just the button', () => {
+  // A button with no wiring behind it is worse than no button: it tells a
+  // crew the feature exists. This is the source-level half of what
+  // `platform/proposal/term-ids.test.mjs` checks across every venture.
+  assert.match(scriptSource, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(scriptSource, /withTerms\(/, 'copyLink does not fold the proposal terms into the link');
+  assert.match(scriptSource, /splitTerms\(/, 'restoreShare does not separate the terms from the venture payload');
+  assert.match(scriptSource, /applyTerms\(/, 'a restored link does not write the terms back onto the panel');
+  assert.match(scriptSource, /readTerms\(/, 'copyLink does not read the terms currently on the panel');
+  assert.match(scriptSource, /overlongTermsNote\(/, 'a term dropped for length is not named back to the sender');
+  assert.match(scriptSource, /restoreShare\(\)/, 'restoreShare is defined but never called on load');
+});
+
+// Closest sibling: same pool-resurfacing job, but a plaster/pebble finish
+// rather than a vinyl liner. Related-tool chrome rotates inside the landscape
+// subcategory, so without an explicit one-hop a crawler on this page may never
+// land on that tool.
+test('index links one hop to the pool-plaster-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/pool-plaster-bid-calculator\/"/,
+    'index must link ../pool-plaster-bid-calculator/ so crawlers reach the plaster calculator in one hop',
+  );
+  assert.match(html, /pool plaster bid calculator/i);
+});
+
+// Same subcategory, other direction: a spa set rather than a liner swap.
+// Reciprocal of the link added to hot-tub-bid-calculator's index so a
+// crawler can hop both ways — and so the hot-tub tool stops being a
+// crawlable orphan (no inbound tool link).
+test('index links one hop to the hot-tub-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/hot-tub-bid-calculator\/"/,
+    'index must link ../hot-tub-bid-calculator/ so crawlers reach the hot-tub calculator in one hop',
+  );
+  assert.match(html, /hot tub bid calculator/i);
+});
+
+test('the landing page names the problem in the crew’s own words', () => {
   assert.match(html, /<title>[^<]*Vinyl Liner Bid Calculator/i);
-  assert.match(html, /meta name="description"[^>]*water-surface special/i);
-  assert.match(html, /Bid the walls, the hopper, and the stairs/);
+  assert.match(html, /meta name="description"[^>]*liner square feet/i);
+  assert.match(html, /Bid the walls, the hopper, and the stairs\./);
   assert.match(html, /SoftwareApplication/);
 });
 

@@ -72,6 +72,19 @@
     </section>
 
     <section class="disclaimer">
+      <h2>This tool vs. a full WMS</h2>
+      <p>
+        A full warehouse-management platform such as
+        <a href="./vs-extensiv.html">Extensiv 3PL Warehouse Manager</a> runs
+        FIFO or lot-order visibility on top of a whole 3PL operation's client,
+        billing, and inventory records. This tool checks one exported pick log
+        instead — no account, no client setup, nothing uploaded. See
+        <a href="./vs-extensiv.html">FIFO Pick Evidence vs. Extensiv</a> for
+        which one answers your question.
+      </p>
+    </section>
+
+    <section class="disclaimer">
       <h2>Common questions</h2>
       <h3>What counts as a FIFO exception?</h3>
       <p>A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning the newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the row and the older row it was picked ahead of, so you can check the physical pick against the log. See <a href="./what-counts-as-a-fifo-exception.html">a worked example</a> for the exact rows that do and do not get flagged.</p>
@@ -88,13 +101,10 @@
       <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a report needs to survive, keep the Markdown or JSON you download.</p>
       <p>Parsing runs in your browser. Your pick log is never uploaded — there is no server to send it to. We count only anonymous local feature events, never people or pick-log contents, with an opt-out on this page. Counting also honors Do Not Track and Global Privacy Control.</p>
       <label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label>
+      <p>Also preparing evidence before a different kind of submission? The <a href="../einvoice-preflight/">e-invoice preflight checker</a> validates an invoice's fields, VAT digits, and totals before it reaches a tax platform &mdash; nothing uploaded.</p>
       <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
       <p>
-        Part of the
-        <a href="https://github.com/Duncan-Haywood/monorepo-projects" target="_blank" rel="noopener">
-          monorepo-projects
-        </a>
-        portfolio.
+        Part of the Free small-business calculators portfolio.
       </p>
     </footer>
   </main>

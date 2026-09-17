@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three contractors generate a second report within 90 days.
   - Users cannot identify a specific estimating assumption to change from the report.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/job-margin-variance/
   analytics: null

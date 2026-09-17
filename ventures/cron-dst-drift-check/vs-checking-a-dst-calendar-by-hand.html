@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. checking a DST calendar by hand — Cron DST Drift Check</title>
+<meta name="description" content="Looking up when daylight saving starts and eyeballing whether a cron time is close catches an obvious spring-forward skip and misses almost everything else: the day-of-month/day-of-week OR rule, the fall-back time that is ambiguous rather than absent, and the fixed-UTC-cron drift that never looks like a DST problem at all.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-checking-a-dst-calendar-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. checking a DST calendar by hand">
+<meta property="og:description" content="A DST calendar tells you when the clocks change. It does not tell you whether your specific cron expression names a time that falls in the gap, the overlap, or neither -- and it says nothing at all about a fixed-UTC scheduler drifting an hour twice a year.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't checking a DST calendar enough to catch a spring-forward skip?","acceptedAnswer":{"@type":"Answer","text":"It catches the case where the cron time and the transition hour are the same, like a 02:30 job the week clocks jump from 02:00 to 03:00. It does not catch a cron expression with a step or a list in the hour or minute field, or a day-of-month/day-of-week combination, because working out which of the resulting occurrences actually lands on the transition date requires walking the schedule forward, not reading a calendar."}},{"@type":"Question","name":"What does a DST calendar not tell you at all?","acceptedAnswer":{"@type":"Answer","text":"Two things this checker reports separately. First, a fall-back occurrence is not a skip to notice and move past — the local time genuinely happens twice, at two different UTC instants, and a calendar has no way to show you both. Second, a fixed-UTC-only scheduler (GitHub Actions' schedule: cron among them) never touches a gap or an overlap at all; it just runs an hour early or late for half the year, which does not look like a DST bug from the calendar's point of view because nothing is skipped or doubled."}},{"@type":"Question","name":"Why is eyeballing the cron expression against the transition date error-prone?","acceptedAnswer":{"@type":"Answer","text":"Because the standard cron day-matching rule is easy to misread by hand: when both day-of-month and day-of-week are restricted (neither is a wildcard), a date matches if it satisfies either field, not both. A schedule that looks like it only runs on specific dates can also fire on every matching weekday, which changes whether it actually lands on a transition date at all."}},{"@type":"Question","name":"Does this replace knowing when DST transitions happen?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not try to. It uses the same IANA timezone database your browser already ships to find the transitions itself, then walks your actual cron expression forward against them and reports which specific occurrences are affected. The transition dates are an input this tool computes for you, not something you need to already know."}},{"@type":"Question","name":"Is anything I paste into either the calendar-checking process or this tool uploaded?","acceptedAnswer":{"@type":"Answer","text":"There is nothing to upload either way — checking a calendar involves no tool at all, and this checker runs entirely in your browser using the Intl timezone database it already ships. The CLI makes no network call either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1a4560; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>This checker vs. checking a DST calendar by hand</h1>
+<p class="lede">The usual way to sanity-check a scheduled job against daylight saving is to look up when the clocks change this year and eyeball whether the job's time is anywhere near it. That catches the one obvious case &mdash; a job at 02:30 the week 02:00 jumps to 03:00 &mdash; and stops there. A calendar has no way to walk a real cron expression forward, tell a skip apart from an overlap, or notice a failure mode that never touches a transition date at all.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Checking a DST calendar</strong> is free and requires no tool: look up the transition date for your timezone, compare it to the job's time by eye. It works for the single case where the schedule's time obviously coincides with the transition hour on an obviously-matching date.</p>
+<p><strong>This checker</strong> uses the same IANA timezone database a calendar lookup is based on, but walks your actual cron expression forward occurrence by occurrence, resolving each local time against the real transition instants rather than comparing dates by eye. It also runs a second, unrelated check a calendar cannot express at all: whether a fixed-UTC-only scheduler holds your intended local time steady across the year.</p>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Does clocks-change week obviously overlap my job's time?</td><td>Either one. A calendar lookup answers this at a glance, and so does this checker.</td></tr>
+<tr><td>Does a schedule with a step, list, or day-of-month/day-of-week combination actually land on the transition date?</td><td>This checker. Working that out by eye means correctly applying cron's OR rule for restricted day fields, which is the single most common cron misreading.</td></tr>
+<tr><td>Is a fall-back occurrence a skip to shrug off, or does it happen twice?</td><td>This checker, which reports both real UTC instants for an ambiguous occurrence &mdash; not visible from a calendar at all.</td></tr>
+<tr><td>Does my GitHub Actions <code>schedule:</code> cron drift against the local time I meant?</td><td>This checker's separate drift check. A DST calendar has nothing to say here, because nothing is skipped or doubled &mdash; the job just runs an hour early or late for months.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>Neither. A calendar lookup involves no tool at all, and this checker runs entirely in your browser.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Isn't checking a DST calendar enough to catch a spring-forward skip?</h3>
+<p>It catches the case where the cron time and the transition hour are the same, like a 02:30 job the week clocks jump from 02:00 to 03:00. It does not catch a cron expression with a step or a list in the hour or minute field, or a day-of-month/day-of-week combination, because working out which of the resulting occurrences actually lands on the transition date requires walking the schedule forward, not reading a calendar.</p>
+<h3>What does a DST calendar not tell you at all?</h3>
+<p>Two things this checker reports separately. First, a fall-back occurrence is not a skip to notice and move past &mdash; the local time genuinely happens twice, at two different UTC instants, and a calendar has no way to show you both. Second, a fixed-UTC-only scheduler (GitHub Actions' <code>schedule:</code> cron among them) never touches a gap or an overlap at all; it just runs an hour early or late for half the year, which does not look like a DST bug from the calendar's point of view because nothing is skipped or doubled.</p>
+<h3>Why is eyeballing the cron expression against the transition date error-prone?</h3>
+<p>Because the standard cron day-matching rule is easy to misread by hand: when both day-of-month and day-of-week are restricted (neither is a wildcard), a date matches if it satisfies either field, not both. A schedule that looks like it only runs on specific dates can also fire on every matching weekday, which changes whether it actually lands on a transition date at all.</p>
+<h3>Does this replace knowing when DST transitions happen?</h3>
+<p>No, and it does not try to. It uses the same IANA timezone database your browser already ships to find the transitions itself, then walks your actual cron expression forward against them and reports which specific occurrences are affected. The transition dates are an input this tool computes for you, not something you need to already know.</p>
+<h3>Is anything I paste into either the calendar-checking process or this tool uploaded?</h3>
+<p>There is nothing to upload either way &mdash; checking a calendar involves no tool at all, and this checker runs entirely in your browser using the Intl timezone database it already ships. The CLI makes no network call either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not engineering advice, and they do not replace testing your actual scheduler's real behavior around a DST transition. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "Checking a DST calendar by hand" describes a manual habit every developer already has access to, not any company's product or service.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+</body>
+</html>

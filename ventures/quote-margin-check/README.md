@@ -221,7 +221,10 @@ CLI. After the review, the page offers three user-controlled workflow
 choices (send, revise, or hold) and counts the selected `quote_decision_*`
 event locally when the visitor clicks one. The
 browser also counts `history_saved`, `history_deleted`, and `history_cleared`
-when local review snapshots are stored or removed. A `report_downloaded`
+when local review snapshots are stored or removed, and `history_loaded` when a
+saved review's figures are restored into the form (each saved review has its
+own **Load** control alongside **Delete**, so a recurring proposal can be
+brought back for a re-check without retyping every field). A `report_downloaded`
 event is counted when the JSON report is saved locally. CSV copy
 and download events happen only when the user invokes those actions. Copying
 the review summary records `review_summary_copied` the same way. That
@@ -239,6 +242,35 @@ and are never uploaded.
 ## Input
 
 Required non-negative numbers are `price`, `delivery_hours`, and `target_hourly_rate`.
-Optional numbers are `admin_hours`, `revision_hours`, `overhead`, and
-`subcontractor_cost`. The calculator treats all monetary values as the same
-currency supplied by the user.
+Optional numbers are `admin_hours`, `revision_hours`, `overhead`,
+`subcontractor_cost`, and `time_buffer_percent`. The calculator treats all
+monetary values as the same currency supplied by the user.
+
+`time_buffer_percent` pads the planned hours for work with a history of running
+long, and reports what the quote would have to be to still hit the target rate
+at those padded hours (`buffered_hours`, `buffered_target_price`). It defaults
+to `0`, where it changes nothing: buffered hours equal planned hours and the
+buffered target price equals the target price, so a quote file written before
+this field existed scores exactly as it did.
+
+## The browser and the CLI are checked against each other
+
+The venture ships the same arithmetic twice — `src/quote_margin.py` for the CLI
+and `site/calc.mjs` for the browser page — so the two can drift. Every other
+test pins one side against numbers written into the test by hand, which is a
+check that the implementation still does what it did the day the test was
+written, not that the two implementations agree.
+
+`site/parity.test.mjs` closes that: it runs the real CLI over every committed
+example plus four awkward quotes (one that misses its target, one with no
+optional costs, one with room to discount, one whose currency label contains a
+comma and quotes) and requires the browser port to reproduce the CLI's JSON
+payload exactly — inputs, the headline result, and all five sensitivity tables.
+Doubles are compared exactly rather than with a tolerance; rounding for display
+is the formatter's job.
+
+Adding it found the drift that prompted it. The browser had offered a time
+buffer since it shipped and the CLI had never had the field at all, so anyone
+scoring a folder of quotes from a script got a strictly smaller answer than
+someone typing the same quote into the page. `time_buffer_percent` above is
+that gap closed.

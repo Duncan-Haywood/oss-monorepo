@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Did My PR Drop Coverage When I Didn't Touch Tests?</title>
+  <meta name="description" content="The common reasons a pull request lowers line coverage without deleting tests — new untested branches, refactors that move executable lines, deleted covered files, and a floor check that hides the drop — and how to see the delta from two coverage XML reports.">
+  <meta property="og:title" content="Why did my PR drop coverage?">
+  <meta property="og:description" content="New untested branches, moved lines, deleted covered files, and --cov-fail-under floors — what actually changes the coverage number, and how to compare two reports.">
+  <link rel="canonical" href="./why-did-my-pr-drop-coverage.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How can coverage drop if I didn't delete any tests?","acceptedAnswer":{"@type":"Answer","text":"Coverage is covered lines divided by executable lines. Adding a new branch, a new file, or a refactor that introduces executable lines you did not test increases the denominator. The tests you already had still pass; the rate still falls."}},{"@type":"Question","name":"Why did --cov-fail-under=80 still pass after a big drop?","acceptedAnswer":{"@type":"Answer","text":"A floor only asks whether the current number is above a threshold. A drop from 92% to 81% is 11 points and still above 80, so the floor stays green. A delta check against a baseline report is what catches that."}},{"@type":"Question","name":"Does deleting a well-tested file raise or lower coverage?","acceptedAnswer":{"@type":"Answer","text":"It can go either way. Removing a 100%-covered module raises the overall rate if the remaining code was worse; removing a poorly covered module lowers the rate. The file list on a delta report is what tells you which happened, not the single overall number."}},{"@type":"Question","name":"How do I see which files actually dropped before I start writing tests?","acceptedAnswer":{"@type":"Answer","text":"Keep the coverage XML from main (or the last release) and produce one from the pull request, then compare them. The free Coverage Drop Check tool on this site does that from Cobertura or JaCoCo reports you already have, with no signup and nothing uploaded."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 8px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    code { background: #f7f9fb; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; font-weight: 700; padding: 10px 16px; border-radius: 8px; text-decoration: none; margin-top: 6px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COVERAGE DROP CHECK · GUIDE</p>
+    <h1>Why did my PR drop coverage when I didn't touch tests?</h1>
+    <p>Coverage is a ratio, not a count of tests. A pull request can lower the number without deleting a single assertion — see the first question below for the arithmetic, then the file list for which modules actually moved.</p>
+  </header>
+
+  <section class="card">
+    <h2>See the delta first</h2>
+    <p>Guessing from the overall percentage wastes time writing tests in the wrong file. Compare the coverage XML from main against the one from this PR and let the file list tell you — free, runs in your browser, nothing uploaded.</p>
+    <a class="cta" href="index.html">Open Coverage Drop Check →</a>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How can coverage drop if I didn't delete any tests?</h3>
+    <p>Coverage is covered lines divided by executable lines. Adding a new branch, a new file, or a refactor that introduces executable lines you did not test increases the denominator. The tests you already had still pass; the rate still falls.</p>
+    <h3>Why did --cov-fail-under=80 still pass after a big drop?</h3>
+    <p>A floor only asks whether the current number is above a threshold. A drop from 92% to 81% is 11 points and still above 80, so the floor stays green. A delta check against a baseline report is what catches that.</p>
+    <h3>Does deleting a well-tested file raise or lower coverage?</h3>
+    <p>It can go either way. Removing a 100%-covered module raises the overall rate if the remaining code was worse; removing a poorly covered module lowers the rate. The file list on a delta report is what tells you which happened, not the single overall number.</p>
+    <h3>How do I see which files actually dropped before I start writing tests?</h3>
+    <p>Keep the coverage XML from main (or the last release) and produce one from the pull request, then compare them. The free Coverage Drop Check tool on this site does that from Cobertura or JaCoCo reports you already have, with no signup and nothing uploaded.</p>
+  </section>
+
+  <section class="card">
+    <h2>The four changes that move the number most often</h2>
+    <h3>1. New untested branches on an existing file</h3>
+    <p>An extra <code>if</code>, an error path, or a feature flag adds executable lines. Existing tests still hit the old path, so they stay green, and the file's rate falls. This is the most common "I didn't touch tests" drop.</p>
+    <h3>2. A new file with no tests yet</h3>
+    <p>A new module starts at 0% unless you added tests in the same PR. The overall rate drops in proportion to how large the file is, even when every previously covered file is unchanged.</p>
+    <h3>3. A refactor that rewrites executable lines</h3>
+    <p>Extracting a helper, inlining a function, or moving code between files can change which lines the same tests hit. The behaviour is identical; the coverage map is not. Compare the file list before assuming tests are missing.</p>
+    <h3>4. A floor check that hid a previous drop</h3>
+    <p><code>--cov-fail-under</code> and similar gates only fire at a threshold. A series of small PRs can walk coverage from 94% to 81% one point at a time without any of them failing the floor. A delta against main on every PR stops that walk.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is general guidance, not a diagnosis of your specific repository. <strong>You are responsible for reviewing and verifying anything here before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p class="support">Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

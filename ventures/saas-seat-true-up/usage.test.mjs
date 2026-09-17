@@ -64,10 +64,10 @@ test('Do Not Track disables counting', () => {
 
 test('saveScenario/loadScenario round-trip valid numeric fields', () => {
   const store = new FakeStorage();
-  const ok = saveScenario(store, { purchased: 10, used: 7, price: 12, months: 12, overageRate: 2 });
+  const ok = saveScenario(store, { purchased: 10, used: 7, price: 12, months: 12, overageRate: 2, seatMinimum: 5 });
   assert.equal(ok, true);
   const loaded = loadScenario(store);
-  assert.deepEqual(loaded, { purchased: 10, used: 7, price: 12, months: 12, overageRate: 2 });
+  assert.deepEqual(loaded, { purchased: 10, used: 7, price: 12, months: 12, overageRate: 2, seatMinimum: 5 });
 });
 
 test('loadScenario rejects a corrupted stored scenario', () => {
@@ -79,7 +79,7 @@ test('loadScenario rejects a corrupted stored scenario', () => {
 
 test('clearScenario removes a saved scenario', () => {
   const store = new FakeStorage();
-  saveScenario(store, { purchased: 5, used: 5, price: 10, months: 6, overageRate: 0 });
+  saveScenario(store, { purchased: 5, used: 5, price: 10, months: 6, overageRate: 0, seatMinimum: 0 });
   clearScenario(store);
   assert.equal(loadScenario(store), null);
 });

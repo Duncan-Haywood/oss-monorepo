@@ -24,5 +24,5 @@ kill_criteria:
   - Couriers cannot reconcile the estimate to a completed route closely enough to change a bid.
   - Users ask for patient, specimen, or chain-of-custody data storage; the product must remain a pricing tool, not a medical logistics record.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/medical-courier-route-margin/
   analytics: null

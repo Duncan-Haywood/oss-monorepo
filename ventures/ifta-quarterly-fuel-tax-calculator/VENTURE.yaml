@@ -1,0 +1,52 @@
+name: ifta-quarterly-fuel-tax-calculator
+description: >-
+  A private browser worksheet for small motor carriers and owner-operators who
+  file their own IFTA quarterly fuel tax return. It computes average fleet MPG
+  fleet-wide and to the two decimals the return carries, turns each
+  jurisdiction's taxable miles into taxable and net taxable gallons, charges
+  the Indiana/Kentucky/Virginia surcharge the way it is actually charged --
+  on all taxable gallons burned there, with no credit for fuel bought there --
+  accrues interest on a late return per jurisdiction owed rather than on the
+  netted total, and flags the three data-entry errors an IFTA audit looks for:
+  an implausible fleet MPG, fuel bought where no miles were recorded, and
+  taxable miles sitting at a zero rate. It ships no rate table by design;
+  rates are inputs taken from the official quarterly sheet.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Carriers who file their own IFTA model the surcharge as one more tax rate to be netted against fuel credits, and the error is large enough -- $570.90 against $242.48 on the shipped example, a $328.42 understatement in one quarter -- that seeing it changes what they file.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The inputs this needs -- miles and gallons per jurisdiction -- are exactly what a carrier already assembles from trip sheets, ELD exports or fuel-card statements in order to file at all, so the worksheet adds no data collection the quarter did not already require.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Refusing to ship a rate table is a feature rather than friction. A
+      carrier holds the official sheet open while filing anyway, and a tool
+      carrying rates that went stale between quarters would be worse than one
+      that carries none.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The audit-shaped checks (fleet MPG outside 3-12, fuel bought where no miles were run, taxable miles at a zero rate) catch more real filing errors than the arithmetic itself does, because the arithmetic is easy and the transcription is not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three carriers work a return twice within 180 days, which is two consecutive quarters and the shortest interval at which a filing tool can show retention at all.
+  - Carriers report that their ELD or fuel-card provider already produces the jurisdiction schedule, so the arithmetic this supplies is one they are handed.
+  - Carriers report that entering rates by hand is the reason they stop, and that a tool without a rate table is not usable however correct it is.
+  - The surcharge rule turns out not to be a common error -- carriers who file their own already handle it, and the understatement this exists to prevent is not one anybody makes.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ifta-quarterly-fuel-tax-calculator/
+  analytics: null

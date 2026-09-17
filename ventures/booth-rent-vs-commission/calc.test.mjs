@@ -165,6 +165,34 @@ test('when booth keeps less of each ticket than commission, volume cannot close 
   assert.equal(result.dollarWinner, 'commission');
 });
 
+test('a $0 average ticket cannot be closed by volume, even with a positive keepAdvantage', () => {
+  // Retail alone keeps booth ahead here, so extra clients (worth $0 each on
+  // the ticket) genuinely cannot be the reason — and previously this input
+  // fell between the two branches of the break-even check and reported
+  // neither a break-even count nor boothNeverBeatsOnVolume.
+  const losing = compareCompensation({
+    ...midBook(),
+    averageTicket: 0,
+    retailPerWeek: 10,
+  });
+  assert.equal(losing.breakEvenClients, null);
+  assert.equal(losing.extraClientsNeeded, null);
+  assert.equal(losing.boothNeverBeatsOnVolume, true);
+  assert.equal(losing.dollarWinner, 'commission');
+
+  // Same $0 ticket, but retail alone already puts booth ahead — no volume
+  // message is needed because there is nothing left to close.
+  const winning = compareCompensation({
+    ...midBook(),
+    averageTicket: 0,
+    clientsPerWeek: 0,
+    retailPerWeek: 10000,
+  });
+  assert.equal(winning.breakEvenClients, null);
+  assert.equal(winning.boothNeverBeatsOnVolume, false);
+  assert.equal(winning.dollarWinner, 'booth');
+});
+
 test('inputs that would silently produce a nonsense comparison are rejected', () => {
   assert.throws(() => compareCompensation({ ...midBook(), averageTicket: 'abc' }), /Average ticket must be a number/);
   assert.throws(() => compareCompensation({ ...midBook(), clientsPerWeek: -1 }), /Clients per week must be at least 0/);
@@ -173,4 +201,143 @@ test('inputs that would silently produce a nonsense comparison are rejected', ()
   assert.throws(() => compareCompensation({ ...midBook(), weeksWorkedPerYear: 53 }), /Weeks worked per year must be at most 52/);
   assert.throws(() => compareCompensation({ ...midBook(), averageServiceMinutes: 0 }), /Average service minutes must be greater than zero/);
   assert.throws(() => compareCompensation({ ...midBook(), boothRentCadence: 'yearly' }), /weekly or monthly/);
+});
+
+// --- Payroll tax -------------------------------------------------------
+//
+// The reason this section exists: commission take-home is W-2 wages and booth
+// take-home is self-employment income, so comparing them pre-tax compares two
+// different dollars. These tests pin the size of that wedge and, more
+// importantly, the case where it changes the answer.
+
+test('self-employment tax is charged on 92.35% of net, employee FICA on all wages', () => {
+  const result = compareCompensation(midBook());
+
+  const commissionAnnual = result.commission.annualTakeHome;
+  assert.ok(Math.abs(result.afterTax.commissionDetail.total - commissionAnnual * 0.0765) < 1e-6,
+    'a W-2 stylist pays the employee half only');
+
+  const boothAnnual = result.booth.annualTakeHome;
+  assert.ok(Math.abs(result.afterTax.boothDetail.taxableBase - boothAnnual * 0.9235) < 1e-6,
+    'the SE base excludes the employer half rather than taxing every dollar');
+  assert.ok(Math.abs(result.afterTax.boothDetail.total - boothAnnual * 0.9235 * 0.153) < 1e-6,
+    'a booth renter pays both halves');
+
+  // Both after-tax figures are the pre-tax ones less exactly that tax.
+  assert.ok(Math.abs(
+    result.afterTax.commission.annualTakeHome
+    - (commissionAnnual - result.afterTax.commissionDetail.total),
+  ) < 1e-9);
+  assert.ok(Math.abs(
+    result.afterTax.booth.annualTakeHome - (boothAnnual - result.afterTax.boothDetail.total),
+  ) < 1e-9);
+});
+
+test('the tax wedge falls on booth rent, and can flip the verdict on a realistic chair', () => {
+  // $420/week is an ordinary chair rent, not a contrived one. Pre-tax the tool
+  // called it for booth rent by $31/week; both halves of FICA reverse that.
+  // This is the defect the payroll layer exists to fix, so it is pinned as a
+  // flip rather than as a tolerance.
+  const closeCall = compareCompensation({ ...midBook(), boothRentAmount: 420 });
+  assert.equal(closeCall.dollarWinner, 'booth');
+  assert.equal(closeCall.afterTax.winner, 'commission');
+  assert.ok(closeCall.weeklyDifference > 0);
+  assert.ok(closeCall.afterTax.weeklyDifference < 0);
+
+  // The wedge is always non-negative: booth is taxed at the higher rate on a
+  // comparable book, so accounting for tax never flatters it.
+  const result = compareCompensation(midBook());
+  assert.ok(result.afterTax.wedgeWeekly > 0);
+  assert.ok(Math.abs(
+    result.afterTax.wedgeWeekly - (result.weeklyDifference - result.afterTax.weeklyDifference),
+  ) < 1e-9);
+});
+
+test('the after-tax break-even and matching rent are both harder than the pre-tax ones', () => {
+  const result = compareCompensation(midBook());
+
+  // More clients needed to cover the same rent, and less rent affordable for
+  // the same book -- the two numbers a stylist actually takes into the
+  // conversation when a salon quotes her a chair.
+  assert.ok(result.afterTax.breakEvenClients > result.breakEvenClients);
+  assert.ok(result.afterTax.maxWeeklyRentToMatch < result.maxWeeklyRentToMatch);
+  assert.ok(Math.abs(
+    result.afterTax.maxMonthlyRentToMatch
+    - result.afterTax.maxWeeklyRentToMatch * WEEKS_PER_MONTH,
+  ) < 1e-9);
+
+  // The solved rent really is the crossing: a hair under it booth wins, a hair
+  // over it commission does. This is what catches a solver that converged on
+  // the wrong bracket rather than merely returning a plausible number.
+  const under = compareCompensation({
+    ...midBook(),
+    boothRentAmount: result.afterTax.maxWeeklyRentToMatch - 1,
+  });
+  const over = compareCompensation({
+    ...midBook(),
+    boothRentAmount: result.afterTax.maxWeeklyRentToMatch + 1,
+  });
+  assert.equal(under.afterTax.winner, 'booth');
+  assert.equal(over.afterTax.winner, 'commission');
+
+  // And the solved client count is the crossing on the other axis.
+  const oneShort = compareCompensation({
+    ...midBook(),
+    clientsPerWeek: result.afterTax.breakEvenClients - 0.5,
+  });
+  const onePast = compareCompensation({
+    ...midBook(),
+    clientsPerWeek: result.afterTax.breakEvenClients + 0.5,
+  });
+  assert.equal(oneShort.afterTax.winner, 'commission');
+  assert.equal(onePast.afterTax.winner, 'booth');
+});
+
+test('the deductible half of SE tax is worth nothing until a bracket is given', () => {
+  const withoutRate = compareCompensation(midBook());
+  assert.equal(withoutRate.afterTax.booth.seDeductionValue, 0);
+
+  // Supplying a marginal rate credits back that rate on half the SE tax --
+  // the conservative default is to omit it, so naming a bracket can only move
+  // booth rent up.
+  const withRate = compareCompensation({ ...midBook(), marginalIncomeTaxPercent: 22 });
+  const expected = withRate.afterTax.boothDetail.deductibleHalf * 0.22;
+  assert.ok(Math.abs(withRate.afterTax.booth.seDeductionValue - expected) < 1e-9);
+  assert.ok(withRate.afterTax.booth.annualTakeHome > withoutRate.afterTax.booth.annualTakeHome);
+  // It touches the booth side only: a W-2 stylist cannot deduct her FICA.
+  assert.equal(
+    withRate.afterTax.commission.annualTakeHome,
+    withoutRate.afterTax.commission.annualTakeHome,
+  );
+});
+
+test('the Social Security cap applies once a year, not once a week', () => {
+  // A book big enough to clear the wage base. Applying the cap to a weekly
+  // figure and multiplying up would tax nearly every dollar at the full rate;
+  // annualising first is what stops that.
+  const big = compareCompensation({
+    ...midBook(),
+    averageTicket: 400,
+    clientsPerWeek: 30,
+    socialSecurityWageBase: 176100,
+  });
+  const base = big.afterTax.boothDetail.taxableBase;
+  assert.ok(base > 176100, 'the book clears the cap, or this test proves nothing');
+  assert.ok(Math.abs(big.afterTax.boothDetail.socialSecurity - 176100 * 0.124) < 1e-6,
+    'Social Security stops at the wage base');
+  assert.ok(Math.abs(big.afterTax.boothDetail.medicare - base * 0.029) < 1e-6,
+    'Medicare does not stop');
+
+  // Lowering the cap raises nobody's tax and lifting it never lowers it.
+  const lowCap = compareCompensation({ ...midBook(), socialSecurityWageBase: 1000 });
+  assert.ok(lowCap.afterTax.boothDetail.total < big.afterTax.boothDetail.total);
+});
+
+test('a losing book pays no self-employment tax on the loss', () => {
+  const underwater = compareCompensation({ ...midBook(), boothRentAmount: 5000 });
+  assert.ok(underwater.booth.weeklyTakeHome < 0);
+  assert.equal(underwater.afterTax.boothDetail.total, 0);
+  // No rent matches commission here, and the tool says so rather than
+  // reporting a negative rent as if it were an offer.
+  assert.equal(underwater.afterTax.winner, 'commission');
 });

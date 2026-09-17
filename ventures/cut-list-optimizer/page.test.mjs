@@ -14,6 +14,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { DRAFT_FIELDS } from './draft.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
@@ -77,7 +78,7 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('inputs and result fields for the primary journey are present', () => {
-  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'linear-print', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
+  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'linear-oversize', 'plan', 'copy-plan', 'linear-print', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
 });
@@ -109,7 +110,19 @@ test('the sheet-goods inputs and result fields are present', () => {
 
 test('the sheet-goods on-hand offcut field is parsed, drafted, and wired to a render', () => {
   assert.match(scriptSource, /onHand:\s*parseOnHandSheets\(\$\('sheet-onhand'\)\.value\)/, 'renderSheet does not pass the on-hand offcut field into optimizeSheets');
-  assert.match(scriptSource, /DRAFT_FIELDS\s*=\s*\[[^\]]*'sheet-onhand'[^\]]*\]/s, 'sheet-onhand is missing from DRAFT_FIELDS, so a saved draft loses it');
+  // DRAFT_FIELDS moved from a literal in this file's script into draft.mjs when
+  // share.mjs needed the same list. Asserting against the exported array rather
+  // than a regex over the source is what the check was reaching for anyway: it
+  // now fails if the field is dropped, and no longer depends on where the list
+  // happens to be written.
+  assert.ok(DRAFT_FIELDS.includes('sheet-onhand'), 'sheet-onhand is missing from DRAFT_FIELDS, so a saved draft and a shared link both lose it');
+});
+
+// A cut too long for any stock on hand or to buy no longer throws away the
+// rest of the plan (see calc.mjs); the page must actually surface it instead
+// of silently dropping it.
+test('an oversize cut on the linear tab is rendered, not silently dropped', () => {
+  assert.match(scriptSource, /\$\('linear-oversize'\)\.innerHTML\s*=\s*result\.oversize\.length/, 'renderLinear does not read result.oversize into #linear-oversize');
 });
 
 test('every id list the script iterates names a real element', () => {
@@ -137,7 +150,12 @@ test('every module the page imports exists and exports what it names', async () 
   for (const [, names, specifier] of imports) {
     const module = await import(new URL(specifier, import.meta.url).href);
     for (const name of names.split(',').map((n) => n.trim()).filter(Boolean)) {
-      assert.equal(typeof module[name], 'function', `${specifier} does not export ${name}`);
+      // The check is that the name resolves — a typo in an import is the defect
+      // it catches, and that shows up as `undefined` whatever the export's type.
+      // It asserted `typeof === 'function'` while every import happened to be
+      // one; DRAFT_FIELDS is an array, and a constant is as importable as a
+      // function.
+      assert.notEqual(module[name], undefined, `${specifier} does not export ${name}`);
     }
   }
 });
@@ -145,6 +163,17 @@ test('every module the page imports exists and exports what it names', async () 
 test('the landing page points at the 4×8 vs 5×5 comparison', () => {
   assert.match(markup, /href="compare-4x8-vs-5x5.html"/);
   assert.match(markup, /compare other sheet sizes/i);
+});
+
+test('both the sheet and linear plans can be downloaded as CSV', () => {
+  for (const id of ['sheet-csv', 'linear-csv']) {
+    assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
+    assert.match(markup, new RegExp(`id="${id}"[^>]*>Download CSV<`), `#${id} button is missing from index.html`);
+  }
+  assert.match(scriptSource, /formatSheetPlanCSV/, 'the page never formats the sheet plan as CSV');
+  assert.match(scriptSource, /formatCutPlanCSV/, 'the page never formats the linear plan as CSV');
+  assert.match(scriptSource, /wireCSV\('sheet-csv'/, 'sheet-csv is not wired to a download handler');
+  assert.match(scriptSource, /wireCSV\('linear-csv'/, 'linear-csv is not wired to a download handler');
 });
 
 test('both the sheet and linear plans can be printed', () => {

@@ -94,11 +94,66 @@ test('models AIA-style retainage reduction after the 50% point', () => {
     reducedRetainagePct: 5,
     billed: 80000,
     progressRetainage: 8000,
+    // Billed $80,000, received $75,000 — so the customer is holding $5,000,
+    // which is exactly the modeled proper hold at the reduced 5% rate.
+    // Nothing is over-withheld. This assertion read `overheld: 5000` until
+    // the figure was corrected: it was derived from the whole contract
+    // rather than from what had actually been billed and paid, so it
+    // reported over-withholding on a customer holding precisely the right
+    // amount. `shouldHaveReleased` stays $3,000 — the model still says the
+    // rate should have dropped from 10% to 5% of billed work, and it has.
+    retainageHeldToDate: 5000,
     properHold: 5000,
     shouldHaveReleased: 3000,
-    overheld: 5000,
+    overheld: 0,
     pastReduction: true,
   });
+});
+
+test('over-withholding is measured against what has actually been paid, not the whole contract', () => {
+  // Same job, but the customer has released nothing: billed $80,000, paid
+  // $72,000, so $8,000 of retainage is genuinely outstanding against a
+  // $5,000 proper hold. $3,000 really is held above the reduced rate.
+  const held = paid => releaseSchedule(parseInputs({
+    contractValue: '100000',
+    retainagePct: '10',
+    paidToDate: String(paid),
+    daysOutstanding: '90',
+    annualCarryingRatePct: '12',
+    percentComplete: '80',
+    reductionAtPct: '50',
+    reducedRetainagePct: '5',
+  }).values);
+
+  assert.equal(held(72000).retainageHeldToDate, 8000);
+  assert.equal(held(72000).overheld, 3000);
+
+  // Partially released: $2,000 of the retainage has come back, so only
+  // $6,000 is still held and $1,000 of it sits above the reduced rate.
+  assert.equal(held(74000).retainageHeldToDate, 6000);
+  assert.equal(held(74000).overheld, 1000);
+
+  // The whole point of the fix: the figure has to move as payment arrives.
+  // It previously reported a flat $5,000 across every one of these.
+  assert.notEqual(held(72000).overheld, held(74000).overheld);
+  assert.notEqual(held(74000).overheld, held(75000).overheld);
+});
+
+test('a customer paid past the retainage slice is not reported as holding any', () => {
+  // Billed $80,000 and paid $79,000 — less than $8,000 of retainage is
+  // outstanding because most of it has already come back.
+  const schedule = releaseSchedule(parseInputs({
+    contractValue: '100000',
+    retainagePct: '10',
+    paidToDate: '79000',
+    daysOutstanding: '10',
+    annualCarryingRatePct: '12',
+    percentComplete: '80',
+    reductionAtPct: '50',
+    reducedRetainagePct: '5',
+  }).values);
+  assert.equal(schedule.retainageHeldToDate, 1000);
+  assert.equal(schedule.overheld, 0);
 });
 
 test('holds the full rate before the reduction point', () => {

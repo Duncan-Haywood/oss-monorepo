@@ -1,0 +1,36 @@
+name: craft-fair-booth-calculator
+description: Free browser calculator for makers selling at craft fairs, farmers markets, art festivals, and holiday markets, to decide whether one booth is worth taking — the sales it has to make to break even after booth fee, jury fee, mileage, materials as a share of retail, and card processing, the share of the table that represents, the hourly rate the weekend actually pays across prep, travel, setup, teardown, and selling, and the highest booth fee that still clears the maker's own target rate. Unsold stock is treated as inventory carried to the next event rather than as a cost of this one.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Makers will use a break-even calculator that starts from contribution rather than from the booth fee, because a gut check that compares gross sales against the booth fee is the arithmetic they already do and it is wrong in the same direction every time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating unsold stock as inventory rather than as a cost of the event changes enough answers to be worth explaining, because makers who charge a whole table's materials against one weekend record perfectly reasonable markets as losses and stop applying to them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The number that actually decides an application is the highest defensible booth fee at the maker's own hourly rate, not the break-even — so solving for the fee, rather than only reporting a verdict on the fee already quoted, is what makes the tool worth returning to each show season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Makers will supply an average order value once they see that a per-transaction card fee costs a sticker table several times what it costs a print table, which no processor's headline rate shows.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Makers report that the break-even and the hourly rate always agree with the decision they had already made, so the calculator confirms rather than changes which shows they apply to.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/craft-fair-booth-calculator/
+  analytics: null

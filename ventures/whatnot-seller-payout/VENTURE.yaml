@@ -1,0 +1,36 @@
+name: whatnot-seller-payout
+description: A private browser calculator for Whatnot live-sellers that prices one lot the way a payout statement actually lands — commission on the hammer, payment processing on the checkout total (item plus buyer-paid shipping and tax) plus the flat 30 cents, the published $1,500 cap on TCG / comics / sports / toys, leftover after the label and what the lot cost, the hammer that hits a leftover target, and whether eating the label is cheaper than paying processing on postage.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Whatnot sellers will return to a calculator that applies processing to the checkout total rather than the hammer, because the headline 8% (and the “about 6%” figure that drops processing) hides the fee on buyer-paid shipping and the flat 30 cents.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: TCG / comics / sports sellers will use the $1,500 cap as a listing decision — whether a $2,400 graded lot should stay one order — because a flat 8% page commissions the portion that Whatnot’s published schedule zeros.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/whatnot, r/whatnotapp, and the search phrases “whatnot seller fees”, “whatnot fee calculator”, and “whatnot commission 2026” are a reachable, free channel — measurable only once the tool is live in the apex catalogue’s sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified Whatnot sellers run a real lot twice within 90 days of the tool being discoverable.
+  - Sellers report the published-schedule presets drift so far from their statements that they abandon the page rather than type their own rates.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/whatnot-seller-payout/
+  analytics: null

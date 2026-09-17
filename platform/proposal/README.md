@@ -16,9 +16,81 @@ arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-**All 102 bid calculators**, and the list is no longer worth keeping by
+**All bid calculators**, and the list is no longer worth keeping by
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
-ready, and what is blocked.
+ready, and what is blocked. As of 2026-09-07 that is 112 adopted, 0 blocked.
+
+**`biohazard-cleanup` (`biohazard-cleanup-bid-calculator`) is the current
+holdout**, graduated 2026-09-17 without the proposal. It genuinely wants one —
+a biohazard/trauma-scene job is exactly the kind of bid a customer receives a
+printed proposal for — so this is not a "no work to describe" case like the
+`mobile-detailing` holdback above. `adopt.mjs` needs a `trades.json` entry
+templating the scope from `computeJobBid`'s result (crew hours, PPE sets,
+disposal containers, supplies, equipment, travel) with a deposit split and a
+disclaimer naming what the tool is not (a hauler contract, an OSHA
+bloodborne-pathogen determination, or an insurance-claim adjudication); that
+entry was not authored in the session that shipped the calculator, so
+adoption is tracked as a follow-up rather than rushed against a template it
+was not proven against.
+
+**And, separately, `storage-auction-max`** (`storage-auction-max-bid-calculator`,
+graduated 2026-09-17) does not adopt at all, deliberately — unlike
+`biohazard-cleanup` above, this is not a holdout waiting on a `trades.json`
+entry. For the same reason `owner-operator-cpm-calculator` and
+`shop-rate-calculator` are deliberately excluded from `adopt.mjs`'s filter
+below: it prices a figure the bidder keeps to themselves — the hammer bid to
+raise a hand at — and there is no customer to hand a proposal to. Its slug
+happens to end in `-bid-calculator` because the bid itself is the product
+(a lien-auction bid on a stranger's storage unit, not a contractor's job bid),
+which is what puts it in `discoverability.test.mjs`'s population even though it
+is not a trade calculator at all. Mechanical readiness is not a reason to
+adopt, the same rule the two exclusions above already state.
+
+The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
+graduated in #3580, unblocked in the same session that added this line). It
+priced the job inline from individual `el(...)` reads rather than through the
+`readInput()` / `calculate*(readInput())` pair `inspect()` looks for, so the
+generator had nothing to anchor on. The page was given those two conventions
+(and a `count()` helper), a `trades.json` entry was added, and it adopted
+cleanly. One thing the fix also turned up worth recording here rather than in
+a venture-specific note: `.result{position:sticky}` sits in the same
+`main.layout` grid as everything `adopt.mjs` inserts before `</main>`, and a
+site-wide `section:not(.result){grid-column:1/-1}` rule left `.result` alone
+in its own row with no sibling tall enough to make the sticky positioning do
+anything — except that a positioned element with `z-index:auto` still paints
+above later non-positioned siblings in the same stacking context, so the
+inert sticky box silently intercepted clicks on the printed proposal's button
+once it scrolled into the same screen position. Any other venture built on
+this same `.layout`/`.result` template would hit the identical defect the
+moment something is added after `.result` inside `<main>` — the fix was
+dropping the now-pointless `position:sticky` from `.result`, not touching the
+generated proposal markup.
+
+**And two ventures that are not bid calculators at all**, `translator-project-quote`
+(2026-09-03) and `notary-trip-quote` (2026-09-05). The second is written up under
+"A page that does not price the job inline" below.
+
+`translator-project-quote`. A freelance translator's quote is the same artifact
+— what the project covers, the price, the deposit split, a date it is held
+until, a line to sign — and the module was already generic enough to render it.
+What was *not* generic was four assumptions nobody had had to question, because
+every previous adopter happened to satisfy all four:
+
+| Assumption | Why it broke | Now |
+|---|---|---|
+| Figures are in dollars | `money()` hard-coded `$`. A quote paid in euros reading `$580.00` misstates the price on the one sheet meant to settle it. | `money(value, currency)`, defaulting to `'$'`; a trade names its currency field with `currencyFrom`. |
+| A `when` field is a number | Scope lines read with `input` come back as strings, and `"0"` is truthy — so a rush fee left at zero still printed "Rush or weekend delivery" on the client's quote. | `{ "number": "id" }` reads it as a number; `input` stays for text. |
+| The buyer is a customer at a job address | "Customer name", "Job address", "Licence number" are trade words. | Optional `labels` in `trades.json`, defaulting to today's wording. |
+| The page is written in house style | The anchors required `from './usage.mjs'` in single quotes and a `  </script>` indented two spaces — both formatting, neither load-bearing — and a page that differed was refused with a message saying the import or the tag was missing when it was in plain sight. | Either quote style; any indentation. |
+
+The first two were **defects on a customer-facing document**, not merely
+limitations: one misstates the price, the other promises work the price does
+not cover. They were invisible for as long as the only adopters were US
+contractors quoting in dollars with every optional charge filled in.
+
+Adopting a non-trade needs no flag. `adopt.mjs <slug>` only requires an entry
+in `trades.json` and the page conventions `inspect()` lists; the
+`*-bid-calculator` filter applies to `--list` alone.
 
 27 of those were hand-ported, one batch of six at a time. The remaining 74 are
 generated from `trades.json` by `adopt.mjs`, and their pages carry
@@ -506,3 +578,19 @@ those blocks lists crew-hour breakdowns, which must not reach a homeowner.
 
 Then verify in a browser, not only with `node --test`: price a job, print, and
 confirm the sheet carries the price and not the wages.
+
+## A page that does not price the job inline
+
+`notary-trip-quote` adopted on 2026-09-05 and broke three more assumptions, all
+of them about the *shape of the page* rather than about the document. None was
+a judgement call; all three were spelling.
+
+| Assumption | Why it broke | Now |
+|---|---|---|
+| The page prices the job inline, so `calculate*(readInput())` names the calculator | A calculator that *throws* on a bad figure cannot be called from a render loop with nothing to catch it. This page renders through `quoteResult()`, a non-throwing wrapper, so no call of the inferred shape exists anywhere on it — and the throwing `calculateQuote` is nevertheless the right function for the proposal, where the throw is exactly what retires a sheet the figures no longer support. | A trade may name it: `"calcFn": "calculateQuote"`. `inspect()` then checks the page really defines or imports that name, because a name resolving to nothing generates a proposal that passes every text-level test and throws `ReferenceError` the first time someone presses print. |
+| The usage import is spelled `import { x } from './usage.mjs';\n` | This page writes `import{recordUsage}from './usage.mjs';const ids=[…]` — no spaces around the braces, next statement on the same line. Adoption was refused with "no usage.mjs import" on a page whose import is right there, the same misreading the quote-style fix above was written for. | The anchor tolerates either spacing and an absent trailing newline. The generated region opens and closes with a newline of its own, so the import lands on its own line either way, and `stripGenerated` takes that newline back out — which is what keeps a re-run idempotent. |
+| A venture that should adopt is discoverable by its slug | `--list` reports on `*-bid-calculator` plus whatever `trades.json` already names, so a venture is invisible until someone has already decided to adopt it. Measured 2026-09-05: 60 ventures with an `index.html` fall outside that filter, and two of them (`owner-operator-cpm-calculator`, `shop-rate-calculator`) satisfy every precondition today. | Unchanged, deliberately. Both of those price a figure the business keeps — a cost per mile, a shop rate — and neither has a customer to hand a proposal to. Mechanical readiness is not a reason to adopt, so widening the filter would report 60 tools as "ready" when the question it answers is a judgement one. What the count is good for is finding the next `notary-trip-quote`, by hand. |
+
+The first of those is the one to remember when adopting a venture whose
+calculator validates: the render loop and the printed sheet want *opposite*
+behaviour from a bad figure, and both are right.

@@ -163,6 +163,49 @@ test('the usage checkbox is never part of a bid under either spelling', () => {
   );
 });
 
+/**
+ * The proposal header's customer name and home address, and the contractor's
+ * own business identity, are never serialized into a saved bid or (via
+ * `link.mjs`, which reads this same set) a shareable link. 104 ventures share
+ * these seven ids for that header, and a "Copy link to this bid" URL is built
+ * to be pasted into email or text to the customer — so a customer's own name
+ * and home address must never round-trip through it.
+ */
+test('the proposal header (customer and business identity) is never part of a bid', () => {
+  for (const id of [
+    'clientName', 'clientAddress', 'companyName', 'companyAddress',
+    'companyPhone', 'companyEmail', 'companyLicense',
+  ]) {
+    assert.ok(EXCLUDED_FIELD_IDS.has(id), id);
+  }
+  assert.deepEqual(
+    pageSaveableFieldIds(page(
+      '<input id="clientName"><input id="clientAddress">' +
+        '<input id="companyName"><input id="companyAddress">' +
+        '<input id="companyPhone"><input id="companyEmail"><input id="companyLicense">' +
+        '<input id="lengthFt"><input id="pitch">',
+    )),
+    ['lengthFt', 'pitch'],
+  );
+});
+
+/**
+ * The label a saved bid is listed under ("14 Oak St — Mrs Reid") is typed by
+ * the contractor into its own box, `pf-jobs-name` — never read off
+ * `clientName`/`clientAddress` — so excluding those two ids from the
+ * serialized field set cannot break the naming feature: `normalizeBid` keeps
+ * whatever `name` it is handed regardless of which form fields survived.
+ */
+test('excluding the proposal header does not touch a bid\'s own name', () => {
+  const bid = normalizeBid({
+    name: '14 Oak St — Mrs Reid',
+    at: '2026-01-01T00:00:00.000Z',
+    fields: { clientName: 'Mrs Reid', clientAddress: '14 Oak St', lengthFt: '40' },
+  });
+  assert.equal(bid.name, '14 Oak St — Mrs Reid');
+  assert.deepEqual(bid.fields, { lengthFt: '40' });
+});
+
 /** Including this feature's own name box, which would otherwise save itself. */
 test('the site chrome’s own inputs are never part of a bid', () => {
   assert.deepEqual(
@@ -2809,4 +2852,89 @@ test('the band bundle ships one sentence, not both', () => {
   // And the money readings still stay off the hub, which is the rule this
   // split was modelled on.
   assert.ok(!BID_PRICING_HELPERS.includes('var priceBandSentence = function'));
+});
+
+// ---------------------------------------------------------------------------
+// Itemised rows
+// ---------------------------------------------------------------------------
+
+test('a page declares its row groups on the control that appends a row', async () => {
+  const { pageRepeatPrefixes } = await import('./jobs.mjs');
+  assert.deepEqual(pageRepeatPrefixes('<button id="addTree" data-pf-repeat="t">+ Add</button>'), ['t']);
+  // Two groups on one page — carpet cleaning prices rooms and upholstery
+  // separately — come back in document order and without duplicates.
+  assert.deepEqual(
+    pageRepeatPrefixes(
+      '<button data-pf-repeat="r"></button><button data-pf-repeat="u"></button><button data-pf-repeat="r"></button>'),
+    ['r', 'u']);
+  // Silence is the answer for the 161 tools that declare nothing, which is what
+  // keeps the exact-id rule in place everywhere it was already right.
+  assert.deepEqual(pageRepeatPrefixes('<button id="addTree">+ Add</button>'), []);
+  assert.deepEqual(pageRepeatPrefixes('<button data-pf-repeat="  "></button>'), []);
+  assert.deepEqual(pageRepeatPrefixes(null), []);
+});
+
+test('a generated id splits into its group, its counter and its field', async () => {
+  const { splitRepeatId } = await import('./jobs.mjs');
+  assert.deepEqual(splitRepeatId('t12-dbh', ['t']), { prefix: 't', index: 12, field: 'dbh' });
+  // The static fields on the same page must go on comparing exactly, so
+  // anything that is not `<prefix><digits>-<field>` is not a row.
+  assert.equal(splitRepeatId('crewRate', ['t']), null);
+  assert.equal(splitRepeatId('t-dbh', ['t']), null);
+  assert.equal(splitRepeatId('tx1-dbh', ['t']), null);
+  assert.equal(splitRepeatId('t1-', ['t']), null);
+  assert.equal(splitRepeatId('t1-dbh', ['r']), null);
+  // Longest prefix wins, so declaring both `r` and `rt` is unambiguous.
+  assert.deepEqual(splitRepeatId('rt4-x', ['r', 'rt']), { prefix: 'rt', index: 4, field: 'x' });
+});
+
+test('rows are keyed by their position in the group, not by the counter', async () => {
+  const { normalizeRepeatIds } = await import('./jobs.mjs');
+  // The recorded case: a contractor who deleted the second room holds r1 and
+  // r3, and a form freshly grown to two rows holds r1 and r2. Nothing about
+  // those two bids differs, and by position they agree.
+  const saved = normalizeRepeatIds(['r1-sqft', 'r3-sqft', 'crewRate'], ['r']);
+  const form = normalizeRepeatIds(['r1-sqft', 'r2-sqft', 'crewRate'], ['r']);
+  assert.deepEqual(saved.map, { 'r1-sqft': 'r#1-sqft', 'r3-sqft': 'r#2-sqft', crewRate: 'crewRate' });
+  assert.deepEqual(form.map, { 'r1-sqft': 'r#1-sqft', 'r2-sqft': 'r#2-sqft', crewRate: 'crewRate' });
+  assert.deepEqual(Object.values(saved.map).sort(), Object.values(form.map).sort());
+  assert.deepEqual(saved.counts, { r: 2 });
+
+  // Carpet cleaning shares one counter across both groups, so its ids
+  // interleave (r1, u2, r3). Ranking happens inside a group, which is what
+  // makes the interleaving irrelevant.
+  const mixed = normalizeRepeatIds(['r1-sqft', 'u2-min', 'r3-sqft'], ['r', 'u']);
+  assert.equal(mixed.map['r3-sqft'], 'r#2-sqft');
+  assert.equal(mixed.map['u2-min'], 'u#1-min');
+  assert.deepEqual(mixed.counts, { r: 2, u: 1 });
+
+  // With no groups declared every id is its own key, which is the exact-id
+  // rule this replaced.
+  assert.deepEqual(normalizeRepeatIds(['r1-sqft', 'crewRate'], []).map,
+    { 'r1-sqft': 'r1-sqft', crewRate: 'crewRate' });
+});
+
+test('the form is grown to the bid, and only ever grown', async () => {
+  const { rowsToGrow, MAX_REPEAT_ROWS } = await import('./jobs.mjs');
+  assert.deepEqual(rowsToGrow({ r: 6, u: 2 }, { r: 1 }, ['r', 'u']), { r: 5, u: 2 });
+  // A group the form already satisfies asks for no clicks, and one the form has
+  // too many of is not reported as a negative: no page here declares a remove
+  // control, so that case has to fall through to the ordinary refusal rather
+  // than invite a caller to click backwards.
+  assert.deepEqual(rowsToGrow({ r: 2 }, { r: 2 }, ['r']), {});
+  assert.deepEqual(rowsToGrow({ r: 1 }, { r: 4 }, ['r']), {});
+  // A crafted bid cannot make the page click forever.
+  assert.deepEqual(rowsToGrow({ r: 9999 }, { r: 0 }, ['r']), { r: MAX_REPEAT_ROWS });
+  assert.deepEqual(rowsToGrow({ r: 3 }, {}, []), {});
+});
+
+test('the browser gets the tested row-group definitions, not a paraphrase', async () => {
+  const { BID_REPEAT_HELPERS } = await import('./jobs.mjs');
+  for (const name of ['splitRepeatId', 'normalizeRepeatIds', 'rowsToGrow']) {
+    assert.ok(BID_REPEAT_HELPERS.includes(`var ${name} = `), `${name} is injected`);
+  }
+  // The two constants the injected bodies close over are emitted as literals;
+  // `REPEAT_ATTR` is also read by the runtime's own querySelectorAll.
+  assert.match(BID_REPEAT_HELPERS, /var REPEAT_ATTR = "data-pf-repeat";/);
+  assert.match(BID_REPEAT_HELPERS, /var MAX_REPEAT_ROWS = \d+;/);
 });

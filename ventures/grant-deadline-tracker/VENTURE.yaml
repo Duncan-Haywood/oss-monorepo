@@ -23,5 +23,5 @@ kill_criteria:
   - No repeat use or organic repository traffic after 60 days of public availability.
   - No evidence within 90 days that the tracker helped a coordinator surface an upcoming obligation.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/grant-deadline-tracker/
   analytics: null

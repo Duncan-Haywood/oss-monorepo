@@ -21,7 +21,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, TypedDict
 
 from atomic_io import write_json_atomic
 from photos_import_errors import (
@@ -337,7 +337,23 @@ def file_is_ready(path: Path) -> bool:
         return False
 
 
-def verify_manifest(state: ImportState) -> dict[str, object]:
+class VerifyReport(TypedDict):
+    """Return shape of `verify_manifest`.
+
+    Typed as a TypedDict rather than `dict[str, object]` because the four
+    fields have four different concrete types, and the CLI reads each one for
+    what it actually is (`len(report["failures"])`, iteration over each
+    failure dict). Under the old return annotation mypy could only see
+    `object` for every value, and rightly rejected all three uses in `main()`.
+    """
+
+    checked: int
+    healthy: int
+    failures: list[dict[str, str]]
+    status_counts: dict[str, int]
+
+
+def verify_manifest(state: ImportState) -> VerifyReport:
     """Check that every manifest file still exists and can be read."""
     status_counts: dict[str, int] = {}
     failures: list[dict[str, str]] = []

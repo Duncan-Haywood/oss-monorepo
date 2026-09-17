@@ -28,5 +28,5 @@ kill_criteria:
   - Hosts report that the winning available channel is always the one they already list on, so the comparison changes no decision.
   - The starting 2026 rates prove so far from real payout statements that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/str-host-payout-calculator/
   analytics: null

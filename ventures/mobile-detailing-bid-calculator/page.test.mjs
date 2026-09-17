@@ -104,7 +104,7 @@ test('the form exposes every default the calculator reads, including whole-stop 
   for (const id of required) {
     assert.ok(declaredIds.has(id), `missing #${id} for a default the calculator reads`);
   }
-  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'reset', 'usageOptOut', 'claimHint']) {
+  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'reset', 'copyLink', 'usageOptOut', 'claimHint']) {
     assert.ok(declaredIds.has(id), `missing result or action #${id}`);
   }
 });
@@ -113,22 +113,31 @@ test('persist reads Object.keys(defaults), so a new field cannot drop off the sa
   assert.match(scriptSource, /const ids = Object\.keys\(defaults\)/, 'the page keeps its own field list instead of defaults');
 });
 
-// This page used to copy its own link *and* receive the one the build injects,
-// two buttons writing two hash formats side by side. Whichever the detailer
-// clicked decided what the customer's copy carried: the injected control reads
-// every field off the form, including the proposal deposit and terms, while the
-// inline one serialized `readInput()` and left all five behind. Worse, `persist`
-// rewrote the fragment in its own format on every keystroke, so a visitor who
-// opened a shared bid and then changed one number had the sender's link
-// replaced in their address bar by a different encoding of a different bid.
-//
-// The inline half is gone and the injected control owns the fragment.
-// `platform/pages/check.mjs` refuses to publish a page carrying both.
-test('the fragment belongs to the injected bid link, not to this page', () => {
-  assert.ok(!/location\.hash/.test(scriptSource),
-    'this page must not read or write the fragment; the injected bid link owns it');
-  assert.ok(!/id="copyLink"/.test(html),
-    'the inline copy button is redundant beside the injected one and must not come back');
+// This page used to copy its own link *and* receive the one platform/pages'
+// build injects, two buttons writing two hash formats side by side. Whichever
+// the detailer clicked decided what the customer's copy carried: the injected
+// control read every field off the form, while the inline one serialized
+// `readInput()` and, having no share module, left the proposal panel's five
+// terms behind entirely. That inline button was removed rather than fixed,
+// because `platform/pages/link.mjs`'s own gate (`pageHasOwnShareLink`) exists
+// precisely so a venture that ships a real `share.mjs` gets the generic
+// injected control skipped rather than duplicated -- see `platform/pages/
+// link.mjs` and `platform/proposal/term-ids.test.mjs`. This venture now has
+// that real module, with the deposit and terms folded in through `pfterms`
+// the same way its sibling bid calculators do, so the inline button is back
+// and correctly signals the build to stand down.
+test('the share link wires encode, terms, and restore, not just the button', () => {
+  // A button with no wiring behind it is worse than no button: it tells a
+  // crew the feature exists. This is the source-level half of what
+  // `platform/proposal/term-ids.test.mjs` checks across every venture.
+  assert.match(scriptSource, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(scriptSource, /withTerms\(/, 'copyLink does not fold the proposal terms into the link');
+  assert.match(scriptSource, /splitTerms\(/, 'restoreShare does not separate the terms from the venture payload');
+  assert.match(scriptSource, /applyTerms\(/, 'a restored link does not write the terms back onto the panel');
+  assert.match(scriptSource, /readTerms\(/, 'copyLink does not read the terms currently on the panel');
+  assert.match(scriptSource, /overlongTermsNote\(/, 'a term dropped for length is not named back to the sender');
+  assert.match(scriptSource, /restoreShare\(\)/, 'restoreShare is defined but never called on load');
+  assert.match(html, /id="copyLink"/, 'the share-link button is missing');
   assert.match(scriptSource, /localStorage\.setItem\('mobile-detailing-inputs'/,
     'the draft is still kept on the visitor\'s own device between visits');
 });
@@ -223,4 +232,93 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   assert.match(doc, /href="\.\/"/, 'the SEO page has no link back to the calculator');
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
+});
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders the contribution figure, the dl
+  // breakdown, and the target-price readout in place on every keystroke,
+  // with no page reload. Before this fix the only aria-live element on the
+  // page was #status (a reset/copy message render() never writes the
+  // result figures into), so a screen-reader user changing an input got no
+  // announcement that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
+// Closest sibling: also a per-vehicle job a detailer's own customer asks
+// about. Without an explicit one-hop, platform/pages/siblings.mjs reports
+// this tool as a crawlable orphan -- reachable only through the category
+// index, never from another tool.
+test('index links one hop to the vehicle-wrap-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/vehicle-wrap-bid-calculator\/"/,
+    'index must link ../vehicle-wrap-bid-calculator/ so crawlers reach the wrap calculator in one hop',
+  );
+  assert.match(html, /vehicle wrap bid calculator/i);
+});
+
+test('index links to the flat-price-card comparison, and the page links back', () => {
+  assert.match(html, /href="\.\/vs-a-flat-per-vehicle-price\.html"/);
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-vehicle-price.html', import.meta.url), 'utf8');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the calculator');
+  assert.match(vsPage, /href="\.\/how-much-to-charge\.html"/, 'the comparison page must link the pricing walkthrough');
+  // This one compares against a generic method (a price card), not a
+  // product, so it carries no trademark disclaimer and must name no
+  // competitor -- the claim COMPARISON_DISCLAIMER_EXEMPT in clauses.mjs
+  // records for it.
+  assert.doesNotMatch(vsPage, /Mobile Tech RX|MobileTech|Detailer Land|Zenbooker/i);
+});
+
+test('the flat-price-card comparison is listed in robots-reachable pages', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-a-flat-per-vehicle-price\.html/);
+});
+
+test('wide tables on the flat-price-card page scroll in their own box, not the page', () => {
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-vehicle-price.html', import.meta.url), 'utf8');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('every figure quoted on the flat-price-card page is what the calculator actually returns', () => {
+  // The page argues from two worked jobs at the calculator's own defaults
+  // (one near, one far), so it is only as credible as the arithmetic behind
+  // it. This pins every dollar figure to a live calculateBid() call so
+  // nothing else in the suite lets the calculator's math drift while the
+  // prose stands still.
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-vehicle-price.html', import.meta.url), 'utf8');
+  const money = (n) => `$${n.toFixed(2)}`;
+
+  const near = calculateBid(defaults);
+  const far = calculateBid({ ...defaults, travelMiles: 60, travelHours: 1.5 });
+
+  for (const r of [near, far]) {
+    for (const figure of [
+      money(r.travelCost),
+      money(r.directCosts),
+      money(r.breakEven),
+      money(r.contribution),
+      money(r.effectiveHourly),
+      money(r.effectiveRate),
+      money(r.targetQuote),
+    ]) {
+      assert.ok(vsPage.includes(figure), `the page no longer quotes ${figure} from the calculator`);
+    }
+    assert.ok(vsPage.includes(`${r.margin.toFixed(1)}%`), `the page no longer quotes the ${r.margin.toFixed(1)}% margin`);
+  }
+
+  assert.equal(near.totalHours, 4.25);
+  assert.equal(far.totalHours, 5);
+  assert.match(vsPage, /4\.25 hours/);
+  assert.match(vsPage, /\b5 hours\b/);
 });

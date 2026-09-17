@@ -39,5 +39,5 @@ kill_criteria:
   - Fewer than three qualified warehouse operators run two reports within 90 days.
   - Operators do not identify at least one useful exception or missing-data issue in pilot use.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/fifo-pick-evidence/
   analytics: null

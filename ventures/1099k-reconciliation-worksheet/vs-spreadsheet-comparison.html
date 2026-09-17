@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This worksheet vs. reconciling 1099-Ks yourself in a spreadsheet</title>
+<meta name="description" content="A spreadsheet can back a 1099-K's Box 1a gross figure down to net profit just as correctly as this worksheet. The difference is remembering which two things to subtract, doing it identically across every marketplace, and building it fresh each filing season. This free worksheet already has that structure.">
+<link rel="canonical" href="./vs-spreadsheet-comparison.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This worksheet vs. reconciling 1099-Ks yourself in a spreadsheet">
+<meta property="og:description" content="The arithmetic is the same either way. The difference is whether you remember to back out marketplace-remitted sales tax and refunds, identically, for every 1099-K you received.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a spreadsheet just as accurate as this worksheet?","acceptedAnswer":{"@type":"Answer","text":"A correctly built one is — the arithmetic is Box 1a minus refunds minus marketplace-remitted sales tax minus your costs, which is ordinary subtraction. The risk is not the math, it is remembering that Box 1a includes sales tax you never kept and refunds you already gave back, and backing both out consistently across every 1099-K you received, often months after the sales happened and without the platform breaking either figure out clearly on the form itself."}},{"@type":"Question","name":"When is a spreadsheet actually the better choice?","acceptedAnswer":{"@type":"Answer","text":"When your situation has a wrinkle this worksheet does not model — a marketplace that reports in a currency other than dollars, a platform that already nets refunds into Box 1a itself so backing them out again would double-count, or business income from outside any of these platforms entirely. A spreadsheet you build yourself can represent any rule you can describe. This worksheet trades that flexibility for a form that already has the right fields for the common case: one or more marketplace 1099-Ks, each needing the same two non-income adjustments backed out."}},{"@type":"Question","name":"What does a blank spreadsheet not remind you to do that this worksheet does?","acceptedAnswer":{"@type":"Answer","text":"Back out marketplace-remitted sales tax as its own line, separate from refunds. It is easy to remember refunds — you know which sales came back — and easy to forget that a chunk of Box 1a was never your money at all because the marketplace collected and paid the sales tax on your behalf. A spreadsheet built from scratch has no built-in prompt for that second adjustment; this worksheet raises a specific finding whenever the two adjustments together are an unusually large share of Box 1a, which is exactly the case a rushed spreadsheet is most likely to under-subtract."}},{"@type":"Question","name":"Does this replace my tax preparer or a filed return?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. This worksheet and a spreadsheet both stop at estimating net profit from the 1099-K figures you supply — neither one knows your other income, your filing status, or your actual tax liability. That determination still belongs to you and, if you use one, your tax preparer, working from verified figures rather than either tool's estimate."}}]}</script>
+<style>
+:root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f1f4; }
+body { max-width: 820px; margin: auto; padding: 28px 18px 48px; }
+a { color: #3a2a6b; overflow-wrap: anywhere; }
+.eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .06em; color: #3a2a6b; margin: 0 0 6px; }
+h1 { font-size: clamp(1.7rem,5vw,2.5rem); line-height: 1.12; letter-spacing: -.02em; margin: .3rem 0; max-width: 26ch; color: #3a2a6b; }
+.lede { font-size: 1.05rem; max-width: 64ch; color: #514f5c; }
+p, li { line-height: 1.6; }
+section.card { background: #fff; border: 1px solid #ddd8e6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #3a2a6b10; margin: 1rem 0; }
+h2 { margin-top: 0; color: #3a2a6b; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddd8e6; vertical-align: top; }
+th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #514f5c; }
+.fine, .note { font-size: .86rem; color: #514f5c; }
+footer { color: #514f5c; font-size: .86rem; margin-top: 28px; border-top: 1px solid #ddd8e6; padding-top: 16px; }
+footer p { margin: .6rem 0; }
+@media (max-width: 820px) { body { padding: 20px 14px 40px; } }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; 1099-K Reconciliation Worksheet</a></p>
+<header>
+<h1>This worksheet vs. reconciling 1099-Ks yourself in a spreadsheet</h1>
+<p class="lede">The arithmetic is the same either way: Box 1a, minus refunds and marketplace-remitted sales tax, minus your costs, equals estimated net profit. The difference is whether that structure already exists when you sit down with two or three 1099-Ks in January, or whether you build it from scratch and hope you remembered both adjustments for every platform.</p>
+</header>
+<section class="card">
+<h2>What each approach actually does</h2>
+<p>
+  <strong>A spreadsheet</strong> can produce exactly the same reconciled
+  figure as this worksheet &mdash; subtracting refunds, marketplace-remitted
+  sales tax, fees, cost of goods sold, and shipping from a gross figure is
+  not exotic math. What a blank spreadsheet does not give you is a reminder
+  that Box 1a includes two specific things that were never your income, or
+  a place that already applies the same two adjustments identically across
+  every platform's 1099-K instead of however carefully each row happened to
+  be built that year.
+</p>
+<p>
+  <strong>This worksheet</strong> is that structure already built, with a
+  built-in finding whenever the non-income adjustments look unusually large
+  relative to Box 1a &mdash; the case a from-scratch spreadsheet is most
+  likely to miss because nothing prompts for it.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What does one platform's 1099-K actually reconcile to?</td><td>This worksheet's per-platform result &mdash; free, private, no account.</td></tr>
+<tr><td>I sell on several marketplaces and want one combined figure.</td><td>This worksheet's combined total across every row you add.</td></tr>
+<tr><td>My situation has a wrinkle this worksheet doesn't model (foreign currency, a platform that already nets refunds into Box 1a).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+<tr><td>Is this my final tax liability?</td><td>Neither. Both stop at an estimate; your tax preparer confirms it.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and nothing you type is uploaded anywhere.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>Isn't a spreadsheet just as accurate as this worksheet?</h3>
+<p>A correctly built one is &mdash; the arithmetic is Box 1a minus refunds minus marketplace-remitted sales tax minus your costs, which is ordinary subtraction. The risk is not the math, it is remembering that Box 1a includes sales tax you never kept and refunds you already gave back, and backing both out consistently across every 1099-K you received, often months after the sales happened and without the platform breaking either figure out clearly on the form itself.</p>
+<h3>When is a spreadsheet actually the better choice?</h3>
+<p>When your situation has a wrinkle this worksheet does not model &mdash; a marketplace that reports in a currency other than dollars, a platform that already nets refunds into Box 1a itself so backing them out again would double-count, or business income from outside any of these platforms entirely. A spreadsheet you build yourself can represent any rule you can describe. This worksheet trades that flexibility for a form that already has the right fields for the common case: one or more marketplace 1099-Ks, each needing the same two non-income adjustments backed out.</p>
+<h3>What does a blank spreadsheet not remind you to do that this worksheet does?</h3>
+<p>Back out marketplace-remitted sales tax as its own line, separate from refunds. It is easy to remember refunds &mdash; you know which sales came back &mdash; and easy to forget that a chunk of Box 1a was never your money at all because the marketplace collected and paid the sales tax on your behalf. A spreadsheet built from scratch has no built-in prompt for that second adjustment; this worksheet raises a specific finding whenever the two adjustments together are an unusually large share of Box 1a, which is exactly the case a rushed spreadsheet is most likely to under-subtract.</p>
+<h3>Does this replace my tax preparer or a filed return?</h3>
+<p>No, and it is not built to. This worksheet and a spreadsheet both stop at estimating net profit from the 1099-K figures you supply &mdash; neither one knows your other income, your filing status, or your actual tax liability. That determination still belongs to you and, if you use one, your tax preparer, working from verified figures rather than either tool's estimate.</p>
+<p class="note">
+  Open <a href="./">the reconciliation worksheet</a>, or see <a href="./why-is-my-1099-k-higher-than-what-i-actually-made.html">why the gap between Box 1a and your actual income exists</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting your actual filing obligations. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Neither this worksheet nor a spreadsheet determines your actual tax liability, your filing status, or income from outside the platforms you enter.</p>
+<p class="support">Free and open source. If it helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body>
+</html>

@@ -87,7 +87,22 @@ test('every encodable field is a real calculator field', () => {
   assert.ok(FIELD_IDS.includes('thirdPartyClaimRatePercent'));
   assert.ok(FIELD_IDS.includes('labelUploadMinutes'));
   assert.ok(FIELD_IDS.includes('labelUploadWage'));
+  assert.ok(FIELD_IDS.includes('labelFeeRefundOnClaimPercent'));
   assert.ok(FIELD_IDS.includes('monthlyLabelShipments'));
+});
+
+test('carries the label fee-refund rate so a shared link does not silently reset it to a full refund', () => {
+  // labelFeeRefundOnClaimPercent has no UI default of "unset" -- compareEtsyLabels
+  // falls back to a 100% refund when it is missing, so dropping this field from a
+  // shared link would silently change the claim assumption for the recipient
+  // rather than erroring or leaving it blank.
+  const decoded = decodeInputs(encodeInputs({
+    price: 30,
+    etsyLabelCost: 6,
+    thirdPartyLabelCost: 5.1,
+    labelFeeRefundOnClaimPercent: 60,
+  }));
+  assert.equal(decoded.labelFeeRefundOnClaimPercent, 60);
 });
 
 test('carries Star Seller fields so a shared link does not drop the badge table', () => {

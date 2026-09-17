@@ -37,18 +37,20 @@
     <p id="error" class="error" role="alert"></p>
     <p id="result" class="result" aria-live="polite"></p>
     <p id="targetResult" class="target" aria-live="polite"></p>
-     <button class="secondary" id="copy" type="button">Copy comparison</button> <button class="secondary" id="download" type="button">Download CSV record</button>
+     <button class="secondary" id="copy" type="button">Copy comparison</button> <button class="secondary" id="download" type="button">Download CSV record</button> <button class="secondary" id="copyLink" type="button">Copy comparison link</button>
     <p class="note">Need a factual ask for the higher quote? <a href="./negotiation.html">Create a negotiation brief</a> from the same monthly totals.</p>
     <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p><p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
-    <p class="note">Your inputs stay in this browser. No account, tracking cookie, or analytics vendor is used.</p>
+    <p class="note">Your inputs stay in this browser. No account, tracking cookie, or analytics vendor is used. "Copy comparison link" puts the same provider names and totals in a URL you can send to a coworker or negotiator instead of retyping them — treat a copied link like the quotes themselves, since it carries both totals.</p>
   </main>
   <script type="module">
      import { comparisonMessage, normalizeComparison, targetMessage } from "./compare.mjs";
      import { exportComparisonCsv } from "./export.mjs";
     import { record } from "./usage.mjs";
-     const form = document.querySelector("#compare"), result = document.querySelector("#result"), targetResult = document.querySelector("#targetResult"), error = document.querySelector("#error"), copy = document.querySelector("#copy"), download = document.querySelector("#download"), saveKey = "3pl-quote-normalizer-comparison";
+    import { encodeShare, decodeShare } from "./share.mjs";
+     const form = document.querySelector("#compare"), result = document.querySelector("#result"), targetResult = document.querySelector("#targetResult"), error = document.querySelector("#error"), copy = document.querySelector("#copy"), download = document.querySelector("#download"), copyLink = document.querySelector("#copyLink"), saveKey = "3pl-quote-normalizer-comparison";
     let latest = "";
     function values() { return Object.fromEntries(new FormData(form)); }
+    function applyValues(values) { for (const [name, value] of Object.entries(values)) { const input = form.elements.namedItem(name); if (input && typeof value === "string") input.value = value; } }
     function render(track = false) {
       const input = values(), comparison = normalizeComparison(input), firstName = input.firstName?.trim() || "Quote A", secondName = input.secondName?.trim() || "Quote B", target = targetMessage(comparison, firstName, secondName);
       error.textContent = comparison.error || "";
@@ -57,10 +59,13 @@
       latest = comparison.error ? "" : `3PL quote comparison\n${comparisonMessage(comparison, firstName, secondName)}${target ? `\n${target}` : ""}`;
       if (track && !comparison.error) { record("comparison_completed"); if (comparison.target != null) record("comparison_target_viewed"); }
     }
-    try { const saved = JSON.parse(localStorage.getItem(saveKey) || "null"); if (saved && typeof saved === "object") for (const [name, value] of Object.entries(saved)) { const input = form.elements.namedItem(name); if (input && typeof value === "string") input.value = value; } } catch { /* local drafts are optional */ }
+    try { const saved = JSON.parse(localStorage.getItem(saveKey) || "null"); if (saved && typeof saved === "object") applyValues(saved); } catch { /* local drafts are optional */ }
+    const shared = decodeShare(location.hash);
+    if (shared) applyValues(shared);
     form.addEventListener("submit", event => { event.preventDefault(); render(true); });
     form.addEventListener("input", () => { try { localStorage.setItem(saveKey, JSON.stringify(values())); } catch { /* local drafts are optional */ } render(); });
      copy.addEventListener("click", async () => { if (!latest) { render(); return; } try { await navigator.clipboard.writeText(latest); record("comparison_copied"); copy.textContent = "Copied"; } catch { copy.textContent = "Copy unavailable"; } });
+     copyLink.addEventListener("click", async () => { const query = encodeShare(values()), url = `${location.origin}${location.pathname}${query ? `#${query}` : ""}`; try { await navigator.clipboard.writeText(url); record("comparison_link_copied"); copyLink.textContent = "Link copied"; } catch { copyLink.textContent = "Copy unavailable"; } });
      download.addEventListener("click", () => { const input = values(), comparison = normalizeComparison(input); if (comparison.error) { render(); return; } const firstName = input.firstName?.trim() || "Quote A", secondName = input.secondName?.trim() || "Quote B", blob = new Blob([exportComparisonCsv(comparison, firstName, secondName)], { type: "text/csv" }), link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "3pl-quote-comparison.csv"; link.click(); URL.revokeObjectURL(link.href); record("comparison_csv_exported"); });
     render();
   </script>

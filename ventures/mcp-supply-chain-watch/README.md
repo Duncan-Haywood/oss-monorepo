@@ -12,9 +12,9 @@ running the same comparison logic as the CLI below (see
 [`site/compare.mjs`](site/compare.mjs), cross-checked against the Python CLI
 in tests). It also links to
 [`site/what-is-mcp-tool-poisoning.html`](site/what-is-mcp-tool-poisoning.html),
-a reference page on the attack this checker is built to catch. Not yet
-deployed to a public URL — publishing under the portfolio's name is
-owner-gated per `portfolio/DIRECTION.md` — but it's ready to deploy as-is.
+a reference page on the attack this checker is built to catch. It is live at
+[`mcp-supply-chain-watch`](https://duncan-haywood.github.io/monorepo-projects/mcp-supply-chain-watch/)
+in the portfolio's GitHub Pages catalogue — see `VENTURE.yaml`'s `links.production`.
 The static surface includes crawlable `robots.txt` and `sitemap.xml` files.
 
 **CLI**, for scripting or CI:

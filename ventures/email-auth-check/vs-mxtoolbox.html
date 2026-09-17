@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Email Authentication Checker vs. MXToolbox | SPF, DKIM, DMARC Lookup</title>
+<meta name="description" content="MXToolbox is a broad network- and mail-diagnostic platform -- MX, blacklist, SPF, DKIM, DMARC, SMTP and more -- with an account-based monitoring product for ongoing alerts. This is a free, zero-account, evidence-first checker for just SPF/DKIM/DMARC/BIMI, with a recursive RFC 7208 SPF lookup count and a matching CI-gateable CLI. Not affiliated with MXToolbox.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-mxtoolbox.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Email Authentication Checker vs. MXToolbox">
+<meta property="og:description" content="Two different shapes: MXToolbox is a broad network- and mail-diagnostic platform with account-based monitoring. This page is a free, no-account checker focused on SPF/DKIM/DMARC/BIMI, with a recursive RFC 7208 lookup count and a CI-gateable CLI.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/email-auth-check/vs-mxtoolbox.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or MXToolbox?","acceptedAnswer":{"@type":"Answer","text":"They overlap on one thing -- reading SPF, DKIM, and DMARC records -- and differ everywhere else. MXToolbox is a broad network- and mail-diagnostic platform covering MX records, blacklist status, SMTP banners, ping, traceroute, and SPF/DKIM/DMARC lookups among many other tools, widely used by network and mail administrators. Its ongoing monitoring, alerting, and blacklist-watch features are sold through an account-based product. MXToolbox's own site is not reachable from this session to confirm today's specific plan names, monitoring limits, or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This checker does one narrower thing in more depth for SPF specifically: it recursively walks every include:/redirect= mechanism in your SPF record and sums the total against RFC 7208's 10-DNS-lookup limit across the whole chain, not just the top level -- the single most common real-world SPF bug, usually caused by stacking one include: per marketing or support tool over time. It also checks DKIM at nine common selector names, reads DMARC's policy/pct/reporting/alignment tags, and checks whether BIMI is honored by DMARC enforcement -- every finding naming the exact record and tag it read, not a bare pass/fail score. It runs free in any browser or as a zero-dependency CLI, keeps no account, and nothing you check is uploaded. Someone who wants a single broad diagnostic dashboard with ongoing monitoring and alerting across many mail and network signals is better served by MXToolbox or a comparable platform; someone who wants a deep, evidence-first read of just SPF/DKIM/DMARC/BIMI right now, or wants that check wired into their own CI pipeline, is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with MXToolbox?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by MXToolbox. MXToolbox is a trademark of its owner, named here only to describe what this checker is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0a5c3e;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:28ch;letter-spacing:-.03em;color:#17324a}.lede{font-size:1.05rem;max-width:64ch;color:#55606f}section{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0;color:#17324a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}.fine,.note{font-size:.88rem;color:#55606f}footer{color:#55606f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Email Authentication Checker</a></p>
+<header>
+<h1>Email Authentication Checker vs. MXToolbox</h1>
+<p class="lede">Two different shapes: MXToolbox is a broad network- and mail-diagnostic platform &mdash; MX records, blacklist status, SMTP diagnostics, and SPF/DKIM/DMARC among many other tools &mdash; with ongoing monitoring and alerting sold as an account-based product. This page is a free, no-account checker focused specifically on SPF, DKIM, DMARC, and BIMI, with a recursive RFC 7208 SPF lookup count and a matching CI-gateable CLI.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>MXToolbox</strong> is a network- and mail-diagnostic platform used by
+  network and mail administrators, covering MX record lookups, blacklist
+  status across many block-list providers, SMTP banner and connectivity
+  diagnostics, and SPF/DKIM/DMARC lookups among a large catalog of other
+  tools. Its ongoing monitoring, alerting, and blacklist-watch features are
+  sold through an account-based product. MXToolbox's own site is not
+  reachable from this session to confirm today's specific plan names,
+  monitoring limits, or pricing, so only its well-documented category and
+  identity are stated here: nothing about it is invented, and no dollar
+  figure for it appears on this page.
+</p>
+<p>
+  This checker does one narrower thing in more depth. It recursively walks
+  every <code>include:</code>/<code>redirect=</code> mechanism in your SPF
+  record and sums the total against RFC 7208's 10-DNS-lookup limit across
+  the <em>whole</em> chain, not just the top-level record &mdash; the single
+  most common real-world SPF bug. It checks DKIM at nine common selector
+  names and flags a revoked (empty <code>p=</code>) key, reads DMARC's
+  policy, <code>pct=</code>, reporting addresses, and alignment mode, and
+  checks whether BIMI is honored by DMARC enforcement. Every finding names
+  the exact record and tag it read, not a bare pass/fail score. It runs
+  free in any browser, and the identical logic ships as a zero-dependency
+  Node CLI you can run as a CI gate against your own domain. No account, no
+  monitoring dashboard, nothing stored beyond an anonymous local counter.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I want one dashboard covering MX, blacklist status, SMTP diagnostics, and mail-authentication records, with ongoing monitoring and alerts.</td><td>MXToolbox, or a comparable network-diagnostic platform.</td></tr>
+<tr><td>I want to know exactly how many DNS lookups my SPF record's include chain actually costs, recursively, against the RFC 7208 limit.</td><td>This checker &mdash; it walks the whole chain, not just the top-level record.</td></tr>
+<tr><td>I want the same SPF/DKIM/DMARC/BIMI check to run automatically before every deploy, as a CI gate.</td><td>This checker's zero-dependency CLI (<code>cli.mjs</code>), run against your own domain.</td></tr>
+<tr><td>I need blacklist monitoring, SMTP connectivity diagnostics, or ongoing alerting across many mail/network signals.</td><td>MXToolbox, or a comparable platform &mdash; this checker has none of those features.</td></tr>
+<tr><td>Do I need an account to use the tool?</td><td>This checker: no. MXToolbox's monitoring and alerting features are sold through an account-based product.</td></tr>
+<tr><td>Is anything I check ever uploaded or stored on a server?</td><td>This checker: no &mdash; the browser page and the CLI both query Cloudflare's public DNS resolver directly, never through this site.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Someone who wants a single broad diagnostic dashboard with ongoing
+  monitoring and alerting across many mail and network signals is better
+  served by MXToolbox or a comparable platform. Someone who wants a deep,
+  evidence-first read of just SPF/DKIM/DMARC/BIMI right now &mdash; naming
+  the exact DNS record and tag behind each finding &mdash; or wants that
+  check wired into their own CI pipeline, is in the right place here. This
+  page's own report is a deterministic read of the DNS records that resolve
+  at check time, not a guarantee about deliverability or reputation.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page queries Cloudflare's public DNS-over-HTTPS resolver directly from your own browser, and the CLI does the same from your own machine. Neither ever sends the domain you check, or the records read, through this site.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this checker or MXToolbox?</h3>
+<p>They overlap on one thing -- reading SPF, DKIM, and DMARC records -- and differ everywhere else. MXToolbox is a broad network- and mail-diagnostic platform covering MX records, blacklist status, SMTP banners, ping, traceroute, and SPF/DKIM/DMARC lookups among many other tools, widely used by network and mail administrators. Its ongoing monitoring, alerting, and blacklist-watch features are sold through an account-based product. MXToolbox's own site is not reachable from this session to confirm today's specific plan names, monitoring limits, or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This checker does one narrower thing in more depth for SPF specifically: it recursively walks every include:/redirect= mechanism in your SPF record and sums the total against RFC 7208's 10-DNS-lookup limit across the whole chain, not just the top level -- the single most common real-world SPF bug, usually caused by stacking one include: per marketing or support tool over time. It also checks DKIM at nine common selector names, reads DMARC's policy/pct/reporting/alignment tags, and checks whether BIMI is honored by DMARC enforcement -- every finding naming the exact record and tag it read, not a bare pass/fail score. It runs free in any browser or as a zero-dependency CLI, keeps no account, and nothing you check is uploaded. Someone who wants a single broad diagnostic dashboard with ongoing monitoring and alerting across many mail and network signals is better served by MXToolbox or a comparable platform; someone who wants a deep, evidence-first read of just SPF/DKIM/DMARC/BIMI right now, or wants that check wired into their own CI pipeline, is in the right place here.</p>
+<h3>Is this page affiliated with MXToolbox?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by MXToolbox. MXToolbox is a trademark of its owner, named here only to describe what this checker is and is not.</p>
+<p class="note">
+  Open <a href="./">Email Authentication Checker</a> to check your own domain, or see <a href="../dns-configuration-evidence/">DNS Configuration Evidence</a> for a broader read of a domain's DNS beyond mail authentication.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not email deliverability, security, or DNS configuration advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/email-auth-check" rel="noopener">cli.mjs, lookup.mjs, and analyze.mjs from the repo</a> and run it yourself.</p>
+<p>Everything runs in your browser or on your own machine. Nothing you check is ever uploaded, and this page makes no live comparison against MXToolbox &mdash; it is a static page describing publicly documented facts. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

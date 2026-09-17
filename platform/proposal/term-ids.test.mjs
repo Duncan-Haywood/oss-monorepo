@@ -67,6 +67,41 @@ async function specShareVentures() {
   return found;
 }
 
+/**
+ * Ventures on a third, older mechanism: a hand-kept field list in `share.mjs`
+ * (`SHARE_FIELDS`, or a `NUMBER_FIELD_IDS`/`TEXT_FIELD_IDS`/`BOOLEAN_FIELD_IDS`
+ * split) with no `withProposalTerms` and no vendored `proposal-terms.mjs`.
+ * `specShareVentures` above does not see these at all, which is exactly how
+ * `deck-staining-bid-calculator`, `gutter-cleaning-bid-calculator`,
+ * `snow-removal-bid-calculator`, `hardwood-refinishing-bid-calculator` and
+ * `translator-project-quote` shipped a proposal panel whose deposit and terms
+ * silently did not survive a shared link or a saved draft — the panel was
+ * retrofitted onto the page by `adopt.mjs`, and nothing updated this older,
+ * per-venture allowlist to match. `platform/pages/roundtrip.mjs` found the
+ * five above by driving a browser; this checks the same gap from source, on
+ * every venture that carries it, so a sixth cannot ship the same way.
+ */
+async function flatShareVentures() {
+  const spec = await specShareVentures();
+  const specSlugs = new Set(spec.map(({ slug }) => slug));
+  const entries = await readdir(VENTURES, { withFileTypes: true });
+  const found = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || specSlugs.has(entry.name)) continue;
+    let page;
+    let share;
+    try {
+      page = await readFile(new URL(`${entry.name}/index.html`, VENTURES), 'utf8');
+      share = await readFile(new URL(`${entry.name}/share.mjs`, VENTURES), 'utf8');
+    } catch {
+      continue;
+    }
+    if (!page.includes('id="depositPercent"')) continue;
+    found.push({ slug: entry.name, share });
+  }
+  return found;
+}
+
 function declaredIds(share, name) {
   const match = share.match(new RegExp(`export const ${name} = Object\\.freeze\\(\\[([^\\]]*)\\]`));
   assert.ok(match, `${name} is not declared as a frozen array literal`);
@@ -128,4 +163,19 @@ test('a term that would be dropped is named to the sender, not left silent', asy
     .map(({ slug }) => slug);
   assert.deepEqual(silent, [],
     'these pages copy a link without saying which term stayed behind: ' + silent.join(', '));
+});
+
+test('a venture on the older hand-kept field list still names all five terms', async () => {
+  const expected = await adoptTermIds();
+  const ventures = await flatShareVentures();
+  assert.ok(ventures.length > 0, 'no venture uses the older hand-kept field list; this test has lost its subject');
+
+  const drifted = [];
+  for (const { slug, share } of ventures) {
+    const missing = expected.filter((id) => !share.includes(`'${id}'`));
+    if (missing.length > 0) drifted.push(`${slug} (missing ${missing.join(', ')})`);
+  }
+  assert.deepEqual(drifted, [],
+    'these share modules offer the proposal panel but drop its terms from the link and saved '
+    + `draft: ${drifted.join('; ')}`);
 });

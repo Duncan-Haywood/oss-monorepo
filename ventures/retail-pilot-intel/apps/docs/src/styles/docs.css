@@ -73,6 +73,20 @@ h1 {
   margin: 0 0 2rem;
 }
 
+.doc-support {
+  font-family: var(--sans);
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 3rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.doc-support a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 h2 {
   font-size: 1.35rem;
   margin: 2.5rem 0 0.75rem;

@@ -17,8 +17,9 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /Do not keep anonymous local usage counts/);
-  assert.match(html, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(html, /href="LICENSE"/);
   assert.match(html, /how-much-to-charge\.html/);
+  assert.match(html, /vs-marketsharp\.html/);
   assert.match(html, /engineering/);
 });
 
@@ -38,6 +39,7 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /window-replacement-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
+  assert.match(sitemap, /vs-marketsharp\.html/);
 });
 
 const proposalMarkup = page('index.html');
@@ -116,4 +118,28 @@ test('the proposal flag is cleared for the contractor’s own sheet', () => {
 test('the proposal promises the customer’s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer’s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
+});
+
+// Closest sibling: same openings subcategory, but a basement egress cut rather
+// than above-grade replacement. Without a crawlable link here, a crawler
+// entering on the replacement calculator never reaches the egress tool in one
+// hop — same one-way orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the egress-window-bid-calculator sibling', () => {
+  assert.match(
+    page('index.html'),
+    /href="\.\.\/egress-window-bid-calculator\/"/,
+    'index must link ../egress-window-bid-calculator/ so crawlers reach the egress calculator in one hop',
+  );
+});
+
+// Closest covering sibling: same openings subcategory, but plantation shutters
+// rather than replacing the unit. Without a crawlable link here, a crawler
+// entering on the replacement calculator never reaches the shutter tool in one
+// hop.
+test('index links one hop to the plantation-shutter-bid-calculator sibling', () => {
+  assert.match(
+    page('index.html'),
+    /href="\.\.\/plantation-shutter-bid-calculator\/"/,
+    'index must link ../plantation-shutter-bid-calculator/ so crawlers reach the plantation shutter calculator in one hop',
+  );
 });

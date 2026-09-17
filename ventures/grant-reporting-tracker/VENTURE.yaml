@@ -23,5 +23,5 @@ kill_criteria:
   - No measurable return usage or organic referral traffic 60 days after publishing.
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/grant-reporting-tracker/
   analytics: null

@@ -23,7 +23,7 @@ test('landing page names the niche problem and is crawlable', () => {
   assert.match(index, /not legal, tax, financial, engineering/);
   assert.match(index, /usageOptOut/);
   assert.match(index, /Copy bid summary/);
-  assert.match(index, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(index, /href="LICENSE"/);
 });
 
 test('niche how-to pages answer the search query in the first screen', () => {
@@ -75,4 +75,16 @@ test('printing sends the customer sheet and hides the contractor\u2019s own numb
 test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
+});
+
+// Closest sibling: same openings subcategory, but a pedestrian entry opening
+// rather than a garage-door / spring ticket. Without a crawlable link here, a
+// crawler entering on the garage-door calculator never reaches the entry-door
+// tool in one hop — same one-way orphan class as #3709 / #3769 / #3778.
+test('index links one hop to the entry-door-bid-calculator sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/entry-door-bid-calculator\/"/,
+    'index must link ../entry-door-bid-calculator/ so crawlers reach the entry-door calculator in one hop',
+  );
 });

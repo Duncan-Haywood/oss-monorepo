@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fix a Broken Social Link Preview — Fallback Chain &amp; Size Rules</title>
+<meta name="description" content="Why a shared link shows no image or the wrong title: the og:image absolute-URL requirement, the twitter:image/title/description -> og:* fallback chain, and the exact minimum and recommended image sizes Facebook and Twitter/X document, with a step-by-step fix order.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/social-preview-check/social-preview-fallback-rules.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fix a Broken Social Link Preview">
+<meta property="og:description" content="The og:image absolute-URL requirement, the twitter:* fallback chain, and the exact size rules Facebook and Twitter/X document -- with a step-by-step fix order.">
+<meta property="og:url" content="https://example.invalid/social-preview-check/social-preview-fallback-rules.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix a broken social link preview",
+  "description": "A step-by-step order for diagnosing why a shared link shows no image, the wrong image, or no title on Facebook, LinkedIn, Slack, Discord or X/Twitter.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Make og:image an absolute URL",
+      "text": "The Open Graph protocol (ogp.me) requires og:image to be an absolute URL, not a path relative to the page. A tag like <meta property=\"og:image\" content=\"/images/preview.png\"> is invalid per spec -- some crawlers resolve it against the page URL anyway, others do not, so a relative URL is the single most common cause of an image silently failing to appear."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Set an explicit twitter:card",
+      "text": "Add <meta name=\"twitter:card\" content=\"summary_large_image\"> (or \"summary\" for a smaller card). Whether X falls back to plain Open Graph tags without this is undocumented and has changed before -- an explicit twitter:card is the reliable way to control how a link renders there, even when twitter:image and twitter:title are left to fall back to their og:* equivalents."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Meet the platform's minimum image size",
+      "text": "Facebook documents a 200x200 pixel minimum (1200x630 recommended, 1.91:1 ratio); Twitter/X's summary_large_image card documents a 300x157 pixel minimum (1200x628 recommended, roughly 2:1). Below the hard minimum, an image is commonly not rendered at all rather than shown smaller -- check your actual served file's pixel dimensions, not the source image you started from, since a build step or CDN can resize it."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check for a duplicated tag from a CMS or SEO plugin",
+      "text": "Many platforms (WordPress SEO plugins especially) inject their own og:title/og:image tags, which can collide with a hand-written tag already in the template. Most crawlers use the first matching tag in document order, but which one that is depends on which system rendered its tag first -- view the page's actual source (not the CMS editor) to see which value wins."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Force a re-fetch on the platform you're testing",
+      "text": "Every major platform caches a link's preview aggressively and will keep showing a stale (or blank) result after you fix the tags until it re-crawls the URL. Use that platform's own preview-refresh tool where one exists before concluding your fix did not work -- this checker reads the tags and image as they are right now, not what a platform's cache currently shows a visitor."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { margin-top: 1.8rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: left; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  ol > li { margin: 0.6rem 0; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Fix a broken social link preview</h1>
+<p>
+  <a href="index.html">← Back to Social Preview Checker</a>
+</p>
+<p>
+  A shared link with no image, the wrong image, or no title almost always comes down to one of five
+  things. Check them in this order -- each one can hide the next.
+</p>
+
+<h2>1. Make og:image an absolute URL</h2>
+<p>
+  The Open Graph protocol (<a href="https://ogp.me/" rel="noopener">ogp.me</a>) requires <code>og:image</code>
+  to be an absolute URL, not a path relative to the page. A tag like
+  <code>&lt;meta property="og:image" content="/images/preview.png"&gt;</code> is invalid per spec — some
+  crawlers resolve it against the page URL anyway, others do not, so a relative URL is the single most
+  common cause of an image silently failing to appear.
+</p>
+
+<h2>2. The fallback chain: twitter:* falls back to og:*</h2>
+<p>
+  You don't need separate <code>twitter:image</code>, <code>twitter:title</code>, and
+  <code>twitter:description</code> tags. X/Twitter's card renderer falls back to the matching
+  <code>og:*</code> tag when its own is absent. What you <em>do</em> need is an explicit
+  <code>twitter:card</code> value (<code>summary</code> or <code>summary_large_image</code>) —
+  whether X falls back to plain Open Graph tags with no <code>twitter:card</code> at all is undocumented
+  and has changed before, so set it explicitly rather than relying on that.
+</p>
+
+<h2>3. Meet the platform's documented minimum image size</h2>
+<table>
+  <thead><tr><th>Platform / card type</th><th>Documented minimum</th><th>Recommended</th></tr></thead>
+  <tbody>
+    <tr><td>Facebook / LinkedIn (og:image)</td><td>200 x 200 px</td><td>1200 x 630 px (1.91:1)</td></tr>
+    <tr><td>Twitter/X summary_large_image</td><td>300 x 157 px</td><td>1200 x 628 px (~2:1)</td></tr>
+  </tbody>
+</table>
+<p>
+  Below the hard minimum, an image is commonly not rendered at all rather than shown smaller. Check your
+  actual <em>served</em> file's pixel dimensions, not the source image you started from — a build step or
+  CDN resize can quietly shrink it below the line. This checker fetches the real bytes and reads the
+  dimensions out of the file header rather than trusting an <code>og:image:width</code> tag, which can go
+  stale independently of the file it describes.
+</p>
+
+<h2>4. Check for a duplicated tag from a CMS or SEO plugin</h2>
+<p>
+  Many platforms (WordPress SEO plugins especially) inject their own <code>og:title</code>/<code>og:image</code>
+  tags, which can collide with a hand-written tag already in the template. Most crawlers use the first
+  matching tag in document order, but which one that is depends on which system rendered its tag first in
+  the final HTML — view the page's actual source (not the CMS editor) to see which value wins.
+</p>
+
+<h2>5. Force a re-fetch on the platform you're testing</h2>
+<p>
+  Every major platform caches a link's preview aggressively and will keep showing a stale (or blank)
+  result after you fix the tags until it re-crawls the URL. Use that platform's own preview-refresh tool
+  where one exists before concluding your fix did not work — this checker reads the tags and image as they
+  are right now, not what a platform's cache currently shows a visitor.
+</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> The size and fallback rules above reflect each
+  platform's own published documentation at the time this was written. Platforms change rendering
+  behaviour without notice, and this page is not a guarantee that a given fix will render correctly on any
+  specific platform today.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not marketing, SEO, or legal advice. <strong>You are responsible for reviewing
+  and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and
+  never changes what the tool does.</p>
+</footer>
+</body>
+</html>

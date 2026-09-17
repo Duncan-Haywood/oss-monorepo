@@ -1059,6 +1059,22 @@ test('four minutes wipe a $0.90 Etsy postage save', () => {
   assert.ok(Math.abs(result.breakEvenUploadMinutes - 1.23) < 0.02);
 });
 
+test('a lower fee refund on claim costs more per claim and lowers the expected outcome', () => {
+  // labelFeeRefundOnClaimPercent has no form control before this fix -- it
+  // silently defaulted to a 100% refund (Etsy returns every fee on a
+  // successful item-not-received claim) with no way for a seller whose
+  // actual refund is partial to model that. Confirms the field is live on
+  // both the Etsy and third-party paths, not just accepted and ignored.
+  const fullRefund = compareEtsyLabels(PAGE_ORDER);
+  const noRefund = compareEtsyLabels({ ...PAGE_ORDER, labelFeeRefundOnClaimPercent: 0 });
+  assert.equal(fullRefund.etsy.claimProfit, -10);
+  assert.ok(noRefund.etsy.claimProfit < fullRefund.etsy.claimProfit, 'keeping none of the fees on a claim costs more');
+  assert.ok(Math.abs(noRefund.etsy.claimProfit - -13.78) < 0.02);
+  assert.ok(noRefund.etsy.expectedProfit < fullRefund.etsy.expectedProfit, 'a costlier claim lowers the blended expected profit');
+  assert.ok(noRefund.third.claimProfit < fullRefund.third.claimProfit);
+  assert.ok(noRefund.third.expectedProfit < fullRefund.third.expectedProfit);
+});
+
 test('dropping upload time flips the cheaper quote ahead', () => {
   const result = compareEtsyLabels({ ...PAGE_ORDER, labelUploadMinutes: 0 });
   assert.equal(result.third.expectedProfit, 21.34);

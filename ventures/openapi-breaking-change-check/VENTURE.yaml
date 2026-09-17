@@ -1,0 +1,137 @@
+name: openapi-breaking-change-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) that diffs two OpenAPI
+  3.0/3.1 JSON documents and classifies every difference as a breaking
+  change or not: a removed operation, a parameter that is new or became
+  required, a narrowed parameter type, a removed enum value a client could
+  still send, or a request body that became required. Everything else --
+  a new optional parameter, a new endpoint, a widened enum -- is reported
+  separately as non-breaking, so a CI gate (`--fail-on-breaking`) can fail a
+  pull request only on the change that actually breaks something, not on
+  every routine addition. Reads and diffs local `#/...` JSON Pointer $refs
+  (the common case for shared `components.parameters`); makes no network
+  calls of any kind.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator -- the shape
+# portfolio/pipeline/README.md's "archetype itself" section argues for over
+# a further <trade>-bid-calculator, and the same "read exactly what is
+# there, make no network call" contract as sbom-diff-check,
+# sql-migration-lock-check, and terraform-plan-blast-radius-check, applied
+# one artifact further along the delivery pipeline: from "did the build's
+# dependency set change" and "does this migration lock the database" to
+# "did this API contract change in a way that breaks an existing client".
+#
+# duplicate_check.py (run 2026-09-17) scored every existing venture,
+# screened-out row, ai-first-markets idea and pipeline candidate at 0.12 or
+# below against this idea's description -- far under the 0.45 review bar.
+# Closest by eye: obsidian-plugin-review-check and wordpress-plugin-review-check
+# (0.10, both review a plugin submission against a marketplace's own rules,
+# not an API contract), sbom-diff-check (0.08, same "structural diff of two
+# versioned artifacts" instinct, different artifact -- a dependency
+# inventory rather than an API contract), and the ai-first-markets idea "API
+# Uptime Intelligence" (0.08 -- a live-monitoring service that polls
+# dependency APIs for latency/error rates and predicts breaking changes from
+# changelogs; this tool does a one-shot structural diff of two spec files a
+# user already has, with no polling, no ongoing infrastructure, and no
+# prediction). No venture in the tree parses an OpenAPI/Swagger document at
+# all, and nothing in screened-out.md mentions OpenAPI, API contracts, or
+# breaking changes.
+#
+# Distribution channel: publishing a new API version without breaking
+# existing clients is one of the most-discussed problems in API platform
+# engineering, with an established market of paid incumbents already
+# selling exactly this comparison (Optic, Bump.sh, and the open-source
+# oasdiff/openapi-diff CLIs) -- proof the problem is real and recurring, not
+# proof this free entry has no room: none of those is a zero-install,
+# paste-and-go browser tool for the same one-shot question. Named channels:
+# the OpenAPI/Swagger ecosystem's own communities (the OpenAPI Initiative's
+# Slack and GitHub discussions, r/webdev and r/programming threads on API
+# versioning, the Stack Overflow "openapi" tag at tens of thousands of
+# questions), and search terms a developer who just noticed a breaking
+# change types directly: "openapi breaking change detector", "compare two
+# openapi specs", "did this api change break clients". Based on general
+# knowledge at screening time (unverified against a live fetch this
+# session; egress to arbitrary hosts is proxy-denied here, per this repo's
+# standing convention).
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high. This is a mechanical, read-only structural diff with no
+# security, licensing, or compliance claim of any kind -- both the CLI and
+# the browser page make zero network calls (openapi_diff.py, diff.mjs), no
+# spec text leaves the user's device in the browser version, and the tool
+# never fetches or resolves an external $ref on the user's behalf. The
+# page and CLI are both explicit about scope: this is a shallow diff of
+# paths/operations/parameter shape, not a full request/response body
+# schema diff, and it makes no claim that a clean result means the change
+# is actually safe to ship for a specific client. Comparable to
+# sbom-diff-check and sql-migration-lock-check, both already graduated and
+# live on this exact reasoning.
+#
+# Dogfooded on the day it graduated: diff.test.mjs includes a parity test
+# that shells out to `python3 openapi_diff.py` on the same fixture the
+# Python unit tests use and asserts the browser port produces the same
+# breaking/non-breaking classification, so the CLI and the page can never
+# silently disagree about what would break a client.
+hypotheses:
+  - claim: >-
+      A backend or platform engineer who just shipped an API version that
+      broke a client's integration -- or who is about to ship one and wants
+      to know first -- will search "openapi breaking change detector",
+      "compare two openapi specs for breaking changes", or "did this api
+      version break clients" and find this tool because no existing free,
+      install-nothing tool classifies the diff as breaking vs. non-breaking
+      rather than just showing every difference.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `openapi_diff.py --fail-on-breaking` into their own
+      CI as a merge gate on the spec file, the same way
+      sql-migration-lock-check's and sbom-diff-check's CLI conventions are
+      meant to be used -- and will keep it because it only fails the build
+      on an actual breaking change, not on every routine addition, which is
+      what a naive full-diff gate would do and why teams do not adopt one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of funded, paid incumbents solving exactly this
+      comparison (Optic, Bump.sh) and open-source CLIs doing a version of it
+      (oasdiff, openapi-diff) is evidence of real, recurring demand for "did
+      this API version break something" as a query category, under-served
+      at the zero-install, paste-and-go bar this tool occupies.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI reads files on the user's own disk
+  # and the browser tool parses only text pasted into it. There is no
+  # server of ours in the loop either way, and no network call exists
+  # anywhere in the codebase to add one accidentally -- usage.test.mjs
+  # asserts that, and diff.mjs/openapi_diff.py never fetch an external
+  # $ref. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in check after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - An existing free OpenAPI diff tool adds a breaking-vs-non-breaking
+    classification at the same zero-install, paste-and-go bar, such that
+    the wedge no longer holds.
+  - Fewer than three distinct GitHub users engage with the tool within 90
+    days of it being reachable from the published site.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/openapi-breaking-change-check/
+  analytics: null

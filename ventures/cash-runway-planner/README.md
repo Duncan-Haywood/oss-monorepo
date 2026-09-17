@@ -8,7 +8,9 @@ When the forecast dips below zero it names **the first week cash goes negative**
 
 A business that looks fine on a smooth weekly average is short the week the quarterly tax bill clears. A forecast built only from a weekly average cannot say that, so it answers "cash stays positive" to an owner who is about to be $3,000 down — which is worse than no answer, because they believe it.
 
-So the form carries up to eight **one-off rows**: a description, an amount, the week it lands in, and whether it is money in or money out. A quarterly tax bill, an insurance renewal, a van payment, the deposit you are owed on a job that starts next month. Each lands in its own week and nowhere else.
+So the form carries up to eight **one-off rows**: a description, an amount, the week it lands in, whether it is money in or money out, and an optional repeat interval in weeks. A quarterly tax bill, an insurance renewal, a van payment, the deposit you are owed on a job that starts next month. Each lands in its own week and nowhere else — unless it repeats.
+
+**Repeats every (weeks)** turns one row into every occurrence of that bill inside the forecast window. A quarterly tax bill entered once with `13` in that field lands in week 2, 15, 28, and 41 of a 52-week forecast, instead of spending four of the eight precious rows to say the same thing four times. Leave it blank (or 0) for a payment that only happens once. Each landing still shows on its own line in the results list and the CSV, carries the same name, and is independently eligible to be the payment a shortfall plan suggests moving — the occurrence inside that particular shortfall, not always the first one.
 
 Three rules the tests pin, each of which is a way to answer the wrong question:
 

@@ -209,6 +209,22 @@ test("the contract wording describes the schedule that was built", () => {
   assert.doesNotMatch(copy, /42 days/);
 });
 
+test("a slow-clearing deposit still lists before the balance it precedes", () => {
+  // The deposit is invoiced at kickoff (day 0) but takes so long to collect
+  // that it clears (day 50) after the zero-terms balance invoiced on
+  // completion (day 30, paid the same day). Sorting milestones by clearing
+  // date instead of invoice date used to print "Balance on completion"
+  // before "Deposit" here -- a contract that told the client to pay for
+  // finished work before the kickoff deposit it was supposed to follow.
+  const shared = { ...SHARED, projectValue: 10000, depositCollectionDays: 50, termsDays: 0, avgDaysLate: 0 };
+  const out = scheduleOutcome(depositSchedule(50), shared);
+  const copy = scheduleCopy(out);
+  const depositLine = copy.indexOf("Deposit:");
+  const balanceLine = copy.indexOf("Balance on completion:");
+  assert.ok(depositLine >= 0 && balanceLine >= 0, "expected both milestone lines in the contract copy");
+  assert.ok(depositLine < balanceLine, "expected the deposit to be listed before the balance it precedes");
+});
+
 test("a midpoint progress bill is worded as a progress point", () => {
   const copy = scheduleCopy(scheduleOutcome(thirds, SHARED));
   assert.match(copy, /Midpoint progress bill: 33% of the project fee \(\$1,980\.00\), invoiced at the 50% progress point/);

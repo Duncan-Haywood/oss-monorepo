@@ -21,6 +21,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { CHANNEL_PRESETS, calculateChannel, compareChannels } from './calc.mjs';
+import { HANDOFFS } from './handoff.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
@@ -318,6 +319,26 @@ test('following a handoff is counted, and honours the opt-out', () => {
   assert.ok(!/recordUsage\([^)]*price|recordUsage\([^)]*itemCost/.test(render));
 });
 
+test('the privacy note names every handoff event the page can record', () => {
+  // The event name is built as `handoff_${offer.channel}`, so adding a channel
+  // to HANDOFFS creates a new recordable event with no code change here — and
+  // the privacy paragraph enumerates the events by hand. That paragraph is the
+  // page's central promise ("only an event name and the day, never your
+  // inputs"), and a promise that silently stops listing everything it records
+  // is worse than one that lists nothing.
+  //
+  // Caught by hand when Reverb was added: the fifth handoff shipped an
+  // undisclosed `handoff_reverb` and every suite here stayed green. Asserted
+  // now so the sixth cannot.
+  const privacy = html.slice(html.indexOf('Everything runs in your browser.'));
+  for (const entry of HANDOFFS) {
+    assert.ok(
+      privacy.includes(`<code>handoff_${entry.channel}</code>`),
+      `the privacy note does not disclose handoff_${entry.channel}`,
+    );
+  }
+});
+
 test('the handoff styles live inside the verdict panel', () => {
   assert.match(html, /\.continue \{/);
   assert.match(html, /\.continue a \{/);
@@ -371,4 +392,32 @@ test('share-link copy falls back when the Clipboard API is unavailable', () => {
   assert.match(html, /execCommand\("copy"\)/);
   assert.match(html, /share_link_copied/);
   assert.doesNotMatch(html, /window\.prompt\("Copy this share link:/);
+});
+
+// The footer "More seller arithmetic" list is the crawlable half of the
+// handoff table in handoff.mjs. Handoff links are painted by JS after a
+// comparison, so a crawler (and a visitor who never runs the table) only
+// sees the static list. When amazon and reverb handoffs shipped, the footer
+// still named only eBay, Etsy and Shopify — the two new deep tools were
+// unreachable from this page unless you already knew their URLs.
+test('the footer lists every channel that has a handoff deep tool', () => {
+  for (const { slug } of HANDOFFS) {
+    assert.match(
+      html,
+      new RegExp(`href="\\.\\./${slug}/"`),
+      `footer (or page) must link to ../${slug}/ — it is in HANDOFFS`,
+    );
+  }
+});
+
+// marketplace-fee-compare covers Walmart and TikTok Shop in the same
+// one-item ranking shape; this page does not. Without a crawlable reverse
+// link, a crawler entering here never reaches that sibling hub — same
+// one-way orphan class as #3639 / #3650 / #3658.
+test('index links to the related marketplace fee compare hub', () => {
+  assert.match(
+    html,
+    /href="\.\.\/marketplace-fee-compare\/"/,
+    'index must link ../marketplace-fee-compare/ so crawlers can reach the Walmart/TikTok headline-fee ranking',
+  );
 });

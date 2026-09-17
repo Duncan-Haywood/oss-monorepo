@@ -22,6 +22,7 @@ out/
 coverage/
 
 tmp/
+.tmp/
 
 # Local git-worktree scaffolding created by Claude Code's Agent tool
 # (isolation: "worktree"). Transient per-session tooling state, not content.
@@ -41,3 +42,11 @@ infra/*.tfvars
 /_site/
 /platform/pages/dist/
 /dist/
+.tmp/
+
+# Shell-probe debris. Agent harnesses write a scratch file to confirm bash works
+# ("echo test > .bash-test-tmp"); on 2026-09-07 one such file reached a pull
+# request (#4005) as the entire diff, because nothing here matched it. Costs a
+# reviewer a round trip and puts junk in the repo root. Named exactly rather
+# than globbed -- a pattern like *-tmp would start hiding real files.
+.bash-test-tmp

@@ -4,6 +4,8 @@ The free mobile detailing bid calculator shows the minimum quote and target-marg
 
 Once the number is right, **Print proposal** turns it into the one-page sheet you hand the customer: your business details, the scope drafted from the job you just priced, the price, a price-held date, and a signature line. Your wage, burden, supplies, overhead, and margin are not on it and are not printed. Print or "Save as PDF" from the browser.
 
+**Copy share link** encodes the whole job — hours, miles, wage, burden, supplies, overhead, fee, and target margin, plus the deposit/terms from the proposal panel — into a URL fragment you can send to a second detailer, whoever books the calendar, or the customer; nothing is uploaded, and opening the link reopens the same quote instead of the form's defaults. See [`share.mjs`](share.mjs).
+
 Open `index.html` in a browser. It runs without an account, network request, API key, or paid dependency. Numbers are saved only in the browser and can be shared as a URL when you choose to copy one. If you have saved your shop rates on another calculator on the site, this one opens with your wage, payroll burden, and target margin already filled; its overhead is dollars for the job rather than a percentage, so a saved overhead rate is left alone here.
 
 Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
@@ -12,7 +14,7 @@ Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
 
 ## Privacy and usage
 
-Everything runs in your browser. Your prices, costs, and job details are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. Unless you opt out, the browser stores only anonymous event names and the day a feature was used; it never stores inputs in the usage counter. The footer checkbox turns this counter off.
+Everything runs in your browser. Your prices, costs, and job details are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. Unless you opt out, the browser stores only anonymous event names and the day a feature was used (including `share_link_copied` when you copy a bid link); it never stores inputs in the usage counter. The footer checkbox turns this counter off.
 
 ## Opportunity assessment
 

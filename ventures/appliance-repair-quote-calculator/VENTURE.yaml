@@ -28,5 +28,5 @@ kill_criteria:
   - Users cannot explain or adjust the assumptions without a support interaction.
   - Real repair quotes consistently need a workflow the local calculator cannot represent.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/appliance-repair-quote-calculator/
   analytics: null

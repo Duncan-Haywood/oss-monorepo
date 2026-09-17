@@ -86,3 +86,34 @@ test("share encoding is the allowlisted numeric payload, not free text", () => {
     false,
   );
 });
+
+test("links to the seller net sheet calculator", () => {
+  assert.match(html, /href="\.\.\/seller-net-sheet\/"/, "the sibling-tool link is missing");
+});
+
+// Both price one transaction through platform-specific fees to find the true
+// seller payout -- a nightly stay and a livestream lot. Without a crawlable
+// link here, a crawler entering on this page never reaches the Whatnot
+// calculator in one hop.
+test("index links one hop to the whatnot-seller-payout sibling", () => {
+  assert.match(
+    markup,
+    /href="\.\.\/whatnot-seller-payout\/"/,
+    "index must link ../whatnot-seller-payout/ so crawlers reach the Whatnot seller payout calculator in one hop",
+  );
+});
+
+// One property owner's other lease. A host letting nightly is the same person
+// who lets the place on a long lease between seasons, and that raises the two
+// arithmetic questions the deposit calculator answers. It had no inbound
+// sibling link at all, so a crawler entering the catalogue anywhere else could
+// not reach it in one hop -- and with sitemap enumeration unavailable on this
+// origin (platform/ci/pages_state.py's `indexing` row) a page reachable only
+// from the sitemap is reachable from nothing.
+test("index links one hop to the security-deposit-return-calculator sibling", () => {
+  assert.match(
+    markup,
+    /href="\.\.\/security-deposit-return-calculator\/"/,
+    "index must link ../security-deposit-return-calculator/ so crawlers reach the deposit calculator in one hop",
+  );
+});

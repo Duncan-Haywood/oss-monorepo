@@ -15,7 +15,15 @@ export function calculateQuote(input) {
   const direct = labor + parts + number(input, 'tripCost') + callback;
   const overhead = direct * number(input, 'overheadRate') / 100;
   const cost = direct + overhead;
-  const margin = Math.min(99.9, number(input, 'targetMargin'));
+  const margin = number(input, 'targetMargin');
+  // A margin of 100% or more divides by zero or a negative number, turning
+  // a fat-fingered "150" into either a silently clamped 99.9% quote or an
+  // Infinity/negative price with no explanation. Every other bid calculator
+  // in this fleet rejects the input outright rather than guessing what the
+  // contractor meant; this one used to clamp instead, so the price on
+  // screen for a mistyped margin never matched what was typed and never
+  // said why.
+  if (margin >= 100) throw new Error('Target margin must be less than 100%');
   const target = cost / (1 - margin / 100);
   return { laborHours, labor, parts, callback, overhead, cost, target, walkAway: cost, effectiveRate: target / Math.max(laborHours, 0.01), margin };
 }

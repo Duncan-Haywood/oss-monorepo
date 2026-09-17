@@ -23,13 +23,20 @@ class Quote:
     overhead: float = 0
     subcontractor_cost: float = 0
     target_hourly_rate: float = 0
+    # Optional padding on the planned hours, for quoting work that has a
+    # history of running long. Defaults to 0 so it changes nothing until it is
+    # set, which is why it can be added here without moving any existing
+    # number. The browser calculator has offered this since it shipped; the
+    # CLI did not, so anyone scoring a folder of quotes from a script got a
+    # strictly smaller answer than someone typing the same quote into the page.
+    time_buffer_percent: float = 0
 
 
 def load_quote(data: dict[str, Any]) -> Quote:
     currency = data.get("currency", "units")
     if not isinstance(currency, str) or not currency.strip() or len(currency.strip()) > 12:
         raise ValueError("currency must be a short non-empty label")
-    fields = ("price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate")
+    fields = ("price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate", "time_buffer_percent")
     values: dict[str, float] = {}
     for field in fields:
         value = data.get(field, 0)
@@ -50,6 +57,8 @@ def calculate(quote: Quote) -> dict[str, float]:
     direct_costs = quote.overhead + quote.subcontractor_cost
     effective_rate = (quote.price - direct_costs) / total_hours
     target_price = total_hours * quote.target_hourly_rate + direct_costs
+    buffered_hours = total_hours * (1 + quote.time_buffer_percent / 100)
+    buffered_target_price = buffered_hours * quote.target_hourly_rate + direct_costs
     hidden_hours = quote.admin_hours + quote.revision_hours
     target_rate_hours = (quote.price - direct_costs) / quote.target_hourly_rate
     return {
@@ -58,6 +67,8 @@ def calculate(quote: Quote) -> dict[str, float]:
         "effective_hourly_rate": effective_rate,
         "target_price": target_price,
         "break_even_price": direct_costs,
+        "buffered_hours": buffered_hours,
+        "buffered_target_price": buffered_target_price,
         "gap_to_target": quote.price - target_price,
         "cost_coverage": quote.price - direct_costs,
         "discount_room": max(0, quote.price - target_price),
@@ -297,11 +308,23 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Effective hourly rate | {quote.currency} {result['effective_hourly_rate']:.2f}/hour |",
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
+        # Only worth a row once the quote actually asks for a buffer. At the
+        # default of 0 these two repeat the planned hours and target price
+        # verbatim, and a table that restates itself teaches the reader to skip
+        # rows. Matches how the browser page hides the same panel.
+        *(
+            [
+                f"| Planned hours plus a {quote.time_buffer_percent:.0f}% buffer | {result['buffered_hours']:.2f} |",
+                f"| Price at target rate for buffered hours | {quote.currency} {result['buffered_target_price']:.2f} |",
+            ]
+            if quote.time_buffer_percent
+            else []
+        ),
         # `target_rate_hours` is signed, and goes negative when direct costs
         # exceed the price. Printing "-4.00 (31.00 over)" reads as a quantity
         # of hours; what a negative there means is that there is no budget to
         # spend. Keeps the browser build's wording (site/index.html).
-        f"| Hours supported at target rate | "
+        "| Hours supported at target rate | "
         + (
             "none — direct costs leave nothing to pay for time"
             if result["cost_coverage"] <= 0
@@ -425,6 +448,14 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("break_even_price", f"{result['break_even_price']:.2f}", currency),
             ("effective_hourly_rate", f"{result['effective_hourly_rate']:.2f}", per_hour),
             ("target_price", f"{result['target_price']:.2f}", currency),
+            # Unconditional here, unlike the Markdown table: a spreadsheet is
+            # read by column position and by formulas pointing at a row, so a
+            # row that appears only for some quotes breaks whoever batches the
+            # CLI over a folder. Same three rows, same order, as quoteCsv() in
+            # site/export.mjs.
+            ("time_buffer_percent", f"{quote.time_buffer_percent:.2f}", "percent"),
+            ("buffered_hours", f"{result['buffered_hours']:.2f}", "hours"),
+            ("buffered_target_price", f"{result['buffered_target_price']:.2f}", currency),
             ("gap_to_target", f"{result['gap_to_target']:.2f}", currency),
             ("target_rate_hours", f"{result['target_rate_hours']:.2f}", "hours"),
             ("hours_cushion", f"{result['hours_cushion']:.2f}", "hours"),

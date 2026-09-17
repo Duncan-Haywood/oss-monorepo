@@ -118,8 +118,12 @@ export function classifyRun(record, { requireIntegrity = false } = {}) {
   const sizeBytes = artifact.size_bytes;
   const minSize = expected.min_size_bytes;
   if (minSize != null && (sizeBytes == null || sizeBytes < minSize)) {
+    // Same shape as the shrink-alert / markdown paths: never dump a raw
+    // byte count into a reason the operator copies into a ticket.
+    const sizeLabel =
+      sizeBytes == null ? "an unknown number of bytes" : formatBytes(sizeBytes);
     reasons.push(
-      `artifact is ${sizeBytes == null ? "an unknown number of" : sizeBytes} bytes, below the expected minimum of ${minSize}`,
+      `artifact is ${sizeLabel}, below the expected minimum of ${formatBytes(minSize)}`,
     );
   }
 
@@ -263,7 +267,7 @@ export function buildTrend(records, shrinkRatio = DEFAULT_SHRINK_RATIO, { requir
         alerts.push({
           kind: "shrinking_vs_previous",
           finished_at: current.finished_at,
-          detail: `${current.finished_at} is ${Math.abs(sizeChangePct).toFixed(1)}% smaller than the previous run (${previousFinished}) -- ${previousSize} bytes to ${size} bytes`,
+          detail: `${current.finished_at} is ${Math.abs(sizeChangePct).toFixed(1)}% smaller than the previous run (${previousFinished}) -- ${formatBytes(previousSize)} to ${formatBytes(size)}`,
         });
       }
     }
@@ -276,7 +280,7 @@ export function buildTrend(records, shrinkRatio = DEFAULT_SHRINK_RATIO, { requir
         alerts.push({
           kind: "shrinking_vs_median",
           finished_at: current.finished_at,
-          detail: `${current.finished_at} is ${dropPct.toFixed(1)}% below the median of the previous ${priorSizes.length} night(s) (${Math.trunc(priorMedian)} bytes to ${size} bytes)`,
+          detail: `${current.finished_at} is ${dropPct.toFixed(1)}% below the median of the previous ${priorSizes.length} night(s) (${formatBytes(Math.trunc(priorMedian))} to ${formatBytes(size)})`,
         });
       }
     }
@@ -366,7 +370,7 @@ export function markdownTrend(trend) {
   }
   lines.push("| Finished at | Status | Size | vs previous | Flags |", "|---|---|---|---|---|");
   for (const row of trend.rows) {
-    const size = row.size_bytes == null ? "unknown" : `${row.size_bytes} bytes`;
+    const size = formatBytes(row.size_bytes);
     const change = row.size_change_pct == null ? "—" : `${row.size_change_pct > 0 ? "+" : ""}${row.size_change_pct.toFixed(1)}%`;
     const flags = [
       row.shrinking_vs_previous ? "smaller than previous" : "",

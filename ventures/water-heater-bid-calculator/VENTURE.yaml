@@ -28,5 +28,5 @@ kill_criteria:
   - Contractors report that entering heater type, vent, and gas path is more work than their existing method without changing the price they would have bid.
   - The starting hours or material dollars prove so far from real trucks that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/water-heater-bid-calculator/
   analytics: null

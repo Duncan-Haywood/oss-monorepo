@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-hosted GitHub Actions runners and public repositories don't mix</title>
+  <meta name="description" content="A self-hosted runner on a public repository lets a fork's pull request run its own workflow code directly on your machine. Here is why, and how to fix it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="self-hosted-runners-in-public-repositories.html">
+  <meta property="og:title" content="Self-hosted GitHub Actions runners and public repositories don't mix">
+  <meta property="og:description" content="pull_request runs the workflow file from the fork's own branch. If that job is runs-on: self-hosted, the fork decides what runs on your machine. Here is the fix.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Self-hosted GitHub Actions runners and public repositories don't mix","acceptedAnswer":{"@type":"Answer","text":"A workflow triggered by pull_request runs the workflow file as it exists on the pull request's own branch, not your base branch. If a job in that workflow runs on a self-hosted label, the pull request's author controls the steps that execute on your runner machine."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions Self-Hosted Exposure Check</a></p>
+  <h1>Self-hosted GitHub Actions runners and public repositories don't mix</h1>
+  <p class="lede">A workflow triggered by <code>pull_request</code> runs the workflow file as it exists on the pull request's own branch, not your base branch. If a job in that workflow runs on a <code>self-hosted</code> label, the pull request's author controls the steps that execute on your runner machine.</p>
+  <p>Most self-hosted setups start innocently: a repository needs a GPU, a licensed compiler, or access to an internal network that a GitHub-hosted VM cannot reach, so a job gets <code>runs-on: self-hosted</code>.</p>
+  <pre><code>name: build
+on: pull_request
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./build.sh</code></pre>
+  <p>On a private repository, every contributor is already trusted, so this is fine. On a <strong>public</strong> repository, anyone can open a pull request — and because the trigger is plain <code>pull_request</code>, GitHub runs <em>the version of this workflow file committed on the pull request's own branch</em>. The fork's author can rewrite the <code>steps:</code> entirely: read files on the runner, reach whatever network the runner can reach, or install a persistent backdoor if the runner is not rebuilt between jobs.</p>
+  <h2>1. Prefer a GitHub-hosted runner whenever the job allows it</h2>
+  <p>If the job does not genuinely need something only your own machine has, move it back to a GitHub-hosted label:</p>
+  <pre><code>jobs:
+  build:
+    runs-on: ubuntu-latest</code></pre>
+  <p>Each GitHub-hosted job runs in a fresh, ephemeral VM, so there is no persistent machine for a fork's workflow to compromise.</p>
+  <h2>2. If you genuinely need self-hosted, restrict the trigger</h2>
+  <p>Keep the self-hosted job, but move it off a trigger a fork can raise. A push to a branch only your own collaborators can push to, or a manual dispatch, does not hand a stranger control:</p>
+  <pre><code>on:
+  push:
+    branches: [main]
+  workflow_dispatch:</code></pre>
+  <h2>3. Require approval for fork pull requests</h2>
+  <p>GitHub's own setting under <strong>Settings → Actions → General → "Fork pull request workflows"</strong> can require a maintainer to approve every run from an outside contributor, or from anyone who is not already a known collaborator. This does not change what a workflow file could do once approved — it adds a human checkpoint before a fork's code ever reaches the runner.</p>
+  <h2>4. pull_request_target and workflow_run are a different, still real, risk</h2>
+  <p>These two triggers always run the workflow file from your base branch, so a fork cannot rewrite the steps. But they still respond to fork-influenced events, often with repository secrets available to the job, and a self-hosted runner combined with a step that checks out and executes the fork's own code (the "pwn request" pattern) still runs that code on infrastructure you own rather than a disposable VM. If a self-hosted job under one of these triggers also checks out an untrusted head, treat it with the same seriousness as plain <code>pull_request</code>.</p>
+  <h2>5. Check every workflow at once</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Self-Hosted Exposure Check</a> to find every job that runs on a <code>self-hosted</code> label under one of the four risky triggers, across every file at once — or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any job is fork-exposed by this tool's definition — wire it into your own CI to block a newly-added exposed job before it merges.</p>
+  <h2>What this does not tell you</h2>
+  <p>This tool cannot see whether your repository is actually public, whether required-approval settings are already on, or whether a named runner group (<code>runs-on: {group: ...}</code>) is self-hosted — it flags only the literal <code>self-hosted</code> label. A clean scan is not a claim that your self-hosted infrastructure is otherwise hardened.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Verify before relying on the output. This is not a security audit or a compliance attestation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>

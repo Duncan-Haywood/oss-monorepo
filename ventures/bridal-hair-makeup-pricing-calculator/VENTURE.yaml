@@ -1,0 +1,32 @@
+name: bridal-hair-makeup-pricing-calculator
+description: Free browser calculator for mobile bridal hair and makeup artists that prices one wedding-day booking across the bride, bridal party, hair-only, makeup-only, and kids' services, applies an early-start fee and mileage, tops a small booking up to a service minimum, reports the total contract value alongside a trial-fee credit (which is a real discount, not a neutral timing change), and checks whether the artists booked can finish the whole group before the must-be-ready deadline — flagging exactly how many additional artists the schedule needs.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Mobile bridal hair and makeup artists will use a pricing calculator built around per-person service tiers plus an early-start fee and mileage, because a flat day rate or a one-row-per-service list cannot scale to an unusual group size or a booking policy (early start, service minimum) that varies from wedding to wedding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Artists will return to the schedule-capacity check specifically, because it answers a question a price sheet cannot — whether the artists already booked can physically finish the group before the ceremony — and getting that wrong is discovered on the wedding morning rather than at the quote stage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Artists who credit a trial fee toward the wedding-day balance do not realize it is a real discount on the combined total rather than a neutral timing change, and will use a tool that quantifies the discount explicitly when deciding their own booking policy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Artists report that the schedule-capacity check never changes a staffing decision they had already made by feel.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bridal-hair-makeup-pricing-calculator/
+  analytics: null

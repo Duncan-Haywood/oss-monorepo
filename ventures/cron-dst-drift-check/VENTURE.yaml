@@ -1,0 +1,74 @@
+name: cron-dst-drift-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that computes a cron expression''s upcoming run times as real local wall-clock instants in a chosen IANA timezone and flags any occurrence that falls in a spring-forward gap (the local time never happens) or a fall-back overlap (the local time happens twice), plus a separate check for how a fixed-UTC-only scheduler -- GitHub Actions'' own `schedule:` cron among them, by its own documentation -- drifts against a target local wall-clock time across the year''s daylight-saving segments. Not a general cron parser or a claim about what any specific scheduler does with a skipped or ambiguous occurrence -- purely the timezone arithmetic: does a named local time exist once, not at all, or twice, and what UTC time does a fixed-UTC schedule actually need per DST segment.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, chosen deliberately over a 202nd <trade>-bid-calculator
+# and over a 40th generic misconfiguration checker: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07, widened 2026-09-11)
+# flags both shapes as needing a genuinely new angle, not just a new niche, to
+# count as evidence of novelty on their own. This checks a different object
+# entirely (a cron schedule against the real IANA DST calendar), not a new
+# instance of an existing misconfiguration check, and it is a generator as
+# much as a checker (the drift subcommand produces the two UTC times a fixed
+# schedule actually needs), which PRODUCT_PLAYBOOK.md ranks above a plain
+# checker on cost/value grounds.
+#
+# duplicate_check.py (run 2026-09-16) scored every existing venture,
+# screened-out row, and pipeline candidate against this idea's final
+# description at or below 0.12 -- nowhere near the 0.45 read-this-first bar.
+# Closest by eye: sitemap-lastmod-freshness-check (shares "freshness/date"
+# vocabulary only, checks sitemap <lastmod>, not scheduling), the six
+# actions-*-check ventures (GitHub Actions workflow hardening, an unrelated
+# misconfiguration class), and wildlife-exclusion-bid-calculator (pure lexical
+# noise). Grepped ventures/*/VENTURE.yaml and screened-out.md by hand for
+# "cron" / "timezone" / "DST" / "daylight saving" / "schedule": no venture,
+# candidate, or screened-out row anywhere in this repository reads a cron
+# expression or reasons about timezone offsets at all.
+#
+# Distribution channel, named and checkable without guessing: cron+DST
+# breakage is a long-documented, high-thread-volume developer pain point
+# rather than a speculative one -- Stack Overflow carries hundreds of
+# questions tagged with variants of "cron daylight saving," "cron job didn't
+# run DST," and "GitHub Actions schedule UTC," and GitHub Actions' own
+# documentation for `schedule:` states directly that it always runs in UTC
+# with no timezone option, which is exactly the failure mode this tool's
+# `drift` subcommand targets. r/devops and r/sysadmin have repeated threads
+# on "why did my cron job run an hour off after DST" every spring and fall.
+# This is scored as a real, searchable, recurring pain point rather than a
+# one-off incident report (contrast with agent-instructions-drift-check's
+# internal-only evidence), though no external search-volume tool was queried
+# to confirm magnitude -- see the pipeline write-up for the honest caveat.
+hypotheses:
+  - claim: A developer who has been bitten by a cron job skipping or double-firing across a DST transition (or has just read that GitHub Actions' own schedule-trigger cron always runs in UTC) will search for a way to check a schedule before shipping it, find this tool via GitHub/npm/web search, and run either subcommand at least once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team maintaining a scheduled job in a DST-observing timezone will wire cli.mjs's `next` or `drift` subcommand into CI as a merge gate on schedule changes, the way agent-instructions-drift-check and security-txt-check are designed to be wired in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser page computes everything from the
+  # visitor's own typed cron expression and timezone name using the Intl
+  # timezone database already shipped in their browser (nothing uploaded,
+  # nothing fetched), and the CLI is pure Intl/Date arithmetic with no
+  # network call at all. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cron-dst-drift-check/
+  analytics: null

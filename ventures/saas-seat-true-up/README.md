@@ -10,6 +10,8 @@ Enter purchased seats, seats used in the latest review, per-seat monthly price, 
 
 Use **Save scenario** to keep the entered totals in this browser for the next renewal review. **Reset** restores the example numbers and deletes the saved scenario. Saved values never leave the device.
 
+Optionally enter the contract's **renewal date** and the **notice period** (in days) it requires before that renewal to drop seats. Many SaaS agreements auto-renew at the full purchased count unless notice is given by a deadline ahead of the term end — if that deadline has already passed, the avoidable spend above is not actually avoidable this cycle, and the tool says so plainly instead of showing a number nobody can act on. These two fields are not saved with the scenario (a renewal date from last quarter is stale next quarter); re-enter them each review.
+
 The product counts local aggregate events (`true_up_calculated`, `scenario_saved`, `scenario_restored`). It stores no names, identifiers, IP addresses, or content, sends nothing to an analytics vendor, honors Do Not Track and Global Privacy Control, and includes a persistent opt-out. Baseline usage is recorded in `portfolio/usage/usage.yaml`.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.

@@ -1,0 +1,101 @@
+name: overtime-pay-calculator
+description: >-
+  Free browser calculator for hourly overtime pay: a standard single-rate
+  time-and-a-half calculator, plus the FLSA weighted-average ("blended
+  rate") calculator for a workweek where an employee worked at two or more
+  different hourly rates -- the case payroll admins and hourly employees
+  most often get wrong by hand, because the regular rate used for the
+  overtime premium is total straight-time pay divided by total hours, not
+  either rate entered. Copies the blended-rate breakdown as a plain-text
+  record.
+
+stage: prototype
+owner: duncan
+
+# Screened as a new niche during a 2026-09-16 PROCEED-verdict session
+# (session_gate.py: build-now queue empty, new-venture-first per
+# DIRECTION.md's 2026-09-06 owner direction). duplicate_check.py scored
+# every existing venture, screened-out row, and pipeline candidate at 0.16
+# or below for "overtime pay calculator for employees working multiple pay
+# rates or blended rate (FLSA weighted average overtime)" -- far under the
+# 0.45 review bar, and no existing venture (including
+# certified-payroll-calculator, which is Davis-Bacon certified-payroll
+# reporting, a different problem) covers hourly overtime arithmetic.
+# Not in portfolio/pipeline/screened-out.md: no row mentions overtime,
+# FLSA, or weighted average / blended rate.
+#
+# Not an advice-of-record product: it applies a published, sourced federal
+# formula (29 CFR 778.115) to numbers the user supplies, positioned as
+# arithmetic evidence the user checks against their own pay policy -- the
+# same shape as invoice-payment-terms-calculator and
+# security-deposit-return-calculator, not a determination of what is owed.
+# The one hard caveat (several states require more than the federal
+# minimum -- daily overtime, double-time, bonus inclusion) is stated on
+# every page and in every calculator result, not buried in the footer only.
+#
+# Distribution channel: "how to calculate overtime for two different pay
+# rates" / "blended overtime rate calculator" / "weighted average overtime"
+# are real, recurring search phrases among small-business payroll admins
+# and HR generalists doing this by hand or in a spreadsheet -- the same
+# audience shape as certified-payroll-calculator and
+# invoice-payment-terms-calculator, arriving with a specific query rather
+# than browsing. The weighted-average method is genuinely easy to get wrong
+# (the overtime premium is half the blended rate, not the full rate, which
+# is not the intuitive answer), which is what makes a calculator worth
+# using over redoing the arithmetic by hand each time.
+
+hypotheses:
+  - claim: >-
+      A payroll admin or small-business owner who has an employee working at
+      two different pay rates in one week will search "how to calculate
+      overtime with two different pay rates" or "blended overtime rate
+      calculator" and use this tool rather than redo the weighted-average
+      arithmetic by hand, because the correct answer (the premium is half
+      the blended rate, not the full rate) is not the intuitive one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Most visitors arrive already needing the blended-rate calculator
+      specifically (not the standard single-rate one), because a
+      single-rate overtime calculation is simple enough to do without a
+      tool -- the weighted-average case is the actual differentiator and
+      will show as more calculations than the single-rate tool once a
+      public URL exists.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      Being told the state-rules caveat up front (federal FLSA only; several
+      states require daily overtime or double-time) changes how a visitor
+      relies on the total, compared to a calculator that only states this in
+      a footer disclaimer -- measured by whether the breakdown-copy rate
+      differs from calculators that bury the caveat, once usage data exists.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all arithmetic runs in the visitor's own
+  # browser against numbers they type in. Serving one more user costs a
+  # static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, return usage, or unsolicited feedback after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's
+    "fair run" definition).
+  - A materially better free tool covering the same blended-rate arithmetic
+    at the same zero-install, zero-signup bar becomes the obvious default,
+    such that this tool's differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/overtime-pay-calculator/
+  analytics: null

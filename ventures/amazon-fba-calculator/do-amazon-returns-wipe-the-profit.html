@@ -153,7 +153,13 @@
       "fulfillmentFee", "fbmShippingCost", "returnRate", "returnHandlingFee",
       "unsellableReturnRate", "monthlyUnits",
     ];
-    const money = (value) => Number.isFinite(value) ? `$${value.toFixed(2)}` : "n/a";
+    // Returns can take a unit below break-even, which is the whole question
+    // this page asks -- so the sign goes outside the symbol, not after it.
+    const money = (value) => {
+      if (!Number.isFinite(value)) return "n/a";
+      const text = `$${Math.abs(value).toFixed(2)}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
 
     function update() {
       try {

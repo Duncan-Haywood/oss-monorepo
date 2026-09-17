@@ -28,5 +28,5 @@ kill_criteria:
   - Users report that separating buyer-broker compensation does not change which offer they would have taken.
   - Local transfer-tax and proration customs prove so dominant that a generic worksheet cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/seller-net-sheet/
   analytics: null

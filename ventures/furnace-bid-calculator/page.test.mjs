@@ -71,6 +71,19 @@ test('inputs and result fields for the primary journey are present', () => {
   }
 });
 
+// Closest sibling: same HVAC heating/cooling job, but a ductless mini-split
+// install rather than a furnace or heat-pump swap. Related-tool chrome rotates
+// inside the MEP subcategory, so without an explicit one-hop a crawler on this
+// page may never land on that tool.
+test('index links one hop to the mini-split-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/mini-split-bid-calculator\/"/,
+    'index must link ../mini-split-bid-calculator/ so crawlers reach the mini-split calculator in one hop',
+  );
+  assert.match(html, /mini-split bid calculator/i);
+});
+
 test('the landing page names the problem in the shop\'s words', () => {
   assert.match(html, /<title>[^<]*Furnace Bid Calculator/i);
   assert.match(html, /meta name="description"[^>]*attic/i);

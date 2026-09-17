@@ -41,6 +41,10 @@ import { stripForInjection } from './jobs.mjs';
 export const EMBED_MODULE_FILE = 'pf-embed.js';
 export const EMBED_STYLE_FILE = 'pf-embed.css';
 
+/** The one file in this feature that runs on somebody else's page. Same root,
+ *  same one-copy-for-the-whole-site reasoning; see `EMBED_HOST_SCRIPT`. */
+export const EMBED_HOST_FILE = 'pf-embed-host.js';
+
 /** Presence of this string is both the injection guard (idempotent, like
  *  every other pass here) and the runtime's own selector for the box. */
 const EMBED_MARKER = 'pf-embed-offer';
@@ -52,10 +56,22 @@ const EMBED_MARKER = 'pf-embed-offer';
  *  fallback for an embedder who copies the bare URL instead of the snippet. */
 export const EMBED_QUERY_PARAM = 'pfEmbed';
 
-/** A default tall enough for most of these forms without being copied blind:
- *  the box explains it is a starting point, not a promise about every tool's
- *  height, because there is no one true height across ~170 different forms. */
+/** The height an embed starts at, and keeps if the host page strips the
+ *  resizer script below. There is no one true height across ~170 different
+ *  forms, which is why `EMBED_HOST_SCRIPT` exists — but a fallback that is
+ *  usually too tall beats one that is usually too short, because a host page
+ *  with too much whitespace still shows the whole tool. */
 export const DEFAULT_EMBED_HEIGHT = 1400;
+
+/** Ignore a reported height outside this range. Below it the frame is
+ *  mid-load and reporting a collapsed body; above it something is wrong and
+ *  an enormous iframe would wreck the host's page either way. */
+export const MIN_EMBED_HEIGHT = 120;
+export const MAX_EMBED_HEIGHT = 20000;
+
+/** The `postMessage` discriminator. Namespaced because a host page's own
+ *  scripts and any other widget on it share one `message` event. */
+export const EMBED_MESSAGE_SOURCE = 'pf-embed';
 
 const attr = (value) => String(value)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -67,7 +83,23 @@ const attr = (value) => String(value)
  */
 export function embedSnippet(canonicalUrl, title) {
   const src = `${canonicalUrl}${canonicalUrl.includes('?') ? '&' : '?'}${EMBED_QUERY_PARAM}=1`;
-  return `<iframe src="${src}" title="${title} — free calculator, opens the full tool in a new tab" style="width:100%;max-width:820px;border:0;min-height:${DEFAULT_EMBED_HEIGHT}px" loading="lazy"></iframe>`;
+  const iframe = `<iframe src="${src}" title="${title} — free calculator, opens the full tool in a new tab" style="width:100%;max-width:820px;border:0;min-height:${DEFAULT_EMBED_HEIGHT}px" loading="lazy"></iframe>`;
+
+  // Two lines, and the second one is optional by construction. The `<iframe>`
+  // alone is a complete, working embed at the fallback height; the resizer only
+  // ever *replaces* that height with the frame's real one. A CMS or forum that
+  // strips `<script>` from user HTML — which many do — therefore degrades to
+  // exactly the embed this feature shipped with, rather than to a broken one.
+  //
+  // The resizer is named from the frame's own origin rather than a constant,
+  // because these pages are generated for two hostnames with two different
+  // canonicals, and the browser will only honour a report from the origin the
+  // frame is actually served by. A canonical this cannot parse yields the
+  // iframe alone: a snippet one line shorter still works, a snippet pointing
+  // at a script that 404s on a stranger's site does not.
+  let origin;
+  try { origin = new URL(canonicalUrl).origin; } catch { return iframe; }
+  return `${iframe}\n<script src="${origin}/${EMBED_HOST_FILE}" async></script>`;
 }
 
 /**
@@ -82,12 +114,12 @@ function offerMarkup(canonicalUrl, title) {
   return `    <details class="pf-chrome ${EMBED_MARKER}">
       <summary>Embed this tool on your page</summary>
       <p>Free to use on your own site — the calculator runs in the visitor's browser, computes nothing on our servers, and adds no tracking of any kind to your page. It keeps the same arithmetic and the same disclaimer as the page you are looking at now, and links back here for anyone who wants the full tool.</p>
-      <textarea readonly rows="3" aria-label="Embed code" data-pf-embed-snippet>${attr(snippet)}</textarea>
+      <textarea readonly rows="4" aria-label="Embed code" data-pf-embed-snippet>${attr(snippet)}</textarea>
       <p class="pf-embed-actions">
         <button type="button" data-pf-embed-copy>Copy embed code</button>
         <span data-pf-embed-status role="status"></span>
       </p>
-      <p class="pf-embed-note">${DEFAULT_EMBED_HEIGHT}px is a starting height, not a fit for every tool — adjust it once the embed is on your page.</p>
+      <p class="pf-embed-note">The second line sizes the frame to the tool, so it never scrolls inside your page or leaves a gap below it. It listens for one number from this frame and does nothing else — no cookies, no tracking, nothing read from your page. Leave it out and the embed still works at a fixed ${DEFAULT_EMBED_HEIGHT}px.</p>
     </details>
 `;
 }
@@ -172,6 +204,65 @@ export function renderEmbedStyle() {
 }
 
 /**
+ * The resizer, and the only file in this portfolio that ever executes on a
+ * page we do not control. It is written to be readable in full by the person
+ * deciding whether to paste it, because that is the only review it will get.
+ *
+ * What it does: listen for `message`, and when one is a height report from an
+ * iframe already on the page, set that iframe's height. That is the whole
+ * program.
+ *
+ * What it deliberately does not do: read the host page, touch its storage or
+ * cookies, send a request anywhere, or look at anything about the visitor.
+ * The offer box promises "adds no tracking of any kind to your page", and this
+ * file is where that promise is either kept or broken.
+ *
+ * ## Why the origin check is written the way it is
+ *
+ * `message` is a shared event: every frame on the host page, including ones
+ * this portfolio has nothing to do with, can post to it. So a report is only
+ * acted on when it came from the very frame it would resize — `e.source` must
+ * be that iframe's `contentWindow`, *and* `e.origin` must equal the origin of
+ * that iframe's own `src`. Matching the frame first and deriving the expected
+ * origin from it is what makes this correct on both hostnames this site is
+ * served from without hard-coding either: the frame states its origin in
+ * markup the host page can see, and the browser states the sender's origin
+ * unforgeably. A third-party frame therefore cannot resize our embed, and our
+ * embed cannot be used to resize anything else.
+ */
+const EMBED_HOST_SCRIPT = () => `
+(function(){
+  if (!window.addEventListener) return;
+  window.addEventListener('message', function(event){
+    var data = event.data;
+    if (!data || data.source !== '${EMBED_MESSAGE_SOURCE}') return;
+    var height = data.height;
+    if (typeof height !== 'number' || !isFinite(height)) return;
+    if (height < ${MIN_EMBED_HEIGHT} || height > ${MAX_EMBED_HEIGHT}) return;
+    var frames = document.getElementsByTagName('iframe');
+    for (var i = 0; i < frames.length; i++) {
+      var frame = frames[i];
+      if (frame.contentWindow !== event.source) continue;
+      var expected;
+      try { expected = new URL(frame.getAttribute('src'), location.href).origin; }
+      catch (e) { return; }
+      if (expected !== event.origin) return;
+      frame.style.height = Math.ceil(height) + 'px';
+      // The snippet's fallback height has done its job once a real one
+      // arrives; left in place it would be a floor the frame cannot go below.
+      frame.style.minHeight = '0';
+      return;
+    }
+  }, false);
+})();
+`;
+
+/** The resizer file, written once at the site root beside the runtime. */
+export function renderEmbedHostModule() {
+  return `${stripForInjection(EMBED_HOST_SCRIPT())}\n`;
+}
+
+/**
  * The browser half. Two independent jobs, both gated on this exact page being
  * the one framed (never on any other page on the site being framed, which
  * `data-pf-embed-url` on this page's own tag makes possible without a lookup
@@ -235,6 +326,46 @@ const EMBED_SCRIPT = () => `
     bar.appendChild(link);
     if (document.body) document.body.appendChild(bar);
     if (slug) bump('embed_view:' + slug);
+
+    // Tell the host page how tall this document actually is, so its iframe can
+    // stop guessing. Without this the embed is stuck at one hard-coded height
+    // for ~170 forms of wildly different lengths: too short and the tool
+    // scrolls inside a rectangle (miserable on a phone, where these forms are
+    // at their tallest), too tall and it leaves a slab of blank space.
+    //
+    // '*' as the target origin because this page genuinely cannot know which
+    // site embedded it, and there is nothing here to protect: the payload is
+    // this page's own public slug and one integer. Nothing is read from the
+    // host page and no reply is accepted — the channel is one-way by
+    // construction, which is what keeps the offer box's "adds no tracking of
+    // any kind to your page" true.
+    var lastHeight = 0;
+    var report = function(){
+      try {
+        var doc = document.documentElement;
+        var height = Math.max(doc ? doc.scrollHeight : 0, document.body ? document.body.scrollHeight : 0);
+        // A 1px jitter loop is possible when the host rounds the height it
+        // sets back down; only report a real change.
+        if (!height || Math.abs(height - lastHeight) < 2) return;
+        lastHeight = height;
+        window.parent.postMessage({ source: '${EMBED_MESSAGE_SOURCE}', slug: slug, height: height }, '*');
+      } catch (e) {}
+    };
+    report();
+    window.addEventListener('load', report);
+    window.addEventListener('resize', report);
+    if (window.ResizeObserver && document.body) {
+      // The calculators grow and shrink as results appear, tables expand and
+      // validation messages come and go, so a load-time measurement goes stale
+      // within seconds of someone using the thing.
+      try { new ResizeObserver(report).observe(document.body); } catch (e) {}
+    } else {
+      // Older browsers: the events that precede almost every height change on
+      // a form-driven page.
+      document.addEventListener('input', report);
+      document.addEventListener('change', report);
+      document.addEventListener('click', report);
+    }
   }
 
   var button = document.querySelector('[data-pf-embed-copy]');

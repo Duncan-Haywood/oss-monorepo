@@ -87,6 +87,7 @@ test("the article links back to the tool and out to every deep calculator", () =
     "shopify-fee-calculator",
     "walmart-marketplace-calculator",
     "faire-wholesale-calculator",
+    "whatnot-seller-payout",
   ]) {
     assert.ok(article.includes(`../${slug}/`), `the article does not link ${slug}`);
   }

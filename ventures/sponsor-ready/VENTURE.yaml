@@ -45,5 +45,5 @@ kill_criteria:
     step DIRECTION.md reserves for publishing under the portfolio's public
     name).
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/sponsor-ready/
   analytics: null

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. Snyk's agent-scan | MCP Supply-Chain Watch</title>
+<meta name="description" content="Snyk's agent-scan is an open-source static security scanner that inspects an MCP server, AI agent, or agent skill's own code and config for vulnerabilities, prompt-injection risk, and tool poisoning. This is a free, offline page that diffs two manifests you already captured to see exactly what changed since approval. Not affiliated with Snyk.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-snyk.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. Snyk's agent-scan">
+<meta property="og:description" content="Two different shapes: agent-scan is a static scanner that inspects a server's code and config for known vulnerability classes. This page is a free, offline diff of two manifests you already captured, built specifically to catch drift after approval.">
+<meta property="og:url" content="https://example.invalid/mcp-supply-chain-watch/vs-snyk.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or Snyk's agent-scan?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs. Snyk's agent-scan is an open-source static security scanner for AI agents, MCP servers, and agent skills: it inspects a server or skill's own source and configuration for known vulnerability classes such as prompt injection, tool poisoning, and toxic flows, as one check in a broader supply-chain security scan. It answers whether a server looks risky by examining what it is. This tool answers a narrower, different question: given two manifests you captured yourself at different times — typically once at approval and again later — exactly which tools were added or removed, and which tool's description or inputSchema changed, including a specific flag for a changed description that newly reads like an instruction aimed at the calling model rather than a human. It never contacts a server, never inspects source code, and never scores risk; it is evidence of drift between two captures, not a vulnerability scan of the server itself. A team that wants a static security scan of a server's code before first approving it is better served by agent-scan or a comparable scanner; a team that already approved a server and wants to know precisely what changed since is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Snyk?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Snyk. Snyk and agent-scan are trademarks/projects of their owner, named here only to describe what this tool is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e1b3a; background: #eef0fc; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #4338ca; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.04em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a3670; }
+  section { background: #fff; border: 1px solid #c7caf0; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1e1b3a10; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c7caf0; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a3670; }
+  .fine, .note { font-size: .88rem; color: #3a3670; }
+  footer { color: #3a3670; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; MCP Supply-Chain Watch</a></p>
+<header>
+<h1>This tool vs. Snyk's agent-scan</h1>
+<p class="lede">Two different shapes: agent-scan is a static security scanner that inspects an MCP server, agent, or skill's own code and configuration for known vulnerability classes, as part of a broader supply-chain scan. This page answers a narrower, different question &mdash; exactly what changed between two manifests you captured yourself, so a server that looked fine at approval can't quietly add instructions aimed at the calling model later.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Snyk's agent-scan</strong> is an open-source security scanner for AI
+  agents, MCP servers, and agent skills. It inspects a server or skill's own
+  source and configuration to detect known vulnerability classes &mdash;
+  prompt injection, tool poisoning, and toxic flows among them &mdash; as one
+  check inside Snyk's broader supply-chain and developer-security tooling.
+  It is built to be run against a server's code, typically before or during
+  onboarding, to decide whether the server looks risky. Snyk's own current
+  plan names and prices are not reachable from this session to confirm, so no
+  dollar figure for it is invented here: only its well-documented identity
+  and category &mdash; an open-source static security scanner for MCP servers
+  and agent skills &mdash; are stated.
+</p>
+<p>
+  This tool does none of what agent-scan does. It never inspects a server's
+  source code, never contacts a server, and never assigns a risk score. You
+  capture a server's own declared tool manifest &mdash; each tool's name,
+  description, and inputSchema &mdash; yourself, at whatever two points in
+  time you choose, typically once at approval and again before trusting the
+  server again. Paste or load both captures and the page lists exactly which
+  tools were added or removed and which tool's description or inputSchema
+  changed, with a separate alert-severity flag when a changed description
+  newly reads like an instruction aimed at the calling model rather than a
+  human reviewer &mdash; the shape of a tool-poisoning or rug-pull attempt
+  that waits until after approval. It runs free in any browser, keeps no
+  account, and uploads nothing you paste.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Does this server's own code or config contain a known vulnerability class before I approve it at all?</td><td>agent-scan, or a comparable static scanner &mdash; inspecting source code is not something this tool does.</td></tr>
+<tr><td>Exactly which tools, descriptions, or input schemas changed between the manifest I approved and the one the server presents now?</td><td>This tool &mdash; free, instant, private, no account, no server contact.</td></tr>
+<tr><td>Did a changed tool description newly start reading like an instruction to the calling model, not a human?</td><td>This tool's own instruction-bearing flag &mdash; see <a href="./what-is-mcp-tool-poisoning.html">what MCP tool poisoning is</a>.</td></tr>
+<tr><td>I want one static scan across many known vulnerability classes as part of onboarding a new server.</td><td>agent-scan &mdash; built as a broader, code-level security scan for exactly that job.</td></tr>
+<tr><td>Do I need to install a scanner or give it access to the server's code to use the tool?</td><td>This tool: no. agent-scan is run directly against a server's own source.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most agent teams get different value from each: agent-scan (or a comparable
+  static scanner) for a code-level security check before or during onboarding,
+  and a free before/after tool like this one for catching drift in what an
+  already-approved server's tools actually say and accept. This page's own
+  output is a drift record between two captures, not a vulnerability scan, a
+  risk score, or a security certification.
+</p>
+<p class="fine">This tool needs no account, no server access, and no code inspection: it is a static page, the comparison runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or Snyk's agent-scan?</h3>
+<p>They do different jobs. Snyk's agent-scan is an open-source static security scanner for AI agents, MCP servers, and agent skills: it inspects a server or skill's own source and configuration for known vulnerability classes such as prompt injection, tool poisoning, and toxic flows, as one check in a broader supply-chain security scan. It answers whether a server looks risky by examining what it is. This tool answers a narrower, different question: given two manifests you captured yourself at different times &mdash; typically once at approval and again later &mdash; exactly which tools were added or removed, and which tool's description or inputSchema changed, including a specific flag for a changed description that newly reads like an instruction aimed at the calling model rather than a human. It never contacts a server, never inspects source code, and never scores risk; it is evidence of drift between two captures, not a vulnerability scan of the server itself. A team that wants a static security scan of a server's code before first approving it is better served by agent-scan or a comparable scanner; a team that already approved a server and wants to know precisely what changed since is in the right place here.</p>
+<h3>Is this page affiliated with Snyk?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Snyk. Snyk and agent-scan are trademarks/projects of their owner, named here only to describe what this tool is and is not.</p>
+<p class="note">
+  Open <a href="./">MCP Supply-Chain Watch</a> to compare your own manifests.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> This page makes no live connection to any MCP server and no live comparison against agent-scan &mdash; it is a static page describing publicly documented facts about agent-scan's product category.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> support never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

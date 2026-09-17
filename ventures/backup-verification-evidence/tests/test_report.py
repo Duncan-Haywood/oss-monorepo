@@ -52,6 +52,39 @@ class ClassifyRunTests(unittest.TestCase):
         self.assertEqual(result["status"], "suspicious")
         self.assertIn("below the expected minimum", result["reasons"][0])
 
+    def test_undersized_artifact_reason_uses_human_readable_sizes(self):
+        # Regression: the shrink-alert / markdown paths were fixed to call
+        # format_bytes, but the undersized-artifact reason still dumped raw
+        # integers ("51200000000 bytes ... minimum of 60000000000"). That
+        # reason is what lands in a ticket when an operator copies the report.
+        record = run(
+            artifact={
+                "exists": True,
+                "size_bytes": 51_200_000_000,
+                "modified_at": "2026-08-24T02:58:00Z",
+            },
+            expected={"min_size_bytes": 60_000_000_000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "suspicious")
+        reason = result["reasons"][0]
+        self.assertIn("51.2 GB", reason)
+        self.assertIn("60.0 GB", reason)
+        self.assertNotIn("51200000000", reason)
+        self.assertNotIn("60000000000", reason)
+
+    def test_undersized_artifact_with_unknown_size_keeps_plain_wording(self):
+        record = run(
+            artifact={"exists": True, "size_bytes": None, "modified_at": "2026-08-24T02:58:00Z"},
+            expected={"min_size_bytes": 1_000_000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "suspicious")
+        reason = result["reasons"][0]
+        self.assertIn("an unknown number of bytes", reason)
+        self.assertIn("1.0 MB", reason)
+        self.assertNotIn("1000000", reason)
+
     def test_stale_artifact_reused_from_a_prior_run_is_suspicious(self):
         record = run(
             finished_at="2026-08-24T03:00:00Z",
@@ -203,6 +236,28 @@ class TrendTests(unittest.TestCase):
     def test_invalid_shrink_ratio_falls_back_to_the_default(self):
         trend = build_trend([self._night("23", 50_000_000)], shrink_ratio=2)
         self.assertEqual(trend["shrink_ratio"], 0.2)
+
+    def test_alert_details_and_the_markdown_table_are_human_readable_not_raw_bytes(self):
+        records = [
+            self._night("21", 50_000_000),
+            self._night("22", 51_200_000),
+            self._night("23", 50_400_000),
+            self._night("24", 12_000_000),
+        ]
+        trend = build_trend(records)
+        for alert in trend["alerts"]:
+            if alert["kind"] == "status_regression":
+                continue
+            self.assertNotRegex(alert["detail"], r"\d+ bytes to \d+ bytes")
+            self.assertRegex(alert["detail"], r"\d+(\.\d+)? (bytes|KB|MB|GB) to \d+(\.\d+)? (bytes|KB|MB|GB)")
+
+        report = build_history_report(records)
+        report["trend"] = trend
+        output = markdown_report(report)
+        for row in trend["rows"]:
+            self.assertNotIn(f"{row['size_bytes']} bytes", output)
+        self.assertIn("50.0 MB", output)
+        self.assertIn("12.0 MB", output)
 
 
 if __name__ == "__main__":

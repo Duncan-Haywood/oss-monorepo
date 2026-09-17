@@ -43,6 +43,12 @@ concurrency:
 jobs:
   page-integrity:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A full-history checkout plus a node --test sweep over every venture
+    # page -- normally under 30s. See hetzner-gitops-ci.yml's timeout-minutes
+    # addition for why an unbounded job is worth capping on a
+    # metered-minutes account; fetch-depth: 0 below is the one step here with
+    # any real network variance.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:

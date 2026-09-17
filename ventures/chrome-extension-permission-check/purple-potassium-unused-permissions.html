@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixing "Purple Potassium" unused-permission rejections in Chrome extensions</title>
+<meta name="description" content="What Chrome Web Store's 'Purple Potassium' unused/excessive permission rejection means, why it happens, and how to find the exact declared-but-unused permission or undeclared API call causing it -- with a free scanner that finds it for you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/chrome-extension-permission-check/purple-potassium-unused-permissions.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix a Chrome Web Store unused-permission (Purple Potassium) rejection",
+  "step": [
+    { "@type": "HowToStep", "name": "List every permission your manifest declares", "text": "Open manifest.json and read the permissions, optional_permissions, and host_permissions arrays -- everything a reviewer will ask you to justify." },
+    { "@type": "HowToStep", "name": "Find which chrome.* API each permission is supposed to unlock, and search your source for it", "text": "Most permissions map to one chrome.<namespace> in the extension APIs (storage -> chrome.storage, tabs -> chrome.tabs, and so on). A permission with no matching call anywhere in your source, including any bundled library, is what reviewers flag as unused or excessive." },
+    { "@type": "HowToStep", "name": "Remove it, scope it, or move it to optional_permissions", "text": "If the code doesn't need it, delete it from the manifest. If it's only needed for one feature some users won't touch, request it as an optional permission at runtime instead of upfront. If it is genuinely required, be ready to say exactly which feature uses it in the permission justification field." },
+    { "@type": "HowToStep", "name": "Re-check before resubmitting", "text": "Re-scan your source and manifest to confirm every declared permission has a matching use, and that no broad host_permissions pattern (<all_urls>, *://*/*) is left unjustified, before you upload the build again." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+</head>
+<body>
+<h1>Fixing "Purple Potassium" unused-permission rejections</h1>
+
+<p>
+  <strong>Purple Potassium</strong> is the internal name Chrome Web Store review
+  uses for a rejection about excessive or unused permissions in
+  <code>manifest.json</code>. Google's own troubleshooting documentation calls
+  requesting a permission you don't actually need the single most common
+  rejection reason for the platform. It applies to both the named API
+  permissions in <code>permissions</code>/<code>optional_permissions</code> and
+  to broad <code>host_permissions</code> patterns like <code>&lt;all_urls&gt;</code>.
+</p>
+
+<h2>Why it happens</h2>
+<p>
+  A reviewer -- or an automated pre-check -- compares your declared permissions
+  against what your extension's code and UI actually appear to do, and cannot
+  find a feature that needs one of them. This is easy to trigger by accident:
+  a permission left over from a removed feature, one copied from a tutorial or
+  boilerplate, or one requested "just in case" for a feature not yet built.
+</p>
+
+<h2>The two shapes of the problem</h2>
+<table>
+<thead><tr><th>Shape</th><th>What it means</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td>Declared, not used</td><td>A permission sits in the manifest with no matching <code>chrome.*</code> call anywhere</td><td>Review rejection (Purple Potassium)</td></tr>
+<tr><td>Used, not declared</td><td>Code calls a <code>chrome.*</code> API whose permission was never added to the manifest</td><td>Runtime failure -- the call throws or silently no-ops, independent of review</td></tr>
+</tbody>
+</table>
+
+<h2>Find the exact permission</h2>
+<p>
+  <a href="index.html">The checker on this site</a> scans your source for the
+  namespace each permission unlocks (<code>chrome.storage</code> for
+  <code>storage</code>, <code>chrome.tabs</code> for <code>tabs</code>, and
+  more than 40 others), reads your manifest, and reports both directions --
+  declared-but-unused and used-but-undeclared -- plus any broad
+  <code>host_permissions</code> pattern, with the exact file and line for
+  every match it can find. It runs as a browser tool (nothing uploaded) or a
+  Node CLI you can add to your own pre-submission check.
+</p>
+
+<p>
+  This is evidence of what the code and the manifest say, not a determination
+  that Chrome Web Store review will pass -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it can and
+  can't see (bundled third-party library code and dynamic imports in
+  particular), and verify against
+  <a href="https://developer.chrome.com/docs/webstore/troubleshooting" rel="noopener">Chrome's current documentation</a>
+  before you resubmit.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Chrome Web Store's own review process.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from
+  its use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Google LLC. Chrome, Chrome Web Store, and "Purple
+  Potassium" are trademarks/terminology of Google LLC, named here only to describe the rejection this page
+  explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

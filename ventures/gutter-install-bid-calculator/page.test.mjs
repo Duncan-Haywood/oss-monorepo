@@ -93,3 +93,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same gutter-contractor trade, but leaf guards on
+// existing trough rather than a new hang. Related-tool chrome rotates
+// inside the trades category, so without an explicit one-hop a crawler
+// on this page may never land on that tool.
+test('index links one hop to the gutter-guard-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/gutter-guard-bid-calculator\/"/,
+    'index must link ../gutter-guard-bid-calculator/ so crawlers reach the guard calculator in one hop',
+  );
+  assert.match(html, /gutter guard bid calculator/i);
+});

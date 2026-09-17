@@ -102,6 +102,25 @@ class MeansRuleTest(unittest.TestCase):
         self.assertEqual(findings[0]["path"], "/payment/means")
         self.assertNotIn("DE89370400440532013000", findings[0]["message"])
 
+    def test_sepa_with_a_wrong_length_iban_is_not_inv_045(self):
+        # A truncated IBAN (20 chars, DE needs 22) is present, just
+        # malformed -- iban.py's own INV-024 covers the length problem.
+        # INV-045 says "without an IBAN", which would be wrong here: this
+        # used to fire it anyway because looks_like_complete_iban read the
+        # wrong-length value as "no IBAN".
+        findings = inspect_payment_means(_invoice({
+            "means": "58",
+            "iban": "DE893704004405320130",
+        }))
+        self.assertEqual(findings, [])
+
+    def test_cash_with_a_wrong_length_iban_is_still_inv_046(self):
+        findings = inspect_payment_means(_invoice({
+            "means": "10",
+            "iban": "DE893704004405320130",
+        }))
+        self.assertEqual([item["rule"] for item in findings], ["INV-046"])
+
 
 class MeansInvoiceIntegrationTest(unittest.TestCase):
     def test_invoice_without_means_stays_clean(self):

@@ -1,0 +1,63 @@
+# Cross-agent PR review configuration.
+#
+# Four agent families (GH Actions, Kilo, Cursor, Claude) each have a GitHub
+# App installation token used ONLY to post pull request reviews. A reviewer
+# never approves a PR it authored — GitHub enforces this; we skip early.
+#
+# Setup: platform/ci/agent_review/README.md
+# Secrets (repo): AGENT_REVIEWER_<NAME>_APP_ID, AGENT_REVIEWER_<NAME>_PRIVATE_KEY
+
+required_approvals: 2
+
+reviewers:
+  gh:
+  # Reviews PRs opened by Kilo, Cursor, Claude, and humans. GH Actions agents
+  # push as github-actions[bot]; that identity cannot submit approving reviews
+  # via GITHUB_TOKEN, so a dedicated reviewer App is required.
+    display_name: GitHub Actions reviewer
+    github_login: portfolio-reviewer-gh[bot]
+    author_skip:
+      - github-actions[bot]
+      - portfolio-reviewer-gh[bot]
+    secrets:
+      app_id: AGENT_REVIEWER_GH_APP_ID
+      private_key: AGENT_REVIEWER_GH_PRIVATE_KEY
+
+  kilo:
+    display_name: Kilo Code reviewer
+    github_login: kilo-code-bot[bot]
+    author_skip:
+      - kilo-code-bot[bot]
+    secrets:
+      app_id: AGENT_REVIEWER_KILO_APP_ID
+      private_key: AGENT_REVIEWER_KILO_PRIVATE_KEY
+
+  cursor:
+    display_name: Cursor reviewer
+    # Cursor Cloud PRs show author login "cursor" (app/cursor installation).
+    github_login: cursor[bot]
+    author_skip:
+      - cursor[bot]
+      - app/cursor
+    secrets:
+      app_id: AGENT_REVIEWER_CURSOR_APP_ID
+      private_key: AGENT_REVIEWER_CURSOR_PRIVATE_KEY
+
+  claude:
+    display_name: Claude reviewer
+    # Claude Code sessions often push as the owner; the reviewer App is a
+    # separate identity so approvals are not self-reviews.
+    github_login: portfolio-reviewer-claude[bot]
+    author_skip:
+      - portfolio-reviewer-claude[bot]
+      - Duncan-Haywood
+    secrets:
+      app_id: AGENT_REVIEWER_CLAUDE_APP_ID
+      private_key: AGENT_REVIEWER_CLAUDE_PRIVATE_KEY
+
+# Logins whose APPROVE reviews count toward auto-merge.
+allowed_approvers:
+  - portfolio-reviewer-gh[bot]
+  - kilo-code-bot[bot]
+  - cursor[bot]
+  - portfolio-reviewer-claude[bot]

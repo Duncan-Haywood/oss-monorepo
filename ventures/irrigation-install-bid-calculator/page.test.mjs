@@ -198,3 +198,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same irrigation-contractor job, but a sprinkler blowout /
+// winterization rather than a new install. Related-tool chrome rotates inside
+// the landscape subcategory, so without an explicit one-hop a crawler on this
+// page may never land on that tool.
+test('index links one hop to the irrigation-winterization-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/irrigation-winterization-bid-calculator\/"/,
+    'index must link ../irrigation-winterization-bid-calculator/ so crawlers reach the blowout calculator in one hop',
+  );
+  assert.match(html, /irrigation winterization bid calculator/i);
+});

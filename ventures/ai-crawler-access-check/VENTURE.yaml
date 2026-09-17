@@ -1,0 +1,58 @@
+name: ai-crawler-access-check
+description: Free tool that checks a robots.txt against 15 named AI-crawler user-agents (GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and more) and reports allowed/blocked/partially-blocked per crawler, plus a structural check of llms.txt, with a matching zero-dependency Node CLI that can fetch a live domain or run as a CI gate.
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up, and not a trade-bid calculator: same
+# archetype as ventures/actions-runner-starvation-check and
+# ventures/flaky-test-finder (developer/webmaster CLI+browser checker), the
+# shape portfolio/pipeline/README.md's "archetype itself" section (2026-09-07)
+# argues for over a 142nd <trade>-bid-calculator, since 141 of 200 ventures
+# already share that one shape with zero recorded visitors between them.
+# duplicate_check.py scored every existing venture, screened-out.md row, and
+# pipeline candidate against this niche below 0.15 (nothing near the 0.45
+# review bar) for both "robots.txt and llms.txt AI crawler access checker for
+# website owners" and "sales tax economic nexus threshold tracker" (the
+# alternative niche considered and rejected for touching the screened-out "AI
+# legal / medical / tax advice products" category even though this one is
+# deterministic, not advisory).
+#
+# Distribution channel this was picked for: site owners and SEO practitioners
+# actively deciding whether to block AI crawlers from training on their
+# content, or to keep AI-search crawlers in (ChatGPT search, Perplexity)
+# because they drive citations. That is an active, ongoing discussion in
+# r/TechSEO, r/SEO, r/webdev threads about "blocking GPTBot" and "llms.txt",
+# and in webmaster-forum threads on robots.txt AI-bot handling, plus the
+# search phrases "block GPTBot robots.txt", "llms.txt checker", and "AI
+# crawler access audit" -- this session has no live internet access to pull a
+# current search-volume number, so that channel claim is reasoned from known,
+# stable webmaster/SEO community behavior, not a verified traffic figure; the
+# next session that can browse should confirm before this is over-relied on.
+hypotheses:
+  - claim: A site owner or SEO practitioner deciding whether to block AI training crawlers, or checking they haven't accidentally blocked an AI-search crawler they want, will search for a tool that reads their robots.txt directly instead of manually cross-referencing 15 different operators' docs pages.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team that wants this as an ongoing CI gate (e.g. "fail the build if GPTBot is ever allowed again") will wire cli.mjs into their own pipeline, since it needs no account and fetches only the domain they name.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ai-crawler-access-check/
+  analytics: null

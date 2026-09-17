@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Your Kubernetes Rollout Drops Requests (And How to Stop It)</title>
+  <meta name="description" content="A rolling update is not the same as zero downtime. The two races that drop live requests during a Kubernetes rollout — readiness on the way in, endpoint propagation on the way out — and the exact YAML that closes each one.">
+  <link rel="canonical" href="./why-your-kubernetes-rollout-drops-requests.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a pod receive traffic before it is ready?","acceptedAnswer":{"@type":"Answer","text":"Because without a readinessProbe, Ready is defined as \"the container process started\". Kubernetes has no other way to know whether the application inside can serve a request, so it assumes it can. The Service adds the pod to its EndpointSlice immediately and the load balancer starts routing to it — while the app is still opening database connections, loading configuration, or warming a cache. Every request that lands in that window fails, on every rollout, and the rollout still reports success."}},{"@type":"Question","name":"Why does a pod receive traffic after it has been told to shut down?","acceptedAnswer":{"@type":"Answer","text":"Because pod deletion starts two independent processes at the same instant, and neither waits for the other. The kubelet sends SIGTERM to the container. Separately, the endpoints controller removes the pod from EndpointSlice, and that removal then has to propagate to every kube-proxy on every node and to every ingress controller. Propagation takes time. An application that shuts down promptly and correctly on SIGTERM can therefore finish before the proxies have stopped routing to it, and every connection they open in that window is refused."}},{"@type":"Question","name":"How long should the preStop sleep be?","acceptedAnswer":{"@type":"Answer","text":"Long enough for EndpointSlice removal to reach every proxy, which depends on cluster size and ingress controller. Five to fifteen seconds is a common starting point, and the way to tune it is to measure: send steady traffic, delete a pod, and see whether any request fails. The important part is that terminationGracePeriodSeconds must exceed the preStop wait plus the longest request the application needs to finish — the grace period covers both, and SIGKILL at the end of it does not care what is still in flight."}},{"@type":"Question","name":"Does a PodDisruptionBudget help during a rollout?","acceptedAnswer":{"@type":"Answer","text":"Not directly — a Deployment's own rollout is governed by maxUnavailable and maxSurge, not by the budget. A PodDisruptionBudget governs other voluntary disruptions, and the one that matters most is a node drain during a cluster upgrade, which is otherwise free to evict every replica of a workload at once. It is also possible to set a budget that can never be satisfied (minAvailable equal to the replica count), and that failure is unusually quiet: kubectl drain does not error, it blocks and retries indefinitely, so the upgrade appears to hang."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 780px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.1; color: #17324a; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    pre { background: #fff; border: 1px solid #d5dbe3; padding: 14px; border-radius: 10px; overflow-x: auto; font-size: .86rem; line-height: 1.5; }
+    code { overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .cta { background: #fff; border: 1px solid #d5dbe3; border-radius: 12px; padding: 18px; margin: 22px 0; }
+  </style>
+</head>
+<body>
+  <h1>Why your Kubernetes rollout drops requests</h1>
+  <p class="note">A practical guide · <a href="./">back to the rollout safety checker</a></p>
+
+  <p>A <code>RollingUpdate</code> deploy reports success. <code>kubectl rollout status</code> says the deployment is available. And a handful of users got a <code>502</code> or a connection reset while it was happening — not enough to page anyone, just enough to show up as a small, unexplained error spike that recurs on exactly the days you deploy.</p>
+
+  <p>This is not a bug in Kubernetes, and it is not usually a bug in the application either. It is the default behaviour of a manifest that has not been told otherwise. There are two separate races, one on each side of a pod's life, and they need different fixes.</p>
+
+  <h2>Race one: traffic arrives before the pod can serve it</h2>
+  <h3>Why does a pod receive traffic before it is ready?</h3>
+  <p>Because without a <code>readinessProbe</code>, <em>Ready</em> is defined as "the container process started". Kubernetes has no other way to know whether the application inside can serve a request, so it assumes it can. The Service adds the pod to its EndpointSlice immediately and the load balancer starts routing to it — while the app is still opening database connections, loading configuration, or warming a cache. Every request that lands in that window fails, on every rollout, and the rollout still reports success.</p>
+
+  <p>The fix is a readiness probe that actually fails while the app cannot serve:</p>
+  <pre><code>readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 8080
+  periodSeconds: 5
+  failureThreshold: 2</code></pre>
+
+  <p>The endpoint matters as much as the probe. A <code>/readyz</code> that returns <code>200</code> from a static handler proves only that the HTTP server is listening — which is almost the same thing as no probe at all. It should check the dependencies a real request needs, and report not-ready while any of them is unavailable.</p>
+
+  <h2>Race two: traffic arrives after the pod has been told to stop</h2>
+  <h3>Why does a pod receive traffic after it has been told to shut down?</h3>
+  <p>Because pod deletion starts two independent processes at the same instant, and neither waits for the other. The kubelet sends SIGTERM to the container. Separately, the endpoints controller removes the pod from EndpointSlice, and that removal then has to propagate to every kube-proxy on every node and to every ingress controller. Propagation takes time. An application that shuts down promptly and correctly on SIGTERM can therefore finish before the proxies have stopped routing to it, and every connection they open in that window is refused.</p>
+
+  <p>This one surprises people because the application is behaving <em>well</em>. Handling SIGTERM quickly makes it worse, not better: the faster the container exits, the wider the window in which proxies are still sending it work.</p>
+
+  <p>The fix is a preStop hook whose entire job is to wait, so the removal has time to land before shutdown begins:</p>
+  <pre><code>lifecycle:
+  preStop:
+    sleep:
+      seconds: 10          # Kubernetes 1.29+
+      # older clusters:
+      # exec:
+      #   command: ["/bin/sh", "-c", "sleep 10"]
+terminationGracePeriodSeconds: 45</code></pre>
+
+  <h3>How long should the preStop sleep be?</h3>
+  <p>Long enough for EndpointSlice removal to reach every proxy, which depends on cluster size and ingress controller. Five to fifteen seconds is a common starting point, and the way to tune it is to measure: send steady traffic, delete a pod, and see whether any request fails. The important part is that <code>terminationGracePeriodSeconds</code> must exceed the preStop wait plus the longest request the application needs to finish — the grace period covers both, and SIGKILL at the end of it does not care what is still in flight.</p>
+
+  <p>That last point is the trap worth stating plainly. The grace period clock starts when the pod is deleted, not when preStop returns. A 30-second preStop under the default 30-second grace period means the container is killed at the exact moment it was finally asked to shut down, so it never drains at all — a configuration that looks more careful than having no preStop hook, and behaves worse.</p>
+
+  <h2>The rollout arithmetic</h2>
+  <p>Kubernetes resolves <code>maxUnavailable</code> by rounding <em>down</em> and <code>maxSurge</code> by rounding <em>up</em>. The 25%/25% default at 3 replicas therefore means <code>maxUnavailable: 0, maxSurge: 1</code> — a replacement starts and becomes ready before anything is removed, which is the behaviour you want. It is worth knowing the default is usually fine, because the instinct on reading an article like this one is to change every setting, and most of the damage here comes from a value someone set deliberately:</p>
+  <pre><code>strategy:
+  rollingUpdate:
+    maxUnavailable: 0     # never drop below the current capacity
+    maxSurge: 1           # start one extra, wait for Ready, then retire one</code></pre>
+
+  <h3>Does a PodDisruptionBudget help during a rollout?</h3>
+  <p>Not directly — a Deployment's own rollout is governed by <code>maxUnavailable</code> and <code>maxSurge</code>, not by the budget. A PodDisruptionBudget governs other voluntary disruptions, and the one that matters most is a node drain during a cluster upgrade, which is otherwise free to evict every replica of a workload at once. It is also possible to set a budget that can never be satisfied (<code>minAvailable</code> equal to the replica count), and that failure is unusually quiet: <code>kubectl drain</code> does not error, it blocks and retries indefinitely, so the upgrade appears to hang.</p>
+
+  <div class="cta">
+    <p><strong>Check your own manifest.</strong> <a href="./">The rollout safety checker</a> reads a Deployment and reports every one of these, with the YAML to fix each. It runs in your browser or as a zero-dependency CLI, never connects to a cluster, and uploads nothing.</p>
+  </div>
+
+  <h2>A checklist, in the order they bite</h2>
+  <ol>
+    <li><strong>readinessProbe</strong> that fails while the app cannot serve — otherwise traffic arrives too early, every rollout.</li>
+    <li><strong>preStop wait</strong> so endpoint removal propagates before shutdown starts.</li>
+    <li><strong>terminationGracePeriodSeconds</strong> greater than the preStop wait plus your longest request.</li>
+    <li><strong>maxUnavailable: 0</strong> with <code>maxSurge: 1</code> when capacity is tight, so the service never dips below its current size.</li>
+    <li><strong>startupProbe</strong> for anything slow to boot, so the livenessProbe does not kill it mid-startup.</li>
+    <li><strong>A livenessProbe that is not a copy of the readinessProbe</strong>, so a slow dependency removes a pod from rotation instead of restarting it.</li>
+    <li><strong>A PodDisruptionBudget below the replica count</strong>, so a node drain can make progress but not take everything.</li>
+  </ol>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free and as-is, without warranty of any kind, express or implied. It is general technical writing, not a production-readiness audit or advice about your specific cluster, and it does not replace a qualified professional. Test any change here against your own workload before applying it to production.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These pages are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p><a href="./">Kubernetes Rollout Safety Check</a> · <a href="vs-kube-score.html">compared with kube-score</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and changes nothing about the tool.</p>
+  </footer>
+</body>
+</html>

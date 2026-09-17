@@ -96,6 +96,23 @@ test('the stylesheet makes the wrapper scroll and print whole', () => {
   assert.match(REFLOW_CSS, /@media print\{[^}]*overflow-x:visible/);
 });
 
+test('a <pre> scrolls on screen and wraps on paper', () => {
+  // Cause (3). The screen rule mirrors the table's: scroll the block, not the
+  // page, so an install command stays copyable as the one line it was written
+  // as. `vendor-change-watch` was 649px inside a 360px window on this.
+  assert.match(REFLOW_CSS, /:where\(pre\)\{overflow-x:auto/);
+  // Zero specificity, so a venture that styled its own <pre> still wins —
+  // the same contract every other relaxation in this file signs.
+  assert.ok(
+    !/(^|[^:(\w])pre\{/.test(REFLOW_CSS.replace(/:where\(pre\)/g, '')),
+    'the <pre> rule must only appear inside :where()',
+  );
+  // Paper cannot scroll, so the trade inverts: wrap rather than crop at the
+  // edge of the sheet. `pre-wrap` still preserves every space and newline.
+  const print = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media print{:where(pre)'));
+  assert.match(print, /^@media print\{:where\(pre\)\{[^}]*white-space:pre-wrap/);
+});
+
 test('the min-width relaxations are zero-specificity and phone-only', () => {
   const narrow = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media (max-width:640px)'));
   assert.ok(narrow.includes('min-width:0'), 'the relaxation is inside the narrow-viewport query');
@@ -110,6 +127,54 @@ test('the min-width relaxations are zero-specificity and phone-only', () => {
   // term column open.
   assert.ok(!/:where\([^)]*\bdt\b/.test(narrow));
   assert.ok(!/:where\(\*\)/.test(narrow), 'the blunt rule was measured and was worse than the bug');
+});
+
+test('headings may break a long word, and only where one would overflow', () => {
+  // Cause (4): `vs-securityheaders.html` was 365px inside a 360px window, the
+  // whole 5px coming from an <h1> naming a bare domain.
+  assert.match(REFLOW_CSS, /:where\(h1,h2,h3,h4,h5,h6\)\{overflow-wrap:break-word\}/);
+
+  // `anywhere` also shrinks min-content width, which resizes the heading's
+  // flex/grid parent on every page. `break-word` does not, which is the whole
+  // reason it is the one chosen.
+  assert.ok(
+    !/overflow-wrap:\s*anywhere/.test(REFLOW_CSS),
+    'break-word is deliberate: anywhere would change layout everywhere to fix one page',
+  );
+
+  // Zero specificity, so a venture that set its own heading wrapping keeps it.
+  const rule = REFLOW_CSS.split('\n').find((line) => /^\s*[^\s/*].*overflow-wrap:break-word/.test(line));
+  assert.match(rule.trim(), /^:where\(/);
+
+  // Not inside the narrow-viewport query: a token too long for the line is too
+  // long at any width.
+  const narrow = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media (max-width:640px)'));
+  const narrowBlockEnd = narrow.indexOf('\n}');
+  assert.ok(
+    !narrow.slice(0, narrowBlockEnd).includes('overflow-wrap:break-word'),
+    'heading wrapping must apply at every viewport, not only on a phone',
+  );
+});
+
+test('inline code may break a long unbreakable flag or hostname, in body copy too', () => {
+  // Cause (4) again: openapi-breaking-change-check/vs-oasdiff.html was 364px
+  // inside a 360px window, the whole 4px coming from an inline
+  // <code>--fail-on-breaking</code> in a <p>, not a heading and not a table.
+  assert.match(REFLOW_CSS, /:where\(code\)\{overflow-wrap:break-word\}/);
+
+  // Zero specificity, same reasoning as the heading rule: a venture that set
+  // its own wrapping on a <code> element keeps it.
+  const rule = REFLOW_CSS.split('\n').find((line) => /^\s*[^\s/*].*code.*overflow-wrap:break-word/.test(line));
+  assert.match(rule.trim(), /^:where\(/);
+
+  // Not inside the narrow-viewport query, for the same reason as headings: an
+  // unbreakable token is too long at any width.
+  const narrow = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media (max-width:640px)'));
+  const narrowBlockEnd = narrow.indexOf('\n}');
+  assert.ok(
+    !narrow.slice(0, narrowBlockEnd).includes('code'),
+    'code wrapping must apply at every viewport, not only on a phone',
+  );
 });
 
 test('the runtime wrap skips a table that is already boxed', () => {

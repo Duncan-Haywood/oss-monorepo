@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home Inspection Fee Calculator — Price a Residential Inspection</title>
+<meta name="description" content="Free calculator for independent home inspectors: price a residential inspection by square footage, stories, foundation type, and home age, add radon, sewer scope, termite/WDO, and mold testing at their own fee, then check whether a week of inspections hits your income goal.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Home Inspection Fee Calculator">
+<meta property="og:description" content="Stop guessing your fee before you've seen the crawlspace. Price a residential inspection from square footage, stories, foundation type, and age, plus radon, sewer scope, termite/WDO, and mold add-ons — then check a week of inspections against your income goal.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Inspection Fee Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a residential home inspection from on-site time driven by square footage, stories, foundation type, and home age, a mileage-based travel cost, an optional same-day rush report premium applied to labor time only, flat fees for radon, sewer scope, termite/WDO, and mold add-on services, per-job overhead, and a target margin, then checks a week of inspections against a weekly income goal.","featureList":"residential inspection fee pricing, square-footage and age-based time estimate, foundation-type time premium, mileage travel cost, same-day rush premium, radon/sewer-scope/termite-WDO/mold add-on pricing, weekly income goal check"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a crawlspace or basement cost more than a slab foundation?","acceptedAnswer":{"@type":"Answer","text":"A slab has nothing underneath to inspect. A crawlspace means suiting up and physically moving through a tight space to check the underside of the structure, and a basement usually holds the mechanicals (furnace, water heater, panel) in one place that still has to be inspected on top of the rest of the house. This calculator adds a flat time premium for each, on top of the square-footage base."}},{"@type":"Question","name":"Why does the rush report premium apply to labor time and not to travel or add-ons?","acceptedAnswer":{"@type":"Answer","text":"A same-day or rush turnaround costs you scheduling flexibility on the inspection itself, not a discount on the mileage you already drove or the radon canister you already paid for. This calculator applies the rush premium to on-site labor cost only, the same way an after-hours premium applies to billed time rather than to parts in this portfolio's other trade calculators."}},{"@type":"Question","name":"Why are radon, sewer scope, termite/WDO, and mold priced as flat add-on fees instead of more minutes?","acceptedAnswer":{"@type":"Answer","text":"Each of those is usually a separate instrument, a separate specialist visit, or a lab sample with its own turnaround — not simply more time spent walking the same house. Pricing them as their own flat fee keeps that cost visible instead of folding it into a vaguer per-square-foot number."}},{"@type":"Question","name":"Does this calculator replace my own state licensing requirements or InterNACHI/ASHI Standards of Practice?","acceptedAnswer":{"@type":"Answer","text":"No. It only does arithmetic on the numbers you type in — time, mileage, add-on fees, overhead, and margin — to suggest a price. It says nothing about what your state licence requires you to inspect, what your governing Standards of Practice cover, or what your errors-and-omissions policy actually insures. Verify all of that against your own licensing board and standards body."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only, and nothing is sent to a server or an account. Your last job's numbers are saved locally on this device so you don't retype them. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#1b2430;background:#f2f6f5}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2rem,6vw,3.8rem);line-height:1;letter-spacing:-.04em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfe0dc;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a2a2308;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dcece7;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#0f6b52;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}label.checkbox{display:flex;flex-direction:row;align-items:center;gap:8px;font-weight:650}label.checkbox input{width:auto}input,select{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b9d6cd;border-radius:8px;font:inherit;background:#fbfffd}.result{background:#0f4c3a;color:#fff;border-color:#0f4c3a;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.7rem;font-weight:750;letter-spacing:-.03em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4d6058}.result .note{color:#cfe9df}.err{color:#ffd1a6;font-weight:700}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b9d6cd;background:#fff;cursor:pointer;color:#1b2430}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT HOME INSPECTORS</p><h1>Price the inspection before you've even seen the crawlspace.</h1><p class="lede">A franchise brand hands its inspectors a fee schedule. Independents build their own, and the number that actually drives on-site time &mdash; stories, foundation access, the home's age &mdash; is easy to fold into a flat per-square-foot guess that quietly underprices an older crawlspace house. This free calculator prices one inspection from those specifics, adds radon, sewer scope, termite/WDO, and mold at their own fee, and checks whether a week of bookings hits your income goal.</p><p class="lede">See a full worked example in <a href="how-to-price-a-home-inspection.html">how to price a home inspection</a>.</p></header>
+
+<main class="layout">
+<section><h2>Price one inspection</h2>
+<fieldset><legend>Property</legend><div class="fields">
+<label>Square footage<input id="squareFootage" type="number" min="0" step="50" value="2000"></label>
+<label>Stories<input id="stories" type="number" min="1" max="6" step="1" value="2"></label>
+<label>Foundation type<select id="foundationType"><option value="slab">Slab</option><option value="crawlspace" selected>Crawlspace</option><option value="basement">Basement</option></select></label>
+<label>Home age (years)<input id="homeAgeYears" type="number" min="0" step="1" value="25"></label>
+</div></fieldset>
+<fieldset><legend>Travel</legend><div class="fields">
+<label>Round-trip travel miles<input id="roundTripMiles" type="number" min="0" step="1" value="20"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.7"></label>
+</div></fieldset>
+<fieldset><legend>Rate &amp; rush</legend><div class="fields">
+<label>Hourly rate ($/hr)<input id="baseHourlyRate" type="number" min="0" step="5" value="100"></label>
+<label class="checkbox"><input id="rushReport" type="checkbox"> Same-day / rush turnaround</label>
+<label>Rush premium (%)<input id="rushFeePct" type="number" min="0" max="200" step="5" value="15"></label>
+</div></fieldset>
+<fieldset><legend>Add-on services</legend><div class="fields">
+<label class="checkbox"><input id="radon" type="checkbox"> Radon test</label>
+<label>Radon fee ($)<input id="radonFee" type="number" min="0" step="5" value="150"></label>
+<label class="checkbox"><input id="sewerScope" type="checkbox"> Sewer scope</label>
+<label>Sewer scope fee ($)<input id="sewerScopeFee" type="number" min="0" step="5" value="175"></label>
+<label class="checkbox"><input id="termiteWdo" type="checkbox"> Termite / WDO inspection</label>
+<label>Termite/WDO fee ($)<input id="termiteWdoFee" type="number" min="0" step="5" value="90"></label>
+<label class="checkbox"><input id="moldTest" type="checkbox"> Mold air sample</label>
+<label>Mold test fee ($)<input id="moldTestFee" type="number" min="0" step="5" value="125"></label>
+</div></fieldset>
+<fieldset><legend>Overhead &amp; margin</legend><div class="fields">
+<label>Overhead per job ($)<input id="overheadPerJob" type="number" min="0" step="5" value="35"></label>
+<label>Target margin (%)<input id="targetMarginPct" type="number" min="0" max="99" step="1" value="25"></label>
+</div></fieldset>
+<p id="draftStatus" class="note" role="status">This job's numbers are saved locally in this browser so you don't retype them next time. Nothing is uploaded.</p>
+<div class="actions">
+<button type="button" id="reset">Reset to defaults</button>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>Suggested fee</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Estimated on-site time</dt><dd id="hoursOut"></dd>
+<dt>Labor cost</dt><dd id="laborOut"></dd>
+<dt>Rush premium</dt><dd id="rushOut"></dd>
+<dt>Travel cost</dt><dd id="travelOut"></dd>
+<dt>Add-on services</dt><dd id="addOnsOut"></dd>
+<dt>Overhead</dt><dd id="overheadOut"></dd>
+<dt>Total cost</dt><dd id="costOut"></dd>
+<dt>Profit</dt><dd id="profitOut"></dd>
+<dt>Actual margin</dt><dd id="marginOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited quote. It does not add sales tax, annual E&amp;O/liability insurance renewal, or continuing-education cost unless you fold those into overhead yourself.</p>
+</section>
+
+<section><h2>This week's income check</h2><p class="note">Use the profit above (or your own estimate) to check whether a week of inspections hits your income goal.</p>
+<div class="fields">
+<label>Profit per inspection ($)<input id="profitPerInspection" type="number" step="1" value="140"></label>
+<label>Inspections scheduled this week<input id="inspectionsPerWeek" type="number" min="0" step="1" value="5"></label>
+<label>Target weekly income ($)<input id="targetWeeklyIncome" type="number" min="0" step="50" value="2000"></label>
+</div>
+<p id="weeklyErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Total profit this week</dt><dd id="weeklyTotal"></dd>
+<dt>Gap to income goal</dt><dd id="weeklyGap"></dd>
+<dt>Additional inspections to close it</dt><dd id="weeklyExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your last job's numbers are saved locally on this device so you don't retype them next time &mdash; <strong>Reset to defaults</strong> clears them. We count only anonymous local feature events (<code>quote-priced</code>, <code>weekly-goal-check</code>) so we can tell whether the calculator gets used &mdash; no fees, addresses, or income figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does a crawlspace or basement cost more than a slab foundation?</h3><p>A slab has nothing underneath to inspect. A crawlspace means suiting up and physically moving through a tight space to check the underside of the structure, and a basement usually holds the mechanicals (furnace, water heater, panel) in one place that still has to be inspected on top of the rest of the house. This calculator adds a flat time premium for each, on top of the square-footage base.</p>
+<h3>Why does the rush report premium apply to labor time and not to travel or add-ons?</h3><p>A same-day or rush turnaround costs you scheduling flexibility on the inspection itself, not a discount on the mileage you already drove or the radon canister you already paid for. This calculator applies the rush premium to on-site labor cost only, the same way an after-hours premium applies to billed time rather than to parts in this portfolio's other trade calculators.</p>
+<h3>Why are radon, sewer scope, termite/WDO, and mold priced as flat add-on fees instead of more minutes?</h3><p>Each of those is usually a separate instrument, a separate specialist visit, or a lab sample with its own turnaround &mdash; not simply more time spent walking the same house. Pricing them as their own flat fee keeps that cost visible instead of folding it into a vaguer per-square-foot number.</p>
+<h3>Does this calculator replace my own state licensing requirements or InterNACHI/ASHI Standards of Practice?</h3><p>No. It only does arithmetic on the numbers you type in &mdash; time, mileage, add-on fees, overhead, and margin &mdash; to suggest a price. It says nothing about what your state licence requires you to inspect, what your governing Standards of Practice cover, or what your errors-and-omissions policy actually insures. Verify all of that against your own licensing board and standards body.</p>
+<h3>Does anything I type get uploaded?</h3><p>No. Every field on this page runs in your browser only, and nothing is sent to a server or an account. Your last job's numbers are saved locally on this device so you don't retype them. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+
+<p><a href="how-to-price-a-home-inspection.html">Guide: how to price a home inspection</a></p>
+</section>
+
+<p>Prepping a property for the market instead of buying one? The <a href="../real-estate-agent-photo-app/">real estate agent photo app</a> handles listing photo delivery &mdash; nothing uploaded here either.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, licensing, insurance, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not verify a home inspector license, insurance, or continuing-education status, does not determine what your state or governing Standards of Practice require you to inspect, and does not replace your own E&amp;O policy, contract, or accountant.</p><p>MIT licensed. If it helped you price a job, the <a href="LICENSE">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+</main>
+
+<script type="module">
+import { calculateQuote, weeklyIncomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+const FLAG_IDS = FIELD_IDS.filter(id => typeof DEFAULTS[id] === 'boolean');
+const NUMBER_IDS = FIELD_IDS.filter(id => !FLAG_IDS.includes(id) && id !== 'foundationType');
+const WEEKLY_IDS = ['profitPerInspection', 'inspectionsPerWeek', 'targetWeeklyIncome'];
+const DRAFT_KEY = 'home-inspection-fee-calculator-draft';
+let counted = false;
+let weeklyCounted = false;
+
+function readInput() {
+  const out = {};
+  for (const id of FLAG_IDS) out[id] = el(id).checked;
+  for (const id of NUMBER_IDS) out[id] = el(id).value;
+  out.foundationType = el('foundationType').value;
+  return out;
+}
+
+function count(event) { recordEvent(event); }
+
+function persistDraft() {
+  try {
+    const values = { ...readInput(), ...Object.fromEntries(WEEKLY_IDS.map(id => [id, el(id).value])) };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(values));
+  } catch { /* private browsing */ }
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return false;
+    const values = JSON.parse(raw);
+    for (const id of FLAG_IDS) if (typeof values[id] === 'boolean' && el(id)) el(id).checked = values[id];
+    for (const id of NUMBER_IDS) if (values[id] !== undefined && el(id)) el(id).value = values[id];
+    if (values.foundationType && el('foundationType')) el('foundationType').value = values.foundationType;
+    for (const id of WEEKLY_IDS) if (values[id] !== undefined && el(id)) el(id).value = values[id];
+    return true;
+  } catch { return false; }
+}
+
+function updateQuote(count = false) {
+  try {
+    const r = calculateQuote(readInput());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.finalPrice);
+    el('rateLine').textContent = `about ${money(r.effectiveHourlyRate)}/hr all-in across ${r.onSiteHours.toFixed(2)} on-site hrs`;
+    el('hoursOut').textContent = `${r.onSiteHours.toFixed(2)} hrs`;
+    el('laborOut').textContent = money(r.laborCost);
+    el('rushOut').textContent = money(r.rushSurcharge);
+    el('travelOut').textContent = money(r.travelCost);
+    el('addOnsOut').textContent = money(r.addOnsTotal);
+    el('overheadOut').textContent = money(r.overheadPerJob);
+    el('costOut').textContent = money(r.cost);
+    el('profitOut').textContent = money(r.profit);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    if (count && !counted) { recordEvent('quote-priced'); counted = true; }
+    return r;
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    for (const id of ['rateLine', 'hoursOut', 'laborOut', 'rushOut', 'travelOut', 'addOnsOut', 'overheadOut', 'costOut', 'profitOut', 'marginOut']) el(id).textContent = '';
+    return null;
+  }
+}
+
+function updateWeekly(count = false) {
+  try {
+    const target = parseFloat(el('targetWeeklyIncome').value) || 0;
+    const perJob = parseFloat(el('profitPerInspection').value);
+    const jobs = parseFloat(el('inspectionsPerWeek').value);
+    const gap = weeklyIncomeGap(target, perJob, jobs);
+    el('weeklyErrors').hidden = true; el('weeklyErrors').textContent = '';
+    el('weeklyTotal').textContent = money(gap.totalWeeklyProfit);
+    el('weeklyGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('weeklyExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalJobsNeeded === null ? 'raise profit per job' : String(gap.additionalJobsNeeded));
+    if (count && !weeklyCounted) { recordEvent('weekly-goal-check'); weeklyCounted = true; }
+  } catch (e) {
+    el('weeklyErrors').textContent = e.message; el('weeklyErrors').hidden = false;
+    for (const id of ['weeklyTotal', 'weeklyGap', 'weeklyExtra']) el(id).textContent = '';
+  }
+}
+
+[...FIELD_IDS.filter(id => id !== 'foundationType'), ...WEEKLY_IDS].forEach(id => {
+  const isFlag = FLAG_IDS.includes(id);
+  el(id).addEventListener(isFlag ? 'change' : 'input', () => {
+    if (WEEKLY_IDS.includes(id)) { updateWeekly(true); } else { updateQuote(true); }
+    persistDraft();
+  });
+});
+el('foundationType').addEventListener('change', () => { updateQuote(true); persistDraft(); });
+
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('reset').addEventListener('click', () => {
+  try { localStorage.removeItem(DRAFT_KEY); } catch { /* private browsing */ }
+  location.reload();
+});
+
+if (restoreDraft()) el('draftStatus').textContent = 'Restored your last job from this browser.';
+
+updateQuote(false);
+updateWeekly(false);
+</script>
+</body></html>

@@ -80,6 +80,27 @@ test("NL elfproef weighs the check digit at -1, not +1", () => {
   // example the Dutch tax authority format uses.
 });
 
+test("IE legacy letter-second-character shape rearranges before weighing", () => {
+  // The 8-character Irish shape covers two different real numbers: the
+  // common one is 7 digits plus a check letter (already covered by
+  // IE6433435F above); the legacy one is a digit, a letter, 5 digits, and a
+  // check letter -- e.g. "8Z49289F". Revenue's own check-digit definition
+  // does not weigh a legacy number as typed. It first rearranges it to
+  // "0" + the middle 5 digits + the leading digit, *then* applies the same
+  // weights [8,7,6,5,4,3,2] mod 23: "0" + "49289" + "8" = "0492898" ->
+  // 0*8+4*7+9*6+2*5+8*4+9*3+8*2 = 167, 167 % 23 = 6 -> "F" (0 is "W", so 6
+  // is the 7th letter after it: "F").
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "IE8Z49289F" }, "supplier"), []);
+  // Same number, wrong check letter.
+  const findings = inspectPartyVat({ id: "S1", name: "A", vat_id: "IE8Z49289X" }, "supplier");
+  assert.deepEqual(findings.map((item) => item.rule), ["INV-023"]);
+  // The old code spliced a literal "7" in for the letter and left the
+  // leading digit in place instead of moving it to the end -- it computed a
+  // checksum for "872492898"->"8749289" (never rearranged, never prepended a
+  // "0"), landing on weighted sum 232, 232 % 23 = 2 -> "B". Every genuinely
+  // valid legacy-format Irish VAT number therefore failed this check.
+});
+
 test("explicit wrong shape is format not checksum", () => {
   const findings = inspectPartyVat({ id: "S1", name: "A", vat_id: "DE123" }, "customer");
   assert.deepEqual(findings.map((item) => item.rule), ["INV-022"]);

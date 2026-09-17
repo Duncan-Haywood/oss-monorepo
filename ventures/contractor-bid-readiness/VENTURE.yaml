@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three contractors complete two bid checks within 90 days.
   - Users do not find at least one missing artifact before submission in the first 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/contractor-bid-readiness/
   analytics: null

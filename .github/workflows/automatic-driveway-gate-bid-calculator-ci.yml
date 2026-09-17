@@ -31,6 +31,7 @@ concurrency:
 jobs:
   site-test:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ventures/automatic-driveway-gate-bid-calculator

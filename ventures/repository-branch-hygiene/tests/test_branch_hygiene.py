@@ -103,12 +103,20 @@ class BranchHygieneTests(unittest.TestCase):
 
     def test_cli_csv_emits_non_executable_approval_queue(self):
         project = Path(__file__).parents[1]
-        result = subprocess.run(
-            [sys.executable, str(project / "src/branch_hygiene.py"), str(project / "examples/snapshot.json"), "--format", "csv"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        with tempfile.TemporaryDirectory() as directory:
+            # Without explicit --report/--manifest paths this CLI writes its
+            # defaults (`branch-report.txt`, `recovery-manifest.json`) into
+            # its own working directory -- which, run from here, used to be
+            # this tests/ folder, leaking two untracked files into the repo
+            # on every test run. Give it a scratch cwd instead of relying on
+            # every other test to keep remembering to override the paths.
+            result = subprocess.run(
+                [sys.executable, str(project / "src/branch_hygiene.py"), str(project / "examples/snapshot.json"), "--format", "csv"],
+                capture_output=True,
+                text=True,
+                check=True,
+                cwd=directory,
+            )
         rows = result.stdout.splitlines()
         self.assertEqual(rows[0], "branch,tip,classification,review_action,reason,commit_count")
         self.assertTrue(any(row.startswith("feature/merged,m2,merged,review-delete-candidate,") for row in rows[1:]))
@@ -148,6 +156,89 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertEqual(snapshot["default_branch"], "main")
             self.assertEqual({branch["name"] for branch in snapshot["branches"]}, {"main", "feature"})
             self.assertEqual(subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip(), before)
+
+    def test_default_branch_survives_a_non_default_checkout(self):
+        """A CI runner or an agent almost never has the default branch checked
+        out -- it works from a feature branch or a PR head. Before this test,
+        `snapshot_from_repo` read `git symbolic-ref HEAD` and reported whatever
+        was checked out as the default, so on a real fleet's checkout `main`
+        itself came back as an ordinary "uncertain" branch while the throwaway
+        feature branch running the scan was the one marked protected. Measured
+        against this portfolio's own 568-branch remote: exactly that happened."""
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory) / "work"
+            upstream = Path(directory) / "upstream.git"
+            subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(upstream)], check=True)
+            subprocess.run(["git", "clone", "-q", str(upstream), str(repo)], check=True)
+            (repo / "README").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            env = ["-c", "user.name=Test", "-c", "user.email=test@example.com"]
+            subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "base"], check=True)
+            subprocess.run(["git", "-C", str(repo), "push", "-q", "origin", "main"], check=True)
+            # `git clone` only wires up `refs/remotes/origin/HEAD` when the
+            # remote already has a default branch at clone time; ours was
+            # still empty then, so set it explicitly once the push gives the
+            # remote a `main` to point at -- exactly what a real GitHub remote
+            # already has wired up for every repository this tool targets.
+            subprocess.run(["git", "-C", str(repo), "remote", "set-head", "origin", "main"], check=True)
+            subprocess.run(["git", "-C", str(repo), "checkout", "-qb", "feature"], check=True)
+            (repo / "README").write_text("feature work\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "feature work"], check=True)
+
+            snapshot = snapshot_from_repo(repo)
+            self.assertEqual(snapshot["default_branch"], "main")
+            self.assertIn("main", snapshot["protected_branches"])
+            self.assertNotIn("feature", snapshot["protected_branches"])
+            findings = {item.branch: item for item in scan(snapshot)}
+            self.assertEqual(findings["main"].classification, "protected")
+            self.assertEqual(findings["feature"].classification, "uncertain")
+
+    def test_warns_instead_of_guessing_silently_when_origin_head_is_unset(self):
+        """Most real checkouts never populate `origin/HEAD` at all -- `git
+        fetch` does not set it, and neither does a shallow CI/agent checkout.
+        Recovering it needs `git remote set-head origin -a`, which contacts
+        the remote and so is outside what this tool may do unprompted. It
+        still has to fall back to current HEAD (the common single-branch
+        local-dev case gets this right), but it must say so instead of
+        quietly treating a guess as a fact."""
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory) / "work"
+            upstream = Path(directory) / "upstream.git"
+            subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(upstream)], check=True)
+            subprocess.run(["git", "clone", "-q", str(upstream), str(repo)], check=True)
+            (repo / "README").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            env = ["-c", "user.name=Test", "-c", "user.email=test@example.com"]
+            subprocess.run(["git", "-C", str(repo), *env, "commit", "-qm", "base"], check=True)
+            subprocess.run(["git", "-C", str(repo), "push", "-q", "origin", "main"], check=True)
+            # Deliberately do NOT run `remote set-head` -- this is the state a
+            # shallow, branch-only CI checkout leaves a clone in.
+            subprocess.run(["git", "-C", str(repo), "checkout", "-qb", "feature"], check=True)
+
+            result = subprocess.run(
+                [sys.executable, "-c", "import sys, pathlib; sys.path.insert(0, sys.argv[1]); from branch_hygiene import snapshot_from_repo; import json; print(json.dumps(snapshot_from_repo(pathlib.Path(sys.argv[2]))['default_branch']))", str(Path(__file__).parents[1] / "src"), str(repo)],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout), "feature")
+            self.assertIn("origin/HEAD is not set", result.stderr)
+            self.assertIn("--default-branch", result.stderr)
+
+    def test_default_branch_override_works_without_an_origin_remote(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "init", "-q", "-b", "trunk", str(repo)], check=True)
+            (repo / "README").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-qm", "base"], check=True)
+            subprocess.run(["git", "-C", str(repo), "checkout", "-qb", "feature"], check=True)
+
+            snapshot = snapshot_from_repo(repo, default_branch="trunk")
+            self.assertEqual(snapshot["default_branch"], "trunk")
+            findings = {item.branch: item for item in scan(snapshot)}
+            self.assertEqual(findings["trunk"].classification, "protected")
 
     def test_load_pr_export_normalizes_gh_cli_states(self):
         with tempfile.TemporaryDirectory() as directory:

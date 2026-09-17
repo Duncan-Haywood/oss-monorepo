@@ -66,11 +66,37 @@ class CaptureInventoryTests(unittest.TestCase):
         self.assertEqual([app["id"] for app in inventory["apps"]], [app["id"] for app in self.before["apps"]])
         self.assertEqual(inventory["apps"][0]["scopes"], ["read_analytics"])
 
+    def test_webhook_coverage_survives_canonical_reimport(self):
+        for supplied in (False, True):
+            with self.subTest(webhooks_supplied=supplied):
+                app = {"id": "app-shipping", "scopes": ["read_products"]}
+                if supplied:
+                    app["webhooks"] = []
+                inventory = normalize_export({"api_version": "2026-07", "apps": [app]})
+                restored = normalize_export(json.loads(json.dumps(inventory)))
+                self.assertEqual(restored["apps"][0]["webhooks"], [])
+                self.assertEqual(restored["apps"][0]["webhook_coverage"],
+                                 "complete" if supplied else "absent")
+                self.assertEqual(capture_summary(restored), capture_summary(inventory))
+
     def test_unknown_payload_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "app inventory"):
             normalize_export({"orders": []}, api_version="2026-07")
         with self.assertRaisesRegex(ValueError, "cannot read export"):
             parse_json("{")
+
+    def test_rejects_malformed_records_instead_of_silently_dropping_apps(self):
+        app = {"id": "valid", "scopes": [], "webhooks": []}
+        for invalid in (None, "broken", 42):
+            for body in (
+                {"apps": [app, invalid]},
+                {"data": {"apps": [app, invalid]}},
+                {"data": {"appInstallations": {"nodes": [app, invalid]}}},
+                {"data": {"appInstallations": {"edges": [{"node": app}, invalid]}}},
+            ):
+                with self.subTest(body=body):
+                    with self.assertRaisesRegex(ValueError, "each app must be an object"):
+                        normalize_export(body, api_version="2026-07")
 
     def test_duplicate_ids_and_scopes_are_rejected(self):
         payload = {
@@ -86,9 +112,60 @@ class CaptureInventoryTests(unittest.TestCase):
     def test_canonicalizes_graphql_webhook_topics(self):
         self.assertEqual(canonicalize_topic("APP_UNINSTALLED"), "app/uninstalled")
         self.assertEqual(canonicalize_topic("orders/create"), "orders/create")
+        self.assertEqual(canonicalize_topic("CUSTOMERS_DATA_REQUEST"), "customers/data_request")
+        self.assertEqual(canonicalize_topic("CUSTOMERS_PURCHASING_SUMMARY"), "customers/purchasing_summary")
+        self.assertEqual(canonicalize_topic("ORDERS_PARTIALLY_FULFILLED"), "orders/partially_fulfilled")
+        self.assertEqual(canonicalize_topic("VARIANTS_OUT_OF_STOCK"), "variants/out_of_stock")
         before = normalize_export(self.dump)
         report = compare(before, self.before)
         self.assertEqual(report["status"], "unchanged")
+
+    def test_compliance_graphql_enums_match_rest_inventory(self):
+        graphql = {
+            "data": {
+                "appInstallations": {
+                    "edges": [
+                        {
+                            "node": {
+                                "app": {"handle": "compliance-app"},
+                                "accessScopes": [{"handle": "read_customers"}],
+                                "webhookSubscriptions": {
+                                    "edges": [
+                                        {"node": {"topic": "CUSTOMERS_DATA_REQUEST"}},
+                                        {"node": {"topic": "CUSTOMERS_REDACT"}},
+                                        {"node": {"topic": "SHOP_REDACT"}},
+                                    ]
+                                },
+                            }
+                        }
+                    ]
+                }
+            },
+            "api_version": "2026-07",
+            "captured_at": "2026-08-24T10:00:00Z",
+        }
+        rest = {
+            "captured_at": "2026-08-25T10:00:00Z",
+            "api_version": "2026-07",
+            "source": "rest",
+            "authorization_state": "active",
+            "apps": [
+                {
+                    "id": "compliance-app",
+                    "scopes": ["read_customers"],
+                    "webhooks": ["customers/data_request", "customers/redact", "shop/redact"],
+                }
+            ],
+        }
+        before = normalize_export(graphql)
+        after = normalize_export(rest)
+        self.assertEqual(
+            before["apps"][0]["webhooks"],
+            ["customers/data_request", "customers/redact", "shop/redact"],
+        )
+        report = compare(before, after)
+        self.assertEqual(report["status"], "unchanged")
+        self.assertEqual(report["changes"], [])
 
     def test_normalized_dump_is_comparable(self):
         before = normalize_export(self.dump)

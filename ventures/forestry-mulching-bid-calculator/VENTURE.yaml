@@ -1,0 +1,58 @@
+name: forestry-mulching-bid-calculator
+description: >-
+  A private browser calculator for owner-operators bidding forestry mulching
+  and land clearing that prices a job from acres per machine-hour rather than
+  from a flat dollars-per-acre number: production rate derived from head
+  width, forward advance speed while cutting, the number of passes needed to
+  finish the mat, a terrain factor and the share of the hour actually spent
+  cutting; cost per machine hour built from operator time, fuel at load,
+  carbide tooth wear spread over the life of a set, a service reserve, and the
+  machine payment and insurance spread over billable hours a month;
+  mobilization kept as its own line because a trailer trip does not scale with
+  acreage. Reports machine hours, days on site, total cost, the price at a
+  target margin, price per acre and break-even per acre, price per machine
+  hour and per day, and a side-by-side of the same acreage at four brush
+  density classes against one flat quoted price per acre — plus flags for a
+  mobilization-dominated small job, tooth wear left unbudgeted, an optimistic
+  tooth life, a machine whose payment rather than its work is setting the
+  hourly cost, a multi-day job with one trailer trip budgeted, and stems
+  larger than the head is rated for.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Mulching operators quote a dollars-per-acre number carried over from the last lot, and the production rate behind it moves by nine to one across the four brush densities customers actually describe, so putting acres-per-machine-hour in front of them changes what they quote on the heavy lots.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The two cost lines most often missing from a one-machine operation's quote are carbide tooth wear and the machine payment spread over the hours it really bills, and naming them as separate per-hour lines rather than folding them into overhead is what makes an operator correct them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators fold mobilization into a per-acre rate, which overcharges the large jobs they want and underbids the small ones, so reporting mobilization as a share of the price is enough to move small lots onto a day rate or a minimum charge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The inputs this needs — head width, an advance speed, a pass count, fuel burn, what a set of teeth costs and lasts, the machine payment, and billable hours a month — are figures an operator already knows or can read off their own invoices, so the tool can be completed without an estimator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators searching "forestry mulching price per acre" are looking for a number to adopt, and a tool that answers "here is why there is no such number, and here is yours" holds them rather than losing them to the next result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three mulching or land-clearing operators use the calculator twice within 90 days.
+  - Operators report that they already price by machine hour and convert to a per-acre figure per lot, so the framing this tool exists to correct is not one they hold.
+  - Operators report that the density-versus-flat-quote comparison does not change a bid, because the objection they meet is about the total rather than about what the total is made of.
+  - The production-rate model is reported as too far from measured output to be worth correcting, rather than as a starting point to overwrite.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/forestry-mulching-bid-calculator/
+  analytics: null

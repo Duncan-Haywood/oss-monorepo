@@ -1,0 +1,47 @@
+name: dependency-confusion-check CI
+
+# Zero-dependency CLI/browser tool: `check.py` is the canonical classifier and
+# `classify.mjs` is the same logic reimplemented for the in-browser page. Keep
+# both covered independently of the portfolio-wide validation workflow, which
+# only checks published pages and does not run venture unit tests.
+on:
+  pull_request:
+    paths:
+      - "ventures/dependency-confusion-check/**"
+      - ".github/workflows/dependency-confusion-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/dependency-confusion-check/**"
+      - ".github/workflows/dependency-confusion-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-confusion-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/dependency-confusion-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run classifier tests (Python — the canonical CLI)
+        run: python3 -m unittest test_check -v
+      - name: Run classifier tests (browser page logic, including CLI parity)
+        run: node --test classify.test.mjs
+      - name: Run page tests (disclaimers, SEO metadata, sitemap coverage)
+        run: node --test page.test.mjs

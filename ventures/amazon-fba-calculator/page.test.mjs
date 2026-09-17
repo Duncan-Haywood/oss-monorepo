@@ -2,7 +2,7 @@
 // column mismatch or an advertised-but-unrendered figure would stay green.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { compareBulkBuy, compareCoupons, compareInboundPlacement, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
@@ -53,6 +53,7 @@ const narfSeo = readFileSync(
 );
 const acosSeo = readFileSync(new URL("./break-even-acos.html", import.meta.url), "utf8");
 const vsAmazonSeo = readFileSync(new URL("./vs-amazon-revenue-calculator.html", import.meta.url), "utf8");
+const fbaVsFbmSeo = readFileSync(new URL("./fba-vs-fbm.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -624,6 +625,14 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(vsAmazonSeo, /No warranty/);
   assert.match(vsAmazonSeo, /Best-effort hosting, no SLA/);
   assert.match(vsAmazonSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  // Both of these were loaded by this file (or, for fba-vs-fbm, not loaded at
+  // all) without ever being asserted on here, so a missing sponsor link and a
+  // shortened disclaimer shipped on both pages unnoticed. Fixed 2026-09-16.
+  assert.match(lowPriceSeo, /Best-effort hosting, no SLA/);
+  assert.match(lowPriceSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(fbaVsFbmSeo, /No warranty/);
+  assert.match(fbaVsFbmSeo, /Best-effort hosting, no SLA/);
+  assert.match(fbaVsFbmSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
 test("the incumbent-comparison page links back, names the incumbent honestly, and gives no unverifiable Amazon numbers", () => {
@@ -639,18 +648,6 @@ test("the incumbent-comparison page links back, names the incumbent honestly, an
   assert.match(vsAmazonSeo, /trademarks of Amazon\.com/i);
 });
 
-test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
-  assert.match(html, /id="buyCostStatus"/);
-  assert.match(scriptSource, /buyCostCheck/);
-  assert.match(scriptSource, /sourcing_check_used/);
-});
-
-test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
-  assert.match(html, /id="buyCostStatus"/);
-  assert.match(scriptSource, /buyCostCheck/);
-  assert.match(scriptSource, /sourcing_check_used/);
-});
-
 test("max buy cost display says so when the listing already loses money at $0 cost", () => {
   // Regression: the display used to show a bare $0.00 for both "you can pay
   // up to $0 and break even" and "you lose money before buying a unit at
@@ -658,4 +655,52 @@ test("max buy cost display says so when the listing already loses money at $0 co
   // ceiling to tell them apart.
   assert.match(scriptSource, /breakEvenBuyCostRaw < 0/);
   assert.match(scriptSource, /loses money even at \$0 cost/);
+});
+
+test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
+  assert.match(html, /id="buyCostStatus"/);
+  assert.match(scriptSource, /buyCostCheck/);
+  assert.match(scriptSource, /sourcing_check_used/);
+});
+
+test("the result panel is announced to screen readers when it updates", () => {
+  // The result section re-renders the hero profit number and the whole dl
+  // breakdown (margin, ROI, break-even, ACOS figures) in place on every
+  // keystroke, with no page reload. Before this fix the section itself had
+  // no aria-live -- only #scenarioList (a table further down) and
+  // #shareStatus did -- so a screen-reader user changing an input got no
+  // announcement that the headline profit and its breakdown had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    "the result section is not a live region, so updates are never announced",
+  );
+});
+
+// Regression: sitemap.xml was missing vs-amazon-revenue-calculator.html, a
+// real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test("every .html file in the venture is reachable from the sitemap", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const dir = new URL("./", import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html") continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
+});
+
+// where-to-sell-calculator already hands an Amazon comparison into this page;
+// without a crawlable link back, a visitor who landed on FBA first has no
+// path to the multi-channel ranking that owns the handoff.
+test("index links to the where-to-sell calculator", () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// marketplace-fee-compare already deep-links here for FBA size tiers and
+// storage a headline referral rate cannot carry; without a crawlable link
+// back, a visitor on FBA never reaches the six-channel triage (#3637 class).
+test("index links to the marketplace fee comparison", () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
 });

@@ -57,7 +57,7 @@ kill_criteria:
   - No print sells to a real buyer within 90 days of the storefront going live.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/print-atelier/
   analytics: null
 
 # Session-gate marker. pod-print-file-preflight graduates as a product

@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified translators use the calculator twice within 90 days.
   - Users do not identify a quote where weighted words or project add-ons changed their decision.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/translator-project-quote/
   analytics: null

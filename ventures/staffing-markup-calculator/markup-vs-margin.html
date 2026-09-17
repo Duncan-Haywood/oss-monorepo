@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Markup vs. Margin in Staffing | Why 45% Is Not 31% Either</title>
+  <meta name="description" content="Markup is on the pay rate, margin is on the invoice, and in staffing the usual 45/145 conversion is wrong because employer burden sits outside the markup. What a 45% markup really earns, and the markup a 20% margin needs.">
+  <link rel="canonical" href="./markup-vs-margin.html">
+  <meta property="og:title" content="Markup vs. Margin in Staffing">
+  <meta property="og:description" content="Markup is on the pay rate, margin is on the invoice, and in staffing the usual 45/145 conversion is wrong because employer burden sits outside the markup. What a 45% markup really earns.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"What is the difference between markup and margin in staffing?","acceptedAnswer":{"@type":"Answer","text":"Markup is added to the pay rate: a 45% markup on $22 bills $31.90. Margin is a share of the invoice: gross profit divided by what you billed. They are different denominators, so they are never the same number. The textbook conversion is markup / (1 + markup) — 45/145 = 31% — but that only holds when the figure you marked up is the whole cost, and in staffing it is not."}},
+    {"@type":"Question","name":"Why is the usual markup-to-margin conversion wrong in staffing?","acceptedAnswer":{"@type":"Answer","text":"Because you mark up the pay rate, and the pay rate is not your cost. FICA, federal and state unemployment tax, workers’ compensation, PTO accrual, benefits, screening and payroll admin all sit outside the number you marked up. On a $22 light-industrial placement those add about $4.30 an hour, so the loaded cost is $26.30 against a $31.90 bill rate. The gross margin is 15.8%, not the 31% the conversion suggests."}},
+    {"@type":"Question","name":"What markup do I need for a 20% gross margin?","acceptedAnswer":{"@type":"Answer","text":"It depends entirely on your burden, which is why no published figure answers it. On the worked example here — $22 an hour, 3% SUTA on a $12,000 base, a $6.20 per $100 comp code, net-45 terms at a 12% cost of capital — a 20% gross margin needs a 52.6% markup, not the 45% commonly quoted as healthy. Change the comp code and that number moves several points on its own."}},
+    {"@type":"Question","name":"Does the same markup earn the same margin on every placement?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the expensive part. Workers’ compensation is quoted per $100 of payroll by class code, so a clerical placement near $1 and a roofing placement near $12 carry very different burdens at the identical markup. State unemployment rates are experience-rated and their wage bases range from about $7,000 to over $60,000. A single house markup applied across a mixed desk quietly subsidises the heavy codes out of the light ones."}},
+    {"@type":"Question","name":"Why does a short assignment cost more per hour?","acceptedAnswer":{"@type":"Answer","text":"FUTA and SUTA are charged on a wage base rather than on every dollar. FUTA applies to a worker’s first $7,000 of wages in the year and state unemployment to the first (commonly) $7,000 to $60,000. A 420-hour seasonal placement pays nearly the whole annual charge inside those 420 hours, while a 2,000-hour one spreads it across five times as many. Per hour, the short assignment is the expensive one."}},
+    {"@type":"Question","name":"Should I count the cost of waiting for the client to pay?","acceptedAnswer":{"@type":"Answer","text":"Yes. You pay the worker weekly and the client pays on net-30, net-45 or later, so the loaded cost is out of your account for the whole gap — financed, factored, or simply your own cash sitting still. On the worked example, net-45 at a 12% cost of capital takes $202 out of a $2,626 gross profit. It is left out of nearly every markup quote, and on a thin placement it is the difference between a profit and a loss."}}
+  ]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #edeff5; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); line-height: 1.03; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { font-size: 1.2rem; margin: 32px 0 8px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #33427a; margin: 0 0 6px; }
+    .lede { font-size: 1.05rem; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: .92rem; }
+    th, td { border: 1px solid #ccd3e1; padding: 8px 10px; text-align: left; }
+    th { background: #e3e7f2; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 18px 0; padding: 12px 18px; border-radius: 8px; background: #33427a; color: #f4f6fb; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 34px; padding-top: 14px; border-top: 1px solid #ccd3e1; font-size: .82rem; color: #4b566a; }
+    footer a, main a { color: #33427a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">STAFFING MARKUP CALCULATOR</p>
+    <h1>Markup vs. margin in staffing</h1>
+    <p class="lede">Everybody in the trade knows markup and margin are different numbers. Far fewer know that the standard conversion between them &mdash; the one every business-school page gives &mdash; is wrong for staffing specifically, and wrong in the direction that costs you money.</p>
+
+    <p><a class="cta" href="./">Price a real placement &rarr;</a></p>
+
+    <h2>The conversion everyone uses</h2>
+    <p>Markup is added to a cost. Margin is a share of a price. Convert one to the other with <code>markup &divide; (1 + markup)</code>, so a 45% markup is a 31% margin. That identity is exactly right &mdash; <em>when the thing you marked up is your whole cost</em>.</p>
+    <p>In staffing it never is. You mark up <strong>the pay rate</strong>. The pay rate is what the worker receives; it is not what the placement costs you. Everything else you owe on that worker sits outside the number you multiplied.</p>
+
+    <h2>What sits outside the markup</h2>
+    <p>Take a $22-an-hour light-industrial placement, 40 hours a week for 13 weeks &mdash; 520 hours and $11,440 of wages.</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Cost</th><th scope="col">How it is charged</th><th scope="col">On this placement</th></tr></thead>
+      <tbody>
+        <tr><td>FICA</td><td>7.65% of wages</td><td class="num">$875</td></tr>
+        <tr><td>FUTA</td><td>0.6% of the first $7,000</td><td class="num">$42</td></tr>
+        <tr><td>SUTA</td><td>3% of the first $12,000</td><td class="num">$343</td></tr>
+        <tr><td>Workers&rsquo; comp</td><td>$6.20 per $100 of payroll</td><td class="num">$709</td></tr>
+        <tr><td>Screening and onboarding</td><td>once, per placement</td><td class="num">$85</td></tr>
+        <tr><td>Payroll, ATS, admin</td><td>$0.35 an hour</td><td class="num">$182</td></tr>
+        <tr><th scope="row">Employer burden</th><td>rows rounded to the dollar</td><td class="num"><strong>$2,237</strong></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>That is <strong>$4.30 an hour</strong> on top of the $22 wage &mdash; a 19.6% burden. So the loaded cost is $26.30 an hour, against a bill rate of $22 &times; 1.45 = <strong>$31.90</strong>.</p>
+
+    <h2>What the 45% actually earns</h2>
+    <p>Across the assignment: $16,588 billed, $13,677 of loaded cost, $202 to fund payroll for the 45 days before the client pays, and $83 held back against invoices that never land. Gross profit <strong>$2,626</strong>, which on $16,588 of billings is a <strong>15.8% gross margin</strong>.</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Figure</th><th scope="col">Value</th></tr></thead>
+      <tbody>
+        <tr><td>Margin the markup implies (45 &divide; 145)</td><td class="num">31.0%</td></tr>
+        <tr><td>Margin the placement earns</td><td class="num">15.8%</td></tr>
+        <tr><td>Markup that just breaks even</td><td class="num">21.9%</td></tr>
+        <tr><td>Markup needed for a 20% margin</td><td class="num">52.6%</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>A recruiter quoting 45% and reporting a 31% margin to an owner is off by nearly half. And the 45% widely repeated as a healthy staffing markup does not reach a 20% gross margin on this placement &mdash; it takes 52.6%.</p>
+
+    <h2>Why one house markup cannot be right</h2>
+    <p>Two inputs move the answer more than anything else, and neither is a national figure:</p>
+    <ul>
+      <li><strong>Your workers&rsquo; comp rate</strong>, quoted per $100 of payroll and set by the class code the work falls under. Clerical codes sit near $1; roofing and framing codes reach $12 and beyond. At the same markup, one of those placements is a business and the other is a favour.</li>
+      <li><strong>Your SUTA rate and wage base</strong>, which are experience-rated and set by your state. Wage bases run from about $7,000 to over $60,000, so the same rate charges very different amounts.</li>
+    </ul>
+    <p>A single desk-wide markup applied across a mixed book takes the profit from the light codes and spends it on the heavy ones. That is invisible in a monthly P&amp;L because the two net out; it is only visible per placement.</p>
+
+    <h2>And short assignments are the expensive ones</h2>
+    <p>FUTA and SUTA are charged on a wage base, not proportionally. The example above pays $11,440 of wages, which is past the $7,000 FUTA base and most of the way through a $12,000 SUTA base &mdash; so it carries $385 of the annual charge inside 13 weeks. Run the same worker a full year and the charge rises only to $402 &mdash; 4% more money spread over four times the hours. Per hour that is 74&cent; against 19&cent;: the seasonal placement costs nearly four times as much in unemployment tax as the annual one, and no markup rule of thumb sees it.</p>
+
+    <p><a class="cta" href="./">Put your own rates in &rarr;</a></p>
+
+    <h2>The short version</h2>
+    <ul>
+      <li>Markup is on the pay rate. Margin is on the invoice. They convert &mdash; but not with the textbook identity, because burden sits outside the markup.</li>
+      <li>Your break-even markup is a number worth knowing and not a number to quote. The gap between it and your markup is the entire profit.</li>
+      <li>Price the comp code and the term, not the desk average.</li>
+      <li>Count the days you wait to be paid. It is real money and it is nobody&rsquo;s line item.</li>
+    </ul>
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What is the difference between markup and margin in staffing?</h3>
+      <p>Markup is added to the pay rate: a 45% markup on $22 bills $31.90. Margin is a share of the invoice: gross profit divided by what you billed. They are different denominators, so they are never the same number. The textbook conversion is markup / (1 + markup) — 45/145 = 31% — but that only holds when the figure you marked up is the whole cost, and in staffing it is not.</p>
+
+      <h3>Why is the usual markup-to-margin conversion wrong in staffing?</h3>
+      <p>Because you mark up the pay rate, and the pay rate is not your cost. FICA, federal and state unemployment tax, workers&rsquo; compensation, PTO accrual, benefits, screening and payroll admin all sit outside the number you marked up. On a $22 light-industrial placement those add about $4.30 an hour, so the loaded cost is $26.30 against a $31.90 bill rate. The gross margin is 15.8%, not the 31% the conversion suggests.</p>
+
+      <h3>What markup do I need for a 20% gross margin?</h3>
+      <p>It depends entirely on your burden, which is why no published figure answers it. On the worked example here — $22 an hour, 3% SUTA on a $12,000 base, a $6.20 per $100 comp code, net-45 terms at a 12% cost of capital — a 20% gross margin needs a 52.6% markup, not the 45% commonly quoted as healthy. Change the comp code and that number moves several points on its own.</p>
+
+      <h3>Does the same markup earn the same margin on every placement?</h3>
+      <p>No, and this is the expensive part. Workers&rsquo; compensation is quoted per $100 of payroll by class code, so a clerical placement near $1 and a roofing placement near $12 carry very different burdens at the identical markup. State unemployment rates are experience-rated and their wage bases range from about $7,000 to over $60,000. A single house markup applied across a mixed desk quietly subsidises the heavy codes out of the light ones.</p>
+
+      <h3>Why does a short assignment cost more per hour?</h3>
+      <p>FUTA and SUTA are charged on a wage base rather than on every dollar. FUTA applies to a worker&rsquo;s first $7,000 of wages in the year and state unemployment to the first (commonly) $7,000 to $60,000. A 420-hour seasonal placement pays nearly the whole annual charge inside those 420 hours, while a 2,000-hour one spreads it across five times as many. Per hour, the short assignment is the expensive one.</p>
+
+      <h3>Should I count the cost of waiting for the client to pay?</h3>
+      <p>Yes. You pay the worker weekly and the client pays on net-30, net-45 or later, so the loaded cost is out of your account for the whole gap — financed, factored, or simply your own cash sitting still. On the worked example, net-45 at a 12% cost of capital takes $202 out of a $2,626 gross profit. It is left out of nearly every markup quote, and on a thin placement it is the difference between a profit and a loss.</p>
+
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, tax, accounting, insurance, or employment advice, and it does not tell you what to charge, which workers&rsquo; compensation class code applies to a job, whether anyone is an employee or a contractor, or what any state or federal law requires of you. The rates and wage bases used in the worked example are illustrative and change every year. Verify every figure against your own state rate notice, policy declarations, and payroll records, and against a qualified professional, before quoting a client from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> The <a href="./">calculator</a> runs entirely on your device &mdash; no account, no network requests, and no figure you type is ever uploaded.</p>
+    <p>Related: the <a href="../shop-rate-calculator/">shop rate calculator</a> does the same job for a trade crew&rsquo;s own hours, and the <a href="../certified-payroll-calculator/">certified payroll calculator</a> covers prevailing-wage fringe on public work.</p>
+  </footer>
+</body>
+</html>

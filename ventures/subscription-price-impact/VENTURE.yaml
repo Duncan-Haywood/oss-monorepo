@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three SaaS operators use the calculator twice within 90 days.
   - Users cannot identify a price scenario worth testing in the first 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/subscription-price-impact/
   analytics: null

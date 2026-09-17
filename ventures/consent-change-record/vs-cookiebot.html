@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consent Change Record vs. Cookiebot</title>
+<meta name="description" content="Cookiebot is a paid consent management platform: it crawls your whole site on a schedule, auto-categorizes every cookie and tracker it finds, and renders the banner that blocks scripts until consent. This is a free, local tool that diffs two before/after traces you already captured of one consent sequence. Not affiliated with Cookiebot or Usercentrics.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-cookiebot.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Consent Change Record vs. Cookiebot">
+<meta property="og:description" content="Cookiebot scans and manages consent for a whole site on an ongoing subscription. This page diffs two trace snapshots you already have, for free, entirely in your browser.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or Cookiebot?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs. Cookiebot (from Usercentrics) is a consent management platform: it crawls a site's pages on a recurring schedule, auto-detects and categorizes the cookies and trackers it finds, renders the consent banner itself, and blocks scripts from firing until a visitor consents, across a whole domain, sold as an ongoing subscription tier. This tool does not crawl anything, does not detect trackers on its own, and does not render or manage a banner. You paste two dated trace exports you already captured — one from before a consent choice, one from after — and it reports which requests and storage keys actually changed between them, entirely in your browser. A site that needs its consent banner built, its scripts auto-blocked, and its whole domain rescanned on a schedule is the case Cookiebot is built for. An agency or reviewer that already has two traces of one consent sequence and wants a fast, free, source-linked record of what that banner actually did is the case this tool is built for — including checking whether a Cookiebot-managed banner is blocking what it claims to."}},{"@type":"Question","name":"Is this page affiliated with Cookiebot?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Cookiebot or its owner, Usercentrics. Cookiebot is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #182522; background: #edf3ed; }
+  body { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; line-height: 1.55; }
+  a { color: #1e40af; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.6vw, 2.3rem); line-height: 1.1; margin: .4rem 0; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 62ch; color: #547064; }
+  section { background: #fff; border: 1px solid #c8d8ce; border-radius: 14px; padding: 1.1rem 1.3rem; margin: 1.25rem 0; box-shadow: 0 8px 24px #17382a12; }
+  h2 { margin-top: 0; font-size: 1.15rem; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8e4dd; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #547064; }
+  .fine, .note { font-size: .88rem; color: #547064; }
+  footer { font-size: .86rem; color: #547064; }
+  footer p { margin: .6rem 0; }
+  code { background: #e4ede4; padding: 1px 5px; border-radius: 4px; font-size: .92em; color: #182522; }
+</style>
+</head>
+<body>
+<main>
+<p><a href="./">&larr; Consent Change Record</a></p>
+<header>
+<h1>Consent Change Record vs. Cookiebot</h1>
+<p class="lede">Different jobs: Cookiebot crawls a whole domain on a schedule, auto-detects trackers, and manages the banner that blocks them. This page compares two trace snapshots you already captured of <em>one</em> consent sequence and reports what actually changed &mdash; free, local, no account.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Cookiebot</strong>, from Usercentrics, is a consent management
+  platform (CMP). Its scanner crawls a site's pages on a recurring schedule,
+  auto-detects and categorizes the cookies and trackers it finds against its
+  own database, and generates a cookie declaration page. Its banner blocks
+  third-party scripts from firing until a visitor consents, supports IAB TCF,
+  and covers a whole domain as an ongoing subscription tier scaled to page
+  count. It is sold as recurring software; its own pricing is not something
+  this session can verify, so no figure for it is stated here.
+</p>
+<p>
+  This tool does none of that. It does not crawl a site, does not maintain a
+  tracker database, and does not render or manage a consent banner. It takes
+  exactly two inputs &mdash; a <code>before</code> and <code>after</code> JSON
+  trace you already captured around one consent choice (the requests fired
+  and the storage keys written in each state) &mdash; and reports what
+  changed between them: which requests appear only after consent, which fire
+  regardless, and which storage keys were added. Comparison runs in your
+  browser tab; nothing you paste is uploaded, and the tool never contacts the
+  site itself. There is no account, no scheduled crawl, and no per-domain
+  subscription.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need a consent banner built, scripts auto-blocked, and my whole site rescanned for new trackers on a schedule.</td><td>Cookiebot, or a comparable CMP &mdash; ongoing crawling and banner management is not something this tool does.</td></tr>
+<tr><td>I have two dated traces of one consent sequence and want to know exactly what changed, right now, for free.</td><td>This tool &mdash; paste both, get a source-linked diff, nothing uploaded.</td></tr>
+<tr><td>My site already runs Cookiebot &mdash; how do I check its banner is actually blocking what it claims to?</td><td>This tool. A CMP's own dashboard reports its configuration, not what a real before/after trace observed; the two can drift once a tag is added outside the CMP.</td></tr>
+<tr><td>I want automatic tracker detection and categorization across every page of my domain.</td><td>Cookiebot or a comparable scanner &mdash; this tool has no crawler and no tracker database; it only diffs traces you supply.</td></tr>
+<tr><td>Do I need to create an account, install a script tag, or pay per page scanned to use it?</td><td>This tool: no, ever. Cookiebot is used through a subscription tied to a site's page count.</td></tr>
+<tr><td>How do I capture and compare a consent sequence myself?</td><td>See <a href="what-did-my-cookie-banner-actually-change.html">what did my cookie banner actually change</a>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most teams get different value from each: Cookiebot (or a comparable CMP)
+  to build and run the banner and auto-block scripts across a whole site as a
+  paid subscription, and a free tool like this one for a fast, private,
+  source-linked answer to "what did this one consent sequence actually do" &mdash;
+  useful on its own for a small agency, and useful as an independent spot
+  check even for a site that already pays for a CMP.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the comparison runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or Cookiebot?</h3>
+<p>They do different jobs. Cookiebot (from Usercentrics) is a consent management platform: it crawls a site's pages on a recurring schedule, auto-detects and categorizes the cookies and trackers it finds, renders the consent banner itself, and blocks scripts from firing until a visitor consents, across a whole domain, sold as an ongoing subscription tier. This tool does not crawl anything, does not detect trackers on its own, and does not render or manage a banner. You paste two dated trace exports you already captured &mdash; one from before a consent choice, one from after &mdash; and it reports which requests and storage keys actually changed between them, entirely in your browser. A site that needs its consent banner built, its scripts auto-blocked, and its whole domain rescanned on a schedule is the case Cookiebot is built for. An agency or reviewer that already has two traces of one consent sequence and wants a fast, free, source-linked record of what that banner actually did is the case this tool is built for &mdash; including checking whether a Cookiebot-managed banner is blocking what it claims to.</p>
+<h3>Is this page affiliated with Cookiebot?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Cookiebot or its owner, Usercentrics. Cookiebot is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+<p class="note"><a href="./">Open Consent Change Record</a> to compare your own two traces.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, privacy, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every trace you paste stays on this device, and this page makes no live comparison against Cookiebot &mdash; it is a static page describing publicly documented facts about Cookiebot's product category.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental and may be slow, broken, moved, or taken offline without notice. Keep your own copies of any report you export.</p>
+<p>Free and open source. <a href="LICENSE" rel="noopener">MIT licensed</a> &mdash; optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+</footer>
+</main>
+</body>
+</html>

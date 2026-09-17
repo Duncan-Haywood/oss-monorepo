@@ -30,7 +30,7 @@ spec:
           # capabilities.drop: [ALL] and readOnlyRootFilesystem: true. governor
           # was the one exception, despite being the single workload in `agents`
           # that actually holds a live ServiceAccount token with RBAC to create
-          # Jobs and patch a ConfigMap -- the workload most worth narrowing.
+          # Jobs and update a ConfigMap -- the workload most worth narrowing.
           # runAsUser 65532 on this exact python:3.12-slim-bookworm image is
           # already proven by prod/site-usage.yaml's aggregate CronJob.
           securityContext:

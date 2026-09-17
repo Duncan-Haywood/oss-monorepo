@@ -28,5 +28,5 @@ kill_criteria:
   - Shops report that splitting the opening and extras versus a 36-inch steel special is more work than their existing per-door method without changing the price they would have bid.
   - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/entry-door-bid-calculator/
   analytics: null

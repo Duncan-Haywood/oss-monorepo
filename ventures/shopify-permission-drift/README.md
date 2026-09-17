@@ -50,7 +50,10 @@ and download `shopify-app-inventory.json`. Granted `accessScopes` become
 copied into the granted list. If webhooks were omitted, the inventory records
 a `webhooks_not_in_export` limitation instead of pretending the app has none.
 GraphQL enum topics such as `APP_UNINSTALLED` are stored as `app/uninstalled`
-so a later REST-shaped inventory does not look like a webhook change.
+so a later REST-shaped inventory does not look like a webhook change. Enums
+whose action contains underscores (`CUSTOMERS_DATA_REQUEST` →
+`customers/data_request`) use an explicit map; a last-underscore split would
+invent `customers_data/request` and report false webhook drift.
 
 Use JSON output for an approval queue or CI artifact:
 

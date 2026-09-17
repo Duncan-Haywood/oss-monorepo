@@ -61,6 +61,16 @@ class IbanHelpersTest(unittest.TestCase):
         self.assertTrue(looks_like_complete_iban("DE89 3704 0044 0532 0130 00"))
         self.assertTrue(looks_like_complete_iban("NL91ABNA0417164300"))
 
+    def test_wrong_length_iban_for_a_known_country_still_looks_like_an_iban(self):
+        # Country-shaped and known (DE), just short a group -- a typo'd or
+        # truncated IBAN, not an internal account id. inspect_payment_iban
+        # already flags this on its own (INV-024); looks_like_complete_iban is
+        # the gate the cross-field checks (BIC country match,
+        # remittance-missing, means-needs-IBAN) use to decide whether an IBAN
+        # is present at all, and it used to say no here, silently skipping
+        # all three.
+        self.assertTrue(looks_like_complete_iban("DE893704004405320130"))
+
 
 class IbanChecksumTest(unittest.TestCase):
     def test_valid_published_ibans_produce_no_finding(self):

@@ -60,6 +60,317 @@
 
 decisions:
 
+- id: hetzner-ssh-key-is-a-public-key
+  asks: []
+  prs: [3184]
+  gates: deployment
+  exposure: credential
+  opened: "2026-09-04"
+  # Measured, current loss of the public surface: run 33887885219, all three
+  # hostnames refusing on 443. See OUTAGE in decision_queue.py for how narrow
+  # this flag is meant to be -- it is not a way to say "important".
+  outage: true
+  runner_free: >-
+    `bootstrap/restore-cluster.sh` run from the owner's own machine. It takes
+    the SSH key from the local agent and the Argo credential from
+    `ARGOCD_REPO_TOKEN` in the environment, so it needs no GitHub Actions
+    runner and no repository secret at all. That matters as of 2026-09-05,
+    because the workflow route below is deadlocked: every job in
+    `hetzner-gitops CI` runs on `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`,
+    runner assignment stopped again on 2026-09-04, and the self-hosted
+    fallback runs as pods on the very cluster this row exists to restore.
+  action: >-
+    **Do this from your own machine, not from Settings — as of 2026-09-05 the
+    GitHub route cannot work.** Put the private key (the one matching the
+    public half already installed on `root@89.167.29.39` and
+    `root@157.180.80.188`) and the Argo token into the local secret store
+    once, then run the recovery:
+    `bootstrap/scripts/load-secrets.sh --put HETZNERSSHKEY < ~/.ssh/<key>`,
+    `bootstrap/scripts/load-secrets.sh --put ARGOCD_REPO_TOKEN`, then
+    `bootstrap/scripts/load-secrets.sh --exec -- env CONFIRM=restore-cluster
+    WITH_CODEX_HOST=1 CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1
+    WITH_PORTFOLIO_SITE_HOST=1
+    SITE_GH_TOKEN=<pat> SITE_TLS_EMAIL=<your address>
+    bootstrap/restore-cluster.sh`
+    — that is the whole recovery, end to end, and it needs no runner and no
+    repository secret. Add `DRY_RUN=1` to the `env` for the plan and the
+    detected addressing mode without changing anything.
+    **Rehearse that dry run today, before you go looking for the key**
+    (changed 2026-09-10): it used to stop at the SSH gate and print
+    nothing, so the only way to see the plan was to already hold the
+    private key — during the one session this whole recovery gets. It now
+    prints the half that needs no SSH *first*: which extras were asked
+    for, and which credential is standing behind each. Run `DRY_RUN=1
+    WITH_CODEX_HOST=1 CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1
+    WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh` with your env
+    set and read that block. It still exits 1 without the key — it
+    genuinely could not probe the boxes — but it names what it did check,
+    so the mistake worth catching early is catchable early. The expensive
+    one is setting `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was meant:
+    both credential the Codex worker, and only the second draws on your
+    plan's included quota. Pass `CODEX_ENABLED=1` to the rehearsal too,
+    so the dry run prints the state the real run will leave behind rather
+    than a held one you would then have to go back and change.
+    **Two more `--put`s are worth making before that run, and as of 2026-09-10
+    they finish the job rather than starting a second one.**
+    `bootstrap/scripts/load-secrets.sh --put CODEX_AUTH_JSON < ~/.codex/auth.json`
+    (after `codex login`, on a machine where you are signed in) and
+    `bootstrap/scripts/load-secrets.sh --put RUNNER_TOKEN`. `--exec` exports
+    both into the recovery, and `restore-cluster.sh` now hands each one to its
+    installer over stdin in the same run — so the Codex worker comes back
+    credentialed against your ChatGPT plan's *included* quota, and the
+    self-hosted runner comes back registered. Until that change the two steps
+    installed and then told you to come back with the SSH key a second time,
+    which for the one key every route here is blocked on is the expensive kind
+    of friction. `CODEX_AUTH_JSON` is the credential to prefer: `worker.sh`
+    resolves it before `OPENAI_API_KEY` and withholds the API key when both are
+    present, so a tick on the plan's quota costs nothing extra where a tick on
+    the API key is billed per token.
+    **`CODEX_ENABLED=1` is in the command above as of 2026-09-17, and leaving
+    it out is what this row used to ask for.** Authorising unattended spend is
+    still a separate act from installing and credentialing — that has not
+    changed, and it must not. What changed is *where* the owner performs it:
+    typing the flag is the authorisation, and typing it in the recovery command
+    authorises it in the one session this whole recovery gets, instead of
+    behind a second SSH trip for the one key every route here is blocked on.
+    The account owner has since asked, in the standing scheduled brief, for the
+    Codex worker to be doing dev work against the ChatGPT plan's *included*
+    quota — so a recovery that installs the worker and leaves it held does not
+    deliver what was asked, and the previous wording of this row guaranteed
+    exactly that outcome for anyone who followed it verbatim.
+    Omit the flag and nothing is lost but time: the worker installs, holds,
+    spends nothing, and
+    `./bootstrap/scripts/enable-codex-governor.sh --host-only` plus a re-run of
+    the installer still turns it on later. `CODEX_ENABLED=1` is also ignored,
+    with a warning, when no credential was supplied — an enabled governor with
+    nothing to authenticate against only loops into a six-hour auth cooldown —
+    so the flag cannot start spend that the credentials do not already permit.
+    The store is why this is now two pastes and not six: it lives on the
+    machine that runs your agents (`infra/SECRETS.md`), so Cursor and a local
+    Claude Code session can drive the same recovery without you re-pasting
+    anything, and `--exec` holds the credentials in one child process rather
+    than in your shell, your history, or `ps`. It also loads the key into a
+    throwaway `ssh-agent`, so there is nothing to `ssh-add` first, and
+    `bootstrap/scripts/load-secrets.sh` on its own will tell you *before* the
+    run whether what you stored is a private key — the check this row exists
+    because nobody could make.
+    The older form still works if you prefer it:
+    `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> WITH_CODEX_HOST=1
+    CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1 bootstrap/restore-cluster.sh`,
+    with the key in your own SSH agent.
+    `WITH_CODEX_HOST=1` is optional and worth taking while you are already
+    holding the key. It installs the Codex worker's systemd-timer scheduler
+    (`gitops/agents/host/`) on the agent box: the same governor, running with
+    no k3s underneath it. When this cluster died it took the worker's only
+    scheduler with it, and the fallback — self-hosted runners in `gitops/ci/`
+    — died too, because those run as pods in this same cluster. That step is
+    what makes the *next* cluster loss survivable instead of another week with
+    nowhere to run anything. It runs last, cannot fail the restore, and
+    enables nothing: the policy still ships `"enabled": false`, so it holds
+    until credentials and the switch arrive.
+    Changed 2026-09-06, and it matters for the run you are about to make: the
+    three host-mode steps now also run when the **cluster** restore fails.
+    They used to sit after `set -euo pipefail`, so a fault anywhere in the k3s
+    rebuild ended the script before them — and none of the three needs k3s.
+    Nobody has ever executed this script against these boxes and the private
+    network was never applied, so the addressing steps are its least-proven
+    part; the shape that was waiting was a run that dies at node readiness and
+    hands you no cluster, no Codex worker, no runner and no public surface,
+    with the key in your hand for all four. Now a partial failure still leaves
+    you the capacity that never depended on what broke. The script still exits
+    non-zero — it tells you the cluster failed and reports each host-mode step
+    on its own terms — and every host-mode installer is idempotent, so
+    re-running after you fix the cluster fault costs nothing.
+    `WITH_GITHUB_RUNNER_HOST=1` is the same fix for the *other* tenant of that
+    same cluster: `gitops/ci/`'s self-hosted Actions runners also run as pods
+    there, so metered-CI insurance was equally downstream of this outage. It
+    installs a GitHub Actions runner as a systemd service on the agent box
+    (`gitops/ci/host/`) — no k3s, no Argo, no image pull — and registers with
+    GitHub only once you hand it a registration-token PAT via
+    `--credentials`; add it while you are already holding the SSH key, for the
+    same reason as the Codex step. The `<pat>` is a
+    fine-grained PAT with **Contents: Read** on this repository; the script
+    masks it and ships it to the box as a mode-600 file rather than putting it
+    in argv. Without it the restore *succeeds and the site stays dark*, which
+    is the worst outcome available here — the GitOps repository is private, so
+    Argo CD would install, apply the root Application, and then fail every
+    sync on repository authentication with no error anywhere except Argo's own
+    Application status. It cannot be a sealed secret, because sealed-secrets
+    is itself deployed by Argo from `gitops/apps` — the credential has to
+    exist before the first sync it enables. The same token works for the
+    `portfolio-site-repo` seal, so one PAT covers both.
+    `WITH_PORTFOLIO_SITE_HOST=1` is the one whose result a stranger can see,
+    and it was added on 2026-09-06 (#3468). The two flags above restore what
+    *builds*; this restores what *serves* — the portfolio site out of the
+    control-plane box's own nginx (`gitops/prod/host/`), downstream of neither
+    k3s, Argo, nor a Pages runner. Without it the recovery can finish every
+    other step and still leave a visitor to `marisstella.dev` on a refused
+    connection. `SITE_GH_TOKEN` is the **same PAT** as above (Contents: Read),
+    and unlike the other two this step needs it up front rather than after: the
+    origin is private, so the deploy checkout cannot be cloned without it, and
+    the step skips rather than half-installing. It reaches the box over stdin,
+    never argv. `SITE_TLS_EMAIL` is optional — without it the site serves over
+    HTTP and you add the certificate later with `--tls`. Note what running it
+    means: on a domain whose DNS already points here, this **is** the decision
+    to publish under the portfolio's public name. That is the intent; there is
+    deliberately no second gate after it.
+    **You do not have to rebuild the cluster to get that one.** Added
+    2026-09-10: `bootstrap/scripts/setup-portfolio-site-from-laptop.sh` runs
+    the site step on its own, from your machine, in one command — the same
+    shape as the Codex and runner drivers, which had one and this route did
+    not. It needs no k3s, no Argo and no runner, so it is not downstream of
+    the least-proven part of the restore above (the addressing steps). If the
+    only thing you want today is `marisstella.dev` answering, run that instead
+    and skip the rest; the full recovery stays the right call when you want
+    the dev capacity and CI back in the same pass.
+    **And that escape is not the site's alone — all three host-mode routes
+    have it.** Added 2026-09-17, because the paragraph above named the
+    standalone driver for the one route it was written about and left the
+    other two as "the Codex and runner drivers", never naming them or saying
+    they can be run the same way. Each is one command from your machine,
+    needing the private SSH key and nothing else — no k3s, no Argo, no
+    runner, no repository secret, no seal:
+
+        ./bootstrap/scripts/setup-runner-from-laptop.sh
+        ./bootstrap/scripts/setup-codex-host-from-laptop.sh
+        ./bootstrap/scripts/setup-portfolio-site-from-laptop.sh
+
+    All three take `--check` to report without changing anything, and all
+    three are idempotent, so running one today does not cost you anything if
+    you run the full recovery later. Which to reach for depends on what you
+    want back:
+
+      - **CI, and an end to the metered-Actions cycle** — the runner one.
+        Actions is starved again as of 2026-09-17 (every check arriving
+        `runner_id: 0`, no step executed), and a self-hosted runner is not
+        metered, so this is what makes the next starvation window a
+        non-event rather than another week of local-only verification.
+      - **Unattended dev capacity on the box** — the Codex one. It installs
+        the host-mode systemd timer, which prefers the subscription
+        credential (`CODEX_AUTH_JSON` from your own `codex login`) and
+        actively withholds `OPENAI_API_KEY` from the CLI when both are
+        present, so a tick spends the plan's included quota and cannot bill
+        per token. It installs held: `policy.json` ships `"enabled": false`
+        and the timer ticks and holds until `enable-codex-governor.sh
+        --host-only`, so installing it does not start anything spending.
+      - **A stranger seeing `marisstella.dev`** — the site one, as above.
+
+    Ranked against each other rather than against the cluster: the runner
+    and Codex drivers are the two whose value does not depend on the k3s
+    restore working at all, and the runner is the one that changes what
+    *every other* row here is downstream of.
+    **The GitHub route, for when runners come back:** paste that same private
+    key as the Actions secret `HETZNERSSHKEY` (the whole file, `-----BEGIN
+    OPENSSH PRIVATE KEY-----` through `-----END …-----`) and the PAT as
+    `ARGOCDREPOTOKEN`, then dispatch `hetzner-gitops CI` with `preflight:
+    true` to confirm, and again with `restore: restore-cluster`. It reaches
+    the same script, and, as of 2026-09-06 (#3543), the same host-mode flags:
+    the dispatch form itself now carries `with_codex_host`,
+    `with_github_runner_host`, `with_portfolio_site_host` and `site_tls_email`
+    inputs, forwarded into the script's env exactly as the laptop route's
+    env vars are — tick the boxes you want on the one `restore` dispatch
+    rather than re-running it. Before #3543 this route could only ever reach
+    steps 1-8 (the k3s/Argo restore): the three flags above existed in the
+    script but had no workflow_dispatch input and were never forwarded, so a
+    dispatch from here alone left the Codex worker, the self-hosted runner
+    and the portfolio site all uninstalled regardless of what was ticked.
+    It is worth doing eventually so the recovery is repeatable without a
+    laptop, but it buys nothing today: both dispatches return `runner_id: 0`.
+    **Why this row was rewritten on 2026-09-05:** it used to lead with the
+    Settings route and declared no prerequisites, so the queue rendered it
+    `up` and the banner named it as the one row that "can be granted now and
+    will change something". Every route it described needed a runner. An owner
+    acting on it would have pasted a private key into Settings and then
+    watched both dispatches come back `runner_id: 0` — the identical mistake
+    `infra_state.yaml` was written to prevent, one row above the row it was
+    written about. `check()` now refuses a row whose action says to dispatch a
+    workflow unless it declares the dependency or names a runner-free route.
+    What did not change is the shape of the recovery:
+    `bootstrap/restore-cluster.sh` does it end to end (server,
+    agent join, Argo CD, then a Host-header curl for what the apex actually
+    returns), refuses to start without the typed confirmation, and never
+    overwrites a cluster that is already there. It touches no Hetzner API, so
+    the read-only token policy is untouched. It also fixes a trap nobody had
+    hit yet, because nobody had got far enough to hit it: the *documented*
+    order does not work today. `install-k3s-server.sh` defaults
+    `ADVERTISE_IP` to `10.10.0.10` and `install-k3s-agent.sh` defaults
+    `SERVER_URL` to `https://10.10.0.10:6443` — addresses on a private network
+    `infra/inventory.tf:53` records was **never applied** (`tofu` cannot
+    create it with a read-only token), so the server install would have burned
+    its 180-second readiness wait and exited 1 while the agent retried a join
+    against an address on no interface. The script probes for the NIC and
+    falls back to public addressing with `flannel-backend=wireguard-native`,
+    so node-to-node traffic is still encrypted.
+    **Measured, not inferred:** that dispatch on 2026-09-04 (run 33884253173,
+    job 101060068559) exits in under a second on the workflow's own format
+    classifier — `HETZNERSSHKEY holds a public key, not a private key` — so
+    the preflight has never produced a single reading, and every "SSH to the
+    boxes and see" instruction in this repo has been unfollowable since it was
+    written. The workflow already normalises literal `\n` escapes and CRLF, so
+    a plain paste is fine; the failure is the key half, not the formatting.
+    **Re-ranked to first, hours after this row was written, by the measurement
+    the same PR made possible.** It said "deliberately ranked below the two
+    seals ... this one only lets us look inside a cluster that is already
+    serving". The cluster is not already serving. `Public surface check` (run
+    33887885219) got `Connection refused` from all three hostnames and 0 of 24
+    sampled sitemap URLs — DNS resolves and the IP answers, but nothing is
+    listening on 443. So this row is no longer diagnosis-of-a-healthy-system;
+    it is the only way to find out why the portfolio's entire public surface
+    is down, and `portfolio-site-repo` now ranks *below* it (sealing a clone
+    token for a cluster that serves nothing changes nothing a stranger can
+    see). Do this one first.
+    **Confirmed sufficient 2026-09-04 by `Outage triage` (run 33889983086,
+    PR #3188) — this row is no longer a hopeful ask.** A key rotation would
+    have bought nothing had sshd been down, and nothing had checked. It is up:
+    port 22 accepts connections on both boxes, so the rotated key will get in.
+    The same run ruled out every cheaper cause — both servers report `running`
+    to the Hetzner read API, and all three hostnames resolve to
+    `89.167.29.39`, which is ours — so this is not a power, DNS, firewall or
+    TLS problem, and no console visit is needed. **6443 is refused on the
+    control plane**, which sharpens the hypothesis before anyone logs in: the
+    k3s API server itself is not listening, so this is not a crashed ingress
+    but an absent or dead cluster, and no pods exist to serve 80 or 443.
+    **Sharpened again 2026-09-04 by PR #3195, and this changes what you should
+    expect to find.** `Outage triage` now reads the Hetzner *action log*
+    (read-only, same token), which no session had ever queried. Both machines
+    return nothing but their own creation burst — `create_server`,
+    `enable_backup` and the `start_server` that first boots them, all inside
+    fifteen seconds, on 2026-08-24T11:15Z and 2026-08-25T15:29Z. There has
+    been **no reboot, no rebuild and no rescue boot on either box since it was
+    created**. So k3s did not fail to survive a restart: there has been no
+    restart. Combined with this row's own finding — `bootstrap/` is the only
+    documented install path, it needs SSH, and `HETZNERSSHKEY` has never held
+    a usable key — the leading hypothesis is now that **k3s was never
+    installed and the public surface has never once been up**, rather than
+    that a working catalogue went dark. Expect a **first bootstrap**, not a
+    repair. `ls -l /etc/rancher/k3s/k3s.yaml` settles it in one line the
+    moment SSH works; absent means run `bootstrap/install-k3s-server.sh` then
+    `install-argocd.sh`, and Argo takes it from there.
+  unlocks:
+    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. `Public surface check` detects the outage; `Outage triage` narrows it to a dead k3s on a healthy, powered-on, correctly-addressed box. **'Only SSH can say why k3s is dead' was too strong (corrected #3195):** the Hetzner action log says both boxes have been untouched since creation — no reboot, no rebuild — which eliminates 'k3s did not come back from a restart' without a shell and makes 'never installed' the leading hypothesis. SSH is still what confirms it and what runs the install."
+    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them. The 6443 reading above already favours the first."
+    - "#3186 raised a third candidate — a healthy cluster with the fault in front of it (the ingress, a load balancer, or DNS at the node) — and was right that `Connection refused` alone does not choose between the three. #3188 measured it away rather than argued it away: DNS resolves to our own address, both servers report `running`, and :6443 is refused on the control plane itself, which no fault *in front of* a healthy cluster produces. Kept here because the reasoning is the reusable part — a bare status code never picks a cause, and the fix was to go and take a second reading."
+  blocked_by: []
+  note: >-
+    Found by dispatching the preflight rather than by reading anything — no
+    document in the repo recorded this, and three of them (`OWNER_CHECKLIST`,
+    `bootstrap/README`, `infra/README`) actively said the dispatch was
+    available. All three corrected in the same change that opened this row.
+    The owner was debugging exactly this on 2026-08-24 via the one-shot
+    `tmp/ssh-key-smoke` branch; that diagnostic was folded into the preflight
+    job afterwards and then nobody dispatched it again, so the secret has sat
+    wrong for eleven days with the repo asserting otherwise.
+
+    **Not a one-off blip, as of 2026-09-04.** The `action` above cites the
+    first `Public surface check` run (33887885219); it has since run twice
+    more (33888988972, 33888990022), independently `workflow_dispatch`ed,
+    same result each time — all three hostnames `Connection refused`. Three
+    consistent readings rule out a transient network hiccup at measurement
+    time; they don't yet distinguish which of the causes `unlocks` above
+    lists. `HETZNERSSHKEY` was still the wrong half of the keypair as of the
+    third run. Rerun `Public surface check` (`workflow_dispatch`, no inputs)
+    to see if this has since self-resolved before assuming it is still down.
+
 - id: actions-runners-unavailable
   asks: []
   prs: [1842, 2021, 2022]
@@ -67,25 +378,52 @@ decisions:
   exposure: credential
   opened: "2026-08-26"
   action: >-
-    Two independent unblocks now exist; either clears this row. (a) Check
-    Settings → Billing → Spending limit for Actions (and that the payment
-    method is current) — the metered GitHub-hosted allowance this repo has
-    used since 2026-08-26. (b) Cheaper and does not touch billing: run the
-    self-hosted-runner path #2021/#2022 already shipped on hardware you
-    already pay for — seal `actions-runner-secrets` (a fine-grained PAT,
-    Administration: Read and write) per
+    **Live again as of 2026-09-05, and it is now the widest blocker in this
+    queue.** Measured, not inferred: run 33932676830 (`Portfolio validate`,
+    00:20:57Z today) came back `runner_id: 0` with no steps, and
+    `python3 platform/ci/ci_starvation.py --run 33932676830` exits 1. Every
+    check on the PR merged this morning was red for that reason and none of
+    them was a real failure. **Do not read the paragraph this replaced.** It
+    said "nothing is blocked on you here as of 2026-09-01 — this row is now
+    optional", which was true when written and stopped being true on
+    2026-09-04 at roughly 22:39Z, when starvation recurred mid-session
+    exactly as `gitops/ci/README.md` predicted it would once the metered
+    allowance was spent again. A row that announces its own irrelevance ages
+    the most dangerously of any row here, because nobody re-reads it.
+    What is blocked on this: the GitHub route in
+    `hetzner-ssh-key-is-a-public-key`, all of `deploy-settings`, and the
+    self-hosted fallback in `gitops/ci/` (its runners are pods on the dead
+    cluster, so it cannot substitute). The one route out that needs no runner
+    is the laptop command in `hetzner-ssh-key-is-a-public-key` —
+    prefer it to waiting for this row. If the August window is a guide, the
+    allowance resets on 2026-10-01; the owner can lift it sooner from
+    Settings → Billing.
+    For history, the earlier recovery really did happen on its own: GitHub
+    started assigning real runners again at 2026-09-01T00:00:53Z, recent runs
+    then carried runner ids in the `1000040xxx` range, and #2601 that evening
+    was the first PR in five days to go green on merit (`gitops` executed
+    `kustomize build`, `kubeconform` and 193 pytest cases). So option (a)
+    below — checking Settings → Billing → Spending limit for Actions — had
+    resolved itself, most likely a monthly allowance reset, and CI is
+    working today with no action from you. If you want to spend two
+    minutes on it anyway, confirming the payment method is current is the
+    thing that keeps the next cycle from happening. Option (b) is the one
+    still worth doing eventually, and it is now insurance rather than a
+    fix: the self-hosted-runner path #2021/#2022 already shipped on
+    hardware you already pay for — seal `actions-runner-secrets` (a
+    fine-grained PAT, Administration: Read and write) per
     `gitops/ci/secrets/actions-runner-token.template.yaml`, then set repo
-    variable `CI_RUNNER=self-hosted`. Typed out as owner-checklist item 9
-    in `infra/OWNER_CHECKLIST.md`; details in `gitops/ci/README.md`. Since
-    roughly 22:10–23:25 UTC on 2026-08-26 every workflow using the default
-    `ubuntu-latest` label dies in 3–6 seconds with `runner_id: 0`, an empty
-    check-run output and a 404 on log download — confirmed still true as of
-    2026-08-29T21:51Z (`Portfolio validate` on `main`, job 99165691846, 4s,
-    `ubuntu-latest`). No agent can grant either unblock; both are
-    account-level actions (billing access or a sealed secret).
+    variable `CI_RUNNER=self-hosted`. Self-hosted runners are not metered,
+    so that makes the next allowance cycle a non-event. Typed out as
+    owner-checklist item 9 in `infra/OWNER_CHECKLIST.md`; details in
+    `gitops/ci/README.md`. **Do this after the two seals that are actually
+    blocking** (`portfolio-site-repo` and `codex-secrets`), not before —
+    while CI was dark this row was told to sessions as the thing to
+    escalate, and it was competing for your attention with the seal that
+    stands between the portfolio and a live site.
   unlocks:
-    - "**Verification for the whole fleet.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build are the guards that stop a stale branch reverting newer work or re-declaring an existing export. All of them are dark, so every merge is landing on local verification alone."
-    - "The Pages build that `deploy-settings` would publish. That flip cannot produce a site while no runner will build one, so this ask now gates that one in practice."
+    - "**Durability of the fleet's verification, not its existence.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build all run again as of 2026-09-01, so merges are no longer landing on local verification alone. What this row still buys is that they keep running through the next allowance cycle instead of going dark again."
+    - "The Pages build that `deploy-settings` would publish. This ask no longer gates that one in practice — a runner will build the artifact today. (It did gate it from 2026-08-26 to 2026-09-01.)"
   blocked_by: []
   note: >-
     Recorded as a queue item on 2026-08-27, having been reported only on
@@ -125,16 +463,83 @@ decisions:
   gates: deployment
   exposure: none
   opened: "2026-08-24"
+  # The whole row is about how often a GitHub Actions workflow fires, and a
+  # scheduled workflow is starved exactly as a dispatched one is. Deciding the
+  # cadence while nothing can run is deciding the speed of a stopped clock.
+  requires: [github-actions-runners]
   action: >-
     Decide whether the 4-minute routine cadence runs, now that the merge half
     is already done: #788 landed on 2026-08-24 and
-    `.github/workflows/claude-routine-trigger.yml` is on `main` today. Yes
-    means creating the `CLAUDETRIGGERAPIKEY` repository secret (Settings ->
-    Secrets and variables -> Actions) and accepting the spend below; no means
-    deleting the workflow file, which no session may do on its own because
-    the owner requested it. Until one of those, the schedule fires and every
-    run fails on its first step for want of the secret -- the safe state, but
-    a noisy one.
+    `.github/workflows/claude-routine-trigger.yml` is on `main` today.
+
+    **Corrected 2026-09-01: the secret already exists, and its token is
+    revoked.** This row said until 2026-09-01 that the secret was unset and
+    every run "fails on its first step for want of the secret -- the safe
+    state, but a noisy one". That is not what is happening. Read from the job
+    log of run 33547527610 (job 99988623632): the step's env shows
+    `CLAUDE_TRIGGER_API_KEY: ***`, i.e. the secret is set and masked, and the
+    request reaches the API and comes back `HTTP 401 ...
+    {"type":"authentication_error","message":"OAuth access token has been
+    revoked."}`. An unset value would have exited at the workflow's own
+    preflight check (its `-z` guard on the key) before any request, and does not.
+
+    So the choice is now between: **yes**, mint a fresh token on the routine's
+    API trigger at https://claude.ai/code/routines and update the existing
+    `CLAUDETRIGGERAPIKEY` secret (Settings -> Secrets and variables ->
+    Actions), accepting the spend below; or **no**, delete the workflow file,
+    which no session may do on its own because the owner requested it.
+
+    **Magnitude corrected 2026-09-01 (second correction, measured).** This
+    row said "~360 fires a day are each making a real API call on a real
+    runner and getting 401 -- burning Actions minutes on the metered
+    allowance whose exhaustion caused the 2026-08-26 starvation window". The
+    direction is right and the cost is real, but both figures were about 5x
+    and 17x too high, because they assume the run loops. It does not. On 401
+    `fire()` returns 2, and the loop's `case` does `2) exit 1` on that value
+    (the `2) exit 1` arm of the loop's `case`), so the run aborts on its *first* fire and
+    never reaches the four remaining slots or their 240s sleeps.
+
+    Measured, not inferred: five consecutive runs (33553452882, 33551039615,
+    33549288450, 33547527610, 33545549251) each ran a single `fire` job for
+    **2-3 seconds** on a real runner, `ci_starvation.py --run` exit 0 on
+    each. A 5-fire loop would occupy ~16 minutes. So the standing waste is
+    **72 API calls a day, not 360** (one per run at `*/20`), and **~72 billed
+    Actions minutes a day** (GitHub rounds each job up to the minute) --
+    roughly 2,200 minutes, on the order of **$17** a month, against the
+    ~37,000 minutes / ~$300 the `unlocks` figure below quotes. That figure is
+    not wrong; it describes the *working* state, which is what a fresh token
+    would buy. Nothing fires today, so the Claude-side spend and the daily
+    routine-run cap are both untouched at zero.
+
+    What survives the correction: it is not free, and it is the standing
+    counter-example to "CI is green" -- every scheduled run has been red on
+    its own merits since the token was revoked, with no exception yet
+    (a fixed run count is not recorded here on purpose: this row is meant to
+    stay accurate as the count keeps climbing, not to be re-edited every time
+    it does). What does not survive: any reading of this row as an
+    urgent drain on the allowance whose exhaustion went dark on 2026-08-26.
+    At ~$17/month it is affordable to leave red while the owner decides,
+    which is the difference between "delete this today" and "answer it when
+    you get to it".
+
+    **The spend and the noise both stopped on 2026-09-02; the decision did
+    not.** The `fire` job now carries
+    `if: github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED
+    == 'true'`, and the repository variable is unset, so a scheduled run is
+    skipped before a runner is assigned -- no minute billed, no red check. The
+    workflow file is untouched otherwise and `workflow_dispatch` still runs
+    unconditionally, so a fresh token can be tested from the Actions tab
+    without flipping anything.
+
+    Read that as the bleeding stopped, not the question answered. **Yes** is
+    now three steps rather than one: mint the token, update
+    `CLAUDETRIGGERAPIKEY`, dispatch the workflow once to confirm it reports
+    `fired:`, then set the variable `ROUTINE_TRIGGER_ENABLED` to `true` under
+    Settings -> Secrets and variables -> Actions -> Variables. The variable is
+    last on purpose -- it is what re-arms the schedule, and re-arming it before
+    the token works just restores the old burn. **No** is unchanged and still
+    the owner's alone: delete the workflow file. Leaving it exactly as it is
+    now is a third, cost-free option this row did not previously have.
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,
@@ -234,16 +639,171 @@ decisions:
   gates: deployment
   exposure: credential
   opened: "2026-08-19"
+  # Measured, current loss of a public surface, per the OUTAGE convention in
+  # decision_queue.py: `Public surface check` run 33912053750 (2026-09-04,
+  # no credential, every request one a stranger could make) got 404 from
+  # `https://duncan-haywood.github.io/monorepo-projects/` — the origin ~670
+  # generated pages name in their own `<link rel="canonical">`.
+  #
+  # This row sat at position 9 for 16 days while the queue's outage banner
+  # told the owner that "every other row here is downstream of a host
+  # answering at all". That sentence was true of one surface and this is the
+  # other one: GitHub Pages needs no k3s, no SSH key and no sealed clone
+  # token, so it is not downstream of the cluster and never was. The ranking
+  # encoded the pre-#3199 belief that the portfolio had a single origin.
+  #
+  # CLEARED 2026-09-06. `outage: true` asserts a *measured, current* loss of a
+  # public surface -- decision_queue.py is explicit that it "is not a way to
+  # say important" -- and the measurement it rested on (the 404 from run
+  # 33912053750 on 2026-09-04) has been overtaken. GitHub's managed builder
+  # now runs on `gh-pages` and succeeds (runs 34011996382, 34012041708), which
+  # happens only for the configured Pages source, so this route is deployed
+  # rather than dark. What is left is one logged-out fetch nobody here can
+  # make, and "unverified" is not "down": leaving the flag set would keep the
+  # banner telling the owner to restore a surface that is already up, which
+  # is the same failure in the opposite direction.
+  outage: false
+  # Until 2026-09-05 this read `requires: [github-actions-runners]`, and that
+  # was correct for the only route that existed: `portfolio-pages.yml` had to
+  # build the artifact and run `deploy-pages`, and that needs a runner.
+  #
+  # `platform/pages/publish-branch.sh` (added 2026-09-05) removes that
+  # prerequisite rather than waiting on it. It builds the site in a session,
+  # checks the artifact, and commits it to an orphan `gh-pages` branch, so the
+  # owner's flip becomes Source "Deploy from a branch" — no workflow run, no
+  # runner, no k3s cluster. Every one of this repository's three execution
+  # routes was down on 2026-09-04 at once; this is the delivery path that is
+  # downstream of none of them.
+  #
+  # What is left is not CI. It is that **this repository is private, and Pages
+  # does not serve a private repository's site on the Free tier** — which
+  # applies to the branch source exactly as it did to the workflow source.
+  # Nothing here can read the account's plan, so it is `unknown`, not `up`:
+  # see `github-pages-plan` in `infra_state.yaml`. Swapping one prerequisite
+  # for none would have rendered this row `up` and floated it back to the top
+  # of the queue on the strength of a measurement nobody took.
+  requires: [github-pages-plan]
+  runner_free: >-
+    `platform/pages/publish-branch.sh` builds and commits the site to the
+    `gh-pages` branch from a session; serving it is Settings → Pages →
+    Source "Deploy from a branch". No workflow is dispatched at any point,
+    so runner starvation does not block this route.
   action: >-
-    Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
-    Actions", and set repository variable `GITHUB_PAGES_ENABLED=true`.
-    That is the remaining flip for static products. The host is already
-    decided (GitHub Pages + existing Hetzner boxes; see
-    `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
-    secrets as the way the portfolio goes live.
+    **GRANTED — measured 2026-09-06. Do not flip anything; one 10-second
+    confirmation is all that is left.** GitHub's own managed builder
+    `dynamic/pages/pages-build-deployment` ran on `gh-pages` and concluded
+    `success` (runs 34011996382 and 34012041708), and a managed Pages build is
+    triggered only by a push to the *configured source*. So Pages is on, the
+    source is the `gh-pages` branch, and the snapshot built from the tip of
+    `main` has been deployed. Both runs also completed while
+    `github-actions-runners` was down, so this route does not spend the
+    metered Actions allowance.
+    What is genuinely left, and it is not a settings change: **open
+    https://duncan-haywood.github.io/monorepo-projects/ in a logged-out
+    browser and confirm you see the catalogue.** A deploy succeeding is not
+    the same as an unauthenticated stranger getting a 200 — a Pages site can be
+    access-controlled — and no session can check it, because the agent egress
+    proxy answers `403 to CONNECT` for `github.io`. If it loads, this row is
+    closed and `github-pages-origin` in `infra_state.yaml` goes `up`. If it
+    404s or asks you to log in, that is the plan question below, and only then
+    does the rest of this row apply.
+    **The standing job for sessions, now that the route is live:** a committed
+    artifact does not rebuild itself, so re-run
+    `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+    after any merge that touches a served surface. That is this route's one
+    real cost and it is now the difference between the live site and `main`.
+    **And there is a second flip that retires that standing job — added
+    2026-09-06, because this row has been describing the drift as permanent
+    while the fix sat in the tree unmentioned.**
+    `.github/workflows/publish-pages-branch.yml` runs exactly the command
+    above on every push to `main` that touches `ventures/**` or
+    `platform/pages/**`. It ships switched off, because CLAUDE.md's
+    "Automation" rule forbids an unattended workflow that pushes commits
+    without your approval — so the gate *is* the approval, the same way
+    `PAGES_ENABLED` gates the other Pages route. To arm it: **Settings →
+    Secrets and variables → Actions → Variables → `PAGES_BRANCH_PUBLISH` =
+    `true`**. Clearing it switches the pushing back off; with it unset the
+    workflow still builds the site and runs `check.mjs`, so a dead link the
+    copy step introduces turns a merge red instead of reaching a crawler.
+    Worth setting now even though it changes nothing today: it needs an
+    Actions runner, and `github-actions-runners` has been down since
+    2026-09-04, so what setting it buys is that the drift hole closes by
+    itself on the day the allowance resets rather than waiting on somebody
+    to remember this paragraph then. It is listed here rather than as its
+    own queue row because it is the same decision as this one — how the
+    Pages route stays published — and CLAUDE.md is explicit about not
+    duplicating asks.
+    ---
+    **Superseded below (2026-09-05 and earlier), kept because the way it went
+    stale is the reusable part: every sentence was a correct reading of the
+    manifests and the API restated as a claim about what a visitor receives,
+    and nothing re-ran when the world changed.**
+    **Check the plan first — thirty seconds, and it decides whether the rest
+    of this row is worth anything.** Settings → Billing names it. Pages will
+    not serve a *private* repository's site on the Free tier, and this
+    repository is private, so on Free this row publishes nothing to a
+    stranger no matter what else is done. On Pro or above, continue.
+    **Expect that check to come back Pro or better** (new 2026-09-05, and
+    the reason this row is worth opening at all today):
+    `python3 platform/ci/pages_state.py` reads the repository object and
+    reports `private: true` **and** `has_pages: true`. GitHub does not let
+    the Free plan enable Pages on a private repository, so a Pages site
+    already being configured here is evidence the plan permits it — read
+    without any billing permission, from a session, with no runner. It is
+    evidence and not proof: `has_pages` is sticky across a repo going
+    private or an account downgrading, which is exactly why the thirty
+    seconds in Billing still settles it and why `github-pages-plan` stays
+    `unknown` in `infra_state.yaml` until you look. Also worth knowing
+    before you go: the same tool reports the `gh-pages` snapshot as
+    **current** — built from the tip of `main` — so the flip publishes
+    today's catalogue, not a stale one.
+    **Then, the runner-free route (new 2026-09-05, and the one to take):**
+    the built site is already committed to the `gh-pages` branch by
+    `platform/pages/publish-branch.sh` — 174 products, 690 pages, verified
+    by `check.mjs` before the commit was written. Serve it with Settings →
+    Pages → Source **"Deploy from a branch"** → `gh-pages` / (root). That
+    is the whole flip. It needs no Actions runner, no `PAGES_ENABLED`
+    variable and no k3s cluster, which is what makes it survivable on a day
+    like 2026-09-04 when all three were down at once. Re-run the script
+    (`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`)
+    to refresh the snapshot; a committed artifact does not rebuild itself,
+    and that is this route's one real cost.
+    **The original route, for when runners are reliable again:** Settings →
+    Pages → Source "GitHub Actions", and set repository variable
+    `PAGES_ENABLED=true`. Prefer it once Actions minutes are healthy — it
+    republishes on every merge to `main`, so the site cannot drift from the
+    repository the way a committed snapshot can. (Not
+    `GITHUB_PAGES_ENABLED` — that name is unsettable, and until this row
+    was corrected this ask could never actually have been completed as
+    written: GitHub rejects any Actions configuration-variable name
+    starting with `GITHUB_`, case-insensitive, at creation time. See
+    `portfolio/hosting/README.md`.)
+    **This row used to call that "the remaining flip for static products".
+    It is not the remaining anything** (corrected 2026-09-05). Two things
+    sit behind it. First, `portfolio-pages.yml` has to build the artifact,
+    and it cannot today — runner assignment stopped again on 2026-09-04,
+    which is why this row now renders `down`. Second, and fixable by no
+    amount of CI: **this repository is private, and Pages from a private
+    repository does not serve a public site on the free tier.** If this
+    account is on the free tier, granting this row publishes nothing to a
+    stranger however green CI gets, and it is not a restore route at all;
+    on Pro or above it is. Nothing in this repository can read the
+    account's plan, so the owner is the only one who can settle which case
+    this is — worth thirty seconds in Settings → Billing before spending
+    anything else here, because the answer decides whether this row belongs
+    in the outage set. `portfolio/hosting/README.md` has carried the
+    private-repo constraint since 2026-09-01; this row had not caught up.
+    The Hetzner route in `hetzner-ssh-key-is-a-public-key` has neither
+    constraint and, as of 2026-09-05, is one command from the owner's own
+    machine. The host is already decided (GitHub Pages + existing Hetzner
+    boxes; see `portfolio/hosting/README.md`) — do not add Cloudflare or
+    Vercel secrets as the way the portfolio goes live.
   unlocks:
-    - "**161 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Was recorded as 33 until 2026-08-27; the portfolio grew ~5x since and the figure had not kept up, understating the payoff of this one flip.)"
-    - "Verified publishable on 2026-08-27, not merely assumed: `node platform/pages/build.mjs` produces 161 tools / 434 pages, and `node platform/pages/check.mjs dist` returns \"looks publishable: 161 products, 437 pages, no dead links\" (exit 0). Every inline script on every page parses, and all 446 pages pass the integrity sweep. There is no unfinished build work between this flip and a stranger using one of these tools."
+    - "**174 finished, tested, free products at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Recorded as 33 until 2026-08-27 and as 161 until 2026-09-04; the portfolio keeps growing and the figure keeps not keeping up, understating the payoff of this one flip each time.)"
+    - "Re-verified 2026-09-04, not merely assumed: `node platform/pages/build.mjs --out=dist` then `node platform/pages/check.mjs dist` returns \"looks publishable: 174 products, 7 category pages, 675 pages, no dead links\" (exit 0). There is no unfinished build work between this flip and a stranger using one of these tools."
+    - "**This is the cheaper of the two routes to a public surface, and the only one that asks the owner for nothing they have to find.** `hetzner-ssh-key-is-a-public-key` needs the private half of a keypair installed on two boxes in August -- if that file is gone, the row cannot be completed at all and the recovery is a Hetzner console visit or a rebuild. This row is two clicks and a variable, in settings the owner already controls: Settings → Pages → Source \"GitHub Actions\", then `PAGES_ENABLED=true`. Neither route is a prerequisite for the other."
+    - "The artifact is **already built and validated on every merge to `main`** -- `portfolio-pages.yml`'s `build` job runs the builder, the integrity check and `upload-pages-artifact`, and succeeds; only the `deploy` job is gated on `vars.PAGES_ENABLED == 'true'` and it is skipped every time (measured: run 33910587055, `deploy` conclusion `skipped`, `build` conclusion `success` on the same run). So the flip publishes something that has already passed its checks, rather than starting a build that might not."
+    - "The flip is self-verifying: `portfolio-pages.yml`'s deploy job ends by fetching `/`, both sitemaps, `robots.txt`, `catalog.json`, `llms.txt`, `feed.xml` and one real product page through the live public URL, and fails if any returns non-200. `Public surface check` (no credential) then re-measures the same origin on demand, so \"it worked\" is a reading rather than an inference."
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist. It no longer reads this variable: GitHub serves one Pages site per repo, so it moved to `RETAIL_PILOT_INTEL_PAGES` rather than racing the calculators for the origin."
   blocked_by: []
@@ -558,20 +1118,38 @@ decisions:
 
 - id: agent-cross-review-automerge
   asks: []
-  prs: [870]
+  prs: [870, 3024]
   gates: deployment
   exposure: credential
   opened: "2026-08-24"
   action: >-
-    Informational -- #870 is now closed, not merged, and `platform/ci/
-    agent_review/` never landed on `main`, so there is nothing left to
-    enable. No owner action needed unless someone reopens or re-proposes
-    this automation, in which case unattended auto-merge of paid or
-    identity-gated work is still owner-only. Product PRs merge on green CI.
+    Not informational any more -- #3024 merged `platform/ci/agent_review/`
+    (`review.py`, `config.yaml`) plus `.github/workflows/agent-cross-review.yml`
+    and `.github/workflows/agent-pr-auto-merge.yml` to `main` on 2026-09-03,
+    the same shape #870 proposed and this row previously recorded as
+    abandoned. It ships fail-closed: each of the four review jobs checks its
+    own `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
+    few seconds when they are unset, so nothing runs, approves, or merges
+    today -- there is no exposure yet, only an inert, tested no-op. Turning
+    it on needs the "One-time owner setup" in
+    `platform/ci/agent_review/README.md`: create 4 GitHub Apps (Pull
+    requests: Read & write; Contents: Read; Metadata: Read; install on this
+    repo only), add the 8 `AGENT_REVIEWER_*` secrets, and set
+    `required_approving_review_count: 2` plus required status checks on the
+    `main` ruleset. No `infra/OWNER_CHECKLIST.md` item pointed at this until
+    now (added under "You decide (not blocking the scaffold)" the same
+    session this row was corrected) -- so a stranger reading only that file
+    would never learn the automation exists to turn on.
   unlocks:
     - >-
-      Nothing further; kept as a record of a real design gap found during
-      review, in case this automation shape is proposed again.
+      Two of the four reviewer identities approving, plus green CI, is what
+      lets `agent-pr-auto-merge.yml` squash-merge an internal
+      (non-`ventures/*`) PR without an agent session or the owner doing it
+      by hand -- `review.py`'s `path_touches_ventures()` refuses to
+      auto-merge anything under `ventures/*` regardless of approvals, so
+      product PRs stay on the existing agent-merges-on-green-CI path this
+      does not touch. What it buys is fewer platform/gitops/CI PRs sitting
+      open only because no session has come back to merge them.
   blocked_by: []
   note: >-
     Opened 2026-08-24 by a branch-hygiene sweep session, which correctly
@@ -598,9 +1176,34 @@ decisions:
     was fine even though its stated rationale leaned on the same
     not-independently-verified "product-first direction" premise.
 
+    **Corrected 2026-09-04.** The verdict above held until #3024
+    (2026-09-03) rebuilt the same shape from scratch -- `path_touches_ventures`
+    now actively blocks auto-merge on `ventures/*` rather than only noting it,
+    which was this row's own stated concern -- and merged it, unnoticed by
+    this row, as a normal green-CI platform PR (CLAUDE.md and AGENTS.md both
+    describe it as live). "Informational, nothing to enable" was therefore
+    wrong from 2026-09-03 onward: the code exists on `main`, gated only on
+    secrets nobody has been asked for. `action` and `unlocks` above are
+    rewritten for the current state; `prs` now also names #3024, the PR that
+    actually shipped what #870 proposed.
+
 - id: codex-governor-enable
   asks: []
   prs: [1996]
+  # Downstream of the outage (measured 2026-09-04, run 33889983086): the
+  # governor and its workers schedule onto the k3s cluster, whose API server
+  # is not listening -- :6443 refused on both boxes. Sealing the credential is
+  # durable preparation and does not expire, so it is not wasted, but nothing
+  # will run until `hetzner-ssh-key-is-a-public-key` leads to k3s coming back.
+  # Declared as well as described (2026-09-05): the paragraph above has been
+  # right since 2026-09-04, but `viability()` reads `requires` and cannot read
+  # a comment, so this row still rendered `up` and sorted among the grantable
+  # ones. The owner asked for the Codex loop specifically; telling them it is
+  # ready to enable, while the cluster it schedules onto is not listening, is
+  # the wrong answer to that question.
+  requires: [k3s-cluster]
+  # Not marked `blocked_by`: the seal is a git commit Argo picks up whenever
+  # it next syncs, so it is genuinely doable today -- just not observable.
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
@@ -623,8 +1226,17 @@ decisions:
     Administration/Secrets/Workflows/Actions/Environments/Pages), into the
     `codex-secrets` Kubernetes Secret per
     `gitops/agents/secrets/codex-token.template.yaml`. (3) Only after that
-    seal, flip `gitops/agents/governor/cronjob.yaml` `suspend: false` and
-    `gitops/agents/governor/policy.json` `"enabled": true`.
+    seal, run `./bootstrap/scripts/enable-codex-governor.sh`, which flips
+    both switches (`gitops/agents/governor/cronjob.yaml` `suspend: false`
+    and `gitops/agents/governor/policy.json` `"enabled": true`) in one
+    command. Step 3 used to be two hand-edits in two file formats, either
+    of which is silent when done alone -- the CronJob alone wakes every
+    five minutes to read a disabled policy, the policy alone is never read
+    by anything. The script refuses to enable until the step-2 Secret is
+    committed and listed in `gitops/agents/kustomization.yaml`, so running
+    it early is safe and the ordering is enforced rather than only
+    documented; `--check` reports the state without writing and
+    `--disable` reverses it.
   unlocks:
     - >-
       A working, already-built "Codex CLI does unattended dev work on the
@@ -684,42 +1296,73 @@ decisions:
     choosing what to seal, and the governor stays `suspend: true` /
     `enabled: false` either way. No agent flipped anything.
 
+    UPDATE 2026-09-06: this row's `requires: [k3s-cluster]` is correct for
+    its own mechanism (a Kubernetes CronJob reading a Kubernetes Secret) but
+    is no longer the only way to grant what the row is actually for. A
+    2026-09-06 scheduled session was asked, again, to get the Codex CLI
+    "set up to use up the built-in quota for dev work ... on the hetzner
+    vm" and found that `gitops/agents/host/` -- built 2026-09-05/06,
+    specifically because this row's own mechanism sits downstream of the
+    outage -- runs the identical governor and worker as a systemd timer
+    directly on either box, no k3s, no Argo, no runner. It is already
+    reachable from `hetzner-ssh-key-is-a-public-key` above as the optional
+    `WITH_CODEX_HOST=1` flag on a full cluster restore, but that bundles it
+    with standing up Argo and the runner host too. An owner who wants only
+    "Codex spends its quota on Hetzner" and nothing else can skip the
+    cluster restore entirely: `./bootstrap/scripts/setup-codex-host-from-
+    laptop.sh` (or `install-codex-host.sh` by hand, per
+    `gitops/agents/host/README.md`) installs it alone, needing only the
+    `:22` access that same row already established is credible. It prompts
+    for the same two credentials this row describes and, like this row's
+    CronJob, ships with `policy.json` `"enabled": false` -- installing does
+    not start it; `enable-codex-governor.sh` still does that, deliberately,
+    as its own step. Not a new decision, and not a reason to add a second
+    row: the choice of credential and account is identical to this one, only
+    the machine differs, so this paragraph is the whole update.
+
 - id: portfolio-site-hetzner-deploy
   asks: []
   prs: [1999]
+  # Downstream of the outage, exactly as `codex-governor-enable` above: this
+  # seals a clone token for an in-cluster workload, and the cluster's API
+  # server is not listening (run 33889983086, :6443 refused on both boxes).
+  # The seal is durable and worth doing, but it publishes nothing while k3s
+  # is down -- so do not read a completed seal as a live `tools.` hostname
+  # until `Public surface check` says a host answers.
+  requires: [k3s-cluster]
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    ONE owner step remains, typed out with a verification command under
-    "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md` (the
-    rationale is in `gitops/README.md`): mint a fine-grained GitHub token
-    scoped to this one repository with Contents:Read-only and nothing
-    else, then seal it into `prod/kustomization.yaml` per
+    ONE owner step remains -- fewer than this row used to say -- typed out
+    with a verification command under "Publish `tools.marisstella.dev`" in
+    `infra/OWNER_CHECKLIST.md` (the rationale is in `gitops/README.md`):
+    mint a fine-grained GitHub token scoped to this one repository with
+    Contents:Read-only and nothing else, then seal it into
+    `prod/kustomization.yaml` per
     `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
-    private, so the in-cluster clone cannot be anonymous). Both of the
-    other steps this row used to list are gone and need no action. DNS:
+    private, so the in-cluster clone cannot be anonymous). Every other step
+    this row used to list is gone and needs no action. DNS:
     `tools.marisstella.dev` already resolves to `89.167.29.39` (verified
     2026-08-29 with `getent hosts tools.marisstella.dev`) --
     `marisstella.dev`'s existing wildcard `A/*` record already covers the
-    subdomain. ACME contact: dropped 2026-08-30. This row used to ask for
-    a real mailbox to replace `replace-me@duncanhaywood.dev`, on the
-    stated grounds that Let's Encrypt would refuse to register the
-    placeholder. An ACME account contact is optional (RFC 8555 makes
-    `contact` optional and cert-manager's `email` follows), so
-    `platform/cert-manager/issuer.yaml` now omits `email` entirely and
-    registers normally -- no address to choose, nothing to wait on.
-    Adding a real one later, purely to receive Let's Encrypt's expiry
-    warnings, is a one-line change per issuer that cert-manager applies by
-    updating the existing account registration; it is optional and it does
-    not block anything. That single remaining step is all that stands
-    between the portfolio and a live site; after it the site is
-    reachable on a Let's Encrypt *staging* certificate, which
-    browsers warn about. The last step -- flipping the Ingress annotation
-    from `letsencrypt-staging` to `letsencrypt-prod` and updating the
-    test that pins it -- is an ordinary code change, not an owner action:
-    once you confirm the staging certificate issued, ask a session to
-    open that PR rather than editing two files by hand.
+    subdomain. ACME contact: dropped 2026-08-30 -- an ACME account contact
+    is optional (RFC 8555 makes `contact` optional and cert-manager's
+    `email` follows), so `platform/cert-manager/issuer.yaml` omits `email`
+    entirely and registers normally. Adding a real one later, purely to
+    receive Let's Encrypt's expiry warnings, is a one-line change per
+    issuer that cert-manager applies by updating the existing account
+    registration; it is optional and does not block anything. **The
+    Ingress issuer flip is also done (#2545, 2026-08-31)** -- this row used
+    to describe it as a follow-up code change still waiting on "once you
+    confirm the staging certificate issued", but DNS resolving on
+    2026-08-29 retired that precondition before the wait ever mattered, so
+    the flip was made ahead of the seal rather than behind it. Both
+    `gitops/prod/portfolio-site.yaml` and `gitops/prod/portfolio-apex.yaml`
+    already carry `cert-manager.io/cluster-issuer: letsencrypt-prod`, and
+    `gitops/tests/test_manifests.py` pins it. So the token is now the only
+    remaining step, full stop -- after it the site issues straight to a
+    publicly trusted certificate, not a staging one browsers warn about.
   unlocks:
     - >-
       A public URL for 164 finished, tested, free tools at once --
@@ -727,20 +1370,24 @@ decisions:
       build.mjs`'s output inside the k3s cluster and serves it through
       ingress-nginx and cert-manager that are already running on the paid-
       for cpx52 box. This path depends on neither GitHub Actions (dark
-      since 2026-08-26, see `actions-runners-unavailable`) nor GitHub
+      2026-08-26 to 2026-09-01 and working again since, see
+      `actions-runners-unavailable` — this path never needed it either
+      way) nor GitHub
       Pages (not enabled, and would not serve a private repo's Pages site
       publicly even if it were -- see `deploy-settings`'s note). Of the
       two live deploy asks, this is the cheaper one to grant: no billing
-      change, no new account -- DNS already resolves, so it is down to a
-      scoped read-only token and a real email address.
+      change, no new account -- DNS already resolves and the issuer is
+      already pointed at prod, so it is down to a single scoped read-only
+      token.
   blocked_by: []
   note: >-
     Not a duplicate of `deploy-settings` (the GitHub Pages flip, opened
     2026-08-19). That ask is now known to be insufficient on its own --
     `portfolio/hosting/README.md`'s 2026-08-29 amendment records three
     stacked blockers on the Pages route (not enabled, repo is private so
-    Pages would not go public on the free tier, and no Actions runner to
-    build the artifact since 2026-08-26). This row is the separate Hetzner
+    Pages would not go public on the free tier, and — from 2026-08-26 to
+    2026-09-01, no longer true — no Actions runner to build the artifact).
+    Two of those three still stand. This row is the separate Hetzner
     path merged in #1999, which shares none of those three blockers and
     was not represented in this file before. Until any of these four steps
     land, Argo syncs the manifests and the pods crash-loop on the missing
@@ -774,5 +1421,169 @@ decisions:
     not the dark Pages origin. `check.mjs` also exits 1 on both a missing
     and an empty site directory, which is what makes the build container
     fail the pod rather than serve an empty site. Nothing in the build
-    half of this deploy is waiting on anything; all four remaining steps
-    are the owner's.
+    half of this deploy is waiting on anything; the one remaining step is
+    the owner's (three others this note used to count -- DNS, the ACME
+    contact, and the issuer flip -- have since landed with no owner action,
+    see `action` above).
+
+- id: print-atelier-stripe-checkout
+  asks: []
+  prs: [481]
+  gates: revenue
+  exposure: legal-person
+  opened: "2026-09-06"
+  action: >-
+    Say accept-and-fund or revert on `ventures/print-atelier`'s Stripe
+    checkout/webhook/payout integration
+    (`src/app/api/stripe/{checkout,webhook,bootstrap-prices,billing-portal}/route.ts`,
+    `src/lib/stripe-checkout-server.ts`, `src/lib/commerce/stripe-connect.ts`,
+    `src/lib/stripe-ledger.ts`) before any session wires a real
+    `STRIPE_SECRET_KEY` to it. Accept-and-fund means opening the
+    merchant-of-record account, the Stripe Connect platform application (this
+    venture pays artists 30% of net profit through Connect transfers, which
+    is its own onboarding and compliance surface beyond plain checkout), and
+    the tax identity that real checkout requires -- the same class of
+    decision `payout-rail` already names, not something this row invents.
+    Revert means removing the routes and the `stripe` dependency rather than
+    leaving them dormant on `main`.
+  unlocks:
+    - >-
+      Closes the one venture-code gap in "donations only, no payment
+      collection" (`portfolio/DIRECTION.md` "Legal guardrails") that this
+      session found undocumented: real `stripe.checkout.sessions.create` and
+      `stripe.accounts` (Connect) calls, gated only by the same unset-env-var
+      pattern as the already-flagged `local-site-studio` exception, with no
+      decision-queue row and no mention in `DIRECTION.md` until this session
+      added one.
+  blocked_by: []
+  note: >-
+    Found this session while looking for what "without creating legal
+    liabilities" actually covers today, not from a report. The provenance is
+    different from `local-site-studio` and worth being precise about: the
+    Stripe integration arrived via `db5e9bb5`, "Merge print-atelier into
+    ventures/", a subtree merge committed directly by the owner's own account
+    on 2026-07-29 -- a full four weeks *before* `portfolio/DIRECTION.md`'s
+    donations-only policy existed (first stated 2026-08-24). This is not an
+    agent gate-crossing like `local-site-studio-subtree-gate-crossing` (#731,
+    self-merged by a bot against an explicit "flagging for review"); it is a
+    pre-existing venture nobody reconciled against a policy written after it
+    landed. PR #481 (self-merged 2026-08-21 as an agent-decidable bug fix, a
+    webhook-retry dedup guard against double fulfillment orders) is the only
+    later touch to this code and is cited here as the nearest real PR number
+    the schema can point at -- it fixed a bug in the existing integration, it
+    did not introduce or extend it, and self-merging it was reasonable
+    regardless of how this row resolves. `stage: idea` in `VENTURE.yaml` and
+    exclusion from the GitHub Pages build (`platform/pages/build.mjs` treats
+    it as a preflight app, not a static page) mean it has never been
+    reachable by a stranger and `STRIPE_SECRET_KEY` is unset, so nobody has
+    hit "Pay" -- real mitigation, but not the same as gated: unset stops the
+    route from running, not from existing, and this had no decision-queue row
+    at all until now. `platform/ci/check_no_payment_code.py`, added the same
+    session, now fails CI if a third venture adds payment-SDK code without a
+    matching row here -- see its `ALLOWED_EXCEPTIONS` for both current
+    entries. Do not
+    read the new check as license to extend either exception; it exists so a
+    third instance is a red build instead of a third silent one.
+
+- id: pages-custom-domain
+  asks: []
+  prs: [4427]
+  gates: distribution
+  exposure: none
+  opened: "2026-09-10"
+  action: >-
+    **Point `marisstella.dev` at GitHub Pages instead of the dead cluster, at
+    your registrar's DNS panel, then set it as this repository's custom domain
+    in Settings → Pages.** Two records, both replacing what is there now: the
+    apex `A` records (and `AAAA` if the panel offers them) at GitHub's Pages
+    addresses, and `www` as a `CNAME` to `duncan-haywood.github.io`. Take the
+    addresses from GitHub's own "Managing a custom domain for your GitHub
+    Pages site" page rather than from any number typed into this repository --
+    a published IP restated in a file that nothing re-reads is the exact
+    failure `CLAUDE.md` records paying for twice. After the domain verifies,
+    tick "Enforce HTTPS" once the certificate issues (minutes to an hour), and
+    re-run `CONFIRM=publish-pages-branch PAGES_CNAME=marisstella.dev PUSH=1
+    ./platform/pages/publish-branch.sh` so the serving branch carries the
+    `CNAME` file. Nothing here is pasted into this repository and no secret
+    changes hands; it is reversible by putting the old record back.
+  unlocks:
+    - >-
+      Sitemap auto-discovery for all 881 published pages, which has never once
+      happened. The site is served from a project-Pages *subpath*
+      (`https://duncan-haywood.github.io/monorepo-projects/`), but a crawler
+      fetches `robots.txt` from the *host* root -- which belongs to the
+      owner's separate user-level Pages site. So the `Sitemap:` line this
+      build writes has never been read by anything, and
+      `portfolio/usage/usage.yaml` carries no visitor reading at all for any of
+      the 200 products -- every one of its `live_url_visitors` entries is
+      `null`, and not one is a measured zero. Never-measured is not the same as
+      measured-zero: the first is evidence about nothing and licenses going to
+      get a reading, the second would be evidence against the products
+      themselves. At an origin root the file the build publishes is the file
+      crawlers read. This is the same defect `platform/ci/pages_state.py`
+      reports as its `indexing` row.
+      **Corrected 2026-09-17: this row used to call itself "the cheaper, more
+      permanent" of two fixes, and it is no longer the cheapest of three.**
+      `pages_state.py` now names a third, ahead of this one: a `robots.txt` at
+      the *user* Pages site root (`https://duncan-haywood.github.io/
+      robots.txt`) carrying this catalogue's `Sitemap:` line. The sitemaps
+      protocol only requires verification for a *cross-host* sitemap, and
+      every `<loc>` published here is same-host under the one subpath
+      (checked against `origin/gh-pages`), so two lines in a repository named
+      `<owner>.github.io` restore enumeration for every crawler at once --
+      with no registrar, no DNS change, no certificate wait and no money. It
+      shares this row's advantage over Search Console (read at fetch time, so
+      it reaches crawlers nobody submits to) at a fraction of the cost.
+      So enumeration alone no longer justifies this row, and the honest
+      ranking on that one axis puts the robots.txt route first. What that
+      route does *not* buy is everything below -- the public name, and
+      IndexNow from an origin-root key file -- which is why this row stands
+      rather than being closed. Do the robots.txt first; it is not a reason
+      to skip the domain, only a reason not to wait for it.
+    - >-
+      A public name for the portfolio. 200 finished products currently live at
+      a URL that names a GitHub account and a repository; every card, share
+      link and canonical tag they publish names it too.
+    - >-
+      IndexNow submission from a key file at the origin root rather than a
+      subpath (`platform/marketing/indexnow.mjs`), removing its dependence on
+      the `keyLocation` override.
+  blocked_by: []
+  note: >-
+    **This does not replace `hetzner-ssh-key-is-a-public-key`, and it is not a
+    second route to the same thing.** That row restores the cluster, and with
+    it the Codex worker (`gitops/agents/host/`) and the self-hosted runner
+    fallback (`gitops/ci/`) -- capacity, which this buys none of. This row
+    buys *discovery* for a catalogue that is already served and already
+    current. They are independent, and this one is cheaper by a wide margin:
+    no SSH key, no sealed secret, no runner, no cluster, nothing pasted.
+    Why it had no row until now, which is the reusable part. The queue's
+    outage banner has said since 2026-09-04 that "every other row here is
+    downstream of a host answering at all", and that sentence assumed the
+    portfolio had one origin. It has two, and the `deploy-settings` row
+    already records paying for that assumption once -- it sat at position 9
+    for 16 days for the same reason. `marisstella.dev` was read as the
+    cluster's hostname because that is what its DNS points at, so "the domain"
+    and "the dead box" became one thing; the domain is an asset the owner
+    holds independently of anything Hetzner runs, and it can point wherever a
+    working origin is.
+    Measured 2026-09-10, this session. `pages_state.py` reports the `gh-pages`
+    snapshot `current` against `main` at `f7a7b032` and `deployed` via
+    GitHub's managed builder (run 34449496624), so the catalogue this would
+    put on the domain is live and up to date rather than hypothetical.
+    A full `node platform/pages/build.mjs --base=https://marisstella.dev/`
+    was then run here to check the switch produces a correct site rather than
+    assuming it: 2,543 files, 229 sitemap `<loc>`s all on the apex, every
+    `rel="canonical"` on the apex, `robots.txt` naming
+    `https://marisstella.dev/sitemap.xml`, and **zero** surviving references
+    to the old origin anywhere in the artifact. That property is now pinned by
+    `platform/pages/custom-domain.test.mjs` -- verified against two mutants of
+    `applyBaseUrl`, because the first draft of that test passed against a
+    build with the rewrite deleted and a guard that cannot fail is worth less
+    than no guard.
+    The one thing not measured, as ever, is a logged-out fetch: no session can
+    reach `github.io` (the egress proxy answers `403 to CONNECT`), so whether
+    a stranger receives the page is still the owner's to confirm. Note also
+    that this repository is private, which is why `deploy-settings` carries
+    `requires: [github-pages-plan]`; the same plan question applies here and
+    is unchanged by the domain.

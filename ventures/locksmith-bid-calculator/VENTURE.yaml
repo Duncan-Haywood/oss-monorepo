@@ -1,0 +1,31 @@
+name: locksmith-bid-calculator
+description: Free browser calculator for mobile and small-shop locksmiths to price a single service call — lockout, rekey, lock install, or fob programming — with an after-hours premium and a minimum service charge floor built in, then check a day's worth of calls against an income goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Mobile locksmiths will use a per-call pricing calculator that applies an after-hours premium to billed time only and enforces a minimum service charge floor, since a phone-quote guess routinely forgets one or the other and undercharges a short or an emergency call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how much a locksmith should charge for a service call, or how much an emergency lockout costs, are underserved by generic trade-pricing calculators because the after-hours-premium-on-time-only and minimum-charge-floor arithmetic is specific to this trade.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators who price one call will also want to check whether a day's worth of calls, at that average profit, clears a daily income goal, not just whether one call clears a margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/locksmith-bid-calculator/
+  analytics: null

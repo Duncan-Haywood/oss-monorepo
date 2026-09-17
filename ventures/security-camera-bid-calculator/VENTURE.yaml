@@ -38,5 +38,5 @@ kill_criteria:
   - Installers report that entering resolution, codec, retention, and construction type is more work than their existing method without changing the price they would have bid.
   - The storage and PoE checks prove to restate what installers already size correctly by habit, so the engineering half adds nothing over a plain job-costing sheet.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/security-camera-bid-calculator/
   analytics: null

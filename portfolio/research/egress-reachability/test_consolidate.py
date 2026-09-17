@@ -200,6 +200,22 @@ class AskHostExtraction(unittest.TestCase):
                      "me", "tv", "cc", "ws", "to", "gg", "dev", "app", "org"}
         self.assertEqual(check_ask_hosts._NOT_TLDS & delegated, set())
 
+    def test_sdk_method_paths_are_not_hosts(self):
+        """The third source of host-shaped tokens, after files and versions.
+
+        `print-atelier-stripe-checkout` quotes the calls a session found in
+        the venture. They are method paths on a library object -- lowercase,
+        dotted, alphabetic-final -- so every structural rule accepted them
+        and `Portfolio validate` went red on `main` asking for a verdict on a
+        host that cannot exist.
+        """
+        self.assertEqual(
+            self.extract(
+                "real `stripe.checkout.sessions.create` and `stripe.accounts` calls"
+            ),
+            set(),
+        )
+
     def test_versions_and_criteria_are_not_hosts(self):
         self.assertEqual(self.extract("`next@16.3.1` fixes `1.4.3`"), set())
 
@@ -224,7 +240,7 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
     The deployment asks added on 2026-08-29 name `tools.marisstella.dev`,
     which nothing fetches and nothing can measure. Left unexempted it failed
     this check, and `main` carried that failure unnoticed because no Actions
-    runner has run a job here since 2026-08-26.
+    runner ran a job here between 2026-08-26 and the 2026-09-01 recovery.
     """
 
     def extract(self, text):
@@ -236,6 +252,20 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
     def test_the_pages_origin_is_not_demanded_either(self):
         self.assertEqual(self.extract("`duncan-haywood.github.io` is the base"), set())
 
+    def test_the_bare_pages_suffix_is_not_demanded_either(self):
+        """`github-pages-origin` quotes the denial that makes it an owner ask.
+
+        The row explains why no session can load the page itself: the proxy
+        answers `403 to CONNECT` for `github.io`. Quoting that measurement in
+        backticks is what made the checker demand a verdict for it -- so the
+        report of a denial read as an unmeasured host, and `main` went red on
+        the one row about the origin that is actually serving.
+        """
+        self.assertEqual(
+            self.extract("the proxy answers `403 to CONNECT` for `github.io`"),
+            set(),
+        )
+
     def test_the_exemption_is_not_a_blanket(self):
         """A third-party host in the very same sentence is still checked."""
         found = self.extract(
@@ -246,13 +276,27 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
     def test_every_exempt_host_is_one_this_repository_publishes_on(self):
         """Guards against the list growing into an escape hatch: each entry
         must be justified by something committed, not by prose in an ask."""
-        ingress = open(os.path.join(
-            check_ask_hosts.REPO, "gitops", "prod", "portfolio-site.yaml")).read()
-        build = open(os.path.join(
-            check_ask_hosts.REPO, "platform", "pages", "build.mjs")).read()
-        infra = open(os.path.join(
-            check_ask_hosts.REPO, "infra", "README.md")).read()
-        haystack = ingress + build + infra
+        # The haystack is every committed place a publication host can be
+        # declared. `portfolio-apex.yaml` and `portfolio-front.yaml` joined it
+        # on 2026-09-04: the apex and `www` moved off annotation-only 301s and
+        # onto a served front door in #2723, so those two manifests -- not
+        # `portfolio-site.yaml`, which only ever named the tools host -- are
+        # where `www.marisstella.dev` is declared. Exempting it while the guard
+        # could not see its manifest is what failed this test, and widening the
+        # haystack keeps the guard's actual rule ("justified by something
+        # committed") rather than weakening it: a host still has to appear in a
+        # manifest this repository deploys.
+        names = [
+            ("gitops", "prod", "portfolio-site.yaml"),
+            ("gitops", "prod", "portfolio-apex.yaml"),
+            ("gitops", "prod", "portfolio-front.yaml"),
+            ("platform", "pages", "build.mjs"),
+            ("infra", "README.md"),
+        ]
+        haystack = ""
+        for parts in names:
+            with open(os.path.join(check_ask_hosts.REPO, *parts)) as fh:
+                haystack += fh.read()
         for host in check_ask_hosts.PUBLICATION_HOSTS:
             self.assertIn(host, haystack, f"{host} is exempt but unpublished")
 

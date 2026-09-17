@@ -1,0 +1,152 @@
+name: epk-generator
+description: >-
+  Free, no-signup browser tool that builds an electronic press kit (EPK) --
+  the one-page bio/photo/links/dates/quotes summary independent musicians
+  and bands send to venues, festivals, blogs, and playlisters -- from a
+  short form. Runs entirely client-side: downloads a self-contained,
+  print-friendly HTML one-sheet and a plain-text version for email or a
+  submission form that doesn't accept HTML. No file upload -- a photo is a
+  link the artist already hosts, so nothing not already public ever leaves
+  the browser.
+
+stage: prototype
+owner: duncan
+
+# Generator archetype (PRODUCT_PLAYBOOK.md SS2's #1-ranked shape, static
+# browser app, done as a document generator rather than a calculator or a
+# checker), picked deliberately against the 2026-09-07/09-11 pipeline
+# measurements that the fleet's two dominant shapes -- 141+
+# <trade>-bid-calculator directories and 38+ *-check/*-checker directories --
+# have zero recorded visitors between them. This is neither: like
+# llms-txt-generator, its whole job is producing an artifact (a press kit
+# page) from real content the user supplies, not pricing a job or grading an
+# existing page.
+#
+# duplicate_check.py (run 2026-09-11) scored every venture, screened-out
+# row, ai-first-markets idea, and pipeline candidate against two phrasings:
+# "Electronic press kit (EPK) generator for independent musicians..." and
+# "Free static electronic press kit / one-sheet generator for unsigned
+# musicians and bands...". Top score 0.12 (affiliate-disclosure-checker, on
+# generic word overlap), far under the 0.45 review bar. A manual check for
+# "press kit"/"musician"/"EPK" across every VENTURE.yaml, README.md, and the
+# pipeline candidate/screened-out files found no hits. The nearest venture by
+# name association, sponsor-ready, is unrelated: it scores a public GitHub
+# repo's GitHub Sponsors readiness, not an artist's own promotional one-pager.
+#
+# Distribution channel this was picked for, and the same honesty limit
+# llms-txt-generator's and ai-crawler-access-check's write-ups both name:
+# this session has no live internet access (the agent egress proxy 403s
+# CONNECT to arbitrary hosts), so no search-volume number here is a verified
+# reading -- it is reasoned from known, stable evidence and general
+# knowledge as of the model's training, not a live fetch.
+# 1. "EPK" and "electronic press kit" are established, decades-old music
+#    industry terms (originally a physical/CD press kit, now standardly
+#    digital), not an invented category -- so the search phrase itself
+#    ("free EPK template", "how to make an electronic press kit",
+#    "electronic press kit generator free") is one real musicians already
+#    type, not one this tool would have to create demand for.
+# 2. The existence of multiple independently built commercial competitors
+#    (Sonicbids-style EPK tools, Presskit.to, ReverbNation's press-kit
+#    feature, page-builder templates sold specifically as "EPK templates" on
+#    marketplaces) is evidence of real, sustained demand for exactly this
+#    job -- the same "other tools exist for this job" signal
+#    llms-txt-generator's write-up used, not a direct traffic figure this
+#    session could pull.
+# 3. Large, active, topically-exact communities exist for the audience --
+#    r/WeAreTheMusicMakers, r/musicians, and r/IndieMusicFeedback on Reddit,
+#    plus music-industry-adjacent forums and Discord communities -- where
+#    "how do I make a press kit with no budget" is a recurring, on-topic
+#    question, the same class of evidence ai-crawler-access-check's and
+#    llms-txt-generator's write-ups relied on for their own audiences.
+# 4. The wedge against the existing commercial tools is real and stateable
+#    without embellishment: every incumbent found above requires an account
+#    and gates the finished file behind their own hosting or a paid tier;
+#    this one requires neither -- fill in a form, download a file, done.
+# The next session that can browse should confirm search volume directly
+# before this channel claim is over-relied on -- the same caveat
+# llms-txt-generator's own write-up carries for the same reason.
+#
+# Scored 2026-09-11 against portfolio/pipeline/README.md's eight dimensions.
+# Both gates clear comfortably: liability_containment 9 (the tool renders
+# content the artist supplies and fully controls -- no advice, no financial
+# claim, no compliance judgment; worst case is a plain or incomplete press
+# kit, not an actionable claim) and ethical_robustness 9 (helps
+# under-resourced independent artists present professionally with no
+# adversarial dynamic and no negative externality as usage scales).
+# Composite 6.75, floor 3 (ai_leverage and defensibility tied). Per rule 2,
+# every dimension at or below 4 gets a named mitigation:
+#   - ai_leverage (4): the core value is deterministic templating, not model
+#     work. Mitigation: none planned for v0 -- PRODUCT_PLAYBOOK.md SS3's
+#     API-key switch (an optional, BYO-key AI bio polish/tightening pass)
+#     is a plausible later add if usage shows the blank-page bio field is
+#     where people stall, not built speculatively now.
+#   - time_to_revenue (3): this portfolio is donation-only by design (no
+#     product here has a paid tier), so "first paid customer" reads as "an
+#     early Sponsors click" rather than a sale -- true of nearly every
+#     venture in this catalog, not a defect specific to this one. Mitigation:
+#     none needed; scored honestly against the dimension's literal meaning
+#     rather than reinterpreted to look stronger.
+#   - defensibility (3): a form-to-template generator is copyable, same as
+#     most of this portfolio's calculators and generators. Mitigation: the
+#     wedge is being free-and-account-less against paid, account-gated
+#     incumbents (point 4 above), not proprietary logic -- consistent with
+#     how the rest of the fleet is positioned.
+# distribution scored 6 (a real, named, pre-existing search phrase and
+# community, evidenced rather than verified live -- see the channel note
+# above), gross_margin 10 (static output, zero marginal cost), autonomous_ops
+# 10 (no human in the loop, ever).
+hypotheses:
+  - claim: An independent musician or band who is asked for "an EPK" by a
+      venue, festival submission form, or blog, and has no press kit yet,
+      will use a free, no-signup generator over a subscription EPK builder
+      or hand-assembling one in a document editor, because the content they
+      need to supply is identical either way and this is the only free,
+      account-less option among them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An artist who builds one press kit will return within a season to
+      update tour dates or a new press quote rather than starting over,
+      because the autosaved draft in their own browser (state.mjs) means the
+      form is still filled in when they come back.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking "free EPK template" or "how to make an
+      electronic press kit" are underserved by generic press-kit template
+      downloads (a static Canva/Word template with no logic) because those
+      still require manually laying out sections by hand, where this tool's
+      form-to-page assembly and validation (are there any links at all? is
+      there a contact email?) removes that step entirely.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page builds entirely client-side and
+  # uploads nothing. Serving one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagement signals (a GitHub star/fork/issue,
+    unsolicited feedback, or a referral) within 90 days of it being reachable
+    from the published site.
+  - No evidence of anyone completing a full build-and-download within 90 days
+    of a public URL (the only local signal available on a static host --
+    the `kit_built` and `download_clicked` counters staying at their
+    baseline across a visited session, per usage/README.md's reading rules).
+  - The EPK format itself is superseded by a materially different standard
+    submission mechanism (e.g. every major festival/venue platform building
+    its own structured artist-profile intake) before either of the above can
+    be measured.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/epk-generator/
+  analytics: null

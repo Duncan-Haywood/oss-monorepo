@@ -15,7 +15,7 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /Do not keep anonymous local usage counts/);
-  assert.match(html, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(html, /href="LICENSE"/);
   assert.match(html, /how-much-to-charge\.html/);
   assert.match(html, /engineering/);
 });
@@ -90,4 +90,17 @@ test('a shared bid link carries no customer or business details', () => {
     assert.doesNotMatch(spec[0], new RegExp(`\\b${field}\\b`),
       `${field} would be written into the shareable link`);
   }
+});
+
+// Closest sibling: same exterior contractor, same elevation, but the roof rather than the wall wrap. Related-tool chrome rotates inside the
+// Roofing, siding & gutters subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the roofing-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/roofing-bid-calculator\/"/,
+    'index must link ../roofing-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /roofing bid calculator/i);
 });

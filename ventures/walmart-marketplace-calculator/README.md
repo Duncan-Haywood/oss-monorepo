@@ -75,6 +75,12 @@ dimensions and weight, and shows **both paths on the same listing**.
 
 [WFS vs seller fulfilled: which path leaves more?](wfs-vs-seller-fulfilled.html)
 answers the completed-sale question.
+[This calculator vs. Walmart's own WFS Cost Estimator](vs-wfs-cost-estimator.html)
+says which of the two to open for which question — Walmart's own tool,
+inside Seller Center, is the authoritative live fee lookup for one WFS
+item; this one is the WFS-vs-seller-fulfilled decision, the price match,
+and the follow-on scenarios built from your own numbers. Not affiliated
+with Walmart.
 [Should I offer 2-day shipping on Walmart?](should-i-offer-two-day-shipping-on-walmart.html)
 mixes take rate with the faster label.
 [Should I stay on WFS after Walmart returns?](should-i-use-wfs-with-walmart-returns.html)

@@ -153,12 +153,56 @@ class Registry(unittest.TestCase):
                 f"platform/pages/{name}.mjs is missing",
             )
 
-    def test_the_seven_documented_checks_are_all_registered(self):
+    def test_the_documented_checks_are_all_registered(self):
         self.assertEqual(
             set(bc.CHECKS),
             {"journey", "sweep", "contrast", "roundtrip", "presets", "highlight",
-             "sideways"},
+             "sideways", "optout"},
         )
+
+    def test_every_enumeration_of_the_checks_agrees(self):
+        """The registry is written out in four places. They must not drift.
+
+        `browser_checks.CHECKS` is the registry; `browser_state.CHECKS`
+        duplicates it as a literal on purpose (importing it would trigger the
+        environment probing this module does at import time); and
+        `browser-checks-ci.yml` spells the same list twice, once as the
+        workflow_dispatch default and once as the fallback for `CHECKS`.
+
+        Nothing tied them together until `optout` was added on 2026-09-12 and
+        four files had to be edited by hand to register one check. The
+        neighbouring test already catches a check that no list names -- this
+        catches a check that *some* of them name, which is worse: the sweep
+        runs it locally and the nightly does not, or the nightly runs it and
+        `browser_state.py` reports the reading under a check it does not know,
+        and either way the disagreement is invisible until someone diffs two
+        files nobody thinks to diff.
+        """
+        import re
+        import browser_state
+
+        self.assertEqual(
+            list(bc.CHECKS),
+            list(browser_state.CHECKS),
+            "browser_state.CHECKS has drifted from browser_checks.CHECKS",
+        )
+
+        workflow = os.path.join(
+            os.path.dirname(os.path.dirname(bc.PAGES)),
+            ".github", "workflows", "browser-checks-ci.yml",
+        )
+        with open(workflow, encoding="utf-8") as fh:
+            text = fh.read()
+        spelled = re.findall(r"\b((?:[a-z]+,){3,}[a-z]+)\b", text)
+        lists = [s for s in spelled if set(s.split(",")) & set(bc.CHECKS)]
+        self.assertTrue(lists, f"no check list found in {workflow}")
+        for spelling in lists:
+            self.assertEqual(
+                spelling.split(","),
+                list(bc.CHECKS),
+                f"{os.path.basename(workflow)} spells the checks as {spelling!r}, "
+                f"which is not {','.join(bc.CHECKS)}",
+            )
 
     def test_highlight_is_registered(self):
         """It was written on 2026-08-29 and left out of CHECKS.
@@ -225,7 +269,14 @@ class DiscoverChrome(unittest.TestCase):
             os.chmod(path, 0o755)
         return root
 
+    def _always_launches(self):
+        """Stub the launch probe: every candidate starts. Restores on exit."""
+        original = bc.chrome_launches
+        bc.chrome_launches = lambda env, path: True
+        self.addCleanup(setattr, bc, "chrome_launches", original)
+
     def test_an_explicit_choice_is_never_overridden(self):
+        self._always_launches()
         root = self._tree("chromium-1194")
         env = {"PLAYWRIGHT_BROWSERS_PATH": root, "CHROME_PATH": "/somewhere/else"}
         self.assertIsNone(bc.discover_chrome(env))
@@ -234,6 +285,7 @@ class DiscoverChrome(unittest.TestCase):
         self.assertIsNone(bc.discover_chrome(env))
 
     def test_a_browser_in_the_tree_is_found(self):
+        self._always_launches()
         root = self._tree("chromium-1194")
         found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
         self.assertEqual(found, os.path.join(root, "chromium-1194", "chrome-linux", "chrome"))
@@ -242,18 +294,30 @@ class DiscoverChrome(unittest.TestCase):
         # Alphabetical order would pick 1194 over 989, and a stale tree left
         # by an older install would then shadow the current one.
         root = self._tree("chromium-989", "chromium-1194")
-        found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
-        self.assertIn("chromium-1194", found)
+        found = bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertIn("chromium-1194", found[0])
 
-    def test_the_headless_shell_is_not_mistaken_for_a_browser(self):
-        # Same tree, different binary and a different name. The checks drive a
-        # real page; launching the shell build fails later and less clearly.
+    def test_the_headless_shell_is_offered_after_the_full_browser(self):
+        # It is a different binary under a different name, and it is what
+        # Playwright itself launches for `headless: true` — which is the only
+        # mode these checks use. So it is a real fallback, not a mistake.
+        # It ranks below the full build: preferred only when that will not run.
+        root = self._tree("chromium-1194", shell=("chromium_headless_shell-1194",))
+        found = bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertEqual(len(found), 2)
+        self.assertTrue(found[0].endswith(os.path.join("chromium-1194", "chrome-linux", "chrome")))
+        self.assertTrue(found[1].endswith("headless_shell"))
+
+    def test_the_headless_shell_alone_is_still_a_candidate(self):
         root = self._tree(shell=("chromium_headless_shell-1194",))
-        self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root}))
+        found = bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertEqual(len(found), 1)
+        self.assertTrue(found[0].endswith("headless_shell"))
 
     def test_nothing_found_changes_nothing(self):
-        # None means "leave the environment alone", so a launch failure gets to
-        # report itself instead of being pre-empted by a wrong guess.
+        # None means "leave the environment alone", so Playwright's own
+        # resolution gets its turn instead of being pre-empted by a wrong guess.
+        self._always_launches()
         self.assertIsNone(bc.discover_chrome({}))
         self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": "/no/such/dir"}))
         self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": self._tree()}))
@@ -261,6 +325,28 @@ class DiscoverChrome(unittest.TestCase):
     def test_a_non_executable_file_is_not_offered(self):
         root = self._tree("chromium-1194")
         os.chmod(os.path.join(root, "chromium-1194", "chrome-linux", "chrome"), 0o644)
+        self.assertEqual(bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root}), [])
+
+    def test_a_candidate_that_will_not_launch_is_skipped(self):
+        # The defect this exists for, measured 2026-09-07: the full
+        # chromium-1194 on this image dies on SIGTRAP the moment Playwright
+        # connects, while the shell build beside it renders fine. Offering the
+        # first one turned all seven checks red with a stack trace that reads
+        # like a broken catalogue rather than a browser that will not start.
+        root = self._tree("chromium-1194", shell=("chromium_headless_shell-1194",))
+        original = bc.chrome_launches
+        bc.chrome_launches = lambda env, path: path.endswith("headless_shell")
+        self.addCleanup(setattr, bc, "chrome_launches", original)
+        found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertTrue(found.endswith("headless_shell"))
+
+    def test_nothing_that_launches_means_no_override(self):
+        # Not a dead end: returning None leaves Playwright's own resolution to
+        # try, which on the image that produced this bug is one that works.
+        root = self._tree("chromium-1194", shell=("chromium_headless_shell-1194",))
+        original = bc.chrome_launches
+        bc.chrome_launches = lambda env, path: False
+        self.addCleanup(setattr, bc, "chrome_launches", original)
         self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root}))
 
 
@@ -406,6 +492,24 @@ class DiscoverModules(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
+        # `module_search_roots` always appends the repo's own `node_modules`
+        # and `platform/pages/node_modules`, which is correct behaviour and
+        # exactly what a session gets after `npm install axe-core` in the repo
+        # root -- the install the WCAG check needs in order to run at all.
+        # Left unpatched, the two "nothing was found" cases below assert on
+        # whether *this machine* happens to have that install, so following
+        # `browser_checks.py`'s own advice turns this suite red with a failure
+        # that reads like a code break. Point both at empty scratch
+        # directories so these tests measure the search, not the developer.
+        # `test_the_repo_itself_is_searched` reads the same attributes, so it
+        # keeps testing the real contract against the patched values.
+        for attr in ("REPO_ROOT", "PAGES"):
+            empty = tempfile.mkdtemp(prefix=f"bc-{attr.lower()}-")
+            self.addCleanup(shutil.rmtree, empty, ignore_errors=True)
+            p = mock.patch.object(bc, attr, empty)
+            p.start()
+            self.addCleanup(p.stop)
+
     def tearDown(self):
         shutil.rmtree(self.root, ignore_errors=True)
 
@@ -460,3 +564,112 @@ class DiscoverModules(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OnlyFilter(unittest.TestCase):
+    """`--only`, and the two guarantees that keep it from hiding a non-run.
+
+    A filter is a way to verify less. The failure this class exists to make
+    impossible is the one the repo has already paid for in three other
+    shapes: a check that reports a clean run it did not perform.
+    """
+
+    def _run(self, argv, slugs=("ebay-fee-calculator", "shopify-fee-calculator")):
+        """Drive main() over a served tree containing `slugs`, faking the checks.
+
+        `captured` collects the env each check was handed, which is the only
+        way to assert that the filter actually reached them -- the harness runs
+        every check as `node <path>` with no arguments, so ONLY_SLUGS is the
+        whole mechanism.
+        """
+        dist = tempfile.mkdtemp(prefix="bc-only-")
+        captured = {}
+        try:
+            with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            for slug in slugs:
+                os.mkdir(os.path.join(dist, slug))
+                with open(os.path.join(dist, slug, "index.html"), "w", encoding="utf-8") as fh:
+                    fh.write("<html></html>")
+
+            def fake_run_check(name, base, env, timeout):
+                captured[name] = env.get("ONLY_SLUGS")
+                return 0, ""
+
+            err, out = io.StringIO(), io.StringIO()
+            with mock.patch.object(bc, "run_check", fake_run_check), \
+                 mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "discover_axe", lambda env: None), \
+                 contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+                rc = bc.main(["--dist", dist] + argv)
+            return rc, err.getvalue() + out.getvalue(), captured
+        finally:
+            shutil.rmtree(dist, ignore_errors=True)
+
+    def test_the_filter_reaches_the_checks_as_ONLY_SLUGS(self):
+        _, _, captured = self._run(["--checks", "sideways", "--only", "ebay-fee-calculator"])
+        self.assertEqual(captured["sideways"], "ebay-fee-calculator")
+
+    def test_no_filter_leaves_the_variable_unset(self):
+        """Not the empty string: only-slugs.mjs reads a blank as "no filter",
+        but leaving it out entirely is what keeps that from being load-bearing."""
+        _, _, captured = self._run(["--checks", "sideways"])
+        self.assertIsNone(captured["sideways"])
+
+    def test_a_slug_not_in_the_build_stops_the_run_with_two(self):
+        """A typo must name itself, not silently reduce the run to nothing.
+
+        Exit 2, not 1: nothing was verified, and reporting it as a site defect
+        sends the reader hunting for a bug in a calculator that is fine.
+        """
+        rc, text, captured = self._run(
+            ["--checks", "sideways", "--only", "ebay-fee-calcualtor"])
+        self.assertEqual(rc, 2)
+        self.assertIn("ebay-fee-calcualtor", text)
+        # And nothing ran at all -- the refusal is before any browser starts.
+        self.assertEqual(captured, {})
+
+    def test_one_bad_slug_among_good_ones_still_stops_the_run(self):
+        """The dangerous case: the run would otherwise look scoped and pass."""
+        rc, _, captured = self._run(
+            ["--checks", "sideways", "--only", "ebay-fee-calculator,nope"])
+        self.assertEqual(rc, 2)
+        self.assertEqual(captured, {})
+
+    def test_a_filtered_pass_is_never_reported_as_a_full_one(self):
+        rc, text, _ = self._run(["--checks", "sideways", "--only", "ebay-fee-calculator"])
+        self.assertEqual(rc, 0)
+        self.assertIn("FILTERED: ebay-fee-calculator", text)
+
+    def test_an_unfiltered_pass_carries_no_filtered_stamp(self):
+        _, text, _ = self._run(["--checks", "sideways"])
+        self.assertIn("all 1 browser checks passed", text)
+        self.assertNotIn("FILTERED", text)
+
+    def test_a_filtered_skip_is_also_stamped(self):
+        """The exit-2 summary line needs the stamp as much as the exit-0 one."""
+        dist = tempfile.mkdtemp(prefix="bc-only-skip-")
+        try:
+            with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            os.mkdir(os.path.join(dist, "ebay-fee-calculator"))
+            with open(os.path.join(dist, "ebay-fee-calculator", "index.html"),
+                      "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            err, out = io.StringIO(), io.StringIO()
+            with mock.patch.object(bc, "run_check", lambda n, b, e, t: (2, "")), \
+                 mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "discover_axe", lambda env: None), \
+                 contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+                rc = bc.main(["--dist", dist, "--checks", "sideways",
+                              "--only", "ebay-fee-calculator"])
+            text = err.getvalue() + out.getvalue()
+            self.assertEqual(rc, 2)
+            self.assertIn("FILTERED: ebay-fee-calculator", text)
+        finally:
+            shutil.rmtree(dist, ignore_errors=True)
+
+    def test_journey_alone_under_a_filter_says_it_is_not_scoped(self):
+        """`journey` ignores the filter, so this combination must not look scoped."""
+        _, text, _ = self._run(["--checks", "journey", "--only", "ebay-fee-calculator"])
+        self.assertIn("ignores --only", text)

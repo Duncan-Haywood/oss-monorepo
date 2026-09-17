@@ -53,6 +53,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { onlySlugs, keepPagePath, describeFilter, requireNonEmpty } from './only-slugs.mjs';
 
 // Playwright ships CommonJS, so a PLAYWRIGHT naming its entry *file* resolves
 // the exports under `.default` while a bare specifier gives them directly.
@@ -79,6 +80,11 @@ const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, ''
 const DIST = process.env.DIST || path.join(path.dirname(new URL(import.meta.url).pathname), 'dist');
 const chromePath = process.env.CHROME_PATH || process.env.CHROMIUM_PATH;
 const LAUNCH = chromePath ? { executablePath: chromePath } : {};
+
+// Read once, at module scope, so every code path in this file sees the same
+// filter. `null` means "no filter"; see only-slugs.mjs for why that is kept
+// distinct from an empty set.
+const only = onlySlugs();
 
 // The WCAG 2.1 A and AA tags. Deliberately not axe's full "best-practice" set:
 // this gate has to stay at zero to be worth anything, and a gate that flags a
@@ -113,17 +119,16 @@ try {
   // a normal load.
   pages = (await pagesUnder(DIST))
     .filter((p) => !/(^|\/)(404|offline)\.html$/.test(p))
+    .filter((p) => keepPagePath(p, only))
     .sort();
+  if (only) console.log(describeFilter(only));
 } catch (error) {
   console.error(`Could not read the built artifact at ${DIST}: ${error.message}`);
   console.error('Build it first: node platform/pages/build.mjs --out=platform/pages/dist');
   process.exit(2);
 }
 
-if (pages.length === 0) {
-  console.error(`No pages found in ${DIST} — is the site built?`);
-  process.exit(1);
-}
+requireNonEmpty(pages, only, 'built pages');
 
 console.log(`Checking ${pages.length} pages at ${BASE}, ${VIEWPORTS.map((v) => v.name).join(' and ')}\n`);
 

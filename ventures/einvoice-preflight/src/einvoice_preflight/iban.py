@@ -37,11 +37,22 @@ def normalize_iban(value: Any) -> str | None:
 
 
 def looks_like_complete_iban(value: Any) -> bool:
-    """True when the value is a country-prefixed IBAN of a published length."""
+    """True when the value is a country-prefixed IBAN, right length or not.
+
+    "checksum" is a known-length (or unknown-country) shape ready for the
+    mod-97 check; "bad-format" is a known country whose length is wrong.
+    Both are IBAN-shaped enough for the cross-field checks that gate on this
+    (BIC country match, remittance-missing, payment-means-needs-IBAN) --
+    only "unknown" (no country-shaped prefix at all, e.g. an internal
+    account id) should read as "there is no IBAN here". This used to check
+    for a _classify() result of "format", which _classify() never returns,
+    so every wrong-length IBAN silently read as "not an IBAN" and skipped
+    those checks instead of surfacing them alongside the length finding.
+    """
     compact = normalize_iban(value)
     if compact is None:
         return False
-    return _classify(compact) in {"checksum", "format"}
+    return _classify(compact) in {"checksum", "bad-format"}
 
 
 def inspect_payment_iban(invoice: dict[str, Any]) -> list[dict[str, str]]:

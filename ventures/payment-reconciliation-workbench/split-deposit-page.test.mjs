@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
-import { readRecords, reconcile, explanation } from './src/reconcile.mjs';
+import { readRecords, reconcile, explanation } from './reconcile.mjs';
 
 const docsPage = (name) => fs.readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const html = docsPage('why-does-one-payout-show-up-as-two-bank-deposits.html');

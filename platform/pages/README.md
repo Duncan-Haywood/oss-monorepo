@@ -23,7 +23,31 @@ Run all seven with one command, which builds, serves and tears down for you:
 ```
 python3 platform/ci/browser_checks.py            # all seven, fresh build
 python3 platform/ci/browser_checks.py --checks sweep,sideways --dist platform/pages/dist
+python3 platform/ci/browser_checks.py --only ebay-fee-calculator   # one venture
 ```
+
+`--only` is the one to reach for while working on a single venture. A
+whole-site run is the whole catalogue and takes 20-30 minutes, which is why
+`browser-checks-ci.yml` is nightly rather than a merge gate; scoped to one
+venture it is under a minute. Measured on 2026-09-04, `roundtrip` alone:
+**6m15s whole site, 27s scoped to `ebay-fee-calculator`** — and most of that
+27s is the site build the check shares. All six per-venture checks honour it;
+`journey.mjs` is a single narrative over the whole site and ignores it, saying
+so when you ask for both.
+
+Two things it will not do, because a filter is a way to verify *less*:
+
+- A slug that is not in the built site **stops the run with exit 2** before a
+  browser starts, rather than quietly reducing the run to nothing. A typo names
+  itself.
+- A filtered run is stamped `[FILTERED: ...]` on its summary line and never
+  prints the sentence a whole-site pass prints. "All 7 browser checks passed"
+  over four pages would be the most misleading true sentence this tool could
+  produce.
+
+`presets.mjs`, `roundtrip.mjs` and `highlight.mjs` have always taken slugs as
+positional arguments when run standalone, and still do — `--only` is how that
+reaches all six through the harness, which runs each check with no arguments.
 
 Prefer it over starting a server by hand. It removes both traps the checks
 below document: it **refuses to run** unless the origin echoes a sentinel token
@@ -95,8 +119,9 @@ notes cover running it from a Claude-on-the-web session.
 
 GitHub serves **one** Pages site per repository. Before this, the only workflow
 that could publish one built `retail-pilot-intel`'s passcode-gated docs app — so
-the owner's single `GITHUB_PAGES_ENABLED` flip would have put an internal docs
-site live and left every finished calculator with no public URL at all.
+the owner's single Pages-enable flip (`PAGES_ENABLED`, see below) would have put
+an internal docs site live and left every finished calculator with no public
+URL at all.
 
 `portfolio/DIRECTION.md` says deploy beats another build until a stranger can
 reach something. That means the site the flip publishes has to *be* the
@@ -1252,9 +1277,13 @@ The build emits a service worker, a web app manifest, PNG icons, and an
 1. **Anything opened once opens again offline**, automatically, including its
    modules — the worker caches each same-origin GET as it is served.
 2. **"Save all tools for offline"** on the hub fetches every tool's entry page
-   and modules up front (~3 MB), for someone who knows they are about to lose
-   signal. It is a button, never automatic: nobody's mobile data gets spent
-   without them asking.
+   and modules up front, for someone who knows they are about to lose signal.
+   It is a button, never automatic: nobody's mobile data gets spent without
+   them asking. The button's copy states the real download size, computed at
+   build time from the actual bundle and patched into the hub page — not a
+   number typed once and left to drift as the catalog grows. (It did: the
+   copy said "about 3 MB" from ~30 tools onward while the catalog reached 174
+   and the real fetch reached 16.8 MB.)
 
 A page not saved and not previously opened falls back to `offline.html`, which
 says so plainly and links back to the hub.
@@ -1556,6 +1585,7 @@ copies open as the bid it was copied from?**
 ```bash
 node platform/pages/roundtrip.mjs   # same BASE_URL / PLAYWRIGHT / CHROME_PATH / DIST env vars
 node platform/pages/roundtrip.mjs shopify-fee-calculator   # or just these tools
+ONLY_SLUGS=shopify-fee-calculator node platform/pages/roundtrip.mjs   # same thing
 ```
 
 For each tool: change every select and number input, type into the proposal's
@@ -1857,11 +1887,18 @@ Publishing is gated on an owner-set repository variable:
 | Setting | Where | Value |
 |---|---|---|
 | Pages source | Settings → Pages | **GitHub Actions** |
-| `GITHUB_PAGES_ENABLED` | Settings → Variables → Actions | `true` |
+| `PAGES_ENABLED` | Settings → Variables → Actions | `true` |
 | `PAGES_BASE_URL` *(optional)* | Settings → Variables → Actions | a custom domain, with trailing slash |
 
 That is the `deploy-settings` flip already in the owner decision queue. It is
 not a second ask — this workflow is what it now publishes.
+
+Not `GITHUB_PAGES_ENABLED`, which this table named until the rename below.
+GitHub rejects any Actions configuration-variable name starting with
+`GITHUB_` (case-insensitive) at creation time, so that spelling could never
+actually have been set — the owner following this table as written would
+have hit a validation error in Settings and no `deploy` job would ever have
+run.
 
 Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
@@ -1886,7 +1923,8 @@ the origin makes that choice explicitly rather than having two deployments race.
 
 The same applied to `pages.yml`, a **second portfolio site** built independently
 the same hour (`platform/ci/build_pages_site.py`), which deployed on the same
-`GITHUB_PAGES_ENABLED` flip from a different concurrency group — so the flip
+owner-set variable (spelled `GITHUB_PAGES_ENABLED` at the time) from a
+different concurrency group — so the flip
 would have armed two publishers of two different builds for the one origin. That
 is resolved on `main`: `pages.yml` no longer deploys, it still builds and checks
 its artifact as an independent second opinion on what `ventures/` contains, and
@@ -1899,7 +1937,7 @@ The site is rebuilt from `main` on every push and holds no state — no database
 no user data, nothing to migrate. To roll back, revert the offending commit and
 let the workflow republish, or re-run an earlier successful run of
 `Portfolio Pages` from the Actions tab. To take the site down entirely, set
-`GITHUB_PAGES_ENABLED` to anything other than `true`.
+`PAGES_ENABLED` to anything other than `true`.
 
 **Rolling back the service worker needs its own lever.** A worker lives on the
 visitor's device and keeps answering there, so reverting the commit does not

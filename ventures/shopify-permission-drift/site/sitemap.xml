@@ -8,4 +8,8 @@
     <loc>./capture.html</loc>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>./vs-miniorange.html</loc>
+    <changefreq>monthly</changefreq>
+  </url>
 </urlset>

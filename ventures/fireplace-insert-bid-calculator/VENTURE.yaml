@@ -28,5 +28,5 @@ kill_criteria:
   - Shops report that splitting the liner and extras versus a small gas special is more work than their existing per-insert method without changing the price they would have bid.
   - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/fireplace-insert-bid-calculator/
   analytics: null

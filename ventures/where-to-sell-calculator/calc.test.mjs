@@ -29,6 +29,16 @@ test("eBay: final value fee applies to item plus shipping", () => {
   close(result.roi, (result.profit / 20) * 100, "roi");
 });
 
+test("Reverb: selling fee applies to the item price only, not shipping charged", () => {
+  // Matches reverb-fee-calculator. Charging 5% on the $54 order total would
+  // overstate fees by shippingCharged × 5% and make the handoff disagree.
+  const result = calculateChannel(preset("reverb"), shared);
+  close(result.fees.commission, 48 * 0.05, "selling fee on item price");
+  close(result.fees.payment, 54 * 0.0319 + 0.49, "processing on the order");
+  const atBreakEven = calculateChannel({ ...preset("reverb"), price: result.breakEvenPrice }, shared);
+  close(atBreakEven.profit, 0, "item-base break-even still round-trips");
+});
+
 test("Etsy: listing fee and separate payment processing both land on the order", () => {
   const result = calculateChannel(preset("etsy"), shared);
   close(result.fees.commission, 54 * 0.065, "transaction fee");

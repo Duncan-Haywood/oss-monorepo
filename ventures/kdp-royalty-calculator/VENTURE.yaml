@@ -1,0 +1,33 @@
+name: kdp-royalty-calculator
+description: A private browser calculator for self-published authors that puts one 90-day window through KDP paid ebook sales, Kindle Unlimited page reads, a KDP paperback, and the same book sold wide — and reports exclusive versus wide totals, the KU pages that match one paid sale, and the reads that would match the wide extras.
+stage: prototype
+owner: duncan
+# Not a pipeline candidate write-up and not a <trade>-bid-calculator. Authors
+# on r/selfpublish and r/KDP already argue this exact exclusive-versus-wide
+# arithmetic in thread after thread; Amazon's own royalty calculator (account
+# required) prices one format and does not put KU page-reads next to wide
+# volume. First visitor channel: r/selfpublish "KU vs wide" threads and the
+# search phrase "kdp royalty calculator" / "how many KU pages equal one sale".
+hypotheses:
+  - claim: An author deciding whether to enroll a title in KDP Select will use a same-window exclusive-versus-wide total because Amazon's official royalty calculator prices one format and does not compare KU page-reads to other-store volume.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The KU-pages-to-match-one-paid-sale figure is the number authors actually reuse between books, more often than the 90-day total itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three distinct authors use the calculator twice within 90 days of it being reachable from the published site.
+  - Users report that typing KENP rate and wide volume is more work than their existing spreadsheet without changing the enroll-or-not decision they would have made.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/kdp-royalty-calculator/
+  analytics: null

@@ -14,3 +14,16 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same exterior-maintenance crew, routinely bundled onto one visit. Related-tool chrome rotates inside the
+// Cleaning, restoration & insulation subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the gutter-cleaning-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/gutter-cleaning-bid-calculator\/"/,
+    'index must link ../gutter-cleaning-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /gutter cleaning bid calculator/i);
+});

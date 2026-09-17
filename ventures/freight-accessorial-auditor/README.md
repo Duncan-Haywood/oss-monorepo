@@ -71,17 +71,21 @@ node --test
 
 ## Per-unit rate rules
 
-Units understood are hour, minute, day, cwt, pallet, piece, mile, stop, and
-unit. Clause order does not matter. Two rules keep a wrong number from reaching
-a carrier:
+Units understood are hour, minute, day, cwt, pound, pallet, piece, mile, stop,
+and unit. Clause order does not matter. Two rules keep a wrong number from
+reaching a carrier:
 
 - **A per-unit code with no quantity leaves the expected amount blank**, with
   the reason shown, and is excluded from the headline recoverable figure. A
   $0.00 expectation would report the whole billed line as recoverable.
-- **A quantity in the wrong unit is refused, not converted.** The single
-  exception is minutes against a per-hour rate, which is stated on the line —
-  carrier exports report dock time both ways, and reading 210 minutes as 210
-  hours would put $13,000 of expected detention on a $300 line.
+- **A quantity in the wrong unit is refused, not converted.** The two
+  exceptions are minutes against a per-hour rate and pounds against a
+  per-hundredweight rate, both stated on the line — carrier exports report
+  dock time both ways, and reading 210 minutes as 210 hours would put
+  $13,000 of expected detention on a $300 line; a weight column is pounds far
+  more often than it is hundredweight, so without the second exception a
+  REWEIGH rule written `/cwt` — the normal way a rate confirmation states one
+  — could never be priced from an imported invoice at all.
 
 A contract minimum applies only to a line with billable units, so a shipment
 that left inside its free time still expects $0.00 rather than the minimum.

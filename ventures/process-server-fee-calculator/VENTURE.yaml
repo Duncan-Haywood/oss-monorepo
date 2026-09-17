@@ -1,0 +1,31 @@
+name: process-server-fee-calculator
+description: A browser-local calculator for independent process servers to find real net profit for a service-of-process job after extra-attempt, rush, and skip-trace add-ons, mileage, and the server's own vehicle cost and time — then compare two or three clients' fee schedules by what they actually pay per hour, not just their headline base fee.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent process servers will use a per-job profit calculator because a flat "we pay $65 a serve" rate hides whether a specific job is worth taking once extra attempts, a bad address needing skip tracing, and the actual drive distance are netted out against the server's own vehicle cost and time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers and forum members on r/ProcessServers, NAPPS's member forums, and process-serving Facebook groups asking "what should I charge for a serve" or comparing named agencies' fee schedules are underserved by generic gig-work or freelance-rate calculators, because the attempts/skip-trace/mileage arithmetic and the served-vs-billed-miles distinction are specific to process serving.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Servers who work for multiple attorneys, law firms, or serving agencies will use the client comparison table, not just the single-job calculator, to decide which client relationship is actually worth keeping.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified independent process servers use the calculator twice within 90 days of public distribution.
+  - Users say their invoicing software's own per-job total or a mental rate already produces the same accept/decline decision just as fast.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/process-server-fee-calculator/
+  analytics: null

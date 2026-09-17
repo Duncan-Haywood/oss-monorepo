@@ -1,0 +1,72 @@
+name: security-headers-check
+description: >-
+  A free CLI (+ a browser report viewer) for web developers and security
+  researchers: sends one real HTTP GET request to a URL and classifies the
+  response's Content-Security-Policy and frame-protection headers into named
+  misconfiguration patterns -- missing clickjacking protection, an
+  X-Frame-Options: ALLOW-FROM value every current major browser silently
+  ignores, a CSP script-src (or its default-src fallback) allowing
+  'unsafe-inline' with no nonce/hash to override it, a CSP wildcard script
+  source, CSP shipped only as report-only, and a missing
+  Strict-Transport-Security header on an HTTPS response. Applies the CSP
+  fallback rules correctly (frame-ancestors does not inherit from
+  default-src; script-src does) rather than a naive header-presence grep.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer or security researcher checking a page for clickjacking
+      exposure or CSP strength will search the exact terminology ("X-Frame-
+      Options ALLOW-FROM ignored", "CSP frame-ancestors default-src
+      fallback", "CSP unsafe-inline nonce bypass check") and find this tool,
+      since no existing free tool packages the frame-ancestors/default-src
+      fallback rule and the ALLOW-FROM-is-ignored trap behind one command
+      with a plain-English report naming the exact header that proves each
+      finding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/netsec, r/websecurity, the bug-bounty community (HackerOne and
+      Bugcrowd forums/Discords), and Hacker News carry real, recurring
+      interest in clickjacking and CSP misconfiguration as reportable bug
+      classes -- PortSwigger's Web Security Academy treats both as
+      standalone, frequently-tested topics, and general security-header
+      scanners are a well-established free-tool category, but this
+      portfolio found none that specifically calls out the ALLOW-FROM trap
+      or gets the frame-ancestors/default-src fallback distinction right in
+      its classification rather than just listing which headers are present.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or security team that gets a clean report will wire the
+      CLI into their own staging-environment CI as a regression gate,
+      producing return usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free tool covering the same frame-ancestors
+    fallback and ALLOW-FROM-ignored patterns with the same zero-install bar
+    becomes the obvious default, such that this tool's differentiation (one
+    command, plain-English report, shared classification core tested
+    independently of the network layer) no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/security-headers-check/
+  analytics: null

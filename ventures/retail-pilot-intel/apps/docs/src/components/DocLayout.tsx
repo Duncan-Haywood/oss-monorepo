@@ -60,6 +60,13 @@ export function DocLayout({
       {subtitle ? <p className="subtitle">{subtitle}</p> : null}
       {children}
       {footer ? <footer>{footer}</footer> : null}
+      <p className="doc-support">
+        Free to run.{" "}
+        <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">
+          Support
+        </a>{" "}
+        is entirely optional and never changes what this product does.
+      </p>
     </div>
   );
 }

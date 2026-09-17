@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 """Run a GitHub Actions workflow's own commands on this machine.
 
-Why this exists. Since 2026-08-26 no runner has picked up a job in this
-repository: every workflow completes in 3-6 seconds with `runner_id: 0`,
+Why this exists. From 2026-08-26 to 2026-09-01 no runner picked up a job in
+this repository: every workflow completed in 3-6 seconds with `runner_id: 0`,
 an empty check-run output and a 404 on log download (`actions-runners-
-unavailable` in `portfolio/ledger/asks.yaml`). Checks therefore arrive
+unavailable` in `portfolio/ledger/asks.yaml`). Checks therefore arrived
 *red* without a single step having executed, which reads very differently
 from the blank check list a `GITHUB_TOKEN` bot PR produces, and is the
 easier mistake to make. `CLAUDE.md` tells a session to verify locally and
-say exactly what it ran before merging, and every merge in this window has
-been doing that -- by improvising a different set of commands each time.
+say exactly what it ran before merging, and every merge in that window did
+that -- by improvising a different set of commands each time.
+
+Runners came back on 2026-09-01, so CI is no longer the reason to run this.
+Two better ones remain, and they are why it is not deprecated. A local run
+is still the *fastest* way to know a diff is sound before you spend a CI
+cycle on it, and PRs opened with `GITHUB_TOKEN` still trigger no Actions at
+all, so for those this is the only verification there is. The account-level
+ceiling also looks like it cycles rather than being gone, so the original
+reason may well return.
 
 Improvising is the problem. On 2026-08-29 `main` was failing two
 `Portfolio validate` steps and had been for days, because the sessions
@@ -21,8 +29,17 @@ So this reads the workflow file and runs its `run:` steps in order, in
 each step's `working-directory`, and reports which passed.
 
     python3 platform/ci/run_workflow_locally.py --for-changes
+    python3 platform/ci/run_workflow_locally.py --tree
     python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
     python3 platform/ci/run_workflow_locally.py --list portfolio-pages.yml
+
+`--for-changes` and `--tree` ask different questions and the difference
+matters. The first is "is my diff sound?" and on a clean checkout it
+correctly reports nothing to verify. The second is "is this checkout
+green?", which nothing here could answer until 2026-09-07 -- so a validator
+that went red on `main` stayed red until a session improvised the list by
+hand, which is the very thing the paragraph below says this tool replaced.
+`score_ventures.py --check` was red across five merges that way.
 
 Choosing the workflow is the other half. Running the right steps of the
 wrong workflow verifies nothing, and `AGENTS.md` named only
@@ -59,6 +76,7 @@ names what tripped it so a real verification step is not silently dropped.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import subprocess
@@ -82,6 +100,47 @@ VERIFICATION_ONLY = {
     "agent-permission-harness-ci.yml",
     "conflict-markers-ci.yml",
     "duplicate-symbols-ci.yml",
+    # Added 2026-09-07 with the workflow itself. `--tree` is the mode that
+    # answers "is `main` green right now?", and a gate that only runs when a
+    # diff selects it cannot answer that -- which is the same "correct,
+    # current, and shouting into an empty room" shape CLAUDE.md records
+    # against `validate_doc_consistency.py` and `score_ventures.py --check`.
+    # It reads the venture tree and asserts a count; it writes nothing.
+    "sibling-links-ci.yml",
+    # Added 2026-09-07 with the workflow itself, and `--tree` is the whole
+    # point of it: the question "is the live site serving what `main`
+    # contains?" is a question about the tree, not about a diff, and while
+    # Actions is starved no runner asks it at all. It reads the repository
+    # object and a compare over the API and writes nothing -- in particular it
+    # never publishes, which is why it is a check and not a fixer.
+    "pages-freshness-ci.yml",
+    # Added 2026-09-07, and unlike the two above these were NOT added with the
+    # workflow that needed them -- they had been outside this set since they
+    # were written. Both sweep the whole catalogue (754 and 807 pages) and both
+    # write nothing: `contents: read`, no secrets, checkout plus `node --test`
+    # plus a read-only sweep. They are the same shape as `sibling-links-ci.yml`
+    # above and belong here for the same reason.
+    #
+    # Measured, which is why they are here now. PR #3895 added a visible link
+    # to twelve product pages. All 25 of its checks came back red, every one
+    # classified `runner_id: 0` by `ci_starvation.py` -- so `link-contrast` and
+    # `page-integrity` never ran on a runner, and `--tree` did not run them
+    # either, because of this list. A change that adds twelve `<a>` elements is
+    # precisely what those two guards exist to check, and nothing at all
+    # checked them. Run by hand afterwards they were green (no link contrast
+    # violation over 659 link colours; 807 pages sound), so this cost nothing
+    # that day -- but "we got away with it" is not the same as "it was
+    # verified", and CLAUDE.md already records the day `contrast.mjs` first ran
+    # and found 48 critical `label` violations that had been live for the whole
+    # life of the catalogue.
+    #
+    # This is the `checklist_coverage.py` lesson one level up: that tool fails
+    # when a new *test directory* outruns CLAUDE.md's list, and nothing plays
+    # the same role for this list. A whole-catalogue guard can still be written
+    # tomorrow, left out of here, and go unrun for as long as Actions stays
+    # starved.
+    "link-contrast-ci.yml",
+    "page-integrity-ci.yml",
 }
 
 # Commands that change something outside this working tree. A verification
@@ -103,6 +162,47 @@ MUTATING = [
 
 EXPRESSION = re.compile(r"\$\{\{")
 
+# The progress line is written in two halves -- the step's label before it
+# runs, flushed, and the verdict after -- and that is a fix rather than a
+# style. It used to print one whole line *after* `execute()` returned, which
+# combined with Python's block buffering on a pipe to make this tool look
+# hung: a session running the documented `--tree` sweep and piping it
+# anywhere sees no output at all, for as long as the slowest step takes,
+# while the parent process sits at ~0% CPU because its children are doing
+# the work. Every one of those signals reads as a wedged process.
+#
+# It was read that way. Measured 2026-09-09: the sweep over this tree takes
+# ~13 minutes and emitted nothing until it exited, and the session that
+# merged #4326 that morning recorded killing it -- "hung indefinitely
+# (near-zero CPU for 10+ minutes)" -- and falling back to running CLAUDE.md's
+# hand-copied command list instead. That is precisely the substitution
+# CLAUDE.md tells sessions to make in the other direction, on the grounds
+# that a hand-copied list goes stale and this tool cannot. Actions has been
+# starved since 2026-09-04, so during that window this *is* the CI, and a CI
+# that looks broken gets killed rather than read.
+#
+# The cheap guard against that is not a faster sweep, it is saying which step
+# is running while it runs. Note the failure it protects against is the one
+# this file already fails toward everywhere else: a check that did not
+# actually run must never be mistaken for one that did.
+
+# How each step status prints in the live progress line. One definition rather
+# than one per call site: it was two, and the second was not updated when
+# `unrun` was added on 2026-09-07, so running a single workflow by name -- the
+# documented way to check one thing -- died with `KeyError: 'unrun'` the first
+# time a step hit that status. Found 2026-09-07 by the first workflow here
+# whose step can legitimately be `unrun` on a developer's machine. Same
+# restate-instead-of-import defect CLAUDE.md records twice against the
+# front-door mirror, in eleven lines of dictionary literal.
+STATUS_MARK = {
+    "ok": "ok",
+    "failed": "FAIL",
+    "skipped": "skip",
+    "refused": "refuse",
+    "setup-failed": "setup",
+    "unrun": "UNRUN",
+}
+
 # A `${{ vars.X }}` in an `env:` block is the one expression this tool *can*
 # evaluate honestly, because the repository state it stands for is knowable:
 # an unset repository variable is the empty string, and every workflow here is
@@ -123,6 +223,35 @@ EXPRESSION = re.compile(r"\$\{\{")
 # a step output has no unset-state meaning at all -- the post-deploy
 # `PAGE_URL` check is exactly that, and must stay skipped.
 VARS_EXPRESSION = re.compile(r"\$\{\{\s*vars\.([A-Za-z_][A-Za-z0-9_]*)\s*\}\}")
+
+# `${{ secrets.GITHUB_TOKEN }}` is the one exception to the paragraph above,
+# added 2026-09-07 with `pages-freshness-ci.yml`, and it is an exception on a
+# narrow and checkable ground: it is not an owner-held secret. Actions mints it
+# per run, and every session here already holds the same thing in `GH_TOKEN` --
+# so unlike `secrets.HETZNERSSHKEY`, this one has a real local equivalent that
+# can be substituted rather than blanked.
+#
+# Blanking it would still be wrong, for exactly the reason the block above
+# gives, so this does not blank. It substitutes the ambient token when there is
+# one, and when there is not it leaves the variable empty and lets the step
+# fail on its own terms -- which `CREDENTIAL_MISSING` then classifies as
+# `unrun` rather than as a red `main`. Both outcomes are honest; neither
+# reports a check as passed that did not run.
+#
+# It stays keyed to this one literal name. Any other `secrets.X` keeps the
+# skip: substituting a value this tool cannot know would run the step against
+# the wrong credential, which is worse than not running it.
+GITHUB_TOKEN_EXPRESSION = re.compile(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}")
+
+
+def ambient_github_token() -> str:
+    """The repository token this environment already holds, or "".
+
+    Read in the same order `platform/ci/pages_state.py` and
+    `platform/ci/ci_starvation.py` read it, so a workflow step verified here
+    sees exactly what those tools would see if run by hand.
+    """
+    return os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
 
 # GitHub Actions runs a Linux `run:` step under bash, and workflows here rely
 # on that: `portfolio-pages.yml` opens a step with `set -euo pipefail`, which
@@ -148,6 +277,217 @@ SETUP = re.compile(
     r"^\s*(pip3?\s+install|python3?\s+-m\s+pip\s+install|npm\s+(ci|install)"
     r"|apt-get\s+install|sudo\s+apt-get)\b")
 
+# The other half of that reasoning, and the half this tool was missing until
+# 2026-09-07. The comment above says a real missing dependency "fails on its
+# own, with a message that names the import" -- true, and the report then
+# rendered that failure identically to an assertion failure in the repository.
+# So the install step was carefully exempted from the verdict and the five
+# steps downstream of it were not.
+#
+# Measured the day this was added, twice on the same clean checkout of `main`
+# minutes apart, with nothing between the runs but `pip install pytest`:
+#
+#     portfolio-validate.yml: 55/60 run: step(s) passed, 5 failed
+#     portfolio-validate.yml: 60/60 run: step(s) passed
+#
+# Every one of the five said `No module named pytest`. `main` was green both
+# times. A session running the first reads "`main` is red on five steps" --
+# which is the exact question `--tree` was added to answer, answered wrong,
+# in the environment (a web session, where the image ships Python without
+# pytest) where sessions here actually run. CLAUDE.md warns about this in
+# prose; this file's own history says a reminder competes with everything
+# else in a long file and an exit code does not.
+#
+# A step that could not find its interpreter, module, or binary did not run
+# the check it exists to make. That is not a pass and not a failure: it is
+# the same "did not run" class as a skipped step, and it is reported that
+# way -- named, counted as not run, and never left reading as green.
+TOOLCHAIN_MISSING = (
+    re.compile(r"No module named '?([\w.]+)'?"),          # python -m / import
+    re.compile(r"Cannot find module '([^']+)'"),          # node require
+    re.compile(r"Error \[ERR_MODULE_NOT_FOUND\][^\n]*'([^']+)'"),
+    re.compile(r"^(?:.*: )?([\w.@/+-]+): command not found"),
+    re.compile(r"command not found: ([\w.@/+-]+)"),
+)
+
+# The same "did not run" class, reached from the other direction: a step whose
+# check needs a credential this environment does not have.
+#
+# Added 2026-09-07 with `pages-freshness-ci.yml`, which is the first
+# verification-only workflow here whose check cannot run without one --
+# `pages_state.py` reads the repository object and the managed Pages builder's
+# run history, and exits 2 saying so when neither `GH_TOKEN` nor
+# `GITHUB_TOKEN` is set. Left in the `failed` class it would have reported
+# `main` as red in every sandbox without a token, which is precisely the
+# costume-of-a-real-failure problem the block above was written about. Adding
+# a check that lies when it cannot authenticate would have cost more than the
+# check is worth.
+#
+# The discrimination that keeps this honest is the same one that keeps
+# `_provided_by_repo` honest: match only a tool's *explicit* statement that a
+# named credential is absent, never a generic authorization failure. A 401
+# from GitHub stays `failed` -- a token that is present and rejected is a real
+# result, and burying it here would hide the thing a session most needs to
+# see. So both patterns require the line to name an env var in credential
+# shape AND to say it is unset.
+CREDENTIAL_MISSING = (
+    # "neither GH_TOKEN nor GITHUB_TOKEN is set"
+    re.compile(
+        r"neither (\$?[A-Z][A-Z0-9_]*(?:TOKEN|KEY|SECRET|PASSWORD|CREDENTIALS))\b"
+        r"[^\n]*? nor \$?[A-Z][A-Z0-9_]*\b[^\n]*? is (?:set|present|available)"
+    ),
+    # "GH_TOKEN is not set", "$ARGOCD_REPO_TOKEN is unset/empty/missing/required"
+    re.compile(
+        r"\$?\b([A-Z][A-Z0-9_]*(?:TOKEN|KEY|SECRET|PASSWORD|CREDENTIALS))\b"
+        r" is (?:not set|unset|empty|missing|required)"
+    ),
+)
+
+
+_REPO_MODULES: set | None = None
+
+
+def repo_modules() -> set:
+    """Every module name this repository itself supplies, from the tracked tree.
+
+    Computed once, from `git ls-files`, because the alternative is a walk of a
+    tree with 2,000+ published pages in it. Names are what a bare `import`
+    could resolve to: a `<name>.py` at any depth, and any directory that is on
+    a tracked path.
+    """
+    global _REPO_MODULES
+    if _REPO_MODULES is not None:
+        return _REPO_MODULES
+
+    names: set = set()
+    try:
+        listed = subprocess.run(
+            ["git", "ls-files"], cwd=REPO, capture_output=True, text=True,
+            timeout=60, check=True).stdout.splitlines()
+    except (subprocess.SubprocessError, OSError):
+        # No git, or not a checkout. An empty set means every missing name
+        # reads as a missing tool, which is the wrong way to be wrong -- so
+        # fall back to the two directories a bare import could resolve from.
+        listed = []
+        for base in (REPO,):
+            with os.scandir(base) as entries:
+                listed = [e.name for e in entries]
+
+    for path in listed:
+        parts = path.split("/")
+        names.update(parts[:-1])                     # directories on the path
+        leaf = parts[-1]
+        if leaf.endswith(".py"):
+            names.add(leaf[:-3])
+    _REPO_MODULES = names
+    return names
+
+
+def _provided_by_repo(name: str, cwd: str) -> bool:
+    """True when `name` is something this repository itself supplies.
+
+    The discrimination this whole classification turns on. `pytest` is absent
+    from the tree, so a step that cannot import it never ran. `pages_state` is
+    `platform/ci/pages_state.py`, so a step that cannot import *that* found a
+    real defect -- and it is a defect this repository has already had:
+    CLAUDE.md records that `platform/ci`'s suites resolve their imports by
+    bare name and only with `platform/ci` as the working directory, so
+    `python3 -m pytest platform/ci` from the root fails collection. Calling
+    that "toolchain missing" would bury exactly the bug the check exists to
+    surface, so the tree is searched before the verdict is given.
+
+    Deliberately biased towards "this is ours": a name that exists in the tree
+    and is also a third-party package reads as a real failure, which costs a
+    session one look at the output. The opposite error hides a defect.
+    """
+    head = name.split(".")[0].lstrip("@").split("/")[0]
+    if not head:
+        return False
+    if head in repo_modules():
+        return True
+    # A relative path in the message (`./x`, `platform/ci/y`) is this tree's.
+    for base in (cwd, REPO):
+        if os.path.exists(os.path.join(base, head + ".py")):
+            return True
+        if os.path.isdir(os.path.join(base, head)):
+            return True
+    return False
+
+
+def missing_toolchain(output, cwd: str) -> str | None:
+    """The tool a failing step could not find, or None if it found them all.
+
+    `output` is the step's combined stdout/stderr, already split into lines.
+    """
+    for line in output:
+        for pattern in TOOLCHAIN_MISSING:
+            found = pattern.search(line.strip())
+            if found and not _provided_by_repo(found.group(1), cwd):
+                return found.group(1)
+    return None
+
+
+def missing_credential(output) -> str | None:
+    """The credential a failing step said was absent, or None.
+
+    Kept separate from `missing_toolchain` rather than folded into it because
+    the two classes need different advice -- one is `pip install`, the other is
+    `export`, and a report that told a reader to install `GH_TOKEN` would be
+    worse than one that said nothing. Both land in the same `unrun` status:
+    what they have in common is that the check never executed.
+    """
+    for line in output:
+        for pattern in CREDENTIAL_MISSING:
+            found = pattern.search(line.strip())
+            if found:
+                return found.group(1).lstrip("$")
+    return None
+
+
+def declared_unrun(output) -> str | None:
+    """What a step said when it reported itself unable to run, or None.
+
+    The same "did not run" class as the two above, reached from a third
+    direction: not a tool this sandbox lacks and not a credential it lacks,
+    but a check that ran, discovered it could not answer its own question,
+    and said so in as many words.
+
+    Added 2026-09-16 for `check_venture_regression.py`, which is the only
+    check here that already makes this distinction internally and the one
+    where getting it wrong is most expensive. It compares the tree against a
+    base ref, and a removal it spots means a live product vanished from the
+    served catalogue -- so when it *cannot prove* the removal is real (your
+    checkout is an ancestor of the base, or a shallow clone leaves ancestry
+    unanswerable) it deliberately refuses to pass, exits `EXIT_UNRUN` = 2,
+    and prints `UNRUN: ...` followed by "This check did not run, which is not
+    the same as passing."
+
+    The sweep read that as an ordinary `FAILED`, which is the costume problem
+    the two blocks above were written about, wearing a third costume. It
+    matters most in exactly the situation `--tree` creates by construction: a
+    sweep takes ~20 minutes, this repository lands merges from up to 4
+    sessions inside 15, so `main` moving *during* the sweep is the ordinary
+    case rather than an edge one. The reader then sees `main` reported red,
+    with a step name -- "Check no live venture disappears from the served
+    catalogue" -- that reads like live product going dark. Measured that day:
+    that is precisely what happened, and the checker's own diagnostic was the
+    only thing that kept it from being reported as a red `main`.
+
+    The discrimination that keeps this honest is the same one `missing_toolchain`
+    and `missing_credential` use, and it is the whole reason this matches a
+    marker rather than an exit code. A **real** regression -- the venture
+    genuinely gone, ancestry proven -- exits 1 and prints no `UNRUN:` line, so
+    it stays `failed` and stays loud. Only a check that explicitly disclaims
+    its own result is reclassified, and it is still never counted as green:
+    an `unrun` step is named, counted as not run, and owed an answer.
+    """
+    for line in output:
+        if line.strip().startswith("UNRUN:"):
+            return line.strip()[len("UNRUN:"):].strip() or (
+                "the step reported that it did not run"
+            )
+    return None
+
 
 class Step:
     """One `run:` step, with where and how it should be executed."""
@@ -157,8 +497,15 @@ class Step:
         self.name = name
         self.run = run
         self.workdir = workdir
-        self.status = "pending"   # ok | failed | skipped | refused
+        self.status = "pending"   # ok | failed | unrun | skipped | refused
         self.reason = ""
+        # Set on an `unrun` step: the module, binary or credential that was not
+        # found, so the report can name what to supply rather than only that it
+        # failed. `missing_kind` decides whether the advice is "install" or
+        # "set" -- telling a reader to install `GH_TOKEN` would be worse than
+        # saying nothing at all.
+        self.missing = ""
+        self.missing_kind = "tool"
         self.seconds = 0.0
         self.tail = []
         # env: entries to add for this step. Populated only from `vars.`
@@ -226,9 +573,14 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
             for key, value in raw_env.items():
                 resolved, hits = VARS_EXPRESSION.subn("", value)
                 if hits:
-                    step.env[key] = resolved
                     step.unset_vars.extend(
                         m.group(1) for m in VARS_EXPRESSION.finditer(value))
+                # See GITHUB_TOKEN_EXPRESSION: substitute the ambient token, or
+                # leave it empty and let the step say so for itself.
+                resolved, token_hits = GITHUB_TOKEN_EXPRESSION.subn(
+                    ambient_github_token(), resolved)
+                if hits or token_hits:
+                    step.env[key] = resolved
             env_text = " ".join(step.env.get(k, v) for k, v in raw_env.items())
             if (EXPRESSION.search(command) or EXPRESSION.search(str(workdir))
                     or EXPRESSION.search(env_text)):
@@ -339,8 +691,94 @@ def _grants_write(node) -> bool:
     return any(value == "write" for value in perms.values())
 
 
+# A secret is read through an Actions *expression*, so that is what this
+# looks for -- not the loose text `secrets.`, which is also how a filename
+# reads.
+#
+# The `${{ }}` wrapper is matched separately from the reference inside it
+# rather than in one pattern, because the two can be far apart
+# (`${{ inputs.x && secrets.Y || '' }}`) and a single adjacency-based regex
+# would miss that. `secrets[...]` index syntax has no readable name, so it
+# holds the job unconditionally: failing closed is the only safe direction
+# for a screen that decides what may execute locally.
+EXPRESSION_BLOCK = re.compile(r"\$\{\{(.*?)\}\}", re.S)
+SECRET_REFERENCE = re.compile(
+    r"\bsecrets\s*(?:\.\s*([A-Za-z_][A-Za-z0-9_-]*)|\[)")
+
+
+def _iter_strings(node):
+    """Every string scalar in a parsed workflow fragment, keys included.
+
+    Deliberately walks the structure instead of re-serialising it.
+    `yaml.safe_dump` line-wraps long scalars -- a shellcheck invocation
+    spanning 24 paths comes back full of `\\` continuations and escaped
+    newlines -- so a `${{ ... secrets.X ... }}` in a long command can be
+    split across two dumped lines. A screen that decides what is safe to run
+    must not be able to miss a secret because the dumper chose a line break.
+    """
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield from _iter_strings(key)
+            yield from _iter_strings(value)
+    elif isinstance(node, (list, tuple)):
+        for value in node:
+            yield from _iter_strings(value)
+    elif isinstance(node, str):
+        yield node
+
+
 def _mentions_secret(node) -> bool:
-    return "secrets." in yaml.safe_dump(node, default_flow_style=False)
+    """Whether this node reads a secret this tool has no honest stand-in for.
+
+    `secrets.GITHUB_TOKEN` is excluded, for the reason GITHUB_TOKEN_EXPRESSION
+    gives at length: it is minted per run rather than held by the owner, every
+    session here already has the same token in `GH_TOKEN`, and the capability
+    question it used to stand in for is answered directly and better by
+    `_grants_write` on the declared `permissions` block. A job that reads it
+    under `contents: read` can do nothing this tool should hold back.
+
+    Every other `secrets.X` still holds the job: a job reading one would run
+    here against a credential this tool cannot supply, and guessing is worse
+    than not running.
+
+    **This used to ask whether the literal text `secrets.` appeared anywhere
+    in the job, and a filename is text.** Measured 2026-09-10 across all 283
+    workflows, exactly one job was held on that reading and nothing else:
+    `hetzner-gitops-ci.yml`'s `scripts`, which declares no `permissions`
+    beyond the workflow's `contents: read`, reads no secret at all, and does
+    one thing -- `shellcheck` over the 24 shell scripts that install and run
+    every runner-free route this repository has. It was classified "reads a
+    secret" because two of the paths it lints are `bootstrap/scripts/
+    load-secrets.sh` and `bootstrap/scripts/seal-owner-secrets.sh`, and
+    `load-secrets.sh` contains the substring `secrets.`.
+
+    The cost was not theoretical and is not on the sweep. `--for-changes` is
+    the documented pre-merge check and `hetzner-gitops-ci.yml`'s `paths:`
+    filter selects it on any `bootstrap/**` or `gitops/**` diff -- so every
+    session that edited a deploy script got a report with the shell-bug gate
+    silently held back. #4435 (2026-09-10) is the record of it: it changed
+    `bootstrap/restore-cluster.sh`, reported `--for-changes 13/15`, and its
+    author separately ran "shellcheck-py 0.11.0.1 clean on restore-cluster.sh
+    (reproducing the starved scripts job by hand)". Improvising a guard the
+    tool held back is exactly what this module's docstring says it exists to
+    stop -- and `test_shellcheck_coverage.py` records `enable-codex-governor.sh`
+    shipping with two real SC2015 findings the one time that job did not run.
+
+    The fix narrows the screen and cannot widen it: a filename is not an
+    expression, and every genuine `${{ secrets.X }}` still holds its job.
+    """
+    if isinstance(node, dict) and "secrets" in node:
+        # A reusable-workflow call passes credentials through a `secrets:`
+        # key (`secrets: inherit`, or an explicit mapping) with no `${{ }}`
+        # anywhere. Nothing here uses one today; holding on the key keeps
+        # that from becoming a hole the day something does.
+        return True
+    for text in _iter_strings(node):
+        for block in EXPRESSION_BLOCK.findall(text):
+            for name in SECRET_REFERENCE.findall(block):
+                if name != "GITHUB_TOKEN":
+                    return True
+    return False
 
 
 def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
@@ -458,9 +896,43 @@ def execute(step: Step, timeout: int) -> None:
         step.status = "setup-failed"
         step.reason = (f"exit {done.returncode} installing dependencies; "
                        "the steps that need them will say so")
+    elif (absent := missing_toolchain(output, cwd)) is not None:
+        step.status = "unrun"
+        step.missing = absent
+        step.reason = (f"`{absent}` is not installed here, so this step never "
+                       "ran the check it exists to make")
+    elif (uncredentialed := missing_credential(output)) is not None:
+        step.status = "unrun"
+        step.missing = uncredentialed
+        step.missing_kind = "credential"
+        step.reason = (f"`{uncredentialed}` is not set here, so this step "
+                       "never ran the check it exists to make")
+    elif (said_so := declared_unrun(output)) is not None:
+        step.status = "unrun"
+        step.missing_kind = "self-reported"
+        step.reason = said_so
     else:
         step.status = "failed"
         step.reason = f"exit {done.returncode}"
+
+
+def run_steps(steps, timeout) -> None:
+    """Execute steps, printing the live progress line for each.
+
+    One definition, called by both the single-workflow path and the sweep,
+    because there were two and they had already drifted once: the note above
+    `STATUS_MARK` records the `KeyError: 'unrun'` that cost. The progress fix
+    below landed in the sweep first and reached the by-name path only because
+    running it turned up the old output -- the same defect, caught the same
+    way, in the same eleven lines.
+    """
+    for step in steps:
+        # Name the step BEFORE running it, and flush. Both halves are
+        # load-bearing; see the note above `STATUS_MARK`.
+        print(f"  {step.label} ... ", end="", flush=True)
+        execute(step, timeout)
+        print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
+              flush=True)
 
 
 def report(name, steps, uses_skipped, forced) -> int:
@@ -469,6 +941,7 @@ def report(name, steps, uses_skipped, forced) -> int:
     skipped = [s for s in steps if s.status == "skipped"]
     refused = [s for s in steps if s.status == "refused"]
     setup_failed = [s for s in steps if s.status == "setup-failed"]
+    unrun = [s for s in steps if s.status == "unrun"]
 
     print()
     for step in failed:
@@ -477,6 +950,34 @@ def report(name, steps, uses_skipped, forced) -> int:
         for line in step.tail:
             print(f"        {line}")
         print()
+
+    for step in unrun:
+        print(f"UNRUN   {step.label}: {step.reason}")
+        print(f"        $ {step.run.splitlines()[0]}")
+    if unrun:
+        # Name the fix rather than leaving the reader to derive it. The whole
+        # point of the class is that these steps still owe an answer.
+        tools = sorted({s.missing for s in unrun if s.missing_kind == "tool"})
+        creds = sorted({s.missing for s in unrun
+                        if s.missing_kind == "credential"})
+        if tools:
+            print("        Install the missing tool(s) and re-run; until then "
+                  "these steps have verified nothing:")
+            print("          " + ", ".join(tools))
+        if creds:
+            print("        Set the missing credential(s) and re-run; until "
+                  "then these steps have verified nothing:")
+            print("          " + ", ".join(creds))
+        # A self-reported one names its own remedy, and that remedy is
+        # specific to the check (`check_venture_regression.py` asks for a
+        # fetch and a merge, not an install). Point at it rather than
+        # inventing a generic instruction that would be wrong for the next
+        # check to join this class.
+        if any(s.missing_kind == "self-reported" for s in unrun):
+            print("        A step above reported itself unable to run. Its own "
+                  "output says what it needs;")
+            print("        re-run it directly and satisfy that before reading "
+                  "this tree as verified.")
 
     for step in setup_failed:
         print(f"SETUP   {step.label}: {step.reason}")
@@ -492,11 +993,12 @@ def report(name, steps, uses_skipped, forced) -> int:
         print(f"SKIPPED {step.label}: {step.reason}")
     for note in uses_skipped:
         print(f"SKIPPED {note}")
-    if skipped or refused or uses_skipped or setup_failed:
+    if skipped or refused or uses_skipped or setup_failed or unrun:
         print()
 
     total = len(ran)
-    not_run = len(skipped) + len(refused) + len(uses_skipped) + len(setup_failed)
+    not_run = (len(skipped) + len(refused) + len(uses_skipped)
+               + len(setup_failed) + len(unrun))
     print(f"{name}: {total - len(failed)}/{total} run: step(s) passed"
           + (f", {len(failed)} failed" if failed else "")
           + f" ({not_run} not run)")
@@ -506,7 +1008,7 @@ def report(name, steps, uses_skipped, forced) -> int:
     if not total:
         print("  Nothing was executed, so nothing was verified.")
         return 1
-    if skipped or refused or uses_skipped or setup_failed:
+    if skipped or refused or uses_skipped or setup_failed or unrun:
         print("  Not a green check: the steps listed above did not run. Say so\n"
               "  in the pull request rather than reporting the workflow passed.")
     if forced:
@@ -515,13 +1017,14 @@ def report(name, steps, uses_skipped, forced) -> int:
     return 0
 
 
-def run_for_changes(args) -> int:
-    """Select workflows by the current diff, then run the read-only ones."""
-    changed = changed_paths(args.for_changes)
-    if not changed:
-        print(f"No files differ from {args.for_changes}; nothing to verify.")
-        return 0
+def pick_workflows(wanted) -> tuple[list, list]:
+    """Every workflow `wanted` accepts, split into runnable jobs and held ones.
 
+    `wanted(name, workflow) -> bool` is the only difference between selecting
+    by diff and sweeping the whole tree, so it is the only thing the two
+    callers below supply. Keeping one selector means a workflow that becomes
+    invisible to one mode cannot stay visible to the other.
+    """
     selected, held = [], []
     for name in sorted(os.listdir(WORKFLOWS)):
         if not name.endswith((".yml", ".yaml")):
@@ -532,16 +1035,136 @@ def run_for_changes(args) -> int:
             # An unparseable workflow is `validate_workflows.py`'s finding to
             # report, not this tool's to fail on.
             continue
-        if not isinstance(workflow, dict) or not selects(workflow, changed):
+        if not isinstance(workflow, dict) or not wanted(name, workflow):
             continue
         allowed, blocked = read_only_jobs(workflow)
         held.extend((name, job_id, why) for job_id, why in blocked)
         if allowed:
             selected.append((name, workflow, allowed))
+    return selected, held
+
+
+def run_tree(args) -> int:
+    """Run every verification-only workflow against the tree as it stands.
+
+    `--for-changes` answers "is my diff sound?", and on a clean checkout of
+    `main` it correctly answers "nothing to verify" -- which is why nothing
+    in this repository could answer the *other* question, "is `main` itself
+    green?", without a session improvising the list by hand. That is the
+    same improvising the module docstring above says this tool exists to
+    replace; it had simply been left in place for one caller.
+
+    It is not hypothetical. `portfolio/scoring/score_ventures.py --check`
+    went red on `main` when #3615 merged a venture without a score row, and
+    stayed red across four further merges, because Actions has been starved
+    since 2026-09-04 (`ci_starvation.py --run 34089278449`: `runner_id: 0`)
+    and no local run asks this question. The same shape as 2026-08-29's two
+    red steps and 2026-09-07's `validate_doc_consistency.py`, all three
+    caught late by a session that happened to look.
+
+    Selection is `VERIFICATION_ONLY` rather than "every workflow": a sweep
+    is the mode most likely to be run unattended, so widening it to the
+    whole directory is exactly where a deploying or branch-deleting step
+    would arrive unnoticed. `read_only_jobs` still screens what is left.
+    """
+    selected, held = pick_workflows(lambda name, _wf: name in VERIFICATION_ONLY)
+    missing = sorted(VERIFICATION_ONLY - {name for name, *_ in selected}
+                     - {name for name, *_ in held})
+    print(f"Whole-tree sweep: {len(selected)} verification-only workflow(s) "
+          "selected, regardless of the diff.")
+    for name in missing:
+        print(f"  [absent] {name}: named in VERIFICATION_ONLY but not in "
+              f"{os.path.relpath(WORKFLOWS, REPO)}")
+    return _run_selected(args, selected, held, absent=missing)
+
+
+def run_for_changes(args) -> int:
+    """Select workflows by the current diff, then run the read-only ones."""
+    changed = changed_paths(args.for_changes)
+    if not changed:
+        print(f"No files differ from {args.for_changes}; nothing to verify.")
+        print("  That answers 'is my diff sound?'. To ask whether the tree "
+              "itself is green, run --tree.")
+        return 0
+
+    selected, held = pick_workflows(lambda _n, wf: selects(wf, changed))
 
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
     print(f"{len(changed)} changed file(s) against {args.for_changes} select "
           f"{len(workflows)} workflow(s).")
+    return _run_selected(args, selected, held)
+
+
+def checkout_fingerprint() -> tuple[str, str] | None:
+    """(HEAD sha, digest of every tracked path's content id).
+
+    Deliberately reads **tracked content only**, via `git diff HEAD --raw`,
+    whose output names each differing path and the blob id on both sides.
+    Untracked files are excluded on purpose: several steps here legitimately
+    write temp artifacts, a build directory or a node_modules tree, and a
+    fingerprint that moved on those would cry wolf on every clean run and be
+    switched off within a day -- the same fate this file's own comments
+    predict for any check that fails on correct input.
+
+    Returns None when git cannot answer (not a repository, no git binary), so
+    a missing fingerprint can be told apart from an unchanged one: the caller
+    treats "could not measure" as no finding rather than as a finding.
+    """
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO,
+                              capture_output=True, text=True, timeout=30)
+        tracked = subprocess.run(["git", "diff", "HEAD", "--raw"], cwd=REPO,
+                                 capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if head.returncode != 0 or tracked.returncode != 0:
+        return None
+    return (head.stdout.strip(),
+            hashlib.sha256(tracked.stdout.encode()).hexdigest())
+
+
+def checkout_drift(before, after) -> str | None:
+    """Describe how the checkout moved under a sweep, or None if it held still.
+
+    WHY THIS EXISTS
+    ---------------
+    `--tree` reads the checkout as it stands, and takes 40+ minutes to do it.
+    That is long enough that the obvious way to run it -- in the background,
+    while getting on with something else -- is also the way to make it lie,
+    because "something else" in this repository means checking out a PR
+    branch, merging `main`, or running `regen.mjs`.
+
+    Measured 2026-09-11: a sweep started on `main` reported
+    `FAILED validate / Check the apex tool mirror is not stale`. The mirror
+    was not stale. The session had checked out another PR's branch while the
+    sweep ran, and the step read that branch's tree. Re-run on an untouched
+    worktree at the same commit, the identical step passed 260/260.
+
+    A false red costs a session chasing a defect that does not exist. A false
+    *green* is worse and is equally available -- a sweep that reads a fixed
+    tree for the half of its run covering the broken file reports the tree
+    green. Neither is a reading, so this fails the sweep rather than warning
+    inside it: a warning in the middle of 40 minutes of scrollback is a
+    warning nobody sees, which is the argument `pages_state.py
+    --require-current` and `guard_state.py --require-runnable` already make
+    here for an exit code over a reminder.
+
+    It cannot distinguish "another session wrote to this checkout" from "a
+    step under test rewrote a tracked file", and does not try: both mean the
+    verdict covers more than one tree, and both want the same answer.
+    """
+    if before is None or after is None or before == after:
+        return None
+    head_before, _ = before
+    head_after, _ = after
+    if head_before != head_after:
+        return (f"HEAD moved from {head_before[:9]} to {head_after[:9]} while "
+                "the sweep ran")
+    return "tracked files changed while the sweep ran (HEAD did not move)"
+
+
+def _run_selected(args, selected, held, absent=()) -> int:
+    """Execute the chosen workflows' read-only steps and report."""
     for name, job_id, why in held:
         print(f"  [held  ] {name} / {job_id}: {why}; run it by name with "
               "--force if you have read it")
@@ -550,18 +1173,19 @@ def run_for_changes(args) -> int:
             print(f"  [run   ] {name} ({', '.join(sorted(allowed))})")
         return 0
 
+    before = checkout_fingerprint()
+
     failures = []
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
-              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
-        for step in steps:
-            execute(step, args.timeout)
-            mark = {"ok": "ok", "failed": "FAIL", "skipped": "skip",
-                    "refused": "refuse", "setup-failed": "setup"}[step.status]
-            print(f"  [{mark:6}] {step.label} ({step.seconds:.1f}s)")
+              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+              flush=True)
+        run_steps(steps, args.timeout)
         if report(name, steps, uses_skipped, False) != 0:
             failures.append(name)
+
+    drift = checkout_drift(before, checkout_fingerprint())
 
     print(f"\n{len(selected) - len(failures)}/{len(selected)} selected "
           f"workflow(s) passed.")
@@ -569,6 +1193,25 @@ def run_for_changes(args) -> int:
         print("  Not a clean sweep: " + ", ".join(
             f"{name}/{job_id}" for name, job_id, _ in held)
             + " were selected and not run. Say so in the pull request.")
+    # An empty selection must never read as a pass. A sweep that matched no
+    # workflow at all verified nothing, which is the outcome this repository
+    # is worst at noticing -- the same reason `report()` above fails on a run
+    # with no executed steps.
+    if not selected:
+        print("  Nothing was selected, so nothing was verified.")
+        return 1
+    if absent:
+        print("  Not a clean sweep: " + ", ".join(absent)
+              + " named in VERIFICATION_ONLY but absent from the tree.")
+        return 1
+    # Reported last, and after the pass/fail line, because it invalidates that
+    # line in *both* directions -- see `checkout_drift`.
+    if drift:
+        print("\n  UNSTABLE CHECKOUT: " + drift)
+        print("  The verdict above was not taken against one tree, so it is "
+              "not a reading of anything. Re-run on a checkout nothing else "
+              "is writing to, and do not report either result.")
+        return 1
     return 1 if failures else 0
 
 
@@ -580,6 +1223,11 @@ def main(argv=None) -> int:
     ap.add_argument("--for-changes", metavar="BASE", nargs="?", const="origin/main",
                     help="run every workflow the current diff against BASE "
                          "would start (default base origin/main)")
+    ap.add_argument("--tree", action="store_true",
+                    help="run every verification-only workflow against the "
+                         "tree as it stands, ignoring the diff -- answers "
+                         "'is this checkout green?' where --for-changes "
+                         "answers 'is my diff sound?'")
     ap.add_argument("--list", action="store_true",
                     help="print the steps that would run, and run nothing")
     ap.add_argument("--force", action="store_true",
@@ -588,6 +1236,13 @@ def main(argv=None) -> int:
                     help="per-step timeout in seconds (default 900)")
     args = ap.parse_args(argv)
 
+    if args.tree:
+        if args.workflow or args.for_changes:
+            print("pass --tree on its own, not with a workflow name or "
+                  "--for-changes", file=sys.stderr)
+            return 2
+        return run_tree(args)
+
     if args.for_changes:
         if args.workflow:
             print("pass a workflow name or --for-changes, not both", file=sys.stderr)
@@ -595,8 +1250,8 @@ def main(argv=None) -> int:
         return run_for_changes(args)
 
     if not args.workflow:
-        print("name a workflow, or pass --for-changes to select by diff",
-              file=sys.stderr)
+        print("name a workflow, --for-changes to select by diff, or --tree "
+              "to sweep the whole checkout", file=sys.stderr)
         return 2
 
     name = os.path.basename(args.workflow)
@@ -624,12 +1279,9 @@ def main(argv=None) -> int:
         return 0
 
     print(f"Running {name} locally "
-          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
-    for step in steps:
-        execute(step, args.timeout)
-        mark = {"ok": "ok", "failed": "FAIL", "skipped": "skip",
-                "refused": "refuse", "setup-failed": "setup"}[step.status]
-        print(f"  [{mark:6}] {step.label} ({step.seconds:.1f}s)")
+          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+          flush=True)
+    run_steps(steps, args.timeout)
 
     return report(name, steps, uses_skipped, args.force)
 

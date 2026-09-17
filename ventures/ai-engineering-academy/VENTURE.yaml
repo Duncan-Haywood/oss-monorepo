@@ -25,5 +25,5 @@ kill_criteria:
   - No learner (paid or free pilot) completes a single project end-to-end within 90 days of an MVP existing.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/ai-engineering-academy/
   analytics: null

@@ -72,7 +72,12 @@ def _add_capture_args(parser: argparse.ArgumentParser) -> None:
         metavar="ADDRESS",
         help="resolver address or hostname, repeatable (recorded as the observation identity)",
     )
-    parser.add_argument("--timeout", type=float, default=3.0, help="per-query timeout in seconds (default 3)")
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=None,
+        help="per-query timeout in seconds (default 3, or the plan's own timeout with --plan)",
+    )
     parser.add_argument("--output", type=Path, help="write the snapshot JSON here instead of stdout")
     parser.add_argument("--usage-file", type=Path, help="optional local event-count file")
     parser.add_argument("--no-usage", action="store_true", help="do not update the local usage counter")

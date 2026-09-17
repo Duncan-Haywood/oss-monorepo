@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Your Migration Locked the Table — The Postgres Lock Queue Explained</title>
+  <meta name="description" content="A one-line ALTER TABLE took your site down for four minutes and the statement itself ran in 3ms. Here is the PostgreSQL lock queue that explains it, why lock_timeout is the fix, and which migration statements rewrite a table rather than just locking it.">
+  <link rel="canonical" href="./why-your-migration-locked-the-table.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"The statement ran in 3ms. Why was the site down for four minutes?","acceptedAnswer":{"@type":"Answer","text":"Because it spent those four minutes waiting to start, not running. ALTER TABLE needs an ACCESS EXCLUSIVE lock — the strongest one, which conflicts with everything including the ACCESS SHARE that a plain SELECT holds. Your migration arrived while some long query was still reading the table, so it could not proceed and joined the lock queue. That much is expected and harmless. The part that turns a wait into an outage is what happened behind it."}},{"@type":"Question","name":"What is a lock queue and why does it block readers?","acceptedAnswer":{"@type":"Answer","text":"PostgreSQL grants table locks in request order, and it will not reorder them to let a compatible pair through. Two SELECTs can share a table happily — but if an ACCESS EXCLUSIVE request is sitting between them in the queue, the second SELECT waits behind it rather than joining the first. This is deliberate. Without it, a steady stream of readers on a busy table would starve a writer forever. The consequence, though, is that one blocked DDL statement converts into a full table stall: t=0 long analytics SELECT starts (ACCESS SHARE, holds) t=30s ALTER TABLE arrives (ACCESS EXCLUSIVE, queued) t=31s ordinary SELECT arrives (queued behind the ALTER) t=32s ordinary SELECT arrives (queued) ... every request on this table now queues ... t=4m analytics SELECT finishes t=4m ALTER TABLE runs (3ms) t=4m the backlog drains Between t=31s and t=4m the table was perfectly readable and nobody could read it. Your monitoring shows a latency cliff on one table, no slow query, and a migration that \"took four minutes\" — which sends the investigation at the migration, where there is nothing to find."}},{"@type":"Question","name":"How does lock_timeout fix this?","acceptedAnswer":{"@type":"Answer","text":"It puts a bound on the waiting rather than on the work: SET lock_timeout = '3s'; ALTER TABLE users ADD COLUMN ...; Now PostgreSQL gives up if the lock is not available within three seconds, raising an error instead of queueing indefinitely. Nothing is blocked for longer than three seconds, the migration fails cleanly, and you retry — most retries succeed immediately, because the slow query has since finished. Without it, the default is to wait forever. Which means the worst-case duration of your migration is the worst-case duration of any query on that table, a number you do not control and probably do not know. Pair it with statement_timeout for the statements that do real work. They bound different things: lock_timeout bounds how long you wait to begin, statement_timeout bounds how long the work itself may take."}},{"@type":"Question","name":"Which statements lock, and which actually rewrite the table?","acceptedAnswer":{"@type":"Answer","text":"Locking and rewriting are separate costs, and keeping them apart is most of what makes a migration reviewable. Everything in the first row is dangerous only because of the queue above; everything in the third holds the lock for minutes by design. Cost Lock Statements Metadata only — instant ACCESS EXCLUSIVE, briefly DROP COLUMN, RENAME, ADD COLUMN with a constant or STABLE default, DROP INDEX, attaching a pre-built index with USING INDEX Full scan — reads every row ACCESS EXCLUSIVE, held throughout SET NOT NULL (without a validated CHECK), ADD CONSTRAINT / foreign key without NOT VALID Full rewrite — writes every row ACCESS EXCLUSIVE, held throughout ALTER COLUMN TYPE, ADD COLUMN with a VOLATILE default (gen_random_uuid(), random()), VACUUM FULL, CLUSTER Index build — blocks writes only SHARE CREATE INDEX without CONCURRENTLY That last row is the one that gets missed. A SHARE lock lets reads through, so a health check that issues a SELECT keeps passing while every write to the table hangs. The symptom reaches you as connection-pool exhaustion or request timeouts, with nothing anywhere mentioning an index. Two of these have exact fast paths worth memorising. ADD COLUMN ... DEFAULT has been metadata-only since PostgreSQL 11 unless the default is volatile — so DEFAULT now() is free and DEFAULT gen_random_uuid() rewrites the table, from statements that look the same at a glance. And SET NOT NULL skips its scan on PostgreSQL 12+ if a validated CHECK (col IS NOT NULL) already proves the fact, which turns a locked scan into three cheap steps: ALTER TABLE users ADD CONSTRAINT users_email_nn CHECK (email IS NOT NULL) NOT VALID; -- instant ALTER TABLE users VALIDATE CONSTRAINT users_email_nn; -- scans, but under SHARE UPDATE EXCLUSIVE: -- reads and writes continue ALTER TABLE users ALTER COLUMN email SET NOT NULL; -- finds its proof, skips the scan The VALIDATE step has to be in its own transaction. Inside one transaction no lock is released until commit, so doing both in a BEGIN block holds the table for the whole validation and buys you nothing at all."}},{"@type":"Question","name":"Why did my CREATE INDEX CONCURRENTLY fail?","acceptedAnswer":{"@type":"Answer","text":"Almost certainly because it ran inside a transaction block, which PostgreSQL does not allow: ERROR: CREATE INDEX CONCURRENTLY cannot run inside a transaction block Most migration frameworks wrap each migration file in a transaction by default, so the correct fix gets rejected by the tooling that was trying to help. You have to opt out per migration — disable_ddl_transaction! in Rails, atomic = False in Django, -x in golang-migrate, an autocommit block in Alembic. The second thing to know is that a failed concurrent build leaves an INVALID index behind. It takes space, it is not used for queries, and it must be dropped before you retry: SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid;"}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 780px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; color: #17324a; margin: 0 0 14px; }
+    h2 { font-size: 1.1rem; color: #17324a; margin: 26px 0 8px; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; margin: 18px 0; }
+    pre { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { border: 1px solid #d5dbe3; padding: 7px 9px; text-align: left; vertical-align: top; }
+    th { background: #eef2f6; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; padding: 11px 15px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">SQL Migration Lock Check</a> · guide</p>
+  <h1>Why your migration locked the table</h1>
+  <p>The post-mortem that produced this page reads the same way every time: a one-line <code>ALTER TABLE</code> shipped on a Tuesday afternoon, the site returned errors for four minutes, and the statement itself ran in three milliseconds. Nobody was careless, and the migration was correct. What went wrong is a property of how PostgreSQL grants locks, and it is almost invisible until you have seen it once.</p>
+
+  <h2>The statement ran in 3ms. Why was the site down for four minutes?</h2>
+  <p>Because it spent those four minutes <em>waiting to start</em>, not running.</p>
+  <p><code>ALTER TABLE</code> needs an <code>ACCESS EXCLUSIVE</code> lock — the strongest one, which conflicts with everything including the <code>ACCESS SHARE</code> that a plain <code>SELECT</code> holds. Your migration arrived while some long query was still reading the table, so it could not proceed and joined the lock queue. That much is expected and harmless.</p>
+  <p>The part that turns a wait into an outage is what happened <em>behind</em> it.</p>
+
+  <h2>What is a lock queue and why does it block readers?</h2>
+  <p>PostgreSQL grants table locks in request order, and it will not reorder them to let a compatible pair through. Two <code>SELECT</code>s can share a table happily — but if an <code>ACCESS EXCLUSIVE</code> request is sitting between them in the queue, the second <code>SELECT</code> waits behind it rather than joining the first.</p>
+  <p>This is deliberate. Without it, a steady stream of readers on a busy table would starve a writer forever. The consequence, though, is that one blocked DDL statement converts into a full table stall:</p>
+  <pre>t=0     long analytics SELECT starts        (ACCESS SHARE, holds)
+t=30s   ALTER TABLE arrives                 (ACCESS EXCLUSIVE, queued)
+t=31s   ordinary SELECT arrives             (queued behind the ALTER)
+t=32s   ordinary SELECT arrives             (queued)
+        ... every request on this table now queues ...
+t=4m    analytics SELECT finishes
+t=4m    ALTER TABLE runs                    (3ms)
+t=4m    the backlog drains</pre>
+  <p>Between <code>t=31s</code> and <code>t=4m</code> the table was perfectly readable and nobody could read it. Your monitoring shows a latency cliff on one table, no slow query, and a migration that "took four minutes" — which sends the investigation at the migration, where there is nothing to find.</p>
+
+  <h2>How does <code>lock_timeout</code> fix this?</h2>
+  <p>It puts a bound on the <em>waiting</em> rather than on the work:</p>
+  <pre>SET lock_timeout = '3s';
+ALTER TABLE users ADD COLUMN ...;</pre>
+  <p>Now PostgreSQL gives up if the lock is not available within three seconds, raising an error instead of queueing indefinitely. Nothing is blocked for longer than three seconds, the migration fails cleanly, and you retry — most retries succeed immediately, because the slow query has since finished.</p>
+  <p>Without it, the default is to wait forever. Which means the worst-case duration of your migration is the worst-case duration of <em>any</em> query on that table, a number you do not control and probably do not know.</p>
+  <p class="note">Pair it with <code>statement_timeout</code> for the statements that do real work. They bound different things: <code>lock_timeout</code> bounds how long you wait to begin, <code>statement_timeout</code> bounds how long the work itself may take.</p>
+
+  <h2>Which statements lock, and which actually rewrite the table?</h2>
+  <p>Locking and rewriting are separate costs, and keeping them apart is most of what makes a migration reviewable. Everything in the first row is dangerous only because of the queue above; everything in the third holds the lock for minutes by design.</p>
+  <table>
+    <tr><th>Cost</th><th>Lock</th><th>Statements</th></tr>
+    <tr>
+      <td><strong>Metadata only</strong> — instant</td>
+      <td>ACCESS EXCLUSIVE, briefly</td>
+      <td><code>DROP COLUMN</code>, <code>RENAME</code>, <code>ADD COLUMN</code> with a constant or <code>STABLE</code> default, <code>DROP INDEX</code>, attaching a pre-built index with <code>USING INDEX</code></td>
+    </tr>
+    <tr>
+      <td><strong>Full scan</strong> — reads every row</td>
+      <td>ACCESS EXCLUSIVE, held throughout</td>
+      <td><code>SET NOT NULL</code> (without a validated <code>CHECK</code>), <code>ADD CONSTRAINT</code> / foreign key without <code>NOT VALID</code></td>
+    </tr>
+    <tr>
+      <td><strong>Full rewrite</strong> — writes every row</td>
+      <td>ACCESS EXCLUSIVE, held throughout</td>
+      <td><code>ALTER COLUMN TYPE</code>, <code>ADD COLUMN</code> with a <code>VOLATILE</code> default (<code>gen_random_uuid()</code>, <code>random()</code>), <code>VACUUM FULL</code>, <code>CLUSTER</code></td>
+    </tr>
+    <tr>
+      <td><strong>Index build</strong> — blocks writes only</td>
+      <td>SHARE</td>
+      <td><code>CREATE INDEX</code> without <code>CONCURRENTLY</code></td>
+    </tr>
+  </table>
+  <p>That last row is the one that gets missed. A <code>SHARE</code> lock lets reads through, so a health check that issues a <code>SELECT</code> keeps passing while every write to the table hangs. The symptom reaches you as connection-pool exhaustion or request timeouts, with nothing anywhere mentioning an index.</p>
+  <p>Two of these have exact fast paths worth memorising. <code>ADD COLUMN ... DEFAULT</code> has been metadata-only since PostgreSQL 11 <em>unless</em> the default is volatile — so <code>DEFAULT now()</code> is free and <code>DEFAULT gen_random_uuid()</code> rewrites the table, from statements that look the same at a glance. And <code>SET NOT NULL</code> skips its scan on PostgreSQL 12+ if a <em>validated</em> <code>CHECK (col IS NOT NULL)</code> already proves the fact, which turns a locked scan into three cheap steps:</p>
+  <pre>ALTER TABLE users ADD CONSTRAINT users_email_nn
+  CHECK (email IS NOT NULL) NOT VALID;      -- instant
+
+ALTER TABLE users VALIDATE CONSTRAINT users_email_nn;
+                    -- scans, but under SHARE UPDATE EXCLUSIVE:
+                    -- reads and writes continue
+
+ALTER TABLE users ALTER COLUMN email SET NOT NULL;
+                    -- finds its proof, skips the scan</pre>
+  <p>The <code>VALIDATE</code> step has to be in its own transaction. Inside one transaction no lock is released until commit, so doing both in a <code>BEGIN</code> block holds the table for the whole validation and buys you nothing at all.</p>
+
+  <h2>Why did my <code>CREATE INDEX CONCURRENTLY</code> fail?</h2>
+  <p>Almost certainly because it ran inside a transaction block, which PostgreSQL does not allow:</p>
+  <pre>ERROR:  CREATE INDEX CONCURRENTLY cannot run inside a transaction block</pre>
+  <p>Most migration frameworks wrap each migration file in a transaction by default, so the correct fix gets rejected by the tooling that was trying to help. You have to opt out per migration — <code>disable_ddl_transaction!</code> in Rails, <code>atomic = False</code> in Django, <code>-x</code> in golang-migrate, an autocommit block in Alembic.</p>
+  <p>The second thing to know is that a failed concurrent build leaves an <code>INVALID</code> index behind. It takes space, it is not used for queries, and it must be dropped before you retry:</p>
+  <pre>SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid;</pre>
+
+  <h2>Checking a migration before you run it</h2>
+  <p>Every pattern above is visible in the SQL text, which means it can be checked in a pull request rather than discovered in production. That is what <a href="./">this tool</a> does — paste a migration, or wire the CLI into CI with <code>--fail-on-risk</code>. It reads the file and nothing else: no connection string, no credentials, no network calls.</p>
+  <p><a class="cta" href="./">Check a migration</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. This is general information about PostgreSQL behaviour, not advice about your database, and it does not replace a qualified professional. Lock behaviour and fast paths vary by PostgreSQL version — verify against the version you actually run, on a copy of your data, before relying on any of it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

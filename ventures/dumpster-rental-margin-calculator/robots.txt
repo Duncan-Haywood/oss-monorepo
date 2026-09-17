@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://example.invalid/dumpster-rental-margin-calculator/sitemap.xml

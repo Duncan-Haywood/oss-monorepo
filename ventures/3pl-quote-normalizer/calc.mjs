@@ -683,12 +683,12 @@ export function returnDispositionSummary(input = {}) {
       ? `Restock already beats customer-keeps. It first wins once unit cost is ${money(comparison.restockBeatsKeepAt)} at this restockable rate.`
       : `Restock beats customer-keeps once unit cost reaches ${money(comparison.restockBeatsKeepAt)} at this restockable rate.`;
   const flipLine = restockableFlip.kind === "holds"
-    ? `${restockableFlip.path === "keep" ? "Customer-keeps" : restockableFlip.path === "restock" ? "Restock" : "Destroy"} stays cheapest through ${restockableFlip.at}% restockable.`
+    ? `${restockableFlip.path === "keep" ? "Customer-keeps" : restockableFlip.path === "restock" ? "Restock" : restockableFlip.path === "tie" ? "A tie" : "Destroy"} stays cheapest through ${restockableFlip.at}% restockable.`
     : restockableFlip.kind === "flips"
       ? `Cheapest path flips from ${restockableFlip.from} to ${restockableFlip.to} at ${restockableFlip.at}% restockable.`
       : "No restockable-rate sweep.";
   const unitFlipLine = unitCostFlip.kind === "holds"
-    ? `${unitCostFlip.path === "keep" ? "Customer-keeps" : unitCostFlip.path === "restock" ? "Restock" : "Destroy"} stays cheapest through ${money(unitCostFlip.at)} unit cost.`
+    ? `${unitCostFlip.path === "keep" ? "Customer-keeps" : unitCostFlip.path === "restock" ? "Restock" : unitCostFlip.path === "tie" ? "A tie" : "Destroy"} stays cheapest through ${money(unitCostFlip.at)} unit cost.`
     : unitCostFlip.kind === "flips"
       ? `Cheapest path flips from ${unitCostFlip.from} to ${unitCostFlip.to} at ${money(unitCostFlip.at)} unit cost.`
       : "No unit-cost sweep.";

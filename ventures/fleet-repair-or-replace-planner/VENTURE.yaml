@@ -1,0 +1,122 @@
+name: fleet-repair-or-replace-planner
+description: Free browser planner for owners of small trade and service fleets that costs keeping each van, truck or machine (annual repair spend plus the revenue lost to downtime days) against replacing it (net capital spread straight-line over expected service life, plus the replacement's own running costs), then ranks the whole fleet by annual saving per dollar of capital and fills a stated capital budget in that order. Entirely client-side; nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml, following
+# the same precedent as quarterly-estimated-tax-calendar and
+# 1099k-reconciliation-worksheet (see those ventures' own VENTURE.yaml
+# comments). `session_gate.py` reported the `build-now` pipeline empty on
+# 2026-09-11 -- every scored candidate has graduated -- and DIRECTION.md's
+# 'Owner direction, 2026-09-06' ranks a genuinely new venture first in that
+# situation.
+#
+# A genuinely different mechanism from both shapes portfolio/pipeline/README.md
+# steers sessions away from: the <trade>-bid-calculator archetype (a single
+# formula pricing one job for one trade) and the -check/-checker archetype (a
+# single-request classifier over a pasted file or URL). This is neither. It is
+# a multi-row comparison plus a budget-constrained ranking across rows --
+# closest in shape within this fleet to which-job-first (ranking a list) and
+# payment-reconciliation-workbench (multi-row worksheet), applied to a capital
+# decision neither touches.
+#
+# duplicate_check.py against "Budget-constrained repair-or-replace planner for
+# small trade and service fleets: list every service vehicle or major
+# equipment item with its age, hours, annual repair spend, downtime days and
+# resale value, then rank which ones to replace this year against a fixed
+# capital budget using equivalent annual cost" scored nothing >= 0.45 (run
+# 2026-09-12). Top matches, all read rather than taken on the number:
+# fire-extinguisher-inspection-route-margin (0.10, a per-stop route pricing
+# tool matching only on generic "margin"/"equipment" vocabulary),
+# ice-dam-removal-bid-calculator (0.09, a single-job bid formula),
+# equipment-lease-buyout-calculator (0.09 -- the genuine nearest neighbour,
+# and read closely: it compares buying out ONE asset's lease against
+# returning it and replacing, converting a financing choice to cost per month
+# of use. This tool never touches lease terms and answers the question one
+# level up: across several owned assets, which do I act on at all, and in what
+# order, given one budget. The two are cross-linked in both directions),
+# where-to-sell-calculator (0.08, marketplace channel selection),
+# equipment-rental-break-even (prices rental bookings on equipment already
+# owned). which-job-first was checked directly rather than by score: it is a
+# pairwise ranker over prospective *jobs* with no financial model at all, not
+# a cost comparison over owned assets. No venture directory or
+# screened-out.md row mentions "repair or replace", "equivalent annual cost",
+# or "downtime".
+#
+# Also checked against the ethics/liability standing constraints: not an
+# appraisal, valuation, financing or insurance product, and it ships zero AI.
+# Every input is a figure the owner already holds (their own repair ledger and
+# downtime log, a dealer quote, a trade-in appraisal) and every output is
+# framed as a worksheet to verify -- never a determination, a valuation, or a
+# financing recommendation. The owner remains the one who commits the capital.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 6 -- being wrong here costs the owner a worksheet
+#     that wants a second look before capital is committed, not a lawsuit or a
+#     third party's money. The tool invents no number: the arithmetic is
+#     addition, subtraction and one division, all re-derivable by hand, and
+#     the explainer page walks the whole worked example precisely so it can
+#     be checked. Three properties keep it contained. It is willing to say
+#     "keep" -- sampleRows() ships a row the arithmetic recommends keeping and
+#     calc.test.mjs asserts it, because a planner that could never say keep
+#     would be a sales tool for capital spending. `not-a-determination` and
+#     `undiscounted-eac` both fire unconditionally on every non-empty plan
+#     rather than only when something looks wrong, so the output cannot be
+#     mistaken for an endorsement. And `missing-replacement-cost` fires
+#     rather than letting a blank quote read as zero capital, which would
+#     otherwise make replacing always look like the win. Scored a point below
+#     1099k-reconciliation-worksheet's 7 for one honest reason: that tool
+#     reconciles a figure a third party already reported, changing nothing
+#     about what was filed, whereas this one informs a forward-looking capital
+#     commitment the owner has not yet made.
+#   ethical_robustness: 8 -- deterministic arithmetic over the owner's own
+#     figures, no dark patterns, nothing uploaded, no degradation for users as
+#     traffic grows. The direction a business here would be tempted to bias --
+#     toward recommending purchases, which is what an equipment dealer's or a
+#     lender's calculator is for -- is not an incentive that exists: there is
+#     no transaction, no referral, no lead capture, no finance partner, and no
+#     revenue tied to the recommendation, only an unrelated optional donation
+#     link. The tool's disclosures push the other way, toward re-checking a
+#     number that would overstate the case for spending.
+#
+# Distribution: "repair or replace work truck", "when to replace a service
+# van", "equivalent annual cost equipment replacement" and "how do I decide
+# which truck to replace first" are recurring, high-intent searches from an
+# audience with real money and a real capital decision -- r/HVAC, r/Plumbing,
+# r/electricians, r/Construction, r/smallbusiness and r/Truckers all see the
+# "is it worth fixing or should I just replace it" thread regularly. What no
+# free incumbent does is value downtime and rank a whole fleet against a
+# budget: the calculators that rank for these phrases belong to equipment
+# dealers, fleet-leasing companies and fleet-management SaaS vendors, all of
+# whom have a reason to prefer one answer, and all of which gate the
+# multi-asset version behind a demo or a subscription.
+hypotheses:
+  - claim: An owner who lands here from a "repair or replace work truck" search will enter the downtime days they had not previously been costing, and that line alone will change which asset they were planning to replace first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An owner with more than three assets will use the capital-budget ranking to produce one exportable plan for a lender or a partner, rather than deciding each asset separately, and that export is what drives a return visit at the next budget cycle.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/fleet-repair-or-replace-planner/
+  analytics: null

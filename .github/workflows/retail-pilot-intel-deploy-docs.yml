@@ -31,6 +31,7 @@ defaults:
 jobs:
   build:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -64,6 +65,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       pages: write
       id-token: write
@@ -72,7 +74,9 @@ jobs:
     # paths. Gate it on an owner-set variable (mirrors deploy-vercel below) so
     # the build always validates but publishing only fires once Pages is on.
     #
-    # Deliberately NOT `GITHUB_PAGES_ENABLED`. GitHub serves one Pages site per
+    # Deliberately NOT `PAGES_ENABLED` (originally spelled `GITHUB_PAGES_
+    # ENABLED`, which GitHub rejects outright -- Actions configuration
+    # variables cannot start with `GITHUB_`). GitHub serves one Pages site per
     # repository, and that variable now publishes `portfolio-pages.yml` — the
     # ~30 free calculators the portfolio's deploy-first priority is about. If
     # both workflows read the same flag, one owner flip would make two
@@ -83,6 +87,25 @@ jobs:
     # the origin to them instead; the Vercel job below is the better route if
     # both are wanted at once.
     if: ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
+    # Added 2026-09-17, found by `ventures/deploy-concurrency-check` scanning
+    # this repository's own workflows. The block above already names the hazard
+    # -- "one owner flip would make two deployments race and the live site would
+    # flap between them" -- and mitigates it with two separate variables. That is
+    # a policy mitigation: it holds exactly as long as nobody sets both flags.
+    #
+    # This is the mechanical one. `portfolio-pages.yml`'s Pages deploy job uses
+    # the group `github-pages-deploy`, deliberately un-keyed by ref because
+    # GitHub serves one Pages site per repository. Sharing that exact group name
+    # is what makes these two jobs queue against each other rather than race: a
+    # concurrency group is only a queue for the runs inside it, so two correct
+    # workflows under two different group names have no ordering between them at
+    # all. Keep this string identical to the one in `portfolio-pages.yml`.
+    #
+    # `cancel-in-progress: false` matches that job too -- an in-flight publish
+    # should finish rather than leave the live site half-swapped.
+    concurrency:
+      group: github-pages-deploy
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -94,6 +117,7 @@ jobs:
   deploy-vercel:
     needs: build
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: read
     if: ${{ vars.VERCEL_DEPLOY == 'true' }}

@@ -27,7 +27,7 @@ the control plane unless you change the Job tolerations in git.
 ## What Tofu is allowed to do
 
 - Import the two servers (`prevent_destroy = true`).
-- Attach a new private network (`10.42.0.10` / `10.42.0.11`) so k3s join
+- Attach a new private network (`10.10.0.10` / `10.10.0.11`) so k3s join
   traffic can leave the public internet.
 - Optionally take over the existing firewall so 6443 can later shrink.
 - Never replace either server. A plan that says `must be replaced` is a
@@ -52,8 +52,10 @@ tofu plan                        # import + in-place attach only
 
 GitHub Actions may run `tofu validate` / `tofu fmt`, and probes
 `HETZNERREADAPIKEY` as Read-only (mapped to env `HCLOUD_TOKEN`). It
-must not apply. Dispatch preflight uses `HETZNERSSHKEY`. Names live in
-`OWNER_CHECKLIST.md`.
+must not apply. Dispatch preflight uses `HETZNERSSHKEY` — which currently
+holds a public key and so cannot open a session; see `OWNER_CHECKLIST.md`.
+Names live there too. `Public surface check` needs no secret and answers
+what the hostnames serve regardless.
 
 Hetzner has no hard euro spend cap (usage alerts are email-only). A
 Write token in CI is unbounded create/resize. Do not add one. See

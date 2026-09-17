@@ -79,6 +79,30 @@ class VatChecksumTest(unittest.TestCase):
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL123456783B01"}, "supplier")
         self.assertEqual([item["rule"] for item in findings], ["INV-023"])
 
+    def test_ie_legacy_letter_second_character_shape_rearranges_before_weighing(self):
+        # The 8-character Irish shape covers two different real numbers: the
+        # common one is 7 digits plus a check letter (already covered by
+        # IE6433435F above); the legacy one is a digit, a letter, 5 digits,
+        # and a check letter -- e.g. "8Z49289F". Revenue's own check-digit
+        # definition does not weigh a legacy number as typed. It first
+        # rearranges it to "0" + the middle 5 digits + the leading digit,
+        # *then* applies the same weights [8,7,6,5,4,3,2] mod 23:
+        # "0" + "49289" + "8" = "0492898" ->
+        # 0*8+4*7+9*6+2*5+8*4+9*3+8*2 = 167, 167 % 23 = 6 -> "F" (0 is "W",
+        # so 6 is the 7th letter after it: "F").
+        self.assertEqual(
+            inspect_party_vat({"id": "S1", "name": "A", "vat_id": "IE8Z49289F"}, "supplier"), []
+        )
+        # Same number, wrong check letter.
+        findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "IE8Z49289X"}, "supplier")
+        self.assertEqual([item["rule"] for item in findings], ["INV-023"])
+        # The old code spliced a literal "7" in for the letter and left the
+        # leading digit in place instead of moving it to the end -- it
+        # computed a checksum for "8749289" (never rearranged, never
+        # prepended a "0"), landing on weighted sum 232, 232 % 23 = 2 -> "B".
+        # Every genuinely valid legacy-format Irish VAT number therefore
+        # failed this check.
+
     def test_explicit_wrong_shape_is_format_not_checksum(self):
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "DE123"}, "customer")
         self.assertEqual([item["rule"] for item in findings], ["INV-022"])

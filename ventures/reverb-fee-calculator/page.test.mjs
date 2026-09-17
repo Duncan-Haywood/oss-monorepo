@@ -14,6 +14,7 @@ import {
   compareBump,
   compareReturnResolution,
 } from './calc.mjs';
+import { whereToSellUrl } from './to-where-to-sell.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./should-i-take-this-reverb-offer.html', import.meta.url), 'utf8');
@@ -23,6 +24,7 @@ const safeShippingSeo = readFileSync(new URL('./should-i-buy-reverb-safe-shippin
 const consignmentSeo = readFileSync(new URL('./should-i-consign-this-reverb-listing.html', import.meta.url), 'utf8');
 const bumpSeo = readFileSync(new URL('./should-i-bump-this-reverb-listing.html', import.meta.url), 'utf8');
 const returnSeo = readFileSync(new URL('./should-i-take-the-return-or-refund-on-reverb.html', import.meta.url), 'utf8');
+const vsSeo = readFileSync(new URL('./vs-reverbs-selling-fees-page.html', import.meta.url), 'utf8');
 
 function money(value) {
   return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
@@ -68,6 +70,8 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /id="bumpRows"/);
   assert.match(html, /compareBump/);
   assert.match(html, /should-i-bump-this-reverb-listing.html/);
+  assert.match(html, /id="copyCounterOffer"/);
+  assert.match(html, /counterOfferMessage/);
 });
 
 test('the SEO page uses the same worked example the calculator defaults produce', () => {
@@ -188,21 +192,78 @@ test('the return/refund SEO page uses the same worked example the calculator def
 // should-i-eat-the-shipping-on-reverb.html, should-i-take-the-return-or-
 // refund-on-reverb.html, and should-i-take-this-reverb-offer.html shipped
 // without them; the last of those was also missing robots/canonical entirely.
+test('the incumbent-comparison page links back, names Reverb\'s own resources honestly, and cross-links to real anchors', () => {
+  assert.match(html, /vs-reverbs-selling-fees-page\.html/);
+  assert.match(vsSeo, /<a href="\.\/">/);
+  // Names Reverb's own domain and help center so a reader can check the
+  // source directly, and states the published rate figures Reverb itself
+  // publishes (a schedule, not a black-box calculator's output) rather than
+  // guessing at anything only Reverb's live systems could confirm.
+  assert.match(vsSeo, /reverb\.com\/selling\/selling-fees/);
+  assert.match(vsSeo, /help\.reverb\.com/);
+  assert.match(vsSeo, /5% selling fee/);
+  assert.match(vsSeo, /3\.19% \+ \$0\.49/);
+  assert.match(vsSeo, /2\.99% \+ \$0\.49/);
+  assert.match(vsSeo, /Preferred Seller/);
+  assert.match(vsSeo, /Earnings/);
+  assert.match(vsSeo, /not affiliated with, endorsed by, or sponsored by Reverb/i);
+  assert.match(vsSeo, /trademarks of Reverb\.com, Inc\./i);
+  assert.match(vsSeo, /No warranty/);
+  assert.match(vsSeo, /no SLA/i);
+  // Every cross-link this page makes back into the calculator must resolve
+  // to an id that actually exists there, or a reader following it lands
+  // nowhere useful.
+  for (const anchor of ['offer-compare', 'shipping-compare', 'safe-shipping-compare', 'consignment-compare', 'bump-compare', 'return-compare']) {
+    assert.match(vsSeo, new RegExp(`#${anchor}"`), `vs-page should link to #${anchor}`);
+    assert.match(html, new RegExp(`id="${anchor}"`), `index.html should have id="${anchor}"`);
+  }
+});
+
+test('the generic-method comparison page links back, names no specific product, and is linked from index', () => {
+  const spreadsheetSeo = readFileSync(
+    new URL('./vs-tracking-offers-in-a-spreadsheet.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(html, /vs-tracking-offers-in-a-spreadsheet\.html/);
+  assert.match(spreadsheetSeo, /<a href="\.\/">/);
+  assert.match(spreadsheetSeo, /names no specific product/i);
+  assert.match(spreadsheetSeo, /No warranty/);
+  assert.match(spreadsheetSeo, /no SLA/i);
+  assert.match(spreadsheetSeo, /where-to-sell-calculator\/"/);
+});
+
 test('every published page carries Open Graph tags', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
-  assert.ok(pages.length >= 8, 'expected at least the 8 known pages in this venture');
+  assert.ok(pages.length >= 10, 'expected at least the 10 known pages in this venture');
   for (const page of pages) {
     const source = readFileSync(new URL(page, dir), 'utf8');
     assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
     assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
+    // og:type was missing on every page in this venture (index.html and all
+    // nine "should-i-..."/"vs-..." pages) while the sibling
+    // where-to-sell-calculator venture carried it everywhere — a fleet
+    // consistency gap rather than a deliberate omission.
+    assert.match(source, /<meta property="og:type" content="website">/, `${page} is missing og:type`);
   }
 });
 
+test('the result panel is announced to screen readers when it updates', () => {
+  // paint() rewrites the hero number, the <dl> breakdown, and the #paths
+  // table body in place on every keystroke, with no page reload. Before
+  // this fix the only aria-live element on the page was #status (the
+  // copy-link message render() never touches), so a screen-reader user
+  // changing an input got no announcement that the offer had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
 test('every worked-example sub-page carries a robots meta and a matching canonical link', () => {
-  // index.html is the app shell and does not follow this convention; every
-  // "should-i-..." doc page does, and should-i-take-this-reverb-offer.html
-  // shipped without either while its five siblings had both.
+  // should-i-take-this-reverb-offer.html once shipped without either while
+  // its five siblings had both.
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html') && name !== 'index.html');
   for (const page of pages) {
@@ -210,4 +271,106 @@ test('every worked-example sub-page carries a robots meta and a matching canonic
     assert.match(source, /<meta name="robots" content="index, follow">/, `${page} is missing a robots meta tag`);
     assert.match(source, new RegExp(`<link rel="canonical" href="${page.replace('.', '\\.')}"`), `${page} is missing (or has a mismatched) canonical link`);
   }
+});
+
+// index.html used to be exempted from the check above as "the app shell",
+// but where-to-sell-calculator/index.html — the same "app shell" shape —
+// already carries a robots meta, a canonical link and a favicon on its own
+// index.html, so the exemption was an inconsistency rather than a rule:
+// the tool's own landing page is the one page in the venture most worth
+// having a canonical URL, since the share-link feature appends a URL
+// fragment to this exact page.
+test('index.html itself carries a robots meta, a canonical link, a favicon, and og:type', () => {
+  assert.match(html, /<meta name="robots" content="index, follow">/, 'index.html is missing a robots meta tag');
+  assert.match(html, /<link rel="canonical" href="\.">/, 'index.html is missing (or has a mismatched) canonical link');
+  assert.match(html, /<link rel="icon" href="data:image\/svg\+xml,/, 'index.html is missing a favicon');
+  assert.match(html, /<meta property="og:type" content="website">/, 'index.html is missing og:type');
+});
+
+// where-to-sell-calculator already hands a Reverb comparison into this page;
+// without a crawlable link back, a visitor who landed on Reverb first has no
+// path to the multi-channel ranking that owns the handoff.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// index.html carries a live, prefilled link into where-to-sell-calculator
+// (built by to-where-to-sell.mjs from whatever the visitor typed) but the
+// eight "should-i-..." worked-example pages are the actual search-landing
+// pages for this venture's untested hypotheses, and none of them offered a
+// way into the cross-channel comparison at all -- a seller who searched
+// "should I take this Reverb offer" and landed there first had no path to
+// the ranking against eBay, Etsy, Amazon, or their own store, only a path
+// back to this same tool's own index. These pages are static, so the link
+// carries the worked example's own numbers (REVERB_DEFAULTS) rather than a
+// live value -- computed here from the same function index.html uses, so a
+// change to the payload shape or the worked example fails this test instead
+// of quietly landing eight dead or stale links.
+test('every worked-example page hands its numbers to the where-to-sell calculator', () => {
+  const dir = new URL('./', import.meta.url);
+  const expectedHref = whereToSellUrl(REVERB_DEFAULTS);
+  const pages = readdirSync(dir).filter(
+    (name) => name.startsWith('should-i-') && name.endsWith('.html'),
+  );
+  assert.ok(pages.length >= 8, 'expected at least the 8 known worked-example pages');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.ok(
+      source.includes(`href="${expectedHref}"`),
+      `${page} is missing (or has a stale) link into the where-to-sell calculator`,
+    );
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Invalid input has a visible error state, not a silent freeze
+// ---------------------------------------------------------------------------
+//
+// Every function in calc.mjs throws on an input it cannot price -- a blank
+// field mid-edit, a negative number, percentage fees that add to 100% or
+// more. Clearing a number input to retype it is an ordinary interaction, and
+// before this the page's own render function had no try/catch around any of
+// that arithmetic: the throw escaped the `input` listener uncaught and the
+// calculator froze at its last good render with nothing on screen to say why.
+// These checks are static (no DOM here, matching this file's existing
+// jsdom-free style), so they assert the markup and wiring a real browser
+// needs to show the error rather than executing the script.
+
+test('calc.mjs genuinely throws on a blank or invalid input, so the page must handle it', () => {
+  assert.throws(() => compareOfferToList({ ...REVERB_DEFAULTS, price: '' }));
+  assert.throws(() => compareOfferToList({ ...REVERB_DEFAULTS, offerPrice: '-5' }));
+  assert.throws(() => compareOfferToList({
+    ...REVERB_DEFAULTS,
+    marketplaceRate: 60,
+    paymentRate: 40,
+    givesRate: 5,
+  }));
+});
+
+test('the page has a dedicated error banner, hidden until an input fails to price', () => {
+  assert.match(html, /id="inputError"[^>]*hidden/, 'error banner missing or not hidden by default');
+  // Inside the same aria-live="polite" result panel as the hero number, so a
+  // screen reader announces it the same way it announces a normal update --
+  // no separate live region to keep in sync with the one that already exists.
+  const resultSection = html.match(/<section class="result"[^>]*aria-live="polite"[\s\S]*?<\/section>/);
+  assert.ok(resultSection, 'result panel with aria-live="polite" not found');
+  assert.match(resultSection[0], /id="inputError"/, 'error banner must sit inside the live result panel');
+});
+
+test('paint() wraps its arithmetic in try/catch and shows the caught message', () => {
+  assert.match(html, /function paint\(\)/);
+  assert.match(html, /try\s*\{\s*paintResults\(inputs\)/, 'paint() must try the rendering call');
+  assert.match(html, /catch \(error\)\s*\{\s*showInputError\(/, 'a thrown error must reach showInputError');
+  assert.match(html, /function showInputError\(message\)/);
+  assert.match(html, /function clearInputError\(\)/);
+});
+
+test('an invalid draft is still saved locally, so a mid-edit value survives a reload', () => {
+  // localStorage.setItem must happen before the try/catch, not inside
+  // paintResults -- otherwise a throw skips saving the very input the seller
+  // is in the middle of typing.
+  const paintBody = html.match(/function paint\(\)\s*\{([\s\S]*?)\n    \}/);
+  assert.ok(paintBody, 'paint() body not found');
+  assert.match(paintBody[1], /localStorage\.setItem\(INPUTS_KEY/);
+  assert.match(paintBody[1], /try\s*\{/);
 });

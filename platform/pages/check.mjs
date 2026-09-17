@@ -101,12 +101,20 @@ const LOC_RE = /<loc>([^<]+)<\/loc>/g;
 // still checked as a product.
 export const CATEGORY_DIR = 'c';
 export const ABOUT_DIR = 'about';
+// The comparison index — every `vs-<product>.html` page in the catalogue,
+// grouped by product. Same shape as `about`: a page the build writes about the
+// site, not a venture, so it has no launch date and no card on the hub.
+export const COMPARE_DIR = 'compare';
+// The guides index — every page a venture ships beside its calculator, grouped
+// by trade and by tool. Same shape as `about` and `compare`: a page the build
+// writes about the site, not a venture.
+export const GUIDES_DIR = 'guides';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
 // them — the hub links these from its footer, which is the right weight for a
 // page about the site rather than a tool.
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -114,6 +122,13 @@ export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR]);
 // liability — the one defect in this file with legal weight rather than just
 // broken-link weight.
 const DISCLAIMER_MARKER = /no warranty/i;
+
+// A page that asked to stay out of search. Two checks below exempt such a page
+// for the same reason -- the sitemap-coverage check and the hub-reachability
+// walk -- so this is one constant rather than the same literal written twice.
+// A page declaring it and then being listed, or linked as a destination, is the
+// contradiction worth reporting; one declaring it and staying out is correct.
+const NOINDEX_RE = /<meta name="robots" content="noindex">/i;
 
 // The budget a published description has to fit, restated rather than imported.
 // This file checks the artifact `build.mjs` produced and is deliberately not
@@ -657,13 +672,99 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  // The comparison index, on the same terms as the About page and for the same
+  // reason: it is the only cross-venture route between the `vs-<product>`
+  // pages, each of which is otherwise linked from exactly one place — its own
+  // tool's entry page. A build that stopped emitting it, or emitted it with
+  // nothing linking it, would look completely healthy everywhere else here,
+  // and the whole point of the page is being reachable.
+  //
+  // It must also actually list something. An empty index is the failure mode
+  // this page has that About does not: `discoverComparisons` reads the venture
+  // tree, so a change to the filename convention or to `sourceDir` resolution
+  // would render a page with a headline, a disclaimer, and no comparisons —
+  // valid HTML, no dead links, and worthless.
+  {
+    const relative = path.join(COMPARE_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) {
+      problems.push(`${COMPARE_DIR}/: did not ship, so the comparison pages have no cross-venture index`);
+    } else {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="compare\/"/.test(hubHtml)) {
+        problems.push(`${COMPARE_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+      const linked = new Set(
+        [...html.matchAll(/href="\.\.\/([a-z0-9][a-z0-9-]*)\/vs-[^"]+"/g)].map((m) => m[1]),
+      );
+      if (linked.size === 0) {
+        problems.push(`${relative}: lists no comparison pages, so it is an empty index`);
+      }
+      for (const slug of linked) {
+        if (!productDirs.includes(slug)) {
+          problems.push(`${relative}: links "${slug}" but no such product shipped`);
+        }
+      }
+    }
+  }
+
+  // The guides index, on exactly the same terms as the comparison index above
+  // and for the same reason. It is the only cross-venture route to the 342
+  // "how much should I charge for X" pages the ventures wrote, and measured on
+  // 2026-09-07, 64 of those had one inbound link in the whole artifact — their
+  // own tool's entry page — so a build that stopped emitting this index, or
+  // emitted it with nothing linking it, would put the site's largest body of
+  // content back behind a sitemap-only discovery path and look healthy
+  // everywhere else in this file.
+  //
+  // The empty-index check matters more here than it does for comparisons:
+  // `discoverGuides` reads the *built* tree, so a change to `isGuidePage` or to
+  // the output layout would render a page with a headline, a disclaimer and no
+  // guides — valid HTML, no dead links, and worthless.
+  {
+    const relative = path.join(GUIDES_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) {
+      problems.push(`${GUIDES_DIR}/: did not ship, so the guide pages have no cross-venture index`);
+    } else {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="guides\/"/.test(hubHtml)) {
+        problems.push(`${GUIDES_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+      const linked = new Set(
+        [...html.matchAll(/href="\.\.\/([a-z0-9][a-z0-9-]*)\/[^"]+\.html"/g)].map((m) => m[1]),
+      );
+      if (linked.size === 0) {
+        problems.push(`${relative}: lists no guide pages, so it is an empty index`);
+      }
+      for (const slug of linked) {
+        if (!productDirs.includes(slug)) {
+          problems.push(`${relative}: links "${slug}" but no such product shipped`);
+        }
+      }
+    }
+  }
+
   // Same reachability argument as the hub, for the machine-readable door. A
   // tool missing from llms.txt is invisible to an assistant recommending one,
   // and nothing else in the artifact would show it: every page still resolves.
   const llms = await fs.readFile(path.join(site, 'llms.txt'), 'utf8').catch(() => null);
   if (llms !== null) {
+    // The parent segment is captured as well as the leaf, because a leaf alone
+    // cannot tell a product from a page filed *under* a site-own directory.
+    // `/compare/jobber/` is one of the comparison index's per-product pages,
+    // and reading its leaf in isolation says a product called `jobber` shipped
+    // — which is both false and, worse, the reading that would make a real
+    // missing product look fine. Only URLs whose parent is the site root are
+    // product claims.
     const listed = new Set(
-      [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/\)/g)].map((m) => m[1]),
+      [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/([^/)]+)\/\)/g)]
+        .filter((m) => !SITE_OWN_DIRS.has(m[1]))
+        .map((m) => m[2]),
     );
     for (const product of productDirs) {
       if (!listed.has(product)) {
@@ -916,6 +1017,19 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  // Resolved (site-relative, filesystem-absolute) targets of every internal
+  // `href`/`src` seen anywhere in the artifact's markup. Built alongside the
+  // dead-link scan below — same targets, same resolution — and consulted
+  // afterward by the orphan-page check: a target only ever lands here when a
+  // real page actually points at it.
+  const inboundLinks = new Set();
+
+  // The same edges as `inboundLinks`, kept with their source so they form a
+  // graph rather than a set of destinations. The reachability walk below needs
+  // to know *which page* linked somewhere; the orphan check only needs to know
+  // that something did. Markup edges between HTML pages only -- see `navigable`.
+  const outboundPages = new Map();
+
   for (const relative of files) {
     const extension = path.extname(relative).toLowerCase();
     if (!TEXT_EXTENSIONS.has(extension)) continue;
@@ -926,13 +1040,38 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
     if (!LINKED_EXTENSIONS.has(extension)) continue;
 
-    const markupOnly = text.replace(SCRIPT_OR_STYLE_RE, '');
+    // REFERENCE_RE only makes sense against real markup: an `.html` file with
+    // its <script>/<style> bodies stripped. A `.mjs`/`.js` file has no such
+    // wrapper to strip -- its entire content is script, the same content
+    // SCRIPT_OR_STYLE_RE exists to exclude -- so scanning it for href/src finds
+    // whatever `href="${...}"` template-literal markup the module builds at
+    // runtime and misreads the unevaluated placeholder as a dead link. Several
+    // ventures build result rows this way (epk-generator's generator.mjs among
+    // them); IMPORT_RE/DYNAMIC_IMPORT_RE below are what actually matter for a
+    // script file, and they already scan the unstripped text on every
+    // extension in LINKED_EXTENSIONS.
+    const markupOnly = extension === '.html' ? text.replace(SCRIPT_OR_STYLE_RE, '') : '';
+    // Split rather than concatenated, because the reachability walk below may
+    // only follow the first kind. A crawler navigates *markup* on a page it
+    // rendered; an `import` specifier is a module the browser fetches, not a
+    // document anyone can land on, and counting one as a hop would report a
+    // page as reachable by a route no visitor or crawler can take.
+    const markupTargets = [...markupOnly.matchAll(REFERENCE_RE)].map((m) => m[1]);
     const targets = [
-      ...[...markupOnly.matchAll(REFERENCE_RE)].map((m) => m[1]),
+      ...markupTargets,
       ...[...text.matchAll(IMPORT_RE)].map((m) => m[1]),
       ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
     ];
+    const navigable = new Set(markupTargets);
     for (const target of targets) {
+      // SCRIPT_OR_STYLE_RE only strips `<script>` wrappers inside HTML; a
+      // `.mjs`/`.js` file has no such wrapper, so its raw source is scanned
+      // as-is. A generator that builds a document client-side from
+      // user-supplied data -- `` `<a href="${escapeHtml(url)}">` `` in
+      // epk-generator/generator.mjs, same shape as the tender-radar case
+      // above -- has a literal `${...}` between the quotes, which can never
+      // be a real static path: it is JS source, not the rendered page.
+      if (target.includes('${')) continue;
       if (isExternal(target)) continue;
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;
@@ -949,6 +1088,98 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
       }
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
+      else {
+        inboundLinks.add(resolved);
+        if (extension === '.html' && navigable.has(target) && resolved.endsWith('.html')) {
+          let edges = outboundPages.get(relative);
+          if (!edges) outboundPages.set(relative, (edges = new Set()));
+          edges.add(path.relative(site, resolved));
+        }
+      }
+    }
+  }
+
+  // ---- Orphaned pages: a link resolving is not the same as a link existing -
+  //
+  // The dead-link scan above proves every link's *target* exists. It says
+  // nothing about the reverse: a page can ship correct, dead-link-free, listed
+  // in the sitemap, disclaimered — and still have no `href` anywhere on the
+  // site pointing at it, reachable only by a crawler reading the sitemap
+  // directly, not by a visitor clicking anything. #2664 shipped exactly that
+  // (a comparison page with zero inbound hrefs, fixed forward in #2667), and
+  // nothing in this file caught it: sitemap coverage was fine, dead-link
+  // scanning was fine, the disclaimer was there. An internal link is what
+  // carries ranking signal between pages and is how a visitor already on the
+  // tool finds the deeper page — sitemap-only discovery is the weak half.
+  //
+  // Scoped to non-index pages inside a product directory: `index.html` has its
+  // own reachability check above (the hub), and so do the category and about
+  // pages. This is the class those checks do not reach — the comparison
+  // pages, the "how much to charge for X" articles, the decision pages a
+  // venture adds under its own slug.
+  for (const product of productDirs) {
+    const dir = path.join(site, product);
+    const subEntries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
+    for (const entry of subEntries) {
+      if (!entry.isFile() || !entry.name.endsWith('.html') || entry.name === 'index.html') continue;
+      const subpage = path.join(dir, entry.name);
+      if (!inboundLinks.has(subpage)) {
+        problems.push(
+          `${path.relative(site, subpage)}: no page on the site links to it — only a crawler ` +
+            'reading the sitemap directly can find it, not a visitor or a search result',
+        );
+      }
+    }
+  }
+
+  // ---- Reachable from the hub: an inbound link is not the same as a route ---
+  //
+  // The orphan check above proves every product subpage has *an* inbound link.
+  // It cannot prove anyone can get there, because a link from a page that is
+  // itself unreachable still counts: a cluster of pages linking only to each
+  // other passes it while nothing on the site leads in. What decides whether a
+  // page is found is a path from the hub, and nothing here asserted one.
+  //
+  // That gap is load-bearing on this origin specifically. The catalogue serves
+  // from a project-Pages *subpath*, so the `robots.txt` this build publishes is
+  // not the file a crawler reads -- that one belongs to the owner's user-level
+  // Pages site -- and the `Sitemap:` line in it has never been seen. Crawling
+  // is allowed; *enumeration* is not. `pages_state.py`'s `indexing` row is the
+  // live reading, and while it says `subpath-robots` the link graph is the only
+  // route into all 984 indexable pages. A page reachable only from the sitemap
+  // is, on this origin, reachable from nothing.
+  //
+  // Measured when this was added: 984 of 986 reachable, maximum depth 2, the
+  // two exceptions being `404.html` and the `noindex` offline shell. So this
+  // ships green and exists to catch the regression -- a hub that stops emitting
+  // cards, a category page that drops its list -- which would otherwise be
+  // invisible in every other check here and would cost the whole catalogue.
+  {
+    const reachable = new Set(['index.html']);
+    let frontier = ['index.html'];
+    while (frontier.length) {
+      const next = [];
+      for (const page of frontier) {
+        for (const target of outboundPages.get(page) ?? []) {
+          if (reachable.has(target)) continue;
+          reachable.add(target);
+          next.push(target);
+        }
+      }
+      frontier = next;
+    }
+    for (const page of servedPages) {
+      if (page === '404.html' || reachable.has(page)) continue;
+      // A page that asked not to be indexed is allowed to be unreachable --
+      // the offline fallback is a shell, and a route to it would be a search
+      // result for a calculator that does not compute. Same exemption, and the
+      // same reasoning, as the sitemap-coverage check below.
+      const html = await fs.readFile(path.join(site, page), 'utf8').catch(() => '');
+      if (NOINDEX_RE.test(html)) continue;
+      problems.push(
+        `${page}: no path of links from index.html reaches it — with sitemap ` +
+          'enumeration unavailable on this origin, nothing can discover it',
+      );
     }
   }
 
@@ -979,7 +1210,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     // indexed it would be the search result for a calculator. A page that
     // declares noindex and is then listed in a sitemap is the contradiction;
     // one that declares it and stays out is correct.
-    if (/<meta name="robots" content="noindex">/i.test(await fs.readFile(path.join(site, page), 'utf8'))) {
+    if (NOINDEX_RE.test(await fs.readFile(path.join(site, page), 'utf8'))) {
       continue;
     }
     const candidates = [page];

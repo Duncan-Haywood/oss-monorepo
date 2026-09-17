@@ -2,9 +2,12 @@
 // plain `node --test`.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { defaults } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const scriptMatchTop = html.match(/<script type="module">([\s\S]*)<\/script>/);
+const scriptSource = scriptMatchTop ? scriptMatchTop[1] : '';
 
 test('landing page carries the disclaimer, structured data, and app script', () => {
   assert.match(html, /No warranty/);
@@ -12,14 +15,30 @@ test('landing page carries the disclaimer, structured data, and app script', () 
   assert.match(html, /calc\.mjs/);
 });
 
-test('the page imports the non-throwing wrapper, not the raw calculator', () => {
-  // calculateQuote() throws on a negative or non-numeric figure. Importing it
-  // directly into an input listener with no try/catch is exactly how a stray
-  // "-" used to freeze the total with nothing on screen to explain it.
-  // quoteResult() never throws, so wiring the page to it is what keeps a bad
-  // keystroke from breaking the render loop.
-  assert.match(html, /import\s*\{\s*quoteResult\s*\}\s*from\s*'\.\/calc\.mjs'/);
-  assert.doesNotMatch(html, /import\s*\{\s*calculateQuote\s*\}/);
+test('the page carries the standard sponsor link', () => {
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="LICENSE"/);
+});
+
+test('the live render path uses the non-throwing wrapper, not the raw calculator', () => {
+  // calculateQuote() throws on a negative or non-numeric figure. Calling it
+  // from an input listener with no try/catch is exactly how a stray "-" used
+  // to freeze the total with nothing on screen to explain it. quoteResult()
+  // never throws, so wiring update() to it is what keeps a bad keystroke from
+  // breaking the render loop.
+  //
+  // This used to be spelled as "the page does not import calculateQuote at
+  // all", which was the same guarantee only for as long as the page had one
+  // caller. The customer proposal added a second, and there the throw is the
+  // wanted behaviour: an unpriceable job must retire the printed sheet rather
+  // than put a stale price in front of a client. So the assertion is about
+  // which function update() calls, which is what the guarantee was always
+  // about -- not about which names the module imports.
+  assert.match(html, /import\s*\{[^}]*\bquoteResult\b[^}]*\}\s*from\s*'\.\/calc\.mjs'/);
+  const update = html.match(/function update\(\)\{([\s\S]*?)return q\}/);
+  assert.ok(update, 'update() not found');
+  assert.match(update[1], /quoteResult\(/, 'update() no longer prices through the non-throwing wrapper');
+  assert.doesNotMatch(update[1], /calculateQuote\(/, 'update() calls the throwing calculator directly');
 });
 
 test('an error slot exists for a rejected figure to render into', () => {
@@ -40,8 +59,8 @@ test('a rejected figure hides the stale total and clears the breakdown instead o
   const body = errorBranch[1];
   assert.match(body, /errorNode\.hidden\s*=\s*false/, 'the error message is never shown');
   assert.match(body, /totalEl\.hidden\s*=\s*true/, 'the stale total is not hidden on a rejected input');
-  assert.match(body, /getElementById\('breakdown'\)\.innerHTML\s*=\s*''/, '#breakdown keeps its stale value instead of being cleared');
-  assert.match(body, /getElementById\('minimumNote'\)\.textContent\s*=\s*''/, '#minimumNote keeps its stale value instead of being cleared');
+  assert.match(body, /(?:getElementById|el)\('breakdown'\)\.innerHTML\s*=\s*''/, '#breakdown keeps its stale value instead of being cleared');
+  assert.match(body, /(?:getElementById|el)\('minimumNote'\)\.textContent\s*=\s*''/, '#minimumNote keeps its stale value instead of being cleared');
   assert.match(body, /worthEl\.hidden\s*=\s*true/, 'the offer test keeps its stale figures next to the error');
 });
 
@@ -50,14 +69,49 @@ test('every input the calculator reads is wired into the draft and the recalcula
   // markup but missing from that list silently reads as 0 forever -- the
   // visitor types a page count and nothing moves. It is also the list the
   // saved draft is keyed on, so a missing id is a field that never persists.
-  const idsMatch = html.match(/const ids=\[([^\]]*)\]/);
-  assert.ok(idsMatch, 'the ids list was not found');
-  const wired = new Set(idsMatch[1].split(',').map((s) => s.trim().replace(/^'|'$/g, '')));
-  const inputIds = [...html.matchAll(/<input id="([^"]+)" type="number"/g)].map((m) => m[1]);
+  //
+  // `ids` is `Object.keys(defaults)` rather than a hand-copied array (see
+  // "share.mjs derives its field list from calc.mjs's own defaults" below),
+  // so this test reads the same source share.test.mjs checks against,
+  // instead of parsing a literal array out of the markup.
+  assert.match(html, /const ids=Object\.keys\(defaults\)/, 'the page still hand-copies its field list instead of deriving from defaults');
+  // The customer proposal generated by platform/proposal/adopt.mjs adds number
+  // inputs of its own (deposit percentage, how long the quote is held). They
+  // are deliberately outside `ids`: they price nothing, and the deposit split
+  // is a term of the quote rather than a figure the calculator reads. Scanning
+  // them would make this test fail for the one reason it is not about, so the
+  // generated region comes out first and the guarantee stays on the page's own
+  // form -- where a field missing from `ids` really does read as 0 forever.
+  const own = html.replace(
+    /<!-- proposal:begin[\s\S]*?<!-- proposal:end -->/g,
+    '',
+  );
+  const inputIds = [...own.matchAll(/<input id="([^"]+)" type="number"/g)].map((m) => m[1]);
   assert.ok(inputIds.length > 0, 'no number inputs found');
+  const wired = new Set(Object.keys(defaults));
   for (const id of inputIds) {
     assert.ok(wired.has(id), `#${id} is a form field the page never reads`);
   }
+});
+
+// This venture's share link is derived from calc.mjs's own `defaults` export
+// rather than a hand-copied allowlist, so a field added to `defaults`
+// tomorrow rides in the link with no edit to share.mjs. This is the
+// source-level half of what share.test.mjs and
+// platform/proposal/term-ids.test.mjs check.
+test('the share link wires encode, terms, and restore, not just the button', () => {
+  // A button with no wiring behind it is worse than no button: it tells a
+  // notary the feature exists.
+  assert.match(scriptSource, /import\s*\{\s*encodeInputs,\s*decodeInputs\s*\}\s*from\s*'\.\/share\.mjs'/);
+  assert.match(scriptSource, /withTerms\(/, 'copyLink does not fold the proposal terms into the link');
+  assert.match(scriptSource, /splitTerms\(/, 'restoreShare does not separate the terms from the venture payload');
+  assert.match(scriptSource, /applyTerms\(/, 'a restored link does not write the terms back onto the panel');
+  assert.match(scriptSource, /readTerms\(/, 'copyLink does not read the terms currently on the panel');
+  assert.match(scriptSource, /overlongTermsNote\(/, 'a term dropped for length is not named back to the sender');
+  assert.match(scriptSource, /restoreShare\(\)/, 'restoreShare is defined but never called on load');
+  assert.match(html, /id="copyLink"/, 'the share-link button is missing');
+  assert.match(scriptSource, /localStorage\.setItem\(DRAFT_KEY/,
+    'the draft is still kept on the visitor\'s own device between visits');
 });
 
 test('the print and offer fields ship neutral so the guide page\'s worked example still holds', () => {
@@ -77,4 +131,61 @@ test('the offer test has somewhere to render and a heading that says which fee i
   assert.match(html, /id="hourly"/);
   assert.match(html, /id="worthHeading"/);
   assert.match(html, /q\.offerEvaluated\?'What the offer is worth per hour'/);
+});
+
+// The result panel (the quote total, the breakdown, the minimum-fee note, the
+// error text, and the per-hour offer test) rewrites its own content on every
+// keystroke via update(), but the section itself carried no aria-live
+// region, and neither status span announced itself either -- a screen-reader
+// user who tabs away after typing a number was never told the quote changed,
+// or that a bad input flipped the panel into an error message. Every other
+// finished venture's `.result` section in this repo marks itself
+// aria-live="polite" for exactly this reason (see seller-net-sheet,
+// painting-bid-calculator). This pins the same convention here.
+test('the result panel is an aria-live region so screen readers hear updates and errors', () => {
+  assert.match(html, /<section class="result" aria-live="polite">/);
+});
+
+test('the draft-cleared and copy status messages are announced, matching the role="status" aria-live="polite" convention used elsewhere', () => {
+  assert.match(html, /id="draftStatus"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(html, /id="status"[^>]*role="status"[^>]*aria-live="polite"/);
+});
+
+// Regression: sitemap.xml was missing how-much-to-charge-for-a-mobile-notary-appointment.html,
+// a real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test('every .html file in the venture is reachable from the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
+});
+
+// Closest sibling in Service business pricing & quotes: both price a
+// solo mobile professional's one-off job (an appointment vs. a project)
+// whose flat quote hides real committed time. Without a crawlable link
+// here, a crawler entering on the notary calculator never reaches the
+// translator calculator in one hop.
+test('index links one hop to the translator-project-quote sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/translator-project-quote\/"/,
+    'index must link ../translator-project-quote/ so crawlers reach the translator calculator in one hop',
+  );
+});
+
+// Same section, same shape: a solo legal-support professional pricing one
+// job's flat client fee against their own travel/time cost. Reciprocal with
+// process-server-fee-calculator's own link back here (see its page.test.mjs)
+// so neither tool is a crawlable orphan.
+test('index links one hop to the process-server-fee-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/process-server-fee-calculator\/"/,
+    'index must link ../process-server-fee-calculator/ so crawlers reach the process server calculator in one hop',
+  );
 });

@@ -1,0 +1,32 @@
+name: 3d-print-price-calculator
+description: Free browser calculator for makers selling 3D-printed parts on Etsy, Shopify, or at a craft table to price one print from filament, electricity, printer depreciation, and a realistic failed-print rate, then solve directly for a selling price that clears the marketplace's fee and still lands on a target margin, and check a price they're already charging against the real break-even.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Makers who sell 3D-printed parts underprice because a common rule of thumb ("3x the filament cost") skips electricity, printer depreciation, and failed attempts, and will use a calculator that prices from all of them instead.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The failed-print-rate adjustment is the feature that changes a seller's price, not just the arithmetic they already do for filament and time, because a scrapped print's cost is easy to forget once the part itself is thrown away.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will use the "check a price you're actually charging" panel to test a price picked to match a competitor's listing, since the marketplace fee taken out of that price is invisible until it's computed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Sellers report that separating failure-rate buffer and marketplace-fee-solved pricing from a flat per-print rate is more work than it is worth, without changing the price they would have listed.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/3d-print-price-calculator/
+  analytics: null

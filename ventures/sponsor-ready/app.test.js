@@ -1,6 +1,24 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk, fetchRepoFacts } = require("./app.js");
+const { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk, fetchRepoFacts, repoFromHash, buildShareUrl } = require("./app.js");
+
+test("repoFromHash reads a shared repo out of the fragment", () => {
+  assert.equal(repoFromHash("#repo=octocat%2Fhello-world"), "octocat/hello-world");
+  assert.equal(repoFromHash("repo=octocat%2Fhello-world"), "octocat/hello-world");
+});
+
+test("repoFromHash returns null when there is nothing to share", () => {
+  assert.equal(repoFromHash(""), null);
+  assert.equal(repoFromHash(undefined), null);
+  assert.equal(repoFromHash("#other=1"), null);
+});
+
+test("buildShareUrl round-trips through repoFromHash", () => {
+  const url = buildShareUrl("https://example.com", "/sponsor-ready/", "octocat", "hello-world");
+  assert.equal(url, "https://example.com/sponsor-ready/#repo=octocat%2Fhello-world");
+  const hash = url.slice(url.indexOf("#"));
+  assert.equal(repoFromHash(hash), "octocat/hello-world");
+});
 
 test("parseRepoInput accepts owner/repo", () => {
   assert.deepEqual(parseRepoInput("octocat/hello-world"), { owner: "octocat", repo: "hello-world" });

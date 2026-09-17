@@ -23,6 +23,14 @@ on:
       # clone token. That check runs only when this workflow does, so a PR
       # touching check.mjs alone has to trigger it too.
       - "platform/pages/check.mjs"
+      # The apex front door. `gitops/prod/front-door/index.html` is generated
+      # from these two by `platform/marketing/front-door.mjs`, and
+      # `front-door.test.mjs` fails when the commit is stale — so a change to
+      # the generator, or a new venture arriving in `launched.json` and moving
+      # the tool count the page states, has to trigger this workflow even
+      # though neither file is under `gitops/`.
+      - "platform/marketing/**"
+      - "platform/pages/launched.json"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   pull_request:
@@ -32,6 +40,8 @@ on:
       - "gitops/**"
       - "platform/pages/build.mjs"
       - "platform/pages/check.mjs"
+      - "platform/marketing/**"
+      - "platform/pages/launched.json"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   workflow_dispatch:
@@ -40,6 +50,45 @@ on:
         description: SSH to the two hel1 boxes (read-only). Uses HETZNERSSHKEY.
         type: boolean
         default: false
+      restore:
+        description: >-
+          INSTALLS k3s + Argo CD on the two boxes. Owner-run only, after
+          HETZNERSSHKEY holds a private key. Type restore-cluster to confirm.
+        type: string
+        default: ""
+      with_codex_host:
+        description: >-
+          Also install the Codex worker's systemd-timer scheduler on the
+          agent box (gitops/agents/host/). Cannot fail the restore and
+          enables nothing -- the governor policy stays disabled until you
+          separately flip it. Only used when restore is set.
+        type: boolean
+        default: false
+      with_github_runner_host:
+        description: >-
+          Also install a self-hosted GitHub Actions runner as a systemd
+          service on the agent box (gitops/ci/host/), independent of k3s.
+          Cannot fail the restore and registers with GitHub only once you
+          separately credential it. Only used when restore is set.
+        type: boolean
+        default: false
+      with_portfolio_site_host:
+        description: >-
+          Also serve the portfolio site from the control-plane box's own
+          nginx (gitops/prod/host/), independent of k3s, Argo and Pages.
+          Reuses ARGOCDREPOTOKEN as the read-only clone credential. This IS
+          the decision to publish under the portfolio's public name on a
+          domain whose DNS already points here -- only check this box when
+          you mean to. Only used when restore is set.
+        type: boolean
+        default: false
+      site_tls_email:
+        description: >-
+          Only used with with_portfolio_site_host. Where Let's Encrypt sends
+          expiry warnings. Leave blank to serve over HTTP for now and add a
+          certificate later.
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -47,6 +96,13 @@ permissions:
 jobs:
   gitops:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Normally ~2-3 minutes (pytest + two network downloads + a front-door
+    # generator run). Without a cap here a hung apt-get, curl, or nginx
+    # boot rides the default 360-minute GitHub-hosted ceiling — on a
+    # metered-minutes account (see CLAUDE.md's CI-starvation history) that
+    # is the difference between one stuck job and the next allowance cycle
+    # arriving early.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -63,10 +119,59 @@ jobs:
           node-version: "22"
       - name: Install test deps
         run: pip install -r gitops/tests/requirements.txt pyflakes
+      # `test_front_door_serving.py` boots a real nginx over the front door's
+      # own built ConfigMaps and fetches from it. That is the only check in the
+      # tree that can tell whether the apex actually serves a tool page — the
+      # rest read the config as text, and both ways the gz-only mirror could go
+      # dark (`try_files` on an absent uncompressed name, a positional capture
+      # in a `rewrite`) are textually clean. It skips with a reason when nginx
+      # is missing, so this step is what stops it skipping here.
+      #
+      # `|| true` because the self-hosted image has no apt and no sudo (same
+      # reason `setup-node` is explicit above). There the test skips, which is
+      # the honest answer; `test_it_did_not_skip_on_the_runner_that_is_supposed
+      # _to_run_it` fails if it ever skips on a *hosted* runner instead.
+      - name: Install nginx
+        run: sudo apt-get install -y --no-install-recommends nginx-light || true
       - name: pyflakes governor
         run: pyflakes gitops/agents/governor/governor.py
       - name: pytest
         run: pytest gitops/tests -v
+      # `test_install_codex_host.py` and `test_install_github_runner_host.py`
+      # skip every assertion they contain unless `os.geteuid() == 0` -- both
+      # installers do a real `useradd`/`chown`/`install -d` against a scratch
+      # prefix, which needs root even off real paths. The step above runs as
+      # the unprivileged `runner` user, so both files reported "skipped", not
+      # "passed", on every push -- a green check that never once exercised
+      # either installer. `test_root_only_installer_tests_are_elevated_in_ci`
+      # (gitops/tests/test_root_only_host_installer_tests_run.py) fails if
+      # this step is ever removed or stops naming both files.
+      #
+      # GitHub-hosted runners carry passwordless sudo; the self-hosted image
+      # has neither apt nor sudo at all (see "Install nginx" above), so this
+      # does not merely skip there the way a bare `|| true` would let it --
+      # `sudo: command not found` would fail the step outright and hide
+      # whatever pytest itself had to say. Gated on `runner.environment`
+      # instead: absent on hosted, this step does not run at all rather than
+      # running and swallowing a real failure. `command -v pytest` resolves
+      # the venv's pytest before sudo's `secure_path` can drop it.
+      - name: pytest (root-only host installer tests)
+        if: runner.environment == 'github-hosted'
+        run: sudo "$(command -v pytest)" gitops/tests/test_install_codex_host.py gitops/tests/test_install_github_runner_host.py -v
+      # The generator behind `gitops/prod/front-door/index.html`. Run here
+      # rather than in portfolio-pages.yml because the page it produces is a
+      # GitOps input, not part of the Pages artifact — and because this is the
+      # workflow that already triggers on the directory it lands in.
+      - name: front door generator
+        run: node --test "platform/marketing/*.test.mjs"
+      # Same guard as `portfolio-validate.yml`'s, on the other half of the
+      # trigger surface: that workflow catches a venture edit growing the
+      # mirror, this one catches a `platform/marketing/**` change doing it --
+      # a wider `STARTER_SET`, or an injection that adds bytes to all 173
+      # mirrored pages at once, which is the change most able to move the
+      # number in one commit. See `MIRROR_HEADROOM_WARN_RATIO`.
+      - name: front door mirror has room left
+        run: node platform/marketing/front-door-tools.mjs --headroom
       - name: infra layout
         run: |
           python3 infra/tests/test_infra_layout.py
@@ -102,6 +207,7 @@ jobs:
 
   tofu:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -116,6 +222,7 @@ jobs:
 
   scripts:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -126,21 +233,44 @@ jobs:
       # has neither -- this installs the same tool on either runner.
       - name: shellcheck
         run: |
-          pip install shellcheck-py
+          # Pinned. shellcheck adds checks in minor releases, so an unpinned
+          # install means a shellcheck release -- not a repo change -- can turn
+          # this job red across every branch at once, with a diff that explains
+          # nothing. It has already caused one misreading here: the
+          # `# shellcheck disable=SC2329` in gitops/ci/runner-entrypoint.sh is
+          # the >=0.10 code for the check 0.9.0 called SC2317, so a session that
+          # happened to have 0.9.0 installed locally read this job as broken on
+          # main when it was clean. Bump deliberately, with the findings fixed
+          # in the same commit.
+          pip install shellcheck-py==0.11.0.1
           shellcheck bootstrap/install-k3s-server.sh \
             bootstrap/install-k3s-agent.sh \
             bootstrap/install-argocd.sh \
             bootstrap/preflight.sh \
+            bootstrap/restore-cluster.sh \
             bootstrap/label-existing.sh \
+            bootstrap/scripts/load-ssh-key.sh \
+            bootstrap/scripts/load-secrets.sh \
             bootstrap/scripts/gen-age-key.sh \
             bootstrap/scripts/seal-owner-secrets.sh \
+            bootstrap/scripts/enable-codex-governor.sh \
+            bootstrap/scripts/install-codex-host.sh \
+            bootstrap/scripts/install-github-runner-host.sh \
+            bootstrap/scripts/install-portfolio-site-host.sh \
+            bootstrap/scripts/setup-runner-from-laptop.sh \
+            bootstrap/scripts/setup-codex-host-from-laptop.sh \
+            bootstrap/scripts/setup-portfolio-site-from-laptop.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \
-            gitops/ci/runner-entrypoint.sh
+            gitops/ci/runner-entrypoint.sh \
+            gitops/ci/host/register-and-run.sh \
+            gitops/prod/host/refresh-site.sh \
+            platform/pages/publish-branch.sh
 
   hcloud-scope:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Prove HETZNERREADAPIKEY is Read-only
@@ -156,6 +286,11 @@ jobs:
   preflight:
     if: github.event_name == 'workflow_dispatch' && inputs.preflight == true
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # SSHes to two live boxes; ssh-keyscan and the preflight script have no
+    # timeout of their own, so this is the only thing that stops a
+    # network stall (a firewalled port, a box mid-reboot) from riding the
+    # runner to its 360-minute default.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: SSH preflight (read-only)
@@ -168,39 +303,92 @@ jobs:
             echo "HETZNERSSHKEY is unset." >&2
             exit 1
           fi
-          mkdir -p "${HOME}/.ssh"
-          printf '%s\n' "${KEY}" > "${HOME}/.ssh/id_hetzner"
-          chmod 600 "${HOME}/.ssh/id_hetzner"
-          # A malformed secret (a public key pasted by mistake, literal \n
-          # escapes from a JSON paste, or CRLF line endings) used to fail
-          # here with a bare, unhelpful ssh-keygen error. Classify the
-          # format first and normalize escaped newlines, so a bad rotation
-          # of HETZNERSSHKEY says exactly what is wrong instead of just
-          # "invalid format".
-          python3 -c '
-          from pathlib import Path
-          p = Path.home() / ".ssh/id_hetzner"
-          raw = p.read_bytes()
-          # printf always appends one trailing real newline, so a secret
-          # pasted as a single JSON-escaped line still shows one \n byte
-          # here. More than that means it already has real line breaks
-          # and escaping it further would corrupt a valid key.
-          if b"\\n" in raw and raw.count(b"\n") <= 1:
-              p.write_bytes(raw.replace(b"\\r\\n", b"\n").replace(b"\\n", b"\n"))
-              print("normalized literal \\n escapes in the secret")
-          '
-          if grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "${HOME}/.ssh/id_hetzner"; then
-            echo "HETZNERSSHKEY holds a public key, not a private key." >&2
-            echo "A public key cannot open an SSH session — store the matching private key instead." >&2
-            exit 1
-          fi
-          if ! grep -q "BEGIN .*PRIVATE KEY" "${HOME}/.ssh/id_hetzner"; then
-            echo "HETZNERSSHKEY is not an OpenSSH/PEM private key after normalization." >&2
-            exit 1
-          fi
-          ssh-keygen -y -f "${HOME}/.ssh/id_hetzner" >/dev/null
+          # The format classifier and its reasoning now live in
+          # bootstrap/scripts/load-ssh-key.sh, so the restore job below shares
+          # exactly this one rather than carrying a second copy that can drift.
+          #
+          # (This branch (ci/hetzner-ssh-key-diagnostic, PR #4963) originally
+          # added this same classification inline, from a commit dated
+          # 2026-09-03. main extracted an equivalent-or-better version — it
+          # also normalizes real CRLF bytes, which the inline version did not
+          # — to bootstrap/scripts/load-ssh-key.sh on 2026-09-05 so this job
+          # and `restore` below share one classifier instead of two that can
+          # drift apart. main's copy is kept here for that reason.)
+          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
           eval "$(ssh-agent -s)"
           ssh-add "${HOME}/.ssh/id_hetzner"
           ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
           export CP=root@89.167.29.39 AG=root@157.180.80.188
           bootstrap/preflight.sh
+
+  # The only thing in this repository that changes the two boxes. Everything
+  # else here reads: `tofu` never applies, HETZNERREADAPIKEY is asserted
+  # read-only, and `preflight` above is read-only by construction.
+  #
+  # It exists because rotating HETZNERSSHKEY was necessary but not sufficient:
+  # the recovery it unlocks was a human SSHing to two machines in order and
+  # copy-pasting a node token between them, which is not something an outage
+  # should be waiting on. See bootstrap/restore-cluster.sh for what it does and
+  # for why following the *documented* order fails today (the private network
+  # in infra/inventory.tf was never applied).
+  #
+  # Deliberately not reachable from push, schedule, or any agent Job: it is a
+  # workflow_dispatch that additionally requires the operator to type the
+  # confirmation string, so a mis-click on the Run workflow button does nothing.
+  #
+  # The three WITH_* flags below (added to the script in #3252, #3364 and
+  # #3438) forward the workflow_dispatch inputs of the same name. This job
+  # predates all three and, until now, had no way to pass any of them --
+  # `portfolio/ledger/asks.yaml` tells the owner "the GitHub route ...
+  # reaches the same script", which was true of the binary but not of what it
+  # would do: dispatching this workflow could only ever run steps 1-8, never
+  # steps 9-11, with no input here even naming the option. Defaulting all
+  # three to false keeps today's behaviour unchanged; ticking one is the same
+  # explicit opt-in the laptop route already requires via its env vars.
+  restore:
+    if: github.event_name == 'workflow_dispatch' && inputs.restore == 'restore-cluster'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Longer than preflight's 10: this one waits on two k3s installs, a
+    # 180-second node-readiness wait and an Argo CD rollout. Still bounded, so
+    # a stalled join cannot ride the runner to the 360-minute default.
+    timeout-minutes: 45
+    concurrency:
+      # Two of these at once would race two k3s installs onto one box.
+      group: hetzner-restore
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore the k3s cluster
+        env:
+          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
+          CONFIRM: restore-cluster
+          # Optional but load-bearing: the GitOps repository is private, so
+          # without a credential Argo installs, applies the root Application
+          # and then fails every sync on repository authentication — a cluster
+          # that is up and a site that serves nothing. The script says so
+          # loudly rather than reporting success. A fine-grained PAT with
+          # Contents: Read on this repository is enough; it is the same
+          # permission the site's clone token needs, so one token can do both.
+          ARGOCD_REPO_TOKEN: ${{ secrets.ARGOCDREPOTOKEN }}
+          WITH_CODEX_HOST: ${{ inputs.with_codex_host && '1' || '' }}
+          WITH_GITHUB_RUNNER_HOST: ${{ inputs.with_github_runner_host && '1' || '' }}
+          WITH_PORTFOLIO_SITE_HOST: ${{ inputs.with_portfolio_site_host && '1' || '' }}
+          # Same PAT as ARGOCD_REPO_TOKEN above (asks.yaml: "one PAT covers
+          # both") — empty unless the box is actually being asked to serve,
+          # so an unchecked box needs no clone credential to sit unused.
+          SITE_GH_TOKEN: ${{ inputs.with_portfolio_site_host && secrets.ARGOCDREPOTOKEN || '' }}
+          SITE_TLS_EMAIL: ${{ inputs.site_tls_email }}
+        run: |
+          set -euo pipefail
+          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
+          eval "$(ssh-agent -s)"
+          ssh-add "${HOME}/.ssh/id_hetzner"
+          ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
+          export CP=root@89.167.29.39 AG=root@157.180.80.188
+          bootstrap/restore-cluster.sh
+      - name: What to do next
+        if: always()
+        run: |
+          echo "Dispatch 'Public surface check' — it needs no secret and is the"
+          echo "only reading a stranger's view agrees with. Record the result in"
+          echo "portfolio/ledger/infra_state.yaml with this run id."

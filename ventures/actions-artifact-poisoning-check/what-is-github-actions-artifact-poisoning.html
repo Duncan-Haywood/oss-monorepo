@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is GitHub Actions artifact poisoning?</title>
+  <meta name="description" content="A workflow_run job can download an artifact a fork-triggered workflow uploaded and treat its contents as trusted. Here is exactly how artifact poisoning works, and how to check your own workflows for it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-github-actions-artifact-poisoning.html">
+  <meta property="og:title" content="What is GitHub Actions artifact poisoning?">
+  <meta property="og:description" content="workflow_run runs with your secrets even though the run it reacts to was raised by a fork. If it downloads and executes an artifact from that run, the fork gets code execution in your context.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is GitHub Actions artifact poisoning?","acceptedAnswer":{"@type":"Answer","text":"workflow_run is a trigger that fires when a separate workflow run completes — commonly used so a privileged workflow can react to an unprivileged pull_request build without inheriting the fork's ability to change what that workflow does by editing the workflow file itself. The workflow_run job runs in the context of the base repository, with the base repository's GITHUB_TOKEN and secrets — but the run it reacts to was still triggered by whoever opened the pull request, who might be a stranger."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions Artifact Poisoning Check</a></p>
+  <h1>What is GitHub Actions artifact poisoning?</h1>
+  <p><code>workflow_run</code> is a trigger that fires when a separate workflow run completes — commonly used so a privileged workflow can react to an unprivileged <code>pull_request</code> build without inheriting the fork's ability to change what that workflow does by editing the workflow file itself. The <code>workflow_run</code> job runs in the context of the <em>base</em> repository, with the base repository's <code>GITHUB_TOKEN</code> and secrets — but the run it reacts to was still triggered by whoever opened the pull request, who might be a stranger.</p>
+  <p>That is a deliberate, documented design, and it is safe on its own. The risk is what the privileged job does with the artifact the unprivileged run produced:</p>
+  <pre><code>on:
+  workflow_run:
+    workflows: [build-pr]
+    types: [completed]
+jobs:
+  publish-results:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: |
+          chmod +x ./test-results/publish.sh
+          ./test-results/publish.sh</code></pre>
+  <p>The artifact was uploaded by the fork-triggered <code>build-pr</code> workflow, so its <em>contents</em> — not just the event payload GitHub itself controls — are whatever the fork put there. Downloading it is not the risk; running it is. GitHub's own Actions Security Lab, and independent research from Wiz, Legit Security and Orca Security, document this pattern as "artifact poisoning": a fork can put a script in the artifact it uploads and rely on the privileged handler to execute it unchecked.</p>
+  <h2>A second, quieter version</h2>
+  <p>A <code>download-artifact</code> step with no <code>name:</code> input pulls in <em>every</em> artifact the triggering run uploaded, not one specific, expected one. Even if nothing in the same job executes anything directly, that widens what untrusted content is sitting on disk for a later step, or an action called by <code>uses:</code>, to pick up.</p>
+  <h2>The fix</h2>
+  <ul>
+    <li>Never execute, source, or <code>eval</code> anything read from a downloaded artifact. Treat it as data: read specific, expected fields and validate their shape before use.</li>
+    <li>If the privileged job genuinely needs the fork's build output, keep the build itself unprivileged (plain <code>pull_request</code>, no secrets) and have the privileged job read only reviewed, structured results — not executable content.</li>
+    <li>Pin <code>name:</code> on every <code>download-artifact</code> step so it fetches exactly the artifact you expect, not everything the triggering run happened to upload.</li>
+  </ul>
+  <h2>Check your own workflows</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Artifact Poisoning Check</a> to find every <code>workflow_run</code> job that downloads and later executes an artifact, and every unscoped download, across every workflow file at once, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any workflow has either pattern — wire it into your own CI to block a newly-added one before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe — only that these two documented patterns were not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>

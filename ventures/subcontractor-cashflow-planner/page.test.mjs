@@ -12,6 +12,7 @@ test('landing page exposes searchable product, full disclaimer, and local app', 
   assert.match(html, /planCashflow/);
   assert.match(html, /Export CSV/);
   assert.match(html, /Count anonymous local feature events/);
+  assert.match(html, /Copy share link/);
 });
 
 test('index links to the payment-terms SEO/AI-discovery page', () => {
@@ -80,4 +81,16 @@ test('robots and sitemap let crawlers find the new page', () => {
   assert.match(robots, /Allow: \//);
   assert.match(sitemap, /subcontractor-cashflow-planner\/<\/loc>/);
   assert.match(sitemap, /how-much-cash-do-i-need-for-net-30-payment-terms\.html/);
+});
+
+// Closest sibling: same trades-paid subcategory, but the retainage hold on a
+// signed contract rather than the whole job's cash timing. Without a crawlable
+// link here, a crawler entering on the cash-flow planner never reaches the
+// retainage calculator in one hop.
+test('index links one hop to the retainage-cashflow-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/retainage-cashflow-calculator\/"/,
+    'index must link ../retainage-cashflow-calculator/ so crawlers reach the retainage calculator in one hop',
+  );
 });

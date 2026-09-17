@@ -51,6 +51,35 @@
 //
 // Every new field defaults to the neutral value, so the worked example on
 // `how-much-to-charge-for-a-mobile-notary-appointment.html` still holds.
+//
+// `defaults` is the exact set of `value=` attributes index.html ships on
+// each field. It did not exist before share.mjs needed it: index.html and
+// this file each carried the field list separately, so a field could be
+// added to one and never wired into `share.mjs`'s allowlist. Exporting it
+// here makes it the one place both index.html's `ids` (`Object.keys
+// (defaults)`) and share.mjs's `NUMBER_FIELD_IDS` read from, the same
+// pattern `mobile-detailing-bid-calculator`'s calc.mjs uses.
+export const defaults = {
+  travelMiles: 20,
+  mileageRate: 0.7,
+  travelMinutes: 30,
+  hourlyRate: 60,
+  appointmentMinutes: 45,
+  minimumFee: 50,
+  stateFees: 15,
+  witnessFee: 25,
+  witnesses: 1,
+  afterHoursFee: 0,
+  waitingMinutes: 0,
+  waitingRate: 30,
+  pagesPerSet: 0,
+  printSets: 2,
+  printChargePerPage: 0.2,
+  printCostPerPage: 0.04,
+  printMinutes: 0,
+  vehicleCostPerMile: 0,
+  offeredFee: 0,
+};
 
 export function calculateQuote(input) {
   const n = (value, label) => {

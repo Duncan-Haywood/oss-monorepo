@@ -31,5 +31,5 @@ kill_criteria:
   - Fewer than three qualified Shopify merchants use the calculator twice within 90 days.
   - Users do not find the Shopify Payments vs third-party comparison materially different from a single-path fee estimate.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-fee-calculator/
   analytics: null

@@ -173,9 +173,14 @@ export function scheduleOutcome(schedule, shared) {
         paidDay: invoiceDay + collectDays,
       };
     })
-    .sort((a, b) => a.paidDay - b.paidDay);
+    // Sorted by invoice date, not clearing date: this array is rendered
+    // verbatim as the client-facing schedule (scheduleCopy() below), which
+    // must list invoices in the order the client receives them, not the
+    // order the cash happens to land -- a slow-paying deposit can otherwise
+    // clear after a later milestone's balance invoice and get printed second.
+    .sort((a, b) => a.invoiceDay - b.invoiceDay);
 
-  const fullyPaidDay = milestones[milestones.length - 1].paidDay;
+  const fullyPaidDay = Math.max(...milestones.map((m) => m.paidDay));
   const deliveredAt = (day) => (projectValue * Math.min(Math.max(day, 0), projectDays)) / projectDays;
   const receivedAt = (day) =>
     milestones.reduce((sum, m) => (m.paidDay <= day ? sum + m.amount : sum), 0);

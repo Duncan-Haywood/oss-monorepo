@@ -59,6 +59,11 @@ def _mapping(inventory: dict) -> dict[str, dict]:
     return result
 
 
+def _webhooks_absent(app: dict) -> bool:
+    """Capture marks omitted webhook lists as absent — empty [] is not evidence."""
+    return app.get("webhook_coverage") == "absent"
+
+
 def compare(before: dict, after: dict) -> dict:
     old, new = _mapping(before), _mapping(after)
     changes = []
@@ -69,11 +74,46 @@ def compare(before: dict, after: dict) -> dict:
         if app_id not in new:
             changes.append({"app": app_id, "kind": "app_removed"})
             continue
-        for field in ("scopes", "webhooks"):
-            added = sorted(set(new[app_id][field]) - set(old[app_id][field]))
-            removed = sorted(set(old[app_id][field]) - set(new[app_id][field]))
+        old_app, new_app = old[app_id], new[app_id]
+
+        scope_added = sorted(set(new_app["scopes"]) - set(old_app["scopes"]))
+        scope_removed = sorted(set(old_app["scopes"]) - set(new_app["scopes"]))
+        if scope_added or scope_removed:
+            changes.append(
+                {
+                    "app": app_id,
+                    "kind": "scopes_changed",
+                    "added": scope_added,
+                    "removed": scope_removed,
+                }
+            )
+
+        # Capture writes webhooks: [] and webhook_coverage: "absent" when the
+        # export omitted webhookSubscriptions. Diffing that against a complete
+        # inventory invents a "webhooks removed" finding — the failure mode the
+        # coverage flag exists to prevent. Skip the diff and say so instead.
+        if _webhooks_absent(old_app) or _webhooks_absent(new_app):
+            changes.append(
+                {
+                    "app": app_id,
+                    "kind": "webhooks_not_compared",
+                    "reason": "webhook_coverage_absent",
+                    "before_coverage": "absent" if _webhooks_absent(old_app) else "complete",
+                    "after_coverage": "absent" if _webhooks_absent(new_app) else "complete",
+                }
+            )
+        else:
+            added = sorted(set(new_app["webhooks"]) - set(old_app["webhooks"]))
+            removed = sorted(set(old_app["webhooks"]) - set(new_app["webhooks"]))
             if added or removed:
-                changes.append({"app": app_id, "kind": f"{field}_changed", "added": added, "removed": removed})
+                changes.append(
+                    {
+                        "app": app_id,
+                        "kind": "webhooks_changed",
+                        "added": added,
+                        "removed": removed,
+                    }
+                )
     for field in ("authorization_state", "api_version"):
         if before[field] != after[field]:
             changes.append({"kind": f"{field}_changed", "before": before[field], "after": after[field]})
@@ -82,7 +122,19 @@ def compare(before: dict, after: dict) -> dict:
     if after_captured < before_captured:
         changes.append({"kind": "capture_order_invalid", "before": before["captured_at"], "after": after["captured_at"]})
     metadata = {"before_source": before["source"], "after_source": after["source"], "before_captured_at": before["captured_at"], "after_captured_at": after["captured_at"]}
-    status = "inconclusive" if any(change["kind"] == "capture_order_invalid" for change in changes) else ("changed" if changes else "unchanged")
+    # Order invalid, or webhooks skipped with no other material drift: we cannot
+    # claim "unchanged" (webhooks were never compared) or a clean "changed".
+    order_invalid = any(change["kind"] == "capture_order_invalid" for change in changes)
+    material = any(
+        change["kind"] not in ("capture_order_invalid", "webhooks_not_compared") for change in changes
+    )
+    webhooks_skipped = any(change["kind"] == "webhooks_not_compared" for change in changes)
+    if order_invalid or (webhooks_skipped and not material):
+        status = "inconclusive"
+    elif material:
+        status = "changed"
+    else:
+        status = "unchanged"
     return {"status": status, "metadata": metadata, "changes": changes, "review_required": bool(changes)}
 
 
@@ -141,7 +193,13 @@ def render_markdown(report: dict) -> str:
         lines.append("")
         for change in report["changes"]:
             kind = change["kind"].replace("_", " ")
-            if kind.endswith(" changed") and "added" in change:
+            if change["kind"] == "webhooks_not_compared":
+                lines.append(
+                    f"- **Webhooks Not Compared** for `{change['app']}` "
+                    f"(coverage `{change['before_coverage']}` → `{change['after_coverage']}`; "
+                    "do not treat webhook diffs as evidence)"
+                )
+            elif kind.endswith(" changed") and "added" in change:
                 detail = []
                 if change["added"]:
                     detail.append("added: " + ", ".join(f"`{item}`" for item in change["added"]))

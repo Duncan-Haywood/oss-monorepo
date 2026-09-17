@@ -22307,6 +22307,51 @@ entries:
           `portfolio/ledger/` only, publishes nothing, spends nothing, adds no
           automation. `payout-rail` remains the only queue item that moves the
           revenue ceiling off $0.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo" session, designated branch
+          `session/cleanup-2026-08-24`. `session_gate.py` -> PROCEED (cadence
+          0.92/h, at the maintenance rate). Fetched `main` fresh, read the open
+          pull requests and `decision_queue.py` before touching anything.
+      - >-
+          Found PR #777 (revert of #368 Dependabot merge) open with a failing
+          test check. The test failure was due to a stale
+          `results-2026-08-23.md` file (agent instruction closure count changed
+          from 120 to 121 due to `asks.yaml` changes). Regenerated the results
+          file, rebased the branch onto current `main` (resolved a conflict in
+          `asks.yaml`), and pushed. All CI checks passed (test, validate).
+      - >-
+          PR #777 was merged at 2026-08-24T09:57:16Z, reverting the Dependabot
+          config merge (#368) which had been merged against its own "Not
+          self-merging" statement and the decision queue's owner-gated note.
+          Dependabot is "automation that writes or spends unattended" per
+          CLAUDE.md, making it a human-gated decision.
+      - >-
+          Closed 28 orphaned Dependabot PRs (#737-#772) that were opened when
+          #368 was briefly merged. These PRs are orphaned since the config
+          (.github/dependabot.yml) no longer exists after the revert. Each was
+          closed with a comment explaining that the config was removed by #777
+          and the decision to re-enable Dependabot remains with the account
+          owner.
+      - >-
+          Closed PR #780 (stale/conflicting decision queue update) and PR #764
+          (ledger entry based on wrong premise that #368 was correctly merged).
+          Both were superseded by the #777 revert and subsequent corrections.
+      - >-
+          Updated `asks.yaml` to remove the `dependabot` row since #368 was
+          reverted and the 30+ Dependabot PRs were closed. The decision whether
+          to re-enable Dependabot remains with the account owner but is not
+          tracked in the queue without a concrete PR or ask to reference.
+          Verified by `decision_queue.py --check` (8 decisions, schema OK).
+      - >-
+          Opened PR #783 to merge the `asks.yaml` update. Agent-decidable per
+          CLAUDE.md: `portfolio/ledger/` only, no `ventures/*` code, publishes
+          nothing, spends nothing, removes no automation (already removed by
+          #777). Owner-gated PRs left untouched: #720, #731, #531. `payout-rail`
+          remains the only queue item that moves the revenue ceiling off $0.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
@@ -23401,6 +23446,52 @@ entries:
           by hand instead of regenerating) rather than re-diagnosing it
           from scratch.
     mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py read BUILD; triaged the 10 open PRs first and
+        merged one clean doc-only PR (#938). The other 9 were mid-flight
+        on static-tool candidates already claimed by concurrent sessions
+        (per #938's own body), so rather than duplicate a tenth, looked
+        for an existing, real product with a genuine gap instead.
+        quote-margin-check was CLI-only (Python script) despite targeting
+        freelancers -- a population unlikely to run a script -- and its
+        own Python test suite had never been wired into CI at all
+        (`portfolio-validate.yml` only runs portfolio-infra tests, not
+        venture tests; grepped every workflow file to confirm).
+      - >-
+        Shipped `web/index.html`: a zero-dependency, zero-build static
+        page with the identical calculation logic (`web/calc.mjs` mirrors
+        `src/quote_margin.py`'s `load_quote()`/`calculate()` field-for-
+        field, so CLI and browser tool can't quietly diverge). Same
+        definition-of-done as the portfolio's other static tools: MIT
+        LICENSE (linked from the existing venture-root LICENSE), no-
+        warranty/not-financial-advice disclaimer, honest all-client-side
+        privacy line, local-first DNT/GPC-respecting usage counter with a
+        visible opt-out toggle, JSON-LD (SoftwareApplication + FAQPage),
+        meta description, and robots.txt.
+      - >-
+        Added `.github/workflows/quote-margin-check-ci.yml`: the Python
+        CLI's `unittest` suite and `ruff check .` now actually run in CI
+        for the first time, alongside a new `node --test` job for the web
+        tool. Verified rather than assumed: `python3 -m unittest discover
+        -s tests -v` (9/9 pass), `ruff check .` (0.15.8, clean), `node
+        --test` in `web/` (13/13 pass -- 9 calc cases mirroring the CLI's
+        suite plus 4 usage-counter cases). Also drove the page end-to-end
+        in a real headless Chromium via Playwright (not just unit tests):
+        filled the form with the CLI's own website-redesign-shaped
+        numbers, confirmed the rendered table matches the hand-computed
+        arithmetic (91.25 USD/hour effective rate, 50 USD gap-to-target)
+        and the "Above target rate" status renders, zero console errors.
+      - >-
+        Not deployed to a public URL -- publishing under the portfolio's
+        name stays owner-gated per `portfolio/DIRECTION.md`; ready to
+        deploy the moment that gate opens. Added a second usage.yaml
+        baseline row for the new surface. All portfolio validators
+        (doc-consistency, candidates, router, score_ventures, workflows)
+        re-run clean.
   - venture: photos-import-tools
     agent_spend_usd: null
     human_hours: 0
@@ -30058,7 +30149,6 @@ entries:
           that -- extend or consolidate, do not duplicate -- and the prior
           20-branch sweep had already flagged ledger-only branches
           duplicating entries byte-for-byte as a recurring waste.
-    mrr_end: null
     mrr_end: null
   - venture: platform
     agent_spend_usd: null
@@ -41194,3 +41284,81 @@ entries:
         misreads). sideways initially failed on this new page alone (a raw
         Amazon URL used as anchor text overflowed at 360px); fixed with
         overflow-wrap: anywhere and reran clean. Merged as #2590.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Checked the 5 PR-less branches from
+        `git branch -r` for unique work per CLAUDE.md's branch-presumption
+        rule: `session/cleanup-2026-08-24` and
+        `session/remove-stale-local-site-studio-entry` are both already
+        superseded (the #777 ledger row and the asks.yaml removal they each
+        carry are already on `main`, the latter via #786/#787);
+        `venture/vendor-change-watch`'s single commit is an empty diff
+        against its own parent (nothing to merge); `tmp/ssh-key-smoke`'s only
+        unique content (a one-shot HETZNERSSHKEY format-probe workflow) is
+        superseded by the permanent "SSH preflight (read-only)" step already
+        in `.github/workflows/hetzner-gitops-ci.yml` on `main`. No PRs opened;
+        none needed one.
+      - >-
+        New finding, not previously recorded: GitHub Actions **got a real
+        runner again** starting 2026-09-01T00:00:53Z, right at what looks
+        like a day boundary. `platform/ci/ci_starvation.py --run
+        33453037361` (and the two more recent `main` pushes after it) show
+        `runner_id: 1000040393`/`1000040408`, 113-137s, real steps -- not the
+        `runner_id: 0`, 3s stub this file has recorded dozens of times since
+        2026-08-26. The run immediately before it, 21s earlier
+        (33452945145, 23:59:33Z), was still starved. Every prior entry in
+        this file treating the account-level ceiling as a standing outage
+        was correct at the time; this is the first evidence it cycles
+        (consistent with a daily included-minutes or spend-limit reset
+        rather than Actions being switched off outright). Not yet known
+        whether it holds through the day or the ceiling gets hit again on
+        the next burst of pushes -- next session should re-check with
+        `ci_starvation.py` rather than assume either the outage or the
+        recovery.
+      - >-
+        Confirmed CI/CD, the Hetzner portfolio-site deploy, and the
+        Codex-on-Hetzner governor are each still exactly one owner action
+        from live (self-hosted-runner PAT + `CI_RUNNER` repo var; the
+        `portfolio-site-repo` read-only clone token; the `codex-secrets`
+        credential + two suspend/enabled flips) -- same conclusion as
+        #2307/#2308 hours earlier, added nothing new to the decision queue.
+  - venture: moving-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2600: a shareable bid link and saved draft, the one gap
+        this venture had against 55 sibling `*-bid-calculator` tools --
+        found by an Explore pass over ventures not in that session's own
+        active-work list, then confirmed by grep (no `share.mjs`, and
+        `index.html` only ever persisted the proposal's company fields,
+        never the priced job itself). A mover who lost a multi-room
+        inventory to an accidental reload had to retype the whole job, and
+        had no way to send a dispatcher a link that reopened the exact
+        bid.
+      - >-
+        Found and worked around a real latent bug in the shared
+        `share.mjs` module along the way: the 36-venture copy (e.g.
+        `kitchen-tile-backsplash-bid-calculator`) has no `kind: 'text'`
+        branch in `encodeCell()`, so a `rows` field of that kind silently
+        encodes to an empty string. `platform/pages/roundtrip.mjs
+        moving-bid-calculator` caught it immediately -- the inventory
+        item's name came back as "Item 1" instead of the sender's actual
+        room/item type. `janitorial-bid-calculator`'s copy has the fix;
+        used that one instead. Checked all 36 ventures on the older copy
+        directly (`grep -l "kind: 'text'"`) -- none use a text-kind row
+        field today, so this is latent there, not active. Left as a
+        finding for a future session rather than fixing 36 files in a PR
+        about one venture.
+      - >-
+        Verified: node --test in the venture (109/109, including 7 new
+        structural guards pinning the link to a URL fragment and every
+        field to `BID_SPEC`), a fresh `platform/pages/build.mjs` (169
+        tools, shareable link count 151->152), and
+        `platform/pages/roundtrip.mjs moving-bid-calculator` against the
+        served build (36 fields round-trip clean, including the
+        inventory row) -- this is what caught the share.mjs bug above
+        before merge, not after.

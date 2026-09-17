@@ -61,6 +61,31 @@ test('every element the script reaches for exists in the markup', () => {
   assert.deepEqual(missing, [], `script queries ids that no element declares: ${missing.join(', ')}`);
 });
 
+test('the share link carries the layout, material, sink, and edge selections, not just their numeric fallout', () => {
+  // share.mjs's own header promises these four "travel alongside the numeric
+  // fields they merely suggest defaults for" so "the recipient's form shows
+  // the same selection the sender saw, not just the same arithmetic". That
+  // promise depends on readInput() actually reading them: encodeInputs()
+  // only ever sees what readInput() hands it, and a link missing the four
+  // silently reopens with layout/material/sink/edge reset to the page's
+  // defaults while the headline price still matches to the cent -- the
+  // "plausible, different answer" class this repo's roundtrip check exists
+  // to catch, measured live on this exact venture in PR #3285.
+  const body = scriptSource.match(/function readInput\(\)\s*{([\s\S]*?)}/);
+  assert.ok(body, 'readInput() body has an unexpected shape');
+  const spread = body[1].match(/\[(\.\.\.[\w$]+(?:,\s*\.\.\.[\w$]+)*)\]/);
+  assert.ok(spread, 'readInput() no longer builds its field list from spread arrays');
+  const arrayNames = [...spread[1].matchAll(/\.\.\.([\w$]+)/g)].map((m) => m[1]);
+  const declared = arrayNames
+    .map((name) => scriptSource.match(new RegExp(`const ${name}\\s*=\\s*\\[([^\\]]*)\\]`)))
+    .filter(Boolean)
+    .map((m) => m[1])
+    .join(',');
+  for (const id of ['layoutId', 'materialId', 'sinkId', 'edgeId']) {
+    assert.match(declared, new RegExp(`'${id}'`), `readInput() does not read #${id}, so a shared link drops it`);
+  }
+});
+
 test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'finishedSqFt', 'waterfallEnds', 'layoutId', 'sinkId', 'edgeId',
@@ -126,4 +151,17 @@ test('printing sends the customer sheet and hides the contractor\u2019s own numb
 test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
+});
+
+// Closest kitchen-remodel sibling: tile backsplash (wall SF, pattern waste,
+// extras) rather than quartz/granite slabs and cutouts. Related-tool chrome
+// rotates alphabetically inside each subcategory, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the kitchen-tile-backsplash-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/kitchen-tile-backsplash-bid-calculator\/"/,
+    'index must link ../kitchen-tile-backsplash-bid-calculator/ so crawlers reach the tile calculator in one hop',
+  );
+  assert.match(html, /kitchen tile backsplash bid calculator/i);
 });

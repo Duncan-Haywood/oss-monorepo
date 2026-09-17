@@ -3,9 +3,9 @@
 ## Why this exists
 
 This repository is private and owned by a user account, so GitHub-hosted
-Actions minutes are metered. From **2026-08-26** every workflow run came back
-red, including ones that touch nothing (`Conflict markers`, `Branch cleanup`).
-They were not failing — they were never starting:
+Actions minutes are metered. From **2026-08-26 to 2026-09-01** every workflow
+run came back red, including ones that touch nothing (`Conflict markers`,
+`Branch cleanup`). They were not failing — they were never starting:
 
 ```
 started_at  2026-08-29T21:20:55Z
@@ -25,9 +25,72 @@ Self-hosted runners are not metered. They restore CI whether the ceiling that
 was hit was the included-minutes allowance or a spending limit, and they run on
 hardware the portfolio already pays for.
 
+**That window closed on its own (2026-09-01).** Runner *assignment* resumed
+from 2026-09-01T00:00:53Z, and the PRs that have run since went green on
+merit (#2601, #2603, #2605 — real runner ids, real steps). That is what the
+evidence establishes, and it is narrower than "all CI is green": runs still
+fail here for their own reasons. `Claude routine trigger` was the standing
+example — it got a real runner, reached the API, and came back
+`HTTP 401 … "OAuth access token has been revoked"` (run 33547527610). Its
+`CLAUDETRIGGERAPIKEY` secret *is* set; the token behind it is revoked. That
+is the `routine-trigger-cadence` decision, not a runner problem. Read a red
+check on its merits; `ci_starvation.py` is what separates the two causes.
+
+That example stopped being live on 2026-09-02, and how it stopped is the part
+worth carrying here: its `fire` job is now gated on the repository variable
+`ROUTINE_TRIGGER_ENABLED`, so a scheduled run is **skipped before a runner is
+assigned** instead of occupying one to fail. 403 of its 472 runs had failed by
+then, ~72 billed minutes a day, against the same metered
+allowance whose exhaustion caused the window above. A job skipped by a false
+`if:` costs nothing, which makes an owner-set variable the cheap way to hold a
+credential-blocked schedule — cheaper than the self-hosted runners below, and
+available today. The decision itself is untouched and still the owner's.
+
+**Starvation recurred on 2026-09-04, and the paragraph that stood here said
+it was not currently blocking.** That sentence was written on 2026-09-02 and
+was true then; it is what a session reads before deciding how urgent this
+stack is, so the correction matters more than the history. The cliff is
+pinned to a nine-minute window: run 33925827289 (`Portfolio validate`,
+22:30:52Z) took real runner 1000054728 and passed in 196s, and by 22:39:33Z
+runs 33926434774 and 33926436491 both came back `runner_id: 0` with no steps.
+Re-dispatched once more to rule out a momentary queue; it starved a third
+time. `portfolio/ledger/infra_state.yaml` carries this as a dated reading.
+
+The prediction the old paragraph made was right, and worth keeping: the
+ceiling **cycles**. The 2026-08-26 window lifted unattended at 00:00:53Z on
+the first of the month, which is what a metered allowance resetting looks
+like, so the reasonable expectation is that this one lifts on 2026-10-01
+unless the owner raises the ceiling sooner.
+
+**What is new, and is the reason this is not simply "insurance" any more:
+this stack cannot be the answer to the outage it was built for.** The runner
+pods run *in the k3s cluster*, Argo syncs them from `main`, and the cluster
+is dead — `:6443` refused on both boxes (`Outage triage` run 33889983086).
+So the fallback for metered CI is downstream of the very cluster whose
+repair needs CI. Turning `CI_RUNNER` on today would schedule pods onto an
+API server that is not listening.
+
+That makes the ordering concrete rather than a preference: **the SSH key
+rotation comes first**, because it is the only step in this chain that
+depends on neither a runner nor the cluster (port 22 answers on both boxes).
+Cluster back, then this stack, then the seals. `infra/OWNER_CHECKLIST.md`
+still lists `portfolio-site-repo` and `codex-secrets` ahead of it; both are
+sealed *into* the cluster and so are downstream of the same repair.
+
+**Added 2026-09-05: [`host/`](host/README.md) is the same fix `gitops/agents/host/`
+already applied to the Codex worker, applied here.** A systemd service on the
+agent box's own OS, no k3s underneath it — restoring actual CI capacity
+without waiting on the cluster (or Argo, or an image pull) at all. It is not
+a replacement for the stack below; it is what the box can run the moment the
+SSH key is rotated, before or independent of `restore-cluster.sh` bringing
+k3s back up.
+
 ## The switch
 
-All 246 `runs-on` lines across 220 workflows now read:
+404 of the 406 `runs-on` lines across 365 workflows now read this. The other
+two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
+`DOCKER_DEPENDENT_JOBS` names and pins to `ubuntu-latest` instead (they need a
+Docker daemon the self-hosted pod does not have):
 
 ```yaml
 runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
@@ -37,10 +100,30 @@ Unset, `vars.CI_RUNNER` is the empty string, which is falsy, so the expression
 falls back to `ubuntu-latest`. **Merging this changes nothing** until the repo
 variable is set. Setting it to `self-hosted` moves every workflow onto this
 stack at once; clearing it moves them all back when metered minutes reset. That
-is the point of routing through one variable rather than editing 217 files
-twice.
+is the point of routing through one variable rather than editing every
+workflow file twice.
 
 `gitops/tests/test_ci_runner.py` fails if a workflow hard-codes a runner again.
+
+**Adding a workflow job makes the sentence above stale, and that is a command,
+not an edit:**
+
+```
+python3 gitops/ci/sync_readme_counts.py          # rewrite it to match the tree
+python3 gitops/ci/sync_readme_counts.py --check  # or just report drift, exit 1
+```
+
+Commit the result alongside the workflow change.
+`test_readme_runs_on_count_matches_reality` has fired four times now (#2713,
+#2740, #3516, #3517) and every time a session hand-retyped three integers —
+twice spending a whole PR on it, #3516 and #3517 hours apart on 2026-09-06,
+because a workflow landed while the first was still open. The guard was right
+each time; what was missing was that the number is derivable, so the fix should
+not be arithmetic done by hand. The script counts the `runs-on` values that
+literally are the switch expression, while the test subtracts
+`DOCKER_DEPENDENT_JOBS`; the two derivations stay independent on purpose, and a
+third test asserts they agree, so an allowlist that drifts from the workflows
+fails instead of moving both numbers together.
 
 ## Turning it on
 
@@ -68,11 +151,26 @@ Application shows Degraded before step 1.
 
 ## How a job runs
 
-Each pod registers one **ephemeral** runner, takes exactly one job, and exits;
-the Deployment starts a replacement. Nothing persists between jobs — no
-checkout, no `node_modules`, no environment. A long-lived runner would carry
-one job's leftovers into the next, which is the usual way self-hosted CI starts
-producing results that do not reproduce.
+Each pod registers one **ephemeral** runner, takes exactly one job, and exits.
+Nothing persists between jobs — no checkout, no `node_modules`, no environment.
+A long-lived runner would carry one job's leftovers into the next, which is the
+usual way self-hosted CI starts producing results that do not reproduce.
+
+This section used to say the Deployment starts a replacement pod, and that is
+not what happens. A Deployment's pods may only set `restartPolicy: Always`, so
+when the runner exits the kubelet restarts the container **inside the same
+pod**; the Deployment sees nothing to replace, because the pod never left
+`Running`. That restart rebuilds the container filesystem from the image but
+does not clear an emptyDir — surviving container restarts is precisely the
+guarantee emptyDir is documented to give — so `/home/runner/_work` came back
+carrying the previous job's checkout, `_temp` and `_tool` cache. Only the first
+job on a genuinely new pod ever saw a clean tree.
+
+**Fixed 2026-09-01.** `runner-entrypoint.sh` empties the work volume before it
+registers, and fails closed (no registration, no job) if it cannot. That is
+where the ephemerality above is actually enforced;
+`gitops/tests/test_runner_entrypoint.py` seeds a work tree and proves both that
+it is gone and that it was already gone when `config.sh` ran.
 
 Two replicas: a PR here typically triggers `Portfolio validate`, `Page
 integrity`, `Conflict markers` and the touched venture's own CI. One runner
@@ -110,7 +208,7 @@ but the blast radius is bounded anyway:
 
 ## No workflow needs anything from the base image
 
-Nearly all 220 are `actions/checkout` plus `actions/setup-node`/`setup-python`,
+Nearly all workflows are `actions/checkout` plus `actions/setup-node`/`setup-python`,
 which download their own toolchains, so nothing here depends on what the base
 image ships beyond `curl`, `jq`, `unzip` and `git` — confirmed against
 `actions/runner`'s own `images/Dockerfile`, which installs exactly that list

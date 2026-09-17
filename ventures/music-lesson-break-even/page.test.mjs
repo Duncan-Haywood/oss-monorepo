@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
 
 test('page wires the pricing form, local draft controls, and submit-only usage', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
@@ -36,4 +37,47 @@ test('an invalid input clears stale results instead of leaving them next to a si
   }
   assert.match(body, /querySelector\('#lever-body'\)\.innerHTML\s*=\s*''/, 'the stale lever table rows are never cleared');
   assert.match(body, /querySelector\('#errors'\)\.hidden\s*=\s*false/, 'the error message is never shown');
+});
+
+// Regression: sitemap.xml was missing how-to-price-music-lessons.html, a
+// real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test('every .html file in the venture is reachable from the sitemap', async () => {
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
+});
+
+// Closest sibling: same break-even shape (fixed ownership/overhead cost
+// spread over bookings vs. lesson slots), but music lesson time rather than
+// equipment rental bookings. Without a crawlable link here, a crawler
+// entering on the music lesson calculator never reaches the equipment rental
+// break-even calculator in one hop.
+test('index links one hop to the equipment-rental-break-even sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/equipment-rental-break-even\/"/,
+    'index must link ../equipment-rental-break-even/ so crawlers reach the equipment rental break-even calculator in one hop',
+  );
+});
+
+// Closest sibling: same fixed-cost-over-occupancy shape (a room or a lesson
+// slot both cost the same whether filled or not), but a classroom of
+// enrolled children rather than one teacher's booked lessons. Without a
+// crawlable link here, a crawler entering on the music lesson calculator
+// never reaches the daycare tuition calculator in one hop -- it was a
+// crawlable orphan (siblings.mjs) until this link closed it.
+test('index links one hop to the childcare-tuition-calculator sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/childcare-tuition-calculator\/"/,
+    'index must link ../childcare-tuition-calculator/ so crawlers reach the daycare tuition calculator in one hop',
+  );
 });

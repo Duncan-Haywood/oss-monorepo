@@ -32,7 +32,7 @@
   </style>
 </head>
 <body>
-    <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, return on the cash you put in, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a>, whether <a href="#personalization">a personalization still pays after extra time and fees</a>, whether <a href="#etsy-ads">on-site Etsy Ads still leave a profit after ACOS</a>, whether <a href="#offsite-ads">Offsite Ads still leave a profit at 12% or 15%</a>, whether <a href="#production-partner">a production-partner quote still pays after you run out of handmade hours</a>, whether <a href="#star-seller">chasing Star Seller still beats staying unsigned</a>, whether <a href="#shop-sale">a 20% shop sale still beats staying full price</a>, whether <a href="#free-shipping">free shipping still leaves a profit</a>, or whether <a href="#etsy-labels">an Etsy shipping label still beats Pirate Ship</a>. Walk the numbers on <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a>, <a href="should-i-charge-for-etsy-personalization.html">should I charge for Etsy personalization</a>, <a href="is-etsy-ads-worth-it.html">is Etsy Ads worth it</a>, <a href="are-etsy-offsite-ads-worth-it.html">are Etsy Offsite Ads worth it</a>, <a href="should-i-use-an-etsy-production-partner.html">should I use an Etsy production partner</a>, <a href="is-etsy-star-seller-worth-it.html">is Etsy Star Seller worth it</a>, <a href="should-i-put-my-etsy-shop-on-sale.html">should I put my Etsy shop on sale</a>, <a href="should-i-offer-free-shipping-on-etsy.html">should I offer free shipping on Etsy</a>, and <a href="should-i-buy-etsy-shipping-labels.html">should I buy Etsy shipping labels</a>. A listing that sells slowly is a different question — <a href="listing-renewal.html">does auto-renew still cover the listing fee</a>. The keep-$X price question is <a href="what-price-keeps-this-etsy-profit.html">what price keeps this leftover after fees</a>.</p></header>
+    <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, return on the cash you put in, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a>, whether <a href="#personalization">a personalization still pays after extra time and fees</a>, whether <a href="#etsy-ads">on-site Etsy Ads still leave a profit after ACOS</a>, whether <a href="#offsite-ads">Offsite Ads still leave a profit at 12% or 15%</a>, whether <a href="#production-partner">a production-partner quote still pays after you run out of handmade hours</a>, whether <a href="#star-seller">chasing Star Seller still beats staying unsigned</a>, whether <a href="#shop-sale">a 20% shop sale still beats staying full price</a>, whether <a href="#free-shipping">free shipping still leaves a profit</a>, or whether <a href="#etsy-labels">an Etsy shipping label still beats Pirate Ship</a>. Walk the numbers on <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a>, <a href="should-i-charge-for-etsy-personalization.html">should I charge for Etsy personalization</a>, <a href="is-etsy-ads-worth-it.html">is Etsy Ads worth it</a>, <a href="are-etsy-offsite-ads-worth-it.html">are Etsy Offsite Ads worth it</a>, <a href="should-i-use-an-etsy-production-partner.html">should I use an Etsy production partner</a>, <a href="is-etsy-star-seller-worth-it.html">is Etsy Star Seller worth it</a>, <a href="should-i-put-my-etsy-shop-on-sale.html">should I put my Etsy shop on sale</a>, <a href="should-i-offer-free-shipping-on-etsy.html">should I offer free shipping on Etsy</a>, and <a href="should-i-buy-etsy-shipping-labels.html">should I buy Etsy shipping labels</a>. A listing that sells slowly is a different question — <a href="listing-renewal.html">does auto-renew still cover the listing fee</a>. The keep-$X price question is <a href="what-price-keeps-this-etsy-profit.html">what price keeps this leftover after fees</a>. This is not the same job as Etsy's own official fee lookup — <a href="vs-etsys-listing-form-calculator.html">this calculator vs. Etsy's own Profit Calculator</a> says which one to open for which question.</p></header>
   <main class="layout">
     <section><h2>Order and fee assumptions</h2><div class="fields">
       <label>Item price <input id="price" type="number" min="0" step="0.01" value="30"></label>
@@ -46,7 +46,7 @@
       <label>Materials / supplies <input id="materialCost" type="number" min="0" step="0.01" value="4"></label>
       <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
     </div></section>
-    <section class="result"><h2>Order result</h2><div id="profit" class="hero-number">$21.23</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Cash invested</dt><dd id="cashInvested"></dd><dt>Return on cash</dt><dd id="roi"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2 id="target-profit">Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><label>Target profit per order <input id="targetProfit" type="number" min="0" step="0.01" value="20"></label><p id="targetProfitPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copySummary" type="button">Copy order summary</button><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
+    <section class="result" aria-live="polite"><h2>Order result</h2><div id="profit" class="hero-number">$21.23</div><div id="label">estimated net contribution</div><dl><dt>Total revenue</dt><dd id="revenue"></dd><dt>Marketplace and payment fees</dt><dd id="fees"></dd><dt>Cash invested</dt><dd id="cashInvested"></dd><dt>Return on cash</dt><dd id="roi"></dd><dt>Other variable costs</dt><dd id="other"></dd><dt>Net margin</dt><dd id="margin"></dd><dt>Break-even item price</dt><dd id="breakEven"></dd></dl><hr><h2 id="target-profit">Reprice for a goal</h2><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label><p id="targetPrice"></p><label>Target profit per order <input id="targetProfit" type="number" min="0" step="0.01" value="20"></label><p id="targetProfitPrice"></p><table><thead><tr><th>Item price</th><th>Profit</th><th>Margin</th></tr></thead><tbody id="scenarios"></tbody></table><div class="actions"><button id="copySummary" type="button">Copy order summary</button><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset to defaults</button></div><p id="status" class="note" role="status" aria-live="polite"></p><hr><p class="note">Your numbers stay in this browser and are restored on your next visit. The shareable link puts them in the URL so you can bookmark your shop's fee setup or send it to a partner. This is a transparent arithmetic result using your inputs, not a statement of Etsy's current fee schedule.</p></section>
   </main>
   <section class="plus" id="etsy-plus">
     <h2>Is Etsy Plus worth it this month?</h2>
@@ -174,7 +174,7 @@
   </section>
   <section class="labels" id="etsy-labels">
     <h2>Does an Etsy shipping label still beat Pirate Ship?</h2>
-    <p>Buying the label is not the same decision as free shipping or Star Seller. Free shipping is what you charge the buyer. Star Seller is a faster label to stay on-time. Here the shipment is already sold. An Etsy quote auto-uploads tracking and usually keeps a lower item-not-received rate because Purchase Protection rides with the label. A Pirate Ship, Shippo, or carrier-account quote is often cheaper and usually loses that coverage, plus the minutes you spend uploading tracking. Quotes, claim rates, and time are inputs, not a carrier table. <a href="should-i-buy-etsy-shipping-labels.html">Should I buy Etsy shipping labels or use Pirate Ship?</a></p>
+    <p>Buying the label is not the same decision as free shipping or Star Seller. Free shipping is what you charge the buyer. Star Seller is a faster label to stay on-time. Here the shipment is already sold. An Etsy quote auto-uploads tracking and usually keeps a lower item-not-received rate because Purchase Protection rides with the label. A Pirate Ship, Shippo, or carrier-account quote is often cheaper and usually loses that coverage, plus the minutes you spend uploading tracking. A successful claim does not always return every fee Etsy charged on the order — set what share of listing, transaction, payment, and Offsite Ads fees actually comes back below; it defaults to 100% (a full refund) until you change it. Quotes, claim rates, and time are inputs, not a carrier table. <a href="should-i-buy-etsy-shipping-labels.html">Should I buy Etsy shipping labels or use Pirate Ship?</a></p>
     <div class="fields">
       <label>Etsy label <input id="etsyLabelCost" type="number" min="0" step="0.01" value="6"></label>
       <label>Third-party label <input id="thirdPartyLabelCost" type="number" min="0" step="0.01" value="5.10"></label>
@@ -182,6 +182,7 @@
       <label>Third-party claim rate (%) <input id="thirdPartyClaimRatePercent" type="number" min="0" max="100" step="0.1" value="2.5"></label>
       <label>Minutes to buy and upload the label <input id="labelUploadMinutes" type="number" min="0" step="0.1" value="4"></label>
       <label>Hourly wage for that time <input id="labelUploadWage" type="number" min="0" step="0.01" value="18"></label>
+      <label>Etsy fees refunded on a claim (%) <input id="labelFeeRefundOnClaimPercent" type="number" min="0" max="100" step="1" value="100"></label>
       <label>Shipments this month <input id="monthlyLabelShipments" type="number" min="1" step="1" value="40"></label>
     </div>
     <p id="labelsVerdict" class="verdict"></p>
@@ -208,10 +209,13 @@
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Selling the same product somewhere else too? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Etsy against eBay, Amazon, Reverb and your own store on one item — it opens with this order's price, shipping and cost already filled in and Etsy switched on, no retyping. It can also hand numbers the other way, into this page.</p>
+    <p>Comparing Etsy to other marketplaces on the same item? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks Etsy against eBay, Amazon, Walmart, TikTok Shop and your own store side by side from one set of inputs, then points here for the parts a headline rate cannot carry.</p>
+    <p>Selling the same product wholesale on Faire as well as retail here? The <a href="../faire-wholesale-calculator/">Faire wholesale fee calculator</a> prices an opening order after commission, Faire Pay Now, and payout float on the wholesale side of that same channel decision.</p>
+    <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs';
+    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs'; import { whereToSellUrl } from './to-where-to-sell.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -610,6 +614,8 @@
         document.getElementById('labelsRows').replaceChildren();
         document.getElementById('labelsNote').textContent = '';
       }
+      const whereToSellLink = document.getElementById('whereToSellLink');
+      if (whereToSellLink) whereToSellLink.href = whereToSellUrl(currentInputs());
     }
 
     // Repricing panel: the target-margin price and the +/- $10 scenario rows.
@@ -676,7 +682,7 @@
     ['freeShipPrice', 'monthlyOrders'].forEach(id => {
       field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'free_shipping_compared'));
     });
-    ['etsyLabelCost', 'thirdPartyLabelCost', 'etsyLabelClaimRatePercent', 'thirdPartyClaimRatePercent', 'labelUploadMinutes', 'labelUploadWage', 'monthlyLabelShipments'].forEach(id => {
+    ['etsyLabelCost', 'thirdPartyLabelCost', 'etsyLabelClaimRatePercent', 'thirdPartyClaimRatePercent', 'labelUploadMinutes', 'labelUploadWage', 'labelFeeRefundOnClaimPercent', 'monthlyLabelShipments'].forEach(id => {
       field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'etsy_labels_compared'));
     });
     document.getElementById('usageOptOut').addEventListener('change', update);
@@ -710,11 +716,30 @@
     document.getElementById('reset').addEventListener('click', () => {
       safe(() => localStorage.removeItem(INPUTS_KEY));
       history.replaceState(null, '', location.pathname);
-      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0, personalizationUpcharge: 8, extraMaterialCost: 1.50, extraTimeCost: 6, monthlyCustomOrders: 12, etsyAdsAcosPct: 12, yourTimeCost: 8, partnerUnitCost: 14, partnerHandlingCost: 1, yourMonthlyCapacity: 20, monthlyDemand: 40, partnerRejectRatePercent: 0, starSellerShippingCost: 9, starSellerMessageMinutes: 8, starSellerHourlyWage: 18, unsignedSellThroughPct: 40, starSellerSellThroughPct: 50, starSellerListings: 40, salePercent: 20, saleDollar: 5, listedSellThroughPct: 40, saleSellThroughPct: 55, saleListings: 40, freeShipPrice: 32, monthlyOrders: 40, etsyLabelCost: 6, thirdPartyLabelCost: 5.10, etsyLabelClaimRatePercent: 0.8, thirdPartyClaimRatePercent: 2.5, labelUploadMinutes: 4, labelUploadWage: 18, monthlyLabelShipments: 40 });
+      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0, personalizationUpcharge: 8, extraMaterialCost: 1.50, extraTimeCost: 6, monthlyCustomOrders: 12, etsyAdsAcosPct: 12, yourTimeCost: 8, partnerUnitCost: 14, partnerHandlingCost: 1, yourMonthlyCapacity: 20, monthlyDemand: 40, partnerRejectRatePercent: 0, starSellerShippingCost: 9, starSellerMessageMinutes: 8, starSellerHourlyWage: 18, unsignedSellThroughPct: 40, starSellerSellThroughPct: 50, starSellerListings: 40, salePercent: 20, saleDollar: 5, listedSellThroughPct: 40, saleSellThroughPct: 55, saleListings: 40, freeShipPrice: 32, monthlyOrders: 40, etsyLabelCost: 6, thirdPartyLabelCost: 5.10, etsyLabelClaimRatePercent: 0.8, thirdPartyClaimRatePercent: 2.5, labelUploadMinutes: 4, labelUploadWage: 18, labelFeeRefundOnClaimPercent: 100, monthlyLabelShipments: 40 });
       update(); flash('Reset to the default example order.');
     });
 
+    document.getElementById('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(safe(() => localStorage), field('usageOptOut').checked, 'handoff_where_to_sell');
+    });
+
     update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

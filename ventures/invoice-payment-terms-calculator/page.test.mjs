@@ -69,6 +69,18 @@ test("the 2/10 landing page uses the same worked example the tests lock", () => 
   assert.match(sitemap, /should-i-offer-2-10-net-30\.html/);
 });
 
+// faire-wholesale-calculator's Pay Now page already links here as the
+// generic early-pay path. Without the reverse link, a crawler entering on
+// this page never reaches the Faire-specific sibling — same one-way
+// orphan class as #3639 / #3641 / #3650.
+test("the 2/10 page links to the related Faire Pay Now early-pay page", () => {
+  assert.match(
+    earlySeo,
+    /href="\.\.\/faire-wholesale-calculator\/should-i-offer-faire-pay-now\.html"/,
+    "2/10 page must link the Faire Pay Now sibling so crawlers can reach it",
+  );
+});
+
 test("the calculator page wires the billing-schedule comparison", () => {
   assert.match(html, /compareSchedules/);
   assert.match(html, /depositForPeakExposure/);
@@ -301,4 +313,36 @@ test("wide money tables scroll inside their own box, not the phone viewport", ()
   // Money must not break mid-figure; the path label may wrap so the "Worth"
   // column stays visible on a laptop instead of scrolling out of view.
   assert.match(lateSeo, /td \{ white-space: nowrap; \} th, td:first-child \{ white-space: normal; \}/);
+});
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders the due date, cash-flow figures, and
+  // schedule/scenario tables in place on every keystroke, with no page
+  // reload. Before this fix the only aria-live elements on the page were
+  // status notes (#draftStatus, #status, #scheduleStatus) that render()
+  // never writes the result figures into, so a screen-reader user changing
+  // an input got no announcement that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: adjacent steps in one job. This tool produces the date cash
+// lands; that one turns those dates into a shortfall forecast. Rotating chrome
+// may never pair them inside the back-office subcategory.
+test('index links one hop to the cash-runway-planner sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/cash\-runway\-planner\/"/,
+    'index must link ../cash-runway-planner/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /cash runway planner/i);
 });

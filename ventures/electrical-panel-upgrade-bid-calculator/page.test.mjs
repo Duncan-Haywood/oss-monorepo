@@ -142,3 +142,17 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling journey: a Level 2 EV charger install is one of the
+// common reasons a house needs this panel/service upgrade, and the
+// EV-charger calculator already models that panel work. Related-tool
+// chrome rotates inside trades-mep, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the ev-charger-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/ev-charger-bid-calculator\/"/,
+    'index must link ../ev-charger-bid-calculator/ so crawlers reach the EV charger calculator in one hop',
+  );
+  assert.match(html, /EV charger installation bid calculator/i);
+});

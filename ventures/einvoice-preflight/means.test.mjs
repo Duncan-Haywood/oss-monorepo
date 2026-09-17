@@ -97,6 +97,25 @@ test("cash with IBAN is INV-046 and does not echo the account", () => {
   assert.ok(!findings[0].message.includes("DE89370400440532013000"));
 });
 
+test("SEPA with a wrong-length IBAN is not INV-045", () => {
+  // A truncated IBAN (20 chars, DE needs 22) is present, just malformed --
+  // IBAN.mjs's own INV-024 covers the length problem. INV-045 says "without
+  // an IBAN", which would be wrong here: this used to fire it anyway
+  // because looksLikeCompleteIban read the wrong-length value as "no IBAN".
+  assert.deepEqual(inspectPaymentMeans(invoice({
+    means: "58",
+    iban: "DE893704004405320130",
+  })), []);
+});
+
+test("cash with a wrong-length IBAN is still INV-046", () => {
+  const findings = inspectPaymentMeans(invoice({
+    means: "10",
+    iban: "DE893704004405320130",
+  }));
+  assert.deepEqual(findings.map((item) => item.rule), ["INV-046"]);
+});
+
 test("invoice without means stays clean", () => {
   assert.deepEqual(checkInvoice(invoice(undefined, false)), []);
 });

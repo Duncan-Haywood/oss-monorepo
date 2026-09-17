@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docker Base Image Pin Check vs. Hadolint</title>
+  <meta name="description" content="Hadolint's own DL3006 and DL3007 rules flag a missing tag and an explicit :latest tag. Neither requires a digest, so a specific-looking tag like node:18 passes Hadolint clean and is still mutable. This free browser tool checks that one narrower question directly.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-hadolint.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Docker Base Image Pin Check vs. Hadolint">
+  <meta property="og:description" content="Hadolint flags a missing tag or explicit :latest. It has no rule requiring a digest, so node:18 passes it clean while still being a mutable reference. This page runs just the digest-pinning question, free, in your browser.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/vs-hadolint.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or Hadolint?","acceptedAnswer":{"@type":"Answer","text":"They are different shapes of tool for a related but different question. Hadolint is a broad Dockerfile linter -- dozens of rules (its own DL-prefixed rule set plus ShellCheck applied to every RUN instruction) covering style, correctness, and best practices across an entire Dockerfile, run as a CLI, a Docker image, or a pre-commit hook. This tool checks exactly one thing: whether each FROM line's base image is pinned to a content digest, and instead of a rule-violation count it lists every unpinned reference individually with the exact docker buildx imagetools inspect command to look up the digest. If you want broad Dockerfile linting -- shell-scripting mistakes in RUN, missing WORKDIR, unnecessary layers, and more -- Hadolint is the right tool and this one does not attempt any of that. If you want the specific answer to \"which FROM lines are not digest-pinned, and what do I run to fix each one,\" this is the narrower tool for that question."}},{"@type":"Question","name":"Doesn't Hadolint already flag an unpinned base image?","acceptedAnswer":{"@type":"Answer","text":"Partially, and this is the exact gap this tool exists to close. Hadolint's own rule documentation describes DL3006 (\"Always tag the version of an image explicitly\") as flagging a FROM line with no tag at all, and DL3007 (\"Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag\") as flagging an explicit :latest tag. Neither rule requires a digest. A line like FROM node:18 satisfies both -- it has an explicit, non-latest tag -- and passes Hadolint clean by design, while still being a mutable reference: the publisher can push a new build to the 18 tag at any time, with nothing in your Dockerfile changing. This tool flags exactly that case, which Hadolint's own documented rules do not cover."}},{"@type":"Question","name":"Why would I need a separate checker if Hadolint already exists?","acceptedAnswer":{"@type":"Answer","text":"Two reasons. First, the coverage gap above: Hadolint's tagging rules stop at \"has an explicit, non-latest tag,\" and this tool's entire reason to exist is the next step, \"is that tag a content digest.\" Second, Hadolint is a Haskell binary (or a Docker image) you install and run; this tool is also available as a page you open with nothing to install, for a quick check on a Dockerfile you have not wired into a linter yet. Neither point is a criticism of Hadolint's own scope -- its rule set is deliberately broad and well beyond base-image pinning, which is exactly why a narrower, purpose-built check for this one question is worth having alongside it."}},{"@type":"Question","name":"Is this page affiliated with Hadolint?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by the Hadolint project or its maintainers. Hadolint is an open-source Dockerfile linter, named here only to describe what this checker is and is not, using facts drawn from Hadolint's own public rule documentation and source repository at github.com/hadolint/hadolint."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Docker Base Image Pin Check</a></p>
+    <h1>Docker Base Image Pin Check vs. Hadolint</h1>
+    <p class="lede">Related tools, different jobs. Hadolint is a broad Dockerfile linter whose own tagging rules stop at "has an explicit, non-latest tag" -- so <code>node:18</code> passes it clean. This page checks the next question directly: is that tag a content digest, free, in your browser, with no install.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>Hadolint</strong> (<code>github.com/hadolint/hadolint</code>) is an open-source Dockerfile linter
+        covering dozens of rules -- its own DL-prefixed rule set plus ShellCheck applied to every <code>RUN</code>
+        instruction -- across style, correctness, and best practices for an entire Dockerfile. It runs as a CLI, a
+        Docker image, or a pre-commit hook, typically wired into CI. Two of its rules touch base-image tagging: by
+        its own rule documentation, <strong>DL3006</strong> ("Always tag the version of an image explicitly") flags
+        a <code>FROM</code> line with no tag at all, and <strong>DL3007</strong> ("Using latest is prone to errors
+        if the image will ever update. Pin the version explicitly to a release tag") flags an explicit
+        <code>:latest</code> tag. Neither rule requires a digest.
+      </p>
+      <p>
+        <strong>This checker</strong> does one narrower thing: you paste the text of a Dockerfile, and it lists
+        every <code>FROM</code> line whose base image is not pinned to a content digest -- file, line, the mutable
+        reference it found, and the exact <code>docker buildx imagetools inspect</code> command to look up the
+        digest yourself. A line like <code>FROM node:18</code> satisfies both of Hadolint's tagging rules and passes
+        clean, while still being a mutable reference this tool flags: the publisher can push a new build to the
+        <code>18</code> tag at any time, with nothing in the Dockerfile changing to show it. It runs entirely in
+        your browser, needs no install, and makes no network call of its own.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>Does my Dockerfile have shell-scripting mistakes in a RUN instruction, unnecessary layers, or other style/correctness issues across the whole file?</td><td>Hadolint -- that is its entire job, and this tool does not attempt any of it.</td></tr>
+          <tr><td>Which exact FROM lines reference a base image by tag instead of digest, and what do I run to fix each one?</td><td>This checker -- a file:line list with a copy-pasteable remediation command, not a rule-violation count.</td></tr>
+          <tr><td>My FROM line has an explicit, specific version tag like :18 -- is that enough?</td><td>No, and only this checker says so directly: DL3006/DL3007 are both satisfied by an explicit non-latest tag, so Hadolint reports it clean.</td></tr>
+          <tr><td>I want this wired into CI to block a merge automatically.</td><td>Either: Hadolint's own CI integration for its broad rule set, or this tool's <code>check.py --fail-on-risk</code> for the digest-pinning question specifically.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">The two are complementary, not competing: a repository can run Hadolint for the broad linting pass it is built for and still reach for this tool for the one question Hadolint's own tagging rules stop short of.</p>
+      <p><a class="cta" href="./">Run the free base image pin check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or Hadolint?</h3>
+      <p>They are different shapes of tool for a related but different question. Hadolint is a broad Dockerfile linter -- dozens of rules (its own DL-prefixed rule set plus ShellCheck applied to every <code>RUN</code> instruction) covering style, correctness, and best practices across an entire Dockerfile, run as a CLI, a Docker image, or a pre-commit hook. This tool checks exactly one thing: whether each <code>FROM</code> line's base image is pinned to a content digest, and instead of a rule-violation count it lists every unpinned reference individually with the exact <code>docker buildx imagetools inspect</code> command to look up the digest. If you want broad Dockerfile linting -- shell-scripting mistakes in <code>RUN</code>, missing <code>WORKDIR</code>, unnecessary layers, and more -- Hadolint is the right tool and this one does not attempt any of that. If you want the specific answer to "which FROM lines are not digest-pinned, and what do I run to fix each one," this is the narrower tool for that question.</p>
+      <h3>Doesn't Hadolint already flag an unpinned base image?</h3>
+      <p>Partially, and this is the exact gap this tool exists to close. Hadolint's own rule documentation describes <strong>DL3006</strong> ("Always tag the version of an image explicitly") as flagging a <code>FROM</code> line with no tag at all, and <strong>DL3007</strong> ("Using latest is prone to errors if the image will ever update. Pin the version explicitly to a release tag") as flagging an explicit <code>:latest</code> tag. Neither rule requires a digest. A line like <code>FROM node:18</code> satisfies both -- it has an explicit, non-latest tag -- and passes Hadolint clean by design, while still being a mutable reference: the publisher can push a new build to the <code>18</code> tag at any time, with nothing in your Dockerfile changing. This tool flags exactly that case, which Hadolint's own documented rules do not cover.</p>
+      <h3>Why would I need a separate checker if Hadolint already exists?</h3>
+      <p>Two reasons. First, the coverage gap above: Hadolint's tagging rules stop at "has an explicit, non-latest tag," and this tool's entire reason to exist is the next step, "is that tag a content digest." Second, Hadolint is a Haskell binary (or a Docker image) you install and run; this tool is also available as a page you open with nothing to install, for a quick check on a Dockerfile you have not wired into a linter yet. Neither point is a criticism of Hadolint's own scope -- its rule set is deliberately broad and well beyond base-image pinning, which is exactly why a narrower, purpose-built check for this one question is worth having alongside it.</p>
+      <h3>Is this page affiliated with Hadolint?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by the Hadolint project or its maintainers. Hadolint is an open-source Dockerfile linter, named here only to describe what this checker is and is not, using facts drawn from Hadolint's own public rule documentation and source repository at github.com/hadolint/hadolint.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your build is safe from supply-chain attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming any digest yourself before pinning to it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The Dockerfile you paste is never uploaded, and this page makes no live comparison against Hadolint -- it is a static page describing category facts sourced from Hadolint's own public documentation, not a live lint of any Dockerfile. We count only anonymous local feature events, never people or Dockerfile content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

@@ -31,5 +31,5 @@ kill_criteria:
   - Fewer than three agencies use the report twice within 90 days.
   - Users cannot export a record that is clearer than the raw axe-core result.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/shopify-a11y-evidence/
   analytics: null

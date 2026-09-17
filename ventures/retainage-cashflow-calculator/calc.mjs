@@ -106,17 +106,40 @@ export function releaseSchedule(values) {
   const pastReduction = percentComplete >= reductionAtPct;
   const properHold = pastReduction ? round2(Math.min(progressRetainage, reducedHoldOnContract)) : progressRetainage;
   const shouldHaveReleased = pastReduction ? round2(Math.max(0, progressRetainage - properHold)) : 0;
-  // Before the reduction point, comparing full-contract retainage to the
-  // progress hold would always look "overheld" on a young job. Only flag the
-  // gap once the contract would typically have dropped the rate.
-  const unpaid = computeAll(values);
-  const overheld = pastReduction ? round2(Math.max(0, unpaid.retainageStillUnpaid - properHold)) : 0;
+  // How much retainage the GC is actually still sitting on, from this
+  // worksheet's own figures: of the work billed so far, the retainage slice
+  // is `progressRetainage`, and `billed - paidToDate` is everything not yet
+  // received. Whichever is smaller is the retainage genuinely outstanding —
+  // a GC behind on ordinary progress payments is not thereby holding extra
+  // retainage, and a GC who has already released some is holding less.
+  //
+  // This used to read `computeAll(values).retainageStillUnpaid`, which is
+  // `min(contractValue * rate, contractValue - paidToDate)` — both terms
+  // measured against the *whole* contract, including work not yet performed.
+  // On any job where the unbuilt remainder exceeds the full-contract
+  // retainage (i.e. most jobs before the final draw) the min pinned to the
+  // first term and `overheld` became a constant, completely insensitive to
+  // what the customer had actually paid. Worked example on the shipped
+  // defaults — $100k contract, 10% retainage, 80% complete, 5% reduced rate:
+  // paid $67,500 / $70,000 / $72,000 / $75,000 all reported the same $5,000
+  // "still held above the reduced rate", including the $75,000 case where
+  // the GC is holding $5,000 against a proper hold of exactly $5,000 and is
+  // over-withholding nothing at all. Telling a subcontractor a customer is
+  // sitting on $5,000 they are entitled to, when the customer is holding
+  // precisely what the modeled rule allows, is the one number in this
+  // section it is worst to get wrong.
+  const retainageHeldToDate = round2(Math.max(0, Math.min(progressRetainage, billed - values.paidToDate)));
+  // Before the reduction point the full rate is the proper hold, so there is
+  // nothing to be "above" — the gap only becomes meaningful once the contract
+  // would typically have dropped the rate.
+  const overheld = pastReduction ? round2(Math.max(0, retainageHeldToDate - properHold)) : 0;
   return {
     percentComplete,
     reductionAtPct,
     reducedRetainagePct,
     billed,
     progressRetainage,
+    retainageHeldToDate,
     properHold,
     shouldHaveReleased,
     overheld,
@@ -367,6 +390,7 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
       `Percent complete: ${release.percentComplete}%`,
       `Reduction point: ${release.reductionAtPct}% complete, then ${release.reducedRetainagePct}% retainage`,
       `Proper hold at this percent complete: $${release.properHold.toFixed(2)}`,
+      `Retainage withheld to date: $${release.retainageHeldToDate.toFixed(2)}`,
       `Typically already releasable: $${release.shouldHaveReleased.toFixed(2)}`,
       `Still held above the reduced rate: $${release.overheld.toFixed(2)}`,
     ] : []),

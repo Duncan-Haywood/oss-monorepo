@@ -257,6 +257,27 @@ test("a 100% return rate with unsellable goods and kept affiliate is a loss", ()
   assert.equal(result.expectedMargin, null);
 });
 
+test("a 100% return rate with no per-order costs breaks even rather than losing money", () => {
+  // expectedMargin is null whenever expectedRevenue is 0, which a 100%
+  // return rate always produces. That is not the same as belowBreakEven:
+  // with nothing left to lose on a returned order (no fulfillment, ads,
+  // return shipping, or affiliate clawback), expectedProfit lands at
+  // exactly 0, which is not < 0. index.html's verdict banner used to call
+  // .toFixed(1) on expectedMargin unguarded in this branch and crashed.
+  const result = calculateOrder({
+    itemPrice: 20,
+    quantity: 1,
+    cogs: 5,
+    returnRate: 100,
+    targetMargin: 20,
+  });
+  assert.equal(result.expectedMargin, null);
+  assert.equal(result.expectedRevenue, 0);
+  assert.equal(result.expectedProfit, 0);
+  assert.equal(result.belowBreakEven, false, "an exact break-even is not a loss");
+  assert.equal(result.hitsTargetMargin, false, "no revenue cannot hit a margin target");
+});
+
 test("rejects a target margin of 100% and a negative fee base", () => {
   assert.throws(() => calculateOrder({ ...sample(), targetMargin: 100 }), /less than 100/);
   assert.throws(() => calculateOrder({ ...sample(), tax: 50 }), /Fee base cannot be negative/);

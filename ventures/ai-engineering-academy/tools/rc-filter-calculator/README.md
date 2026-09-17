@@ -44,6 +44,12 @@ higher-order filters, component tolerances, source/load impedance loading,
 or parasitics — treat its numbers as the textbook design point and verify
 against your real parts.
 
+**Copy share link** encodes the filter type, the active mode, every
+component value, and each one's unit selector into the address bar, so a
+classmate or colleague checking the same design opens it exactly as
+entered — no retyping, no guessing which unit a bare number was in. Nothing
+rides through a server; see [`share.mjs`](share.mjs).
+
 ## No warranty
 
 This tool is provided free and as-is, without warranty of any kind, express
@@ -73,7 +79,8 @@ Pure ES modules, zero dependencies, zero build step:
   preferred value, and unit-prefix formatters), unit tested and reused
   unchanged by the browser UI.
 - [`usage.mjs`](usage.mjs) — the local-first usage counter described above.
-- [`index.html`](index.html) — the UI; imports both modules directly.
+- [`share.mjs`](share.mjs) — the shareable-link codec described above.
+- [`index.html`](index.html) — the UI; imports all three modules directly.
 
 ```sh
 node --test

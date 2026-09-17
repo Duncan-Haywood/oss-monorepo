@@ -1,0 +1,37 @@
+name: auto-repair-effective-labor-rate
+description: A private browser calculator that shows an independent auto repair shop what it actually collects for an hour of labor — the effective labor rate over the hours it sold — and then splits the gap to the posted door rate into customer-pay discounting, warranty shortfall and unbilled comeback hours, reports technician efficiency and cost per billed hour against cost per clock hour, and works out the posted rate a target labor gross profit would really require once realization is accounted for.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent shop owners will use an effective-labor-rate calculator because their management system reports labor sales and labor hours separately and never divides them, so the 15-30% they lose between the posted rate and the collected one is invisible in every report they already run.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Splitting the gap into customer-pay discounting, warranty shortfall and unbilled internal hours is what makes the number actionable rather than merely alarming, because the three have different fixes and a shop reading only the total attacks the most visible one rather than the largest.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The posted rate a target gross profit actually requires — the required effective rate grossed up for realization — is the output shop owners return for, because every rate rise they have tried landed short for exactly this reason and no free tool computes it.
+    status: untested
+    checked: null
+    # Settled by someone outside this repository using a published page, which
+    # is what `customer-contact` encodes. `links.production` exists but no
+    # visitor signal is measurable on this origin (see portfolio/usage/), so
+    # the router ranks this undispatchable rather than parking it at the top
+    # of a queue no session can clear.
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified independent shop owners complete a month and read a result within 90 days.
+  - Shop owners report that the inputs demand a split between labor and parts sales their management system does not produce, so the form cannot be completed from the reports they already run.
+  - The effective rates it produces prove so far from what shops recognise in their own numbers that the arithmetic is rejected rather than acted on.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/auto-repair-effective-labor-rate/
+  analytics: null

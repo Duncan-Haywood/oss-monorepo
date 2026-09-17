@@ -36,3 +36,25 @@ test('the share button and status region exist and are wired to the share module
   assert.match(html, /id="shareStatus"/);
   assert.match(html, /from '.\/share\.mjs'/);
 });
+
+test('the results table shows profit and margin, not just cost, using the revenue field it already collects', () => {
+  // Regression: "Revenue per job" was collected, validated, persisted, and
+  // shared but never used to compute anything -- the table only ever showed
+  // cost-side figures. See calc.test.mjs for the arithmetic coverage.
+  assert.match(html, /<th>Profit \/ job<\/th><th>Margin<\/th>/);
+  assert.match(html, /row\.profitPerJob/);
+  assert.match(html, /row\.marginPercent/);
+});
+
+// Closest break-even sibling: same fixed-vs-variable cost shape, but pricing
+// rental bookings rather than ranking supplier rates. Related-tool chrome
+// rotates inside the subcategory, so without an explicit one-hop a crawler
+// on this page may never land on that tool.
+test('index links one hop to the equipment-rental-break-even sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/equipment-rental-break-even\/"/,
+    'index must link ../equipment-rental-break-even/ so crawlers reach the rental calculator in one hop',
+  );
+  assert.match(html, /equipment rental break-even calculator/i);
+});
