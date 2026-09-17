@@ -319,7 +319,7 @@ def _restricted_path(tmp_path, provide=()):
 
 
 def test_check_reports_a_missing_prerequisite(box, tmp_path):
-    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar", "python3"))
     if path is None:
         pytest.skip("the test host is missing a prerequisite of its own")
 
@@ -382,7 +382,7 @@ def test_missing_prerequisite_names_the_debian_package_not_the_binary(box, tmp_p
 
 
 def test_override_installs_anyway_and_still_warns(box, tmp_path):
-    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar", "python3"))
     if path is None:
         pytest.skip("the test host is missing a prerequisite of its own")
 
@@ -488,7 +488,7 @@ def _fake_apt(bindir, *, succeed=True, provides=()):
 
 
 def test_missing_prerequisite_is_installed_and_the_install_proceeds(box, tmp_path):
-    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar", "python3"))
     if path is None:
         pytest.skip("the test host is missing a prerequisite of its own")
     log = _fake_apt(path, provides=("npm",))
@@ -527,7 +527,7 @@ def test_node_is_requested_as_the_nodejs_package(box, tmp_path):
 
 
 def test_apt_failure_refuses_and_changes_nothing(box, tmp_path):
-    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar", "python3"))
     if path is None:
         pytest.skip("the test host is missing a prerequisite of its own")
     _fake_apt(path, succeed=False)
@@ -553,7 +553,7 @@ def test_apt_succeeding_without_providing_the_binary_still_refuses(box, tmp_path
     worker -- exactly the outcome the prerequisite gate exists to prevent, with
     the added cost that it now reports clean.
     """
-    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar", "python3"))
     if path is None:
         pytest.skip("the test host is missing a prerequisite of its own")
     _fake_apt(path, succeed=True, provides=())
@@ -571,7 +571,7 @@ def test_apt_succeeding_without_providing_the_binary_still_refuses(box, tmp_path
 
 
 def test_skip_prereq_install_keeps_the_advise_and_refuse_behaviour(box, tmp_path):
-    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar", "python3"))
     if path is None:
         pytest.skip("the test host is missing a prerequisite of its own")
     log = _fake_apt(path, provides=("npm",))
@@ -595,7 +595,7 @@ def test_skip_prereq_install_keeps_the_advise_and_refuse_behaviour(box, tmp_path
 
 def test_check_never_installs_anything(box, tmp_path):
     """`--check` is the read-only mode; supplying packages must not change that."""
-    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar", "python3"))
     if path is None:
         pytest.skip("the test host is missing a prerequisite of its own")
     log = _fake_apt(path, provides=("npm",))
@@ -818,3 +818,104 @@ def test_check_reports_the_installed_queue_separately_from_the_checkout(box):
     out = run(box, "--check", confirm=False).stdout
     assert "installed on this box" in out
     assert "left-over.yaml" in out, "the report inferred the box's queue from the checkout"
+
+
+# --------------------------------------------------- the queue, parsed not counted
+#
+# Added 2026-09-17. The tests above assert `--check` *names the files* an
+# install would copy, and that was the right first step and is not the whole
+# question. A file being copied is not the same claim as the governor being able
+# to run it, and the gap between the two is silent in both directions.
+#
+# Measured that day against the six real items:
+#
+#   one `modelClass: Deep`   -> 6 files copied, 4 loaded. `_load_queue_dir`
+#                               swallows the ValueError per file, and the two it
+#                               dropped were deploy-cicd-readiness and
+#                               marketing-distribution -- the two highest
+#                               priorities in the queue.
+#   all six `enabled: false` -> 6 files copied, 0 runnable. `decide` filters on
+#                               `enabled`, so the timer holds on every tick and
+#                               exits 0.
+#
+# Both report six named files with a green tick, which is the "green, and
+# nothing ran" costume this script is otherwise built against.
+
+
+def test_check_reports_how_many_queue_items_are_actually_runnable(box):
+    out = run(box, "--check", confirm=False).stdout
+    assert "runnable" in out, "--check counts queue files but never parses them"
+    # The two the owner's recovery is for. Naming the priority is what makes
+    # the report answer "will this box do the work I care about first?".
+    assert "deploy-cicd-readiness (priority 7" in out
+    assert "marketing-distribution (priority 6" in out
+
+
+def test_check_names_a_queue_item_the_governor_would_silently_drop(box):
+    """A one-character typo removes an item, and nothing anywhere says so."""
+    run(box)
+    item = Path(box["CODEX_HOST_PREFIX"]) / "queue" / "deploy-cicd-readiness.yaml"
+    item.write_text(item.read_text().replace("modelClass: deep", "modelClass: Deep"))
+    out = run(box, "--check", confirm=False).stdout
+    assert "unreadable" in out
+    assert "deploy-cicd-readiness.yaml" in out
+    assert "unsupported modelClass: Deep" in out
+
+
+def test_check_says_nothing_would_run_when_the_installed_queue_is_all_disabled(box):
+    """Distinct from "installed but empty", and reachable by an ordinary merge."""
+    run(box)
+    queue = Path(box["CODEX_HOST_PREFIX"]) / "queue"
+    for f in queue.iterdir():
+        f.write_text(f.read_text().replace("enabled: true", "enabled: false"))
+    out = run(box, "--check", confirm=False).stdout
+    assert "NOTHING WOULD RUN" in out
+
+
+def test_the_interpreter_the_unit_execs_is_a_checked_prerequisite(box):
+    """`command -v python3` is not the question `ExecStart=` asks.
+
+    systemd resolves no PATH, so an absolute `ExecStart=` on a box whose python3
+    lives elsewhere fails 203/EXEC with the timer still reporting active. Every
+    prerequisite in the list before this one was something *worker.sh* needs;
+    the interpreter of the governor itself was missing, which made the check
+    right only by luck on an image that happens to ship python3 at /usr/bin.
+    """
+    out = run(box, "--check", confirm=False).stdout
+    assert "python3" in out
+    unit = ROOT / "agents" / "host" / "codex-governor.service"
+    exec_line = next(
+        line for line in unit.read_text().splitlines() if line.startswith("ExecStart=")
+    )
+    interpreter = exec_line.split("=", 1)[1].split()[0]
+    assert interpreter in out, (
+        f"--check never mentions {interpreter}, the interpreter the unit execs"
+    )
+
+
+def test_the_prerequisite_check_reads_the_unit_rather_than_a_second_copy(box, tmp_path):
+    """Change the unit's ExecStart and the check must follow it.
+
+    A hardcoded `/usr/bin/python3` here would pass every test above and go
+    stale the day the unit changed -- the copied-constant failure CLAUDE.md
+    records twice as having cost live product.
+    """
+    unit = ROOT / "agents" / "host" / "codex-governor.service"
+    original = unit.read_text()
+    backup = tmp_path / "unit.bk"
+    backup.write_text(original)
+    try:
+        unit.write_text(
+            original.replace(
+                "ExecStart=/usr/bin/python3 ", "ExecStart=/opt/absent/python3.12 "
+            )
+        )
+        result = run(box, "--check", confirm=False)
+        out = result.stdout + result.stderr
+        assert "/opt/absent/python3.12" in out
+        assert "not executable here" in out
+        # An interpreter at the wrong path is not a package apt can add, so it
+        # must not reach the apt-get advice.
+        assert "install -y --no-install-recommends python3" not in out
+    finally:
+        unit.write_text(backup.read_text())

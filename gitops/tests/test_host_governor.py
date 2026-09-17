@@ -446,3 +446,138 @@ def test_the_payload_really_does_not_carry_the_installer():
         "if the installer ever installs itself, the box hint can name its "
         "absolute path -- update enable_hint() and this test together"
     )
+
+
+# ------------------------------------------------------------- the queue report
+#
+# Added 2026-09-17. `--check` is the read-only preview an operator runs on the
+# box during the one SSH session this recovery gets, and it could not see a
+# queue that will never run. Two routes to that, both measured against the six
+# real items:
+#
+#   all six `enabled: false`   -> 6 files, 0 runnable. `decide` filters on
+#                                 `enabled`, so the timer reports
+#                                 `hold -- queue empty` and exits 0 forever.
+#   one `modelClass: Deep`     -> 6 files, 4 loaded. `_load_queue_dir` swallows
+#                                 the ValueError per file and moves on, and the
+#                                 two dropped were deploy-cicd-readiness and
+#                                 marketing-distribution, the highest-priority
+#                                 items in the queue.
+#
+# In both cases every visible signal was green: the file count stayed six, the
+# unit was active, `systemctl status` was clean, and the decision line said only
+# "governor disabled" because `decide` returns before it looks at the queue --
+# which is the state every pre-install rehearsal is in by definition.
+
+
+def _queue_dir(tmp_path: Path, items: list[dict]) -> Path:
+    queue = tmp_path / "q"
+    queue.mkdir()
+    for i, raw in enumerate(items):
+        (queue / f"item{i}.json").write_text(json.dumps(raw))
+    return queue
+
+
+def _item(**over) -> dict:
+    base = {
+        "id": "demo",
+        "repo": "o/r",
+        "prompt": "p",
+        "modelClass": "chore",
+        "priority": 1,
+        "enabled": True,
+    }
+    base.update(over)
+    return base
+
+
+def test_queue_report_counts_runnable_not_files(tmp_path) -> None:
+    queue = _queue_dir(
+        tmp_path,
+        [_item(id="live", priority=7), _item(id="off", enabled=False)],
+    )
+    lines, runnable = hg.queue_report(g, queue)
+    body = "\n".join(lines)
+    assert runnable == 1
+    assert "2 file(s), 1 runnable, 1 disabled, 0 unreadable" in body
+    assert "+ live (priority 7, chore)" in body
+    assert "disabled: off" in body
+    assert "NOTHING WOULD RUN" not in body
+
+
+def test_queue_report_says_nothing_would_run_when_every_item_is_disabled(tmp_path) -> None:
+    queue = _queue_dir(
+        tmp_path, [_item(id="a", enabled=False), _item(id="b", enabled=False)]
+    )
+    lines, runnable = hg.queue_report(g, queue)
+    assert runnable == 0
+    assert "NOTHING WOULD RUN" in "\n".join(lines)
+
+
+def test_queue_report_names_the_item_the_governor_drops(tmp_path) -> None:
+    """The reason, and the filename. An operator cannot fix what is only counted."""
+    queue = _queue_dir(tmp_path, [_item(id="fine"), _item(id="typo", modelClass="Deep")])
+    lines, runnable = hg.queue_report(g, queue)
+    body = "\n".join(lines)
+    assert runnable == 1
+    assert "1 unreadable" in body
+    assert "item1.json" in body
+    assert "unsupported modelClass: Deep" in body
+
+
+def test_queue_report_is_not_fooled_by_an_empty_or_absent_directory(tmp_path) -> None:
+    lines, runnable = hg.queue_report(g, tmp_path / "nope")
+    assert runnable == 0 and "nothing at" in "\n".join(lines)
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    lines, runnable = hg.queue_report(g, empty)
+    assert runnable == 0 and "every tick will hold" in "\n".join(lines)
+
+
+def test_check_reports_the_queue_even_while_the_policy_is_off(box, capsys) -> None:
+    """The regression that motivated all of the above.
+
+    `decide` short-circuits on a disabled policy, so before this the whole
+    report for an un-enabled box was two lines about the switch. The queue is
+    the half the operator cannot re-check without a second session, so it has
+    to print here even though -- especially though -- the governor is off.
+    """
+    (box / "policy.json").write_text(json.dumps({"enabled": False}))
+    assert hg.main(["--check"]) == 0
+    out = capsys.readouterr().out
+    assert "governor disabled" in out
+    assert "queue:" in out
+    assert "demo-item" in out
+
+
+def test_require_runnable_exits_1_only_while_nothing_would_run(box, monkeypatch, capsys) -> None:
+    # The live queue the fixture builds: reports, exits 0.
+    assert hg.main(["--check", "--require-runnable"]) == 0
+    capsys.readouterr()
+
+    # Same box, every item switched off. A reminder competes with everything
+    # else in a long report; an exit code does not.
+    dead = box / "dead"
+    dead.mkdir()
+    (dead / "i.json").write_text(json.dumps(_item(enabled=False)))
+    monkeypatch.setenv("CODEX_HOST_QUEUE", str(dead))
+    assert hg.main(["--check", "--require-runnable"]) == 1
+    assert "NOTHING WOULD RUN" in capsys.readouterr().out
+
+
+def test_queue_mode_needs_no_policy_and_no_state(tmp_path, monkeypatch, capsys) -> None:
+    """What `install-codex-host.sh --check` calls, on a box that has neither yet."""
+    queue = _queue_dir(tmp_path, [_item(id="only", priority=3)])
+    monkeypatch.setenv("CODEX_HOST_QUEUE", str(queue))
+    monkeypatch.setenv("CODEX_HOST_POLICY", str(tmp_path / "absent-policy.json"))
+    monkeypatch.setenv("CODEX_HOST_STATE", str(tmp_path / "absent-state.json"))
+    assert hg.main(["--queue"]) == 0
+    out = capsys.readouterr().out
+    assert "+ only (priority 3, chore)" in out
+    # It must not have written the state file it was pointed at.
+    assert not (tmp_path / "absent-state.json").exists()
+
+
+def test_require_runnable_is_rejected_outside_a_reporting_mode(capsys) -> None:
+    assert hg.main(["--once", "--require-runnable"]) == 2
+    assert "applies to --check and --queue" in capsys.readouterr().err

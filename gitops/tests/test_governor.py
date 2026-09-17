@@ -1329,3 +1329,117 @@ def test_the_shipped_policy_sets_an_auth_cooldown() -> None:
     # Longer than the limit cooldown: a 429 clears on its own, an expired
     # login does not.
     assert policy.cooldown_on_auth_failure_seconds > policy.cooldown_on_limit_seconds
+
+
+# --------------------------------------------------------------- queue fidelity
+#
+# Added 2026-09-17. Every assertion in this file about a real queue item --
+# `test_marketing_distribution_queue_item_is_real_and_bounded` and its four
+# siblings -- reads the file through `_minimal_yaml_mapping`, the same
+# hand-rolled parser it is implicitly trusting. So they check that the parser,
+# reading this file, produces a prompt containing a particular substring. They
+# cannot check that the parse is *faithful to the file*, and that is the half
+# that fails silently.
+#
+# Measured that day, on a prompt with one line left at column 0 -- an easy edit
+# to make in a 200-line prose block:
+#
+#   minimal parser: item loads OK, prompt kept 2 of the 4 lines written
+#   pyyaml:         ScannerError while scanning a simple key
+#
+# The literal-block loop ends at the first line that is neither indented by two
+# spaces nor blank, so the rest of the prompt is dropped and the following lines
+# are re-read as top-level keys. `queue_item_from_dict` ignores keys it does not
+# know and the truncated prompt is still a non-empty string, so the item loads,
+# the governor picks it, and the worker runs on the owner's ChatGPT quota
+# against a mandate that stops mid-sentence. Nothing goes red anywhere.
+#
+# Real YAML refuses the same file outright, which is why it is the oracle here:
+# the two longest prompts in the queue are `deploy-cicd-readiness` (7.3KB) and
+# `marketing-distribution` (9.7KB), they are prose, and they are edited by hand.
+# This is the "a guard that validates against a second copy of itself" defect
+# CLAUDE.md records three times against the front-door mirror, reached from the
+# parser side.
+
+
+def _real_queue_files() -> list[Path]:
+    """Every file `_load_queue_dir` would read, chosen the way it chooses them.
+
+    Globbing for `*.yaml` here would be a second copy of that selection, which
+    is the rule this whole section exists to enforce. JSON items are excluded
+    because `json.loads` is the stdlib and needs no oracle.
+    """
+    return [
+        f
+        for f in sorted((AGENTS / "queue").iterdir())
+        if f.suffix in {".yaml", ".yml"}
+    ]
+
+
+def test_every_real_queue_file_is_valid_yaml() -> None:
+    files = _real_queue_files()
+    # A queue that has quietly become empty would make every assertion below
+    # vacuous -- the "a green run that ran nothing" costume.
+    assert len(files) >= 6, [f.name for f in files]
+    for f in files:
+        try:
+            raw = yaml.safe_load(f.read_text())
+        except yaml.YAMLError as exc:  # pragma: no cover - the guard firing
+            pytest.fail(
+                f"{f.name} is not valid YAML, so `_minimal_yaml_mapping` is "
+                f"reading something nobody can predict: {exc}"
+            )
+        assert isinstance(raw, dict), f.name
+
+
+def test_minimal_yaml_agrees_with_real_yaml_on_every_real_queue_item() -> None:
+    """The parser's subset is proven against the corpus, not assumed.
+
+    Compares the `QueueItem` each parse produces rather than the raw mappings,
+    because that is exactly the surface the governor consumes: a key neither
+    parse reaches (a comment, an unknown field) is not a divergence worth
+    failing on, and `prompt`'s trailing newline -- which the two genuinely do
+    differ on, measured -- is absorbed by `queue_item_from_dict`'s own strip.
+    """
+    for f in _real_queue_files():
+        text = f.read_text()
+        mine = g.queue_item_from_dict(g._minimal_yaml_mapping(text))
+        real = g.queue_item_from_dict(yaml.safe_load(text))
+        assert mine == real, (
+            f"{f.name}: the governor's parser and real YAML disagree. The "
+            f"governor would run the first of these:\n"
+            f"  minimal: {mine}\n"
+            f"  pyyaml : {real}"
+        )
+
+
+def test_the_fidelity_guard_catches_a_truncating_de_indent() -> None:
+    """Pin the guard against the real defect, not an approximation of it.
+
+    Without this, the two tests above pass forever on a corpus that happens to
+    be clean and nobody learns whether they would fire. The input is the exact
+    shape measured on 2026-09-17: one prompt line left at column 0.
+    """
+    text = (
+        "id: demo\n"
+        "repo: o/r\n"
+        "delivery: agent\n"
+        "modelClass: deep\n"
+        "priority: 9\n"
+        "enabled: true\n"
+        "prompt: |\n"
+        "  Line one of the mandate.\n"
+        "  Line two: deploy and verify.\n"
+        "Line three lost its indentation.\n"
+        "  Line four, still intended as prompt.\n"
+    )
+    # The parser loads it happily, with half the prompt gone. This is the
+    # symptom, asserted so a future parser fix that closes the truncation shows
+    # up here as a failing expectation rather than as nothing.
+    item = g.queue_item_from_dict(g._minimal_yaml_mapping(text))
+    assert "Line four" not in item.prompt
+    assert len(item.prompt.splitlines()) == 2
+
+    # Real YAML refuses, which is what makes it usable as the oracle.
+    with pytest.raises(yaml.YAMLError):
+        yaml.safe_load(text)
