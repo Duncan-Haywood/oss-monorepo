@@ -228,7 +228,13 @@ const RELATIVE_SELF = relative(
 // graduation and not a switch that stopped being a switch. This branch was
 // open before `podcast-sponsorship-rate-calculator` landed, so it only ever
 // knew its own predecessor's number (283) until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 285;
+// 285 -> 286 on 2026-09-17, when `k8s-deprecated-api-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded`/`file_loaded` counters), same discovery
+// method as the rest of this running count. This branch was open before
+// nothing else landed on top of `subpath-robots-check`, so it only ever
+// knew its own predecessor's number (285) until this merge.
+const SWITCHES_IN_THE_CATALOGUE = 286;
 
 let counter = 0;
 function fixture(source) {
