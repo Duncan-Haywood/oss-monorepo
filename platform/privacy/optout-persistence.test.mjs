@@ -330,7 +330,16 @@ const RELATIVE_SELF = relative(
 // own `toggleUsage`/`usageAllowed` switch, opting out of the
 // `month-priced`/`gap-checked` counters -- exactly one added `usage.mjs`,
 // `ventures/twitch-payout-calculator/usage.mjs`, and no deletions.)
-const SWITCHES_IN_THE_CATALOGUE = 297;
+//
+// 297 -> 298 on 2026-09-17, when `docker-build-secrets-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch, the same `usage.mjs`
+// shape as its sibling `docker-base-image-pin-check`. Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/docker-build-secrets-check/usage.mjs`) and no deletions, so
+// this is a graduation and not a switch that stopped being one. The number
+// below is `sync_tree_counts.py`'s own fresh measurement against the merged
+// tree, not a hand sum.
+const SWITCHES_IN_THE_CATALOGUE = 298;
 
 let counter = 0;
 function fixture(source) {

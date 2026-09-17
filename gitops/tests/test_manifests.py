@@ -1972,7 +1972,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `twitch-payout-calculator` landed, so it only ever knew 312 until this
     # merge. Recorded from `sync_tree_counts.py`'s own fresh measurement
     # against the merged tree, not a hand sum.
-    total = 313  # `infra/OWNER_CHECKLIST.md`'s own "N of the 313 tools" wording.
+    #
+    # 314 since 2026-09-17, when `docker-build-secrets-check` graduated -- a
+    # browser-local and zero-dependency-CLI checker for Dockerfile build-time
+    # secret exposure: an ENV/ARG instruction whose name looks like a secret,
+    # or a COPY/ADD of a well-known credential file, with a BuildKit
+    # `RUN --mount=type=secret` fix for each finding. Direct sibling of
+    # `docker-base-image-pin-check` (same file, a different question -- FROM
+    # tag/digest rather than ENV/ARG/COPY secret exposure), cross-linked
+    # reciprocally. Recorded from `sync_tree_counts.py`'s own fresh
+    # measurement against the merged tree, not a hand sum.
+    total = 314  # `infra/OWNER_CHECKLIST.md`'s own "N of the 314 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
