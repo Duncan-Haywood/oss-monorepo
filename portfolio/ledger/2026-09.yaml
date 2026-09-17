@@ -32655,3 +32655,45 @@ entries:
         `validate_candidates.py`, `validate_probe_index.py`,
         `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        A scheduled "set fleet direction" brief landed on a portfolio whose
+        direction (viable businesses, donations-only, happy customers via
+        honest working products, legal exposure as the one hard stop, new
+        ventures ranked first) is already extensively current in
+        `portfolio/DIRECTION.md` and `AGENTS.md` (both substantively
+        touched within the last week). Per `DIRECTION.md`'s own "Before
+        rewriting this brief again" note and `check_direction_only.py`,
+        did not restate it; spent the session on real work instead, per
+        `session_gate.py`'s verdict.
+      - >-
+        `session_gate.py` flagged the published Pages snapshot as stale
+        against `main`'s tip. After `git fetch --unshallow origin main`,
+        `pages_state.py --require-current` showed the snapshot was in fact
+        current (no path the site is built from had changed since) --
+        concurrent sessions had already kept it fresh; no action needed.
+      - >-
+        `portfolio/router/allocate.py`'s dispatchable set is almost
+        entirely untested-hypothesis "explore" tasks on the saturated
+        trade-bid-calculator archetype (141+ instances, zero confirmed
+        visitors), which a single automated session cannot meaningfully
+        advance without real traffic. Chose the highest-value concrete,
+        verifiable action instead: `browser_state.py` reported all 8
+        whole-catalogue browser/accessibility checks stale, and this
+        exact check previously caught 48 critical axe label violations
+        across live products (2026-09-06) -- directly the
+        "deploy/market without legal liability, keep customers happy"
+        brief.
+      - >-
+        Ran the full recorded sweep (`playwright@1.56.0` + `axe-core`,
+        pinned per CLAUDE.md/AGENTS.md) against all 309 ventures / 1142
+        pages: `sideways`, `presets`, `roundtrip`, `highlight`, `contrast`
+        (1142 pages x 2 viewports, 0 WCAG A/AA violations), `optout`,
+        `sweep`, and `journey` all passed clean -- no defects found this
+        time. Recorded the reading (`--record`) so `browser_state.py`
+        stops reporting stale and no other session re-spends the ~25
+        minutes on a fresh full run before the tree moves again.
+    mrr_end: 0
