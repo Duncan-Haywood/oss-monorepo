@@ -215,6 +215,15 @@
     <summary type="text">Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Twitch Payout Calculator — Real Take-Home From Subs and Bits</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/twitch-payout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/twitch-payout-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% standard or 70% Partner Plus split) and Bits, see whether a mobile subscription really pays less (it doesn&#39;t), and check how many more subs close a monthly income gap.</summary>
+  </entry>
+  <entry>
     <title>Vector Database Cost Calculator (Pinecone, Weaviate, Qdrant, pgvector)</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vector-db-cost-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/vector-db-cost-calculator</id>

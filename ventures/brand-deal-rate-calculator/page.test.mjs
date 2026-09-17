@@ -48,6 +48,16 @@ test("index links one hop to the podcast-sponsorship-rate-calculator sibling", (
   assert.match(html, /podcast sponsorship rate calculator/i);
 });
 
+test("index links one hop to the twitch-payout-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/twitch-payout-calculator\/"/,
+    "index must link ../twitch-payout-calculator/ so crawlers reach it in one hop",
+  );
+  assert.match(html, /Twitch payout calculator/i);
+});
+
 // Adjacent step in the same workflow: this tool answers "what should I
 // charge", influencer-media-kit-generator answers "how do I present it" --
 // a creator with a rate in hand still needs the one-pager to send it in.

@@ -319,7 +319,17 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` shape as `call-recording-consent-check`. Verified the way
 // this file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/ny-llc-transparency-act-tracker/usage.mjs`) and no deletions,
-// so this is a graduation and not a switch that stopped being one.
+// so this is a graduation and not a switch that stopped being one. This
+// branch was open before `twitch-payout-calculator` landed, so it only
+// ever knew 296 until this merge -- both branches independently wrote
+// "296" for what the merged tree makes 297. The number below is
+// `sync_tree_counts.py`'s own fresh measurement against the actual merged
+// tree, not a hand sum of either branch's guess.
+//
+// (Merged concurrently: `twitch-payout-calculator` also graduated with its
+// own `toggleUsage`/`usageAllowed` switch, opting out of the
+// `month-priced`/`gap-checked` counters -- exactly one added `usage.mjs`,
+// `ventures/twitch-payout-calculator/usage.mjs`, and no deletions.)
 const SWITCHES_IN_THE_CATALOGUE = 296;
 
 let counter = 0;
