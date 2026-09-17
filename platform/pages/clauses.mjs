@@ -298,6 +298,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-spreadsheet / by-hand pages above (e.g. reverb-fee-
   // calculator's).
   'import-landed-cost-calculator/vs-tracking-landed-cost-in-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every landlord or
+  // tenant already has access to, not a company or product this could be
+  // mistaken for. The page names no specific spreadsheet product. Same
+  // reasoning as the other vs-spreadsheet / by-hand pages above.
+  'security-deposit-return-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
