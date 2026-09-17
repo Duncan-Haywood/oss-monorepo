@@ -161,6 +161,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company's product this could be mistaken for. The page's own footer
   // says so explicitly ("names no specific product").
   'sbom-diff-check/vs-diffing-the-raw-json-files.html',
+  // Compares against "splitting the kitchen bill evenly" -- a generic method
+  // every commissary/shared-kitchen operator already has, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above.
+  'commissary-kitchen-cost-split-calculator/vs-splitting-evenly.html',
   // Compares against "opening the instructions file and checking every link
   // and script reference by hand" -- a generic manual habit every developer
   // and reviewer already has access to, not a company or product this could
@@ -176,6 +181,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // for. The page's own footer says so explicitly ("names no specific
   // product"). Same reasoning as the other vs-spreadsheet pages above.
   'backflow-test-fee-calculator/vs-spreadsheet.html',
+  // Compares against "a flat per-acre quote" -- a generic pricing method
+  // every land surveyor already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other generic-method
+  // pages above (e.g. attic-insulation-bid-calculator's flat-rate page).
+  'land-survey-bid-calculator/vs-a-flat-per-acre-quote.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

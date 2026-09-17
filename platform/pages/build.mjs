@@ -487,10 +487,22 @@ const CATEGORY_RULES = [
     // enough niche that it should grow rather than sit at three. If it has not
     // gained a fourth member in a few months, fold it back into `services`
     // rather than defending it.
+    // `commissary-kitchen-cost-split-calculator` added 2026-09-16, the fourth
+    // member the comment above says to watch for. Its customer is the
+    // commissary operator (or a lead tenant) billing several food trucks for
+    // shared kitchen space, not a truck pricing its own food -- but the
+    // reader is the same food-truck-operator audience `food-truck-event-
+    // margin-calculator` already serves, one hop away as a declared sibling,
+    // and no section above fits better: it is not a trade bidding a job at a
+    // customer's property (`trades`), not a route/booking/licence
+    // (`services`), not someone else's storefront (`marketplace`), and not
+    // one person's own labour (`solo-earner`). It belongs beside the tool a
+    // reader of this hub is most likely to also want.
     test: (slug) => [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
+      'commissary-kitchen-cost-split-calculator',
     ].includes(slug),
   },
   {
@@ -2189,7 +2201,14 @@ const SUBCATEGORY_RULES = {
       // same reason `custom-farm-rate` does: it is not a takeoff for an
       // installed product, it is a rate measured against the operator's own
       // payroll and overhead — which is what this group is.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
+      // `land-survey-bid-calculator` joined 2026-09-16, for the same reason
+      // `custom-farm-rate` did: it is not a takeoff for an installed
+      // product — nothing is built, poured, or replaced — it prices a crew's
+      // own field, office-research, and drafting hours against a target
+      // margin, the same job-costing shape as `job-margin` and
+      // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
+      // work instead of a construction trade.
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|land-survey)/.test(slug),
     },
     {
       id: 'trades-cleaning',

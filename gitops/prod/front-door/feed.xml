@@ -35,6 +35,15 @@
     <summary type="text">Free calculator for bridal hair and makeup artists: price the bride, bridal party, hair-only, makeup-only, and kids&#39; services, apply an early-start fee and travel, top up to your service minimum, and check whether the group fits in one artist&#39;s schedule before the ceremony — or needs a second artist billed and paid as its own line item.</summary>
   </entry>
   <entry>
+    <title>Commissary Kitchen Cost Split Calculator — Bill Tenants Fairly</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commissary-kitchen-cost-split-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/commissary-kitchen-cost-split-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free calculator for commissary/shared-kitchen operators: split pooled monthly costs (rent, utilities, trash, cleaning, pest control, insurance) fairly among multiple food-truck tenants by hours booked and storage used, instead of splitting evenly, and get an itemized bill for each tenant.</summary>
+  </entry>
+  <entry>
     <title>Cron DST Drift Check — Will This Schedule Skip, Double-Fire, or Drift?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cron-dst-drift-check/"/>
     <id>tag:marisstella.dev,2026:tool/cron-dst-drift-check</id>
@@ -51,6 +60,15 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.</summary>
+  </entry>
+  <entry>
+    <title>Land Survey Bid Calculator — Corner-Based Pricing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/land-survey-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/land-survey-bid-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free bid calculator for independent licensed land surveyors: price a boundary, topographic, or ALTA/NSPS survey by corners located vs. set, terrain, record research, crew and drafting time — and see the gap against a flat per-acre quote.</summary>
   </entry>
   <entry>
     <title>Overtime Pay Calculator — Blended Rate for Two Pay Rates, Free</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Free VPAT / Accessibility Conformance Report Generator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vpat-acr-generator/"/>
-    <id>tag:marisstella.dev,2026:tool/vpat-acr-generator</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Fill in your own WCAG 2.1 A/AA conformance answers and get a correctly formatted VPAT 2.5 / Accessibility Conformance Report (ACR) for a federal or enterprise procurement RFP -- entirely in your browser, no account, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Screen Printing &amp; Embroidery Price Calculator — Cost Per Shirt, Setup &amp; Margin</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/apparel-decoration-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/apparel-decoration-price-calculator</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free screen printing, embroidery and DTF pricing calculator for custom apparel shops: work out your real cost per shirt from screens or digitising, press or stitch time, blanks and spoilage, then see the break-even price, the margin at what you quoted, and what the same job costs at 12, 24, 48, 72, 144 and 288 pieces. Runs entirely in your browser.</summary>
   </entry>
 </feed>

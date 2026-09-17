@@ -1686,7 +1686,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # version-changed packages between two builds, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    # 284 since 2026-09-16, when `backflow-test-fee-calculator` graduated —
+    # 284 since 2026-09-16, when `commissary-kitchen-cost-split-calculator`
+    # graduated — a browser-local calculator splitting a shared commissary
+    # kitchen's pooled monthly costs across multiple food-truck tenants by
+    # hours booked and/or storage used (a largest-remainder allocation so
+    # every tenant's total sums exactly to the pool total, to the cent),
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    # 285 since 2026-09-16, when `backflow-test-fee-calculator` graduated —
     # a browser-local calculator pricing a multi-device backflow-preventer
     # test visit (per-device fee, a multi-device discount for devices after
     # the first, a per-device report-filing fee, travel, and a retest fee
