@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555779 bytes
-#   portfolio-front-tools-1: 106 files, 554518 bytes
-#   portfolio-front-tools-2: 148 files, 556391 bytes
-#   portfolio-front-tools-3: 140 files, 556857 bytes
-#   portfolio-front-tools-4: 123 files, 555959 bytes
-#   portfolio-front-tools-5: 138 files, 553608 bytes
-#   portfolio-front-tools-6: 120 files, 555965 bytes
-#   portfolio-front-tools-7: 132 files, 556965 bytes
-#   portfolio-front-tools-8: 115 files, 555525 bytes
-#   portfolio-front-tools-9: 112 files, 555693 bytes
-#   portfolio-front-tools-10: 119 files, 544529 bytes
-#   portfolio-front-tools-11: 130 files, 555699 bytes
-#   portfolio-front-tools-12: 109 files, 550362 bytes
-#   portfolio-front-tools-13: 107 files, 555510 bytes
-#   portfolio-front-tools-14: 114 files, 554887 bytes
-#   portfolio-front-tools-15: 70 files, 356288 bytes
+#   portfolio-front-tools-0: 133 files, 555793 bytes
+#   portfolio-front-tools-1: 106 files, 554539 bytes
+#   portfolio-front-tools-2: 148 files, 556404 bytes
+#   portfolio-front-tools-3: 140 files, 556868 bytes
+#   portfolio-front-tools-4: 123 files, 555972 bytes
+#   portfolio-front-tools-5: 138 files, 554330 bytes
+#   portfolio-front-tools-6: 118 files, 556597 bytes
+#   portfolio-front-tools-7: 137 files, 556836 bytes
+#   portfolio-front-tools-8: 112 files, 556825 bytes
+#   portfolio-front-tools-9: 110 files, 556482 bytes
+#   portfolio-front-tools-10: 124 files, 550371 bytes
+#   portfolio-front-tools-11: 128 files, 556036 bytes
+#   portfolio-front-tools-12: 112 files, 547181 bytes
+#   portfolio-front-tools-13: 104 files, 555818 bytes
+#   portfolio-front-tools-14: 113 files, 555976 bytes
+#   portfolio-front-tools-15: 78 files, 386349 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1149,12 +1149,12 @@ configMapGenerator:
       - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
       - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
       - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
-      - flooring-bid-calculator__index.html.gz=flooring-bid-calculator__index.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - flooring-bid-calculator__index.html.gz=flooring-bid-calculator__index.html.gz
       - flooring-bid-calculator__share.mjs.gz=flooring-bid-calculator__share.mjs.gz
       - flooring-bid-calculator__usage.mjs.gz=flooring-bid-calculator__usage.mjs.gz
       - flooring-bid-calculator__vs-rfms.html.gz=flooring-bid-calculator__vs-rfms.html.gz
