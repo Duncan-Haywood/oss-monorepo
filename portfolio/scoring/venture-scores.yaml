@@ -13514,3 +13514,135 @@ ventures:
       incentive to bias the classification in either direction, and it
       gets strictly more useful to a multi-state caller the more accurately
       they identify both parties' states.
+
+  - slug: subpath-robots-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic URL parsing and a robots.txt grammar defined by RFC 9309.
+      There is nothing to infer: the governing file's location is fixed by the
+      standard at the origin root, and whether a site sits at that root is a
+      property of its URL. The one place judgement enters -- which hosts have
+      a documented ownership model worth naming -- is a hand-maintained table
+      of two entries, not a model.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same shape
+      as pinned-actions-check and required-checks-drift-check, not another
+      <trade>-bid-calculator. duplicate_check.py scored the closest existing
+      venture (security-txt-check, unrelated -- it shares only the vocabulary
+      of "a file at a well-known path") at 0.15 against the final
+      description, well under the 0.45 flag bar. The three crawler/SEO
+      ventures nearest in subject were each read rather than dismissed on
+      score: ai-crawler-access-check asks which AI crawlers a robots.txt
+      allows and assumes that file is the governing one, which is the
+      assumption this venture tests; sitemap-lastmod-freshness-check reads
+      dates inside a sitemap already found, where this is about one never
+      being found; canonical-tag-check is a different mechanism entirely.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the browser page
+      runs the real engine client-side and the CLI runs on the user's own
+      machine, so serving one more user costs a static file and needs no
+      human review of any output.
+      Distribution 7, the highest in this checker family and above
+      required-checks-drift-check's 6: the failure mode is silent, so people
+      do not search for an error message, they search for the symptom
+      ("github pages sitemap not indexed", "robots.txt github pages project
+      site"). Those are recurring, currently-answered-badly questions --
+      several of the top answers tell the asker to edit the file at the
+      subpath, which is the one thing that cannot work -- so there is a real
+      gap rather than a crowded field. Still unmeasured against this
+      portfolio's own traffic, which has never recorded a visitor reading for
+      any product.
+      Time to revenue 6, defensibility 4: donations-only; the rule it applies
+      is one paragraph of a public RFC, so anyone could reimplement it, and
+      defensibility rests on the specific framing and this portfolio's
+      disclaimer/usage conventions rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: a structural, read-only check over a URL and text the
+      user pastes -- no advice-of-record, no compliance claim, no money and no
+      legal exposure downstream of a wrong answer, which costs at most a
+      wasted afternoon. The browser page makes no network call at all; the
+      CLI makes exactly one, only under an explicit `--fetch`, and only to the
+      origin-root robots.txt, a request any stranger could make. The single
+      misreading that could do real harm -- concluding "my site is not
+      indexed" when only enumeration is affected and link-following still
+      works -- is stated in visible prose on both pages and asserted by a
+      test, because acting on it would mean tearing out a working setup.
+      Ethically: donations-only with no per-use fee, so nothing biases the
+      verdict, and the tool tells a site at an origin root that it is fine
+      rather than manufacturing a finding.
+
+  - slug: import-landed-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic on rates and fees the user supplies -- item
+      cost plus freight for customs value, a duty and supplemental rate
+      applied to it, and a CBP fee schedule (MPF floor/ceiling, HMF) that is
+      a fixed formula, not a model. There is nothing to infer: the tool
+      never determines an HTS code or a duty rate, only prices the numbers
+      once the user has them.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a browser-local calculator for small e-commerce
+      importers pricing total landed cost, distinct from every marketplace
+      fee calculator already in the portfolio (amazon-fba-calculator,
+      shopify-fee-calculator, etc., which price a channel's own seller fees,
+      never customs duty or freight-side arithmetic) and from the logistics
+      section's existing freight/cloud-cost tools (3pl-quote-normalizer,
+      freight-accessorial-auditor, cloud-egress-calculator, ltl-freight-
+      class-estimator), none of which touch duty, tariffs, or CBP fees.
+      duplicate_check.py scored the closest existing venture at 0.17 against
+      the final description, well under the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: nothing to host beyond a static
+      page -- the arithmetic runs client-side and serving one more user
+      costs a static file with no human review of any output.
+      Distribution 8: "landed cost calculator", "customs duty calculator",
+      "china tariff calculator", and "de minimis calculator" are recurring,
+      high-intent search terms in r/FulfillmentByAmazon, r/dropship, r/
+      AmazonSeller, r/ecommerce, and r/Alibaba, sharpened by the 2025
+      narrowing of the $800 de minimis exemption -- a current, well-
+      documented disruption that has not settled into a stable answer
+      elsewhere. Still unmeasured against this portfolio's own traffic,
+      which has never recorded a visitor reading for any product.
+      Time to revenue 7, defensibility 5: donations-only; the CBP fee
+      schedule and duty-rate arithmetic are public, so anyone could
+      reimplement the calculation, but the combined MPF-floor/ceiling,
+      HMF-conditional, and formal/informal-entry logic in one place, plus
+      the specific small-importer framing, is not a one-line clone the way
+      a single fee-percentage lookup would be.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page and README state, near the top and
+      explicitly, that this is not a customs broker, freight forwarder, or
+      licensed customs classification service and does not determine an
+      HTS code, a duty rate, or a compliance obligation -- it is arithmetic
+      once the user supplies the rates, matching DIRECTION.md's "no advice-
+      of-record, no compliance warranty" guardrail. No duty or tariff rate
+      is hardcoded as fact for any product category; only the published
+      CBP MPF/HMF fee-schedule figures are, each captioned to confirm
+      before relying on it. Ethically: donations-only with no per-use fee,
+      so nothing biases the arithmetic toward a higher or lower result.

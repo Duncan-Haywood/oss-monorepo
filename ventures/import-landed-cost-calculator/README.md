@@ -103,7 +103,7 @@ off the item cost alone and then getting hit at customs with duty, Section
 301 tariffs, and fees they did not budget for is one of the most common
 complaints in r/FulfillmentByAmazon, r/dropship, r/AmazonSeller, r/ecommerce,
 and r/Alibaba. Screened with `duplicate_check.py` against the existing
-portfolio (top similarity score 0.2, well under the 0.45 near-duplicate
+portfolio (top similarity score 0.17, well under the 0.45 near-duplicate
 threshold) — nothing else here covers customs, duty, or tariff arithmetic.
 Enterprise landed-cost platforms (Flexport, Zonos) target larger shippers
 with account managers; the independent seller shipping $1k–$50k at a time

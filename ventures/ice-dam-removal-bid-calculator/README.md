@@ -45,15 +45,25 @@ specific footage to break even. Comparing it to the rate actually being
 charged tells an operator, before the truck rolls, whether a short call is
 about to be quietly unprofitable.
 
+## Sharing a bid
+
+"Copy share link" encodes every pricing field (and the proposal's deposit
+and hold-period terms) into this page's own URL fragment and copies it to
+the clipboard — send it to a partner, the office, or your own next visit,
+and it reopens the same job. Nothing is transmitted: the link is built and
+copied entirely in your browser, and only fields this calculator actually
+has can ride in it. See [`share.mjs`](share.mjs).
+
 ## Privacy and usage
 
 Everything runs in your browser. Your job details, prices, and hours are
-never uploaded, there is no account, and nothing is saved when you close
-the tab — every field resets on refresh by design. We count anonymous local
-feature events only (`quote-priced`, `actual-hours-checked`), with a visible
-opt-out. Do Not Track and Global Privacy Control disable counting
-automatically. No job details, prices, or hours are recorded. The counter
-is not sent to the maintainers.
+never uploaded, there is no account, and nothing is saved to storage —
+every field resets on refresh unless you opened or copied a share link,
+which lives only in the page's own URL. We count anonymous local feature
+events only (`quote-priced`, `actual-hours-checked`, `share_link_copied`),
+with a visible opt-out. Do Not Track and Global Privacy Control disable
+counting automatically. No job details, prices, or hours are recorded. The
+counter is not sent to the maintainers.
 
 ## Disclaimer
 
