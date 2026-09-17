@@ -33,22 +33,23 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555790 bytes
-#   portfolio-front-tools-1: 106 files, 554407 bytes
-#   portfolio-front-tools-2: 147 files, 552837 bytes
-#   portfolio-front-tools-3: 140 files, 553818 bytes
-#   portfolio-front-tools-4: 123 files, 549403 bytes
-#   portfolio-front-tools-5: 137 files, 556218 bytes
-#   portfolio-front-tools-6: 119 files, 554324 bytes
-#   portfolio-front-tools-7: 136 files, 549439 bytes
-#   portfolio-front-tools-8: 112 files, 556392 bytes
-#   portfolio-front-tools-9: 112 files, 554081 bytes
-#   portfolio-front-tools-10: 120 files, 555347 bytes
-#   portfolio-front-tools-11: 122 files, 557015 bytes
+#   portfolio-front-tools-0: 133 files, 555824 bytes
+#   portfolio-front-tools-1: 106 files, 554403 bytes
+#   portfolio-front-tools-2: 147 files, 553006 bytes
+#   portfolio-front-tools-3: 140 files, 553803 bytes
+#   portfolio-front-tools-4: 123 files, 549448 bytes
+#   portfolio-front-tools-5: 137 files, 556214 bytes
+#   portfolio-front-tools-6: 119 files, 554321 bytes
+#   portfolio-front-tools-7: 136 files, 549447 bytes
+#   portfolio-front-tools-8: 112 files, 556368 bytes
+#   portfolio-front-tools-9: 112 files, 554078 bytes
+#   portfolio-front-tools-10: 120 files, 555338 bytes
+#   portfolio-front-tools-11: 122 files, 557011 bytes
 #   portfolio-front-tools-12: 129 files, 554473 bytes
-#   portfolio-front-tools-13: 98 files, 553358 bytes
-#   portfolio-front-tools-14: 115 files, 549980 bytes
-#   portfolio-front-tools-15: 109 files, 550007 bytes
+#   portfolio-front-tools-13: 98 files, 553360 bytes
+#   portfolio-front-tools-14: 116 files, 556096 bytes
+#   portfolio-front-tools-15: 61 files, 289793 bytes
+#   portfolio-front-tools-16: 52 files, 271343 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1965,6 +1966,11 @@ configMapGenerator:
       - tutor-package-pricing-calculator__index.html.gz=tutor-package-pricing-calculator__index.html.gz
       - tutor-package-pricing-calculator__usage.mjs.gz=tutor-package-pricing-calculator__usage.mjs.gz
       - tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz=tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz
+      - vector-db-cost-calculator__calc.mjs.gz=vector-db-cost-calculator__calc.mjs.gz
+      - vector-db-cost-calculator__index.html.gz=vector-db-cost-calculator__index.html.gz
+      - vector-db-cost-calculator__usage.mjs.gz=vector-db-cost-calculator__usage.mjs.gz
+      - vector-db-cost-calculator__vs-pinecone.html.gz=vector-db-cost-calculator__vs-pinecone.html.gz
+      - vector-db-cost-calculator__what-is-vector-index-overhead.html.gz=vector-db-cost-calculator__what-is-vector-index-overhead.html.gz
       - vehicle-wrap-bid-calculator__calc.mjs.gz=vehicle-wrap-bid-calculator__calc.mjs.gz
       - vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz=vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz
       - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
@@ -1986,15 +1992,15 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
-      - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
-      - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
-      - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
-      - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
+      - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
+      - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
+      - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
@@ -2052,6 +2058,11 @@ configMapGenerator:
       - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - whatnot-seller-payout__calc.mjs.gz=whatnot-seller-payout__calc.mjs.gz
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
+  - name: portfolio-front-tools-16
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - whatnot-seller-payout__index.html.gz=whatnot-seller-payout__index.html.gz
       - whatnot-seller-payout__share.mjs.gz=whatnot-seller-payout__share.mjs.gz
       - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz
