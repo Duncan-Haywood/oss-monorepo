@@ -32207,6 +32207,79 @@ entries:
         `share_link_copied` event is counted locally, opt-out, and never
         transmitted, per portfolio/usage/README.md.
     mrr_end: 0
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/clever-bohr-xqssob`. PR queue at start: 2 open PRs (#4883,
+        #4884). Reviewed both; both were sound, generic-method comparison
+        page and share-link additions respectively. Both were merged by
+        concurrent sessions/the author while this session verified them
+        locally (CI was starved -- `ci_starvation.py` showed `runner_id: 0`
+        on every red check on #4883). Queue was empty of repairable PRs by
+        the time this session finished verification, so the 3-PR quota
+        reduces to "process what exists" and that was done.
+      - >-
+        Checked the two explicit asks in this session's brief against
+        current state rather than duplicating them: (1) Hetzner
+        deployment/CI-CD -- `decision_queue.py` already carries
+        `hetzner-ssh-key-is-a-public-key` as item #1/17, gating the k3s
+        cluster, self-hosted runners, and the Codex worker, blocked solely
+        on the owner pasting a private SSH key + tokens from their own
+        machine (`bootstrap/restore-cluster.sh`); the GitHub Pages route
+        (`duncan-haywood.github.io/monorepo-projects/`) is separately live
+        and its snapshot was confirmed `current` via `pages_state.py
+        --require-current`, so marketing/front-door content is being built
+        and served today via that route. (2) "Codex CLI on the Hetzner VM
+        using its built-in quota" -- already fully built and queued in the
+        same decision-queue row (`enable-codex-governor.sh`, `worker.sh`
+        preferring `CODEX_AUTH_JSON` over a billed API key, RBAC via
+        `policy.json`), gated on the same owner-only secret paste. Did not
+        re-add either ask to the queue.
+      - >-
+        Added a "Copy share link" feature to
+        ventures/asbestos-abatement-bid-calculator (one of ~130 ventures
+        with an index.html but no share.mjs at the start of this session):
+        containment class, square footage, crew/supervisor rates, air
+        monitoring, waste disposal, permit, and the proposal panel's
+        deposit/terms now round-trip through the page's own URL fragment.
+        Modeled directly on the just-merged
+        ice-dam-removal-bid-calculator/share.mjs pattern (same
+        SHARE_FIELDS/encodeShare/decodeShare shape, same allowlist and
+        injection tests) rather than inventing a new shape. Nothing is
+        transmitted -- the link is built and copied entirely in the
+        visitor's own browser.
+      - >-
+        Checked for overlap first: 0 open PRs; the only branch touching
+        this venture (`asbestos-abatement-venture`) is stale orphan history
+        whose unique content (the venture's original creation commit)
+        already shipped to `main` under the same slug via a different path
+        -- confirmed by `git merge-base --is-ancestor` failing only because
+        of a shallow single-branch fetch, and by the venture already
+        existing in full on `main` with its comparison page.
+      - >-
+        Updated the existing `page.test.mjs` usage-counting assertion (it
+        matched an exact substring of the privacy paragraph that the new
+        `share_link_copied` event name would otherwise have broken) and
+        added a new test asserting the share import/button/counting wiring,
+        following the same split ice-dam-removal-bid-calculator's own
+        `page.test.mjs` already uses.
+      - >-
+        Verified locally rather than by CI, which is starved this cycle
+        (`ci_starvation.py`; `runner_id: 0` on every job of #4883's checks):
+        93/93 venture assertions (8 new in `share.test.mjs`, 2 changed/new
+        in `page.test.mjs`), 101/101 `platform/proposal`, and the full
+        `platform/marketing` + `platform/pages` suite.
+        `checklist_coverage.py` clean.
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for this or any product in the
+        portfolio (`live_url_visitors: null`, not zero). The new
+        `share_link_copied` event is counted locally, opt-out, and never
+        transmitted, per portfolio/usage/README.md.
+    mrr_end: 0
   - venture: dental-ppo-writeoff-calculator
     agent_spend_usd: null
     human_hours: 0
