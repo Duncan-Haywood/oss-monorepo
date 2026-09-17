@@ -1940,7 +1940,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `shop-rate-calculator` and `cut-list-optimizer`. Both branches
     # independently wrote counts against a base neither could see the other
     # land on; `sync_tree_counts.py` settles the true figure after merge.
-    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
+    total = 311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 311 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
