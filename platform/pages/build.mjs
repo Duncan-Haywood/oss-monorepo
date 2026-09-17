@@ -723,7 +723,19 @@ const CATEGORY_RULES = [
     // four times a year — same desk, same audience, and the three tools link
     // to each other. Named explicitly rather than folded into a wider pattern
     // because the slug starts with an acronym no other rule here would guess.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier)/.test(slug),
+    //
+    // `vector-db-` joined 2026-09-17, found by enumerating the catch-all
+    // rather than judging the arrival that tripped `build.test.mjs`'s
+    // bound alone (that arrival was `tutor-package-pricing-calculator`,
+    // which belongs nowhere near this section — see `solo-earner` below).
+    // `vector-db-cost-calculator` sizes a storage/query cost decision
+    // before committing to a vendor, the same "size a transfer window
+    // before you sign for it" shape this section's own blurb already
+    // names — it is `cloud-egress-calculator`'s direct sibling (both are
+    // bring-your-own-rates infrastructure cost estimators, and the two
+    // pages already cross-link each other as Related), just for a
+    // different resource (a vector index instead of object storage).
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db)/.test(slug),
   },
   {
     id: 'evidence',
@@ -1511,6 +1523,15 @@ const CATEGORY_RULES = [
     // first commits rather than landing in the catch-all, which is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on
     // it.
+    //
+    // `tutor-package-pricing-calculator` joined 2026-09-17, found by
+    // enumerating the catch-all after a merge pushed it to 6 rather than by
+    // judging either arrival alone: an independent tutor or coach deciding
+    // whether a discounted prepaid session package still pays as well per
+    // hour as billing per session is the same move as
+    // `gig-driver-net-pay-calculator`'s gig driver and
+    // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
+    // own labour, not a business quoting a customer.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1524,6 +1545,7 @@ const CATEGORY_RULES = [
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
+        'tutor-package-pricing-calculator',
       ].includes(slug),
   },
 ];
