@@ -1869,7 +1869,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # already declared, the direct Android-side counterpart to
     # `ios-privacy-manifest-check`, with a static `index.html` from its
     # first commit, same shape as the rest of this running count.
-    total = 305  # `infra/OWNER_CHECKLIST.md`'s own "N of the 305 tools" wording.
+    # 306 since 2026-09-17, when `cnc-machining-quote-calculator` graduated --
+    # a browser-local job-costing calculator for CNC machine shops, costing a
+    # part from whole-stock-unit material yield (bar or nested plate), cycle
+    # and handling time, the flat per-lot block (setup, programming,
+    # first-article inspection), perishable tooling, and an outside process
+    # with its lot minimum, then costing the same part at every standard lot
+    # size from 1 to 500 -- the same setup-plus-machine-time-plus-material
+    # shape as `apparel-decoration-price-calculator` and
+    # `3d-print-price-calculator`, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 306  # `infra/OWNER_CHECKLIST.md`'s own "N of the 306 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -33148,3 +33148,126 @@ entries:
         `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
         `checklist_coverage.py` and `guard_state.py --require-runnable`
         both clean (no fixable skip, no missing checklist line).
+  - venture: cnc-machining-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a browser-local job-costing and
+        quantity-break calculator for CNC job shops. The niche is a machine
+        shop quoting a part against an RFQ, which the portfolio did not touch
+        -- `duplicate_check.py` scored 0.17 at most against a 0.45 threshold on
+        two phrasings, and grep for cnc/machining/machinist/lathe/milling
+        across `ventures/`, `screened-out.md` and `ai-first-markets` returned
+        nothing but one unrelated CNCF mention. Zero open PRs at the start of
+        the run, so the three-PR drain was vacuously clear rather than skipped.
+      - >-
+        The substance is four costs that behave in ways a per-part price hides,
+        each modelled and each pinned by its own tests. Setup, programming and
+        first-article inspection are flat per lot, so the example part is
+        $11.64 of flat work per piece at 25 and $0.58 at 500. Material is
+        bought in whole bars or sheets, making cost per part a step function
+        rather than a rate -- and surfacing the parts already paid for when the
+        stock holds more than the lot starts. Scrap is an integer: shipping 10
+        good parts at a 3% fallout means starting 11, an effective 10%, and the
+        common `quantity * (1 + scrap)` shortcut understates it at every
+        quantity (100 good at 10% needs 112 starts, not 110), so the yield form
+        with a ceiling is used instead. And an outside-process lot minimum, not
+        its per-part rate, is what prices a short run.
+      - >-
+        Wired into the catalogue rather than dropped beside it. The four shared
+        shop-rate field ids (`hourlyWage`, `burdenRate`, `overheadRate`,
+        `targetMargin`) mean `platform/pages/rates.mjs` carries a visitor's
+        saved rates straight in -- the build's count of pages taking the carry
+        went 306 -> 307. Filed under `services` in `build.mjs` on the axis
+        already spelled out for `apparel-decoration-price-calculator` (a small
+        shop turning its own labour, machine and material costs into a number
+        it quotes a customer), which took the catch-all back from 6 to 5.
+      - >-
+        Three real defects were found and fixed before the merge, two of them
+        by the platform's own guards, which is the case for running them rather
+        than the venture suite alone. (1) The cost breakdown did not add up on
+        screen: composing totals from unrounded values gave a direct cost of
+        $683.38 beside an overhead of $123.01 over a total of $806.38, off by
+        the cent the two roundings took in opposite directions. Every line is
+        now rounded before anything is summed, and a test asserts the column
+        sums at ten different quantities -- this audience checks arithmetic for
+        a living. (2) `platform/pages/check.mjs` caught that `display:grid`
+        outranks the user agent's `[hidden]{display:none}`, so the plate and
+        supplied material groups would have rendered on first load despite
+        being marked hidden; fixed with `.grid[hidden]` and pinned. (3)
+        `faq-coverage.mjs` caught a hand-written `FAQPage` block on the entry
+        page, which `build.mjs` derives from visible copy -- the same
+        import-don't-restate rule this repo records elsewhere. The block was
+        deleted and the six questions put on the page as visible copy, so the
+        answers now reach users and not only crawlers.
+      - >-
+        `siblings.mjs` reported it as the catalogue's only crawlable orphan (1
+        of 306). Closed the pair in both directions with
+        `apparel-decoration-price-calculator`, its nearest sibling by shape,
+        with the reciprocal assertion in each venture's own `page.test.mjs` so
+        breaking the pair fails on whichever side removed its half. Back to 0
+        of 306.
+      - >-
+        Also noted without acting, because it is another session's arrival from
+        the same day and filing this venture restored the bound on its own:
+        `android-data-safety-check` sits in the catch-all while its own
+        `VENTURE.yaml` calls it "the direct Android-side counterpart to
+        `ios-privacy-manifest-check`", and that counterpart is filed under
+        `ci`. Recorded in `build.mjs` beside the category rule for whoever
+        trips the bound next; moving it would take the catch-all to 4.
+      - >-
+        Derived counts that cannot be got right on a branch were synced after
+        the fact rather than guessed: `sync_tree_counts.py` moved the
+        mirrored-tool count 305 -> 306 across eight places and
+        `SWITCHES_IN_THE_CATALOGUE` 289 -> 290, and
+        `gitops/ci/sync_readme_counts.py` moved the `runs-on` count to 400 of
+        402 across 361 workflows after the venture CI workflow was added. The
+        running-comment entries saying *why* each moved were written by hand,
+        as both tools insist: verified with `git status --porcelain=v1 -uall`
+        that exactly one `usage.mjs` was added and none deleted, so the rise is
+        a graduation and not a regression.
+      - >-
+        Actions is starved (verified, not assumed: `ci_starvation.py --run
+        35226505713` reports `runner_id: 0`, 3s, no steps, exit 0), so
+        everything was run locally per CLAUDE.md's starvation checklist and is
+        recorded here. Verified: venture suite (78/78), the sibling venture's
+        suite (64/64), full `platform/pages` + `platform/marketing` suites
+        (1272/1272, including `build.test.mjs`'s catch-all bound,
+        `siblings.test.mjs`, `faq-visible.test.mjs` and `launched.test.mjs`),
+        `platform/proposal` (101/101), `platform/privacy` + `platform/webcheck`
+        (142/142, 0 skipped -- the two history-pinned blob tests ran, since the
+        clone was unshallowed with `git fetch --unshallow origin main` rather
+        than the bare form CLAUDE.md warns leaves a named ref a stump; the
+        count went 1 -> 7413), `gitops/tests` (607 passed, 1 skip, after
+        `apt-get update && apt-get install nginx-light openssh-client`), all 20
+        `platform/ci` unittest modules individually (all `OK`),
+        `platform/ci/agent_review` (21/21), and
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (446 passed). Validators: `router/validate.py` (313 valid),
+        `score_ventures.py --check` (314 scored, consistent),
+        `publish_surface.py --check`, `usage/validate_usage.py` (265 products,
+        451 readings), `checklist_coverage.py`, `clauses.mjs`,
+        `guide-coverage.mjs` (306/306), `faq-coverage.mjs` (306/306),
+        `faq-duplicate.mjs`, `surface-budget.mjs --check`, and `check.mjs`
+        against the built artifact (306 products, 1164 pages, no dead links)
+        all clean. All pytest lines were run as `python3 -m pytest`, the
+        spelling CLAUDE.md records as load-bearing here.
+      - >-
+        Manually exercised the primary journey in the built artifact: loaded
+        the worked example, switched all three stock forms and confirmed only
+        the selected one's fields show and that a saved draft round-trips every
+        form's numbers, confirmed the live yield note updates as dimensions
+        change, and read the findings at a price below cost, a price under
+        target, a bound outside-process minimum and a short lot. Usage counting
+        is local-only, off-switchable, and honours Do Not Track and Global
+        Privacy Control unprompted; the sponsor link is present and optional.
+      - >-
+        Not done, and owner-blocked rather than skipped: the venture is in the
+        `gh-pages` artifact and will serve once published, but IndexNow has
+        still never announced any of the catalogue's 1160 URLs.
+        `indexnow_state.py` reports the last ten `publish-pages-branch.yml`
+        runs all starved, and the sandbox cannot substitute -- confirmed by
+        asking rather than by trusting the file: the egress proxy answers
+        `CONNECT tunnel failed, response 403` for both `api.indexnow.org` and
+        `www.bing.com/indexnow`. It needs a runner or the Hetzner box.

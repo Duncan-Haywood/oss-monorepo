@@ -6485,3 +6485,33 @@ products:
           `example_loaded` is the signal worth watching -- whether a
           visitor who tried the worked example came back to check their
           own project.
+  - slug: cnc-machining-quote-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          quote: 0
+          example_loaded: 0
+          inputs_saved: 0
+        note: >-
+          Baseline at publication. A browser-local job-costing calculator for
+          CNC job shops: it costs a part from whole-stock-unit material yield
+          (bar length less chuck grip over part length plus parting cut, or a
+          rectangular plate nest tried both ways round), cycle and handling
+          time, the flat per-lot block of setup, programming and first-article
+          inspection, perishable tooling per part, and an outside process with
+          its lot minimum -- then costs the same part at every standard lot
+          size from 1 to 500. `live_url_visitors` is null, not zero -- see the
+          standing note on this route elsewhere in this file; nobody has
+          measured yet, and a null is never evidence a product is unwanted.
+          Named channel to watch: r/Machinists, r/CNC and r/Manufacturing,
+          where "am I quoting this right?" and "what's your shop rate?" are
+          weekly threads, plus Practical Machinist's long-running quoting
+          threads, and organic search for "cnc machining cost per part" and
+          "how to quote cnc machining jobs". `inputs_saved` against `quote` is
+          the signal worth watching -- saving the numbers is the only act on
+          this page that implies a return visit, since the shop rates it saves
+          are the four the whole catalogue shares. A visitor who quotes once
+          and never saves got an answer; one who saves is treating it as a
+          tool.

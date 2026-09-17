@@ -255,7 +255,16 @@ const RELATIVE_SELF = relative(
 // shows exactly one added `usage.mjs` (`ventures/android-data-safety-check/
 // usage.mjs`) and no deletions, so this is a graduation and not a switch
 // that stopped being one.
-const SWITCHES_IN_THE_CATALOGUE = 289;
+// 289 -> 290 on 2026-09-17, when `cnc-machining-quote-calculator` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same pair
+// `apparel-decoration-price-calculator` uses, opting out of the
+// `quote`/`example_loaded`/`inputs_saved` counters), same discovery method as
+// the rest of this running count. Verified the way this file's error message
+// prescribes rather than by assuming: `git status --porcelain=v1 -uall` shows
+// exactly one added `usage.mjs` (`ventures/cnc-machining-quote-calculator/
+// usage.mjs`) and no deletions, so this is a graduation and not a switch that
+// stopped being one.
+const SWITCHES_IN_THE_CATALOGUE = 290;
 
 let counter = 0;
 function fixture(source) {

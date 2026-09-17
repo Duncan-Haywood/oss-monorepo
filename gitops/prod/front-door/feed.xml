@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 305 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 306 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Pick the caller&#39;s and recipient&#39;s US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening. Free, deterministic, runs entirely in your browser — not legal advice.</summary>
+  </entry>
+  <entry>
+    <title>CNC Machining Quote Calculator — Cost Per Part, Setup &amp; Lot Size</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cnc-machining-quote-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cnc-machining-quote-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free CNC machining quote calculator for job shops: work out your real cost per part from bar or plate yield, cycle time, setup and programming, perishable tooling, first-article inspection and outside-process lot minimums — then see the break-even price, the margin at what you quoted, and the same part costed at 1, 5, 10, 25, 50, 100, 250 and 500 pieces. Runs entirely in your browser.</summary>
   </entry>
   <entry>
     <title>Dog Boarding &amp; Daycare Pricing Calculator — Price a Stay, Check Occupancy</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-store-screenshot-check/"/>
-    <id>tag:marisstella.dev,2026:tool/app-store-screenshot-check</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic &quot;can&#39;t contain an alpha channel&quot; rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.</summary>
   </entry>
 </feed>
