@@ -1,0 +1,32 @@
+name: commissary-kitchen-cost-split-calculator
+description: Free browser calculator for commissary/shared-kitchen operators, or a lead tenant coordinating with others, to split pooled monthly kitchen costs (rent, utilities, trash, cleaning, pest control, insurance) fairly among multiple food-truck/mobile-vendor tenants by hours booked and/or storage used, instead of splitting evenly, and produce a clean itemized bill for each tenant.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Commissary kitchen operators and lead tenants will use a usage-based cost-split calculator because a generic bill-splitting tool or a spreadsheet doesn't model the specific mix that matters here — booked kitchen hours plus dry/refrigerated/freezer storage units, on top of a flat base fee collected first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators currently splitting costs evenly, or negotiating the split by eye each month, will switch to a usage-based split once they see the exact-to-the-cent itemized bill it produces for each tenant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The equal-split option (kept as a deliberate baseline/comparison, not just the usage-based methods) makes the tool useful even to kitchens with genuinely even usage, widening who will try it beyond only the uneven-usage case.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Operators report that a usage-based split is more work to explain to tenants than the even split they already do, without changing what anyone actually pays.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/commissary-kitchen-cost-split-calculator/
+  analytics: null

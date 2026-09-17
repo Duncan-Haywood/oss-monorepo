@@ -1455,3 +1455,26 @@ candidates:
     mitigation: Keep the check purely computational -- never claim to know what a specific scheduler does with a skipped or ambiguous occurrence, only whether a named local time exists once, not at all, or twice, and what UTC time a fixed-UTC schedule needs per DST segment; state the numeric-cron-fields-only limitation explicitly rather than silently mis-parsing a named month/weekday; measure real GitHub/npm engagement and any external CI adoption before investing further, given this candidate's currently unproven distribution.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: commissary-kitchen-cost-split-calculator
+    name: Commissary kitchen cost split calculator
+    doc: candidates/commissary-kitchen-cost-split-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-16
+    initiated_path: ventures/commissary-kitchen-cost-split-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 3
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the split deterministic -- no AI-assisted categorization or advice of any kind -- and disclose the output as arithmetic on the operator's own numbers; measure repeat use before adding any integration or AI-assisted feature, given this candidate's currently unproven distribution and no comparable regulatory driver to the reserve-study mandates behind hoa-reserve-fund-calculator.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

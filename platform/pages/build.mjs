@@ -487,10 +487,22 @@ const CATEGORY_RULES = [
     // enough niche that it should grow rather than sit at three. If it has not
     // gained a fourth member in a few months, fold it back into `services`
     // rather than defending it.
+    // `commissary-kitchen-cost-split-calculator` added 2026-09-16, the fourth
+    // member the comment above says to watch for. Its customer is the
+    // commissary operator (or a lead tenant) billing several food trucks for
+    // shared kitchen space, not a truck pricing its own food -- but the
+    // reader is the same food-truck-operator audience `food-truck-event-
+    // margin-calculator` already serves, one hop away as a declared sibling,
+    // and no section above fits better: it is not a trade bidding a job at a
+    // customer's property (`trades`), not a route/booking/licence
+    // (`services`), not someone else's storefront (`marketplace`), and not
+    // one person's own labour (`solo-earner`). It belongs beside the tool a
+    // reader of this hub is most likely to also want.
     test: (slug) => [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
+      'commissary-kitchen-cost-split-calculator',
     ].includes(slug),
   },
   {
