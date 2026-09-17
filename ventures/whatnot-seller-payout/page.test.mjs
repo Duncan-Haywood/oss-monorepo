@@ -335,3 +335,15 @@ test('index links one hop to the storage-auction-max-bid-calculator sibling', ()
     'index must link ../storage-auction-max-bid-calculator/ so crawlers reach the storage auction bid calculator in one hop',
   );
 });
+
+// Half of a reciprocal pair: the StockX payout calculator links back here too
+// (both are the same single-channel marketplace-fee shape --
+// platform/pages/build.mjs groups them in the same `marketplace` category),
+// so a crawler entering on either page reaches the other in one hop.
+test('index links one hop to the stockx-seller-payout-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/stockx-seller-payout-calculator\/"/,
+    'index must link ../stockx-seller-payout-calculator/ so crawlers reach the StockX seller payout calculator in one hop',
+  );
+});
