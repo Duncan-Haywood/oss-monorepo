@@ -12758,3 +12758,66 @@ ventures:
       Ethically: deterministic arithmetic, no dark patterns, no data
       collected server-side, and no incentive to over- or under-report a
       device's status since the tool never makes that determination at all.
+
+  - slug: land-survey-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The corner-and-research-driven
+      cost breakdown, the terrain multiplier, and the per-acre comparison
+      are all decided entirely by the numbers the surveyor types in, not a
+      model judgment -- the same reasoning this portfolio applies to every
+      other deterministic bid calculator (e.g. hoa-reserve-fund-calculator,
+      drone-mapping-job-calculator).
+    basis: >-
+      Screened 2026-09-16, same session, per
+      portfolio/pipeline/README.md's scoring process. Distinct from
+      drone-mapping-job-calculator (Part 107 drone pilots quoting aerial
+      photogrammetry/mapping flights -- airtime, overlap settings, GSD --
+      not licensed land surveyors doing boundary/ALTA retracement work with
+      corner monuments and deed research) and from every other venture and
+      screened-out.md row, none of which names "land survey", "boundary
+      survey", "ALTA", "corner", or "monument" -- confirmed with
+      `python3 portfolio/pipeline/duplicate_check.py` (top match 0.13,
+      well below the read-this-first threshold) and a full read of
+      screened-out.md.
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 5: real, narrow community channels exist (state
+      surveyor-society boards, r/Surveying, "land surveyors united"-style
+      Facebook groups, and "how to price a boundary survey" as a recurring
+      trade-forum question), but the licensed-surveyor audience is smaller
+      and more professionally gatekept than a general home-services trade,
+      so scored below this portfolio's typical bid-calculator distribution
+      (6-7) rather than at par with it -- no search-volume tool was queried
+      to confirm magnitude.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the
+      portfolio's typical bid-calculator floor), so the edge is being
+      first and specific to this niche's actual cost drivers rather than a
+      moat in the code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no legal boundary determination, checks no state's minimum technical
+      standards, and does not replace the licensed surveyor's own
+      professional judgment, liability position, or E&O coverage on a
+      given job; the surveyor remains the one who signs and stamps the
+      plat. Ethically: donations-only with no per-quote fee, so the tool
+      has no incentive to steer a bid up or down, and the per-acre
+      comparison is disclosed methodology (FAQ: "why not just quote per
+      acre") rather than a black-box number.

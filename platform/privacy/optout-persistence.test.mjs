@@ -115,7 +115,11 @@ const RELATIVE_SELF = relative(
 // with its own `setUsageOptOut`/`usageOptedOut` switch (the same
 // `record`/`readUsage` pattern `overtime-pay-calculator` uses), same
 // discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 270;
+// 270 -> 271 on 2026-09-16, when `land-survey-bid-calculator` graduated with
+// its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 271;
 
 let counter = 0;
 function fixture(source) {

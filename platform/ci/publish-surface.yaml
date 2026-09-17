@@ -548,6 +548,9 @@ workflows:
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: land-survey-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
