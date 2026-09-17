@@ -48,6 +48,12 @@ test('a share link round-trips every DEFAULTS field and the proposal terms', () 
   for (const id of ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions']) {
     assert.match(html, new RegExp(`'${id}'`), `${id} missing from PROPOSAL_TERM_IDS`);
   }
+  // actualHours lives outside DEFAULTS/FIELD_IDS (it is a post-job figure,
+  // not a pricing input), so the generic DEFAULTS loop above cannot carry it
+  // and it needs its own encode/restore wiring or a shared link silently
+  // drops the one number the "check the actual hours" feature exists for.
+  assert.match(html, /actualHours: el\('actualHours'\)\.value/);
+  assert.match(html, /if \(shared\.actualHours !== undefined\) el\('actualHours'\)\.value = shared\.actualHours;/);
 });
 
 test('the default inputs on the page match calc.mjs DEFAULTS and produce a profitable quote', () => {

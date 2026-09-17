@@ -33,6 +33,15 @@ price, and a flat $/sq ft rate prices them identically. The calculator
 prices the job both ways and shows the gap: how much a flat rate would
 have left on the table, or overcharged, on the exact job you just priced.
 
+## Share a link to a priced job
+
+"Copy share link" encodes the whole form — containment class, footage, crew
+and supervisor rates, air monitoring, waste disposal, permit, and the
+proposal panel's deposit/terms — into this page's own URL. Nothing is sent
+to a server; the link is only ever built and read in the browser. Send it to
+a partner, the office, or reopen it on your own next visit to see the same
+job without retyping it.
+
 ## Hand the customer a proposal
 
 Once the price is calculated, the page can also print (or "Save as PDF") a
@@ -48,7 +57,8 @@ customer comparing several bids from different contractors.
 Everything runs in your browser. Your job details, rates, and price are
 never uploaded, there is no account, and nothing leaves the page. We count
 anonymous local feature events only (`quote_calculated`, `reset`,
-`sponsor_link_clicked`, plus the shared proposal module's own events), with
+`share_link_copied`, `sponsor_link_clicked`, plus the shared proposal
+module's own events), with
 a visible opt-out. Do Not Track and Global Privacy Control disable
 counting automatically. No job, price, or client figures are ever
 recorded, and the counter is not sent to the maintainers. Your business

@@ -279,6 +279,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly ("common, honest shortcut"). Same reasoning as the other
   // generic-method pages above.
   'skylight-install-bid-calculator/vs-a-flat-rate-per-skylight-special.html',
+  // Compares against "a flat $1,800 installed" egress-window special -- a
+  // generic pricing method every foundation/basement crew already has
+  // access to, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("common, honest shortcut"). Same
+  // reasoning as the other generic-method pages above.
+  'egress-window-bid-calculator/vs-a-flat-rate-egress-window-special.html',
   // Compares against "tracking payouts in a spreadsheet" -- a generic method
   // every Whatnot seller already has access to, not a company or product
   // this could be mistaken for. The page's own footer says so explicitly
