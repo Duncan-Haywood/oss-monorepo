@@ -141,6 +141,16 @@ function paramChanges(operationKey, oldParams, newParams) {
       const gained = after.enum.filter((v) => !before.enum.includes(v));
       if (lost.length) breaking.push({ operation: operationKey, parameter: key, type: "removed-enum-value", values: lost });
       if (gained.length) nonBreaking.push({ operation: operationKey, parameter: key, type: "added-enum-value", values: gained });
+    } else if (!before.enum && after.enum) {
+      // A parameter that previously accepted any value of its type now
+      // accepts only the listed ones -- every value outside the new enum is
+      // a value a client could have been sending that the API now rejects,
+      // the same shape as removed-enum-value with an unbounded "before".
+      breaking.push({ operation: operationKey, parameter: key, type: "enum-added", values: after.enum });
+    } else if (before.enum && !after.enum) {
+      // The reverse: the enum constraint is gone, so anything a client sent
+      // before is still accepted, plus more. Widening, not narrowing.
+      nonBreaking.push({ operation: operationKey, parameter: key, type: "enum-removed", values: before.enum });
     }
   }
   return { breaking, nonBreaking };

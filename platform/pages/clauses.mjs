@@ -203,6 +203,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // ("names no specific product"). Same reasoning as the other
   // manual-method pages above.
   'openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html',
+  // Compares against "a flat rate per lineal foot" -- a generic pricing
+  // method every waterproofing contractor already has access to, not a
+  // company or product this could be mistaken for. Same reasoning as the
+  // other generic-method pages above (e.g. asbestos-abatement-bid-calculator's
+  // flat-rate page).
+  'basement-waterproofing-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
   // Compares against "a flat day rate plus a per-pound hazmat estimate" --
   // a generic pricing method every biohazard/trauma-scene technician
   // already has access to, not a company or product this could be mistaken

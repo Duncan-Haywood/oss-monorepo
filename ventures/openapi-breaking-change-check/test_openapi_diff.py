@@ -196,6 +196,29 @@ class DiffOperationsTests(unittest.TestCase):
         self.assertEqual(diff["breaking"][0]["type"], "removed-enum-value")
         self.assertEqual(diff["breaking"][0]["values"], ["b"])
 
+    def test_enum_added_where_none_existed_is_breaking(self):
+        # Regression: a parameter with no enum at all previously accepted any
+        # value of its type. Restricting it to a short list is at least as
+        # breaking as removing one value from an existing enum, and was
+        # previously invisible entirely -- the old check required both sides
+        # to already carry an enum.
+        old_ops = {"GET /x": {"parameters": {"query:s": {"name": "s", "in": "query", "required": False, "type": "string", "enum": None}}, "request_body_required": None}}
+        new_ops = {"GET /x": {"parameters": {"query:s": {"name": "s", "in": "query", "required": False, "type": "string", "enum": ["a", "b"]}}, "request_body_required": None}}
+        diff = openapi_diff.diff_operations(old_ops, new_ops)
+        self.assertEqual(len(diff["breaking"]), 1)
+        self.assertEqual(diff["breaking"][0]["type"], "enum-added")
+        self.assertEqual(diff["breaking"][0]["values"], ["a", "b"])
+        self.assertEqual(diff["non_breaking"], [])
+
+    def test_enum_removed_entirely_is_non_breaking(self):
+        old_ops = {"GET /x": {"parameters": {"query:s": {"name": "s", "in": "query", "required": False, "type": "string", "enum": ["a", "b"]}}, "request_body_required": None}}
+        new_ops = {"GET /x": {"parameters": {"query:s": {"name": "s", "in": "query", "required": False, "type": "string", "enum": None}}, "request_body_required": None}}
+        diff = openapi_diff.diff_operations(old_ops, new_ops)
+        self.assertEqual(diff["breaking"], [])
+        self.assertEqual(len(diff["non_breaking"]), 1)
+        self.assertEqual(diff["non_breaking"][0]["type"], "enum-removed")
+        self.assertEqual(diff["non_breaking"][0]["values"], ["a", "b"])
+
     def test_render_text_reports_no_changes(self):
         text = openapi_diff.render_text({"breaking": [], "non_breaking": []})
         self.assertIn("No differences found", text)
