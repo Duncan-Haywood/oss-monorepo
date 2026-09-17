@@ -209,6 +209,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the other generic-method
   // pages above (e.g. attic-insulation-bid-calculator's flat-rate page).
   'land-survey-bid-calculator/vs-a-flat-per-acre-quote.html',
+  // Compares against "a flat panel-upgrade price" and the dollars-per-amp
+  // rate that usually replaces it -- generic pricing methods every
+  // electrical shop already has access to, not a company or product this
+  // could be mistaken for. The page's own fine print says so explicitly
+  // ("names no company or product"), and its sibling `vs-servicetitan.html`
+  // is where this venture's named-product comparison lives. Same reasoning
+  // as the other generic-method pages above.
+  'electrical-panel-upgrade-bid-calculator/vs-a-flat-panel-upgrade-price.html',
   // Compares against "a flat rate per square foot" -- a generic pricing
   // method every abatement contractor already has access to, not a company
   // or product this could be mistaken for. Same reasoning as the other
