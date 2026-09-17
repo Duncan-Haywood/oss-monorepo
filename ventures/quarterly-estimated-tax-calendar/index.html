@@ -11,7 +11,7 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Quarterly Estimated Tax Calendar","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the IRS Form 1040-ES safe-harbor quarterly estimated tax payment (the smaller of 90% of this year's estimated tax or 100%/110% of last year's tax) from a filer's own numbers, shows the four actual due dates adjusted for weekends and federal holidays, and exports a downloadable .ics calendar with a 7-day reminder on each unpaid quarter. Entirely client-side; nothing is uploaded."}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much estimated tax do I actually have to pay each quarter?","acceptedAnswer":{"@type":"Answer","text":"The IRS safe harbor is the smaller of 90% of this year's estimated tax or 100% of last year's total tax (110% if last year's adjusted gross income was over $150,000, or $75,000 if married filing separately). Paying that amount avoids an underpayment penalty even if your actual final tax bill is higher. This calculator applies that rule to your own numbers and splits the result evenly across the four quarters."}},{"@type":"Question","name":"Are the quarterly due dates always April 15, June 15, September 15, and January 15?","acceptedAnswer":{"@type":"Answer","text":"Those are the nominal dates, but each one shifts to the next business day when it falls on a weekend or a federal holiday, and the shift can chain through more than one day. Recent real examples: the Q1 2022 deadline moved to April 18 (Emancipation Day observed the 15th, then a weekend), and the Q4 2023 deadline moved to January 16, 2024 because January 15 was Martin Luther King Jr. Day that year. This tool computes the adjusted date for the tax year you enter rather than assuming the 15th."}},{"@type":"Question","name":"What if my income is uneven across the year?","acceptedAnswer":{"@type":"Answer","text":"This tool splits the annual requirement into four equal quarters, which is the IRS's own default (regular) method under Form 2210. If your income arrives unevenly — a seasonal business, one large late-year payment — the Annualized Income Installment Method (Form 2210 Schedule AI) can lower or eliminate a penalty on the earlier, lower-income quarters. This tool does not compute that method; a tax professional or the IRS instructions for Form 2210 can."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It applies a published IRS safe-harbor formula to numbers you already have from your own return, as a planning worksheet — not a filed amount, not a penalty determination, and not a substitute for a tax professional or the current-year IRS instructions."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much estimated tax do I actually have to pay each quarter?","acceptedAnswer":{"@type":"Answer","text":"The IRS safe harbor is the smaller of 90% of this year's estimated tax or 100% of last year's total tax (110% if last year's adjusted gross income was over $150,000, or $75,000 if married filing separately). Paying that amount avoids an underpayment penalty even if your actual final tax bill is higher. This calculator applies that rule to your own numbers and splits the result evenly across the four quarters."}},{"@type":"Question","name":"Are the quarterly due dates always April 15, June 15, September 15, and January 15?","acceptedAnswer":{"@type":"Answer","text":"Those are the nominal dates, but each one shifts to the next business day when it falls on a weekend or a federal holiday, and the shift can chain through more than one day. Recent real examples: the Q1 2022 deadline moved to April 18 (Emancipation Day observed the 15th, then a weekend), and the Q4 2023 deadline moved to January 16, 2024 because January 15 was Martin Luther King Jr. Day that year. This tool computes the adjusted date for the tax year you enter rather than assuming the 15th."}},{"@type":"Question","name":"What if my income is uneven across the year?","acceptedAnswer":{"@type":"Answer","text":"This tool splits the annual requirement into four equal quarters, which is the IRS's own default (regular) method under Form 2210. If your income arrives unevenly — a seasonal business, one large late-year payment — the Annualized Income Installment Method (Form 2210 Schedule AI) can lower or eliminate a penalty on the earlier, lower-income quarters. This tool does not compute that method; a tax professional or the IRS instructions for Form 2210 can."}},{"@type":"Question","name":"What if I already missed or underpaid an earlier quarter?","acceptedAnswer":{"@type":"Answer","text":"This calculator tracks that too, once you enter what you've actually paid per quarter. It compares the total required by each due date that has already passed against the total you've actually paid across every quarter, not just one row at a time. If you're behind, the schedule shows a catch-up amount for the next payment — larger than the flat quarterly share, sized to get back to the safe-harbor pace in one payment. If you paid ahead of schedule instead, the next payment can be smaller, down to zero, and is never shown as negative."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It applies a published IRS safe-harbor formula to numbers you already have from your own return, as a planning worksheet — not a filed amount, not a penalty determination, and not a substitute for a tax professional or the current-year IRS instructions."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f4f1; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -45,6 +45,8 @@
     .status.due-soon { background: #fdf0d5; color: #7c5e10; }
     .status.overdue { background: #fde8e8; color: #9a3412; }
     .stats { font-size: .9rem; color: #333; margin-bottom: 10px; }
+    .pace-behind { color: #9a3412; font-weight: 700; }
+    .pace-ahead { color: #1f5c35; font-weight: 700; }
     .error { color: #9a3412; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #d9e0d6; padding-top: 16px; }
   </style>
@@ -129,6 +131,7 @@
   <section class="card" id="report-card" aria-live="polite" hidden>
     <h2>Your schedule</h2>
     <p class="stats" id="stats"></p>
+    <p class="note" id="pace-note"></p>
     <table>
       <thead><tr><th>Quarter</th><th>Due date</th><th>Suggested payment</th><th>Paid</th><th>Still owed</th><th>Status</th></tr></thead>
       <tbody id="schedule-body"></tbody>
@@ -160,6 +163,8 @@
     <p>Those are the nominal dates, but each one shifts to the next business day when it falls on a weekend or a federal holiday, and the shift can chain through more than one day. Recent real examples: the Q1 2022 deadline moved to April 18 (Emancipation Day observed the 15th, then a weekend), and the Q4 2023 deadline moved to January 16, 2024 because January 15 was Martin Luther King Jr. Day that year. This tool computes the adjusted date for the tax year you enter rather than assuming the 15th.</p>
     <h3>What if my income is uneven across the year?</h3>
     <p>This tool splits the annual requirement into four equal quarters, which is the IRS's own default (regular) method under Form 2210. If your income arrives unevenly — a seasonal business, one large late-year payment — the Annualized Income Installment Method (Form 2210 Schedule AI) can lower or eliminate a penalty on the earlier, lower-income quarters. This tool does not compute that method; a tax professional or the IRS instructions for Form 2210 can.</p>
+    <h3>What if I already missed or underpaid an earlier quarter?</h3>
+    <p>This calculator tracks that too, once you enter what you've actually paid per quarter. It compares the total required by each due date that has already passed against the total you've actually paid across every quarter, not just one row at a time. If you're behind, the schedule shows a catch-up amount for the next payment — larger than the flat quarterly share, sized to get back to the safe-harbor pace in one payment. If you paid ahead of schedule instead, the next payment can be smaller, down to zero, and is never shown as negative.</p>
     <h3>Is this tax advice?</h3>
     <p>No. It applies a published IRS safe-harbor formula to numbers you already have from your own return, as a planning worksheet — not a filed amount, not a penalty determination, and not a substitute for a tax professional or the current-year IRS instructions.</p>
   </section>
@@ -183,8 +188,10 @@
       mfs: $("#mfs"),
       paidQ1: $("#paid-q1"), paidQ2: $("#paid-q2"), paidQ3: $("#paid-q3"), paidQ4: $("#paid-q4"),
       status: $("#status"), reportCard: $("#report-card"),
-      stats: $("#stats"), scheduleBody: $("#schedule-body"), findings: $("#findings"),
+      stats: $("#stats"), paceNote: $("#pace-note"), scheduleBody: $("#schedule-body"), findings: $("#findings"),
     };
+
+    const QUARTER_LABELS_SHORT = { q1: "Q1", q2: "Q2", q3: "Q3", q4: "Q4" };
 
     const todayIso = new Date().toISOString().slice(0, 10);
     const currentYear = new Date().getFullYear();
@@ -237,6 +244,29 @@
         ? "Nothing to schedule yet — enter last year's total tax, this year's estimate, or both."
         : `Required annual payment: ${money(schedule.required)} (${schedule.basis}). After withholding of ${money(schedule.withholding)}: ${money(schedule.netRequired)}, or ${money(schedule.perQuarter)} per quarter.`;
 
+      // The flat per-quarter share above answers "if nothing has been paid
+      // yet, what's a fourth of the year?" -- it can't say whether *this*
+      // filer is actually on pace, because it never looks at what's already
+      // due versus what's already paid. `schedule.pace` does, and the next
+      // unpaid quarter's row gets the number that actually matters: what to
+      // pay *this* time to be caught up, not the generic flat share.
+      if (schedule.pace.nextQuarter) {
+        const nextLabel = QUARTER_LABELS_SHORT[schedule.pace.nextQuarter];
+        if (schedule.pace.delta != null && schedule.pace.delta < -0.005) {
+          els.paceNote.textContent = `Behind pace: pay ${money(schedule.pace.nextQuarterCatchUp)} for ${nextLabel} to catch back up in one payment, instead of the flat ${money(schedule.perQuarter)} share.`;
+          els.paceNote.className = "note pace-behind";
+        } else if (schedule.pace.delta != null && schedule.pace.delta > 0.005) {
+          els.paceNote.textContent = `Ahead of pace: ${nextLabel}'s payment can be as low as ${money(schedule.pace.nextQuarterCatchUp)} and still meet the safe harbor on schedule.`;
+          els.paceNote.className = "note pace-ahead";
+        } else {
+          els.paceNote.textContent = "";
+          els.paceNote.className = "note";
+        }
+      } else {
+        els.paceNote.textContent = "";
+        els.paceNote.className = "note";
+      }
+
       els.scheduleBody.innerHTML = schedule.rows.map((row) => `
         <tr>
           <td>${row.label}</td>
@@ -274,6 +304,7 @@
       els.mfs.checked = false;
       els.asOfDate.value = todayIso;
       els.reportCard.hidden = true;
+      els.paceNote.textContent = ""; els.paceNote.className = "note";
       lastSchedule = null;
       els.status.textContent = "Enter at least last year's total tax or this year's estimate above, then click Calculate.";
     });

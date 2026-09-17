@@ -188,6 +188,115 @@ test("all four quarters are always present, in order", () => {
   assert.deepEqual(schedule.rows.map((r) => r.quarter), QUARTERS);
 });
 
+// --- Catch-up pace across quarters --------------------------------------
+//
+// `shortfall` is per-quarter and never looks backward; `pace` is the running
+// total that catches the case a flat 1/4 share cannot: a quarter that was
+// skipped entirely, which every later `suggested` amount would otherwise
+// understate.
+
+test("on-pace filer (nothing due yet) gets no pace finding at all", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000, asOfDate: "2026-01-01",
+  });
+  assert.equal(schedule.pace.requiredToDate, null); // no quarter has come due yet
+  assert.ok(!schedule.findings.some((f) => f.id === "behind-pace"));
+  assert.ok(!schedule.findings.some((f) => f.id === "ahead-of-pace"));
+});
+
+test("Q1 skipped entirely: by Q2's due date the filer is behind by two full quarters, and the catch-up payment settles both without double-counting either", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000,
+    asOfDate: "2026-06-15", // on/after Q2's due date; Q1 was never paid
+  });
+  assert.equal(schedule.perQuarter, 2000);
+  assert.equal(schedule.pace.requiredToDate, 4000); // Q1 + Q2 both due by now
+  assert.equal(schedule.pace.paidToDate, 0);
+  assert.equal(schedule.pace.delta, -4000);
+  assert.equal(schedule.pace.nextQuarter, "q1"); // q1's own shortfall (2000) still unresolved
+  // q1's due date has already passed, so its own share is already inside
+  // `requiredToDate` (4000, covering both q1 and q2) -- the one payment that
+  // settles everything currently due is that whole 4000, not 4000 plus
+  // another q1 share on top.
+  assert.equal(schedule.pace.nextQuarterCatchUp, 4000);
+  const behind = schedule.findings.find((f) => f.id === "behind-pace");
+  assert.ok(behind, "expected a behind-pace finding");
+  assert.match(behind.title, /Behind the safe-harbor pace by \$4,000\.00/);
+});
+
+test("Q1 paid in full late (after Q2 is also due) but Q2 untouched: the catch-up recommendation is Q2's own share alone, not double-counting Q1", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000,
+    asOfDate: "2026-06-15",
+    paidByQuarter: { q1: 2000 },
+  });
+  assert.equal(schedule.pace.requiredToDate, 4000);
+  assert.equal(schedule.pace.paidToDate, 2000);
+  assert.equal(schedule.pace.delta, -2000);
+  assert.equal(schedule.pace.nextQuarter, "q2");
+  // Q2's due date has also already passed, so its own 2000 share is already
+  // folded into `requiredToDate` -- the 2000 still owed *is* Q2's payment,
+  // not Q2's flat share plus a separate 2000 catch-up on top of it.
+  assert.equal(schedule.pace.nextQuarterCatchUp, 2000);
+  const behind = schedule.findings.find((f) => f.id === "behind-pace");
+  assert.match(behind.detail, /Paying \$2,000\.00 for Q2/);
+});
+
+test("Q1 paid exactly its own share, right on schedule: Q2's recommended payment is the plain flat share, with no pace finding either way", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000,
+    asOfDate: "2026-05-01", // after Q1's due date, before Q2's
+    paidByQuarter: { q1: 2000 },
+  });
+  assert.equal(schedule.pace.requiredToDate, 2000); // only Q1 is due by now
+  assert.equal(schedule.pace.delta, 0);
+  assert.equal(schedule.pace.nextQuarter, "q2"); // Q1 is fully settled
+  assert.equal(schedule.pace.nextQuarterCatchUp, 2000); // Q2's own flat share, nothing more
+  assert.ok(!schedule.findings.some((f) => f.id === "behind-pace"));
+  assert.ok(!schedule.findings.some((f) => f.id === "ahead-of-pace"));
+});
+
+test("filer paid ahead of schedule: the next quarter's catch-up amount is reduced, not negative", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000,
+    asOfDate: "2026-04-15",
+    paidByQuarter: { q1: 5000 }, // way more than the 2000 share due so far
+  });
+  assert.equal(schedule.pace.requiredToDate, 2000);
+  assert.equal(schedule.pace.delta, 3000);
+  assert.equal(schedule.pace.nextQuarter, "q2");
+  assert.equal(schedule.pace.nextQuarterCatchUp, 0); // 2000 - 3000 floored at 0, never negative
+  const ahead = schedule.findings.find((f) => f.id === "ahead-of-pace");
+  assert.ok(ahead, "expected an ahead-of-pace finding");
+  assert.match(ahead.detail, /as low as \$0\.00/);
+});
+
+test("every quarter already due and still behind, with no future quarter left to apply a catch-up to", () => {
+  const schedule = computeSchedule({
+    taxYear: 2020, priorYearTax: 8000, priorYearAGI: 60000, asOfDate: "2026-01-01",
+  });
+  assert.equal(schedule.pace.nextQuarter, "q1"); // q1 itself was never paid, so it's still "next"
+  const behind = schedule.findings.find((f) => f.id === "behind-pace");
+  assert.ok(behind);
+});
+
+test("all four quarters individually marked paid: pace is never behind even if paid late", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000,
+    asOfDate: "2027-01-16",
+    paidByQuarter: { q1: 2000, q2: 2000, q3: 2000, q4: 2000 },
+  });
+  assert.equal(schedule.pace.nextQuarter, null);
+  assert.ok(!schedule.findings.some((f) => f.id === "behind-pace"));
+});
+
+test("no basis entered: pace fields are all null and no pace finding fires", () => {
+  const schedule = computeSchedule({ taxYear: 2026, asOfDate: "2026-06-15" });
+  assert.equal(schedule.pace.requiredToDate, null);
+  assert.equal(schedule.pace.delta, null);
+  assert.equal(schedule.pace.nextQuarterCatchUp, null);
+});
+
 // --- ICS export -----------------------------------------------------
 
 test("icsCalendar produces a structurally valid calendar with one VEVENT per unpaid quarter", () => {
@@ -219,6 +328,31 @@ test("icsCalendar with no basis entered still produces a structurally valid (emp
   const ics = icsCalendar(schedule);
   assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
   assert.match(ics, /END:VCALENDAR\r\n$/);
+});
+
+test("icsCalendar reminds the next unpaid quarter of the pace-adjusted catch-up amount, not the flat share it would otherwise understate", () => {
+  const schedule = computeSchedule({
+    taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000,
+    asOfDate: "2026-06-15", // Q1 skipped, now on/after Q2's due date too
+  });
+  const ics = icsCalendar(schedule, new Date("2026-06-15T00:00:00Z"));
+  // Q1 is still the "next" unpaid row and its catch-up amount (4000) covers
+  // both missed quarters at once -- see the calc.mjs test of the same case.
+  // ICS TEXT escaping backslash-escapes the thousands comma (RFC 5545), and
+  // line-folding can insert a "\r\n " anywhere past 75 octets, so the
+  // assertion strips both before matching rather than depending on where a
+  // given run happens to fold.
+  const unfolded = ics.replace(/\r\n /g, "");
+  assert.match(unfolded, /Suggested payment: \$4\\,000 \(adjusted to catch up/);
+  assert.match(unfolded, /flat 1\/4 share alone is \$2\\,000/);
+});
+
+test("icsCalendar uses the plain flat share when nothing is behind pace", () => {
+  const schedule = computeSchedule({ taxYear: 2026, priorYearTax: 8000, priorYearAGI: 60000, asOfDate: "2026-01-01" });
+  const ics = icsCalendar(schedule, new Date("2026-01-01T00:00:00Z"));
+  const unfolded = ics.replace(/\r\n /g, "");
+  assert.match(unfolded, /Suggested payment: \$2\\,000\\n/);
+  assert.doesNotMatch(unfolded, /adjusted to catch up/);
 });
 
 test("a comma or semicolon in generated text does not break the ICS structure", () => {
