@@ -1699,26 +1699,40 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the first, a per-device report-filing fee, travel, and a retest fee
     # for failures), with a static `index.html` from its first commit, same
     # shape as the rest of this running count.
-    # 286 since 2026-09-16 (missed at the time), when `land-survey-bid-
-    # calculator` (#4786) graduated -- a browser-local calculator pricing a
-    # boundary/ALTA survey job by corners located versus set and record
-    # research, with a static `index.html` from its first commit, same
-    # shape as the rest of this running count. Its own PR touched
-    # venture-scores.yaml, publish-surface.yaml, and the front-door mirror
-    # but not this file, so this count stayed one behind until now.
+    # 286 since 2026-09-16, when `land-survey-bid-calculator` graduated — a
+    # browser-local bid calculator pricing a boundary/topographic/ALTA survey
+    # job from corners located vs. set, terrain, record research, crew and
+    # drafting time, then comparing the result to a flat per-acre quote, with
+    # a static `index.html` from its first commit, same shape as the rest of
+    # this running count.
     # 287 since 2026-09-17, when `estate-sale-net-proceeds-calculator`
     # graduated -- a browser-local calculator applying a company's tiered
     # commission schedule and fees to an estimated estate-sale gross, with
     # an optional minimum-guarantee floor and a two-quote comparison, same
     # shape as the rest of this running count.
-    # 288 since 2026-09-17, when `asbestos-abatement-bid-calculator`
+    # 288 since 2026-09-16, when `wedding-florist-proposal-calculator`
+    # graduated — a no-upload browser calculator pricing a wedding florist's
+    # proposal from the stem recipe up, rounding each line to whole wholesale
+    # bunches rather than loose stems, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    # 289 since 2026-09-17, when `world-clock-widget` gained a browser surface
+    # -- a world clock showing local time, sunrise, sunset, daylight length and
+    # a waking-hours band for several cities at once, computed in the browser
+    # from the USNO almanac algorithm. Unlike every other entry in this running
+    # count it is not a new venture: the venture already existed as a Swift app
+    # that needs an Apple account to reach anyone, and `site/` is a second
+    # surface over the same tested core. So this is the first line here added
+    # by *deploying* a product that was already finished rather than by
+    # graduating a new one -- worth keeping distinct when reading the count
+    # back as a rate of new ventures, which it no longer purely is.
+    # 290 since 2026-09-17, when `asbestos-abatement-bid-calculator`
     # graduated -- a browser-local bid calculator pricing an asbestos
     # removal job from OSHA/EPA containment class (Class I/II/III), square
     # footage, containment areas, crew and supervisor rates, air
     # monitoring, and waste disposal, then comparing the result to a flat
     # rate per square foot, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 288  # `infra/OWNER_CHECKLIST.md`'s own "N of the 288 tools" wording.
+    total = 290  # `infra/OWNER_CHECKLIST.md`'s own "N of the 290 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

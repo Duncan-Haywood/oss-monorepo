@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555783 bytes
-#   portfolio-front-tools-1: 106 files, 554521 bytes
-#   portfolio-front-tools-2: 148 files, 556371 bytes
-#   portfolio-front-tools-3: 140 files, 556866 bytes
-#   portfolio-front-tools-4: 121 files, 555705 bytes
-#   portfolio-front-tools-5: 140 files, 555791 bytes
-#   portfolio-front-tools-6: 118 files, 556640 bytes
-#   portfolio-front-tools-7: 135 files, 554944 bytes
-#   portfolio-front-tools-8: 114 files, 557043 bytes
-#   portfolio-front-tools-9: 112 files, 555986 bytes
-#   portfolio-front-tools-10: 122 files, 555014 bytes
-#   portfolio-front-tools-11: 124 files, 554508 bytes
-#   portfolio-front-tools-12: 118 files, 532310 bytes
-#   portfolio-front-tools-13: 100 files, 554278 bytes
-#   portfolio-front-tools-14: 114 files, 552257 bytes
-#   portfolio-front-tools-15: 82 files, 420561 bytes
+#   portfolio-front-tools-0: 133 files, 555796 bytes
+#   portfolio-front-tools-1: 106 files, 554541 bytes
+#   portfolio-front-tools-2: 148 files, 556395 bytes
+#   portfolio-front-tools-3: 140 files, 557006 bytes
+#   portfolio-front-tools-4: 123 files, 556119 bytes
+#   portfolio-front-tools-5: 138 files, 553779 bytes
+#   portfolio-front-tools-6: 118 files, 553576 bytes
+#   portfolio-front-tools-7: 135 files, 554334 bytes
+#   portfolio-front-tools-8: 113 files, 554172 bytes
+#   portfolio-front-tools-9: 111 files, 552324 bytes
+#   portfolio-front-tools-10: 122 files, 554791 bytes
+#   portfolio-front-tools-11: 124 files, 554297 bytes
+#   portfolio-front-tools-12: 118 files, 532255 bytes
+#   portfolio-front-tools-13: 100 files, 554242 bytes
+#   portfolio-front-tools-14: 114 files, 552190 bytes
+#   portfolio-front-tools-15: 90 files, 455923 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -676,9 +676,6 @@ configMapGenerator:
       - artificial-turf-bid-calculator__share.mjs.gz=artificial-turf-bid-calculator__share.mjs.gz
       - artificial-turf-bid-calculator__usage.mjs.gz=artificial-turf-bid-calculator__usage.mjs.gz
       - artificial-turf-bid-calculator__vs-jobber.html.gz=artificial-turf-bid-calculator__vs-jobber.html.gz
-      - asbestos-abatement-bid-calculator__calc.mjs.gz=asbestos-abatement-bid-calculator__calc.mjs.gz
-      - asbestos-abatement-bid-calculator__index.html.gz=asbestos-abatement-bid-calculator__index.html.gz
-      - asbestos-abatement-bid-calculator__usage.mjs.gz=asbestos-abatement-bid-calculator__usage.mjs.gz
       - asphalt-driveway-pave-bid-calculator__calc.mjs.gz=asphalt-driveway-pave-bid-calculator__calc.mjs.gz
       - asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz=asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz
       - asphalt-driveway-pave-bid-calculator__index.html.gz=asphalt-driveway-pave-bid-calculator__index.html.gz
@@ -722,6 +719,7 @@ configMapGenerator:
       - backflow-test-fee-calculator__calc.mjs.gz=backflow-test-fee-calculator__calc.mjs.gz
       - backflow-test-fee-calculator__index.html.gz=backflow-test-fee-calculator__index.html.gz
       - backflow-test-fee-calculator__usage.mjs.gz=backflow-test-fee-calculator__usage.mjs.gz
+      - backflow-test-fee-calculator__vs-jobber.html.gz=backflow-test-fee-calculator__vs-jobber.html.gz
       - backflow-test-fee-calculator__vs-spreadsheet.html.gz=backflow-test-fee-calculator__vs-spreadsheet.html.gz
       - basement-finishing-bid-calculator__calc.mjs.gz=basement-finishing-bid-calculator__calc.mjs.gz
       - basement-finishing-bid-calculator__how-much-to-charge-to-finish-a-basement.html.gz=basement-finishing-bid-calculator__how-much-to-charge-to-finish-a-basement.html.gz
@@ -739,15 +737,15 @@ configMapGenerator:
       - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
       - boiler-replacement-bid-calculator__index.html.gz=boiler-replacement-bid-calculator__index.html.gz
       - boiler-replacement-bid-calculator__should-i-install-a-customer-supplied-boiler.html.gz=boiler-replacement-bid-calculator__should-i-install-a-customer-supplied-boiler.html.gz
+      - boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz=boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz
+      - boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz=boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz
+      - boiler-replacement-bid-calculator__usage.mjs.gz=boiler-replacement-bid-calculator__usage.mjs.gz
+      - boiler-replacement-bid-calculator__vs-servicetitan.html.gz=boiler-replacement-bid-calculator__vs-servicetitan.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz=boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz
-      - boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz=boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz
-      - boiler-replacement-bid-calculator__usage.mjs.gz=boiler-replacement-bid-calculator__usage.mjs.gz
-      - boiler-replacement-bid-calculator__vs-servicetitan.html.gz=boiler-replacement-bid-calculator__vs-servicetitan.html.gz
       - bounce-house-rental-calculator__calc.mjs.gz=bounce-house-rental-calculator__calc.mjs.gz
       - bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz=bounce-house-rental-calculator__how-much-to-charge-for-a-bounce-house-rental.html.gz
       - bounce-house-rental-calculator__index.html.gz=bounce-house-rental-calculator__index.html.gz
@@ -884,13 +882,13 @@ configMapGenerator:
       - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
       - countertop-bid-calculator__vs-moraware.html.gz=countertop-bid-calculator__vs-moraware.html.gz
       - court-reporter-transcript-calculator__calculator.mjs.gz=court-reporter-transcript-calculator__calculator.mjs.gz
+      - court-reporter-transcript-calculator__index.html.gz=court-reporter-transcript-calculator__index.html.gz
+      - court-reporter-transcript-calculator__usage.mjs.gz=court-reporter-transcript-calculator__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - court-reporter-transcript-calculator__index.html.gz=court-reporter-transcript-calculator__index.html.gz
-      - court-reporter-transcript-calculator__usage.mjs.gz=court-reporter-transcript-calculator__usage.mjs.gz
       - court-reporter-transcript-calculator__vs-spreadsheet-or-guessing.html.gz=court-reporter-transcript-calculator__vs-spreadsheet-or-guessing.html.gz
       - court-reporter-transcript-calculator__what-is-a-good-per-page-rate-for-a-court-reporter.html.gz=court-reporter-transcript-calculator__what-is-a-good-per-page-rate-for-a-court-reporter.html.gz
       - coverage-drop-check__compare.mjs.gz=coverage-drop-check__compare.mjs.gz
@@ -1007,13 +1005,13 @@ configMapGenerator:
       - duct-cleaning-bid-calculator__index.html.gz=duct-cleaning-bid-calculator__index.html.gz
       - duct-cleaning-bid-calculator__share.mjs.gz=duct-cleaning-bid-calculator__share.mjs.gz
       - duct-cleaning-bid-calculator__usage.mjs.gz=duct-cleaning-bid-calculator__usage.mjs.gz
+      - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
+      - dumpster-rental-margin-calculator__calc.mjs.gz=dumpster-rental-margin-calculator__calc.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
-      - dumpster-rental-margin-calculator__calc.mjs.gz=dumpster-rental-margin-calculator__calc.mjs.gz
       - dumpster-rental-margin-calculator__index.html.gz=dumpster-rental-margin-calculator__index.html.gz
       - dumpster-rental-margin-calculator__usage.mjs.gz=dumpster-rental-margin-calculator__usage.mjs.gz
       - dumpster-rental-margin-calculator__vs-jobber.html.gz=dumpster-rental-margin-calculator__vs-jobber.html.gz
@@ -1147,13 +1145,13 @@ configMapGenerator:
       - flat-roof-bid-calculator__vs-acculynx.html.gz=flat-roof-bid-calculator__vs-acculynx.html.gz
       - fleet-repair-or-replace-planner__calc.mjs.gz=fleet-repair-or-replace-planner__calc.mjs.gz
       - fleet-repair-or-replace-planner__index.html.gz=fleet-repair-or-replace-planner__index.html.gz
+      - fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz=fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz
+      - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz=fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz
-      - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
       - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
       - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
       - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
@@ -1266,12 +1264,12 @@ configMapGenerator:
       - home-inspection-fee-calculator__usage.mjs.gz=home-inspection-fee-calculator__usage.mjs.gz
       - home-inspection-fee-calculator__vs-franchise-fee-schedule.html.gz=home-inspection-fee-calculator__vs-franchise-fee-schedule.html.gz
       - home-staging-bid-calculator__calc.mjs.gz=home-staging-bid-calculator__calc.mjs.gz
+      - home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz=home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz=home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz
       - home-staging-bid-calculator__index.html.gz=home-staging-bid-calculator__index.html.gz
       - home-staging-bid-calculator__usage.mjs.gz=home-staging-bid-calculator__usage.mjs.gz
       - home-staging-bid-calculator__vs-honeybook.html.gz=home-staging-bid-calculator__vs-honeybook.html.gz
@@ -2016,6 +2014,11 @@ configMapGenerator:
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
+      - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
+      - wedding-florist-proposal-calculator__index.html.gz=wedding-florist-proposal-calculator__index.html.gz
+      - wedding-florist-proposal-calculator__share.mjs.gz=wedding-florist-proposal-calculator__share.mjs.gz
+      - wedding-florist-proposal-calculator__usage.mjs.gz=wedding-florist-proposal-calculator__usage.mjs.gz
+      - wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz=wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
@@ -2073,3 +2076,6 @@ configMapGenerator:
       - wordpress-plugin-review-check__stable-tag-mismatch.html.gz=wordpress-plugin-review-check__stable-tag-mismatch.html.gz
       - wordpress-plugin-review-check__usage.mjs.gz=wordpress-plugin-review-check__usage.mjs.gz
       - wordpress-plugin-review-check__vs-plugin-check.html.gz=wordpress-plugin-review-check__vs-plugin-check.html.gz
+      - world-clock-widget__index.html.gz=world-clock-widget__index.html.gz
+      - world-clock-widget__solar.mjs.gz=world-clock-widget__solar.mjs.gz
+      - world-clock-widget__usage.mjs.gz=world-clock-widget__usage.mjs.gz

@@ -682,8 +682,20 @@ const CATEGORY_RULES = [
     // turning the business's own cost/fee structure into a customer-facing
     // number — and not a trade bid, a marketplace fee, or a back-office
     // reconciliation.
+    // `wedding-florist-proposal-calculator` joined 2026-09-16 on its first
+    // commit, filed here rather than left for a spell in the catch-all —
+    // which is what `build.test.mjs`'s catch-all bound is for. A floral
+    // studio pricing one event booking from flowers, hard goods, design and
+    // on-site labour, and delivery is the same job as `photo-booth-event-
+    // quote`, `bounce-house-rental-calculator` and `bridal-hair-makeup-
+    // pricing-calculator`, which it cross-links to: a small operator turning
+    // materials, labour and travel into a price for one booking. Not a trade
+    // bid (nothing is priced by area or a site visit) and not a marketplace
+    // fee. The near miss was `solo-earner`, which groups on a person
+    // monetising their own output; a studio quoting a couple's wedding is a
+    // business pricing work for a customer, the axis this section uses.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal)/.test(
         slug,
       ),
   },
@@ -1370,8 +1382,27 @@ const CATEGORY_RULES = [
     // it is a CI gate a maintainer wires into their own pipeline. Landing it
     // here rather than the catch-all is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
+    //
+    // `cron-dst-drift-check` and `agent-instructions-drift-check` joined
+    // 2026-09-17, and they were found the way that guard asks for — by
+    // enumerating the catch-all rather than judging the one arrival that
+    // tripped it. The arrival was `world-clock-widget`'s new browser surface,
+    // which is not a developer tool at all; these two were already sitting
+    // there, and both are this category exactly. `cron-dst-drift-check` ships
+    // a CLI whose own page says "want this in CI before a deploy?" and whose
+    // "Both subcommands exit 1 when they find DST risk, so either works as a
+    // one-line CI check before a new scheduled job ships" is the category's
+    // whole shape in one sentence. `agent-instructions-drift-check` reads an
+    // AGENTS.md/CLAUDE.md against the repo it describes and reports the paths
+    // that no longer resolve; its own scored hypothesis is that a maintainer
+    // "will wire it into CI so the same PR that renames a script also has to
+    // fix the instruction file that pointed at it". Both are browser-local
+    // plus a matching zero-dependency CLI, run against files the developer
+    // already has, reporting mechanical drift rather than a determination.
+    // They sat in the catch-all only because neither slug matches a prefix
+    // above — the same reason `license-drift-check` did.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check)/.test(
         slug,
       ),
   },
