@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is a transitive GitHub Actions dependency?</title>
+  <meta name="description" content="Your workflow's uses: lines are direct dependencies. A reusable workflow or composite action can have its own uses: lines you never wrote and don't see in your diff — those are transitive dependencies, and a SHA pin on the direct reference does not reach them.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-a-transitive-github-actions-dependency.html">
+  <meta property="og:title" content="What is a transitive GitHub Actions dependency?">
+  <meta property="og:description" content="A reusable workflow or composite action you've pinned to a commit SHA can itself load a third-party action by a mutable tag underneath. Your pin never sees that second hop.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a transitive GitHub Actions dependency?","acceptedAnswer":{"@type":"Answer","text":"Every uses: line in your own workflow file is a direct dependency — the thing you chose and, ideally, pinned yourself. A reusable workflow or a composite action is just another file with its own steps, and if one of those steps has its own uses: line, that is a transitive dependency: something your workflow depends on that you did not write, did not review, and cannot see by reading your own repository. Pinning your direct reference to a commit SHA fixes what that one line points to. It says nothing about what the file at that commit itself loads."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions Transitive Pin Check</a></p>
+  <h1>What is a transitive GitHub Actions dependency?</h1>
+  <p>Every <code>uses:</code> line in your own workflow file is a direct dependency — the thing you chose and, ideally, pinned yourself. A reusable workflow or a composite action is just another file with its own steps, and if one of those steps has its own <code>uses:</code> line, that is a transitive dependency: something your workflow depends on that you did not write, did not review, and cannot see by reading your own repository. Pinning your direct reference to a commit SHA fixes what that one line points to. It says nothing about what the file at that commit itself loads.</p>
+  <h2>Where it hides</h2>
+  <pre><code># your workflow — this line is pinned, and it is genuinely fixed
+- uses: octo-org/shared-workflows/.github/workflows/build.yml@2c4d34e6cff37bafe66eba7a6c1c8a5c9d9c1a6e
+
+# the file AT that commit — a step nobody reviewing your diff ever sees
+- uses: some-third-party/build-helper@v3</code></pre>
+  <p>Your SHA pin proves <code>build.yml</code> at that exact commit cannot be silently repointed to a different commit. It does not touch the second line, because that line lives in a file you neither wrote nor pinned. If <code>some-third-party/build-helper</code>'s <code>v3</code> tag is ever repointed — by its maintainer, or by whoever compromises that maintainer's account — every workflow that trusts your pinned reusable workflow inherits whatever code <code>v3</code> now resolves to, on the next run, with no change to your own repository at all.</p>
+  <h2>Why this is easy to miss</h2>
+  <p>A top-level SHA pin is the well-known fix for the well-known problem: a mutable tag on a reference you wrote yourself. Reviewing that takes one look at your own workflow files. The transitive case takes fetching and reading a file that lives in someone else's repository, at a specific commit, before you can even tell whether there is anything to check — which is why most pinning checkers, this portfolio's own <a href="../pinned-actions-check/">Pinned Actions Check</a> included, are explicit that they classify only the <code>uses:</code> lines in the file you scan, and say nothing about what a pinned reusable workflow or composite action loads underneath it.</p>
+  <h2>Check your own workflow</h2>
+  <p><a href="./">Paste a workflow into Actions Transitive Pin Check</a> to fetch every pinned reference's own definition from <code>raw.githubusercontent.com</code> and flag one that loads something unpinned underneath, or run the CLI in your own repository:</p>
+  <pre><code>node check.mjs --fail-on-risk</code></pre>
+  <p class="note">That exits nonzero if any pinned reference loads an unpinned one underneath it — wire it into your own CI to block a newly-introduced gap before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is safe from supply-chain risk — only that this one specific gap was not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>The workflow YAML you paste in the linked tool is read in your browser and never uploaded; the transitive check makes a direct browser request to <code>raw.githubusercontent.com</code> for each pinned reference's own file, unauthenticated, and reads nothing else.</p>
+  </footer>
+</body>
+</html>
