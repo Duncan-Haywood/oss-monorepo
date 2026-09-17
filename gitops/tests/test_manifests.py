@@ -1699,18 +1699,24 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the first, a per-device report-filing fee, travel, and a retest fee
     # for failures), with a static `index.html` from its first commit, same
     # shape as the rest of this running count.
-    # 286 since 2026-09-16, when `land-survey-bid-calculator` graduated — a
-    # browser-local bid calculator pricing a boundary/topographic/ALTA survey
-    # job from corners located vs. set, terrain, record research, crew and
-    # drafting time, then comparing the result to a flat per-acre quote, with
-    # a static `index.html` from its first commit, same shape as the rest of
-    # this running count.
-    # 287 since 2026-09-16, when `wedding-florist-proposal-calculator`
+    # 286 since 2026-09-16 (missed at the time), when `land-survey-bid-
+    # calculator` (#4786) graduated -- a browser-local calculator pricing a
+    # boundary/ALTA survey job by corners located versus set and record
+    # research, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count. Its own PR touched
+    # venture-scores.yaml, publish-surface.yaml, and the front-door mirror
+    # but not this file, so this count stayed one behind until now.
+    # 287 since 2026-09-17, when `estate-sale-net-proceeds-calculator`
+    # graduated -- a browser-local calculator applying a company's tiered
+    # commission schedule and fees to an estimated estate-sale gross, with
+    # an optional minimum-guarantee floor and a two-quote comparison, same
+    # shape as the rest of this running count.
+    # 288 since 2026-09-17, when `wedding-florist-proposal-calculator`
     # graduated — a no-upload browser calculator pricing a wedding florist's
     # proposal from the stem recipe up, rounding each line to whole wholesale
     # bunches rather than loose stems, with a static `index.html` from its
     # first commit, same shape as the rest of this running count.
-    total = 287  # `infra/OWNER_CHECKLIST.md`'s own "N of the 287 tools" wording.
+    total = 288  # `infra/OWNER_CHECKLIST.md`'s own "N of the 288 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

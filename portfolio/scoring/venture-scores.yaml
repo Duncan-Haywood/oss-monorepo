@@ -12821,6 +12821,61 @@ ventures:
       has no incentive to steer a bid up or down, and the per-acre
       comparison is disclosed methodology (FAQ: "why not just quote per
       acre") rather than a black-box number.
+  - slug: estate-sale-net-proceeds-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain
+      model -- applying a company's own tiered commission schedule and
+      flat fees to an estimated gross sale, and an optional minimum
+      guarantee floor -- which is arithmetic, and inference would only
+      make the result less checkable.
+    basis: >-
+      Graduated 2026-09-17 as a browser-local calculator for families
+      comparing estate sale company commission quotes. `duplicate_check.py`
+      top match against an existing venture, screened-out row, or pipeline
+      candidate was 0.39 (atm-route-margin, an unrelated field), well
+      below the 0.45 flag threshold.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no
+      server component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 4: the tiered-commission-plus-fee-stack arithmetic
+      applied to two quotes side by side, showing that a lower headline
+      rate does not always net more, is not published anywhere else
+      found in a search of the category -- most estate-sale pricing
+      guidance states a single average commission percentage rather than
+      modelling a schedule.
+      Distribution 5: r/EstateSale, r/AgingParents, and r/eldercare are
+      real but smaller communities than a trade-bid audience, and "estate
+      sale company commission rates" / "how much do estate sale companies
+      charge" are plausible, demonstrable search phrases for a family
+      about to hire one -- but no channel measurement exists yet.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only applies the commission tiers, fees, and
+      optional minimum guarantee the visitor types in to an estimated
+      sale total -- it performs no legal or tax determination, does not
+      look up or verify any real company's pricing, and states plainly
+      that the company's own written contract governs the sale. Being
+      wrong costs the family a settlement estimate to double-check
+      against the contract, not a filing or a third party's safety.
+      Ethically: deterministic arithmetic, no data collected
+      server-side, and no incentive to steer the comparison toward
+      either company since the tool never recommends one.
+
   - slug: wedding-florist-proposal-calculator
     scores:
       ai_leverage: 1

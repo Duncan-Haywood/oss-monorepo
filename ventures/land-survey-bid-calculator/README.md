@@ -29,7 +29,9 @@ chain and a two-acre infill lot with three lost corners and a tangled
 1950s deed can cost the same to survey — acreage alone does not see that. The
 calculator prices the job both ways and shows the gap: how much a flat
 per-acre quote would have left on the table, or overcharged, on the exact job
-you just priced.
+you just priced. See
+[this calculator vs. a flat per-acre quote](vs-a-flat-per-acre-quote.html)
+for two worked examples where the gap runs in opposite directions.
 
 ## Hand the customer a proposal
 
