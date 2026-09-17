@@ -47,6 +47,16 @@ test("index links one hop to the brand-deal-rate-calculator sibling", () => {
   assert.match(html, /brand deal rate\s+calculator/i);
 });
 
+test("index links one hop to the twitch-payout-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/twitch-payout-calculator\/"/,
+    "index must link ../twitch-payout-calculator/ so crawlers reach it in one hop",
+  );
+  assert.match(html, /Twitch payout\s+calculator/i);
+});
+
 test("the page offers a shareable link and restores one through formValues", () => {
   const html = page("index.html");
   assert.match(html, /id="copy-link"/);

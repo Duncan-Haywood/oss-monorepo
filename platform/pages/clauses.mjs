@@ -412,6 +412,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly ("Names no specific product or company"). Same reasoning as
   // the other vs-spreadsheet / by-hand pages above.
   'stockx-seller-payout-calculator/vs-tracking-stockx-payouts-in-a-spreadsheet.html',
+  // Compares against "tracking Twitch payouts in a spreadsheet" -- a
+  // generic method every streamer already has access to, not a company or
+  // product this could be mistaken for. The page's own copy says so
+  // explicitly ("Names no specific product or company"). Same reasoning as
+  // the other vs-spreadsheet / by-hand pages above.
+  'twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
