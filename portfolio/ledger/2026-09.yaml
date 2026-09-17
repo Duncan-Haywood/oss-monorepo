@@ -34434,3 +34434,136 @@ entries:
         venture over budget (257 with 0, 56 with 1, 1 with 2). HEAD matched
         `origin/main` exactly at push time -- no drift between the last
         verification run and what was pushed.
+  - venture: 1099-k-threshold-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First work of the session was the PR-drain phase: only one open PR
+        existed (#4998, graduating 1099-vendor-tracker). Fetched and
+        unshallowed the repo, resolved its `dirty` merge conflict against
+        `main` (1191 generated-mirror conflicts resolved by taking `main`'s
+        copy and re-running `regen.mjs`; 7 hand-authored conflicts --
+        `gitops/ci/README.md`, `gitops/prod/usage/aggregate.py`,
+        `gitops/tests/test_manifests.py`, `infra/OWNER_CHECKLIST.md`,
+        `portfolio/ledger/2026-09.yaml`, `portfolio/scoring/venture-scores.yaml`,
+        `portfolio/usage/usage.yaml` -- resolved by hand, keeping both
+        sides' entries rather than picking one where each was a distinct
+        append). While verifying, found and fixed a real pre-existing
+        `faq-visible.test.mjs` failure on two unrelated ventures
+        (`actions-secret-leak-check`, `required-checks-drift-check`, a
+        JSON-LD/visible-copy dash and parenthetical mismatch), confirmed
+        absent from a clean `origin/main` before fixing it. Before either
+        fix could be pushed, a concurrent session self-merged #4998 (and,
+        separately, its own fix for the same two pages via #4999) --
+        discarded the now-superseded local branch rather than force a
+        duplicate merge. The queue's second PR (#5001, a
+        wedding-florist-proposal-calculator guide page) was reviewed,
+        merged with `main`, verified clean (1272/1272 marketing+pages,
+        venture suite 71/71, gitops/tests 607/1 skipped-environmental,
+        all `platform/ci` unittest modules, ledger+scoring+router+usage+
+        pipeline+infra 446 passed, `guard_state.py` confirmed CI starved
+        via `ci_starvation.py` first), and was also self-merged by its own
+        originating session moments before this session could push. The
+        queue was 0 open PRs both times a merge was attempted -- both PRs
+        that existed this session were processed and landed, just not by
+        this session's own push.
+      - >-
+        A ~100-branch inventory for uncovered work was judged
+        disproportionate given the fleet's velocity (5 sessions merging to
+        `main` within 15 minutes was directly observed) and was not
+        exhaustively triaged; flagged as a known limitation rather than
+        silently skipped.
+      - >-
+        With the queue empty, screened and graduated a new venture per
+        `session_gate.py` (PROCEED, build-now pipeline empty) and
+        `DIRECTION.md`'s new-venture priority. Existing-product avenues were
+        checked first and found saturated: `guide-coverage.mjs` 315/315,
+        `siblings.mjs` 0 orphans, the two top `router/allocate.py`
+        candidates (`reverb-fee-calculator`, `where-to-sell-calculator`)
+        already carry 9+ SEO pages and full share/usage/return-flow
+        wiring, blocked only on real customer-contact evidence no session
+        can manufacture.
+      - >-
+        The niche, found via WebSearch rather than invented: Form 1099-K's
+        federal reporting threshold has changed four times since 2022
+        ($20,000/200 transactions through 2023, a real $5,000-no-minimum
+        transition threshold actually used to issue forms in 2024, back to
+        $20,000/200 from 2025 on via the One Big Beautiful Bill Act,
+        confirmed retroactive to 2022 by the IRS's own Fact Sheet 2025-08 in
+        October 2025) -- and no existing free tool answers "will I get a
+        1099-K" specifically; the competitors found ("1099 tax calculator"
+        tools from Jupid, Keeper, LevyIO, and others) estimate
+        self-employment tax liability, a different question. Live evidence
+        the confusion is current: a WebSearch AI summary during this
+        session's own research incorrectly stated the threshold "doesn't
+        vary by state" moments after a separate search had confirmed four
+        states (Maryland, Massachusetts, Vermont, Virginia) do set their own
+        stricter $600 figure. `duplicate_check.py` scored every venture,
+        screened-out row, and pipeline candidate at or below 0.28 against
+        the final description -- closest was the sibling
+        `1099k-reconciliation-worksheet`, a genuinely different mechanism
+        (reconciles a 1099-K already received; this predicts whether one
+        arrives at all).
+      - >-
+        Shipped `ventures/1099-k-threshold-checker`: a browser-local,
+        per-platform, per-tax-year checker against the federal threshold
+        history above plus the four stricter state thresholds. Caught and
+        fixed a real correctness bug in its own first draft before
+        shipping: the IRS's threshold language is "exceeds," not "at
+        least" (`>`, not `>=`), verified via a second, targeted WebSearch
+        rather than assumed -- a boundary-value test
+        (`grossPayments: 20000` at exactly the federal figure) initially
+        passed against the wrong operator and was corrected to assert the
+        right one. Also surfaces the 2024 retroactive-correction wrinkle
+        Fact Sheet 2025-08 created (a platform that already issued a 2024
+        Form 1099-K under the since-superseded $5,000 rule did not have to
+        withdraw it) as an explicit, tested UI note rather than a single
+        flattened "current threshold" figure that would misdescribe what
+        actually happened that year. Cross-linked reciprocally with
+        `1099k-reconciliation-worksheet` (this predicts whether a form
+        arrives; that reconciles one already in hand) and filed in the
+        `evidence` category on its first commit (named by exact slug match,
+        alongside its payer-side twin `1099-vendor-tracker`) rather than
+        left for the catch-all, which `build.test.mjs` bounds at 6 tools.
+        Disclaimer (not tax advice, does not know what any specific
+        platform did or will do, income is taxable regardless of whether a
+        form is issued), privacy line, opt-in local usage counting
+        (DNT/GPC-aware), GitHub Sponsors link, LICENSE, sitemap, robots.txt,
+        and JSON-LD (SoftwareApplication + FAQPage, byte-matched to visible
+        copy on both pages) from the first commit.
+      - >-
+        Graduated directly rather than through `portfolio/pipeline/
+        candidates.yaml`, following the precedent
+        `1099k-reconciliation-worksheet`'s own VENTURE.yaml comment
+        records for the same reason: reasoning documented in the
+        venture's own VENTURE.yaml comment instead of a separate
+        candidate write-up. Scored in `portfolio/scoring/venture-scores.yaml`
+        on the six standard dimensions (composite 6.167, floor 1 on
+        `ai_leverage`, both gates comfortably above the floor at 6/8).
+      - >-
+        Verified before pushing: the venture's own suite (32/32, including
+        22 calc.mjs assertions and 10 page assertions), full
+        `platform/marketing` + `platform/pages` suites (1272/1272, after
+        fixing the category-catch-all overflow this venture's addition
+        caused and re-running `regen.mjs`), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (142/142), `gitops/tests`
+        (607 passed, 1 skipped -- environmental), all 27 `platform/ci`
+        unittest modules individually, `platform/ci/agent_review` (21/21),
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (446 passed), `router/validate.py` (323 valid),
+        `score_ventures.py --check` (324 scored, consistent),
+        `usage/validate_usage.py` (271 products, 457 readings),
+        `checklist_coverage.py`, `surface-budget.mjs --check` (no venture
+        over budget), `siblings.mjs` (0 of 316 orphaned),
+        `check_no_payment_code.py`, `guide-coverage.mjs` (316/316),
+        `faq-coverage.mjs` (316/316), and a `--only
+        1099-k-threshold-checker` Playwright/axe browser pass (sideways,
+        presets, roundtrip, contrast, optout, sweep, journey all `ok`;
+        `highlight` skipped as inapplicable) via `npm install --no-save
+        playwright@1.56.0 axe-core`. Repaired the tree-count drift this
+        venture's addition caused (315->316 mirrored tools, 410->411 then
+        411->412 `runs-on` lines) with `sync_tree_counts.py` and
+        `gitops/ci/sync_readme_counts.py`, plus `publish_surface.py --write`
+        for the new CI workflow, adding the running-comment entry naming
+        this venture in `test_manifests.py`.

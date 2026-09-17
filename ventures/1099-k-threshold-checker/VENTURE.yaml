@@ -1,0 +1,83 @@
+name: 1099-k-threshold-checker
+description: Free browser checker for gig and marketplace sellers (eBay, Etsy, Poshmark, Venmo, PayPal, Cash App, StockX, and others) that estimates whether a platform is likely to issue a Form 1099-K, per platform and per tax year, against the federal threshold's four changes since 2022 ($20,000/200 transactions through 2023, $5,000 with no transaction minimum in 2024, back to $20,000/200 from 2025 on) plus the four states (Maryland, Massachusetts, Vermont, Virginia) whose own statute sets a stricter $600 threshold. Entirely client-side; nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-17. duplicate_check.py against the final description
+# scored every venture, screened-out row, ai-first-markets idea, and
+# pipeline candidate at or below 0.19 -- the closest match was the sibling
+# 1099k-reconciliation-worksheet, a genuinely different mechanism (that
+# venture reconciles a 1099-K the seller already received down to net
+# profit; this one predicts whether one will arrive at all, before it
+# does). A hand grep for "1099-k threshold", "1099k threshold" across
+# ventures/ and portfolio/pipeline/ found nothing.
+#
+# Timely and narrow rather than evergreen: the federal 1099-K threshold
+# has been $20,000/200 transactions (2011-2023), $5,000 with no minimum
+# (2024, Notice 2023-74), and back to $20,000/200 (2025 on, OBBBA,
+# confirmed retroactive to 2022 by IRS Fact Sheet 2025-08, October 2025).
+# WebSearch on 2026-09-17 found no existing free tool answering "will I
+# get a 1099-K" specifically -- the closest competitors found ("1099 tax
+# calculator" tools from Jupid, Keeper, LevyIO, and others) estimate
+# self-employment tax liability, a different question from threshold
+# issuance, and one AI search summary during this research incorrectly
+# stated the threshold "doesn't vary by state" moments after a separate
+# search confirmed four states do have their own stricter figure -- live
+# evidence the confusion this tool addresses is current, not stale.
+#
+# Distribution evidence: the existing "1099 tax calculator" category
+# (several competitors found via WebSearch) demonstrates real search
+# volume for 1099-K-adjacent phrases; this tool targets the narrower,
+# currently-unserved "will I get one" question within that same audience.
+
+hypotheses:
+  - claim: >-
+      Gig and marketplace sellers, confused by the threshold's four changes
+      since 2022, will search plain-language phrases ("1099-K threshold
+      2026", "will I get a 1099-K", "1099-K $20,000 rule") and return to a
+      free, no-signup checker that states the current per-platform figure
+      plainly, rather than piecing it together from several years of news
+      coverage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Sellers who use more than one platform will return to check each one
+      against its own threshold, because the per-platform (not combined)
+      rule is a common point of confusion and a seller who sells on three
+      platforms has three separate questions to answer, not one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A seller who already received a 1099-K for 2024 under the now-
+      superseded $5,000 transition threshold will search why, since the
+      standing rule today is $20,000 -- and will find the year-by-year
+      explanation more useful than a single current-year figure would be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 90 days
+    of the 2027 January filing season (the first season a visitor checking
+    2026 payments against the confirmed $20,000/200 figure would file
+    under).
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of the 2027 filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/1099-k-threshold-checker/
+  analytics: null

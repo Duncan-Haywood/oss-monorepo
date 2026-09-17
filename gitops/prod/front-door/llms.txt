@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 315 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 316 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 315 of them — and
+Every tool in the collection is listed below — all 316 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -262,6 +262,7 @@ page that hosts it.
 - [npm Deployment Evidence — Free Lockfile Surface Report](https://marisstella.dev/tools/npm-deployment-evidence/): Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs entirely client-side.
 - [Grant Deadline Tracker for Small Nonprofits](https://marisstella.dev/tools/grant-deadline-tracker/): Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.
 - [Shopify Accessibility Evidence Report](https://marisstella.dev/tools/shopify-a11y-evidence/): Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.
+- [1099-K Threshold Checker — Will You Get One for 2026?](https://marisstella.dev/tools/1099-k-threshold-checker/): Check whether a marketplace, payment app, or platform is likely to send you a Form 1099-K, per platform and per tax year. Covers the federal threshold's four changes since 2022 ($20,000/200 transactions, $5,000 in 2024, back to $20,000/200 from 2025 on) plus the four states with their own stricter $600 rule. Runs in your browser, nothing uploaded.
 - [1099-NEC Vendor Tracker — Free 2026 $2,000 Threshold Checker](https://marisstella.dev/tools/1099-vendor-tracker/): Track which contractors need a 1099-NEC under the 2026 $2,000 reporting threshold (up from $600), check the corporation exemption, and see missing W-9s before the January 31 deadline. Runs in your browser, nothing uploaded.
 - [ADA Title II Website Accessibility Evidence Report](https://marisstella.dev/tools/ada-title-ii-evidence/): Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.
 - [Call Recording Consent Check — One-Party or All-Party by State](https://marisstella.dev/tools/call-recording-consent-check/): Pick the caller's and recipient's US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening. Free, deterministic, runs entirely in your browser — not legal advice.

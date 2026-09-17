@@ -8,6 +8,9 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
+- workflow: 1099-k-threshold-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: 1099-vendor-tracker-ci.yml
   classification: none
   publishes: []
