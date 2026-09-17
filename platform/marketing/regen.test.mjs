@@ -13,6 +13,7 @@ import {
   discoverGenerators,
   hashTree,
   REGENERATE_ALL,
+  withSnapshot,
 } from './regen.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -198,46 +199,87 @@ test('every generator writes under ARTIFACT_ROOT, so --verify can put it back', 
   );
 });
 
-test('--verify answers in one of two ways and leaves the tree byte-identical', async () => {
-  // Deliberately NOT asserting exit 0. Whether the committed surface is current
-  // is `front-door-tools.test.mjs`'s and `front-door.test.mjs`'s question, and
-  // duplicating it here would make this file go red for a stale commit rather
-  // than for a bug in `--verify` — two different results wearing one costume,
-  // which is the thing this whole area of the repo keeps paying for.
+test('withSnapshot puts a directory back exactly, whatever the body did to it', async () => {
+  // This replaces an end-to-end test that ran `regen.mjs --verify` as a
+  // subprocess against the real artifact root, and **that test is why `main`
+  // went red on 2026-09-17 within the hour of #5032 merging.**
   //
-  // What is asserted is the contract that makes the mode trustworthy: exit 2
-  // is reserved for "could not answer", and the tree comes back as it was.
-  const before = await hashTree(ARTIFACT_ROOT);
+  // `node --test "platform/marketing/*.test.mjs"` runs the three files in this
+  // directory *in parallel*. `--verify` deletes and rewrites `gitops/prod/`
+  // for about seven seconds, and `front-door.test.mjs` and
+  // `front-door-tools.test.mjs` spend their whole run reading committed
+  // artifacts out of that same directory — the alias map, the category pages'
+  // ConfigMap keys, the embed runtime. So the suite failed 3 of 266, then 4 of
+  // 266, on an unchanged commit, while each file passed 111/111 and 101/101
+  // alone. #5032's own verification run passed 266/266 and was simply lucky
+  // with the interleaving, which is the worst way for a race to introduce
+  // itself.
+  //
+  // The lesson is narrow and worth keeping: a test may not mutate a directory
+  // that its sibling test files read, however briefly and however carefully it
+  // restores afterwards. `node --test` gives no ordering to lean on.
+  //
+  // So the part actually worth testing — the restore, which is the promise
+  // that makes `--verify` safe to run mid-change — is tested here against a
+  // temp directory, with a body that does what a generator run does:
+  // `writeMirror` opens with `fs.rm(outputDir, { recursive: true })`, so
+  // deletions, rewrites and additions all have to survive.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'regen-snapshot-test-'));
+  await fs.mkdir(path.join(dir, 'shard'), { recursive: true });
+  await fs.writeFile(path.join(dir, 'kustomization.yaml'), 'original');
+  await fs.writeFile(path.join(dir, 'shard', 'keep.html.gz'), 'keep');
+  await fs.writeFile(path.join(dir, 'shard', 'doomed.html.gz'), 'doomed');
+  const before = await hashTree(dir);
 
-  const result = spawnSync(process.execPath, [path.join(HERE, 'regen.mjs'), '--verify'], {
-    cwd: REPO_ROOT,
-    encoding: 'utf8',
+  const seen = await withSnapshot(dir, async () => {
+    // Exactly what a generator does to this directory.
+    await fs.rm(dir, { recursive: true, force: true });
+    await fs.mkdir(path.join(dir, 'shard'), { recursive: true });
+    await fs.writeFile(path.join(dir, 'kustomization.yaml'), 'rewritten');
+    await fs.writeFile(path.join(dir, 'shard', 'keep.html.gz'), 'keep');
+    await fs.writeFile(path.join(dir, 'shard', 'arrived.html.gz'), 'new');
+    return compareTrees(before, await hashTree(dir));
   });
 
-  const output = `${result.stdout}${result.stderr}`;
-  assert.notEqual(
-    result.status,
-    2,
-    `--verify could not answer, which is a bug here rather than a stale commit:\n${output}`,
-  );
-  assert.ok(
-    result.status === 0 || result.status === 1,
-    `--verify exited ${result.status}, and only 0 (current) and 1 (stale) are answers:\n${output}`,
-  );
+  // The body's own reading is what --verify reports, so it has to survive the
+  // restore rather than be undone by it.
+  assert.deepEqual(seen.changed, ['kustomization.yaml']);
+  assert.deepEqual(seen.added, ['shard/arrived.html.gz']);
+  assert.deepEqual(seen.removed, ['shard/doomed.html.gz']);
 
-  if (result.status === 1) {
-    assert.ok(
-      output.includes(REGENERATE_ALL),
-      `a stale verdict must hand over the one command that fixes it:\n${output}`,
-    );
-  }
-
-  const after = await hashTree(ARTIFACT_ROOT);
   assert.deepEqual(
-    compareTrees(before, after),
+    compareTrees(before, await hashTree(dir)),
     { changed: [], added: [], removed: [], stale: 0 },
-    '--verify ran the generators and did not put the artifact root back. That is the ' +
-      'promise that makes it safe to run mid-change; without it the mode is just ' +
-      '`regen.mjs` with an exit code.',
+    'withSnapshot left the directory changed. That is the promise that makes ' +
+      '--verify safe to run mid-change; without it the mode is just regen.mjs ' +
+      'with an exit code.',
   );
+
+  await fs.rm(dir, { recursive: true, force: true });
+});
+
+test('withSnapshot restores even when the body throws', async () => {
+  // The failure path matters more than the happy one: a --verify that died on
+  // a broken generator and left 2,184 rewritten files behind would be worse
+  // than not offering the mode, which is why the restore is in a `finally`.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'regen-snapshot-throw-'));
+  await fs.writeFile(path.join(dir, 'kustomization.yaml'), 'original');
+  const before = await hashTree(dir);
+
+  await assert.rejects(
+    withSnapshot(dir, async () => {
+      await fs.writeFile(path.join(dir, 'kustomization.yaml'), 'half-written');
+      throw new Error('generator exited 1');
+    }),
+    /generator exited 1/,
+  );
+
+  assert.deepEqual(compareTrees(before, await hashTree(dir)), {
+    changed: [],
+    added: [],
+    removed: [],
+    stale: 0,
+  });
+
+  await fs.rm(dir, { recursive: true, force: true });
 });
