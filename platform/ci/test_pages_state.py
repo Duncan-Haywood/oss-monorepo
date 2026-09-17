@@ -817,10 +817,38 @@ class IndexingVerdict(unittest.TestCase):
         self.assertIn("https://duncan-haywood.github.io/robots.txt", why)
         self.assertIn("monorepo-projects/robots.txt", why)
 
-    def test_a_subpath_site_names_both_owner_fixes(self):
+    def test_a_subpath_site_names_all_three_owner_fixes(self):
         _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
         self.assertIn("Search Console", why)
         self.assertIn("custom domain", why)
+        # The host-root robots.txt route, added 2026-09-17. It is the cheapest
+        # of the three and was missing entirely, so the report offered only the
+        # two expensive ones while 1143 published pages stayed unenumerable.
+        self.assertIn("https://duncan-haywood.github.io/robots.txt", why)
+        self.assertIn("Sitemap: https://duncan-haywood.github.io/monorepo-projects/sitemap.xml", why)
+
+    def test_the_cheapest_fix_is_offered_before_the_expensive_ones(self):
+        """Order is the whole point of naming a third option.
+
+        An owner reads the first thing offered. Search Console is per-engine
+        and manual; a custom domain costs money and a DNS round trip. The
+        host-root robots.txt is two lines and reaches every crawler, so a
+        report that buried it would have been no better than not adding it.
+        """
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertLess(why.index("robots.txt -- a repository named"), why.index("Search Console"))
+        self.assertLess(why.index("Search Console"), why.index("custom domain"))
+
+    def test_the_robots_route_warns_about_an_existing_user_site(self):
+        """Creating vs. editing is the one way this advice can destroy value.
+
+        If the user Pages site already exists, its robots.txt is live and may
+        already Disallow. Telling the owner to 'create' one would either fail
+        or replace a file governing something else.
+        """
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertIn("already exists", why)
+        self.assertIn("Disallow", why)
 
     def test_a_subpath_site_says_crawling_is_still_allowed(self):
         """The row must not read as 'the site is blocked from search'."""
