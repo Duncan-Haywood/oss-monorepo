@@ -1,0 +1,32 @@
+name: storage-auction-max-bid-calculator
+description: Free browser calculator for storage-unit lien-auction bidders (the "storage wars" resale hobbyists and small-business flippers who buy an abandoned unit's contents sight-mostly-unseen) that prices the real cost stack behind a bid — the buyer's premium charged on top of the hammer price, a realistic secondhand resale recovery rate (not retail value), blended resale-channel fees, dump and cleanout labor cost, transport, and holding cost while liquidating — then reports the bid that leaves a target margin, the break-even bid past which every extra dollar is a loss, and the gap against the flat "bid no more than X% of what it's worth" rule of thumb most auction forums repeat. Also flags when the planned cleanout does not fit inside the facility's own removal window, putting the refundable cleanup deposit at risk.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Storage auction bidders will use a bid calculator that prices the actual cost stack instead of a flat percent-of-value rule, because the rule ignores the buyer's premium charged on top of the hammer price and has no room for cleanout, dump, transport and holding cost that do not scale with the unit's value — so a small or hard-to-sell unit is exactly where the rule is most wrong, and sight-unseen bidding cannot rule that outcome out.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Bidders will return to the break-even-vs-target-margin distinction specifically, because it answers a question a single "max bid" number cannot — whether a bid between the two is still a real, if thinner, deal, or whether it is a guaranteed loss regardless of how the resale goes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Bidders underweight the cleanout-window deposit risk until it costs them a forfeited deposit, and will use a tool that converts total cleanout labor hours and crew size into the wall-clock time against the facility's own removal window before they bid, rather than after they win.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Bidders report the break-even/target-margin split never changes a bid they had already decided on, because they already track the buyer's premium and cost stack by habit.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/storage-auction-max-bid-calculator/
+  analytics: null

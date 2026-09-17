@@ -162,12 +162,22 @@ const RELATIVE_SELF = relative(
 // the same shape as the 271 -> 272 collision above: this branch was open
 // before `tutor-package-pricing-calculator` landed, so it only ever knew
 // its own predecessor's number (277) until this merge.
-// 278 -> 279 on 2026-09-17, when `required-checks-drift-check` graduated
+// 278 -> 279 on 2026-09-17, when `storage-auction-max-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (opts out of
+// the `bid-calculated`/`overbid-warning-shown`/`link_copied` counters, the
+// same pattern `wedding-florist-proposal-calculator` uses), same discovery
+// method as the rest of this running count. Landed the same afternoon as
+// `asbestos-abatement-bid-calculator`, `tutor-package-pricing-calculator`
+// and `biohazard-cleanup-bid-calculator`, so the resolved number is 279
+// rather than any one branch's own count.
+// 279 -> 280 on 2026-09-17, when `required-checks-drift-check` graduated
 // with a `usage.mjs` opt-out following the same
 // `setUsageOptOut`/`usageOptedOut` pattern as `pinned-actions-check`'s
 // switch (copied from it directly), same discovery method as the rest of
-// this running count.
-const SWITCHES_IN_THE_CATALOGUE = 279;
+// this running count. This branch was open before
+// `storage-auction-max-bid-calculator` landed, so it only ever knew its
+// own predecessor's number (279) until this merge.
+const SWITCHES_IN_THE_CATALOGUE = 280;
 
 let counter = 0;
 function fixture(source) {

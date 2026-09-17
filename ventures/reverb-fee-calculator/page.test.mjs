@@ -219,6 +219,19 @@ test('the incumbent-comparison page links back, names Reverb\'s own resources ho
   }
 });
 
+test('the generic-method comparison page links back, names no specific product, and is linked from index', () => {
+  const spreadsheetSeo = readFileSync(
+    new URL('./vs-tracking-offers-in-a-spreadsheet.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(html, /vs-tracking-offers-in-a-spreadsheet\.html/);
+  assert.match(spreadsheetSeo, /<a href="\.\/">/);
+  assert.match(spreadsheetSeo, /names no specific product/i);
+  assert.match(spreadsheetSeo, /No warranty/);
+  assert.match(spreadsheetSeo, /no SLA/i);
+  assert.match(spreadsheetSeo, /where-to-sell-calculator\/"/);
+});
+
 test('every published page carries Open Graph tags', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));

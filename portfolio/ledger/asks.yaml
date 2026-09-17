@@ -206,6 +206,42 @@ decisions:
     only thing you want today is `marisstella.dev` answering, run that instead
     and skip the rest; the full recovery stays the right call when you want
     the dev capacity and CI back in the same pass.
+    **And that escape is not the site's alone — all three host-mode routes
+    have it.** Added 2026-09-17, because the paragraph above named the
+    standalone driver for the one route it was written about and left the
+    other two as "the Codex and runner drivers", never naming them or saying
+    they can be run the same way. Each is one command from your machine,
+    needing the private SSH key and nothing else — no k3s, no Argo, no
+    runner, no repository secret, no seal:
+
+        ./bootstrap/scripts/setup-runner-from-laptop.sh
+        ./bootstrap/scripts/setup-codex-host-from-laptop.sh
+        ./bootstrap/scripts/setup-portfolio-site-from-laptop.sh
+
+    All three take `--check` to report without changing anything, and all
+    three are idempotent, so running one today does not cost you anything if
+    you run the full recovery later. Which to reach for depends on what you
+    want back:
+
+      - **CI, and an end to the metered-Actions cycle** — the runner one.
+        Actions is starved again as of 2026-09-17 (every check arriving
+        `runner_id: 0`, no step executed), and a self-hosted runner is not
+        metered, so this is what makes the next starvation window a
+        non-event rather than another week of local-only verification.
+      - **Unattended dev capacity on the box** — the Codex one. It installs
+        the host-mode systemd timer, which prefers the subscription
+        credential (`CODEX_AUTH_JSON` from your own `codex login`) and
+        actively withholds `OPENAI_API_KEY` from the CLI when both are
+        present, so a tick spends the plan's included quota and cannot bill
+        per token. It installs held: `policy.json` ships `"enabled": false`
+        and the timer ticks and holds until `enable-codex-governor.sh
+        --host-only`, so installing it does not start anything spending.
+      - **A stranger seeing `marisstella.dev`** — the site one, as above.
+
+    Ranked against each other rather than against the cluster: the runner
+    and Codex drivers are the two whose value does not depend on the k3s
+    restore working at all, and the runner is the one that changes what
+    *every other* row here is downstream of.
     **The GitHub route, for when runners come back:** paste that same private
     key as the Actions secret `HETZNERSSHKEY` (the whole file, `-----BEGIN
     OPENSSH PRIVATE KEY-----` through `-----END …-----`) and the PAT as

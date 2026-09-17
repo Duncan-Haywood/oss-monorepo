@@ -142,6 +142,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "the headline commission rate a company quotes" -- the
+  // industry-wide convention of leading with one percentage out of a tiered
+  // schedule, not a company or product this could be mistaken for. The page
+  // names no estate sale company at all: its worked example uses "Company A"
+  // and "Company B" and says in its own copy that the figures are "not a
+  // claim about any real company's pricing". Same reasoning as the other
+  // generic-method pages above.
+  'estate-sale-net-proceeds-calculator/vs-headline-commission-rate.html',
   // Compares against "a spreadsheet formula" -- a generic method every
   // payroll admin already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
@@ -151,6 +159,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method every tutor already
+  // has, not a company or product this could be mistaken for. Same reasoning
+  // as the other vs-spreadsheet pages above.
+  'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
   // Compares against "checking a DST calendar by hand" -- a generic manual
   // habit every developer already has access to, not a company or product
   // this could be mistaken for. Same reasoning as the other manual-method
@@ -203,6 +215,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // ("names no specific product"). Same reasoning as the other
   // manual-method pages above.
   'openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html',
+  // Compares against "a flat rate per lineal foot" -- a generic pricing
+  // method every waterproofing contractor already has access to, not a
+  // company or product this could be mistaken for. Same reasoning as the
+  // other generic-method pages above (e.g. asbestos-abatement-bid-calculator's
+  // flat-rate page).
+  'basement-waterproofing-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
   // Compares against "a flat day rate plus a per-pound hazmat estimate" --
   // a generic pricing method every biohazard/trauma-scene technician
   // already has access to, not a company or product this could be mistaken
@@ -210,6 +228,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // regulated-waste hauler, estimating software, or franchise"). Same
   // reasoning as the other generic-method pages above.
   'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
+  // Compares against "tracking offers in a spreadsheet" -- a generic method
+  // every Reverb seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above.
+  'reverb-fee-calculator/vs-tracking-offers-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

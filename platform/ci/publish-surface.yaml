@@ -944,6 +944,9 @@ workflows:
 - workflow: standby-generator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: storage-auction-max-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []
