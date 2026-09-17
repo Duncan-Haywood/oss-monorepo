@@ -1521,10 +1521,25 @@ decisions:
       get a reading, the second would be evidence against the products
       themselves. At an origin root the file the build publishes is the file
       crawlers read. This is the same defect `platform/ci/pages_state.py`
-      reports as its `indexing` row; that row names two owner fixes and this
-      is the cheaper, more permanent one -- Search Console submission is
-      per-engine and has to be repeated, a custom domain fixes it for every
-      crawler at once, including ones nobody submits to.
+      reports as its `indexing` row.
+      **Corrected 2026-09-17: this row used to call itself "the cheaper, more
+      permanent" of two fixes, and it is no longer the cheapest of three.**
+      `pages_state.py` now names a third, ahead of this one: a `robots.txt` at
+      the *user* Pages site root (`https://duncan-haywood.github.io/
+      robots.txt`) carrying this catalogue's `Sitemap:` line. The sitemaps
+      protocol only requires verification for a *cross-host* sitemap, and
+      every `<loc>` published here is same-host under the one subpath
+      (checked against `origin/gh-pages`), so two lines in a repository named
+      `<owner>.github.io` restore enumeration for every crawler at once --
+      with no registrar, no DNS change, no certificate wait and no money. It
+      shares this row's advantage over Search Console (read at fetch time, so
+      it reaches crawlers nobody submits to) at a fraction of the cost.
+      So enumeration alone no longer justifies this row, and the honest
+      ranking on that one axis puts the robots.txt route first. What that
+      route does *not* buy is everything below -- the public name, and
+      IndexNow from an origin-root key file -- which is why this row stands
+      rather than being closed. Do the robots.txt first; it is not a reason
+      to skip the domain, only a reason not to wait for it.
     - >-
       A public name for the portfolio. 200 finished products currently live at
       a URL that names a GitHub account and a repository; every card, share

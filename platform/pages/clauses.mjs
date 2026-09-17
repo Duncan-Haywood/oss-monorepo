@@ -163,6 +163,23 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
   'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "dividing labor sales by labor hours off your own DMS
+  // reports" -- the one line of arithmetic every shop owner can already run
+  // against reports they have, not a company or product this could be
+  // mistaken for. The page names no management system at all (the venture's
+  // two named-product comparisons, vs-tekmetric and vs-shop-ware, carry their
+  // own trademark disclaimers) and its copy opens by telling the reader to do
+  // the division themselves. Same reasoning as the other generic-method pages
+  // above.
+  'auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html',
+  // Compares against "a flat per-vehicle price card" -- sedan/SUV/truck
+  // pricing every mobile detailer already posts, not a company or product
+  // this could be mistaken for. The page names no specific detailing
+  // franchise, app, or competitor (the venture's own named-product
+  // comparison, vs-mobiletechrx, carries its own trademark disclaimer) and
+  // its copy opens by agreeing the flat card is the right tool for
+  // advertising. Same reasoning as the other generic-method pages above.
+  'mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
@@ -298,11 +315,29 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-spreadsheet / by-hand pages above (e.g. reverb-fee-
   // calculator's).
   'import-landed-cost-calculator/vs-tracking-landed-cost-in-a-spreadsheet.html',
+  // Compares against "tracking propane customer margins in a spreadsheet"
+  // -- a generic method every independent propane dealer already has
+  // access to, not a company or product this could be mistaken for. The
+  // page's own copy says so explicitly ("Names no specific product or
+  // company"). Same reasoning as the other vs-spreadsheet / by-hand pages
+  // above (e.g. import-landed-cost-calculator's).
+  'propane-delivery-route-margin/vs-tracking-propane-delivery-margin-in-a-spreadsheet.html',
   // Compares against "a spreadsheet" -- a generic method every landlord or
   // tenant already has access to, not a company or product this could be
   // mistaken for. The page names no specific spreadsheet product. Same
   // reasoning as the other vs-spreadsheet / by-hand pages above.
   'security-deposit-return-calculator/vs-a-spreadsheet.html',
+  // Compares against tracking payment terms and a client's pay-run schedule
+  // in a spreadsheet formula -- a generic method every freelancer already
+  // has access to, not a company or product this could be mistaken for. The
+  // page names no specific spreadsheet or invoicing product. Same reasoning
+  // as the other vs-spreadsheet / by-hand pages above.
+  'invoice-payment-terms-calculator/vs-spreadsheet.html',
+  // Compares against "opening robots.txt and reading it" -- a generic manual
+  // habit every developer already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other manual-method
+  // pages above.
+  'subpath-robots-check/vs-checking-robots-txt-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

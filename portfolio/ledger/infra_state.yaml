@@ -33,8 +33,8 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-16"
-    run: 35095456643
+    measured: "2026-09-17"
+    run: 35208575297
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -232,6 +232,26 @@ readings:
       `publish-pages-branch.yml` -- so 1037 published URLs remain announced
       to nobody, which is this outage's largest ongoing product cost and is
       not visible anywhere in the tree.
+      Re-measured 2026-09-17T10:04-10:16Z from a session responding to an
+      owner ask to prioritise Hetzner CI/CD and marketing-material
+      deployment. Sampled 30 consecutive `portfolio-validate.yml` runs
+      spanning 07:44Z-10:12Z on ordinary `main` push traffic: every one
+      concluded `failure` in 4-6 seconds. `ci_starvation.py --run
+      35208575297` exits 1 on `runner_id: 0`. Then dispatched fresh
+      `Outage triage` (35209541619) and `Public surface check`
+      (35209543639) rather than trusting push traffic alone: both also
+      `runner_id: 0`, 2-3s, no steps -- `ci_starvation.py --run` on each
+      exits 1. So the window is unmoved from the 09-16 reading, one day
+      short of the 2026-10-01 allowance-reset expectation, and
+      `k3s-cluster` below remains unmeasurable by the dispatch route for
+      the same reason: 13 days stale now, read as unknown rather than as
+      the `down` verdict it still carries. Unlike the outage window this
+      file otherwise tracks, GitHub's *managed* Pages builder is
+      unaffected -- confirmed the same session by successfully building
+      and pushing a fresh `gh-pages` snapshot by hand
+      (`platform/pages/publish-branch.sh`, run 35209422755, success) --
+      so `github-pages-branch-route` stays `up` throughout this window
+      and the portfolio's public surface is not blocked on this row.
 
   k3s-cluster:
     verdict: down
@@ -264,6 +284,22 @@ readings:
       row's 09-11 note), so this row is still stuck at the 2026-09-04
       reading, now 7 days stale. Re-measure on the next push or dispatch
       that lands a real runner rather than trusting this verdict as current.
+      Attempted again 2026-09-17T10:15Z, prompted by an owner ask to
+      prioritise Hetzner CI/CD and marketing-material deployment: a fresh
+      `Outage triage` dispatch (run 35209541619) came back `runner_id: 0`
+      in 3s -- `github-actions-runners` was starved at that exact moment
+      (see that row's 09-17 note, and 30 consecutive starved pushes either
+      side of it). Also tried the direct-sandbox route this section warns
+      against, deliberately, to confirm the warning still holds rather than
+      skip it: `curl` to `https://marisstella.dev/` through the agent
+      egress proxy returns `CONNECT tunnel failed, response 403` -- a
+      policy denial from the proxy itself, not a signal about the host, and
+      distinct from both the `403 host_not_allowed` and the fake-open-port
+      shapes already recorded above. So this row is still stuck at the
+      2026-09-04 reading, now 13 days stale -- read as unknown, not as the
+      `down` verdict below, until a dispatch actually lands a runner. The
+      SSH-key blocker (`hetzner-ssh-key-is-a-public-key`) is unchanged and
+      still owner-only: nothing in this session's reach can rotate it.
     note: >-
       `:6443` refused on both boxes, so the k3s API server is not listening —
       a dead or absent cluster rather than a crashed ingress. `:22` is open
@@ -490,7 +526,7 @@ readings:
   github-pages-branch-route:
     verdict: up
     measured: "2026-09-17"
-    run: 35203941076
+    run: 35216852525
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
