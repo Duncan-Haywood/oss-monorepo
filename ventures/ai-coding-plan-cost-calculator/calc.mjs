@@ -24,8 +24,25 @@
  * understates the case for the subscription. Treat these as a dated
  * starting point, not a live quote -- every field is editable in the UI.
  */
-export const RATES_AS_OF = '2026-09-11';
+export const RATES_AS_OF = '2026-09-17';
 
+/** Added 2026-09-17: the tool let a visitor pick ChatGPT Plus, Cursor, or
+ * GitHub Copilot as their *subscription*, then only ever offered Claude API
+ * rates for the "same usage paid per token" side -- correct for a Claude
+ * plan, silently wrong (or just missing) for the other three named vendors
+ * on their own tool page. `openai-gpt` and `gemini` close that gap.
+ *
+ * Anthropic charges a write premium (25% over fresh input) to populate the
+ * cache, then a steep discount to read it back. OpenAI's and Google's
+ * automatic prompt caching do not bill the write step at all -- only reads,
+ * at roughly 10% of the fresh-input rate on both -- so `cacheWrite: 0` below
+ * is a modelling choice, not a placeholder. Google's *explicit* cache API
+ * additionally bills storage per hour rather than per token; this
+ * calculator has no per-hour field, so that cost is not represented here --
+ * a heavy explicit-cache user should treat the Gemini API-side total as a
+ * floor and check the vendor's own pricing page, exactly as the no-warranty
+ * clause already asks for every preset.
+ */
 export const MODEL_PRESETS = {
   'claude-opus': {
     label: 'Claude Opus (API)',
@@ -48,7 +65,40 @@ export const MODEL_PRESETS = {
     cacheWrite: 1,
     cacheRead: 0.08,
   },
+  'openai-gpt': {
+    label: 'OpenAI GPT (API)',
+    input: 1.25,
+    output: 10,
+    cacheWrite: 0,
+    cacheRead: 0.125,
+  },
+  gemini: {
+    label: 'Google Gemini (API)',
+    input: 2,
+    output: 12,
+    cacheWrite: 0,
+    cacheRead: 0.2,
+  },
   custom: { label: 'Custom rates', input: 0, output: 0, cacheWrite: 0, cacheRead: 0 },
+};
+
+/** Which model preset a plan's own API most plausibly maps to, used only to
+ * pick a less-wrong default when the visitor switches plans -- every field
+ * stays editable, so a mismatch here costs nothing but one extra click.
+ * Cursor and Copilot are multi-model products with no single "own API"; both
+ * default to the closest well-known backing model rather than left on
+ * whatever the previous plan happened to select.
+ */
+export const PLAN_MODEL_DEFAULT = {
+  'claude-pro': 'claude-sonnet',
+  'claude-max-5x': 'claude-sonnet',
+  'claude-max-20x': 'claude-opus',
+  'cursor-pro': 'claude-sonnet',
+  'cursor-business': 'claude-sonnet',
+  'copilot-individual': 'openai-gpt',
+  'copilot-business': 'openai-gpt',
+  'chatgpt-plus': 'openai-gpt',
+  custom: 'custom',
 };
 
 /** Flat-rate plan starting points. `seats` defaults to 1; business/team
