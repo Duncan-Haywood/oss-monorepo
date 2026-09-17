@@ -257,7 +257,14 @@ const RELATIVE_SELF = relative(
 // only ever knew its own predecessor's number (287) until this merge --
 // same collision shape as the entry immediately above: both branches
 // independently wrote "288" for what the merged tree made 289.
-const SWITCHES_IN_THE_CATALOGUE = 289;
+// 289 -> 290 on 2026-09-17, when `android-data-safety-check` graduated with
+// its own `recordUsage`/`readOptOut`/`writeOptOut` switch (opts out of the
+// `scan_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count. This branch was open before
+// `branch-protection-drift-check` landed, so it only ever knew an earlier
+// predecessor's number until this merge -- the same ordinary collision
+// shape recorded throughout this list.
+const SWITCHES_IN_THE_CATALOGUE = 290;
 
 let counter = 0;
 function fixture(source) {

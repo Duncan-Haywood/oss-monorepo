@@ -1875,7 +1875,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (303) until this merge -- the same ordinary
     # collision shape recorded throughout this list: both branches
     # independently wrote "304" for what the merged tree made 305.
-    total = 305  # `infra/OWNER_CHECKLIST.md`'s own "N of the 305 tools" wording.
+    # 306 since 2026-09-17, when `android-data-safety-check` graduated -- a
+    # browser-local and CLI checker cross-checking an Android project's
+    # AndroidManifest.xml permissions and Gradle SDK dependencies against
+    # the Google Play Data safety categories the developer says they've
+    # already declared, the direct Android-side counterpart to
+    # `ios-privacy-manifest-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before this branch's own predecessor merges landed,
+    # so it only ever knew an earlier number until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 306  # `infra/OWNER_CHECKLIST.md`'s own "N of the 306 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
