@@ -5,6 +5,7 @@ import { readdirSync } from 'node:fs';
 
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const comparison = await readFile(new URL('./vs-manually-reading-the-spec-diff.html', import.meta.url), 'utf8');
+const oasdiffComparison = await readFile(new URL('./vs-oasdiff.html', import.meta.url), 'utf8');
 
 test('the entry page is a working tool, not a landing page', () => {
   assert.match(index, /<textarea/);
@@ -78,6 +79,14 @@ test('index links to the comparison page', () => {
   );
 });
 
+test('index links to the oasdiff comparison page', () => {
+  assert.match(
+    index,
+    /href="vs-oasdiff\.html"/,
+    'index must link the oasdiff comparison page so crawlers can reach it',
+  );
+});
+
 test('comparison page links back to the tool and carries the disclaimers', () => {
   assert.match(comparison, /href="\.\/"/);
   assert.match(comparison, /No warranty/);
@@ -101,15 +110,47 @@ test('the comparison page has valid FAQPage JSON-LD matching visible text', () =
   }
 });
 
+const faqOf = (html) => {
+  const block = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map((m) => JSON.parse(m[1]))
+    .find((b) => b['@type'] === 'FAQPage');
+  return new Set(block.mainEntity.map((q) => q.name));
+};
+
 test('the comparison page does not repeat a question the index page already answers', () => {
-  const faqOf = (html) => {
-    const block = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
-      .map((m) => JSON.parse(m[1]))
-      .find((b) => b['@type'] === 'FAQPage');
-    return new Set(block.mainEntity.map((q) => q.name));
-  };
   const overlap = [...faqOf(comparison)].filter((q) => faqOf(index).has(q));
   assert.deepEqual(overlap, [], `duplicated FAQ question(s): ${overlap.join(', ')}`);
+});
+
+test('the oasdiff comparison page names oasdiff, links back, and carries the disclaimers', () => {
+  assert.match(oasdiffComparison, /href="\.\/"/);
+  assert.match(oasdiffComparison, /No warranty/);
+  assert.match(oasdiffComparison, /not\s+affiliated\s+with/i);
+  assert.match(oasdiffComparison, /oasdiff/);
+});
+
+test('the oasdiff comparison page has valid FAQPage JSON-LD matching visible text', () => {
+  const blocks = [...oasdiffComparison.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(
+    (m) => JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the oasdiff comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(oasdiffComparison.includes(name), `visible question missing: ${name}`);
+    assert.ok(oasdiffComparison.includes(acceptedAnswer.text), `visible answer missing for: ${name}`);
+  }
+});
+
+test('the oasdiff comparison page does not repeat a question the index or other comparison page already answers', () => {
+  const overlapIndex = [...faqOf(oasdiffComparison)].filter((q) => faqOf(index).has(q));
+  assert.deepEqual(overlapIndex, [], `duplicated FAQ question(s) with index: ${overlapIndex.join(', ')}`);
+  const overlapComparison = [...faqOf(oasdiffComparison)].filter((q) => faqOf(comparison).has(q));
+  assert.deepEqual(
+    overlapComparison,
+    [],
+    `duplicated FAQ question(s) with vs-manually-reading-the-spec-diff: ${overlapComparison.join(', ')}`,
+  );
 });
 
 test('every .html file in the venture is reachable from the sitemap', async () => {
