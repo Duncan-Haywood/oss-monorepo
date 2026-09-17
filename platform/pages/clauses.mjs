@@ -327,6 +327,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. The page names no specific spreadsheet product. Same
   // reasoning as the other vs-spreadsheet / by-hand pages above.
   'security-deposit-return-calculator/vs-a-spreadsheet.html',
+  // Compares against tracking payment terms and a client's pay-run schedule
+  // in a spreadsheet formula -- a generic method every freelancer already
+  // has access to, not a company or product this could be mistaken for. The
+  // page names no specific spreadsheet or invoicing product. Same reasoning
+  // as the other vs-spreadsheet / by-hand pages above.
+  'invoice-payment-terms-calculator/vs-spreadsheet.html',
   // Compares against "opening robots.txt and reading it" -- a generic manual
   // habit every developer already has access to, not a company or product
   // this could be mistaken for. Same reasoning as the other manual-method

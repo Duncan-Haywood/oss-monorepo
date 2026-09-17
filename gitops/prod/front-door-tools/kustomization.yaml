@@ -35,8 +35,8 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 133 files, 555884 bytes
 #   portfolio-front-tools-1: 106 files, 554384 bytes
-#   portfolio-front-tools-2: 147 files, 553103 bytes
-#   portfolio-front-tools-3: 140 files, 553702 bytes
+#   portfolio-front-tools-2: 147 files, 556207 bytes
+#   portfolio-front-tools-3: 141 files, 554725 bytes
 #   portfolio-front-tools-4: 125 files, 556881 bytes
 #   portfolio-front-tools-5: 135 files, 554403 bytes
 #   portfolio-front-tools-6: 126 files, 556664 bytes
@@ -445,6 +445,7 @@ configMapGenerator:
       - invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz=invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz
       - invoice-payment-terms-calculator__usage.mjs.gz=invoice-payment-terms-calculator__usage.mjs.gz
       - invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz=invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz
+      - invoice-payment-terms-calculator__vs-spreadsheet.html.gz=invoice-payment-terms-calculator__vs-spreadsheet.html.gz
       - cash-runway-planner__LICENSE.gz=cash-runway-planner__LICENSE.gz
       - cash-runway-planner__app.mjs.gz=cash-runway-planner__app.mjs.gz
       - cash-runway-planner__index.html.gz=cash-runway-planner__index.html.gz
@@ -467,12 +468,12 @@ configMapGenerator:
       - portable-restroom-event-quote__calc.mjs.gz=portable-restroom-event-quote__calc.mjs.gz
       - portable-restroom-event-quote__how-many.html.gz=portable-restroom-event-quote__how-many.html.gz
       - portable-restroom-event-quote__index.html.gz=portable-restroom-event-quote__index.html.gz
-      - portable-restroom-event-quote__usage.mjs.gz=portable-restroom-event-quote__usage.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - portable-restroom-event-quote__usage.mjs.gz=portable-restroom-event-quote__usage.mjs.gz
       - portable-restroom-event-quote__vs-servicecore.html.gz=portable-restroom-event-quote__vs-servicecore.html.gz
       - commercial-photo-license-calculator__app.mjs.gz=commercial-photo-license-calculator__app.mjs.gz
       - commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html.gz=commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html.gz
