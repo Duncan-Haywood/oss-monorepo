@@ -32801,3 +32801,43 @@ entries:
         `validate_candidates.py`, `validate_probe_index.py`,
         `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
     mrr_end: 0
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page, `vs-spreadsheet.html`,
+        against `surface-budget.mjs`'s reported room for 1 (the venture
+        already carried a QuickBooks-vs-product page and 4 guides but no
+        generic-method angle). Registered the page in
+        `COMPARISON_DISCLAIMER_EXEMPT` (`platform/pages/clauses.mjs`) so the
+        budget tool classifies it correctly -- confirmed before and after
+        (`vs/name` misclassification, then `vs/gen` at budget 1/1, portfolio
+        still 0 ventures over budget).
+      - >-
+        Same session first confirmed the open-PR queue is empty (0 open PRs)
+        and spot-checked 4 stale branches for unique work
+        (`agent/deploy-cicd-ledger-2868`, `claude/codex-governor-ask-and-
+        queue-drain-report`, `agent/marketing-distribution-gutter-guard-vs-
+        jobnimbus`, `agent/owner-operator-cpm-vs-dat-rateview2`); all four
+        were already superseded (their content already on `main`), consistent
+        with the prior exhaustive 232-branch drain recorded in
+        `infra_state.yaml`.
+      - >-
+        Verified: venture suite (109/109, including the new
+        `vs-spreadsheet.test.mjs`), `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` after `platform/marketing/regen.mjs`
+        (1272/1272 -- the committed mirror/catalog/sitemap/llms.txt/
+        kustomization diffs it wrote are the expected regen output for one
+        new page), and `gitops/tests` (583 passed, 25 skipped -- the standard
+        missing-binary skips this file's checklist already documents).
+      - >-
+        Also re-confirmed (without re-dispatching, since it was already
+        measured minutes earlier this same day): `github-actions-runners`
+        starved, `github-pages-branch-route` up and current (built from the
+        exact `main` tip), and the Hetzner/Codex dev-worker route fully
+        built and tested but blocked solely on the owner rotating
+        `HETZNERSSHKEY` from their own machine -- reported to the owner
+        directly rather than re-added to `decision_queue.py`, which already
+        carries this ask.
+    mrr_end: 0
