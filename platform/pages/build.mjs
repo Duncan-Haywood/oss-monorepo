@@ -1376,13 +1376,24 @@ const CATEGORY_RULES = [
     // here rather than the catch-all is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
     //
-    // `agent-instructions-drift-check` and `cron-dst-drift-check` joined
-    // 2026-09-17, filed out of the catch-all together once it reached 6.
-    // Same shape as every other member: a browser-local checker plus a
-    // matching CLI, run by a maintainer against files or a schedule they
-    // already have (an agent-instructions file's stale links/commands, or
-    // a cron expression against a chosen timezone) rather than a trade bid,
-    // marketplace fee, or compliance evidence packet.
+    // `cron-dst-drift-check` and `agent-instructions-drift-check` joined
+    // 2026-09-17, and they were found the way that guard asks for — by
+    // enumerating the catch-all rather than judging the one arrival that
+    // tripped it. The arrival was `world-clock-widget`'s new browser surface,
+    // which is not a developer tool at all; these two were already sitting
+    // there, and both are this category exactly. `cron-dst-drift-check` ships
+    // a CLI whose own page says "want this in CI before a deploy?" and whose
+    // "Both subcommands exit 1 when they find DST risk, so either works as a
+    // one-line CI check before a new scheduled job ships" is the category's
+    // whole shape in one sentence. `agent-instructions-drift-check` reads an
+    // AGENTS.md/CLAUDE.md against the repo it describes and reports the paths
+    // that no longer resolve; its own scored hypothesis is that a maintainer
+    // "will wire it into CI so the same PR that renames a script also has to
+    // fix the instruction file that pointed at it". Both are browser-local
+    // plus a matching zero-dependency CLI, run against files the developer
+    // already has, reporting mechanical drift rather than a determination.
+    // They sat in the catch-all only because neither slug matches a prefix
+    // above — the same reason `license-drift-check` did.
     //
     // `openapi-breaking-change-check` joined 2026-09-17. Same shape as
     // `sbom-diff-check` and `sql-migration-lock-check` right above it -- a
@@ -1399,7 +1410,7 @@ const CATEGORY_RULES = [
     // catch-all is also what keeps that catch-all inside the bound
     // `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|agent-instructions-drift-check|cron-dst-drift-check|openapi-breaking-change-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check)/.test(
         slug,
       ),
   },

@@ -1715,14 +1715,24 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # proposal from the stem recipe up, rounding each line to whole wholesale
     # bunches rather than loose stems, with a static `index.html` from its
     # first commit, same shape as the rest of this running count.
-    # 289 since 2026-09-17, when `openapi-breaking-change-check` graduated —
+    # 289 since 2026-09-17, when `world-clock-widget` gained a browser surface
+    # -- a world clock showing local time, sunrise, sunset, daylight length and
+    # a waking-hours band for several cities at once, computed in the browser
+    # from the USNO almanac algorithm. Unlike every other entry in this running
+    # count it is not a new venture: the venture already existed as a Swift app
+    # that needs an Apple account to reach anyone, and `site/` is a second
+    # surface over the same tested core. So this is the first line here added
+    # by *deploying* a product that was already finished rather than by
+    # graduating a new one -- worth keeping distinct when reading the count
+    # back as a rate of new ventures, which it no longer purely is.
+    # 290 since 2026-09-17, when `openapi-breaking-change-check` graduated —
     # a zero-dependency CLI + no-upload browser tool diffing two OpenAPI
     # 3.0/3.1 documents and classifying each difference as a breaking change
     # (removed operation, newly-required parameter, narrowed type, removed
     # enum value, request body now required) or non-breaking, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 289  # `infra/OWNER_CHECKLIST.md`'s own "N of the 289 tools" wording.
+    total = 290  # `infra/OWNER_CHECKLIST.md`'s own "N of the 290 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

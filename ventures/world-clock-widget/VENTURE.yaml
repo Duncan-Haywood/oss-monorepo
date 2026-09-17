@@ -1,9 +1,28 @@
 name: world-clock-widget
-description: iPhone/iPad/Mac app and home-screen widget showing local time, sunrise, and sunset for major world cities.
+description: Local time, sunrise, sunset, daylight length and a waking-hours band for several world cities at once — as a free browser tool, and as an iPhone/iPad/Mac app and home-screen widget.
 
 stage: prototype
 
 owner: duncan
+
+# Two surfaces over one tested core. The Swift target in Sources/ needs an
+# Apple developer account to reach anybody, which is an owner action and has
+# never been taken; the browser surface in site/ is downstream of neither an
+# account nor a runner, so it is the one that actually reaches users today.
+# site/solar.mjs is a direct port of Sources/WorldClockCore/SolarCalculator.swift
+# and site/solar.test.mjs re-asserts that suite's own reference values, so the
+# two cannot silently disagree about a sunrise.
+product_lines:
+  - id: web
+    surface: site/index.html
+    status: shipped
+    note: Free browser tool. No account, no upload, no network request at all.
+  - id: ios
+    surface: Sources/WorldClockApp
+    status: blocked-on-owner
+    note: >-
+      Needs an Apple Developer account and App Store Connect listing to reach
+      anyone. Queued as an owner action; the code is complete and tested.
 
 hypotheses:
   - claim: People who work or have family across time zones want a widget that's information-dense by default (time + sunrise/sunset for several cities), not a single minimalist clock face.
@@ -30,5 +49,5 @@ kill_criteria:
   - No paying customer after 90 days post-launch, if a paid tier ships.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/world-clock-widget/
   analytics: null
