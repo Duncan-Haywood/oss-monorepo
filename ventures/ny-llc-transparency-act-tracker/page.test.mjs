@@ -5,6 +5,7 @@ import { faqEntries, injectChrome } from "../../platform/pages/build.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const guide = readFileSync(new URL("./when-is-the-ny-llc-transparency-act-deadline.html", import.meta.url), "utf8");
+const comparison = readFileSync(new URL("./vs-reading-client-alerts.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 
 test("the entry page wires the category/deadline check and the worksheet without a build step", () => {
@@ -82,6 +83,55 @@ test("the guide page stays crawlable, is listed in the sitemap, and links back t
   assert.match(guide, /Best-effort hosting, no SLA/);
   assert.match(guide, /No warranty/);
   assert.match(sitemap, /when-is-the-ny-llc-transparency-act-deadline\.html/);
+});
+
+test("the comparison page stays crawlable, is listed in the sitemap, and links back to the tool", () => {
+  assert.match(comparison, /<title>NY LLC Transparency Act Tracker vs\. Reading Law-Firm Client Alerts/);
+  assert.match(comparison, /name="description"/);
+  assert.match(comparison, /"@type":"FAQPage"/);
+  assert.match(comparison, /href="\.\/"/);
+  assert.match(comparison, /Best-effort hosting, no SLA/);
+  assert.match(comparison, /No warranty/);
+  assert.match(sitemap, /vs-reading-client-alerts\.html/);
+  assert.match(html, /href="vs-reading-client-alerts\.html"/, "the tool must link its own comparison page");
+});
+
+test("the comparison page names no firm and concedes the alternative's real strength", () => {
+  // A comparison page that only flatters its own tool is marketing, not a
+  // comparison, and this venture's subject matter makes that worse than
+  // usual: the alternative here is written by licensed attorneys, and a
+  // reader talked out of consulting one is the concrete harm. The page must
+  // keep saying so, and must stay a *generic-method* comparison -- naming a
+  // firm would put this venture over surface-budget's named-product rules
+  // and pick a fight with a real business for no reader benefit.
+  assert.match(comparison, /names no specific firm or product/i);
+  assert.match(comparison, /licensed attorneys/);
+  assert.match(comparison, /[Dd]oes this tracker replace a lawyer\?/);
+  assert.match(comparison, /not legal advice/i);
+});
+
+test("the comparison page does not overclaim the category check as a determination", () => {
+  // The whole venture's liability posture rests on "likely", never
+  // "is". A comparison page is exactly where that slips, because the
+  // format invites a confident column.
+  assert.doesNotMatch(comparison, /tells you whether you must file/i);
+  assert.doesNotMatch(comparison, /determines your (filing )?(status|category)/i);
+  assert.match(comparison, /likely/);
+  assert.match(comparison, /rather than a\s+determination of your actual filing status/);
+});
+
+test("the comparison page repeats the no-share-link and opt-in-persistence posture", () => {
+  // These two are the venture's deliberate departures from the fleet
+  // pattern. A marketing surface that forgot them would be advertising a
+  // weaker privacy promise than the tool actually keeps.
+  assert.match(comparison, /no copy-a-link feature at all|ships no\s+copy-a-link feature at all/);
+  assert.match(comparison, /off by default/);
+  assert.match(comparison, /never uploads anything/);
+});
+
+test("the comparison page never claims to file anything on the user's behalf", () => {
+  assert.doesNotMatch(comparison, /we (will|have) file(d)? this for you/i);
+  assert.match(comparison, /you remain the filer/i);
 });
 
 test("the guide page names the federal Corporate Transparency Act as a distinct filing", () => {

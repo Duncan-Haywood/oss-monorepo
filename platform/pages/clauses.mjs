@@ -88,6 +88,14 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "law-firm client alerts" -- a genre of publication that
+  // dozens of different firms produce, not one specific company or product
+  // this could be mistaken for. The page's own first paragraph says so
+  // ("names no specific firm or product") and its own test pins that
+  // sentence, precisely so this exemption cannot quietly stop being true:
+  // an author who later added "vs. <Firm> LLP" here would be claiming this
+  // exemption for a page that had become the thing it exempts.
+  'ny-llc-transparency-act-tracker/vs-reading-client-alerts.html',
   // Compares against "eyeballing Settings -> Branches" -- a manual habit
   // every repository admin already has, not a company or product this
   // could be mistaken for.
