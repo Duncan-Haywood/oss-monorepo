@@ -32047,4 +32047,71 @@ entries:
         (`live_url_visitors: null`, not zero), and sitemap auto-discovery
         cannot happen from the project-Pages subpath. Both hypotheses in
         `VENTURE.yaml` remain untested.
+
+  - venture: dog-boarding-daycare-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, built and shipped in one session: a free browser
+        calculator for independent dog boarding and daycare facility owners
+        (a home-based boarder or small kennel/run building, not a
+        marketplace app). It prices one reservation from staff time,
+        supplies, and allocated overhead, applies a threshold-based
+        long-stay discount (the first several nights at full rate, only the
+        remainder discounted) and a multi-dog discount for a second dog on
+        the same reservation, then separately checks whether the facility's
+        kennel/run occupancy clears a monthly break-even at a realized
+        average rate. Distinct shape from the sibling
+        `dog-walking-route-pricing` (a mobile route, not a fixed facility),
+        cross-linked both directions so a crawler entering on either reaches
+        the other in one hop.
+      - >-
+        Distribution channel named at graduation, per `DIRECTION.md`'s
+        North star point 2: r/dogboarding, r/DogTrainingTips, and
+        pet-sitting/boarding business Facebook groups (e.g. "Pet Boarding &
+        Sitting Business Owners") discuss pricing new services routinely,
+        and "how much to charge for dog boarding" / "dog daycare pricing"
+        are search phrases the niche actually types. Novelty checked with
+        `duplicate_check.py` (top score 0.15, no near-duplicate) before
+        writing the candidate up.
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`estimate`, `occupancy-check`, `link-copied`,
+        `reset`), a save-and-share draft link (URL fragment only, never the
+        client-row-style data), a guide page ("how much to charge for dog
+        boarding") with every worked-example figure asserted against
+        `calc.mjs`'s own output, and one generic-method comparison page
+        ("vs. a flat nightly rate") naming no competitor. 69 venture
+        assertions (`calc`, `share`, `usage`, `page`, the guide, the
+        comparison page).
+      - >-
+        Landed while a second, unrelated venture (`vector-db-cost-calculator`,
+        #4843) merged to `main` from a concurrent session — both bumped the
+        same repo-wide counters (the mirrored-tool count in four places, the
+        privacy opt-out switch count, `gitops/ci/README.md`'s runs-on
+        sentence) from the same base. Resolved by merging `origin/main`,
+        combining both counts in commit order (295 -> 296 mirrored tools,
+        280 -> 281 opt-out switches) rather than picking one side, and
+        re-running `regen.mjs` and the full checklist afterward so the
+        merged tree, not either branch alone, is what was verified.
+      - >-
+        Verified locally rather than by CI, which is starved
+        (`ci_starvation.py`; see `infra_state.yaml`): 69 venture assertions;
+        1009 `platform/pages`; 262 `platform/marketing`; 243
+        `platform/privacy` + `platform/webcheck` + `platform/proposal`; 596
+        `gitops/tests` (1 skipped, environmental); 446 across the portfolio
+        Python suites (`ledger`, `scoring`, `router`, `usage`, `pipeline`,
+        `infra/tests`); all 15 `platform/ci` unittest modules plus
+        `agent_review`; `score_ventures.py --check` (304 scored, matches
+        every `VENTURE.yaml`); `router/validate.py` (303 valid); `guard_state.py
+        --require-runnable` (no fixable skip); `run_workflow_locally.py
+        --for-changes` against the merged tree.
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for any product in this portfolio
+        (`live_url_visitors: null`, not zero), and sitemap auto-discovery
+        cannot happen from the project-Pages subpath. All three hypotheses
+        in `VENTURE.yaml` remain untested.
     mrr_end: 0

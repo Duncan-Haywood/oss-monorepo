@@ -185,7 +185,22 @@ const RELATIVE_SELF = relative(
 // `storage-auction-max-bid-calculator` and `vector-db-cost-calculator`
 // landed, so it only ever knew its own predecessor's number (279, then
 // 280) until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 281;
+// 281 -> 282 on 2026-09-17, when `dog-boarding-daycare-pricing` graduated
+// with its own `toggleUsage`/`usageAllowed` switch (the same
+// `recordEvent`/`toggleUsage`/`usageAllowed` pattern as
+// `dog-walking-route-pricing`'s `usage.mjs`), same discovery method as the
+// rest of this running count. This branch was open before
+// `vector-db-cost-calculator` and `required-checks-drift-check` landed, so
+// it only ever knew its own predecessor's number (280, then 281) until
+// this merge.
+// 282 -> 283 on 2026-09-17, when `call-recording-consent-check` graduated
+// with its own `toggleUsage`/`usageAllowed` switch, same discovery method as
+// the rest of this running count. Verified the way this file's error message
+// prescribes rather than by assuming: the diff from the pinning commit shows
+// exactly one `A` line, `ventures/call-recording-consent-check/usage.mjs`,
+// and no deletions -- so this is a graduation, not a switch that stopped
+// being a switch.
+const SWITCHES_IN_THE_CATALOGUE = 283;
 
 let counter = 0;
 function fixture(source) {
