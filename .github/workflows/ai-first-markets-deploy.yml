@@ -6,6 +6,26 @@ on:
 permissions:
   contents: read
 
+# Added 2026-09-17, found by `ventures/deploy-concurrency-check` scanning this
+# repository's own workflows: this was the only deploying job in the tree with
+# no concurrency group at all.
+#
+# `workflow_dispatch`-only is not a defence. Two clicks a minute apart start two
+# runs, and whichever finishes last is what Cloudflare serves -- which is not
+# necessarily the one started last, since `npm ci` and the build vary in length
+# and a run can wait for a runner. Nothing goes red either way: both runs
+# succeed, and the wrong revision is live with no line in either log saying so.
+#
+# Not keyed by ref, deliberately: there is one Cloudflare Pages project behind
+# this, so a dispatch from a branch and a dispatch from `main` write to the same
+# place and must queue against each other. `cancel-in-progress: false` for the
+# same reason the Pages deploy in `portfolio-pages.yml` uses it -- a deploy
+# cancelled part-way has already written some of its change and nothing re-runs
+# to finish it, which leaves a state neither revision produced.
+concurrency:
+  group: ai-first-markets-deploy
+  cancel-in-progress: false
+
 defaults:
   run:
     working-directory: ventures/ai-first-markets
