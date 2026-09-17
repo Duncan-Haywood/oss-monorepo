@@ -14196,6 +14196,71 @@ ventures:
       findings than it has, and it gets strictly less useful to a team the
       more it over-reports.
 
+  - slug: twitch-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.500
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- a subscription
+      revenue split (50% standard, 70% Partner Plus), a flat per-Bit payout
+      that does not follow that split, and the correction that purchase
+      platform (web vs. mobile) stopped affecting payout after Twitch's
+      October 2024 pricing change -- and it is arithmetic a streamer has to
+      be able to re-derive whenever their own split changes.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's scoring
+      process, before this venture's own directory existed:
+      `duplicate_check.py` scored every existing venture, screened-out row,
+      ai-first-markets idea, and pipeline candidate at or below 0.13
+      (atm-route-margin), well under the 0.45 near-duplicate bar -- no
+      existing venture models a platform subscription/Bits revenue split
+      (the creator-economy `solo-earner` ventures price private sponsorship
+      deals with no platform cut; the `marketplace` sellers' fee-schedule
+      ventures price a sale, not a subscription). Categorized under
+      `marketplace` rather than `solo-earner` because Twitch's revenue
+      split is a platform's own fee schedule, the same shape as
+      `stockx-seller-payout-calculator` and `whatnot-seller-payout`, not a
+      private deal the creator negotiates. Defensibility 4: the split-and-
+      Bits arithmetic itself is simple once known, but the mobile-parity
+      correction is a specific, sourced fact (Twitch's own October 2024
+      change) that a generic calculator would not get right by default --
+      scored below the fee-tier ventures (5) because there is no seller-
+      level-style multi-variable schedule here, just one split percentage.
+      Distribution 7: "twitch payout calculator" and "twitch sub calculator"
+      are established search queries with existing (simpler, non-split-
+      aware) competitor calculators proving real volume, plus named
+      communities (r/Twitch, r/Twitchpartner) where payout confusion is a
+      recurring thread topic -- but volume is unmeasured against this
+      portfolio's own traffic, which has never recorded a visitor reading
+      for any product. Time to revenue 7, matching the rest of this
+      portfolio's free/donations-only ventures.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page and guide page state, near the top and
+      explicitly, that this is not an ad-revenue estimator, a payout
+      tracker, or a substitute for the streamer's own Twitch dashboard and
+      payout statements. No price, split, or rate is hardcoded as fact
+      beyond illustrative defaults; the footer states plainly that Twitch's
+      terms change over time and to verify against the user's own current
+      dashboard. The mobile-parity claim is sourced to Twitch's own stated
+      policy and dated, with an explicit "could this change again" FAQ
+      answer rather than an unqualified assertion. The output is arithmetic
+      on the streamer's own figures, never a recommended price or a claim
+      about Twitch's live terms. Nothing entered leaves the browser.
+      Ethically: donations-only with no per-use fee, so nothing biases the
+      arithmetic toward a higher or lower result, and the tool never
+      touches payout processing itself.
+
   - slug: cnc-machining-quote-calculator
     scores:
       ai_leverage: 1

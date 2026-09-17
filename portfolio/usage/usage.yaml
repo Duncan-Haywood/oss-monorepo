@@ -6506,6 +6506,7 @@ products:
           `example_loaded` is the signal worth watching -- whether a
           visitor who tried the worked example came back to check their
           own project.
+
   - slug: actions-secret-leak-check
     surface: github-pages
     readings:
@@ -6532,6 +6533,34 @@ products:
           targets. `check_run` against `example_loaded` is the signal worth
           watching -- whether a visitor who tried the worked example came
           back to check their own workflows.
+
+  - slug: twitch-payout-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          month-priced: 0
+          gap-checked: 0
+          link-copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          browser-local calculator turning a Twitch streamer's Tier 1/2/3
+          sub counts and Bits into real monthly take-home after their
+          revenue split, and correcting the common belief that a
+          mobile-purchased subscription pays less (it hasn't, since
+          Twitch's October 2024 pricing change). `live_url_visitors` is
+          null, not zero -- see the standing note on this route elsewhere
+          in this file; nobody has measured yet. Named channels to watch:
+          r/Twitch and r/Twitchpartner, where payout and split confusion is
+          a recurring thread topic, and organic search for "twitch payout
+          calculator" and "twitch sub calculator" -- both terms with
+          existing, simpler competitor calculators already proving search
+          volume. `month-priced` against `gap-checked` is the signal worth
+          watching -- whether a visitor who priced one month also checked
+          it against an income goal.
+
   - slug: cnc-machining-quote-calculator
     surface: static-page-in-repo
     readings:
