@@ -1899,7 +1899,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # earlier predecessor's number until this merge -- the same ordinary
     # collision shape recorded throughout this list: both branches
     # independently wrote "306" for what the merged tree made 307.
-    total = 307  # `infra/OWNER_CHECKLIST.md`'s own "N of the 307 tools" wording.
+    # 308 since 2026-09-17, when `actions-secret-leak-check` graduated -- a
+    # zero-dependency CLI + browser tool flagging the two documented ways a
+    # secret reaches a GitHub Actions log, or a later step, unmasked despite
+    # GitHub's own log masking: a step that transforms a secret-derived
+    # value before it can be printed, and one that exports a secret-derived
+    # value to $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without
+    # `::add-mask::`. Direct sibling of `actions-injection-check`,
+    # `actions-permissions-check` and `pinned-actions-check`, cross-linked
+    # from all three.
+    total = 308  # `infra/OWNER_CHECKLIST.md`'s own "N of the 308 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

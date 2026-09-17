@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 307 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 308 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 307 of them — and
+Every tool in the collection is listed below — all 308 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -163,6 +163,7 @@ page that hosts it.
 - [GitHub Actions Minutes Estimator — What Will This Workflow Cost?](https://marisstella.dev/tools/actions-minutes-estimator/): Paste your GitHub Actions workflow YAML and see projected monthly billable minutes and dollar cost before the allowance runs out. Names the expensive patterns: the macOS 10x multiplier, per-job rounding on wide matrices, missing timeout-minutes, PR commits built twice, over-frequent cron. Free, runs entirely in your browser, nothing is uploaded.
 - [Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?](https://marisstella.dev/tools/actions-permissions-check/): Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.
 - [Actions Runner Starvation Check — Is Your Red CI Even Real?](https://marisstella.dev/tools/actions-runner-starvation-check/): Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.
+- [GitHub Actions Secret Leak Check — Masking Bypass Scanner](https://marisstella.dev/tools/actions-secret-leak-check/): Paste your GitHub Actions workflow YAML and find the two documented ways a secret slips past GitHub's own log masking: transforming it (base64/hex/substring) before printing, and exporting it to $GITHUB_ENV/$GITHUB_OUTPUT without ::add-mask::. Free, runs in your browser, nothing uploaded.
 - [Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?](https://marisstella.dev/tools/actions-self-hosted-exposure-check/): Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.
 - [AGENTS.md / CLAUDE.md Drift Check — Broken Links & Footguns in Agent Instructions](https://marisstella.dev/tools/agent-instructions-drift-check/): Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn't defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.
 - [AI Coding Plan Cost Calculator — Subscription vs. API](https://marisstella.dev/tools/ai-coding-plan-cost-calculator/): Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.

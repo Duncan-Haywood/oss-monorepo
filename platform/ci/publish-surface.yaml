@@ -65,6 +65,9 @@ workflows:
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-secret-leak-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
