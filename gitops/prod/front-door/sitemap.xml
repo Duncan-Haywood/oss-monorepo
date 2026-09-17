@@ -1081,6 +1081,15 @@
     <loc>https://marisstella.dev/tools/dependency-confusion-check/what-is-dependency-confusion.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/how-a-deploy-ships-an-older-commit.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/vs-reading-your-workflows-yourself.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/</loc>
   </url>
   <url>
