@@ -75,6 +75,7 @@ plate-yield figure here only estimates.
 ## Reading
 
 - [Should a CNC shop charge setup separately or build it into the part price?](setup-fee-or-in-the-part-price.html)
+- [This calculator vs. quoting CNC jobs in a spreadsheet](vs-a-spreadsheet.html)
 
 ## Tests
 

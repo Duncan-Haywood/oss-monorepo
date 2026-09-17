@@ -1,14 +1,24 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 import { BREAK_QUANTITIES, STOCK_FORMS } from "./calculator.mjs";
+import { decodeEntities } from "../../platform/pages/entities.mjs";
 
 const INDEX = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const GUIDE = readFileSync(
   new URL("./setup-fee-or-in-the-part-price.html", import.meta.url),
   "utf8",
 );
+const VS_SPREADSHEET = readFileSync(
+  new URL("./vs-a-spreadsheet.html", import.meta.url),
+  "utf8",
+);
+// The sponsor link is not required here: it is present on the index and the
+// guide, and PRODUCT_PLAYBOOK.md's requirement is that the venture carries
+// one, not that every secondary comparison page repeats it -- the sibling
+// generic-method pages this one was modelled on (twitch-payout-calculator's
+// vs-tracking-payouts-in-a-spreadsheet.html among them) do the same.
 const PAGES = { "index.html": INDEX, "setup-fee-or-in-the-part-price.html": GUIDE };
 
 /** Every id the page's own script reads out of the form. Kept here rather than
@@ -423,4 +433,67 @@ test("robots.txt allows crawlers and points at the sitemap", () => {
   assert.match(robots, /Allow: \//);
   assert.doesNotMatch(robots, /Disallow: \/\s*$/m);
   assert.match(robots, /Sitemap:/);
+});
+
+test("every .html file in the venture is reachable from the sitemap", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const dir = new URL("./", import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html") continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
+});
+
+// The generic-method comparison page (surface-budget.mjs: this venture had
+// room for one, and it names no competitor, so clauses.mjs's not-affiliated
+// check does not apply -- it is listed in COMPARISON_DISCLAIMER_EXEMPT instead).
+test("the vs-a-spreadsheet page links back to the tool and carries the no-warranty clause", () => {
+  assert.match(VS_SPREADSHEET, /href="\.\/index\.html"/, "the comparison page must link back to the tool");
+  assert.match(VS_SPREADSHEET, /No warranty\.<\/strong> This tool/);
+  assert.match(VS_SPREADSHEET, /not tax, financial, engineering, or business advice/);
+  assert.match(VS_SPREADSHEET, /Names no specific product or company/, "must state it names no competitor");
+});
+
+test("the vs-a-spreadsheet page declares a title, description, canonical and Open Graph tags", () => {
+  const title = VS_SPREADSHEET.match(/<title>([^<]+)<\/title>/);
+  assert.ok(title, "vs-a-spreadsheet.html has no title");
+  assert.ok(title[1].length > 20 && title[1].length < 110, `title length ${title[1].length}`);
+  const description = VS_SPREADSHEET.match(/<meta name="description" content="([^"]+)"/);
+  assert.ok(description, "vs-a-spreadsheet.html has no meta description");
+  assert.ok(description[1].length > 80, "meta description is too short to be useful");
+  assert.match(VS_SPREADSHEET, /<link rel="canonical"/);
+  assert.match(VS_SPREADSHEET, /property="og:title"/);
+  assert.match(VS_SPREADSHEET, /property="og:description"/);
+  assert.match(VS_SPREADSHEET, /<html lang="en">/);
+});
+
+test("the vs-a-spreadsheet page reaches no network and takes no remote dependency", () => {
+  assert.doesNotMatch(VS_SPREADSHEET, /\bfetch\s*\(/);
+  assert.doesNotMatch(VS_SPREADSHEET, /XMLHttpRequest|navigator\.sendBeacon|new WebSocket|EventSource/);
+  assert.doesNotMatch(VS_SPREADSHEET, /<script[^>]+src=/);
+  assert.doesNotMatch(VS_SPREADSHEET, /<link[^>]+href="https?:/);
+});
+
+test("the vs-a-spreadsheet page's FAQPage JSON-LD parses, is non-trivial and matches its visible Q&A exactly", () => {
+  const blocks = [...VS_SPREADSHEET.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(
+    (m) => JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq, "vs-a-spreadsheet.html has no FAQPage block");
+  const names = faq.mainEntity.map((q) => q.name);
+  assert.equal(names.length, new Set(names).size, "a question is repeated");
+  const text = VS_SPREADSHEET.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
+  const squash = (s) => decodeEntities(s).replace(/\s+/g, " ").trim();
+  const visible = squash(text);
+  for (const entry of faq.mainEntity) {
+    assert.equal(entry["@type"], "Question");
+    assert.equal(entry.acceptedAnswer["@type"], "Answer");
+    assert.ok(entry.acceptedAnswer.text.length > 120, `"${entry.name}" is answered too thinly to be worth indexing`);
+    assert.ok(visible.includes(squash(entry.name)), `question not visible: ${entry.name}`);
+    assert.ok(
+      visible.includes(squash(entry.acceptedAnswer.text)),
+      `answer not visible verbatim for: ${entry.name}`,
+    );
+  }
 });

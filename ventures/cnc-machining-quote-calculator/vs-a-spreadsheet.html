@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CNC Machining Quote Calculator vs. a Spreadsheet | Worked Comparison</title>
+  <meta name="description" content="Compare a free CNC machining quote calculator against costing a job in a spreadsheet — where a copied-down per-part formula quietly goes stale after the lot size changes, and when a spreadsheet is still the better tool.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-a-spreadsheet.html">
+  <meta property="og:title" content="CNC Machining Quote Calculator vs. a Spreadsheet">
+  <meta property="og:description" content="What a CNC machining quote calculator gets right versus a homemade quoting spreadsheet, and when a spreadsheet is still the better tool.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just quote CNC jobs in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Plenty of shops do, and a spreadsheet is a fine place to keep a running log of every quote you've sent. The failure mode is not the spreadsheet itself — it is that a per-part cost cell built for one quantity keeps getting reused on the next RFQ without being rebuilt for its lot size, so the flat setup-and-programming charge silently understates cost the moment the quantity changes."}},{"@type":"Question","name":"Does this calculator replace my quoting spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. This tool costs one job at a time and does not keep a running log across quotes the way a spreadsheet's rows do. Many shops use both: this calculator to get one job's yield, scrap and per-lot arithmetic right whenever the part or the quantity changes, and their own spreadsheet to track every quote sent and won over time."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f24; background: #f2f4f6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; color: #1d3a5c; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #d5dbe1; vertical-align: top; }
+    .note { font-size: .9rem; color: #4e545c; }
+    footer { margin-top: 28px; font-size: .82rem; color: #4e545c; border-top: 1px solid #d5dbe1; padding-top: 16px; }
+    a { color: #1a4f7a; }
+  </style>
+</head>
+<body>
+  <p><a href="./index.html">&larr; CNC machining quote calculator</a></p>
+  <h1>This calculator vs. quoting CNC jobs in a spreadsheet</h1>
+  <p>Names no specific product or company &mdash; this compares a free calculator against the generic method
+    most job shops already use: a spreadsheet with a per-part cost formula typed in once and reused for
+    the next quote.</p>
+  <table>
+    <thead><tr><th>Question</th><th>Spreadsheet formula</th><th>This calculator</th></tr></thead>
+    <tbody>
+      <tr><td>Material from whole bars or sheets</td><td>Usually priced as $/lb or a flat rate per part, so it drifts from what the supplier actually invoices</td><td>Prices the whole bars or sheets you have to buy &mdash; a step function that only moves when you cross into a new stock unit</td></tr>
+      <tr><td>Scrap allowance</td><td>Common shortcut multiplies the quantity by one plus the scrap rate, understating the hit at low volumes &mdash; 3% on 10 parts reads as 10.3, not the 11 starts it actually is</td><td>Rounds the yield up to a whole number of starts, so a 3% allowance on a 10-piece order is the 11 starts it actually costs</td></tr>
+      <tr><td>Setup, programming, first article</td><td>The flat-work cell is usually keyed to whatever quantity it was built for, and stays there after the next RFQ's lot size changes</td><td>Recomputed at the quantity you actually enter, every time, so the flat-work line never quotes a stale lot size</td></tr>
+      <tr><td>Outside-process lot minimum</td><td>A per-part outside-process rate multiplied straight through, missing the vendor's minimum charge on a short run</td><td>Charges the vendor's stated minimum whenever the rate times quantity would fall under it</td></tr>
+      <tr><td>Cost at every standard lot size</td><td>One column per quote, rebuilt or hand-copied for each requote</td><td>Eight standard lot sizes costed at once from the same inputs, so the 5-off sits next to the 500-off before either is quoted</td></tr>
+      <tr><td>A running log across jobs and customers</td><td>Its real strength &mdash; every quote stays in one sheet, sortable and searchable</td><td>Costs one job at a time; the only thing it keeps between visits is the one draft this browser saved</td></tr>
+    </tbody>
+  </table>
+  <p>Neither tool knows what your market pays, what your material costs today, or what a competitor already
+    quoted &mdash; both are arithmetic on figures you already have, and both are only as accurate as what
+    you type in.</p>
+  <h2>Common questions</h2>
+  <h3>Why not just quote CNC jobs in a spreadsheet?</h3>
+  <p>Plenty of shops do, and a spreadsheet is a fine place to keep a running log of every quote you've sent. The
+    failure mode is not the spreadsheet itself &mdash; it is that a per-part cost cell built for one quantity keeps
+    getting reused on the next RFQ without being rebuilt for its lot size, so the flat setup-and-programming charge
+    silently understates cost the moment the quantity changes.</p>
+  <h3>Does this calculator replace my quoting spreadsheet?</h3>
+  <p>Not necessarily. This tool costs one job at a time and does not keep a running log across quotes the way a
+    spreadsheet's rows do. Many shops use both: this calculator to get one job's yield, scrap and per-lot
+    arithmetic right whenever the part or the quantity changes, and their own spreadsheet to track every quote
+    sent and won over time.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, engineering, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  </footer>
+</body>
+</html>

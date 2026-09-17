@@ -33964,3 +33964,86 @@ entries:
         asking rather than by trusting the file: the egress proxy answers
         `CONNECT tunnel failed, response 403` for both `api.indexnow.org` and
         `www.bing.com/indexnow`. It needs a runner or the Hetzner box.
+  - venture: cnc-machining-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Improve-existing-product, not a new venture: 0 open PRs, no
+        build-now candidate, `session_gate.py` returned PROCEED. Looked for
+        a genuine defect first (accessibility: every number/range input on
+        every venture index carries a bound `<label>`, none missing; the
+        Pages artifact builds and `check.mjs` reports no dead links across
+        1181 pages; `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` was 1272/1272 clean before this change)
+        and found nothing to fix, so moved to option 2:
+        `node platform/pages/surface-budget.mjs --check` found exactly one
+        venture, `cnc-machining-quote-calculator`, with zero comparison
+        pages at all despite every sibling `*-bid-calculator`/`*-calculator`
+        venture carrying at least one, and `--for` confirmed a full
+        generic-method budget slot open.
+      - >-
+        Shipped `ventures/cnc-machining-quote-calculator/vs-a-spreadsheet.html`:
+        a generic-method comparison ("vs. a spreadsheet", no competitor
+        named) against the method job shops already use to quote. Content is
+        specific to the venture rather than boilerplate: it walks the same
+        four effects the tool's own index and guide already explain --
+        material bought in whole bars/sheets as a step function rather than
+        a rate, scrap as an integer, setup/programming/first-article as a
+        flat per-lot cost that a spreadsheet's cost cell silently keeps
+        keyed to whatever quantity it was last built for, and an
+        outside-process lot minimum -- against what a shop's own quoting
+        spreadsheet typically does instead, plus a two-question FAQ. Added
+        to `sitemap.xml` and to `clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT` (it names no competitor, so the
+        `not-affiliated` clause does not apply; the no-warranty clause is
+        on the page). `node platform/pages/surface-budget.mjs --for
+        cnc-machining-quote-calculator` now reports exactly 1 generic-method
+        page, at budget.
+      - >-
+        Extended the venture's own `page.test.mjs` (11 new assertions) to
+        cover the new page directly rather than relying only on the
+        portfolio-wide checks: link-back to the tool, the no-warranty
+        clause, title/description/canonical/OG tags, no network access, and
+        that its hand-authored `FAQPage` JSON-LD parses and matches the
+        visible copy verbatim (decoded through `entities.mjs`, the same
+        decoder `faq-visible.test.mjs` uses, after the first pass caught an
+        `&mdash;`-vs-`—` mismatch a naive string comparison would have
+        missed). Also added the sitemap-completeness test the venture
+        previously lacked. README's Reading list updated to include the new
+        page.
+      - >-
+        Ran `node platform/marketing/regen.mjs` (this venture is mirrored
+        to the Argo front door) and committed what it rewrote: the mirror
+        shard gzip, `front-door-tools/kustomization.yaml`'s shard listing,
+        and `front-door`'s `sitemap.xml`, `llms.txt`, `catalog.json.gz` and
+        `compare.html.gz` (362 -> 363 comparison pages). No count in
+        `gitops/tests` or `optout-persistence.test.mjs` moves: this adds a
+        page to an existing venture, not a venture, so the mirrored-tool and
+        switch counts are unaffected -- confirmed by running `gitops/tests`
+        clean rather than assuming it from the diff shape.
+      - >-
+        Verified, locally, Actions starved
+        (`ci_starvation.py --run 35244637154`: `runner_id: 0`, no steps):
+        the venture's own suite, 85/85 (was 74; +11 for the new page, none
+        pre-existing broken); `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs`, 1272/1272 (this pins the exact count
+        the earlier reading also reported, i.e. no non-cnc test regressed
+        or was silently added); `checklist_coverage.py` clean; rebuilt the
+        Pages artifact and ran `check.mjs` -- 312 products, 1182 pages
+        (1181 -> 1182), no dead links; `gitops/tests` after `apt-get update
+        && apt-get install -y --no-install-recommends python3-pytest
+        nginx-light openssh-client` (`pip` was not tried, per the
+        recorded PyPI-timeout workaround), 607 passed / 1 skipped, run as
+        `python3 -m pytest` per the load-bearing spelling this file
+        records; `platform/proposal` 101/101; `platform/privacy` +
+        `platform/webcheck` 142/142; `portfolio/ledger` + `scoring` +
+        `router` + `usage` + `pipeline` + `infra/tests`, 446 passed.
+        Validators: `router/validate.py` (319 valid), `publish_surface.py
+        --check`, `usage/validate_usage.py` (268 products, 454 readings),
+        `score_ventures.py --check` (320 scored, consistent). Did not run
+        the 20 `platform/ci` unittest modules or `agent_review`'s suite --
+        this change touches no file under `platform/ci/` or `gitops/`
+        directly (only `platform/pages/clauses.mjs`, a venture, and
+        `regen.mjs`'s own rewritten output), so those are out of scope per
+        the checklist's own conditionals rather than skipped.

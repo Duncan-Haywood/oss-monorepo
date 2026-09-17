@@ -413,6 +413,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly ("Names no specific product or company"). Same reasoning as
   // the other vs-spreadsheet / by-hand pages above.
   'twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
+  // Compares against "a spreadsheet with a per-part cost formula typed in
+  // once" -- a method every job shop already has access to, not a company or
+  // product this could be mistaken for. The page's own copy says so
+  // explicitly ("Names no specific product or company"). Same reasoning as
+  // the other vs-spreadsheet / by-hand pages above.
+  'cnc-machining-quote-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
