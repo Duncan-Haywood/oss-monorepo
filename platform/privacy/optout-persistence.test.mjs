@@ -288,18 +288,18 @@ const RELATIVE_SELF = relative(
 // merge -- three graduations in one afternoon, which is exactly the case
 // `sync_tree_counts.py` exists to settle after the merge rather than on any
 // one of the three branches.
-// 292 -> 293 on 2026-09-17, when `cnc-machining-quote-calculator` graduated
-// with its own `setUsageOptOut`/`usageOptedOut` switch (the same pair
-// `apparel-decoration-price-calculator` uses, opting out of the
-// `quote`/`example_loaded`/`inputs_saved` counters), same discovery method as
-// the rest of this running count. Verified the way this file's error message
-// prescribes rather than by assuming: `git status --porcelain=v1 -uall` shows
-// exactly one added `usage.mjs` (`ventures/cnc-machining-quote-calculator/
-// usage.mjs`) and no deletions, so this is a graduation and not a switch that
-// stopped being one. This branch was open before the three graduations named
-// directly above landed, so it only ever knew 290 until this merge -- the
-// count is a property of the merged tree rather than of any one diff.
-const SWITCHES_IN_THE_CATALOGUE = 293;
+// 292 -> 293 on 2026-09-17, when `actions-secret-leak-check` graduated
+// concurrently with `deploy-concurrency-check` above, with its own
+// `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded` counters), the same `usage.mjs` shape as its
+// sibling `actions-injection-check`. Verified the way this file's error
+// message prescribes: exactly one added `usage.mjs`
+// (`ventures/actions-secret-leak-check/usage.mjs`) and no deletions, so
+// this is a graduation and not a switch that stopped being one. This
+// branch was open before `deploy-concurrency-check` landed, so it only
+// ever knew 291 until this merge -- both branches independently wrote
+// "292" for what the merged tree made 293.
+const SWITCHES_IN_THE_CATALOGUE = 294;
 
 let counter = 0;
 function fixture(source) {

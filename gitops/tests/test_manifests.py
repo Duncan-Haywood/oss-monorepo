@@ -1911,22 +1911,20 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `branch-protection-drift-check` and `helm-values-schema-check` landed,
     # so it only ever knew 306 until this merge -- the same ordinary
     # collision shape recorded throughout this list, three deep this time.
-    # 309 since 2026-09-17, when `cnc-machining-quote-calculator` graduated --
-    # a browser-local job-costing calculator for CNC machine shops, costing a
-    # part from whole-stock-unit material yield (bar or nested plate), cycle
-    # and handling time, the flat per-lot block (setup, programming,
-    # first-article inspection), perishable tooling, and an outside process
-    # with its lot minimum, then costing the same part at every standard lot
-    # size from 1 to 500 -- the same setup-plus-machine-time-plus-material
-    # shape as `apparel-decoration-price-calculator` and
-    # `3d-print-price-calculator`, with a static `index.html` from its first
-    # commit, same shape as the rest of this running count. This branch was
-    # open before `helm-values-schema-check` and `deploy-concurrency-check`
-    # landed, so it only ever knew 306 until this merge -- the same ordinary
-    # collision shape recorded throughout this list. The number is a property
-    # of the merged tree rather than of either diff, which is what
-    # `sync_tree_counts.py` is for and why it runs after the merge.
-    total = 309  # `infra/OWNER_CHECKLIST.md`'s own "N of the 309 tools" wording.
+    # 309 since 2026-09-17, when `actions-secret-leak-check` graduated
+    # concurrently with `deploy-concurrency-check` above -- a
+    # zero-dependency CLI + browser tool flagging the two documented ways a
+    # secret reaches a GitHub Actions log, or a later step, unmasked despite
+    # GitHub's own log masking: a step that transforms a secret-derived
+    # value before it can be printed, and one that exports a secret-derived
+    # value to $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without
+    # `::add-mask::`. Direct sibling of `actions-injection-check`,
+    # `actions-permissions-check` and `pinned-actions-check`, cross-linked
+    # from all three. This branch was open before
+    # `deploy-concurrency-check` landed, so it only ever knew 308 until this
+    # merge -- both branches independently wrote "308" for what the merged
+    # tree made 309.
+    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
