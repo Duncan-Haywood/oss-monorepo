@@ -80,7 +80,7 @@ node platform/marketing/regen.mjs        # then commit whatever it rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
-node --test ventures/<slug>/*.test.mjs
+node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
 (cd platform/ci/agent_review && python3 -m unittest test_review)
@@ -90,6 +90,45 @@ python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root p
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?
 ```
+
+**The venture line gained its `**` and its quotes on 2026-09-17, and what it
+was doing until then is the exact failure this whole block is about.** The old
+spelling was `ventures/<slug>/*.test.mjs`, which reaches a venture's top level
+and nothing below it. **21 of 299 ventures keep their suites in a
+subdirectory** — `test/`, `site/` or `cli/` — so for those the checklist line
+matched no files at all. Measured that day: 95 test files, 1055 passing
+assertions, none of them run by the list a session follows during a starvation
+window.
+
+It never announced itself, because a `node --test` glob that matches nothing is
+not an error:
+
+```
+$ node --test ventures/commercial-photo-license-calculator/*.test.mjs
+# tests 0
+# pass 0
+# fail 0
+$ echo $?
+0
+```
+
+That is a green run that ran nothing — the costume this file already warns
+about twice, worn a third way. `checklist_coverage.py` could not catch it
+either: it excludes `ventures/` on the grounds that this placeholder line
+covers the tree, which checked that a *line existed* and never that the line's
+**glob shape reached the files**. Every one of the 21 is covered by CI, since a
+venture workflow's bare `node --test` discovers subdirectories on its own —
+which is why it stayed invisible, and is exactly why it mattered now: while
+runners are starved, CI running them is the same as nothing running them.
+
+Quote the glob. Bash without `globstar` treats an unquoted `**` as a single
+`*`, which silently restores the old behaviour; quoted, node expands it itself.
+`checklist_coverage.py` now reads this line's glob shape out of this block and
+tests it against the venture files actually on disk, so the check goes quiet
+when the line is right and fires the day a venture adds a suite somewhere the
+line cannot reach — reading the line rather than a second copy of what it ought
+to say, the same import-don't-restate rule this file records against the
+front-door mirror.
 
 **`sync_tree_counts.py` was added 2026-09-17, and the reason is that two of
 the numbers in this tree cannot be got right on a branch.** Two counts are
