@@ -999,7 +999,16 @@ const CATEGORY_RULES = [
       // owed to the IRS. Not `solo-earner`: that section groups people
       // pricing their own labour or audience before a sale; this runs after
       // the pay period, on a W-2 or 1099 figure already received.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator)/.test(slug),
+      // `qbi-deduction-calculator` joined 2026-09-17, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. It estimates a federal
+      // deduction on business income already earned -- the same "downstream
+      // obligation on income already earned" axis as
+      // `no-tax-on-tips-overtime-calculator` right above it in this same
+      // rule, just a deduction tied to QBI instead of tips/overtime, and it
+      // cross-links `quarterly-estimated-tax-calendar` as a sibling for the
+      // same reason that tool does.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator)/.test(slug),
   },
   {
     id: 'ci',

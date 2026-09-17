@@ -90,3 +90,16 @@ test("index links one hop to the quarterly-estimated-tax-calendar sibling", () =
     'index must link ../quarterly-estimated-tax-calendar/ so crawlers reach it in one hop',
   );
 });
+
+// Closes the crawlable-orphan pair siblings.mjs --check found for
+// qbi-deduction-calculator on its own graduation: reciprocal link added in
+// the same commit rather than left for a later session, per the same rule
+// as the quarterly-estimated-tax-calendar pairing above.
+test("index links one hop to the qbi-deduction-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/qbi-deduction-calculator\/"/,
+    'index must link ../qbi-deduction-calculator/ so crawlers reach it in one hop',
+  );
+});
