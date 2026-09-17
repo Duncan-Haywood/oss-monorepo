@@ -188,6 +188,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // flat card is the right tool for a phone quote. Same reasoning as the
   // other generic-method pages above.
   'pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html',
+  // Compares against "opening each marketplace's own fee calculator and
+  // reconciling the answers" -- the method every multi-channel seller already
+  // uses, not a company or product this could be mistaken for. It is the one
+  // entry here that names real trademarks (eBay, Etsy, Amazon), because the
+  // channels being ranked are the tool's own subject matter; what it does not
+  // do is compare against any one of them as a product. It carries the
+  // affiliation disclaimer anyway rather than leaning on this exemption, and
+  // a test asserts the disclaimer and that no rate or currency amount is
+  // attributed to any of them. Same reasoning as the other generic-method
+  // pages above, and as ai-coding-plan-cost-calculator's
+  // vs-checking-pricing-pages-yourself.html, which names vendors the same way.
+  'where-to-sell-calculator/vs-each-marketplaces-own-calculator.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
