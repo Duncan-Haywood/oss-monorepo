@@ -504,8 +504,23 @@ if [[ -n "$WORKDIR" ]]; then
   cd "$WORKDIR"
 fi
 
-git config user.name "Codex Agent"
-git config user.email "agent-codex@agents.local"
+# Changed 2026-09-17. This was `agent-codex@agents.local`, and `.local` is
+# reserved for mDNS (RFC 6762) -- it is not a deliverable domain and can never
+# belong to a GitHub account. So every commit the worker pushed was authored by
+# an address GitHub cannot resolve to anyone: the commits show an unrecognised
+# author with a generic avatar, they associate with no account, and they do not
+# appear in any contribution history. On a fleet whose whole review layer keys
+# off which agent family produced a change, an unattributable commit is a real
+# cost, and it is invisible until the first PR lands.
+#
+# `users.noreply.github.com` is the right shape: GitHub resolves it, it leaks
+# no mailbox, and it is what this repo's own working Codex runner already uses
+# (ventures/local-site-studio/.github/workflows/codex-scheduled.yml:110-111).
+# Overridable because the box's PAT may belong to a different identity than the
+# default name assumes, and an operator should not have to edit a payload file
+# on the box to correct it.
+git config user.name "${CODEX_GIT_NAME:-codex-agent[bot]}"
+git config user.email "${CODEX_GIT_EMAIL:-codex-agent[bot]@users.noreply.github.com}"
 git checkout -b "$BRANCH"
 
 PROMPT_FILE="$(mktemp)"

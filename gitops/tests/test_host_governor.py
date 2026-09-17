@@ -367,3 +367,82 @@ def test_module_runs_as_a_script(box):
     )
     assert result.returncode == 0, result.stderr
     assert "decision:" in result.stdout
+
+
+# ------------------------------------------------- the enable hint (#2026-09-17)
+#
+# `--check` is run on the box, by an operator who has just been told the
+# governor is disabled, during the one session `HETZNERSSHKEY` buys. Until
+# 2026-09-17 it answered "to turn it on: ./bootstrap/scripts/
+# enable-codex-governor.sh" unconditionally -- a script that is not part of
+# the installer's PAYLOAD, so it is not on the box, and that edits a
+# *checkout's* policy, which this timer never reads. README.md says so in as
+# many words: it "was never the right shape for a box whose policy arrives by
+# `install -m 0644`". The hint pointed the reader away from the one command
+# that works, at the moment it was most expensive to be wrong.
+
+
+def test_enable_hint_on_a_box_names_the_installer_not_the_repo_script(tmp_path):
+    """A tree with no `bootstrap/` around it is a box, not a checkout.
+
+    `hg` is loaded from the real checkout and would take the checkout branch,
+    so this loads a second copy from a tree with no repo scripts around it --
+    which is what `install-codex-host.sh` leaves on the box.
+    """
+    installed = tmp_path / "opt" / "codex-agents"
+    (installed / "host").mkdir(parents=True)
+    (installed / "governor").mkdir(parents=True)
+    box_copy = installed / "host" / "host_governor.py"
+    box_copy.write_bytes(HOST.read_bytes())
+    box_hg = _load("host_governor_on_a_box", box_copy)
+    hint = box_hg.enable_hint(installed / "governor" / "policy.json")
+
+    assert "install-codex-host.sh --enable" in hint
+    assert "enable-codex-governor.sh" in hint, (
+        "the box hint should still name the repo script -- to say not to use "
+        "it here, which is the confusion being corrected"
+    )
+    assert "Do NOT use bootstrap/scripts/enable-codex-governor.sh" in hint
+    assert str(installed / "governor" / "policy.json") in hint, (
+        "name the policy actually being read, so the operator can verify the "
+        "flip landed on the right file"
+    )
+
+
+def test_enable_hint_does_not_invent_an_on_box_path_for_the_installer(tmp_path):
+    """The installer is not in PAYLOAD, so no absolute path for it is honest.
+
+    `restore-cluster.sh` untars it into a mktemp dir and `rm -rf`s that dir at
+    the end of step 9. A hint naming `/opt/codex-agents/install-codex-host.sh`
+    would name a file that is not there -- the same defect, respelled.
+    """
+    installed = tmp_path / "codex-agents"
+    (installed / "host").mkdir(parents=True)
+    box_copy = installed / "host" / "host_governor.py"
+    box_copy.write_bytes(HOST.read_bytes())
+    box_hg = _load("host_governor_no_invented_path", box_copy)
+    hint = box_hg.enable_hint(installed / "governor" / "policy.json")
+
+    assert str(installed / "install-codex-host.sh") not in hint
+    assert "/opt/codex-agents/install-codex-host.sh" not in hint
+
+
+def test_enable_hint_in_a_checkout_names_the_cluster_route():
+    """In the repository, the commit-and-let-Argo-sync route is the right one."""
+    hint = hg.enable_hint(hg.policy_file())
+    assert "./bootstrap/scripts/enable-codex-governor.sh" in hint
+    assert "checkout" in hint
+    assert "install-codex-host.sh --enable" in hint, (
+        "a checkout reader is often about to act on a box; say what the flip "
+        "is there too"
+    )
+
+
+def test_the_payload_really_does_not_carry_the_installer():
+    """Pins the fact both hints are written against."""
+    installer = ROOT.parent / "bootstrap" / "scripts" / "install-codex-host.sh"
+    payload = installer.read_text().split("PAYLOAD=(", 1)[1].split(")", 1)[0]
+    assert "install-codex-host.sh" not in payload, (
+        "if the installer ever installs itself, the box hint can name its "
+        "absolute path -- update enable_hint() and this test together"
+    )
