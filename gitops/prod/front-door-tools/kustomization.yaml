@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 147 files, 552999 bytes
 #   portfolio-front-tools-3: 140 files, 553730 bytes
 #   portfolio-front-tools-4: 124 files, 553918 bytes
-#   portfolio-front-tools-5: 135 files, 554588 bytes
+#   portfolio-front-tools-5: 136 files, 556369 bytes
 #   portfolio-front-tools-6: 124 files, 552484 bytes
 #   portfolio-front-tools-7: 135 files, 554105 bytes
 #   portfolio-front-tools-8: 113 files, 555316 bytes
@@ -795,6 +795,7 @@ configMapGenerator:
       - call-recording-consent-check__cli.mjs.gz=call-recording-consent-check__cli.mjs.gz
       - call-recording-consent-check__engine.mjs.gz=call-recording-consent-check__engine.mjs.gz
       - call-recording-consent-check__index.html.gz=call-recording-consent-check__index.html.gz
+      - call-recording-consent-check__share.mjs.gz=call-recording-consent-check__share.mjs.gz
       - call-recording-consent-check__usage.mjs.gz=call-recording-consent-check__usage.mjs.gz
       - call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz=call-recording-consent-check__vs-checking-each-states-statute-by-hand.html.gz
       - call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz=call-recording-consent-check__why-call-recording-consent-laws-differ-by-state.html.gz
