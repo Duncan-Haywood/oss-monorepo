@@ -181,6 +181,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // for. The page's own footer says so explicitly ("names no specific
   // product"). Same reasoning as the other vs-spreadsheet pages above.
   'backflow-test-fee-calculator/vs-spreadsheet.html',
+  // Compares against "manually reading the spec diff" -- a generic method
+  // every API developer already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // manual-method pages above.
+  'openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

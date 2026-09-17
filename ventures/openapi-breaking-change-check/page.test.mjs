@@ -121,3 +121,24 @@ test('every .html file in the venture is reachable from the sitemap', async () =
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest siblings: same "did this change, and does it matter" family of
+// checker, over a different artifact. Without a crawlable link here, a new
+// venture with no existing inbound link is a crawlable orphan
+// (platform/pages/siblings.test.mjs) -- and sbom-diff-check links back, so
+// the pair is mutual rather than one-way.
+test('index links one hop to the sbom-diff-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/sbom-diff-check\/"/,
+    'index must link ../sbom-diff-check/ so crawlers reach the sibling checker in one hop',
+  );
+});
+
+test('index links one hop to the sql-migration-lock-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/sql-migration-lock-check\/"/,
+    'index must link ../sql-migration-lock-check/ so crawlers reach the sibling checker in one hop',
+  );
+});

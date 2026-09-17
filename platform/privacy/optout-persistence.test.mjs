@@ -119,7 +119,12 @@ const RELATIVE_SELF = relative(
 // its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
 // use), same discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 271;
+// 271 -> 272 on 2026-09-17, when `openapi-breaking-change-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same
+// `record`/`readUsage` pattern `sbom-diff-check` and
+// `sql-migration-lock-check` use), same discovery method as the rest of
+// this running count.
+const SWITCHES_IN_THE_CATALOGUE = 272;
 
 let counter = 0;
 function fixture(source) {

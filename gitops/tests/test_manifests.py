@@ -1705,7 +1705,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # drafting time, then comparing the result to a flat per-acre quote, with
     # a static `index.html` from its first commit, same shape as the rest of
     # this running count.
-    total = 286  # `infra/OWNER_CHECKLIST.md`'s own "N of the 286 tools" wording.
+    # 287 since 2026-09-17, when `openapi-breaking-change-check` graduated —
+    # a zero-dependency CLI + no-upload browser tool diffing two OpenAPI
+    # 3.0/3.1 documents and classifying each difference as a breaking change
+    # (removed operation, newly-required parameter, narrowed type, removed
+    # enum value, request body now required) or non-breaking, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    total = 287  # `infra/OWNER_CHECKLIST.md`'s own "N of the 287 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
