@@ -1739,14 +1739,31 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # monitoring, and waste disposal, then comparing the result to a flat
     # rate per square foot, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    # 292 since 2026-09-17, when `vector-db-cost-calculator` graduated --
+    # 292 since 2026-09-17, when `tutor-package-pricing-calculator`
+    # graduated -- a no-upload browser calculator comparing a discounted
+    # prepaid session package to pay-per-session pricing on both revenue and
+    # effective hourly pay, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 293 since 2026-09-17, when `biohazard-cleanup-bid-calculator` graduated
+    # -- a browser-local calculator pricing a biohazard/trauma-scene cleanup
+    # job from crew labor, PPE decon-cycle sets, and regulated-waste disposal
+    # rounded up to whole containers, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before `tutor-package-pricing-calculator` landed, so
+    # it only ever knew its own predecessor's number (292) until this merge
+    # -- the same ordinary collision shape recorded throughout this list.
+    # 294 since 2026-09-17, when `vector-db-cost-calculator` graduated --
     # a browser-local calculator estimating a vector embedding index's
     # storage footprint (vector count, dimension, metadata, a user-set
     # index-overhead multiplier) and comparing monthly cost across up to
     # three vector database providers using rates the visitor types in,
     # with a static `index.html` from its first commit, same shape as the
-    # rest of this running count.
-    total = 292  # `infra/OWNER_CHECKLIST.md`'s own "N of the 292 tools" wording.
+    # rest of this running count. This branch was open before
+    # `tutor-package-pricing-calculator` and `biohazard-cleanup-bid-calculator`
+    # landed, so it only ever knew its own predecessor's number (291) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    total = 294  # `infra/OWNER_CHECKLIST.md`'s own "N of the 294 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

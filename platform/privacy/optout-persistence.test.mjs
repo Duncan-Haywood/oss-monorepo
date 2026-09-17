@@ -150,11 +150,26 @@ const RELATIVE_SELF = relative(
 // graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `land-survey-bid-calculator` use), same
 // discovery method as the rest of this running count.
-// 276 -> 277 on 2026-09-17, when `vector-db-cost-calculator` graduated with
+// 276 -> 277 on 2026-09-17, when `tutor-package-pricing-calculator`
+// graduated with a `usage.mjs` opt-out following the same
+// `setUsageOptOut`/`usageOptedOut` pattern as
+// `overtime-pay-calculator`'s switch, same discovery method as the rest of
+// this running count.
+// 277 -> 278 on 2026-09-17, when `biohazard-cleanup-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count. This is
+// the same shape as the 271 -> 272 collision above: this branch was open
+// before `tutor-package-pricing-calculator` landed, so it only ever knew
+// its own predecessor's number (277) until this merge.
+// 278 -> 279 on 2026-09-17, when `vector-db-cost-calculator` graduated with
 // its own `setUsageEnabled`/`usageAllowed` switch (the same
 // `countUsage`/`usageAllowed` pair `cloud-egress-calculator` uses), same
-// discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 277;
+// discovery method as the rest of this running count. This branch was open
+// before `tutor-package-pricing-calculator` and
+// `biohazard-cleanup-bid-calculator` landed, so it only ever knew its own
+// predecessor's number (276) until this merge.
+const SWITCHES_IN_THE_CATALOGUE = 279;
 
 let counter = 0;
 function fixture(source) {
