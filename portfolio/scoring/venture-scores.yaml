@@ -14503,3 +14503,57 @@ ventures:
       incentive to bias the classification in either direction, and the
       tool gets strictly more useful to a filer the more accurately they
       answer the four questions.
+
+  - slug: 1099-k-threshold-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic threshold arithmetic against a documented year-by-year
+      table and a four-state list. There is no inference step: a tax-year
+      lookup, an "exceeds" comparison against two numbers, and a state
+      override table.
+    basis: >-
+      Graduated 2026-09-17 as a free checker estimating whether a platform
+      is likely to issue a Form 1099-K, per platform and per tax year. The
+      federal threshold changed four times since 2022 ($20,000/200
+      transactions through 2023, $5,000 with no transaction minimum in
+      2024, back to $20,000/200 from 2025 on per OBBBA, confirmed
+      retroactive to 2022 by IRS Fact Sheet 2025-08), and four states
+      (Maryland, Massachusetts, Vermont, Virginia) set their own stricter
+      $600 threshold. duplicate_check.py scored every venture,
+      screened-out row, and pipeline candidate at or below 0.28 against
+      the final description -- the closest match was the sibling
+      1099k-reconciliation-worksheet, a genuinely different mechanism
+      (that venture reconciles a 1099-K already received down to net
+      profit; this one predicts whether one will arrive at all). No
+      existing free tool answering "will I get a 1099-K" was found via
+      WebSearch; the closest competitors found answer a different question
+      (self-employment tax liability). Distribution 6 reflects the
+      established "1099 tax calculator" competitor category as evidence of
+      real search volume for 1099-K-adjacent phrases, plus a live
+      demonstration of the confusion this tool addresses: a WebSearch
+      summary during this session's own research incorrectly asserted the
+      threshold "doesn't vary by state" moments after a separate search had
+      confirmed four states do have their own stricter figure.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The checker never claims to know what a specific platform actually
+      did or will do, states plainly that meeting or missing a threshold
+      does not determine whether income is taxable, and names the limits
+      of its own state-threshold research (four states verified, not all
+      fifty) rather than implying completeness. Being wrong costs a seller
+      a surprised January, not a missed filing they had no other way to
+      learn about -- the checker is a planning estimate, not the form
+      itself. No adverse incentive in either direction (donations-only, no
+      upsell that profits from a false "likely" or "unlikely" reading).
