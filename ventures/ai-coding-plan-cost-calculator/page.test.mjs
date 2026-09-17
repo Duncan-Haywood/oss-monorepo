@@ -157,3 +157,58 @@ test('the comparison page is listed in the venture sitemap', async () => {
   const sitemap = await read('sitemap.xml');
   assert.match(sitemap, /vs-doing-the-math-yourself\.html/);
 });
+
+// --- Included allowance UI (added 2026-09-17) -----------------------------
+
+test('index offers an optional included-allowance field with no pre-filled figure', async () => {
+  const page = await read('index.html');
+  assert.match(page, /id="included-tokens"/, 'the allowance input is missing');
+  // The honesty rule this feature rests on: no vendor publishes a coding
+  // plan's limit in tokens, so a pre-filled `value` here would be invented.
+  // The field must ship empty, with a placeholder saying what blank means.
+  assert.doesNotMatch(
+    page,
+    /id="included-tokens"[^>]*\svalue="/,
+    'the allowance field must not ship a default -- no vendor publishes one in tokens',
+  );
+  assert.match(page, /id="included-tokens"[^>]*placeholder="[^"]+"/, 'blank needs to say what it means');
+});
+
+test('index reads a blank allowance as null rather than as zero', async () => {
+  // `Number('')` is 0, so the obvious spelling would tell every visitor who
+  // left the field alone that their plan covers nothing and bill the whole
+  // month as overflow. This pins the guard against that.
+  const page = await read('index.html');
+  assert.match(page, /includedTokensPerMonth:/);
+  assert.match(
+    page,
+    /\$\('#included-tokens'\)\.value\.trim\(\) === ''\s*\?\s*null/,
+    'a blank allowance must become null, not 0',
+  );
+});
+
+test('index renders the overflow and all-in rows, and hides them without a cap', async () => {
+  const page = await read('index.html');
+  assert.match(page, /id="row-overflow"/);
+  assert.match(page, /id="row-plan-total"/);
+  assert.match(page, /id="row-overflow-tr"[^>]*hidden/, 'the overflow row starts hidden');
+  assert.match(page, /id="row-plan-total-tr"[^>]*hidden/, 'the all-in row starts hidden');
+  assert.match(page, /result\.includedTokensPerMonth !== null/, 'the rows are gated on a cap being entered');
+});
+
+test('index compares against the plan total, not the bare fee, so overflow reaches the headline', async () => {
+  // The defect this whole feature fixes is the plan side being understated.
+  // If the headline kept reading `subscriptionMonthlyUsd` it would report a
+  // tie at the fee while the visitor was paying the fee plus overflow.
+  const page = await read('index.html');
+  assert.match(page, /formatUsd\(result\.planTotalMonthlyUsd\)/);
+});
+
+test('index explains why no allowance is pre-filled', async () => {
+  const page = await read('index.html');
+  assert.match(
+    page,
+    /premium requests|five-hour|never in tokens|invented/i,
+    'the page should say why the allowance has no default rather than looking unfinished',
+  );
+});
