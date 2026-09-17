@@ -159,6 +159,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method every tutor already
+  // has, not a company or product this could be mistaken for. Same reasoning
+  // as the other vs-spreadsheet pages above.
+  'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
   // Compares against "checking a DST calendar by hand" -- a generic manual
   // habit every developer already has access to, not a company or product
   // this could be mistaken for. Same reasoning as the other manual-method
@@ -231,6 +235,19 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // competitor, product, or company"). Same reasoning as the other
   // generic-method pages above.
   'dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html',
+  // Compares against "tracking offers in a spreadsheet" -- a generic method
+  // every Reverb seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above.
+  'reverb-fee-calculator/vs-tracking-offers-in-a-spreadsheet.html',
+  // Compares against "a flat-rate boiler special" -- a generic pricing
+  // method every hydronic/steam tech already has access to, not a company
+  // or product this could be mistaken for. The page's own footer says so
+  // explicitly ("common, honest shortcut"). Same reasoning as the other
+  // generic-method pages above (e.g. attic-insulation-bid-calculator's
+  // flat-rate page).
+  'boiler-replacement-bid-calculator/vs-a-flat-rate-boiler-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
