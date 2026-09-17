@@ -332,6 +332,9 @@ workflows:
 - workflow: dependency-confusion-check-ci.yml
   classification: none
   publishes: []
+- workflow: deploy-concurrency-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
