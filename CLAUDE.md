@@ -219,6 +219,21 @@ whole value of the mode is that its exit 1 means one specific, actionable
 thing. That is the `UNRUN`-rather-than-`FAILED` discrimination
 `run_workflow_locally.py` makes, applied one directory over.
 
+**Run it on its own, and never from a test — that hazard has already fired
+once, on the day it shipped.** "Puts the tree back" is not "never touched it":
+for about nine seconds `--verify` deletes and rewrites `gitops/prod/`, so
+anything reading that directory meanwhile reads a half-written tree. #5032
+shipped an end-to-end test that ran the mode as a subprocess; `node --test`
+runs the files in a directory *in parallel*, and the two sibling suites spend
+their whole run reading committed artifacts out of `gitops/prod/`. `main` went
+red inside the hour — 3 of 266, then 4 of 266, on an unchanged commit, while
+each file passed 111/111 and 101/101 alone. #5032's own verification run
+passed 266/266 and was lucky with the interleaving, which is the worst way for
+a race to introduce itself. Fixed in the PR that records this; the restore is
+now covered against a temp directory instead. The checklist's own ordering —
+verify, then the suites — is sequential and safe; what is not safe is
+backgrounding one beside the other.
+
 It snapshots one coarse root (`gitops/prod/`) rather than a derived list of the
 generators' exported output paths, because deriving that list means guessing
 from export names which constants are outputs and which are inputs —

@@ -836,6 +836,9 @@ workflows:
 - workflow: pwa-installability-check-ci.yml
   classification: none
   publishes: []
+- workflow: qbi-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: quarterly-estimated-tax-calendar-ci.yml
   classification: none
   publishes: []
