@@ -204,6 +204,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pages above, and as ai-coding-plan-cost-calculator's
   // vs-checking-pricing-pages-yourself.html, which names vendors the same way.
   'where-to-sell-calculator/vs-each-marketplaces-own-calculator.html',
+  // Compares against "opening each marketplace's own fee calculator
+  // separately and reconciling the numbers by hand" -- a generic method
+  // every multi-channel seller already has access to, not a company or
+  // product this could be mistaken for. It still names the six real
+  // marketplaces it ranks, so it carries the nominative disclaimer anyway
+  // rather than relying on this exemption to excuse its absence. Same
+  // reasoning as the where-to-sell-calculator sibling entry above.
+  'marketplace-fee-compare/vs-checking-each-marketplace-separately.html',
   // Compares against "adding up the month's bills and dividing by the miles
   // you ran" -- the one line of arithmetic every owner-operator already runs
   // against their own settlement statements, not a company or product this

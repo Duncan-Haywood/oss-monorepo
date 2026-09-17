@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 137 files, 550844 bytes
 #   portfolio-front-tools-8: 115 files, 553484 bytes
 #   portfolio-front-tools-9: 116 files, 549330 bytes
-#   portfolio-front-tools-10: 113 files, 548095 bytes
+#   portfolio-front-tools-10: 114 files, 554233 bytes
 #   portfolio-front-tools-11: 127 files, 550313 bytes
 #   portfolio-front-tools-12: 129 files, 555675 bytes
 #   portfolio-front-tools-13: 105 files, 553877 bytes
@@ -1483,6 +1483,7 @@ configMapGenerator:
       - marketplace-fee-compare__index.html.gz=marketplace-fee-compare__index.html.gz
       - marketplace-fee-compare__share.mjs.gz=marketplace-fee-compare__share.mjs.gz
       - marketplace-fee-compare__usage.mjs.gz=marketplace-fee-compare__usage.mjs.gz
+      - marketplace-fee-compare__vs-checking-each-marketplace-separately.html.gz=marketplace-fee-compare__vs-checking-each-marketplace-separately.html.gz
       - marketplace-fee-compare__vs-sellerboard.html.gz=marketplace-fee-compare__vs-sellerboard.html.gz
       - marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz=marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz
       - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
