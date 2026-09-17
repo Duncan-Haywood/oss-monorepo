@@ -14000,6 +14000,77 @@ ventures:
       with no per-use fee, so the tool has no incentive to under- or
       over-report a category, and it gets strictly more useful to a
       developer the more accurately they declare what they collect.
+
+  - slug: actions-transitive-pin-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic classification of `uses:` lines already present in the
+      fetched YAML, the same regex logic pinned-actions-check uses. There is
+      nothing to infer: a ref is either a 40-character commit SHA or it is
+      not, at every hop this tool follows.
+    basis: >-
+      Graduated 2026-09-17 as a free dev-tool CLI/browser check that fetches
+      what a pinned reusable workflow or composite action itself loads and
+      flags it if that is unpinned underneath -- a gap `pinned-actions-check`
+      cannot see by design (it makes "no network calls of any kind"). Channel
+      evidence: GitHub's own 2026 Actions security roadmap names this exact
+      gap and describes a planned workflow lockfile as the future fix,
+      confirming it is unsolved by SHA pinning alone today (WebSearch,
+      2026-09-17); `duplicate_check.py` scored every other venture, pipeline
+      candidate, and screened-out row at or below 0.22 (pinned-actions-check
+      itself) against the final description. Not a restatement of that
+      sibling -- read its `check.py`, which explicitly skips resolving
+      anything -- but the same standard-library-only classifier + browser
+      port shape, scored on this file's six-dimension rubric to keep
+      coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: the transitive fetch is a direct
+      browser-to-raw.githubusercontent.com or CLI-to-raw.githubusercontent.com
+      request with no server of ours in the path, so marginal cost per use
+      is still zero and there is nothing of ours to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link, scored like every other free-forever
+      dev utility in this family.
+      Defensibility 4: one point above pinned-actions-check's family
+      baseline -- the nested-fetch-and-reclassify logic (candidate action.yml
+      paths, reusable-workflow path detection, honestly distinguishing
+      "unresolved" from "clean") is a little more than the single-file scan
+      a developer could write in an afternoon, but it is still a mechanical
+      rule over public data, not a moat.
+      Distribution 5: "github actions transitive pin" and "reusable workflow
+      supply chain" have real but thin existing search volume (mostly
+      GitHub's own docs and security-vendor blog posts, not a dedicated free
+      tool); no search-volume tool was queried to confirm magnitude, and the
+      cross-link from pinned-actions-check (already-shipped, already-linked
+      from the fleet's SEO surface) is the more concrete of the two channels
+      claimed here.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, comfortably above the floor. This is read-only and read-mostly:
+      it fetches only public files named by references the user's own
+      pasted or scanned workflow already trusted enough to pin, over plain
+      unauthenticated HTTPS, and it never claims a clean or unresolved
+      result is a security determination -- an unresolved fetch (a private
+      repo, rate limiting, a JS/Docker action with nothing underneath to
+      find) is always reported as unresolved, never silently read as clean.
+      No advice-of-record, no compliance claim, no data collected about the
+      visitor. Unlike pinned-actions-check, this tool does make network
+      requests; that is disclosed plainly in the privacy section of both
+      README.md and index.html rather than inheriting a "no network calls"
+      claim that would now be false.
+
   - slug: actions-secret-leak-check
     scores:
       ai_leverage: 1
@@ -14063,6 +14134,7 @@ ventures:
       or resolves anything on the user's behalf. It makes no security or
       compliance claim: a clean scan means these two specific, documented
       patterns are absent, not that the workflow's secrets are safe overall.
+
   - slug: deploy-concurrency-check
     scores:
       ai_leverage: 1

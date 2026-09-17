@@ -33370,6 +33370,93 @@ entries:
         venture and its sibling (clean after the label fix). Actions was
         starved (`ci_starvation.py`, `runner_id: 0`) on the PR's own check,
         confirmed before merging on local verification alone.
+  - venture: actions-transitive-pin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fired as a scheduled "set direction" brief. Checked first whether
+        that brief was already current rather than writing another
+        paragraph, per `portfolio/DIRECTION.md`'s own "before rewriting this
+        brief again" section and the mechanical gate `check_direction_only.py`
+        (#4051) added specifically against this failure mode: `git log`
+        against `origin/main` (after `git fetch --unshallow origin main` --
+        the ambient shallow clone had deepened `main` to a single commit from
+        an earlier `git fetch origin main`, the exact trap CLAUDE.md's
+        "Duplicate PRs" section warns about) showed the viable-business/
+        donations/no-liability brief consolidated repeatedly (#3512, #3542,
+        #3551, #3571, #4051), with `session_gate.py` returning PROCEED and
+        no `build-now` pipeline candidates. So: no direction rewrite: built
+        instead, per that section's own instruction.
+      - >-
+        `portfolio/router/allocate.py`'s top-ranked dispatchable ventures
+        (`reverb-fee-calculator`, `where-to-sell-calculator`) turned out to
+        be fully-built already, waiting only on real customer contact --
+        not a code task a session can manufacture. Screened a fresh niche
+        instead, using WebSearch (not subject to this sandbox's egress
+        proxy) to find real, dated evidence rather than guessing: GitHub's
+        own 2026 Actions security roadmap names an unsolved gap directly --
+        "a reusable workflow's SHA pin does not pin the composite action it
+        loads" -- and describes a planned workflow lockfile ("like go.sum
+        but for workflows") as the future fix. `portfolio/pipeline/
+        duplicate_check.py` scored the closest existing match
+        (`pinned-actions-check` itself) at 0.22, well below the 0.45 bar;
+        confirmed by reading that sibling's `check.py`, which explicitly
+        makes "no network calls of any kind" and so has no visibility into
+        what a pinned reusable workflow or composite action itself loads.
+      - >-
+        Shipped `ventures/actions-transitive-pin-check`: a CLI (`check.mjs`,
+        Node's built-in `fetch`, zero dependencies) and browser page that,
+        for every top-level `uses:` reference already pinned to a commit
+        SHA, fetches that exact file from `raw.githubusercontent.com`
+        (unauthenticated, no token) and classifies ITS `uses:` lines the
+        same way -- flagging a reference pinned at the call site that loads
+        something unpinned underneath, and reporting an unresolved fetch as
+        unresolved, never silently as clean (the one dishonest shortcut this
+        tool's whole positioning depends on not taking). Disclosed the
+        network calls plainly in both README.md and index.html rather than
+        inheriting the sibling's "makes no network calls" claim, which would
+        now be false. 39 venture-local `node --test` assertions, all green.
+      - >-
+        Closed the crawlable-orphan gap from the first commit rather than
+        shipping it as a worklist item (`platform/pages/siblings-budget.json`
+        budget is 0): added the reciprocal link both ways with
+        `pinned-actions-check`, each page's footer naming the other, with a
+        `page.test.mjs` assertion on the href in both ventures --
+        `node platform/pages/siblings.mjs --check` reports 0 orphans across
+        308 tools.
+      - >-
+        Registered in `venture-scores.yaml` (composite 6.0, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass), `usage.yaml` (
+        baseline row from the first commit, not retroactive), and
+        `publish_surface.py --write` for the new test-only CI workflow
+        (classified `none` -- no deploy, no push). `node platform/pages/
+        launched.mjs --write` for the Atom feed entry.
+      - >-
+        Full verification: this venture's own suite (39/39), the sibling's
+        (95/95 combined), `platform/pages/*.test.mjs` fleet-wide (1010/1010
+        -- two real failures found and fixed on the first pass: a link to
+        `check.mjs` via the private GitHub blob URL that the build's own
+        link-repair logic also serves as a live published file, and three
+        `--`-vs-em-dash mismatches between the FAQPage JSON-LD and the
+        visible copy), `platform/marketing/*.test.mjs` (262/262, after
+        `regen.mjs` -- 11 failures before running it), `router/validate.py`,
+        `score_ventures.py --check`, `checklist_coverage.py`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `check_no_payment_code.py`, `clauses.mjs`, `router/test_allocate.py`
+        + `scoring` tests (88/88), `portfolio/ledger`+`usage`+`pipeline`+
+        `infra/tests` (446/446), all 15 `platform/ci` unittest modules +
+        `agent_review` (clean), `gitops/tests` (580/3 fail/25 skip -- the 3
+        failures are the mirrored-tool-count and `runs-on`-count drift this
+        venture's own addition causes, left for the post-merge
+        `sync_tree_counts.py`/`sync_readme_counts.py` step CLAUDE.md
+        prescribes rather than fixed pre-merge and re-broken by a concurrent
+        graduation).
+      - >-
+        No external user contact yet -- that is the explicit next,
+        non-code step named in `VENTURE.yaml`'s `kill_criteria`, not a gap
+        in this session's work.
   - venture: actions-secret-leak-check
     agent_spend_usd: null
     human_hours: 0

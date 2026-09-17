@@ -127,3 +127,15 @@ test('index links one hop to the required-checks-drift-check sibling', () => {
     'index must link ../required-checks-drift-check/ so crawlers reach it in one hop',
   );
 });
+
+// Reciprocal to actions-transitive-pin-check/page.test.mjs's own assertion
+// on this href -- that venture ships against a budget of 0 crawlable
+// orphans (platform/pages/siblings-budget.json), so it needs an inbound
+// link from its first commit, not as a worklist item to close later.
+test('index links one hop to the actions-transitive-pin-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/actions-transitive-pin-check\/"/,
+    'index must link ../actions-transitive-pin-check/ so crawlers reach it in one hop',
+  );
+});
