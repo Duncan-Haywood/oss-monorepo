@@ -138,6 +138,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "multiplying filament cost by three" -- a pricing
+  // habit passed around among makers, not a company or product this could
+  // be mistaken for. The page names no vendor at all.
+  '3d-print-price-calculator/vs-the-3x-filament-rule.html',
   // Compares against "a flat day rate" -- a generic pricing method every
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
