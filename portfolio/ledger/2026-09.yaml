@@ -33559,3 +33559,71 @@ entries:
         the three is downstream of `hetzner-ssh-key-is-a-public-key`, which
         no session can clear. Nothing new was queued: the ask is already
         row 1.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed the three deployment races `ventures/deploy-concurrency-check`
+        found in this repository's own workflows on the day it shipped (#4949).
+        The venture deliberately left them as found so its own diff stayed a
+        venture diff; this is that follow-up, and it is the account owner's
+        stated priority for the run ("deployment and cicd is a priority")
+        applied to the repo's own delivery path rather than to a product.
+      - >-
+        `ai-first-markets-deploy.yml` had no `concurrency:` block at all -- the
+        only deploying job in the tree with none. `workflow_dispatch`-only is
+        not a defence: two clicks a minute apart start two runs, `npm ci` and
+        the build vary in length, a run can wait for a runner, and whichever
+        finishes last is what Cloudflare serves. Both runs succeed either way,
+        so nothing goes red and no log says the wrong revision is live. Given
+        `group: ai-first-markets-deploy`, not keyed by ref because one
+        Cloudflare Pages project sits behind it, and
+        `cancel-in-progress: false`.
+      - >-
+        `retail-pilot-intel-deploy-docs.yml` and `portfolio-pages.yml` both
+        deploy to the `github-pages` environment under different group names
+        (`retail-pilot-intel-deploy-docs` and `github-pages-deploy`). This is
+        the cross-file case no review of either file alone can see, and the
+        sharper half is that the workflow ALREADY named the hazard in a comment
+        -- "one owner flip would make two deployments race and the live site
+        would flap between them" -- and mitigated it by using two separate
+        owner variables. That is a policy mitigation: it holds exactly as long
+        as nobody sets both flags. Gave the Pages-deploying job a job-level
+        `concurrency` with the identical group name `github-pages-deploy`, so
+        the two queue against each other mechanically rather than by
+        convention. A comment on each side says to keep the string identical.
+      - >-
+        `real-estate-agent-photo-app-deploy-docs.yml` set
+        `cancel-in-progress: true` on a deploying job. Flipped to `false`: a
+        cancelled deploy has already written part of its change and nothing
+        re-runs to finish it, leaving a state neither revision produced.
+        Queueing gets the ordering the setting was reaching for anyway.
+      - >-
+        With the tree clean, the venture's own CI step was upgraded from a bare
+        scan to `--fail-on-risk`, which is what keeps it clean. Scoped honestly
+        in a comment: that step's path filters fire on venture changes, not on
+        an arbitrary workflow change, so it is dogfooding plus a regression
+        guard rather than a repo-wide gate. Making it repo-wide means a
+        workflow of its own with `.github/workflows/**` in its paths, which is
+        a deliberate separate change rather than something to smuggle in here.
+      - >-
+        Verified: `check.py .github/workflows/` now reports "No deployment race
+        found in 363 file(s)" and `--fail-on-risk` exits 0, where before the
+        fix it reported 3. `platform/ci/validate_workflows.py` -- all 363
+        workflow files valid. The venture's own suite 35/35, `gitops/tests` 607
+        passed + 1 environmental skip, `portfolio/ledger` 272 passed,
+        `platform/ci` `test_validate_workflows` / `test_pages_state` /
+        `test_publish_surface` all OK, `publish_surface.py --check` and
+        `sync_readme_counts.py` both clean.
+      - >-
+        Deployment, done rather than described: #4949 touched `ventures/**`, so
+        the gh-pages snapshot went stale on merge. Ran
+        `CONFIRM=publish-pages-branch PUSH=1 platform/pages/publish-branch.sh`,
+        GitHub's managed builder ran on `gh-pages` at ff2d19eb and succeeded
+        (run 35233854899, 14:29:32Z), `pages_state.py --require-current` exits
+        0, and the eight published files of the new venture are present in the
+        `gh-pages` tree. Reading recorded with `pages_state.py --record`
+        (github-pages-branch-route: up), which is the step that stops the
+        decision queue ageing this route out and printing its false OUTAGE
+        banner -- the regression that has now happened twice.

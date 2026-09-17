@@ -87,6 +87,25 @@ jobs:
     # the origin to them instead; the Vercel job below is the better route if
     # both are wanted at once.
     if: ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
+    # Added 2026-09-17, found by `ventures/deploy-concurrency-check` scanning
+    # this repository's own workflows. The block above already names the hazard
+    # -- "one owner flip would make two deployments race and the live site would
+    # flap between them" -- and mitigates it with two separate variables. That is
+    # a policy mitigation: it holds exactly as long as nobody sets both flags.
+    #
+    # This is the mechanical one. `portfolio-pages.yml`'s Pages deploy job uses
+    # the group `github-pages-deploy`, deliberately un-keyed by ref because
+    # GitHub serves one Pages site per repository. Sharing that exact group name
+    # is what makes these two jobs queue against each other rather than race: a
+    # concurrency group is only a queue for the runs inside it, so two correct
+    # workflows under two different group names have no ordering between them at
+    # all. Keep this string identical to the one in `portfolio-pages.yml`.
+    #
+    # `cancel-in-progress: false` matches that job too -- an in-flight publish
+    # should finish rather than leave the live site half-swapped.
+    concurrency:
+      group: github-pages-deploy
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
