@@ -342,6 +342,17 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_guard_state
 
+      # The counter-sync tool. It rewrites committed files, so the tests that
+      # matter are the ones proving it can be wrong safely: a reworded
+      # sentence must be reported rather than silently skipped, and a
+      # derivation that breaks must raise rather than return a zero the tool
+      # would then write. Both of those happened while it was being written --
+      # the first draft filtered on a status string that does not exist,
+      # derived 0, and would have rewritten a live constant to 0.
+      - name: Tree-count sync unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_sync_tree_counts
+
       # And the reader for the three standalone host-mode routes. Same
       # argument as the two above, at the point where it is most expensive to
       # be wrong: this one is read while the owner is holding the private key,
