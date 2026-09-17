@@ -159,6 +159,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method every tutor already
+  // has, not a company or product this could be mistaken for. Same reasoning
+  // as the other vs-spreadsheet pages above.
+  'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
   // Compares against "checking a DST calendar by hand" -- a generic manual
   // habit every developer already has access to, not a company or product
   // this could be mistaken for. Same reasoning as the other manual-method
@@ -224,6 +228,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // regulated-waste hauler, estimating software, or franchise"). Same
   // reasoning as the other generic-method pages above.
   'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
+  // Compares against "tracking offers in a spreadsheet" -- a generic method
+  // every Reverb seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above.
+  'reverb-fee-calculator/vs-tracking-offers-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
