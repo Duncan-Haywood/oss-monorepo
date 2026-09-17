@@ -423,6 +423,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. The page names no specific
   // reviewer, team, or code-review tool at all.
   'actions-secret-leak-check/vs-reading-the-workflow-by-eye.html',
+  // Compares against "reading every workflow file by hand" -- the ordinary
+  // manual-tracing habit every maintainer already has when a required check
+  // gets stuck, not a company or product this could be mistaken for. The
+  // page names no specific reviewer, team, or tool at all.
+  'required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
