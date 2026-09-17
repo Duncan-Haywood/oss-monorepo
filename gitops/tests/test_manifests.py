@@ -1732,15 +1732,24 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # enum value, request body now required) or non-breaking, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    # 291 since 2026-09-17, when `storage-auction-max-bid-calculator`
+    # 291 since 2026-09-17, when `asbestos-abatement-bid-calculator`
+    # graduated -- a browser-local bid calculator pricing an asbestos
+    # removal job from OSHA/EPA containment class (Class I/II/III), square
+    # footage, containment areas, crew and supervisor rates, air
+    # monitoring, and waste disposal, then comparing the result to a flat
+    # rate per square foot, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 292 since 2026-09-17, when `storage-auction-max-bid-calculator`
     # graduated — a no-upload browser calculator pricing the maximum
     # profitable hammer bid for a storage-unit lien-auction lot from a
     # realistic resale recovery rate, resale-channel fees, the buyer's
     # premium, and the cleanout/dump/holding cost stack, then comparing it to
     # the flat percent-of-value rule of thumb most auction forums repeat, with
     # a static `index.html` from its first commit, same shape as the rest of
-    # this running count.
-    total = 291  # `infra/OWNER_CHECKLIST.md`'s own "N of the 291 tools" wording.
+    # this running count. Landed the same afternoon as
+    # `asbestos-abatement-bid-calculator`, so the resolved total is 292
+    # rather than either branch's own 291.
+    total = 292  # `infra/OWNER_CHECKLIST.md`'s own "N of the 292 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

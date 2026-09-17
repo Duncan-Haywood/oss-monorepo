@@ -198,6 +198,18 @@ export const SHOP_RATE_ALIASES = {
     hourlyWage: 'crewHourlyRatePerPerson',
     targetMargin: 'targetMarginPercentPct',
   },
+  // "Crew rate ($/hr per worker)" is the same raw, un-burdened per-worker wage
+  // as `hourlyWage`, spelled `crewHourlyRatePerWorker`. "Target margin on
+  // price (%)" is the same net-margin-on-price concept as `targetMargin`,
+  // spelled `targetMarginPercentPct` (same convention as `land-survey-bid-
+  // calculator` above). It has no separate payroll-burden field, and
+  // containment setup, air monitoring, and waste disposal are priced as their
+  // own line items rather than an overhead percentage of direct cost, so it
+  // carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'asbestos-abatement-bid-calculator': {
+    hourlyWage: 'crewHourlyRatePerWorker',
+    targetMargin: 'targetMarginPercentPct',
+  },
 };
 
 /**
@@ -251,6 +263,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
     'This tool prices labour as one rate per crew member that already covers burden, so your saved wage and burden are left alone here.',
   'land-survey-bid-calculator':
     'This tool has no separate payroll-burden field and prices office research and drafting time as their own hourly rates rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
+  'asbestos-abatement-bid-calculator':
+    'This tool has no separate payroll-burden field and prices containment setup, air monitoring, and waste disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
 };
 
 /**

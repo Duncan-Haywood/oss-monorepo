@@ -683,6 +683,13 @@ const CATEGORY_RULES = [
     // recurring-compliance-test business turning a device/stop list and its
     // own fee schedule into a customer-facing price. Not a trade bid (nothing
     // priced by area or a construction job) and not a marketplace fee.
+    // `estate-sale-net-proceeds-calculator` joined 2026-09-17, filed here
+    // rather than left for a catch-all spell: an estate-sale company applying
+    // its own tiered commission schedule and fees to an estimated gross is
+    // the same job as `booth-rent-vs-commission` and `staffing-markup` —
+    // turning the business's own cost/fee structure into a customer-facing
+    // number — and not a trade bid, a marketplace fee, or a back-office
+    // reconciliation.
     // `wedding-florist-proposal-calculator` joined 2026-09-16 on its first
     // commit, filed here rather than left for a spell in the catch-all —
     // which is what `build.test.mjs`'s catch-all bound is for. A floral
@@ -696,7 +703,7 @@ const CATEGORY_RULES = [
     // monetising their own output; a studio quoting a couple's wedding is a
     // business pricing work for a customer, the axis this section uses.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal)/.test(
         slug,
       ),
   },
@@ -2267,7 +2274,11 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-cleaning',
       title: 'Cleaning, restoration & insulation',
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion)/.test(slug),
+      // `asbestos-abatement` joins this group beside `mold-remediation` and
+      // `radon-mitigation`: all three price a licensed hazard-removal job
+      // (containment, protective procedures, testing/monitoring, special
+      // disposal) rather than an installed product or a takeoff.
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion)/.test(slug),
     },
     {
       id: 'trades-roof',
