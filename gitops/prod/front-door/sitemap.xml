@@ -2605,6 +2605,9 @@
     <loc>https://marisstella.dev/tools/sbom-diff-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/sbom-diff-check/vs-cyclonedx-cli-diff.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/sbom-diff-check/vs-diffing-the-raw-json-files.html</loc>
   </url>
   <url>
