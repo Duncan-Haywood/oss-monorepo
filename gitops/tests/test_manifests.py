@@ -1853,7 +1853,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (301, then 302) until this merge -- the same
     # ordinary collision shape recorded throughout this list: both branches
     # independently wrote "302" for what the merged tree made 303.
-    # 304 since 2026-09-17, when `stockx-seller-payout-calculator` graduated
+    # 304 since 2026-09-17, when `branch-protection-drift-check` graduated --
+    # a zero-dependency CLI + browser tool comparing a repository's actual
+    # GitHub branch-protection settings against a declared policy, flagging
+    # every rule that has drifted weaker than intended (review counts, admin
+    # enforcement, force-push/deletion rules, required status checks), with
+    # a static `index.html` from its first commit, same shape as the rest
+    # of this running count. This branch was open before nothing else in
+    # flight landed, so it only ever knew its own predecessor's number
+    # (303) until this merge.
+    # 305 since 2026-09-17, when `stockx-seller-payout-calculator` graduated
     # -- a browser-local calculator pricing a StockX sneaker/streetwear/card
     # sale's net payout and net profit from the sale price, a Seller-Level
     # transaction fee, a Fast Shipping discount, a flat payment processing
@@ -1861,15 +1870,36 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # against a profit goal -- the same single-channel marketplace-fee shape
     # as `whatnot-seller-payout` and `poshmark-fee-calculator`, with a static
     # `index.html` from its first commit, same shape as the rest of this
-    # running count.
-    # 305 since 2026-09-17, when `android-data-safety-check` graduated -- a
+    # running count. This branch was open before
+    # `branch-protection-drift-check` landed, so it only ever knew its own
+    # predecessor's number (303) until this merge -- the same ordinary
+    # collision shape recorded throughout this list: both branches
+    # independently wrote "304" for what the merged tree made 305.
+    # 306 since 2026-09-17, when `android-data-safety-check` graduated -- a
     # browser-local and CLI checker cross-checking an Android project's
     # AndroidManifest.xml permissions and Gradle SDK dependencies against
     # the Google Play Data safety categories the developer says they've
     # already declared, the direct Android-side counterpart to
     # `ios-privacy-manifest-check`, with a static `index.html` from its
-    # first commit, same shape as the rest of this running count.
-    # 306 since 2026-09-17, when `deploy-concurrency-check` graduated -- a
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before this branch's own predecessor merges landed,
+    # so it only ever knew an earlier number until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    # 307 since 2026-09-17, when `helm-values-schema-check` graduated -- a
+    # zero-dependency CLI + browser tool validating a Helm chart's
+    # values.yaml against its own values.schema.json without running Helm,
+    # flagging a field values.yaml sets that the schema does not declare
+    # (the shape a typo takes, which helm lint only catches when the schema
+    # sets additionalProperties: false) alongside real schema violations,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. Cross-links `k8s-deprecated-api-check`,
+    # its nearest sibling in the same `ci` category. This branch was open
+    # before `stockx-seller-payout-calculator`, `android-data-safety-check`,
+    # and `branch-protection-drift-check` landed, so it only ever knew an
+    # earlier predecessor's number until this merge -- the same ordinary
+    # collision shape recorded throughout this list: both branches
+    # independently wrote "306" for what the merged tree made 307.
+    # 308 since 2026-09-17, when `deploy-concurrency-check` graduated -- a
     # browser-local and CLI checker reading GitHub Actions workflow YAML for
     # the five ways a deploying workflow is permitted to apply an older
     # revision over a newer one (no concurrency group, a group keyed on
@@ -1877,8 +1907,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # jobs or workflows writing one environment under different group names,
     # and a deploying job checking out a moving branch), with a static
     # `index.html` from its first commit, same shape as the rest of this
-    # running count.
-    total = 306  # `infra/OWNER_CHECKLIST.md`'s own "N of the 306 tools" wording.
+    # running count. This branch was open before
+    # `branch-protection-drift-check` and `helm-values-schema-check` landed,
+    # so it only ever knew 306 until this merge -- the same ordinary
+    # collision shape recorded throughout this list, three deep this time.
+    total = 308  # `infra/OWNER_CHECKLIST.md`'s own "N of the 308 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
