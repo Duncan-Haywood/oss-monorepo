@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { calculateSale, compareFreeShipping, INPUT_IDS } from './calc.mjs';
+import { decodeEntities } from '../../platform/pages/entities.mjs';
 
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
@@ -281,15 +282,18 @@ test('the spreadsheet comparison page names no product and is reachable from ind
 });
 
 // Same duplication risk as the FAQ test above, for the second comparison page.
+// Decoded through the shared entity table (not a raw substring match) because
+// the JSON-LD spells a literal em dash and the visible copy spells `&mdash;`
+// -- platform/pages/faq-visible.test.mjs is the authoritative, entity-aware
+// version of this check across every page; this is the venture-scoped signal.
 test('spreadsheet comparison page FAQ structured data matches the visible answers', () => {
   const source = page('vs-tracking-payouts-in-a-spreadsheet.html');
   const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(source)[1]);
   assert.equal(ld['@type'], 'FAQPage');
-  const visible = source.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = decodeEntities(source.replace(/<script[\s\S]*?<\/script>/g, ''));
   for (const entry of ld.mainEntity) {
-    const question = entry.name.replace(/&/g, '&amp;');
     assert.ok(
-      visible.includes(`<h3>${question}</h3>`),
+      visible.includes(`<h3>${entry.name}</h3>`),
       `structured-data question is not on the page: ${entry.name}`,
     );
     assert.ok(
