@@ -47,8 +47,8 @@
 #   portfolio-front-tools-11: 121 files, 547409 bytes
 #   portfolio-front-tools-12: 129 files, 549297 bytes
 #   portfolio-front-tools-13: 97 files, 550693 bytes
-#   portfolio-front-tools-14: 116 files, 556690 bytes
-#   portfolio-front-tools-15: 69 files, 334175 bytes
+#   portfolio-front-tools-14: 116 files, 551002 bytes
+#   portfolio-front-tools-15: 70 files, 344010 bytes
 #   portfolio-front-tools-16: 51 files, 263312 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1908,6 +1908,7 @@ configMapGenerator:
       - storage-auction-max-bid-calculator__index.html.gz=storage-auction-max-bid-calculator__index.html.gz
       - storage-auction-max-bid-calculator__share.mjs.gz=storage-auction-max-bid-calculator__share.mjs.gz
       - storage-auction-max-bid-calculator__usage.mjs.gz=storage-auction-max-bid-calculator__usage.mjs.gz
+      - storage-auction-max-bid-calculator__vs-storagetreasures.html.gz=storage-auction-max-bid-calculator__vs-storagetreasures.html.gz
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
@@ -1990,12 +1991,12 @@ configMapGenerator:
       - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
       - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
       - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
-      - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
