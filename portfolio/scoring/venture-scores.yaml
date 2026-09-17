@@ -13000,3 +13000,65 @@ ventures:
       quote is the user's to verify. Ethically: donations-only with no
       per-use fee, so the tool has no incentive to push a price up or down,
       and it helps a small business charge for costs it is already paying.
+  - slug: storage-auction-max-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the bidder types: a recovery
+      rate and fee percentage applied to an estimate, a cost stack summed,
+      and one linear equation solved for the bid that leaves a target
+      margin. Exactly computable; there is nothing to infer and nothing a
+      model would do better than the arithmetic already does.
+    basis: >-
+      Screened 2026-09-17. duplicate_check.py against the venture
+      description scored the closest existing venture at 0.08
+      (ebay-fee-calculator and amazon-fba-calculator tie, both on the
+      generic resale/fee vocabulary rather than on the mechanism), with
+      dumpster-rental-margin-calculator next at 0.07. Well under the 0.45
+      flag bar, and the mechanism is genuinely distinct: those tools price
+      a listing or a rental for an item already in hand, this one prices a
+      sight-mostly-unseen bid for a stranger's entire unit at a lien
+      auction, including the buyer's premium charged on top of the hammer
+      price and the cleanout-window deposit risk. No storage-auction row
+      exists in screened-out.md.
+      Autonomous ops 10 / gross margin 10: a static page that computes in
+      the visitor's browser with nothing uploaded and nothing fetched, so
+      serving one more user costs a static file and needs no human review
+      of any output.
+      Distribution 5: r/StorageWars, r/Flipping and dedicated storage-
+      auction forums (e.g. storageauctions.com's own boards) discuss bid
+      sizing by rule of thumb routinely, and "storage auction bid
+      calculator" / "how much should I bid on a storage unit" are search
+      phrases the niche actually types. Not higher, because no
+      search-volume tool was queried to confirm magnitude and the
+      portfolio has no measured traffic of its own to extrapolate from.
+      Time to revenue 5, defensibility 2: donations-only; the arithmetic
+      itself (premium on top, recovery-rate-then-fees, a linear
+      break-even/target-margin solve) is easy to reimplement once seen, so
+      defensibility rests on the specific framing -- that the naive
+      percent-of-value rule ignores the premium and the fixed cost stack --
+      and this portfolio's disclaimer/usage conventions, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: planning arithmetic over figures the bidder supplies, run
+      entirely in their own browser, with no network call, no stored data
+      and nothing leaving the device. It makes no claim about what any
+      specific unit's contents are actually worth, does not place a bid,
+      and does not track any facility's lien-sale law or removal-window
+      terms -- the footer says so plainly and tells the bidder to verify
+      those directly. Storage-unit lien auctions are a lawful, common and
+      publicly advertised sale of abandoned property to recover unpaid
+      rent (the "storage wars" hobby), not a circumvention or advice-of-
+      record category, and donations-only pricing gives the tool no
+      incentive to push a bid up or down.

@@ -20,6 +20,17 @@ arithmetic and layout in the browser, like everything else here.
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
 ready, and what is blocked. As of 2026-09-07 that is 112 adopted, 0 blocked.
 
+**Except `storage-auction-max`** (`storage-auction-max-bid-calculator`,
+graduated 2026-09-17), for the same reason `owner-operator-cpm-calculator` and
+`shop-rate-calculator` are deliberately excluded from `adopt.mjs`'s filter
+below: it prices a figure the bidder keeps to themselves — the hammer bid to
+raise a hand at — and there is no customer to hand a proposal to. Its slug
+happens to end in `-bid-calculator` because the bid itself is the product
+(a lien-auction bid on a stranger's storage unit, not a contractor's job bid),
+which is what puts it in `discoverability.test.mjs`'s population even though it
+is not a trade calculator at all. Mechanical readiness is not a reason to
+adopt, the same rule the two exclusions above already state.
+
 The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
 graduated in #3580, unblocked in the same session that added this line). It
 priced the job inline from individual `el(...)` reads rather than through the

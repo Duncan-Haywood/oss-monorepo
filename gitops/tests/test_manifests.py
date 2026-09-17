@@ -1732,7 +1732,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # enum value, request body now required) or non-breaking, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 290  # `infra/OWNER_CHECKLIST.md`'s own "N of the 290 tools" wording.
+    # 291 since 2026-09-17, when `storage-auction-max-bid-calculator`
+    # graduated — a no-upload browser calculator pricing the maximum
+    # profitable hammer bid for a storage-unit lien-auction lot from a
+    # realistic resale recovery rate, resale-channel fees, the buyer's
+    # premium, and the cleanout/dump/holding cost stack, then comparing it to
+    # the flat percent-of-value rule of thumb most auction forums repeat, with
+    # a static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 291  # `infra/OWNER_CHECKLIST.md`'s own "N of the 291 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

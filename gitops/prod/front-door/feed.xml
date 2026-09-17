@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 289 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 291 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/storage-auction-max-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/storage-auction-max-bid-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator for storage-unit auction bidders: prices the buyer&#39;s premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.</summary>
   </entry>
   <entry>
     <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
@@ -357,23 +366,5 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent process servers: find real net profit for one service-of-process job after extra attempts, rush and skip-trace fees, mileage, and your own drive time and vehicle cost, then compare what two or three client law firms actually pay per hour.</summary>
-  </entry>
-  <entry>
-    <title>Quarterly Estimated Tax Calendar — Free, No Sign-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quarterly-estimated-tax-calendar/"/>
-    <id>tag:marisstella.dev,2026:tool/quarterly-estimated-tax-calendar</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for US freelancers, 1099 contractors, and gig workers: computes the IRS safe-harbor quarterly estimated tax payment from your own numbers, gives the four real (weekend/holiday-adjusted) due dates, and exports a downloadable calendar file. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Redirect Chain Checker — Find Redirect Loops, Long Chains &amp; Dead Ends</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/redirect-chain-check/"/>
-    <id>tag:marisstella.dev,2026:tool/redirect-chain-check</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste the hops a URL&#39;s redirects actually took (from your browser&#39;s Network tab, or a curl -sI trace) and check for a redirect loop, a chain longer than the recommended single hop, an HTTPS-to-HTTP downgrade, a permanent site move using a temporary status code, and a chain that dead-ends in a 404 or 500. A zero-dependency CLI follows the real chain over HTTP for you. Runs in your browser or as a CI check. Nothing uploaded.</summary>
   </entry>
 </feed>

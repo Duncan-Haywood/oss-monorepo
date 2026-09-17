@@ -118,6 +118,14 @@ const NO_SHARED_SHOP_RATES = {
     'aliased too. It has no separate payroll-burden field, and it prices office research and drafting ' +
     'time as their own hourly rates rather than an overhead percentage of direct cost, so it carries ' +
     'two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'storage-auction-max-bid-calculator':
+    'this is not a contractor job bid -- it is a max hammer bid for a stranger\'s storage-unit ' +
+    'contents at a lien auction. Its `laborRatePerHour` prices cleanout hours on one unit, not a ' +
+    'crew wage the business pays across every job, and there is no payroll-burden or ' +
+    'overhead-on-direct-cost field at all: cleanout cost is a flat dump fee plus a labor line, and ' +
+    '`targetMarginPercent` is margin on realized resale revenue after channel fees, a different base ' +
+    'from the spec\'s margin on a priced job. Zero of the four canonical concepts apply, so no bar is ' +
+    'shown and no PARTIAL_SHOP_RATE_PAGES note is due.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {
