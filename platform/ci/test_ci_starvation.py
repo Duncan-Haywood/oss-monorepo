@@ -418,6 +418,65 @@ class FromJson(unittest.TestCase):
             self.assertEqual(cs.main(["--from-json", "/nonexistent.json"]), 2)
 
 
+class ManagedPagesBuilder(unittest.TestCase):
+    """GitHub's managed Pages builder is not Actions, and never starves.
+
+    Measured 2026-09-17: a session checking whether runners had come back
+    picked the most recent run from `/actions/runs`, got a `pages build and
+    deployment` run, and this tool answered "All 3 job(s) that ran got a real
+    runner. Any failure here is a real result." on runner ids in the
+    1000088xxx range -- while `Portfolio validate` one minute earlier was
+    `runner_id: 0`. A green from the wrong run is the most expensive wrong
+    answer this tool can give.
+    """
+
+    def pages_job(self, **overrides):
+        return job(workflow_name="pages build and deployment", **overrides)
+
+    def test_detected_from_the_job_payload_alone(self):
+        # Not from the run's `path`: --from-json has no run to fetch, and that
+        # is the one route with no credential of its own.
+        self.assertTrue(cs.is_managed_pages(self.pages_job()))
+        self.assertFalse(cs.is_managed_pages(job(workflow_name="Portfolio validate")))
+        self.assertFalse(cs.is_managed_pages(job()))
+
+    def test_detection_ignores_case_and_padding(self):
+        self.assertTrue(cs.is_managed_pages(job(workflow_name="  Pages Build And Deployment ")))
+
+    def test_render_withholds_a_verdict(self):
+        out = cs.render(cs.report([self.pages_job()]))
+        self.assertIn("NO VERDICT", out)
+        # The sentence that made the original mistake reassuring must be gone.
+        self.assertNotIn("Any failure here is a real result", out)
+
+    def test_exits_two_not_zero(self):
+        # 0 would tell `if ci_starvation.py --run $ID` that runners are fine
+        # in the middle of an outage. 2 is the tool's "no answer" code.
+        with unittest.mock.patch("sys.stdout", io.StringIO()):
+            code = cs.main(["--run", "1"], api=lambda _p: {"jobs": [self.pages_job()]})
+        self.assertEqual(code, 2)
+
+    def test_a_real_workflow_run_is_unaffected(self):
+        with unittest.mock.patch("sys.stdout", io.StringIO()):
+            starved = cs.main(
+                ["--run", "1"],
+                api=lambda _p: {"jobs": [job(workflow_name="Portfolio validate", runner_id=0)]},
+            )
+            ran = cs.main(
+                ["--run", "1"],
+                api=lambda _p: {"jobs": [job(workflow_name="Portfolio validate")]},
+            )
+        self.assertEqual(starved, 1)
+        self.assertEqual(ran, 0)
+
+    def test_a_mixed_payload_still_reaches_the_ordinary_verdict(self):
+        # Only --from-json can stitch two runs together, and there the Actions
+        # jobs are the ones with something to say.
+        rows = cs.report([self.pages_job(), job(workflow_name="Portfolio validate", runner_id=0)])
+        self.assertFalse(cs.all_managed_pages(rows))
+        self.assertIn("never got a runner", cs.render(rows))
+
+
 def argparse_ns(**kwargs):
     return argparse.Namespace(**kwargs)
 
