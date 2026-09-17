@@ -67,7 +67,6 @@ export function calculateCertifiedPayroll(input) {
   const requiredTotalRate = requiredBaseRate + requiredFringeRate;
   const actualTotalRate = actualBaseRate + bonaFideFringePerHour + cashFringePerHour;
   const shortfallPerHour = Math.max(0, requiredTotalRate - actualTotalRate);
-  const compliant = shortfallPerHour === 0;
 
   // Correct: the overtime premium applies to the base cash rate plus any
   // cash-in-lieu-of-fringe, never to a bona fide plan contribution.
@@ -88,6 +87,19 @@ export function calculateCertifiedPayroll(input) {
   const requiredGrossAtPrevailingWage =
     requiredBaseRate * straightHours + requiredBaseRate * 1.5 * overtimeHours + requiredFringeRate * totalHours;
   const underpaymentTotal = Math.max(0, requiredGrossAtPrevailingWage - totalCompensationPaid);
+
+  // `shortfallPerHour === 0` is NOT enough to call a week compliant: it
+  // compares a flat combined rate that treats fringe as fungible with base
+  // pay, but overtime premium is only ever owed on base pay plus cash
+  // fringe (never a bona fide plan contribution). A week can pay a
+  // combined rate that matches the wage determination exactly and still
+  // shortchange the worker once overtime hours are worked, if enough of
+  // the required rate is delivered as bona fide fringe instead of base pay
+  // -- fringe never earns the overtime premium, so shifting pay from base
+  // into fringe silently erases part of the premium a compliant week owes.
+  // `underpaymentTotal` already accounts for hours and the OT premium
+  // correctly, so it is the only reliable compliance signal.
+  const compliant = underpaymentTotal === 0;
 
   const approvedRatioApprentices = optionalNumber(input.approvedRatioApprentices, "Approved ratio (apprentices)", { min: 0 });
   const approvedRatioJourneymen = optionalNumber(input.approvedRatioJourneymen, "Approved ratio (journeymen)", { min: 0 });
