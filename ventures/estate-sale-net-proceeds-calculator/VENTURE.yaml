@@ -1,0 +1,36 @@
+name: estate-sale-net-proceeds-calculator
+description: A private browser calculator for families evaluating estate sale company quotes — enter a company's tiered commission schedule, setup/staging fee, credit-card processing fee, and haul-away fee against an estimated gross sale total to see the real net proceeds, apply an optional minimum guarantee, and compare two companies' quotes side by side against the same sale estimate.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Families comparing estate sale company quotes will use a calculator that applies each company's actual tiered schedule and fees, because a single headline commission percentage hides which quote nets more on their specific estimated sale total.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A side-by-side comparison of two real quotes against the same sale estimate is the differentiating feature that gets a return visit — most families gather 2-3 quotes before hiring, per estate-liquidation industry guidance to shop around.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/EstateSale, r/AgingParents, r/eldercare, and the search phrases "estate sale company commission rates" and "how much do estate sale companies charge" are a reachable, free channel — measurable only once the tool is live in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified estate-sale-hiring families run a real comparison within 90 days of the tool being discoverable.
+  - Users report that real-world estate sale contracts commonly use a fee structure this calculator's tier/fee model cannot represent.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/estate-sale-net-proceeds-calculator/
+  analytics: null
