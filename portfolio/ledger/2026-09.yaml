@@ -32115,3 +32115,40 @@ entries:
         cannot happen from the project-Pages subpath. All three hypotheses
         in `VENTURE.yaml` remain untested.
     mrr_end: 0
+  - venture: skylight-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page ("vs. a flat '$800 a
+        skylight' special"), the angle this calculator's own hypotheses
+        already name: a postcard per-unit rate cannot see whether the job is
+        a tubular sun tunnel into an existing chase or a solar-venting glass
+        unit with a new roof cut-in, tile flashing, a drywall light shaft,
+        and a second-story ladder. `surface-budget.mjs --for
+        skylight-install-bid-calculator` showed room for one (0
+        generic-method, 1 named-product against Jobber already shipped);
+        registered in `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` set
+        (generic method, not a named competitor) and linked from the tool
+        page and the sitemap so it is not an orphan.
+      - >-
+        Checked for overlap first: no open PR and no other branch touches
+        this slug (`all_branches.txt` sweep, `git rev-list --count` against
+        every remote ref).
+      - >-
+        Verified locally rather than by CI, which is starved
+        (`ci_starvation.py` / `infra_state.yaml`, `runner_id: 0` on
+        `publish-pages-branch.yml` runs through 2026-09-17T05:44Z): the
+        venture's own 122 assertions (`calc`, `share`, `usage`, `page`, the
+        guide, both comparison pages); the full 1271-assertion
+        `platform/marketing` + `platform/pages` suite; `surface-budget.mjs
+        --check`; `checklist_coverage.py`; `sync_tree_counts.py` (298
+        mirrored tools / 283 opt-out switches, both already in agreement --
+        this page did not change either count); `regen.mjs` (front-door
+        mirror rebuilt, committed).
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for this product
+        (`live_url_visitors: null`, not zero). All three hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0

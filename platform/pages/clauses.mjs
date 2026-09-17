@@ -273,6 +273,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // generic-method pages above (e.g. attic-insulation-bid-calculator's
   // flat-rate page).
   'boiler-replacement-bid-calculator/vs-a-flat-rate-boiler-special.html',
+  // Compares against "a flat $800-a-skylight special" -- a generic pricing
+  // method every roofer/window crew already has access to, not a company
+  // or product this could be mistaken for. The page's own footer says so
+  // explicitly ("common, honest shortcut"). Same reasoning as the other
+  // generic-method pages above.
+  'skylight-install-bid-calculator/vs-a-flat-rate-per-skylight-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
