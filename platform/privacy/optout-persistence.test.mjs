@@ -276,14 +276,30 @@ const RELATIVE_SELF = relative(
 // so it only ever knew an earlier predecessor's number until this merge --
 // the same ordinary collision shape recorded throughout this list: both
 // branches independently wrote "290" for what the merged tree made 291.
-// 291 -> 292 on 2026-09-17, when `actions-secret-leak-check` graduated with
+// 291 -> 292 on 2026-09-17, when `deploy-concurrency-check` graduated with
 // its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `scan_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count. Verified the way this file's error message
+// prescribes rather than by assuming: exactly one added `usage.mjs`
+// (`ventures/deploy-concurrency-check/usage.mjs`) against `origin/main` and
+// no deletions, so this is a graduation and not a switch that stopped being
+// one. This branch was open before `branch-protection-drift-check` and
+// `helm-values-schema-check` landed, so it only ever knew 290 until this
+// merge -- three graduations in one afternoon, which is exactly the case
+// `sync_tree_counts.py` exists to settle after the merge rather than on any
+// one of the three branches.
+// 292 -> 293 on 2026-09-17, when `actions-secret-leak-check` graduated
+// concurrently with `deploy-concurrency-check` above, with its own
+// `setUsageOptOut`/`usageOptedOut` switch (opts out of the
 // `check_run`/`example_loaded` counters), the same `usage.mjs` shape as its
 // sibling `actions-injection-check`. Verified the way this file's error
 // message prescribes: exactly one added `usage.mjs`
 // (`ventures/actions-secret-leak-check/usage.mjs`) and no deletions, so
-// this is a graduation and not a switch that stopped being one.
-const SWITCHES_IN_THE_CATALOGUE = 292;
+// this is a graduation and not a switch that stopped being one. This
+// branch was open before `deploy-concurrency-check` landed, so it only
+// ever knew 291 until this merge -- both branches independently wrote
+// "292" for what the merged tree made 293.
+const SWITCHES_IN_THE_CATALOGUE = 293;
 
 let counter = 0;
 function fixture(source) {
