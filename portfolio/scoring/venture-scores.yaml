@@ -13514,3 +13514,72 @@ ventures:
       incentive to bias the classification in either direction, and it
       gets strictly more useful to a multi-state caller the more accurately
       they identify both parties' states.
+
+  - slug: subpath-robots-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic URL parsing and a robots.txt grammar defined by RFC 9309.
+      There is nothing to infer: the governing file's location is fixed by the
+      standard at the origin root, and whether a site sits at that root is a
+      property of its URL. The one place judgement enters -- which hosts have
+      a documented ownership model worth naming -- is a hand-maintained table
+      of two entries, not a model.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same shape
+      as pinned-actions-check and required-checks-drift-check, not another
+      <trade>-bid-calculator. duplicate_check.py scored the closest existing
+      venture (security-txt-check, unrelated -- it shares only the vocabulary
+      of "a file at a well-known path") at 0.15 against the final
+      description, well under the 0.45 flag bar. The three crawler/SEO
+      ventures nearest in subject were each read rather than dismissed on
+      score: ai-crawler-access-check asks which AI crawlers a robots.txt
+      allows and assumes that file is the governing one, which is the
+      assumption this venture tests; sitemap-lastmod-freshness-check reads
+      dates inside a sitemap already found, where this is about one never
+      being found; canonical-tag-check is a different mechanism entirely.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the browser page
+      runs the real engine client-side and the CLI runs on the user's own
+      machine, so serving one more user costs a static file and needs no
+      human review of any output.
+      Distribution 7, the highest in this checker family and above
+      required-checks-drift-check's 6: the failure mode is silent, so people
+      do not search for an error message, they search for the symptom
+      ("github pages sitemap not indexed", "robots.txt github pages project
+      site"). Those are recurring, currently-answered-badly questions --
+      several of the top answers tell the asker to edit the file at the
+      subpath, which is the one thing that cannot work -- so there is a real
+      gap rather than a crowded field. Still unmeasured against this
+      portfolio's own traffic, which has never recorded a visitor reading for
+      any product.
+      Time to revenue 6, defensibility 4: donations-only; the rule it applies
+      is one paragraph of a public RFC, so anyone could reimplement it, and
+      defensibility rests on the specific framing and this portfolio's
+      disclaimer/usage conventions rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: a structural, read-only check over a URL and text the
+      user pastes -- no advice-of-record, no compliance claim, no money and no
+      legal exposure downstream of a wrong answer, which costs at most a
+      wasted afternoon. The browser page makes no network call at all; the
+      CLI makes exactly one, only under an explicit `--fetch`, and only to the
+      origin-root robots.txt, a request any stranger could make. The single
+      misreading that could do real harm -- concluding "my site is not
+      indexed" when only enumeration is affected and link-following still
+      works -- is stated in visible prose on both pages and asserted by a
+      test, because acting on it would mean tearing out a working setup.
+      Ethically: donations-only with no per-use fee, so nothing biases the
+      verdict, and the tool tells a site at an origin root that it is fine
+      rather than manufacturing a finding.
