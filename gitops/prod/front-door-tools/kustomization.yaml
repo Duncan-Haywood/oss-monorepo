@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 122 files, 549751 bytes
 #   portfolio-front-tools-12: 128 files, 543819 bytes
 #   portfolio-front-tools-13: 98 files, 554947 bytes
-#   portfolio-front-tools-14: 113 files, 550122 bytes
+#   portfolio-front-tools-14: 114 files, 554269 bytes
 #   portfolio-front-tools-15: 77 files, 367669 bytes
 #   portfolio-front-tools-16: 51 files, 263310 bytes
 #
@@ -1914,6 +1914,7 @@ configMapGenerator:
       - storage-auction-max-bid-calculator__index.html.gz=storage-auction-max-bid-calculator__index.html.gz
       - storage-auction-max-bid-calculator__share.mjs.gz=storage-auction-max-bid-calculator__share.mjs.gz
       - storage-auction-max-bid-calculator__usage.mjs.gz=storage-auction-max-bid-calculator__usage.mjs.gz
+      - storage-auction-max-bid-calculator__vs-storagetreasures.html.gz=storage-auction-max-bid-calculator__vs-storagetreasures.html.gz
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
