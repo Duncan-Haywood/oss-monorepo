@@ -88,6 +88,14 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "law-firm client alerts" -- a genre of publication that
+  // dozens of different firms produce, not one specific company or product
+  // this could be mistaken for. The page's own first paragraph says so
+  // ("names no specific firm or product") and its own test pins that
+  // sentence, precisely so this exemption cannot quietly stop being true:
+  // an author who later added "vs. <Firm> LLP" here would be claiming this
+  // exemption for a page that had become the thing it exempts.
+  'ny-llc-transparency-act-tracker/vs-reading-client-alerts.html',
   // Compares against "eyeballing Settings -> Branches" -- a manual habit
   // every repository admin already has, not a company or product this
   // could be mistaken for.
@@ -119,6 +127,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the cat-adjuster page
   // above.
   '1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html',
+  // Compares against "quoting in a spreadsheet" -- the method essentially
+  // every small job shop already uses, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // footer says so explicitly. Same reasoning as the cat-adjuster page above.
+  'cnc-machining-quote-calculator/vs-quoting-in-a-spreadsheet.html',
   // Compares against "checking pricing pages and doing the arithmetic by
   // hand" -- a generic method every user of the calculator already has
   // access to, not a company or product this could be mistaken for.
@@ -413,6 +426,22 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly ("Names no specific product or company"). Same reasoning as
   // the other vs-spreadsheet / by-hand pages above.
   'twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
+  // Compares against "reading the workflow diff by eye" -- the ordinary code
+  // review habit every GitHub Actions maintainer already has, not a company
+  // or product this could be mistaken for. The page names no specific
+  // reviewer, team, or code-review tool at all.
+  'actions-secret-leak-check/vs-reading-the-workflow-by-eye.html',
+  // Compares against "reading every workflow file by hand" -- the ordinary
+  // manual-tracing habit every maintainer already has when a required check
+  // gets stuck, not a company or product this could be mistaken for. The
+  // page names no specific reviewer, team, or tool at all.
+  'required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html',
+  // Compares against "manually checking nested references" -- clicking
+  // through to a pinned reusable workflow or composite action on GitHub and
+  // reading its own uses: lines by eye, a habit every maintainer already has,
+  // not a company or product this could be mistaken for. The page names no
+  // specific reviewer, team, or tool at all.
+  'actions-transitive-pin-check/vs-manually-checking-nested-references.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

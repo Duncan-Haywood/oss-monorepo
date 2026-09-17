@@ -104,6 +104,20 @@ test("index links one hop to the grant-reporting-tracker sibling", () => {
   assert.match(html, /grant reporting tracker/i);
 });
 
+// siblings.mjs named this as the nearest tool with no inbound link when
+// ny-llc-transparency-act-tracker graduated (both in "Compliance checks &
+// evidence records"), so the reciprocal link closes the crawlable-orphan
+// pair in both directions -- this venture's own page.test.mjs asserts one
+// side, the sibling's asserts the other.
+test("index links one hop to the ny-llc-transparency-act-tracker sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/ny-llc-transparency-act-tracker\/"/,
+    "index must link ../ny-llc-transparency-act-tracker/ so crawlers reach it in one hop",
+  );
+  assert.match(html, /NY LLC Transparency Act tracker/i);
+});
+
 test("the vs-Instrumentl comparison page names what each tool is for, disclaims affiliation, and carries the standard disclaimer", () => {
   assert.match(instrumentlSeo, /<title>This tracker vs\. Instrumentl/);
   assert.match(instrumentlSeo, /name="description"/);

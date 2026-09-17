@@ -6591,3 +6591,56 @@ products:
           are the four the whole catalogue shares. A visitor who quotes once
           and never saves got an answer; one who saves is treating it as a
           tool.
+  - slug: 1099-vendor-tracker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Baseline at graduation. A browser-local 1099-NEC vendor tracker
+          flagging which vendors cross the 2026 $2,000 OBBBA reporting
+          threshold (up from $600), applying the corporation exemption and
+          its attorney-fee exception, and tracking missing W-9s before the
+          January 31 deadline. `live_url_visitors` is null, not zero --
+          nobody has measured yet. Named channel to watch: the existing paid
+          1099/W-9-tracking tool category (Track1099, Tax1099, TaxBandits,
+          Zoho Books) is evidence of real search volume for this task, and
+          the OBBBA threshold change is a fresh, timely search driver ahead
+          of the January 2027 filing season, the first under the new figure.
+  - slug: ny-llc-transparency-act-tracker
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          category_checked: 0
+          owner_added: 0
+          organizer_downloaded: 0
+          csv_downloaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. A browser-local eligibility check,
+          deadline counter, and beneficial-owner worksheet for New York's
+          LLC Transparency Act: from four answers it reports a likely
+          filing category (Reporting Company / Exempt Company / outside
+          scope) per NYDOS's scope guidance confirmed 2025-12-31, computes
+          the applicable initial deadline (2026-12-31 for a pre-2026 NY
+          nexus, 30 days from formation/registration for a 2026-or-later
+          one), and organizes beneficial-owner details into a downloadable
+          draft the filer emails to NYDOS themselves. `live_url_visitors`
+          is null, not zero -- see the standing note on this route
+          elsewhere in this file; nobody has measured yet, and a null is
+          never evidence a product is unwanted. Named channel to watch:
+          organic search for "NY LLC Transparency Act deadline" and "do I
+          need to file NYLLCTA", driven by the wave of 2026 law-firm
+          client alerts that followed NYDOS's 2025-12-31 scope narrowing.
+          `category_checked` is the signal worth watching first -- it is
+          the one act every visitor with a real LLC can complete in under
+          a minute regardless of which category they land in; `owner_added`
+          and `organizer_downloaded` only fire for the narrower Reporting
+          Company slice and are the stronger signal of an actual filer
+          preparing a real submission. The 2026-12-31 initial deadline
+          makes this venture's kill_criteria window shorter than most --
+          see VENTURE.yaml.

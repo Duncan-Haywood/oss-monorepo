@@ -1,0 +1,131 @@
+name: ny-llc-transparency-act-tracker
+description: 'Free browser tool for New York LLCs that checks whether the LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under New York''s LLC Transparency Act based on where it was formed and whether it does business in New York, computes the applicable initial filing deadline (December 31, 2026 for pre-2026 entities, 30 days from formation/registration for 2026-and-later entities), and organizes beneficial-owner name/address/date-of-birth/ID details into a downloadable draft the filer reviews and files themselves by emailing NYDOS. Reference tool and organizer only, never a legal determination or a filed submission -- entirely client-side, nothing uploaded.'
+stage: prototype
+
+owner: duncan
+
+# Screened this session per pipeline/README.md's process rather than picked
+# from candidates.yaml, which carries zero unbuilt build-now verdicts
+# (session_gate.py, run 2026-09-17). DIRECTION.md's own north star was
+# already current and the 8 spot-checked existing ventures' browser checks
+# (sideways/presets/roundtrip/highlight/contrast/optout/sweep/journey) all
+# passed clean, so per DIRECTION.md's "raise the bar, not just the count"
+# and the fleet-parity-trap section's own ranking, this session built a
+# genuinely new niche with a named, current channel rather than a 321st
+# instance of an already-saturated shape.
+#
+# Deliberately NOT another <trade>-bid-calculator (141+ existing) or
+# -check/-checker (52+ existing) instance -- this is a multi-field
+# eligibility questionnaire + deadline calculator + PII-bearing worksheet,
+# closest in shape within this fleet to grant-deadline-tracker (deadline
+# tracking + comparison) and consent-change-record/cra-evidence-desk
+# (evidence/organizer posture for a real compliance deadline), applied to a
+# NY-state filing obligation no existing venture touches at all.
+#
+# duplicate_check.py (run 2026-09-17) scored every venture, screened-out
+# row, ai-first-markets idea, and pipeline candidate at or below 0.08
+# against the final description -- nowhere near the 0.45 bar. Closest:
+# security-txt-check (0.08, pure lexical noise on "check"),
+# ifta-quarterly-fuel-tax-calculator (0.04, an unrelated tax-filing
+# calculator sharing only "quarterly"/"filing" vocabulary). A hand grep of
+# every VENTURE.yaml and screened-out.md for "beneficial ownership",
+# "transparency act", "boi", and "fincen" turned up nothing. Not the
+# federal Corporate Transparency Act (no venture here touches that either,
+# and this tool's own guide page explicitly distinguishes the two so a
+# reader does not conflate them).
+#
+# Distribution channel, named and dated rather than assumed: New York's
+# LLC Transparency Act (S8059, signed 2024-03-01) took effect 2026-01-01,
+# and NYDOS narrowed its reporting scope to foreign-formed LLCs only in
+# guidance confirmed 2025-12-31 -- both changes inside the last nine
+# months, which is exactly the "a rule changed and nobody has shipped the
+# boring tool for it yet" pattern PRODUCT_PLAYBOOK.md section 1 names as
+# the strongest niche signal. That scope narrowing produced a genuine wave
+# of 2026 law-firm client alerts (Sidley, Holland & Knight, Katten,
+# Crowell & Moring, Seyfarth, Baker McKenzie, Venable, McDermott, among
+# others -- verified via web search this session, not assumed) confirming
+# real, current search demand ("NY LLC Transparency Act deadline", "do I
+# need to file NY LLC transparency act", "NYDOS beneficial ownership
+# disclosure how to file"), and the initial deadline (2026-12-31, ~3.5
+# months from this venture's graduation date) makes it acutely time-bound
+# rather than evergreen-someday. NYDOS itself has not yet launched an
+# online filing portal -- filings go by email to doscorpboi@dos.ny.gov per
+# Cogency Global's 2026 client alert -- so there is no government wizard
+# this tool competes with or duplicates; it prepares what a filer needs
+# before that email.
+#
+# Liability is the dimension this write-up spent the most care on, for two
+# compounding reasons this portfolio's other compliance tools don't both
+# have at once: (1) a wrong reporting/exempt classification could lead a
+# filer to skip an obligation that carries a real penalty, and (2) unlike
+# a stateless lookup (call-recording-consent-check's state table), this
+# tool's worksheet handles the beneficial owner's own PII -- name,
+# address, date of birth, government ID number. Both are mitigated by
+# design, not by confidence:
+#   - The classifier is framed as "likely" throughout, every result
+#     carries "not a determination of your actual filing status, confirm
+#     with NYDOS or your attorney" inline (not just in a footer), and the
+#     rule it applies is the exact narrowed scope NYDOS itself confirmed,
+#     cited with the date, rather than the broader original statute text
+#     a filer might find via an out-of-date search result.
+#   - The worksheet ships with NO share.mjs / copy-link feature at all --
+#     the one deliberate omission from this fleet's usual calculator
+#     pattern -- because encoding a beneficial owner's name, address, DOB,
+#     and ID number into a URL hash would put it in browser history and
+#     any referrer/preview a shared link passes through. page.test.mjs
+#     pins this absence.
+#   - The worksheet is NOT persisted to localStorage by default. Every
+#     other calculator in this fleet auto-saves a draft; this one holds
+#     the worksheet only in page memory and requires an explicit,
+#     separately-labelled opt-in ("keep this in my browser") before
+#     writing PII to local storage at all -- a stricter default than this
+#     portfolio's own baseline privacy posture, deliberately, because the
+#     data here is a different category from a bid amount or a takeoff.
+#   - The tool never contacts New York State and never claims to file
+#     anything -- it produces a downloadable draft the filer reviews and
+#     emails themselves, the same "evidence and drafting, filer remains
+#     the filer" positioning PRODUCT_PLAYBOOK.md section 5b requires
+#     fleet-wide, made explicit on every page and pinned by
+#     page.test.mjs's "never claims to file anything on the user's
+#     behalf" test.
+#   - Every citable fact (bill number and signing date, effective date,
+#     the 2025-12-31 scope-narrowing guidance, the two-track deadline, the
+#     recurring annual statement, the interim email-filing address) was
+#     verified against 2026 primary/law-firm sources via web search this
+#     session rather than reasoned from training data alone, and nothing
+#     is asserted that those sources did not state. No specific exemption
+#     category name or LLCL section number is invented anywhere on the
+#     page precisely because it could not be verified from what this
+#     session found.
+hypotheses:
+  - claim: A New York LLC owner or bookkeeper who searches a variant of "NY LLC Transparency Act deadline" or "do I need to file NYLLCTA" in the months before the 2026-12-31 initial deadline will use the category/deadline check at least once to get both answers in one place, instead of piecing them together from several law-firm client alerts.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A filer who lands in the Reporting Company category will use the beneficial-owner worksheet and its downloadable organizer to assemble what NYDOS's email-filing process needs before writing that email themselves, rather than building their own tracking document from scratch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: every check and every worksheet row is
+  # evaluated and rendered entirely in the browser from a fixed rule set
+  # shipped with the page. Nothing is uploaded, nothing is fetched, no
+  # server-side storage of any kind. Serving one more user costs a static
+  # file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of the 2026-12-31 initial deadline passing.
+  - A user reports relying on this tool's category classification for an actual filing decision without independently confirming it with NYDOS or an attorney, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ny-llc-transparency-act-tracker/
+  analytics: null

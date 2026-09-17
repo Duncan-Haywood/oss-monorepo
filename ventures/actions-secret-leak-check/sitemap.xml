@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./why-github-actions-secret-masking-fails.html</loc></url>
+  <url><loc>./vs-reading-the-workflow-by-eye.html</loc></url>
 </urlset>

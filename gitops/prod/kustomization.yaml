@@ -259,6 +259,7 @@ configMapGenerator:
       - vs__spreadsheet.html.gz=front-door/vs__spreadsheet.html.gz
       - vs__honeybook.html.gz=front-door/vs__honeybook.html.gz
       - vs__flat-rate-per-square-foot.html.gz=front-door/vs__flat-rate-per-square-foot.html.gz
+      - vs__gitleaks.html.gz=front-door/vs__gitleaks.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

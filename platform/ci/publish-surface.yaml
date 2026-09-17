@@ -8,6 +8,9 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
+- workflow: 1099-vendor-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: 1099k-reconciliation-worksheet-ci.yml
   classification: none
   publishes: []
@@ -350,6 +353,9 @@ workflows:
 - workflow: docker-base-image-pin-check-ci.yml
   classification: none
   publishes: []
+- workflow: docker-build-secrets-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: dog-boarding-daycare-pricing-ci.yml
   classification: none
   publishes: []
@@ -669,6 +675,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: npm-reachability-triage-ci.yml
+  classification: none
+  publishes: []
+- workflow: ny-llc-transparency-act-tracker-ci.yml
   classification: none
   publishes: []
 - workflow: obsidian-plugin-review-check-ci.yml

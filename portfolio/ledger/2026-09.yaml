@@ -33964,3 +33964,473 @@ entries:
         asking rather than by trusting the file: the egress proxy answers
         `CONNECT tunnel failed, response 403` for both `api.indexnow.org` and
         `www.bing.com/indexnow`. It needs a runner or the Hetzner box.
+  - venture: 1099-vendor-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Researched and graduated a fresh niche rather than reusing the
+        pipeline queue (which is empty). Rejected two adjacent ideas first
+        for failing DIRECTION.md's channel-evidence bar despite clearing
+        duplicate_check.py: an "economic nexus sales-tax threshold checker"
+        and a "state privacy law applicability checker" each turned up five
+        or more existing free competitor calculators with no distinguishing
+        channel found via WebSearch -- the "searchable, like everything
+        else" trap the pipeline README explicitly warns against. Found the
+        graduated niche by following PRODUCT_PLAYBOOK.md 1's own
+        instruction ("a rule changed and nobody has shipped the boring tool
+        for it yet"): the One Big Beautiful Bill Act raised the Form
+        1099-NEC/1099-MISC nonemployee-compensation reporting threshold from
+        $600 to $2,000 for payments made on or after 2026-01-01 -- the first
+        change since 1954, corroborated independently across Patriot
+        Software, Avalara, Withum, Jackson Hewitt, Landmark CPAs and the
+        IRS's own instructions-page title (irs.gov itself is egress-blocked
+        from this environment) -- with the first filing season under the
+        new figure landing January 2027, four months out from this session.
+        Distribution evidence: an established paid-tool category (Track1099,
+        Tax1099, TaxBandits, Zoho Books) already exists for this exact task,
+        which is the "competitor's own comparison-search traffic" evidence
+        DIRECTION.md's North star point 2 names as acceptable.
+      - >-
+        Shipped `ventures/1099-vendor-tracker` (#TBD): a browser-local
+        tracker (localStorage, no account, no network) flagging which
+        vendors cross the year-appropriate $600/$2,000 threshold, applying
+        the corporation exemption and its always-reportable attorney-fee
+        exception, and tracking missing W-9s before the January 31 deadline
+        (rolled to the next business day on a weekend, verified against
+        2027-01-31 landing on a Sunday whose real cutoff is 2027-02-01).
+        Deliberately declines to compute two related categories -- gross
+        proceeds paid to an attorney (1099-MISC box 10, its own $600
+        threshold OBBBA did not move) and medical/health-care payments --
+        flagging them "Check separately" rather than printing a number this
+        build could not verify to the same standard from this environment;
+        this is the tracker archetype (localStorage review queue), not the
+        141-deep bid-calculator or 60-plus-deep dev-checker shape the
+        pipeline README already flags as saturated with zero measured
+        traffic. Cross-linked with the venture's nearest real sibling,
+        `1099k-reconciliation-worksheet` (1099-K reconciliation, the other
+        half of the same filing season), in both directions, closing the
+        orphan `siblings.test.mjs` flagged. Disclaimer (no legal/tax advice,
+        no IRS TIN match, no filing), privacy line, opt-in local usage
+        counting honouring DNT/GPC, GitHub Sponsors link, LICENSE, sitemap,
+        robots.txt, and JSON-LD (SoftwareApplication + FAQPage, byte-matched
+        to the visible copy) all in place from the first commit.
+      - >-
+        Graduated in `portfolio/pipeline/candidates.yaml` and
+        `candidates/1099-vendor-tracker.md` (composite 6.375, floor 1 on
+        ai_leverage, both liability_containment and ethical_robustness
+        comfortably above the gate at 6 and 8) and README.md's ranked table,
+        inserted at its correct composite-sorted position (row 41) with
+        every row after it renumbered rather than appended out of order.
+        Scored again in `portfolio/scoring/venture-scores.yaml` on the
+        six ai-first-markets-comparable dimensions (composite 6.167).
+      - >-
+        Verified before pushing: the venture's own suite (30/30, including a
+        JSON-LD-must-match-visible-copy regression this session hit and
+        fixed on the first pass), `check_no_payment_code.py`, `clauses.mjs`
+        (fleet-wide), `checklist_coverage.py`, full `platform/marketing` +
+        `platform/pages` suites (1272/1272 after fixing the launched.json
+        gap, the siblings-budget orphan, and the FAQPage dash mismatch this
+        venture introduced), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (142/142), `gitops/tests`
+        (583 passed, 25 skipped, after `sync_tree_counts.py` and
+        `gitops/ci/sync_readme_counts.py` repaired the 312->313 and
+        406->407 drift this venture's addition caused), all 27
+        `platform/ci` unittest modules individually (`publish_surface.py
+        --write` needed after adding the venture's CI workflow),
+        `platform/ci/agent_review` (21/21),
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (443 passed after the score-row fix), `router/validate.py` (321
+        valid), `score_ventures.py --check` (321 scored, consistent),
+        `usage/validate_usage.py` (269 products, 455 readings),
+        `guard_state.py --require-runnable` (only the GitHub-hosted-runner-only
+        front-door-serving guard unrun, correctly classified ENVIRONMENTAL),
+        and a `--only 1099-vendor-tracker` Playwright/axe browser pass
+        (contrast, sweep, roundtrip, optout, journey all ok; highlight
+        skipped as inapplicable) via `npm install --no-save
+        playwright@1.56.0 axe-core`. `run_workflow_locally.py --for-changes`
+        run against the full diff; see the PR for its result.
+  - venture: ny-llc-transparency-act-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture rather than a parity feature: the
+        open-PR queue was drained (0 open) and `session_gate.py` read PROCEED
+        with `deployed: served`/`gh-pages snapshot: current`, so per
+        DIRECTION.md's fast-scan order the next candidates were "a real
+        usage signal to build on" (none exists anywhere -- `usage_state.py`
+        confirms every `live_url_visitors` reading is still `null`, never
+        measured, not measured-as-zero) or "screen and graduate a new
+        venture." An 8-venture spot-check of already-shipped tools
+        (pressure-washing-bid-calculator, gutter-cleaning-bid-calculator,
+        septic-pumping-bid-calculator, well-pump-bid-calculator,
+        chimney-sweep-bid-calculator, epoxy-garage-floor-bid-calculator,
+        wash-and-fold-price-calculator, parking-lot-striping-bid-calculator)
+        found all 8 browser checks clean (sideways/presets/roundtrip/
+        highlight/contrast/optout/sweep/journey), so there was no live defect
+        to fix instead.
+      - >-
+        The niche: New York's LLC Transparency Act (S8059, signed
+        2024-03-01) took effect 2026-01-01, and NYDOS narrowed its
+        reporting scope to foreign-formed LLCs only in guidance confirmed
+        2025-12-31 -- both inside the last nine months, and NYDOS still has
+        no online filing portal (email-only, to doscorpboi@dos.ny.gov, per
+        Cogency Global's 2026 alert). Verified via web search this session
+        rather than assumed: a wave of 2026 law-firm client alerts (Sidley,
+        Holland & Knight, Katten, Crowell & Moring, Seyfarth, Baker
+        McKenzie, Venable, McDermott) followed the scope change, and the
+        initial deadline (2026-12-31) is ~3.5 months out at graduation --
+        an acutely time-bound niche, not an evergreen-someday one.
+        `duplicate_check.py` scored every venture, screened-out row,
+        ai-first-markets idea, and pipeline candidate at or below 0.08
+        against the final description; a hand grep for "beneficial
+        ownership", "transparency act", "boi", and "fincen" across every
+        `VENTURE.yaml` and `screened-out.md` found nothing.
+      - >-
+        The product: from four answers (formed in NY? authorized to do
+        business in NY? formed outside the US? and the nexus date) it
+        reports a likely filing category -- Reporting Company, Exempt
+        Company, or outside the Act's scope -- per NYDOS's confirmed scope,
+        computes the applicable initial deadline (2026-12-31 for a pre-2026
+        NY nexus, 30 days from formation/registration for a 2026-or-later
+        one) with a live day-count, and organizes beneficial-owner details
+        (name, address, DOB, ID type/number/jurisdiction) into a
+        downloadable .txt organizer and .csv the filer reviews and emails
+        to NYDOS themselves. It never contacts New York State and never
+        claims to file anything -- pinned by
+        `page.test.mjs`'s "never claims to file anything on the user's
+        behalf" test.
+      - >-
+        Liability got the most deliberate care of any venture this session
+        has seen: every classification is framed as "likely" with an
+        inline not-a-determination caveat; the worksheet ships with NO
+        share.mjs / copy-link feature at all -- the one deliberate omission
+        from this fleet's usual calculator pattern, because encoding a
+        beneficial owner's name/address/DOB/ID number into a URL hash would
+        put it in browser history and any link preview -- pinned by
+        `page.test.mjs`'s "never put into a shareable URL" test; and the
+        worksheet is held only in page memory by default, needing a
+        separate, explicit opt-in ("keep this in my browser") before
+        anything PII-bearing is written to localStorage at all, stricter
+        than this portfolio's own baseline. Scored `liability_containment:
+        pass` at the gate (5) rather than comfortably above it, matching
+        the precedent `call-recording-consent-check` set for a real
+        (if lower-than-legal-advice) worst case; `ethical_robustness: pass`
+        (donations-only, no incentive to bias the classification either
+        way). Full reasoning in this venture's own `VENTURE.yaml` comment
+        and its `venture-scores.yaml` row.
+      - >-
+        Wired into the catalogue rather than dropped beside it. Filed under
+        `evidence` ("Compliance checks & evidence records") automatically --
+        the `-tracker` slug suffix already matches that category's rule, so
+        no `build.mjs` edit was needed. `siblings.mjs` named
+        `grant-deadline-tracker` as the nearest un-linked tool; closed the
+        crawlable-orphan pair in both directions with a footer sentence and
+        a reciprocal assertion in each venture's own `page.test.mjs`. Ships
+        a secondary guide page
+        (`when-is-the-ny-llc-transparency-act-deadline.html`) whose
+        FAQPage JSON-LD was fixed to match its visible copy verbatim after
+        `faq-visible.test.mjs` caught three word-for-word drifts (an
+        em-dash vs. a comma, a missing sentence, a parenthetical vs. a
+        semicolon) -- the same class of defect this portfolio's own
+        history already records costing a clean run elsewhere.
+      - >-
+        Registered in `venture-scores.yaml` (composite 6.0, floor 1 on
+        ai_leverage, both gates pass), `usage.yaml` (baseline reading,
+        `live_url_visitors: null` -- never measured, not zero),
+        `platform/ci/publish-surface.yaml` (`--write`), and
+        `platform/pages/launched.json` (`--write`, so it enters `/feed.xml`).
+      - >-
+        Concurrency, handled rather than avoided: this fleet merged three
+        more PRs to `main` while this session worked
+        (actions-transitive-pin-check, cnc-machining-quote-calculator's
+        comparison page, and `twitch-payout-calculator` -- a new venture
+        graduated concurrently). Merged `origin/main` three times,
+        resolving every generated-file conflict by taking `main`'s copy and
+        re-running `regen.mjs`, and manually merging both sides' own
+        running-comment history (rather than picking one) in
+        `gitops/tests/test_manifests.py` and
+        `platform/privacy/optout-persistence.test.mjs` where the mirrored-
+        tool and opt-out-switch counts collided with `twitch-payout-
+        calculator`'s own concurrent graduation -- verified the final
+        numbers (313 tools, 297 switches) against `sync_tree_counts.py`'s
+        own fresh measurement rather than hand-summing either side's guess,
+        exactly as CLAUDE.md's own account of this exact collision shape
+        prescribes.
+      - >-
+        Verified locally throughout, Actions confirmed starved rather than
+        assumed (`ci_starvation.py --run 35244637154`: `runner_id: 0`, 3s,
+        no steps, exit 1). This venture's own suite 36/36; the sibling's
+        (grant-deadline-tracker) 47/47 after the reciprocal link; full
+        `platform/pages` + `platform/marketing` suites 1010/1010 and
+        262/262 after `regen.mjs`; `gitops/tests` 607 passed/1 skipped
+        (environmental) after `apt-get update && apt-get install
+        nginx-light openssh-client`; all `platform/ci` unittest modules
+        (1003/1004 via `discover`, the one `ModuleNotFoundError` being the
+        documented `agent_review` working-directory trap -- confirmed
+        21/21 OK run from its own directory); `portfolio/ledger` +
+        `scoring` + `router` + `usage` + `pipeline` + `infra/tests`
+        (446 passed). Validators: `router/validate.py` (320 valid),
+        `score_ventures.py --check` (321 scored, consistent),
+        `checklist_coverage.py`, `siblings.mjs` (0 of 313 orphaned),
+        `clauses.mjs` (1141 pages), `guide-coverage.mjs` (313/313),
+        `faq-coverage.mjs` (313/313), `surface-budget.mjs --check`,
+        `usage/validate_usage.py`, `check_no_payment_code.py`, and
+        `check_ledger_only.py`/`check_direction_only.py` all clean. Browser
+        checks (`PLAYWRIGHT=$(npm root -g)/playwright/index.js
+        platform/ci/browser_checks.py --only
+        ny-llc-transparency-act-tracker,grant-deadline-tracker`): 7 of 8
+        passed (sideways/presets/roundtrip/contrast/optout/sweep/journey),
+        `highlight` legitimately skipped -- neither venture claims that
+        promise sentence.
+      - >-
+        Deployment: after merge, refreshed the `gh-pages` snapshot per
+        CLAUDE.md's standing job and recorded the reading with
+        `pages_state.py --record` -- see the PR/commit for the run id, or a
+        later entry if this one records "not yet done."
+  - venture: docker-build-secrets-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Deploy/marketing pipeline health checked first, per this session's
+        brief: `pages_state.py` snapshot was current, `surface-budget.mjs
+        --check` clean, `browser_state.py` showed all 8 checks stale only
+        from routine builder-data-row churn (new venture graduations, not a
+        rendering-logic change) rather than a real defect. `indexnow_state.py`
+        reported `never` (all runs starved); confirmed directly with `curl`
+        that the sandbox egress proxy still 403s `api.indexnow.org` and
+        `www.bing.com` rather than assuming the old finding still held. No
+        broken live surface found, so per `session_gate.py` (PROCEED,
+        build-now pipeline empty) screened and graduated a new venture in
+        the CLI/browser-checker shape `portfolio/pipeline/README.md`
+        recommends over another `<trade>-bid-calculator`.
+      - >-
+        Graduated `docker-build-secrets-check`: a free, read-only checker
+        (zero-dependency Python CLI + browser port) for Dockerfile
+        build-time secret exposure -- an `ENV`/`ARG` instruction whose name
+        looks like a secret (an `ENV` is always flagged, since its value is
+        unconditionally baked into the image config per Docker's own "Build
+        secrets" documentation; a literal `ARG` default is flagged as
+        committed to the Dockerfile; a bare `ARG` declaration is
+        advisory-only), and `COPY`/`ADD` of a well-known credential file
+        (`.env`, `id_rsa`, `.npmrc`, `.aws/credentials`, ...). Every finding
+        carries the exact `RUN --mount=type=secret` remediation.
+        `duplicate_check.py` scored the closest existing venture
+        (`helm-values-schema-check`) at 0.11 against the final description,
+        well under the 0.45 flag bar; not a duplicate of
+        `docker-base-image-pin-check` (same file, a different question --
+        `FROM` tag/digest, not `ENV`/`ARG`/`COPY` secret exposure),
+        `actions-secret-leak-check` (GitHub Actions YAML), or
+        `terraform-plan-secret-exposure-check` (Terraform plan JSON).
+      - >-
+        Shipped: `check.py` (51 unit tests), `classify.mjs` (browser port
+        kept in lock-step, including a CLI-parity test), a working
+        `index.html` (not a landing page), a how-to guide, and
+        `vs-gitleaks.html` (a named comparison distinguishing this
+        Dockerfile-instruction-aware checker from a general regex/entropy
+        secret scanner that has no idea an `ENV` always bakes its value in
+        regardless of shape). Opt-in, local-only usage counters (DNT/GPC
+        honoured); PRODUCT_PLAYBOOK.md 5b disclaimers on every page.
+        Cross-linked `docker-base-image-pin-check` (reciprocal edit),
+        `terraform-plan-secret-exposure-check`, and
+        `actions-secret-leak-check` so neither side of the new pair shipped
+        as a crawlable orphan (`siblings-budget.json` orphan budget is 0).
+      - >-
+        Verified locally throughout (Actions starved this session). The
+        venture's own suites: 51 Python unit tests, 45 `node --test`
+        assertions across `classify.test.mjs` (incl. CLI parity) and
+        `page.test.mjs`; the edited `docker-base-image-pin-check` suite 45
+        assertions. Full `platform/pages` + `platform/marketing` suites
+        1010/1010 and 262/262 after `regen.mjs` (re-run twice: main moved
+        under this branch three times mid-session, each time via
+        `git fetch origin main && git reset --hard origin/main`, reapplying
+        the saved substantive diffs, and regenerating fresh rather than
+        hand-resolving a binary-shard merge conflict). `platform/proposal`
+        101/101, `platform/privacy` + `platform/webcheck` clean after the
+        count sync below. All 1003 `platform/ci` unittest assertions (27
+        modules) and the 21 `agent_review` ones green -- including adding
+        `.github/workflows/docker-build-secrets-check-ci.yml` and running
+        `publish_surface.py --write`, both required by
+        `test_validate_workflows.py`'s venture-test-coverage guard.
+        `portfolio/scoring` + `router` + `ledger` + `usage` + `pipeline` +
+        `infra/tests` 446 passed, after adding a merit-score row to
+        `venture-scores.yaml` (composite 6.0, same dimensions as
+        `docker-base-image-pin-check`). `gitops/tests` 607 passed/1 skipped
+        after `apt-get update && apt-get install nginx-light
+        openssh-client`. `run_workflow_locally.py --for-changes` clean
+        aside from environment-only gaps (no pip/PyPI egress for the
+        install step, no `refs/ci/base-main` ref in this sandbox).
+      - >-
+        Two derived counts this venture's addition moves --
+        mirrored-tool total and `SWITCHES_IN_THE_CATALOGUE` -- were left
+        red on the branch and fixed forward with `sync_tree_counts.py`
+        immediately after merging main (#4990), exactly as CLAUDE.md
+        prescribes, rather than hand-edited pre-merge where the number is
+        unknowable against a moving base. Also added the running-comment
+        entries in `test_manifests.py` and
+        `optout-persistence.test.mjs` naming this venture as the
+        graduation that moved each count.
+      - >-
+        Deployment: after merge, refreshed the `gh-pages` snapshot
+        (`pages_state.py --require-current` was stale; ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`,
+        confirmed current, recorded with `pages_state.py --record`, #4992).
+        IndexNow submission attempted from the publish script and did not
+        reach the API, consistent with the confirmed-still-blocked egress
+        noted above -- not fatal, the site was already published.
+      - >-
+        Merged as three PRs rather than one, because main advanced multiple
+        times per hour throughout this session (four other ventures
+        graduated concurrently): #4987 (the venture itself, after two
+        rounds of reset/reapply/regen against a moving base), #4990
+        (`sync_tree_counts.py`'s post-merge count fix), #4992 (the Pages
+        publish record). All three squash-merged directly, no human review,
+        per CLAUDE.md's "Ship without review ceremony."
+  - venture: wedding-florist-proposal-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Marketing/discoverability session, per the owner's standing priority
+        to build and deploy comparison/FAQ/guide surfaces for already-shipped
+        products rather than new product features. Surveyed ventures with
+        `platform/pages/surface-budget.mjs` for one fully shipped (tests, real
+        index.html, disclaimers, a `launched.json` entry) but thin on
+        marketing surfaces: `wedding-florist-proposal-calculator` had one
+        generic-method comparison page already at its budget and zero guide
+        pages, zero named-product comparisons. Checked open PRs (only #4998,
+        unrelated, a separate agent's `1099-vendor-tracker` work) and
+        `git log` on the venture (untouched since its single 2026-09
+        graduation commit) before writing anything.
+      - >-
+        Added `how-many-wholesale-bunches-do-you-need-for-a-wedding.html`, a
+        substantive guide page answering a real, distinct search question the
+        existing vs-page does not cover: how the calculator's two-step
+        rounding (shrink allowance added to the stem count before, not after,
+        the bunch rounding) plays out across a full five-line recipe, and what
+        to do with the leftover stems. Every worked figure in the page (the
+        per-line shrink-adjusted count, bunches ordered, stems purchased and
+        leftover, plus the recipe totals) is asserted against `calc.mjs`'s own
+        output in a new `content-pages.test.mjs` test, so the numbers cannot
+        drift silently -- the same pattern the venture's existing comparison
+        page already uses. FAQPage JSON-LD with matching visible text,
+        no-warranty and privacy disclaimers, canonical link, and a link back
+        to the calculator match the venture's existing conventions.
+        Cross-linked from `index.html` and added to `sitemap.xml`. Ran
+        `platform/marketing/regen.mjs` and committed what it rewrote (front-
+        door mirror shard, kustomization list, catalog, sitemap).
+      - >-
+        Verified locally (Actions is starved -- `ci_starvation.py` shows
+        `runner_id: 0` on recent runs): `checklist_coverage.py` clean; the
+        venture's own suite 71/71; `platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1271/1272, with the one failure
+        (`faq-visible.test.mjs`, naming `actions-secret-leak-check` and
+        `required-checks-drift-check`) confirmed pre-existing on `main` via
+        `git diff --stat origin/main` on both ventures (no diff) -- neither
+        touched by this branch, so out of scope here and left for a separate
+        fix; `platform/proposal` 101/101; `platform/privacy` +
+        `platform/webcheck` 142/142; `gitops/tests` 607 passed / 1 skipped
+        (environmental); all 15 `platform/ci` unittest modules pass;
+        `guard_state.py --require-runnable` exits 0 with no fixable skips.
+        Shipped as #5001, self-merged per CLAUDE.md's "Ship without review
+        ceremony" once local verification was clean.
+  - venture: actions-transitive-pin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First attempt this session collided with a concurrent one: picked
+        `cnc-machining-quote-calculator` (via `surface-budget.mjs --check`,
+        which showed it as the only `*-bid-calculator`/`*-calculator`
+        venture with zero comparison pages) and opened PR #4991, only to find
+        on push that #4984 had merged the same page for the same venture 20
+        minutes earlier from a concurrent session, reading the same signal.
+        `supersede_check.py 4991` correctly reported NOT SUPERSEDED (my
+        file/wording did not literally exist on `main`), but merging both
+        would have pushed the venture's generic-method budget from 1 to 2 and
+        failed `surface-budget.mjs --check` -- the exact overtime-pay-
+        calculator collision shape CLAUDE.md's "Duplicate PRs" section
+        describes. Closed #4991 unmerged with a comment naming #4984 as
+        the stronger, already-merged survivor (it pins every figure to
+        `calculator.mjs` directly and has a real Playwright/axe pass; mine
+        used illustrative prose and no browser verification), reset the
+        branch to `origin/main`, and picked a venture outside the
+        `*-calculator`/`*-check` families most other concurrent sessions
+        were visibly farming that hour (8 comparison-page merges landed to
+        `main` in under 30 minutes during this run).
+      - >-
+        Searched more precisely the second time: rather than
+        `surface-budget.mjs`'s generic-method-budget count (which only
+        tracks pages already in `clauses.mjs`'s exemption list, and is what
+        every session scanning for "room" reads first), scanned every
+        venture's actual `vs-*.html` file count directly. Only 2 of 314
+        published surfaces had zero comparison pages of *any* kind, named or
+        generic: `ny-llc-transparency-act-tracker` (graduated minutes
+        earlier in this same burst, high collision risk) and
+        `actions-transitive-pin-check` (shipped 2026-09-17 via #4959, guide
+        page added by #4979, older and less likely to be independently
+        re-picked). Chose the latter.
+      - >-
+        Shipped `ventures/actions-transitive-pin-check/vs-manually-checking-
+        nested-references.html`: a generic-method comparison (no competitor
+        named) against clicking through to each pinned reusable-workflow or
+        composite-action reference on GitHub and reading its own `uses:`
+        lines by eye -- the manual method this tool's own FAQ already
+        contrasts itself against. Registered in `sitemap.xml`, linked from
+        `index.html`, and added to `clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT`. `surface-budget.mjs --for` now
+        reports exactly 1 generic-method page, at budget. Extended the
+        venture's `page.test.mjs` with 9 new assertions (link-back,
+        no-warranty clause, meta tags, no network access, FAQPage JSON-LD
+        matching visible copy via `entities.mjs`'s decoder).
+      - >-
+        While verifying, found `main` red on `faq-visible.test.mjs`
+        (1271/1272) -- unrelated to this venture, introduced by two other
+        concurrent sessions' merges minutes earlier
+        (`actions-secret-leak-check/vs-reading-the-workflow-by-eye.html` and
+        `required-checks-drift-check/vs-reading-every-workflow-file-by-
+        hand.html`, both shipping a `FAQPage` JSON-LD whose answer text
+        diverged from the visible paragraph -- a missing parenthetical in
+        one case, a literal `--` in JSON-LD against a rendered `&mdash;` in
+        three others). In scope as a genuine, already-shipped-product defect
+        (CLAUDE.md's improve-existing-products preference 1) rather than
+        scope creep: fixed both files in the same commit -- added the
+        missing detail to the visible copy where JSON-LD had it and the page
+        didn't, and switched the JSON-LD's plain `--`/`->` to the real
+        `—`/`→` characters the rendered `&mdash;`/`&rarr;` decode
+        to, everywhere `faq-visible.test.mjs` flagged a divergence. Verified
+        `faq-visible.test.mjs` 4/4 and both ventures' own suites (33 + 39)
+        clean after.
+      - >-
+        This session hit a moving `main` twice (once per venture attempt),
+        confirming `session_gate.py`'s own reading that morning: "5 distinct
+        sessions committed to `main` within a 15-minute window in the last
+        6h." After the second edit round, re-fetched and fast-forward-merged
+        `origin/main` (then at a further 2 commits ahead, adding a
+        `cnc-machining-quote-calculator` share-link feature that touched no
+        file this PR touches) before running `regen.mjs` a final time, so
+        the committed mirror reflects the tree this PR would actually
+        produce on top of the `main` it merges into, not a stale snapshot.
+      - >-
+        Ran `node platform/marketing/regen.mjs` (both edited ventures are
+        mirrored to the Argo front door) and committed what it rewrote.
+      - >-
+        Verified, locally, Actions starved
+        (`ci_starvation.py --run 35244637154`: `runner_id: 0`, no steps):
+        `actions-transitive-pin-check` + `actions-secret-leak-check` +
+        `required-checks-drift-check` + `cnc-machining-quote-calculator`
+        venture suites combined, 218/218; `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`,
+        1272/1272 (re-run clean after the final `regen.mjs`, following two
+        earlier runs that correctly caught staleness from each edit round);
+        `checklist_coverage.py` clean; rebuilt the Pages artifact and ran
+        `check.mjs` -- 314 products, 1191 pages, no dead links; `gitops/tests`
+        after `apt-get update && apt-get install -y --no-install-recommends
+        python3-pytest nginx-light openssh-client`, 607 passed / 1 skipped,
+        run as `python3 -m pytest`; `node platform/pages/clauses.mjs` on all
+        three touched ventures, clean; `surface-budget.mjs --check`, no
+        venture over budget (257 with 0, 56 with 1, 1 with 2). HEAD matched
+        `origin/main` exactly at push time -- no drift between the last
+        verification run and what was pushed.
