@@ -6644,3 +6644,25 @@ products:
           preparing a real submission. The 2026-12-31 initial deadline
           makes this venture's kill_criteria window shorter than most --
           see VENTURE.yaml.
+
+  - slug: 1099-k-threshold-checker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          source_added: 0
+          sample_loaded: 0
+          exported: 0
+        note: >-
+          Baseline at graduation. A browser-local checker estimating
+          whether a marketplace or payment app is likely to issue a Form
+          1099-K, per platform and per tax year, against the federal
+          threshold's four changes since 2022 and four states' own
+          stricter $600 threshold. `live_url_visitors` is null, not zero
+          -- nobody has measured yet. Named channel to watch: the
+          established "1099 tax calculator" competitor category is
+          evidence of real search volume for 1099-K-adjacent phrases;
+          `source_added` is the signal worth watching first, since it is
+          the one act every visitor with a real question can complete
+          regardless of the answer they get.

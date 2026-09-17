@@ -106,6 +106,7 @@
           <select id="model"></select>
         </div>
       </div>
+      <p class="note">Picking a plan above also switches this to that vendor's own API rates — Claude for Claude and Cursor plans (Cursor runs several models; Claude is the closest single default, and Gemini is also here as a preset if that's what you actually run through it), OpenAI's API for ChatGPT Plus and GitHub Copilot. Anthropic charges extra to <em>write</em> to its prompt cache and less to read it back; OpenAI and Google do not bill the write step at all, only a discounted read, which the two new presets model as a $0 cache-write rate.</p>
       <div class="row">
         <div>
           <label for="rate-input">Input $/M tokens</label>
@@ -173,7 +174,7 @@
   </section>
 
   <footer>
-    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em> from the plan, usage, and rates you enter — it is not a billing statement, a quote, or financial advice. Published prices and API rates are quoted as of a stated date and change without notice. <strong>You are responsible for checking any figure here against the vendor's own current pricing page before relying on it.</strong> Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, GitHub, Microsoft, or OpenAI — each is a trademark of its respective owner, named here only to describe what this tool compares. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em> from the plan, usage, and rates you enter — it is not a billing statement, a quote, or financial advice. Published prices and API rates are quoted as of a stated date and change without notice. <strong>You are responsible for checking any figure here against the vendor's own current pricing page before relying on it.</strong> Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, GitHub, Google, Microsoft, or OpenAI — each is a trademark of its respective owner, named here only to describe what this tool compares. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
     <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>tier_selected</code>, <code>model_selected</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
@@ -181,7 +182,7 @@
   </footer>
 
   <script type="module">
-    import { compare, formatUsd, MODEL_PRESETS, PLAN_PRESETS, USAGE_TIERS, RATES_AS_OF } from './calc.mjs';
+    import { compare, formatUsd, MODEL_PRESETS, PLAN_PRESETS, PLAN_MODEL_DEFAULT, USAGE_TIERS, RATES_AS_OF } from './calc.mjs';
     import { record, setUsageOptOut, usageOptedOut } from './usage.mjs';
 
     const $ = (sel) => document.querySelector(sel);
@@ -200,6 +201,19 @@
     function applyPlanPreset(key) {
       const preset = PLAN_PRESETS[key];
       if (preset) $('#plan-price').value = preset.monthlyUsd;
+      // Switching plans also switches which vendor's API the visitor would
+      // actually be paying -- e.g. picking ChatGPT Plus and leaving the
+      // model preset on Claude Sonnet compares it against the wrong
+      // vendor's rates. Re-point the model preset at the new plan's own
+      // vendor every time the plan changes; every rate field underneath
+      // stays a plain editable number either way, so nothing here is a
+      // dead end if the mapped default isn't the exact model a visitor
+      // meant.
+      const modelKey = PLAN_MODEL_DEFAULT[key];
+      if (modelKey && MODEL_PRESETS[modelKey]) {
+        $('#model').value = modelKey;
+        applyModelPreset(modelKey);
+      }
     }
     function applyUsagePreset(key) {
       const preset = USAGE_TIERS[key];

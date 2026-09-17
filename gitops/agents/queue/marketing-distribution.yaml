@@ -1,7 +1,22 @@
-# Real, enabled queue item. Does not run until the governor's own kill
-# switch (gitops/agents/governor/policy.json "enabled") is also true and
-# the CronJob is unsuspended -- both still owner-only. See
-# infra/OWNER_CHECKLIST.md.
+# Real, enabled queue item. `enabled: true` here is necessary and not
+# sufficient: the governor's own kill switch must also be on.
+#
+# Which switch that is depends on the mode, and this header said only the
+# cluster one until 2026-09-17:
+#
+#   host mode (gitops/agents/host, what `restore-cluster.sh
+#     WITH_CODEX_HOST=1` installs, and the only mode that survives the
+#     current outage) -- the policy.json ON THE BOX, flipped by
+#     `install-codex-host.sh --enable` or `CODEX_ENABLED=1` on the restore.
+#     There is no CronJob in this mode and nothing to unsuspend; a reader
+#     looking for one finds no such object and cannot tell whether that
+#     means "already done" or "wrong thing".
+#   cluster mode (gitops/agents/governor/cronjob.yaml) -- BOTH
+#     gitops/agents/governor/policy.json "enabled" and the CronJob's
+#     `suspend: false`.
+#
+# Both are owner-only. See infra/OWNER_CHECKLIST.md and
+# gitops/agents/host/README.md.
 #
 # Priority 6. **Changed 2026-09-01**, from 4, on the account owner's own
 # direction: "I want to make sure deployment and cicd is a priority and

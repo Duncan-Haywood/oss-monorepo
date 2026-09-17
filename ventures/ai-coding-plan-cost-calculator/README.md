@@ -7,7 +7,9 @@ A free browser tool that compares a flat-rate AI coding assistant plan
 (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT Plus, or a custom price)
 against what the same usage would cost paid per token through the vendor's
 own API — using your own usage numbers and editable rates, not someone
-else's assumptions — and reports the break-even usage level.
+else's assumptions — and reports the break-even usage level. The API side
+offers Claude, OpenAI, and Google Gemini rate presets, and picking a plan
+switches the preset to that plan's own vendor automatically.
 
 ## The problem
 
@@ -48,10 +50,11 @@ for the full explanation.
 node --test ventures/ai-coding-plan-cost-calculator/*.test.mjs
 ```
 
-24 assertions: the cost model (rate math, seats, break-even direction, input
-validation, preset shape) and the page (disclaimers, JSON-LD, sponsor link,
-usage opt-out, the cross-link to `mcp-supply-chain-watch`, and that the
-footer only ever names events the page actually records).
+39 assertions: the cost model (rate math, seats, break-even direction, input
+validation, preset shape, the OpenAI/Gemini presets and the plan→model
+default map) and the page (disclaimers naming all five vendors, JSON-LD,
+sponsor link, usage opt-out, the cross-link to `mcp-supply-chain-watch`, and
+that the footer only ever names events the page actually records).
 
 ## What it does not do
 
