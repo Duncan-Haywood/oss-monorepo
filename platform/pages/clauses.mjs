@@ -188,6 +188,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and reviewer already has access to, not a company or product this could
   // be mistaken for. Same reasoning as the other manual-method pages above.
   'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  // Compares against "looking up each state's statute by hand" (a one-off
+  // web search) -- a generic manual method anyone can do with a search
+  // engine, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("names no specific product").
+  // Same reasoning as the other manual-method pages above.
+  'call-recording-consent-check/vs-checking-each-states-statute-by-hand.html',
   // Compares against "a flat price per square foot" -- a generic pricing
   // method every insulation crew already has access to, not a company or
   // product this could be mistaken for. Same reasoning as the other
@@ -203,6 +209,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the other generic-method
   // pages above (e.g. attic-insulation-bid-calculator's flat-rate page).
   'land-survey-bid-calculator/vs-a-flat-per-acre-quote.html',
+  // Compares against "a flat panel-upgrade price" and the dollars-per-amp
+  // rate that usually replaces it -- generic pricing methods every
+  // electrical shop already has access to, not a company or product this
+  // could be mistaken for. The page's own fine print says so explicitly
+  // ("names no company or product"), and its sibling `vs-servicetitan.html`
+  // is where this venture's named-product comparison lives. Same reasoning
+  // as the other generic-method pages above.
+  'electrical-panel-upgrade-bid-calculator/vs-a-flat-panel-upgrade-price.html',
   // Compares against "a flat rate per square foot" -- a generic pricing
   // method every abatement contractor already has access to, not a company
   // or product this could be mistaken for. Same reasoning as the other
@@ -233,6 +247,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // regulated-waste hauler, estimating software, or franchise"). Same
   // reasoning as the other generic-method pages above.
   'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
+  // Compares against "a flat rate per square foot" -- a generic pricing
+  // method every paving contractor already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above (e.g. asbestos-abatement-bid-calculator's
+  // flat-rate page).
+  'asphalt-driveway-pave-bid-calculator/vs-a-flat-rate-per-square-foot.html',
   // Compares against "a flat nightly rate copied from local competitors" --
   // a generic pricing habit every independent dog boarding/daycare operator
   // already has access to, not a company or product this could be mistaken
