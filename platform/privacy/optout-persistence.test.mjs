@@ -162,7 +162,12 @@ const RELATIVE_SELF = relative(
 // the same shape as the 271 -> 272 collision above: this branch was open
 // before `tutor-package-pricing-calculator` landed, so it only ever knew
 // its own predecessor's number (277) until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 278;
+// 278 -> 279 on 2026-09-17, when `required-checks-drift-check` graduated
+// with a `usage.mjs` opt-out following the same
+// `setUsageOptOut`/`usageOptedOut` pattern as `pinned-actions-check`'s
+// switch (copied from it directly), same discovery method as the rest of
+// this running count.
+const SWITCHES_IN_THE_CATALOGUE = 279;
 
 let counter = 0;
 function fixture(source) {

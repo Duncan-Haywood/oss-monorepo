@@ -1752,7 +1752,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # branch was open before `tutor-package-pricing-calculator` landed, so
     # it only ever knew its own predecessor's number (292) until this merge
     # -- the same ordinary collision shape recorded throughout this list.
-    total = 293  # `infra/OWNER_CHECKLIST.md`'s own "N of the 293 tools" wording.
+    # 294 since 2026-09-17, when `required-checks-drift-check` graduated -- a
+    # browser-local/CLI checker comparing a repository's branch-protection
+    # required status check names against the job names its GitHub Actions
+    # workflows would currently report, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    total = 294  # `infra/OWNER_CHECKLIST.md`'s own "N of the 294 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

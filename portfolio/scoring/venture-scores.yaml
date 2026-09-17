@@ -9561,6 +9561,63 @@ ventures:
       -- digest pinning -- not a security audit, a compliance attestation,
       or a claim that the build is safe from supply-chain attacks.
 
+  - slug: required-checks-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line/indentation scan over pasted workflow YAML and a
+      pasted required-checks list already on disk or in the clipboard. There
+      is nothing to infer: a job's check name is its `name:` field or its
+      job id, computed the same way GitHub computes it, and either it
+      matches a required check name or it does not.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as pinned-actions-check and docker-base-image-pin-check, not a
+      295th <trade>-bid-calculator. duplicate_check.py scored the closest
+      existing venture (agent-instructions-drift-check, a different drift
+      entirely -- that venture diffs an agent-instructions file against a
+      committed baseline, never a branch-protection setting) at 0.20 against
+      the final description, well under the 0.45 flag bar; no existing
+      venture reads branch-protection required-check names.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the browser
+      page classifies pasted text client-side and the CLI runs on the
+      user's own machine against files already on disk, so serving one more
+      user costs a static file and needs no human review of any output.
+      Distribution 6, above docker-base-image-pin-check's 5: the failure
+      mode has a specific, verbatim, high-signal search string ("Expected —
+      Waiting for status to be reported") that years of unresolved GitHub
+      Community and Stack Overflow threads already use, rather than a
+      general audience inferred from a role ("any developer maintaining a
+      Dockerfile"). That is a stronger organic-search hook than most of this
+      family, though still unmeasured against this portfolio's own traffic.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      name-comparison over a well-documented naming convention is easy to
+      reimplement, so defensibility rests on the specific failure-mode
+      framing and this portfolio's disclaimer/usage conventions, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only comparator over workflow YAML and a required-checks
+      list the user already has or pastes in -- no network call of its own,
+      no GitHub API credential, no data leaving the browser or the user's
+      own machine, and no repository or branch-protection setting is ever
+      changed on the user's behalf. Both pages' footers and FAQs state
+      plainly that a clean result answers one narrow question -- does this
+      required check name match a job that would report on a pull request
+      today -- not a full audit of branch protection or CI configuration.
+
   - slug: oidc-trust-policy-check
     scores:
       ai_leverage: 1
