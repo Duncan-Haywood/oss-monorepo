@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docker Cache Order Check — Is Your Dockerfile Busting Its Own Build Cache?</title>
+  <meta name="description" content="Paste a Dockerfile and see whether its instruction order defeats Docker's own layer cache: a dependency manifest copied and installed after the whole build context, an install command with no isolated manifest COPY at all, and an apt-get update run without install in the same layer. Free, deterministic, runs entirely in your browser.">
+  <meta property="og:title" content="Is your Dockerfile busting its own build cache?">
+  <meta property="og:description" content="A deterministic Dockerfile instruction-order checker: catches the COPY . . before package.json mistake, an install with no isolated manifest copy, and a split apt-get update / apt-get install layer. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Docker Cache Order Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans a Dockerfile's instruction order for three documented Docker build-cache-invalidation mistakes: a dependency manifest copied and installed after a whole-build-context COPY, an install command with no isolated manifest COPY at all, and an apt-get update run without install/upgrade in the same layer. Runs entirely in the browser or as a zero-dependency Node CLI."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does putting COPY . . before installing dependencies break the Docker build cache?","acceptedAnswer":{"@type":"Answer","text":"Docker caches each instruction's layer and only re-runs an instruction (and everything after it) when its own inputs change. If COPY . . runs before the dependency install step, that COPY layer's cache key includes every file in your source tree -- so any source change at all, even a one-line comment, invalidates it and every layer after it, including the install. Copying just the manifest file (package.json, requirements.txt, go.mod) and running the install before copying the rest of the source means the install layer's cache key only changes when the manifest itself changes."}},{"@type":"Question","name":"Why does apt-get update need to be in the same RUN as apt-get install?","acceptedAnswer":{"@type":"Answer","text":"Docker's own Dockerfile best practices documentation states this directly: a RUN apt-get update by itself is cached as its own layer, and Docker will reuse that cached layer on a later build even though the actual package index it downloaded is now stale. If a later, separately cached RUN apt-get install then runs against that stale cached update, it can resolve versions the package index no longer serves and fail, or silently install older packages than a fresh update would have found."}},{"@type":"Question","name":"What if my Dockerfile never copies a manifest file at all?","acceptedAnswer":{"@type":"Answer","text":"Then there is no dependency layer to cache in the first place: the only route by which the manifest reaches the image is a broad copy, so any changed file in the build context invalidates the install regardless of instruction order. This checker reports that case separately (\"install with no isolated manifest copy\") because the fix is different — add a COPY that names the manifest file specifically, before the broad copy, not just reorder existing instructions."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is computed in your browser from the Dockerfile text you paste in, and nothing you type is sent anywhere. The CLI makes no network call either -- it only reads files already on your own disk."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { box-sizing: border-box; width: 100%; min-height: 220px; padding: 10px 12px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; resize: vertical; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.risk { background: #fde8e8; color: #7f1d1d; }
+    .pill.clean { background: #e6f4ea; color: #14532d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    ul.findings { list-style: none; margin: 10px 0; padding: 0; }
+    ul.findings li { background: #fef3f3; border: 1px solid #f3d1d1; border-radius: 8px; padding: 10px 12px; margin: 0 0 8px; font-size: .92rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DOCKER CACHE ORDER CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your Dockerfile busting its own build cache?</h1>
+    <p>Paste a Dockerfile and see whether its instruction order defeats Docker's own layer cache: a dependency manifest copied and installed <strong>after</strong> the whole build context, an install command with <strong>no isolated manifest copy</strong> at all, and an <code>apt-get update</code> run <strong>without install</strong> in the same layer — the exact anti-patterns Docker's own "Leverage build cache" documentation names and gives the fix for.</p>
+    <p class="note">Nothing is uploaded. Everything runs in this browser against the text you paste in.</p>
+  </header>
+
+  <section class="card">
+    <h2>Check a Dockerfile</h2>
+    <label for="dockerfile-input">Dockerfile contents</label>
+    <textarea id="dockerfile-input" spellcheck="false">FROM node:20-slim
+WORKDIR /app
+COPY . .
+COPY package.json package-lock.json ./
+RUN npm ci
+CMD ["node", "server.js"]</textarea>
+    <p>
+      <button type="button" id="check-dockerfile">Check Dockerfile</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (three real issues)</button>
+    </p>
+    <p class="note" id="check-status"></p>
+    <div id="report" hidden aria-live="polite">
+      <p id="report-summary"></p>
+      <ul class="findings" id="findings-list"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in CI before a merge?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd">node cli.mjs                       # scan every Dockerfile under .
+node cli.mjs /path/to/repo         # scan a specific checkout
+node cli.mjs --format json
+node cli.mjs --fail-on-risk        # exit 2 if any finding exists</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install, no network call ever. <code>--fail-on-risk</code> makes it a one-line CI gate on any Dockerfile change.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <table>
+      <thead><tr><th>Check</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td>Manifest copied/installed after a broad copy</td><td>A dependency manifest (<code>package.json</code>, <code>requirements.txt</code>, <code>go.mod</code>, <code>Gemfile</code>, <code>composer.json</code>, <code>Cargo.toml</code>, ...) is copied and its install command runs, but only after a whole-build-context <code>COPY . .</code> already ran earlier in the same build stage</td></tr>
+        <tr><td>Install with no isolated manifest copy</td><td>An install command (<code>npm ci</code>, <code>pip install -r requirements.txt</code>, ...) runs with no earlier instruction naming its manifest file specifically — only a broad copy ever reaches it, so there is no dependency layer to cache at all regardless of order</td></tr>
+        <tr><td>apt update/install split across layers</td><td>A <code>RUN</code> instruction runs <code>apt-get update</code> (or <code>apt update</code>) without also running <code>install</code>/<code>upgrade</code>/<code>dist-upgrade</code> in that same instruction — Docker's own Dockerfile best practices name this exact split as the cause of a stale, separately-cached package index</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Checked ecosystems: npm/yarn/pnpm, pip, Go modules, Bundler, Composer, and Cargo. Each build stage (every section between <code>FROM</code> lines) is checked independently, and <code>COPY --from=&lt;stage&gt;</code> is never treated as a broad context copy, since it copies another stage's output rather than your source tree. See <a href="why-docker-build-cache-gets-busted.html">why this happens, and this checker's own named limits</a>, or <a href="vs-manually-reviewing-a-dockerfile.html">how this compares to reviewing a Dockerfile by eye</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does putting <code>COPY . .</code> before installing dependencies break the Docker build cache?</h3>
+    <p>Docker caches each instruction's layer and only re-runs an instruction (and everything after it) when its own inputs change. If <code>COPY . .</code> runs before the dependency install step, that <code>COPY</code> layer's cache key includes every file in your source tree — so any source change at all, even a one-line comment, invalidates it and every layer after it, including the install. Copying just the manifest file and running the install before copying the rest of the source means the install layer's cache key only changes when the manifest itself changes.</p>
+    <h3>Why does <code>apt-get update</code> need to be in the same <code>RUN</code> as <code>apt-get install</code>?</h3>
+    <p>Docker's own Dockerfile best practices documentation states this directly: a <code>RUN apt-get update</code> by itself is cached as its own layer, and Docker will reuse that cached layer on a later build even though the actual package index it downloaded is now stale. If a later, separately cached <code>RUN apt-get install</code> then runs against that stale cached update, it can resolve versions the package index no longer serves and fail, or silently install older packages than a fresh update would have found.</p>
+    <h3>What if my Dockerfile never copies a manifest file at all?</h3>
+    <p>Then there is no dependency layer to cache in the first place: the only route by which the manifest reaches the image is a broad copy, so any changed file in the build context invalidates the install regardless of instruction order. This checker reports that case separately ("install with no isolated manifest copy") because the fix is different — add a COPY that names the manifest file specifically, before the broad copy, not just reorder existing instructions.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Everything is computed in your browser from the Dockerfile text you paste in, and nothing you type is sent anywhere. The CLI makes no network call either — it only reads files already on your own disk.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace actually building the image and measuring your cache hit rate. It reports whether an instruction order matches one of three documented cache-busting patterns — nothing more, and it does not know whether a flagged pattern was deliberate in your case (some multi-stage builds intentionally copy broadly in a stage that is never cache-sensitive). <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dockerfile_checked</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> checks whether your <code>FROM</code> lines are pinned to a content digest, and <a href="../docker-build-secrets-check/">Docker Build Secrets Check</a> checks for a secret leaking into the build context or an image layer — the same read-only, no-upload, zero-dependency shape applied to two different failure classes in the same file.</p>
+    <p class="support">Free and open source. If this saved you a slow rebuild, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanText, hasRisk, summarize, describeFinding } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderCheck() {
+      const text = $("#dockerfile-input").value;
+      const status = $("#check-status");
+      const report = $("#report");
+      status.textContent = "";
+      const findings = scanText(text, "Dockerfile");
+      $("#report-summary").innerHTML = `<span class="${hasRisk(findings) ? "changed" : "ok"}">${escapeHtml(summarize(findings))}</span>`;
+      $("#findings-list").innerHTML = findings.map((f) => `<li>${escapeHtml(describeFinding(f))}</li>`).join("");
+      report.hidden = false;
+      record("dockerfile_checked");
+    }
+
+    // A fixed worked example, not "whatever is in the box already", so this
+    // venture's own page.test.mjs can extract it and run it through the real
+    // engine to prove it actually demonstrates all three finding kinds
+    // (PRODUCT_PLAYBOOK.md §5e, "prove it on a worked example").
+    const EXAMPLE_DOCKERFILE = [
+      "FROM node:20-slim",
+      "WORKDIR /app",
+      "RUN apt-get update",
+      "RUN apt-get install -y curl",
+      "COPY . .",
+      "COPY package.json package-lock.json ./",
+      "RUN npm ci",
+      'CMD ["node", "server.js"]',
+    ].join("\n");
+
+    $("#check-dockerfile").addEventListener("click", renderCheck);
+    $("#load-example").addEventListener("click", () => {
+      $("#dockerfile-input").value = EXAMPLE_DOCKERFILE;
+      renderCheck();
+      record("example_loaded");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

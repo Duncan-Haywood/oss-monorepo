@@ -457,6 +457,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. The page names no
   // specific tax-prep company or competing checker at all.
   '1099-k-threshold-checker/vs-checking-the-threshold-yourself.html',
+  // Compares against "reviewing a Dockerfile by eye" -- the ordinary code
+  // review habit every developer already has, not a company or product this
+  // could be mistaken for. The page names no specific linter, CI product, or
+  // company at all. Same reasoning as the other manual-method pages above.
+  'docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

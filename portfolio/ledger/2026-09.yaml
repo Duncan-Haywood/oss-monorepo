@@ -34810,3 +34810,96 @@ entries:
         446 passed; `guard_state.py --require-runnable` exit 0, no fixable
         skips remaining; `score_ventures.py --check`, `validate_candidates.py`,
         `validate_doc_consistency.py`, and `router/validate.py` all clean.
+  - venture: docker-cache-order-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a fresh niche rather than a 202nd
+        `<trade>-bid-calculator` or a 40th generic misconfiguration checker:
+        `portfolio/pipeline/candidates.yaml` is empty (every scored candidate
+        already graduated) and `session_gate.py` returned PROCEED naming
+        "screen a fresh niche" as the top action, with zero open PRs to
+        extend instead. Chose a shape this portfolio already builds
+        (deterministic CLI + browser checker) but a genuinely new *object*:
+        this portfolio's two existing Dockerfile checkers
+        (`docker-base-image-pin-check`, `docker-build-secrets-check`) each
+        check one instruction against a security rule; this reasons about
+        the *relative order* of instructions across a whole Dockerfile, a
+        different job neither does. `duplicate_check.py` scored every
+        existing venture, screened-out row, and pipeline candidate against
+        the final description at or below 0.13 (closest:
+        `sql-migration-lock-check` at 0.13, generic "ordering/drift"
+        vocabulary only) -- nowhere near the 0.45 read-this-first bar.
+      - >-
+        Shipped `ventures/docker-cache-order-check`: a browser-local +
+        zero-dependency Node CLI (`cli.mjs`, no network call ever) that
+        parses a Dockerfile's instruction order and flags three documented
+        build-cache-invalidation mistakes -- a dependency manifest (npm/
+        yarn/pnpm, pip, Go modules, Bundler, Composer, Cargo) copied and
+        installed after a whole-build-context `COPY . .` already ran in the
+        same build stage, an install command with no isolated manifest copy
+        at all, and an `apt-get update`/`apt update` run without `install`/
+        `upgrade` in the same `RUN` instruction -- the exact split Docker's
+        own Dockerfile best-practices documentation names by name. State
+        (which manifest was copied, whether a broad copy has happened yet)
+        is scoped per build stage, reset at every `FROM`, so a pattern in an
+        unrelated earlier stage never taints a later one; `COPY --from=
+        <stage>` is never treated as a build-context copy. CLI and browser
+        page share one `engine.mjs` (no hand-ported second implementation to
+        drift, unlike this portfolio's other two Dockerfile checkers, which
+        keep a Python `check.py` and a ported `classify.mjs` in lock-step).
+        Distribution channel, named rather than assumed: Docker's own
+        official "Leverage build cache" and "apt-get" Dockerfile
+        best-practices documentation states both ordering rules directly,
+        and r/docker plus the Stack Overflow `[docker]` tag carry recurring,
+        long-running threads on the exact symptom ("docker build always
+        reinstalling npm packages", "docker is caching my apt-get update,
+        causing subsequent installs to fail" -- the latter itself a
+        canonical, highly-upvoted Stack Overflow question by title); no
+        external search-volume tool was queried to confirm magnitude, the
+        same caveat this portfolio's other recent checkers carry honestly.
+        Disclaimer (no engineering advice, does not know whether a flagged
+        pattern was deliberate), privacy line (nothing uploaded, browser and
+        CLI both), opt-in local usage counting honouring DNT/GPC, GitHub
+        Sponsors link, MIT LICENSE, sitemap.xml, robots.txt, and JSON-LD
+        (SoftwareApplication + FAQPage, byte-matched to the visible copy on
+        all three pages) all in place from the first commit. Two pages
+        beyond the checker itself: a docs page naming the tool's own limits
+        (does not measure real cache hit rate; does not cover `apk`/`yum`
+        equivalents of the apt split) and a comparison page against
+        "reviewing a Dockerfile by eye" (added to `clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT` -- names no commercial product).
+      - >-
+        Scored against `portfolio/pipeline/README.md`'s eight dimensions
+        (recorded in `VENTURE.yaml`'s own `scoring` block rather than
+        `candidates.yaml`, matching several recent graduations that skipped
+        a `candidates/*.md` write-up and went straight to `ventures/`):
+        composite 6.375, floor 1 on `time_to_revenue` (donation-only, the
+        honest floor for every free tool here). Both gates comfortably
+        clear: `liability_containment` 9 (pure static text analysis, no
+        filing or advice-of-record, worst case is a suggested reorder that
+        does not help a given build) and `ethical_robustness` 9 (gets better
+        for users as it scales, no negative externality, transparent about
+        what it does and does not check). `distribution` 6 on the named
+        channel above; `defensibility` 3 (easily copied ruleset, no moat
+        beyond being first and well-documented); `ai_leverage` 3
+        (deterministic rule-based text analysis, not model work).
+      - >-
+        Verified locally, not pushed: this venture's own suite (`node --test
+        ventures/docker-cache-order-check/*.test.mjs`, 40/40 --
+        `engine.test.mjs` 18, `cli.test.mjs` 7, `page.test.mjs` 15),
+        `python3 platform/ci/check_no_payment_code.py` (clean, fleet-wide),
+        `node platform/pages/clauses.mjs docker-cache-order-check` (3
+        published pages, all clauses present), `python3
+        portfolio/router/validate.py` (326 valid, includes this venture),
+        `python3 platform/ci/checklist_coverage.py` (clean; this venture's
+        tests are reachable by the checklist's venture glob), and `node
+        --test platform/pages/clauses.test.mjs` (21/21, after adding this
+        venture's comparison-page exemption). Left for whoever pushes this
+        branch, per this session's own instructions rather than an
+        oversight: `regen.mjs`/the front-door mirror, `sync_tree_counts.py`,
+        `gitops/tests`, the full `platform/marketing`+`platform/pages`
+        suites, a CI workflow for this venture, and a Playwright/axe browser
+        pass -- none of those were run, and this entry does not claim they
+        were.
