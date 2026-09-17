@@ -265,6 +265,40 @@ test('comparison page FAQ structured data matches the visible answers', () => {
   }
 });
 
+// The generic-method comparison page names no product, so the check that
+// keeps it honest is reachability rather than an affiliation disclaimer --
+// same one-way orphan class as the marketplace-fee-compare and
+// vs-whatnot-seller-dashboard tests above.
+test('the spreadsheet comparison page names no product and is reachable from index', () => {
+  const source = page('vs-tracking-payouts-in-a-spreadsheet.html');
+  assert.match(source, /names no specific product/i);
+  assert.match(source, /href="\.\/"/, 'must link back to the calculator');
+  assert.match(
+    markup,
+    /href="\.\/vs-tracking-payouts-in-a-spreadsheet\.html"/,
+    'index must link the comparison page so crawlers can reach it',
+  );
+});
+
+// Same duplication risk as the FAQ test above, for the second comparison page.
+test('spreadsheet comparison page FAQ structured data matches the visible answers', () => {
+  const source = page('vs-tracking-payouts-in-a-spreadsheet.html');
+  const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(source)[1]);
+  assert.equal(ld['@type'], 'FAQPage');
+  const visible = source.replace(/<script[\s\S]*?<\/script>/g, '');
+  for (const entry of ld.mainEntity) {
+    const question = entry.name.replace(/&/g, '&amp;');
+    assert.ok(
+      visible.includes(`<h3>${question}</h3>`),
+      `structured-data question is not on the page: ${entry.name}`,
+    );
+    assert.ok(
+      visible.includes(`<p>${entry.acceptedAnswer.text}</p>`),
+      `structured-data answer does not match the visible copy for: ${entry.name}`,
+    );
+  }
+});
+
 function near(actual, expected, tolerance = 0.001) {
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} is not within ${tolerance} of ${expected}`);
 }
