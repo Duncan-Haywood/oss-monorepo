@@ -1143,9 +1143,15 @@ test('the search index carries description text the card is too small to show', 
   // word ("browser", say) can cross that frequency threshold and this test
   // would fail on a card for correctly *not* indexing a word every other
   // card also dropped, rather than on a real missing-from-index defect.
-  const cards = [...html.matchAll(/data-name="([^"]*)" data-strong="[^"]*" data-search="([^"]*)"/g)]
-    .map(([, name, index]) => ({ name, index }));
-  const stops = catalogueStopwords(cards, CATALOGUE_STOPWORD_SHARE);
+  //
+  // Computed from each surface's own unfiltered `searchIndex` (the input
+  // build.mjs itself feeds to `catalogueStopwords` before stripping the
+  // result), not from the rendered `data-search` attributes: those have
+  // already had the cut applied, so recomputing frequency from them can
+  // never find the words the cut already removed.
+  const stops = catalogueStopwords(
+    surfaces.map((s) => ({ name: searchTokens([s.title, s.slug]), index: s.searchIndex })),
+  );
 
   const truncated = surfaces.filter(
     (s) => s.fullDescription && s.fullDescription.length > s.description.replace(/…$/, '').length + 1,
