@@ -211,6 +211,7 @@
   <script type="module">
     import { effectiveReimbursement } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { resolvePlanRows } from './form.mjs';
 
     const SCENARIO_KEY = 'dental-ppo-writeoff-scenario';
     const OPT_OUT_KEY = 'dental-ppo-writeoff-optout';
@@ -289,11 +290,17 @@
     }
 
     function fillForm(state) {
-      (state.plans ?? []).forEach((plan, i) => {
-        if (!el(`plan-${i}-planName`)) addRow(el('planRows'), i);
-        el(`plan-${i}-planName`).value = plan.planName ?? '';
-        el(`plan-${i}-grossProduction`).value = plan.grossProduction ?? '';
-        el(`plan-${i}-writeOff`).value = plan.writeOff ?? '';
+      const body = el('planRows');
+      // resolvePlanRows returns one entry per row that must exist afterward,
+      // including every row already in the table -- so a state with fewer
+      // plans than the table currently has clears the rest rather than
+      // leaving a previous fill's data sitting in them uncounted-as-blank.
+      const rows = resolvePlanRows(body.children.length, state.plans);
+      rows.forEach((plan, i) => {
+        if (!el(`plan-${i}-planName`)) addRow(body, i);
+        el(`plan-${i}-planName`).value = plan.planName;
+        el(`plan-${i}-grossProduction`).value = plan.grossProduction;
+        el(`plan-${i}-writeOff`).value = plan.writeOff;
       });
       for (const id of ['selfPayProduction', 'chairHours', 'providerCompensation', 'practiceOverhead', 'feeScheduleIncrease']) {
         el(id).value = state[id] ?? '';
