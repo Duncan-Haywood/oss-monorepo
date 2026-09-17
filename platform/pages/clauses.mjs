@@ -180,6 +180,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // its copy opens by agreeing the flat card is the right tool for
   // advertising. Same reasoning as the other generic-method pages above.
   'mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html',
+  // Compares against "a flat per-size price card" -- small/medium/large/giant
+  // pricing every groomer already posts, not a company or product this could
+  // be mistaken for. The page names no specific grooming franchise, app, or
+  // competitor (the venture's own named-product comparison, vs-moego,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat card is the right tool for a phone quote. Same reasoning as the
+  // other generic-method pages above.
+  'pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
