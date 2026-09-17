@@ -76,7 +76,8 @@ in the PR what they said:
 ```
 python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts a concurrent merge just invalidated
-node platform/marketing/regen.mjs        # then commit whatever it rewrites
+node platform/marketing/regen.mjs --verify  # 9s, read-only: is the committed apex stale?
+node platform/marketing/regen.mjs           # if that exited 1: commit whatever this rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
@@ -167,6 +168,69 @@ already records twice against the front-door mirror. It rewrites numbers only:
 it prints, and will not write, the running-comment entry saying *why* a count
 moved, because a rise no venture addition accounts for is a regression and
 then the number is not what needs changing. Run it, then write that line.
+
+**`regen.mjs --verify` was added 2026-09-17, and the reason is that the line
+under it was being skipped three times a day.** The mirror-staleness defect
+this section already records twice — the venture page lands, the front-door
+mirror does not, and the apex serves the pre-change copy of a URL its own
+`sitemap.xml` advertises — happened **three more times on 2026-09-17**: #5007
+left `ai-coding-plan-cost-calculator` stale, #5012 shipped a `.grid[hidden]`
+CSS fix the mirror kept serving the bug for, and #5020 fixed the tab buttons on
+`no-tax-on-tips-overtime-calculator` so that switching input modes worked — on
+the venture page only. The mirrored copy the apex serves kept the pre-fix
+markup, so on that copy the tool's entire input mode did nothing.
+
+Each was found by a *later* session, and each cost a whole PR to fix (#5016,
+#5025, and #5024 which duplicated #5025 by two minutes). Not one was
+carelessness, and the coverage was never the problem:
+`portfolio-validate.yml` triggers on `ventures/**/*.html` and runs
+`node --test "platform/marketing/*.test.mjs"`, so CI would have caught all
+three. Actions is starved (`runner_id: 0`), and while runners are starved CI
+running a guard is the same as nothing running it — which is what this whole
+block is about.
+
+What was wrong is an asymmetry inside the block itself. The authoritative
+answer cost **86 seconds**, because it arrives inside a 262-assertion suite
+that also re-derives the shard packing, the headroom and the alias map. The
+*fix* costs 7 — the two generators are 3.5s each. So a session that had just
+made a one-line edit to a venture page was choosing between an 86-second suite
+and skipping it, and this file already knows which one gets picked.
+
+`--verify` is the same answer in about 9 seconds, and it says only the thing
+you need. Reproduced against #5020's own change, it named both artifacts #5025
+had to fix and handed over the one command:
+
+```
+regen --verify: the committed surface is STALE — 2 artifact(s) do not match
+  2 changed:
+    gitops/prod/front-door-tools/kustomization.yaml
+    gitops/prod/front-door-tools/no-tax-on-tips-overtime-calculator__index.html.gz
+```
+
+Two properties make it worth trusting, and `regen.test.mjs` pins both. It is
+**safe to run mid-change**: it snapshots the artifact root, runs the
+generators, compares, and puts the tree back byte-for-byte, so a session
+part-way through unrelated work can ask the question without mixing 2,184
+generated files into a diff it is not ready to commit — which bare `regen.mjs`
+cannot offer, and which is why a reader reaches for the check rather than
+deferring it. And it **exits 2, never 1, when it could not answer**: a broken
+generator or a failed restore must not read as a stale commit, because the
+whole value of the mode is that its exit 1 means one specific, actionable
+thing. That is the `UNRUN`-rather-than-`FAILED` discrimination
+`run_workflow_locally.py` makes, applied one directory over.
+
+It snapshots one coarse root (`gitops/prod/`) rather than a derived list of the
+generators' exported output paths, because deriving that list means guessing
+from export names which constants are outputs and which are inputs —
+`VENTURES_DIR` and `LAUNCHED_FILE` are exported exactly like `OUTPUT_DIR` is —
+and a guess that admits an input makes the snapshot root the whole repository
+while a guess that drops an output makes `--verify` report current while an
+artifact is stale. The cost of the coarse root is that a generator writing
+elsewhere would be unsnapshotted and unrestorable, so that is guarded
+mechanically in two places instead: `regen.test.mjs` fails, by name, if either
+generator exports a path under `gitops/` that is outside the root, and
+`--verify` itself reads `git status` either side of its run and refuses rather
+than leaving a file it cannot put back.
 
 **That last line is not optional, and it is the one this block was missing
 until 2026-09-07.** Every line above it runs *tests*. `portfolio-validate.yml`
