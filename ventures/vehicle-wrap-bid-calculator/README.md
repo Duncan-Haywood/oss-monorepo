@@ -42,15 +42,25 @@ material at the bare surface area exactly how many dollars this specific job
 is short of what it really costs to cover the vehicle — before the estimate
 goes out, not after the roll runs low mid-install.
 
+## Save and share a quote
+
+The calculator, and the proposal panel's deposit and payment terms, save to
+this browser's local storage as you type, so a quote is still here on your
+next visit — "Start a fresh quote" clears it. "Copy bid link" puts the same
+numbers in a URL fragment (never a query string, so it never reaches a server
+log) that you can send yourself or a partner; opening it reopens the exact
+quote, deposit and terms included, instead of the shop's defaults.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your job details, prices, and roll usage
-are never uploaded, there is no account, and nothing is saved when you close
-the tab — every field resets on refresh by design. We count anonymous local
-feature events only (`quote-priced`, `material-check-run`), with a visible
-opt-out. Do Not Track and Global Privacy Control disable counting
-automatically. No job details, prices, or material amounts are recorded. The
-counter is not sent to the maintainers.
+are never uploaded and there is no account. The quote and the client-facing
+proposal terms above are saved only to this browser's own local storage or
+carried in a link you choose to copy — never sent anywhere. We count
+anonymous local feature events only (`quote-priced`, `material-check-run`),
+with a visible opt-out. Do Not Track and Global Privacy Control disable
+counting automatically. No job details, prices, or material amounts are
+recorded. The counter is not sent to the maintainers.
 
 ## Disclaimer
 

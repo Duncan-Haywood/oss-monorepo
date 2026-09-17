@@ -204,6 +204,71 @@ class VentureRegressionTest(unittest.TestCase):
         git(self.repo, "update-ref", "refs/remotes/origin/main", "HEAD")
         self.assertEqual(self.run_check(), cvr.EXIT_UNRUN)
 
+    def test_checkout_behind_the_base_is_unrun_not_a_regression(self) -> None:
+        """The `--tree`-during-a-merge race, measured on `main` 2026-09-10.
+
+        A `--tree` sweep takes ~20 minutes. `main` moved during one, and the
+        workflow's own "Fetch the base branch" step pulled the NEWER base
+        against the OLDER tree the sweep started on. The venture that base had
+        just added (`pwa-installability-check`, #4475) read as one this tree
+        deleted, under the headline "Check no live venture disappears from the
+        served catalogue" -- which reads as a live product outage and is the
+        exact costume-swap CLAUDE.md records for a red that means "nothing
+        ran".
+
+        Exiting UNRUN rather than 0 matters as much as not exiting 1: the
+        check genuinely did not measure anything, and must never read as a
+        pass.
+        """
+        self.base_with(["alpha"])
+        behind = git(self.repo, "rev-parse", "HEAD").strip()
+
+        # The base grows a venture after that checkout, exactly as a merge
+        # landing mid-sweep does.
+        self.write_venture("beta")
+        self.write_launched(["alpha", "beta"])
+        self.commit("base gains beta")
+        git(self.repo, "update-ref", "refs/remotes/origin/main", "HEAD")
+
+        self.assertEqual(self.run_check("--head", behind), cvr.EXIT_UNRUN)
+
+    def test_unprovable_ancestry_warns_but_still_fails(self) -> None:
+        """A shallow clone cannot answer "am I just behind?" -- say so, and
+        do NOT weaken the guard to a pass.
+
+        This is the case that actually fires in a web session, because the
+        clone there is shallow. The first version of this fix used a bool and
+        would have been permanently inert here: `--is-ancestor` exits nonzero
+        for "no" and for "cannot tell" alike, so the artifact case never
+        matched and the guard read as correct while never firing.
+        """
+        self.base_with(["alpha"])
+        # An unrelated root: no merge base exists, which is what a shallow
+        # clone's grafted history looks like to `merge-base`.
+        git(self.repo, "checkout", "-q", "--orphan", "detached")
+        git(self.repo, "rm", "-rq", "--cached", ".")
+        for path in self.repo.iterdir():
+            if path.name != ".git":
+                subprocess.run(("rm", "-rf", str(path)), check=True)
+        self.write_venture("alpha")
+        self.write_launched(["alpha"])
+        self.commit("unrelated root missing nothing")
+        self.write_launched([])
+        self.remove_venture("alpha")
+        head = self.commit("unrelated root drops alpha")
+
+        self.assertEqual(self.run_check("--head", head), cvr.EXIT_REGRESSION)
+        self.assertEqual(cvr._ancestry(head, "origin/main"), "unknown")
+
+    def test_a_real_removal_still_fails_when_not_behind(self) -> None:
+        """The guard must not be softened: a tree that is NOT an ancestor of
+        the base and drops a venture is the #3740 shape and still exits 1."""
+        self.base_with(["alpha", "beta"])
+        self.remove_venture("beta")
+        self.write_launched(["alpha"])
+        self.commit("really drop beta")
+        self.assertEqual(self.run_check(), cvr.EXIT_REGRESSION)
+
     def test_unreadable_launched_json_is_unrun_not_pass(self) -> None:
         self.base_with(["alpha"])
         (self.repo / "platform" / "pages" / "launched.json").write_text("{not json")

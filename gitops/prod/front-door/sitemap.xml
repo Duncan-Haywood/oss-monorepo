@@ -16,6 +16,9 @@
     <loc>https://marisstella.dev/c/evidence/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/c/food-service/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/c/logistics/</loc>
   </url>
   <url>
@@ -28,10 +31,16 @@
     <loc>https://marisstella.dev/c/services/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/c/solo-earner/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/c/trades/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/compare/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/compare/accessibe/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/compare/acculynx/</loc>
@@ -43,13 +52,22 @@
     <loc>https://marisstella.dev/compare/bonsai/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/booqable/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/buildxact/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/compare/cookiebot/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/compare/crest-capital-s-lease-calculator/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/compare/govwin-iq/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/compare/honeybook/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/compare/housecall-pro/</loc>
@@ -64,10 +82,19 @@
     <loc>https://marisstella.dev/compare/jobtread/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/openssf-scorecard/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/paintscout/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/pestpac/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/quoteiq/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/compare/screaming-frog-seo-spider/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/compare/servicecore/</loc>
@@ -79,10 +106,31 @@
     <loc>https://marisstella.dev/compare/servicetitan/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/socket/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/compare/spreadsheet/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/workiz/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/zizmor/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/1099k-reconciliation-worksheet/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/1099k-reconciliation-worksheet/why-is-my-1099-k-higher-than-what-i-actually-made.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/3d-print-price-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/3d-print-price-calculator/vs-slicer-cost-estimate.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/3pl-quote-normalizer/</loc>
@@ -127,7 +175,19 @@
     <loc>https://marisstella.dev/tools/3pl-quote-normalizer/vs-shipbob.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/vs-zizmor.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/what-is-github-actions-artifact-poisoning.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/vs-zizmor.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/what-is-github-actions-cache-poisoning.html</loc>
@@ -136,7 +196,19 @@
     <loc>https://marisstella.dev/tools/actions-injection-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-injection-check/vs-zizmor.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-injection-check/what-is-a-pwn-request-in-github-actions.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-minutes-estimator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-minutes-estimator/how-github-actions-minutes-are-billed.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-minutes-estimator/vs-billing-page.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-permissions-check/</loc>
@@ -145,7 +217,16 @@
     <loc>https://marisstella.dev/tools/actions-permissions-check/how-to-set-least-privilege-permissions-for-github-actions.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-permissions-check/vs-openssf-scorecard.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-runner-starvation-check/add-a-starvation-guard-to-a-github-actions-workflow.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-runner-starvation-check/vs-rerunning-the-job.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html</loc>
@@ -157,16 +238,55 @@
     <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/self-hosted-runners-in-public-repositories.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/vs-stepsecurity.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/ada-title-ii-evidence/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ada-title-ii-evidence/deadline.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/ada-title-ii-evidence/vs-accessibe.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/affiliate-disclosure-checker/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/affiliate-disclosure-checker/vs-post-affiliate-pro.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/affiliate-disclosure-checker/what-disclosure-does-amazon-associates-and-the-ftc-require.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/agent-instructions-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/agent-instructions-drift-check/vs-checking-it-by-hand.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/agent-instructions-drift-check/why-ai-agent-instruction-files-rot.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ai-coding-plan-cost-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ai-coding-plan-cost-calculator/how-ai-coding-plan-pricing-works.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ai-coding-plan-cost-calculator/vs-checking-pricing-pages-yourself.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ai-coding-plan-cost-calculator/vs-doing-the-math-yourself.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/ai-crawler-access-check/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ai-crawler-access-check/how-to-block-or-allow-ai-crawlers.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ai-crawler-access-check/vs-known-agents.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ai-engineering-academy/</loc>
@@ -194,6 +314,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ai-engineering-academy/resistor-calculator/index.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ai-engineering-academy/voltage-divider-calculator/how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html</loc>
@@ -271,6 +394,24 @@
     <loc>https://marisstella.dev/tools/amazon-fba-calculator/vs-amazon-revenue-calculator.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/app-store-screenshot-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/app-store-screenshot-check/vs-manual-checking.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/app-store-screenshot-check/why-store-uploads-get-rejected.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/apparel-decoration-price-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/apparel-decoration-price-calculator/should-i-charge-extra-for-a-second-print-location.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/apparel-decoration-price-calculator/vs-printavo.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/appliance-repair-quote-calculator/</loc>
   </url>
   <url>
@@ -304,6 +445,12 @@
     <loc>https://marisstella.dev/tools/artificial-turf-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/asbestos-abatement-bid-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/asbestos-abatement-bid-calculator/vs-a-flat-rate-per-square-foot.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/asphalt-driveway-pave-bid-calculator/</loc>
   </url>
   <url>
@@ -331,13 +478,37 @@
     <loc>https://marisstella.dev/tools/atm-route-margin/vs-atm-depot.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/ats-resume-checker/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ats-resume-checker/vs-jobscan.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ats-resume-checker/what-is-the-ats-copy-paste-test.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/attic-insulation-bid-calculator/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/attic-insulation-bid-calculator/how-much-to-charge.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/attic-insulation-bid-calculator/vs-a-flat-price-per-square-foot.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/attic-insulation-bid-calculator/vs-fieldcamp.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/vs-shop-ware.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/vs-tekmetric.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/what-is-my-effective-labor-rate.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/automatic-driveway-gate-bid-calculator/</loc>
@@ -347,6 +518,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/automatic-driveway-gate-bid-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/backflow-test-fee-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/backflow-test-fee-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/backflow-test-fee-calculator/vs-spreadsheet.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/backup-verification-evidence/</loc>
@@ -364,6 +544,9 @@
     <loc>https://marisstella.dev/tools/basement-finishing-bid-calculator/how-much-to-charge-to-finish-a-basement.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/basement-finishing-bid-calculator/should-i-charge-30-a-square-foot-to-finish-a-basement.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/basement-finishing-bid-calculator/vs-buildxact.html</loc>
   </url>
   <url>
@@ -373,7 +556,16 @@
     <loc>https://marisstella.dev/tools/basement-waterproofing-bid-calculator/how-much-to-charge-for-basement-waterproofing.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/basement-waterproofing-bid-calculator/vs-a-flat-rate-per-lineal-foot.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/basement-waterproofing-bid-calculator/vs-oblyss.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/biohazard-cleanup-bid-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/boiler-replacement-bid-calculator/</loc>
@@ -391,6 +583,9 @@
     <loc>https://marisstella.dev/tools/boiler-replacement-bid-calculator/should-i-take-a-saturday-boiler-call.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/boiler-replacement-bid-calculator/vs-a-flat-rate-boiler-special.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/boiler-replacement-bid-calculator/vs-servicetitan.html</loc>
   </url>
   <url>
@@ -403,6 +598,36 @@
     <loc>https://marisstella.dev/tools/booth-rent-vs-commission/vs-vagaro.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/bounce-house-rental-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/bounce-house-rental-calculator/how-much-to-charge-for-a-bounce-house-rental.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/bounce-house-rental-calculator/vs-booqable.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/bounce-house-rental-calculator/vs-inflatableoffice.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/brand-deal-rate-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/brand-deal-rate-calculator/brand-deal-rate-benchmarks.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/brand-deal-rate-calculator/vs-marketplace-rate-estimator.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/bridal-hair-makeup-pricing-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/bridal-hair-makeup-pricing-calculator/vs-honeybook.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/cabinet-refinishing-bid-calculator/</loc>
   </url>
   <url>
@@ -410,6 +635,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cabinet-refinishing-bid-calculator/vs-kickserv.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cache-control-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cache-control-check/vs-curl.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cache-control-check/why-isnt-my-cdn-caching-this.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cam-reconciliation-check/</loc>
@@ -422,6 +656,21 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cam-reconciliation-check/vs-yardi.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/canonical-tag-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/canonical-tag-check/vs-screaming-frog.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/caption-quality-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/caption-quality-check/vs-professional-caption-qc-review.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/caption-quality-check/why-caption-quality-matters.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/card-processing-fee-audit/</loc>
@@ -448,6 +697,12 @@
     <loc>https://marisstella.dev/tools/carpet-install-bid-calculator/how-much-to-charge-to-install-carpet.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/carpet-install-bid-calculator/should-i-charge-2-a-yard-to-install-carpet.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/carpet-install-bid-calculator/should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/carpet-install-bid-calculator/vs-measuresquare.html</loc>
   </url>
   <url>
@@ -458,6 +713,27 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cash-runway-planner/when-will-i-run-out-of-cash.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cat-adjuster-fee-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cat-adjuster-fee-calculator/is-this-cat-adjuster-fee-schedule-worth-it.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cat-adjuster-fee-calculator/vs-the-headline-per-claim-rate.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/certified-payroll-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/certified-payroll-calculator/does-overtime-include-fringe-benefits-on-certified-payroll.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/certified-payroll-calculator/vs-lcptracker.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/change-order-margin-calculator/</loc>
@@ -496,6 +772,15 @@
     <loc>https://marisstella.dev/tools/chimney-sweep-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/chrome-extension-permission-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/chrome-extension-permission-check/purple-potassium-unused-permissions.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/chrome-extension-permission-check/vs-crxcavator.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/cleaning-dilution-calculator/</loc>
   </url>
   <url>
@@ -526,6 +811,15 @@
     <loc>https://marisstella.dev/tools/cloud-egress-calculator/vs-google-cloud-pricing-calculator.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/codeowners-shadow-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/codeowners-shadow-check/vs-reading-codeowners-by-eye.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/codeowners-shadow-check/why-codeowners-review-stops-being-required.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/commercial-photo-license-calculator/</loc>
   </url>
   <url>
@@ -533,6 +827,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/commercial-photo-license-calculator/vs-fotoquote.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/commissary-kitchen-cost-split-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/commissary-kitchen-cost-split-calculator/vs-splitting-evenly.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/concrete-bid-calculator/</loc>
@@ -583,6 +883,24 @@
     <loc>https://marisstella.dev/tools/contractor-bid-readiness/vs-jobtread.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cookie-security-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cookie-security-check/samesite-none-cookie-rejected.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cookie-security-check/vs-cookiebot.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cors-misconfig-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cors-misconfig-check/reflected-origin-cors-vulnerability.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cors-misconfig-check/vs-burp-suite.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/countertop-bid-calculator/</loc>
   </url>
   <url>
@@ -590,6 +908,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/countertop-bid-calculator/vs-moraware.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/court-reporter-transcript-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/court-reporter-transcript-calculator/vs-spreadsheet-or-guessing.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/court-reporter-transcript-calculator/what-is-a-good-per-page-rate-for-a-court-reporter.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/coverage-drop-check/</loc>
@@ -610,6 +937,15 @@
     <loc>https://marisstella.dev/tools/cra-evidence-desk/vs-dependency-track.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/craft-fair-booth-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/craft-fair-booth-calculator/how-much-do-you-need-to-sell-at-a-craft-fair.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/craft-fair-booth-calculator/vs-craftybase.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/</loc>
   </url>
   <url>
@@ -619,10 +955,22 @@
     <loc>https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/vs-quoteiq.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cron-dst-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cron-dst-drift-check/why-cron-jobs-break-across-dst.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/how-much-to-charge-to-install-crown-molding.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/should-i-charge-8-a-foot-for-crown-molding.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/vs-jobber.html</loc>
@@ -676,7 +1024,22 @@
     <loc>https://marisstella.dev/tools/delivery-app-margin-calculator/vs-toast.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/dental-ppo-writeoff-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dental-ppo-writeoff-calculator/vs-practice-management-report.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dental-ppo-writeoff-calculator/what-is-my-effective-reimbursement-rate.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/dependency-confusion-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dependency-confusion-check/vs-socket.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dependency-confusion-check/what-is-dependency-confusion.html</loc>
@@ -691,6 +1054,24 @@
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/vs-whatsmydns.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-pin-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-pin-check/how-to-pin-a-docker-base-image-to-a-digest.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-pin-check/vs-hadolint.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dog-boarding-daycare-pricing/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dog-boarding-daycare-pricing/how-much-to-charge-for-dog-boarding.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/dog-walking-route-pricing/</loc>
   </url>
   <url>
@@ -698,6 +1079,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dog-walking-route-pricing/vs-rover.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/drone-mapping-job-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/drone-mapping-job-calculator/how-much-to-charge-for-drone-mapping.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/drone-mapping-job-calculator/vs-dronedeploy.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dryer-vent-bid-calculator/</loc>
@@ -734,6 +1124,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dumpster-rental-margin-calculator/why-your-overage-fee-might-be-losing-you-money.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/duplicate-payment-audit/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/duplicate-payment-audit/vs-bill-com.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/duplicate-payment-audit/vs-prgx.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ebay-fee-calculator/</loc>
@@ -850,6 +1249,15 @@
     <loc>https://marisstella.dev/tools/electrical-panel-upgrade-bid-calculator/vs-servicetitan.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/email-auth-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/email-auth-check/how-to-fix-spf-too-many-dns-lookups.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/email-auth-check/vs-mxtoolbox.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/entry-door-bid-calculator/</loc>
   </url>
   <url>
@@ -857,6 +1265,24 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/entry-door-bid-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/env-example-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/env-example-drift-check/vs-dotenv-linter.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/env-example-drift-check/why-env-example-files-drift-from-the-code-that-reads-them.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/epk-generator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/epk-generator/vs-presskit.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/epk-generator/what-is-an-epk.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/</loc>
@@ -890,6 +1316,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/equipment-rental-break-even/vs-booqable.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/estate-sale-net-proceeds-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/estate-sale-net-proceeds-calculator/vs-headline-commission-rate.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/etsy-profit-calculator/</loc>
@@ -1033,6 +1465,15 @@
     <loc>https://marisstella.dev/tools/flat-roof-bid-calculator/vs-acculynx.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/fleet-repair-or-replace-planner/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/fleet-repair-or-replace-planner/is-it-cheaper-to-repair-or-replace-a-work-truck.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/fleet-repair-or-replace-planner/vs-fleet-management-software.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/flooring-bid-calculator/</loc>
   </url>
   <url>
@@ -1040,6 +1481,24 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/flooring-bid-calculator/vs-rfms.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/food-truck-event-margin-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/food-truck-event-margin-calculator/how-much-to-charge-for-a-food-truck-catering-event.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/food-truck-event-margin-calculator/vs-roaminghunger.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/forestry-mulching-bid-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/forestry-mulching-bid-calculator/how-much-to-charge-for-forestry-mulching.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/forestry-mulching-bid-calculator/vs-aspire.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/foundation-repair-bid-calculator/</loc>
@@ -1129,6 +1588,9 @@
     <loc>https://marisstella.dev/tools/gig-driver-net-pay-calculator/how-much-should-i-set-aside-for-gig-driving-taxes.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/gig-driver-net-pay-calculator/vs-gridwise.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/grant-deadline-tracker/</loc>
   </url>
   <url>
@@ -1198,6 +1660,12 @@
     <loc>https://marisstella.dev/tools/hardwood-refinishing-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/hoa-reserve-fund-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/hoa-reserve-fund-calculator/vs-spreadsheet.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/holiday-light-bid-calculator/</loc>
   </url>
   <url>
@@ -1223,6 +1691,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/home-elevator-bid-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/home-inspection-fee-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/home-inspection-fee-calculator/how-to-price-a-home-inspection.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/home-inspection-fee-calculator/vs-franchise-fee-schedule.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/home-staging-bid-calculator/</loc>
@@ -1258,6 +1735,15 @@
     <loc>https://marisstella.dev/tools/hot-tub-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/hreflang-reciprocity-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/hreflang-reciprocity-check/vs-merkle-hreflang-tool.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/hreflang-reciprocity-check/why-hreflang-must-be-reciprocal.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/hvac-maintenance-contract-calculator/</loc>
   </url>
   <url>
@@ -1274,6 +1760,24 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ice-dam-removal-bid-calculator/why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/how-to-calculate-ifta-quarterly-tax.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/vs-expressifta.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/influencer-media-kit-generator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/influencer-media-kit-generator/vs-kitly.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/influencer-media-kit-generator/what-is-a-media-kit.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/interior-door-bid-calculator/</loc>
@@ -1307,6 +1811,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/invoice-payment-terms-calculator/vs-quickbooks-online-invoicing.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ios-privacy-manifest-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ios-privacy-manifest-check/missing-privacy-manifest-itms-91061.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ios-privacy-manifest-check/vs-waiting-for-app-review.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/irrigation-install-bid-calculator/</loc>
@@ -1366,6 +1879,15 @@
     <loc>https://marisstella.dev/tools/junk-removal-bid-calculator/vs-workiz.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/k8s-rollout-safety-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-rollout-safety-check/vs-kube-score.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-rollout-safety-check/why-your-kubernetes-rollout-drops-requests.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/kdp-royalty-calculator/</loc>
   </url>
   <url>
@@ -1393,6 +1915,12 @@
     <loc>https://marisstella.dev/tools/kitchen-tile-backsplash-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/land-survey-bid-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/land-survey-bid-calculator/vs-a-flat-per-acre-quote.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/landscape-lighting-bid-calculator/</loc>
   </url>
   <url>
@@ -1415,6 +1943,18 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/license-drift-check/how-a-dependency-license-change-reaches-your-lockfile.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/license-drift-check/vs-fossa.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/llms-txt-generator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/llms-txt-generator/vs-a-hosted-docs-platform.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/llms-txt-generator/what-is-llms-txt.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/locksmith-bid-calculator/</loc>
@@ -1466,6 +2006,24 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/medical-courier-route-margin/vs-onfleet.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/menu-engineering-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/menu-engineering-calculator/how-menu-engineering-works.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/menu-engineering-calculator/vs-marginedge.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/merchant-feed-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/merchant-feed-check/vs-datafeedwatch.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/merchant-feed-check/why-products-get-disapproved-in-google-merchant-center.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/metal-roof-bid-calculator/</loc>
@@ -1522,6 +2080,15 @@
     <loc>https://marisstella.dev/tools/music-lesson-break-even/vs-mymusicstaff.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/newsletter-sponsorship-rate-benchmarks.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/vs-paved.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/no-show-fee-calculator/</loc>
   </url>
   <url>
@@ -1555,7 +2122,46 @@
     <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/vs-socket.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/obsidian-plugin-review-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/obsidian-plugin-review-check/versions-json-missing-entry.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/obsidian-plugin-review-check/vs-eslint-plugin-obsidianmd.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/oidc-trust-policy-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/oidc-trust-policy-check/sub-claim-and-wildcard-traps.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/oidc-trust-policy-check/vs-wiz.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/openapi-breaking-change-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/overtime-pay-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/overtime-pay-calculator/vs-doing-it-by-hand.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/overtime-pay-calculator/vs-spreadsheet.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/owner-operator-cpm-calculator/</loc>
@@ -1571,6 +2177,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/owner-operator-cpm-calculator/vs-dat-rateview.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/package-exports-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/package-exports-drift-check/vs-publint.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/package-exports-drift-check/why-package-json-exports-fields-drift-from-what-you-actually-publish.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/painting-bid-calculator/</loc>
@@ -1618,6 +2233,12 @@
     <loc>https://marisstella.dev/tools/payment-reconciliation-workbench/why-does-one-payout-show-up-as-two-bank-deposits.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/pdf-accessibility-tag-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pdf-accessibility-tag-check/vs-uploading-to-an-online-checker.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/pergola-bid-calculator/</loc>
   </url>
   <url>
@@ -1645,6 +2266,15 @@
     <loc>https://marisstella.dev/tools/pet-grooming-bid-calculator/vs-moego.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/photo-addon-pricing-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/photo-addon-pricing-calculator/is-a-second-shooter-worth-it.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/photo-addon-pricing-calculator/vs-pricing-by-comparing-to-other-studios.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/photo-booth-event-quote/</loc>
   </url>
   <url>
@@ -1658,6 +2288,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/pinned-actions-check/how-to-pin-a-github-action-to-a-commit-sha.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pinned-actions-check/vs-openssf-scorecard.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/plantation-shutter-bid-calculator/</loc>
@@ -1714,6 +2347,18 @@
     <loc>https://marisstella.dev/tools/portable-restroom-event-quote/vs-servicecore.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/poshmark-fee-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/poshmark-fee-calculator/how-much-does-poshmark-take.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/poshmark-fee-calculator/is-a-lower-offer-worth-it-on-poshmark.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/poshmark-fee-calculator/vs-poshmarks-how-it-works-page.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/pour-cost-calculator/</loc>
   </url>
   <url>
@@ -1747,6 +2392,15 @@
     <loc>https://marisstella.dev/tools/print-atelier/what-resolution-do-i-need-to-print-my-artwork.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/process-server-fee-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/process-server-fee-calculator/is-this-process-server-fee-schedule-worth-it.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/process-server-fee-calculator/vs-servemanager.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/public-record-watch/</loc>
   </url>
   <url>
@@ -1754,6 +2408,21 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/public-record-watch/vs-visualping.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pwa-installability-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pwa-installability-check/add-to-home-screen-not-showing.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pwa-installability-check/vs-lighthouse.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/quarterly-estimated-tax-calendar/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/quarterly-estimated-tax-calendar/vs-keeper.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/quote-margin-check/</loc>
@@ -1795,6 +2464,15 @@
     <loc>https://marisstella.dev/tools/real-estate-agent-photo-app/why-was-my-listing-photo-rejected.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/redirect-chain-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/redirect-chain-check/vs-httpstatus-io.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/redirect-chain-check/why-redirect-chains-matter.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/repository-branch-hygiene/</loc>
   </url>
   <url>
@@ -1802,6 +2480,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/repository-branch-hygiene/vs-github-branches.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/required-checks-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/required-checks-drift-check/how-required-status-checks-go-stale.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/retainage-cashflow-calculator/</loc>
@@ -1852,6 +2536,9 @@
     <loc>https://marisstella.dev/tools/reverb-fee-calculator/vs-reverbs-selling-fees-page.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/reverb-fee-calculator/vs-tracking-offers-in-a-spreadsheet.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/roofing-bid-calculator/</loc>
   </url>
   <url>
@@ -1876,6 +2563,12 @@
     <loc>https://marisstella.dev/tools/saas-seat-true-up/vs-zylo.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/sbom-diff-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sbom-diff-check/vs-diffing-the-raw-json-files.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/screened-porch-bid-calculator/</loc>
   </url>
   <url>
@@ -1895,6 +2588,39 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/security-camera-bid-calculator/vs-housecall-pro.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-deposit-return-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-deposit-return-calculator/vs-turbotenant.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-headers-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-headers-check/clickjacking-and-csp-frame-ancestors.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-headers-check/vs-securityheaders.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-txt-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-txt-check/vs-securitytxt-org-generator.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-txt-check/why-security-txt-expires.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/self-storage-rate-increase-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/self-storage-rate-increase-calculator/how-much-can-i-raise-storage-rent.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/self-storage-rate-increase-calculator/vs-sitelink.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/seller-net-sheet/</loc>
@@ -2044,6 +2770,15 @@
     <loc>https://marisstella.dev/tools/siding-bid-calculator/vs-jobnimbus.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/sitemap-lastmod-freshness-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sitemap-lastmod-freshness-check/vs-xml-sitemaps-validator.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sitemap-lastmod-freshness-check/why-sitemap-lastmod-matters.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/skylight-install-bid-calculator/</loc>
   </url>
   <url>
@@ -2060,6 +2795,18 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/snow-removal-bid-calculator/vs-aspire.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/social-preview-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/social-preview-check/social-preview-fallback-rules.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/social-preview-check/vs-facebook-sharing-debugger.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/social-preview-check/vs-screamingfrog.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/sod-install-bid-calculator/</loc>
@@ -2107,6 +2854,33 @@
     <loc>https://marisstella.dev/tools/spray-foam-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/sql-migration-lock-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sql-migration-lock-check/vs-squawk.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sql-migration-lock-check/why-your-migration-locked-the-table.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sri-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sri-check/vs-srihash.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sri-check/why-does-sri-need-the-crossorigin-attribute.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/staffing-markup-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/staffing-markup-calculator/markup-vs-margin.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/staffing-markup-calculator/vs-tempworks.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/stair-lift-bid-calculator/</loc>
   </url>
   <url>
@@ -2131,6 +2905,9 @@
     <loc>https://marisstella.dev/tools/standby-generator-bid-calculator/vs-servicetitan.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/storage-auction-max-bid-calculator/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/str-host-payout-calculator/</loc>
   </url>
   <url>
@@ -2141,6 +2918,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/str-host-payout-calculator/vs-airbnb-earnings-estimator.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/structured-data-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/structured-data-drift-check/vs-google-rich-results-test.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/structured-data-drift-check/why-google-requires-structured-data-to-match-visible-text.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/stucco-repair-bid-calculator/</loc>
@@ -2206,6 +2992,27 @@
     <loc>https://marisstella.dev/tools/tender-radar/which-tenders-are-worth-bidding-on.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-blast-radius-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-blast-radius-check/vs-writing-your-own-sentinel-opa-policy.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-blast-radius-check/why-terraform-replace-destroys-data.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/vs-checkov.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/vs-gitleaks.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/why-terraform-plan-json-leaks-secrets.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/tiktok-shop-fee-calculator/</loc>
   </url>
   <url>
@@ -2266,6 +3073,21 @@
     <loc>https://marisstella.dev/tools/tuckpointing-bid-calculator/vs-quoteiq.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/tutor-package-pricing-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/tutor-package-pricing-calculator/vs-a-spreadsheet.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vector-db-cost-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vector-db-cost-calculator/vs-pinecone.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vector-db-cost-calculator/what-is-vector-index-overhead.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/vehicle-wrap-bid-calculator/</loc>
   </url>
   <url>
@@ -2320,7 +3142,22 @@
     <loc>https://marisstella.dev/tools/vinyl-liner-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/vpat-acr-generator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vpat-acr-generator/vs-hiring-a-vpat-consultant.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vpat-acr-generator/why-procurement-rejects-a-vpat.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/vscode-extension-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vscode-extension-drift-check/vs-vscan.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vscode-extension-drift-check/vs-vsix-audit.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/vscode-extension-drift-check/why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html</loc>
@@ -2386,6 +3223,15 @@
     <loc>https://marisstella.dev/tools/walmart-marketplace-calculator/wfs-vs-seller-fulfilled.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/wash-and-fold-price-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wash-and-fold-price-calculator/how-much-to-charge-for-wash-and-fold.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wash-and-fold-price-calculator/vs-cents.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/water-heater-bid-calculator/</loc>
   </url>
   <url>
@@ -2404,6 +3250,12 @@
     <loc>https://marisstella.dev/tools/water-softener-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/wedding-florist-proposal-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wedding-florist-proposal-calculator/vs-a-recipe-markup-spreadsheet.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/well-pump-bid-calculator/</loc>
   </url>
   <url>
@@ -2420,6 +3272,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/whatnot-seller-payout/should-i-offer-free-shipping-on-whatnot.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/whatnot-seller-payout/vs-whatnot-seller-dashboard.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/wheelchair-ramp-bid-calculator/</loc>
@@ -2458,6 +3313,15 @@
     <loc>https://marisstella.dev/tools/which-job-first/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/wildlife-exclusion-bid-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wildlife-exclusion-bid-calculator/vs-pestpac.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wildlife-exclusion-bid-calculator/what-to-charge-for-wildlife-exclusion.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/window-cleaning-bid-calculator/</loc>
   </url>
   <url>
@@ -2474,5 +3338,20 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/window-replacement-bid-calculator/vs-marketsharp.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wordpress-plugin-review-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wordpress-plugin-review-check/stable-tag-mismatch.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wordpress-plugin-review-check/vs-plugin-check.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/world-clock-widget/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/world-clock-widget/vs-your-phones-clock-app.html</loc>
   </url>
 </urlset>

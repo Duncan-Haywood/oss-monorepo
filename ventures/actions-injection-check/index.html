@@ -100,7 +100,7 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>No. This checks two specific, well-documented patterns. It is not a security audit and makes no claim about your workflows' overall security. Both patterns have variants this tool does not attempt to catch — a hand-rolled <code>git checkout</code> instead of <code>actions/checkout</code>, or an expression built in an unusual way.</p>
     <h3>Why does script injection get flagged regardless of trigger type?</h3>
     <p>Unlike the pwn-request checkout risk, script injection into a shell is dangerous on any trigger a stranger can influence — <code>pull_request</code>, <code>issues</code>, <code>issue_comment</code> — not just the two privileged triggers. A workflow token with even minimal permissions, or a runner with network access, is enough for an injected command to do damage.</p>
-    <p>More: <a href="what-is-a-pwn-request-in-github-actions.html">what is a pwn request in GitHub Actions?</a></p>
+    <p>More: <a href="what-is-a-pwn-request-in-github-actions.html">what is a pwn request in GitHub Actions?</a> Already run <a href="vs-zizmor.html">zizmor</a>? See <a href="vs-zizmor.html">how this checker compares</a> for the injection question specifically.</p>
   </section>
 
   <footer>
@@ -108,13 +108,13 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-injection-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Also worth a pass over your workflows: <a href="../pinned-actions-check/">Pinned Actions Check</a> flags third-party <code>uses:</code> lines referenced by a mutable tag instead of a pinned commit SHA, <a href="../actions-permissions-check/">Actions Permissions Check</a> flags workflows and jobs with no explicit <code>permissions:</code> grant or with <code>write-all</code>, and <a href="../actions-cache-poisoning-check/">Actions Cache Poisoning Check</a> flags an <code>actions/cache</code> write reachable from a fork trigger or an unscoped <code>restore-keys</code> fallback — three more slices of a hardened CI setup. And your dependencies, not just your workflows: <a href="../license-drift-check/">License Drift Check</a> flags a package whose license changed since your last snapshot, the change Dependabot and Renovate don't.</p>
+    <p>Also worth a pass over your workflows: <a href="../pinned-actions-check/">Pinned Actions Check</a> flags third-party <code>uses:</code> lines referenced by a mutable tag instead of a pinned commit SHA, <a href="../actions-permissions-check/">Actions Permissions Check</a> flags workflows and jobs with no explicit <code>permissions:</code> grant or with <code>write-all</code>, and <a href="../actions-cache-poisoning-check/">Actions Cache Poisoning Check</a> flags an <code>actions/cache</code> write reachable from a fork trigger or an unscoped <code>restore-keys</code> fallback — three more slices of a hardened CI setup. And your dependencies, not just your workflows: <a href="../license-drift-check/">License Drift Check</a> flags a package whose license changed since your last snapshot, the change Dependabot and Renovate don't. And beyond your workflows and dependencies, your own API: <a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a> sends real requests with crafted Origin headers and names the exact response header behind a reflected-origin, null-origin, or unanchored allow-list bypass -- the same "read what's actually there, name the exact evidence" shape, for a live HTTP response instead of a workflow file.</p>
     <p class="support">Free and open source. If this saved you from shipping an injection hole, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { scanFiles, hasRisk, summaryLine, PWN_REQUEST_CHECKOUT, SCRIPT_INJECTION } from "./classify.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -235,6 +235,19 @@ jobs:
     });
 
     addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
   </script>
 </body>
 </html>

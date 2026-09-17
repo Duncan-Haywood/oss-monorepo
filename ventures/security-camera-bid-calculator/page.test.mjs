@@ -201,3 +201,17 @@ test('the result panel is announced to screen readers when it updates', () => {
     'the result section is not a live region, so updates are never announced',
   );
 });
+
+// This venture had no inbound link from any other tool (a crawlable
+// orphan — see platform/pages/siblings.mjs). Pairing it with the septic
+// pumping calculator, another property-service trade in the same
+// front-door subcategory, gives a crawler and a reader a one-hop route in
+// rather than only the category index.
+test('index links one hop to the septic-pumping-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/septic-pumping-bid-calculator\/"/,
+    'index must link ../septic-pumping-bid-calculator/ so crawlers reach the septic calculator in one hop',
+  );
+  assert.match(html, /septic pumping bid calculator/i);
+});

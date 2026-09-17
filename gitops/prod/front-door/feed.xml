@@ -1,370 +1,370 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 209 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 297 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-09-07T00:00:00Z</updated>
+  <updated>2026-09-17T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
-    <title>3D Print Price Calculator — Price a Print for Etsy or Shopify</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/3d-print-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/3d-print-price-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
+    <title>Asbestos Abatement Bid Calculator — Containment-Class Pricing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/asbestos-abatement-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/asbestos-abatement-bid-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free bid calculator for licensed asbestos abatement contractors: price a removal job by OSHA/EPA containment class (I/II/III), square footage, crew and supervisor rates, air monitoring, and waste disposal — and see the gap against a flat rate per square foot.</summary>
+  </entry>
+  <entry>
+    <title>Biohazard Cleanup Bid Calculator — Trauma &amp; Crime-Scene Job Pricing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/biohazard-cleanup-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/biohazard-cleanup-bid-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free calculator for biohazard and trauma-scene remediation technicians: price a job from crew labor, PPE decon cycles, and regulated-waste disposal billed per container (not per pound), then check whether a quote you&#39;re already giving clears cost.</summary>
+  </entry>
+  <entry>
+    <title>Dog Boarding &amp; Daycare Pricing Calculator — Price a Stay, Check Occupancy</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-boarding-daycare-pricing/"/>
+    <id>tag:marisstella.dev,2026:tool/dog-boarding-daycare-pricing</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for independent dog boarding and daycare facility owners: price a reservation from staff time, supplies, overhead, a long-stay discount, and a multi-dog discount, then check whether your kennel/run occupancy clears a monthly break-even.</summary>
+  </entry>
+  <entry>
+    <title>Estate Sale Net Proceeds Calculator — Compare Company Quotes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/estate-sale-net-proceeds-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/estate-sale-net-proceeds-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for estate sale commission quotes. Enter a company&#39;s tiered commission rates, setup fee, card-processing fee, and haul-away fee against your estimated sale total to see the real net proceeds — and compare two companies&#39; quotes side by side. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>OpenAPI Breaking Change Check — Did This API Version Break Existing Clients?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/openapi-breaking-change-check/"/>
+    <id>tag:marisstella.dev,2026:tool/openapi-breaking-change-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Required Checks Drift Check — Is a Branch Protection Check Stuck Forever?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/required-checks-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/required-checks-drift-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your branch protection required status checks and your GitHub Actions workflow YAML to find every required check name no job can ever report again — the reason a pull request sits at &#39;Expected — Waiting for status to be reported&#39; forever. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/storage-auction-max-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/storage-auction-max-bid-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator for storage-unit auction bidders: prices the buyer&#39;s premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.</summary>
+  </entry>
+  <entry>
+    <title>Tutor Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutor-package-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tutor-package-pricing-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Vector Database Cost Calculator (Pinecone, Weaviate, Qdrant, pgvector)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vector-db-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/vector-db-cost-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Estimate your embedding index&#39;s real storage footprint from vector count, dimension, and metadata, then compare monthly cost across up to three vector database providers using their own quoted rates. Free, private, no signup.</summary>
+  </entry>
+  <entry>
+    <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-instructions-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/agent-instructions-drift-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn&#39;t defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Backflow Test Fee Calculator — Multi-Device Job Quote, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backflow-test-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/backflow-test-fee-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free backflow-preventer test fee calculator: per-device test fee with a multi-device discount, a per-device report-filing fee, a travel fee, and a retest fee for failed devices. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bridal-hair-makeup-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/bridal-hair-makeup-pricing-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for bridal hair and makeup artists: price the bride, bridal party, hair-only, makeup-only, and kids&#39; services, apply an early-start fee and travel, top up to your service minimum, and check whether the group fits in one artist&#39;s schedule before the ceremony — or needs a second artist billed and paid as its own line item.</summary>
+  </entry>
+  <entry>
+    <title>Commissary Kitchen Cost Split Calculator — Bill Tenants Fairly</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commissary-kitchen-cost-split-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/commissary-kitchen-cost-split-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free calculator for commissary/shared-kitchen operators: split pooled monthly costs (rent, utilities, trash, cleaning, pest control, insurance) fairly among multiple food-truck tenants by hours booked and storage used, instead of splitting evenly, and get an itemized bill for each tenant.</summary>
+  </entry>
+  <entry>
+    <title>Cron DST Drift Check — Will This Schedule Skip, Double-Fire, or Drift?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cron-dst-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/cron-dst-drift-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a cron expression and an IANA timezone and see every upcoming run that falls in a spring-forward gap (never happens) or a fall-back overlap (happens twice), plus a separate check for how a fixed-UTC-only scheduler (GitHub Actions&#39; schedule: cron included) drifts an hour twice a year against your intended local time. Free, deterministic, runs entirely in your browser.</summary>
+  </entry>
+  <entry>
+    <title>HOA Reserve Fund Calculator — Special Assessment Risk</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hoa-reserve-fund-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hoa-reserve-fund-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
     <category term="More free tools"/>
-    <summary type="text">Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you&#39;re charging.</summary>
+    <summary type="text">Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.</summary>
   </entry>
   <entry>
-    <title>GitHub Actions Cache Poisoning Check — Fork-Writable Cache &amp; restore-keys</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-cache-poisoning-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-cache-poisoning-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.</summary>
+    <title>Land Survey Bid Calculator — Corner-Based Pricing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/land-survey-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/land-survey-bid-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free bid calculator for independent licensed land surveyors: price a boundary, topographic, or ALTA/NSPS survey by corners located vs. set, terrain, record research, crew and drafting time — and see the gap against a flat per-acre quote.</summary>
   </entry>
   <entry>
-    <title>GitHub Actions Injection Check — Pwn Requests &amp; Script Injection</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-injection-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-injection-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run &#39;pwn request&#39; checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.</summary>
+    <title>Overtime Pay Calculator — Blended Rate for Two Pay Rates, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/overtime-pay-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/overtime-pay-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free overtime pay calculator: standard time-and-a-half for one hourly rate, plus the FLSA weighted-average (blended rate) calculator for a week worked at two or more different pay rates. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-permissions-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-permissions-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Actions Runner Starvation Check — Is Your Red CI Even Real?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-runner-starvation-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-runner-starvation-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-self-hosted-exposure-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-self-hosted-exposure-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub&#39;s own docs warn against on public repos. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>ADA Title II Website Accessibility Evidence Report</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ada-title-ii-evidence/"/>
-    <id>tag:marisstella.dev,2026:tool/ada-title-ii-evidence</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
+    <title>PDF Accessibility Tag Checker — Free PDF/UA &amp; Section 508 Evidence, Nothing Uploaded</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pdf-accessibility-tag-check/"/>
+    <id>tag:marisstella.dev,2026:tool/pdf-accessibility-tag-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Turn a government website&#39;s axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.</summary>
+    <summary type="text">Free tool: drop a PDF in your browser and get an evidence report on tagging, title, language, image alt text, and form-field labels -- the structural checks behind PDF/UA and Section 508. The file never leaves your device. Also a zero-dependency CLI for batch-scanning a whole document library.</summary>
   </entry>
   <entry>
-    <title>AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ai-crawler-access-check/"/>
-    <id>tag:marisstella.dev,2026:tool/ai-crawler-access-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
+    <title>Photo Package Add-On Pricing Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/photo-addon-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/photo-addon-pricing-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for independent wedding and event photographers: find real net profit for one package add-on -- an extra hour, a second shooter, an album upgrade, an engagement session -- after your own shoot/cull/edit time, gear wear, and any subcontractor or physical-goods cost, then compare two or three add-ons by effective hourly rate.</summary>
+  </entry>
+  <entry>
+    <title>SBOM Diff Check — What Changed Between Two CycloneDX or SPDX Builds?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sbom-diff-check/"/>
+    <id>tag:marisstella.dev,2026:tool/sbom-diff-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.</summary>
+    <summary type="text">Paste two CycloneDX or SPDX SBOM JSON files and see exactly which packages were added, removed, or changed version between two builds. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Daycare Tuition Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/childcare-tuition-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/childcare-tuition-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
+    <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-txt-check/"/>
+    <id>tag:marisstella.dev,2026:tool/security-txt-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn&#39;t a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>SQL Migration Lock Check — Will This Migration Take Your Database Down?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sql-migration-lock-check/"/>
+    <id>tag:marisstella.dev,2026:tool/sql-migration-lock-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.</summary>
+  </entry>
+  <entry>
+    <title>Wedding Florist Proposal Calculator — Bunch Rounding, Labour &amp; Margin</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wedding-florist-proposal-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/wedding-florist-proposal-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for wedding and event florists: price a proposal from the recipe up, buying whole bunches instead of loose stems, add a shrink allowance before the rounding, price labour by the hour, and see the gross margin — plus what a per-stem markup sheet would have under-quoted.</summary>
+  </entry>
+  <entry>
+    <title>World Clock &amp; Daylight — Time, Sunrise, Sunset and Who&#39;s Awake</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/world-clock-widget/"/>
+    <id>tag:marisstella.dev,2026:tool/world-clock-widget</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
     <category term="More free tools"/>
-    <summary type="text">Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.</summary>
+    <summary type="text">A free world clock that shows current local time, sunrise, sunset, daylight length and whether each city is awake — for as many cities as you like, side by side. Sunrise and sunset are computed in your browser from the US Naval Observatory almanac algorithm. No account, no upload, no API key.</summary>
   </entry>
   <entry>
-    <title>Coverage Drop Check — Did This PR Lower Line Coverage?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/coverage-drop-check/"/>
-    <id>tag:marisstella.dev,2026:tool/coverage-drop-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
+    <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/caption-quality-check/"/>
+    <id>tag:marisstella.dev,2026:tool/caption-quality-check</id>
+    <published>2026-09-13T00:00:00Z</published>
+    <updated>2026-09-13T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.</summary>
+    <summary type="text">Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues. A zero-dependency CLI runs the same checks in your own CI. Nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Dependency Confusion Check — pip --extra-index-url &amp; Unscoped npm Names</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dependency-confusion-check/"/>
-    <id>tag:marisstella.dev,2026:tool/dependency-confusion-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.</summary>
-  </entry>
-  <entry>
-    <title>Flaky Test Finder — Which Tests Flipped Between CI Runs?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flaky-test-finder/"/>
-    <id>tag:marisstella.dev,2026:tool/flaky-test-finder</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Gig Driver Net Pay Calculator — What You Keep After Gas</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gig-driver-net-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/gig-driver-net-pay-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session&#39;s gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.</summary>
-  </entry>
-  <entry>
-    <title>KDP Royalty Calculator — KU Page Reads vs Going Wide</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kdp-royalty-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/kdp-royalty-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>License Drift Check — Did a Dependency&#39;s License Change Since Your Last Snapshot?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/license-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/license-drift-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two snapshots of your dependency tree&#39;s declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-lifecycle-script-check/"/>
-    <id>tag:marisstella.dev,2026:tool/npm-lifecycle-script-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pinned-actions-check/"/>
-    <id>tag:marisstella.dev,2026:tool/pinned-actions-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pour Cost Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pour-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pour-cost-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
+    <title>Court Reporter Transcript Pricing Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/court-reporter-transcript-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/court-reporter-transcript-calculator</id>
+    <published>2026-09-13T00:00:00Z</published>
+    <updated>2026-09-13T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.</summary>
+    <summary type="text">Free deposition transcript pricing calculator for freelance court reporters: turn page count, turnaround, travel, copies, and exhibits into an invoice total and an effective hourly rate, and check whether an agency&#39;s flat offer is worth the day. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vscode-extension-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/vscode-extension-drift-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
+    <title>Obsidian Plugin Review Checker — Manifest, versions.json &amp; Security Patterns</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/obsidian-plugin-review-check/"/>
+    <id>tag:marisstella.dev,2026:tool/obsidian-plugin-review-check</id>
+    <published>2026-09-13T00:00:00Z</published>
+    <updated>2026-09-13T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.</summary>
+    <summary type="text">Free, browser-local checker for Obsidian plugin developers: cross-checks manifest.json against versions.json, flags leftover sample-plugin template placeholder values, and scans source for innerHTML/outerHTML/insertAdjacentHTML -- the patterns behind common Obsidian community plugin review delays. Nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>Whatnot Seller Payout Calculator — Keep After 8% + Processing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/whatnot-seller-payout/"/>
-    <id>tag:marisstella.dev,2026:tool/whatnot-seller-payout</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>ATM Route Margin Calculator — Price Each Placement</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/atm-route-margin/"/>
-    <id>tag:marisstella.dev,2026:tool/atm-route-margin</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.</summary>
-  </entry>
-  <entry>
-    <title>Card Processing Fee Audit — Split Your Statement Into Interchange and Markup</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/card-processing-fee-audit/"/>
-    <id>tag:marisstella.dev,2026:tool/card-processing-fee-audit</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
+    <title>Repair or Replace? Work Truck &amp; Equipment Planner for Small Fleets</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fleet-repair-or-replace-planner/"/>
+    <id>tag:marisstella.dev,2026:tool/fleet-repair-or-replace-planner</id>
+    <published>2026-09-12T00:00:00Z</published>
+    <updated>2026-09-12T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.</summary>
+    <summary type="text">Free browser planner for trade and service fleets: cost out repair-versus-replace for every van, truck and machine including the downtime days most owners leave out, then rank which ones to replace against a fixed capital budget. Nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Custom Farm Rate Calculator — Price Custom Field Work Per Acre</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/custom-farm-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/custom-farm-rate-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.</summary>
-  </entry>
-  <entry>
-    <title>Dog Walking &amp; Pet Sitting Rate Calculator — Price Your Route</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-walking-route-pricing/"/>
-    <id>tag:marisstella.dev,2026:tool/dog-walking-route-pricing</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.</summary>
-  </entry>
-  <entry>
-    <title>Dumpster Rental Margin Calculator — Price a Roll-Off Job</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dumpster-rental-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/dumpster-rental-margin-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.</summary>
-  </entry>
-  <entry>
-    <title>Equipment Lease Buyout Calculator — Buy Out vs. Return and Replace</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/equipment-lease-buyout-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/equipment-lease-buyout-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
+    <title>1099-K Reconciliation Worksheet — Etsy, eBay, Poshmark, Mercari Sellers</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/1099k-reconciliation-worksheet/"/>
+    <id>tag:marisstella.dev,2026:tool/1099k-reconciliation-worksheet</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.</summary>
+    <summary type="text">Free browser worksheet that reconciles one or more Form 1099-K Box 1a totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot, StockX) down to an estimated net profit by backing out refunds, marketplace-remitted sales tax, fees, cost of goods, and shipping. Nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Fire Extinguisher Inspection Route Margin Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/"/>
-    <id>tag:marisstella.dev,2026:tool/fire-extinguisher-inspection-route-margin</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.</summary>
+    <title>GitHub Actions Minutes Estimator — What Will This Workflow Cost?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-minutes-estimator/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-minutes-estimator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and see projected monthly billable minutes and dollar cost before the allowance runs out. Names the expensive patterns: the macOS 10x multiplier, per-job rounding on wide matrices, missing timeout-minutes, PR commits built twice, over-frequent cron. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
-    <title>Home Staging Bid Calculator — Price a Vacant Listing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-staging-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/home-staging-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
+    <title>AI Coding Plan Cost Calculator — Subscription vs. API</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ai-coding-plan-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/ai-coding-plan-cost-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-store-screenshot-check/"/>
+    <id>tag:marisstella.dev,2026:tool/app-store-screenshot-check</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic &quot;can&#39;t contain an alpha channel&quot; rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.</summary>
+  </entry>
+  <entry>
+    <title>Effective Labor Rate Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/auto-repair-effective-labor-rate/"/>
+    <id>tag:marisstella.dev,2026:tool/auto-repair-effective-labor-rate</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for independent home stagers: price a vacant-listing staging job from the included term, furniture carrying cost, crew labor, and mileage, then check whether your extension fee actually covers your own carrying cost before a slow listing erases the margin.</summary>
+    <summary type="text">Your posted door rate is not the rate you collect. Enter one month of customer-pay, warranty and internal hours and see your real effective labor rate, exactly where the rest of it went, and what the posted rate would have to be to hit your labor gross profit. Free, private, nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Ice Dam Removal Bid Calculator — Price a Steam Removal Job</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ice-dam-removal-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ice-dam-removal-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job&#39;s largely fixed cost before a short call quietly loses money.</summary>
+    <title>Brand Deal Rate Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brand-deal-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/brand-deal-rate-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free influencer brand deal rate calculator. Enter your follower count, engagement rate, and platform to get a price range for a feed post, Story, Reel/short video, and dedicated video — based on commonly cited creator-economy CPM benchmarks. No sign-up, nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Locksmith Bid Calculator — Price a Service Call</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/locksmith-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/locksmith-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today&#39;s calls hit your income goal.</summary>
+    <title>CAT Adjuster Fee Schedule &amp; Deployment Profit Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cat-adjuster-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cat-adjuster-fee-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free calculator for independent catastrophe (CAT) claims adjusters: find real net profit for a storm deployment after estimating-software, lodging, per diem, vehicle, and unpaid travel-day cost, then compare IA firms&#39; fee schedules by what they actually pay per hour.</summary>
   </entry>
   <entry>
-    <title>Pet Grooming Bid Calculator — Price a Dog or Cat Groom</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pet-grooming-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pet-grooming-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.</summary>
+    <title>CODEOWNERS Shadow Checker — Find Rules GitHub Silently Overrides</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/codeowners-shadow-check/"/>
+    <id>tag:marisstella.dev,2026:tool/codeowners-shadow-check</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste your CODEOWNERS file and your repo&#39;s file list to see exactly which earlier, more specific rules a later, broader rule silently overrides -- GitHub&#39;s own last-match-wins resolution, the most common way a CODEOWNERS file quietly stops reviewing what you think it reviews. Nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Photo Booth Event Quote Calculator — Price a Booking</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/photo-booth-event-quote/"/>
-    <id>tag:marisstella.dev,2026:tool/photo-booth-event-quote</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you&#39;re already considering against the breakeven.</summary>
-  </entry>
-  <entry>
-    <title>Vehicle Wrap Bid Calculator — Price a Wrap Install</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vehicle-wrap-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/vehicle-wrap-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.</summary>
-  </entry>
-  <entry>
-    <title>Vending Machine Route Profit Calculator — Price Each Location</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vending-machine-route-margin/"/>
-    <id>tag:marisstella.dev,2026:tool/vending-machine-route-margin</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.</summary>
-  </entry>
-  <entry>
-    <title>Which Job First? Free Pairwise Job Priority Ranker for Contractors</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/which-job-first/"/>
-    <id>tag:marisstella.dev,2026:tool/which-job-first</id>
-    <published>2026-09-03T00:00:00Z</published>
-    <updated>2026-09-03T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.</summary>
-  </entry>
-  <entry>
-    <title>Vendor Change Watch — See What Changed in a Vendor&#39;s Terms</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vendor-change-watch/"/>
-    <id>tag:marisstella.dev,2026:tool/vendor-change-watch</id>
-    <published>2026-08-29T00:00:00Z</published>
-    <updated>2026-08-29T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Paste a vendor&#39;s terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Security Camera Installation Bid Calculator — CCTV Storage</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-camera-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/security-camera-bid-calculator</id>
-    <published>2026-08-28T00:00:00Z</published>
-    <updated>2026-08-28T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.</summary>
-  </entry>
-  <entry>
-    <title>Shop Rate Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shop-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/shop-rate-calculator</id>
-    <published>2026-08-28T00:00:00Z</published>
-    <updated>2026-08-28T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles, office and materials. Free, private, and it fills in the burden and overhead fields on every bid calculator here.</summary>
-  </entry>
-  <entry>
-    <title>Appointment Deposit Calculator for Service Businesses</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/appointment-deposit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/appointment-deposit-calculator</id>
-    <published>2026-08-27T00:00:00Z</published>
-    <updated>2026-08-27T00:00:00Z</updated>
+    <title>Dental PPO Write-Off Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dental-ppo-writeoff-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dental-ppo-writeoff-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.</summary>
+    <summary type="text">Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans pay less than an hour of chair time costs you, and exactly what a fee increase would and would not collect. Free, private, nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Marketplace Fee Comparison — Which Channel Nets Most</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/marketplace-fee-compare/"/>
-    <id>tag:marisstella.dev,2026:tool/marketplace-fee-compare</id>
-    <published>2026-08-27T00:00:00Z</published>
-    <updated>2026-08-27T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.</summary>
+    <title>Drone Mapping Job Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/drone-mapping-job-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/drone-mapping-job-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Plan and price an aerial mapping sortie: ground sample distance from your sensor and altitude, flight line spacing, image count, airtime, battery swaps, processing hours and the price that clears your margin. Free, private, nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>EPK Generator — Free Electronic Press Kit Builder for Musicians</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/epk-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/epk-generator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Build a professional electronic press kit (EPK) for your band or artist project in minutes — bio, streaming links, tour dates, press quotes, and photo. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.</summary>
+  </entry>
+  <entry>
+    <title>Forestry Mulching Bid Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/forestry-mulching-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/forestry-mulching-bid-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Price a forestry mulching or land clearing job from acres per machine-hour instead of a flat per-acre guess: head width, advance speed, passes, terrain, fuel, carbide tooth wear, machine ownership and mobilization. Free, private, nothing leaves your browser.</summary>
   </entry>
 </feed>

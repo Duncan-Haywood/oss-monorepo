@@ -1,0 +1,97 @@
+name: wash-and-fold-price-calculator
+description: Free browser calculator that turns a laundromat's or laundry pickup-and-delivery operator's own labour minutes, wash and dry cycle costs, supplies, delivery stops and overhead into a cost per pound, a break-even price per pound, and the margin at what they charge today — entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened this session, not written up in portfolio/pipeline/candidates.yaml.
+# The niche is the wash-dry-fold (WDF) side of a laundromat and the
+# pickup-and-delivery routes built on it -- a service the portfolio does not
+# otherwise touch. The closest existing ventures are route-margin calculators
+# for a technician's stop list (pool-route-pricing,
+# fire-extinguisher-inspection-route-margin, dog-walking-route-pricing,
+# medical-courier-route-margin) and cleaning bid calculators priced by area
+# and frequency (janitorial-bid-calculator, carpet-cleaning-bid-calculator).
+# Neither shape costs a *per-unit-weight* processed good whose machine cost is
+# stepwise, which is the whole substance here.
+#
+# python3 portfolio/pipeline/duplicate_check.py against two phrasings ("wash
+# and fold laundry price per pound calculator for laundromat pickup and
+# delivery operators" and "wash dry fold cost per pound break-even calculator
+# laundromat pickup delivery route minimum charge") scored nothing at or above
+# 0.21 against any existing venture, pipeline candidate, screened-out row, or
+# ai-first-markets idea -- and the two top matches (locksmith-bid-calculator,
+# medical-courier-route-margin) are word overlap on "calculator" and "route",
+# not the same product.
+#
+# The four questions in PRODUCT_PLAYBOOK.md section 1:
+#   Who exactly? Independent laundromat owners and laundry
+#     pickup-and-delivery operators selling wash-dry-fold by the pound --
+#     roughly 29,000 laundromats in the US, a large and growing share of them
+#     running WDF and a delivery route alongside the self-service floor.
+#   What do they type into a search box? "wash and fold price per pound",
+#     "how much should I charge for wash and fold", "wash dry fold pricing
+#     calculator", "laundry pickup and delivery pricing".
+#   What does the problem cost them? Pricing off the competitor's sign rather
+#     than a cost model. At 1,200 lb a week, mispricing by $0.25 a pound is
+#     about $15,600 a year of margin -- and the sharper loss is structural:
+#     the per-order costs (intake, tagging, a full wash and dry cycle, two
+#     delivery stops) do not shrink with the weight, so a minimum charge set
+#     below the cost of the smallest order accepted loses money on every one
+#     of them, invisibly, forever.
+#   Why hasn't a big vendor solved it? The laundry software vendors (Cents,
+#     CleanCloud, Curbside Laundries) sell POS and route subscriptions and
+#     take the operator's price per pound as an *input*; none of them sells a
+#     costing model, because the segment is a few thousand independent owners
+#     -- too small for a sales-led vendor, fine for a free static page.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates, both
+# need >= 5):
+#   liability_containment: 9 -- the tool multiplies and adds numbers the
+#     operator reads off their own utility bills, payroll and machine
+#     specifications. It states no tariff, no wage rule, no benchmark price,
+#     and no market rate; it does not tell anyone what to charge, and the
+#     page and README both say the output is a cost floor rather than a
+#     recommended price. Being wrong costs the operator an arithmetic figure
+#     to double-check against their own P&L, not a filing, a licence, or a
+#     third party's money.
+#   ethical_robustness: 9 -- deterministic arithmetic, no dark patterns, no
+#     server, nothing collected, nothing about any third party. It gets no
+#     worse for anyone as it scales, and the party it helps is the small
+#     operator competing against chains that already have a costing model.
+#
+# Distribution: r/laundromat (an active owner-operator subreddit) and the
+# Coin Laundry Association's own community carry recurring "what should I
+# charge per pound for WDF" and "is delivery worth it" threads; the same
+# question recurs constantly in the laundromat-owner Facebook groups and on
+# the laundry podcasts' listener Q&As. The search phrases above are the
+# evergreen version of the same question -- an operator adding WDF or a
+# delivery route asks it once, at a predictable moment, and wants a number
+# rather than a subscription.
+hypotheses:
+  - claim: A laundromat owner adding or repricing wash-dry-fold will use this to produce a cost per pound and a minimum charge they did not have, in less time than building a spreadsheet for it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An operator running a pickup-and-delivery route will use the delivery section to decide between folding the stop cost into the per-pound rate and charging a delivery fee or route minimum.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wash-and-fold-price-calculator/
+  analytics: null

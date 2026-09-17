@@ -139,4 +139,28 @@ assert.match(goalPage, /\$4,020/);
 assert.equal(calculateIncomeCoverage(goalPlan).retainerShareOfTarget, 22.12);
 assert.match(goalPage, /22% of \$7,800/);
 
+// Closest sibling in the "Getting paid & job margin" subcategory: a
+// construction change order rather than a recurring retainer. Without a
+// crawlable link here, a crawler entering on this calculator never reaches
+// the change-order tool in one hop.
+assert.match(
+  index,
+  /href="\.\.\/change-order-margin-calculator\/"/,
+  'index must link ../change-order-margin-calculator/ so crawlers reach the change order calculator in one hop',
+);
+
+
+// Crawlable-orphan link. Both tools answer "how do I get paid" for one person
+// working for themselves; a freelancer applying for salaried roles alongside
+// the client work is the same reader. `ats-resume-checker` had no inbound
+// sibling link at all, so a crawler entering the catalogue anywhere else could
+// not reach it in one hop -- and with sitemap enumeration unavailable on this
+// origin (see platform/ci/pages_state.py's `indexing` row) a page reachable
+// only from the sitemap is reachable from nothing.
+assert.match(
+  index,
+  /href="\.\.\/ats-resume-checker\/"/,
+  'index must link ../ats-resume-checker/ so crawlers reach the ATS resume checker in one hop',
+);
+
 console.log('freelance retainer page tests passed');

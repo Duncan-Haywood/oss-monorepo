@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Process Server Fee &amp; Route Profit Calculator</title>
+<meta name="description" content="Free calculator for independent process servers: find real net profit for one service-of-process job after extra attempts, rush and skip-trace fees, mileage, and your own drive time and vehicle cost, then compare what two or three client law firms actually pay per hour.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Process Server Fee & Route Profit Calculator">
+<meta property="og:description" content="A flat $65-a-serve rate reads well until extra attempts, a bad address, and the drive come out of it. Find real per-job profit and compare client fee schedules by effective hourly rate, not headline fee.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Process Server Fee & Route Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true net profit for one independent process server's service-of-process job after extra-attempt, rush, skip-trace, and mileage add-ons, and the server's own vehicle cost and time, then ranks several clients' fee schedules by net profit and effective hourly rate for the same job."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-serve fee not tell me whether a job is worth taking?","acceptedAnswer":{"@type":"Answer","text":"Because the flat fee is priced for the ordinary case -- a good address, one or two attempts, a short drive. A defendant who is hard to find adds attempts and time the base fee never covered, a bad address can mean skip tracing before you can even attempt service, and a long drive burns real fuel and vehicle wear whether or not the client's mileage add-on covers all of it. The same headline fee can be a great job or a losing one depending on those four things."}},{"@type":"Question","name":"Does this tool tell me whether service was properly effected or how to serve someone who is avoiding service?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only prices your own job economics from numbers you supply. It does not determine whether service was validly effected under any state's rules of civil procedure, whether you are licensed, bonded, or registered to serve process in a given jurisdiction, or whether an affidavit of service will hold up in court -- verify all of that independently."}},{"@type":"Question","name":"Why does vehicle cost count for every mile driven, but mileage revenue only for miles beyond what is included?","acceptedAnswer":{"@type":"Answer","text":"Because that is what actually happens on the job: fuel and wear cost you money for every mile you drive, but a client's mileage add-on typically only pays once you are past the miles their base fee already covers. Counting only the billed miles as a cost is the most common way a job's real profit gets overstated."}},{"@type":"Question","name":"Does anything about my job or client fee schedules get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client fee-schedule rows you type into the comparison table are never saved anywhere -- they exist only in the page while it is open. The job inputs above are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#131b2e;background:#eef1f8}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #c7d0e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a123008;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe1f2;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f3ca3;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9b6e0;border-radius:8px;font:inherit;background:#fbfcff}.result{background:#101a45;color:#fff;border-color:#101a45;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5578}.result .note{color:#c7d0f2}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1f3ca3}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9b6e0;background:#fff;cursor:pointer;color:#131b2e}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT PROCESS SERVERS</p><h1>A flat serve fee can still be a losing job.</h1><p class="lede">A client paying $65 a serve reads fine right up until the third attempt, the bad address that needs skip tracing, and the 20-mile round trip come out of it. This free calculator finds real net profit for one job, then lets you compare two or three clients' fee schedules by what they actually pay per hour — not their headline base fee.</p></header>
+
+<main class="layout">
+<section><h2>Price one job</h2>
+<fieldset><legend>Attempts &amp; base fee</legend><div class="fields">
+<label>Base fee ($)<input id="baseFee" type="number" min="0" step="1" value="65"></label>
+<label>Attempts included in base fee<input id="attemptsIncluded" type="number" min="0" step="1" value="2"></label>
+<label>Attempts it actually took<input id="attemptsActual" type="number" min="0" step="1" value="3"></label>
+<label>Fee per extra attempt ($)<input id="extraAttemptFee" type="number" min="0" step="1" value="15"></label>
+</div></fieldset>
+<fieldset><legend>Rush &amp; skip trace</legend><div class="fields">
+<label>Rush / same-day job (0/1)<input id="rushJob" type="number" min="0" max="1" step="1" value="0"></label>
+<label>Rush surcharge if rush ($)<input id="rushSurchargeFee" type="number" min="0" step="1" value="25"></label>
+<label>Skip trace needed (0/1)<input id="skipTraceNeeded" type="number" min="0" max="1" step="1" value="0"></label>
+<label>Skip trace fee if needed ($)<input id="skipTraceFee" type="number" min="0" step="1" value="40"></label>
+</div></fieldset>
+<fieldset><legend>Mileage</legend><div class="fields">
+<label>Miles driven round trip<input id="milesRoundTrip" type="number" min="0" step="1" value="20"></label>
+<label>Miles included in base fee<input id="milesIncluded" type="number" min="0" step="1" value="10"></label>
+<label>Client's mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+<label>Your vehicle cost ($/mile)<input id="vehicleCostPerMile" type="number" min="0" step="0.01" value="0.18"></label>
+</div></fieldset>
+<fieldset><legend>Time &amp; other costs</legend><div class="fields">
+<label>Affidavit of service fee ($)<input id="affidavitFee" type="number" min="0" step="1" value="10"></label>
+<label>Drive time (hours)<input id="driveTimeHours" type="number" min="0" step="0.05" value="0.5"></label>
+<label>On-site time, all attempts (hours)<input id="onSiteTimeHours" type="number" min="0" step="0.05" value="0.25"></label>
+<label>Paperwork time (hours)<input id="paperworkTimeHours" type="number" min="0" step="0.05" value="0.15"></label>
+<label>This job's share of fixed costs ($)<input id="fixedJobCost" type="number" min="0" step="1" value="5"></label>
+</div></fieldset>
+<p id="draftStatus" class="note" role="status">Your job inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your client comparison rows below are never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>Profit for this job</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="profit" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross revenue</dt><dd id="revenueOut"></dd>
+<dt>Extra-attempt revenue</dt><dd id="extraAttemptOut"></dd>
+<dt>Rush + skip-trace revenue</dt><dd id="surchargeOut"></dd>
+<dt>Mileage revenue</dt><dd id="mileageOut"></dd>
+<dt>Vehicle cost</dt><dd id="vehicleOut"></dd>
+<dt>Profit margin</dt><dd id="marginOut"></dd>
+<dt>Break-even base fee</dt><dd id="breakEvenOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not determine whether service was validly effected, whether you are licensed or bonded to serve process in a jurisdiction, or whether an affidavit of service will hold up in court.</p>
+</section>
+</main>
+
+<section><h2>Compare clients</h2><p class="note">For each client's fee schedule, run the same job through the calculator above with that client's numbers and enter the resulting net profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Client / firm</th><th>Net profit ($)</th></tr></thead><tbody id="clientRows">
+<tr><td><input class="clientName" data-row="1" aria-label="Client 1 firm or agency name" type="text" value="Firm A"></td><td><input class="clientProfit" data-row="1" aria-label="Client 1 net profit in dollars" type="number" step="1" value="88.10"></td></tr>
+<tr><td><input class="clientName" data-row="2" aria-label="Client 2 firm or agency name" type="text" value="Firm B"></td><td><input class="clientProfit" data-row="2" aria-label="Client 2 net profit in dollars" type="number" step="1" value="40"></td></tr>
+<tr><td><input class="clientName" data-row="3" aria-label="Client 3 firm or agency name" type="text" value=""></td><td><input class="clientProfit" data-row="3" aria-label="Client 3 net profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td><input class="clientName" data-row="4" aria-label="Client 4 firm or agency name" type="text" value=""></td><td><input class="clientProfit" data-row="4" aria-label="Client 4 net profit in dollars" type="number" step="1" value=""></td></tr>
+</tbody></table></div>
+<p id="clientErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Clients compared</dt><dd id="clientCount"></dd>
+<dt>Best client</dt><dd id="clientBest"></dd>
+<dt>Worst client</dt><dd id="clientWorst"></dd>
+<dt>Spread between them</dt><dd id="clientSpread"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your job inputs (attempts, rush/skip-trace flags, mileage, time, costs) are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your client comparison rows are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>job-priced</code>, <code>clients-compared</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no client names, fees, or job figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Fee looks fine on paper — is it actually worth it?</h2>
+<p>A $65-a-serve offer can still pay under minimum wage once a hard-to-find defendant and a long drive are netted out. <a href="is-this-process-server-fee-schedule-worth-it.html">Is this process server fee schedule worth it?</a> works through the arithmetic on a real lowball offer next to a solid one. Already running a caseload through ServeManager or a comparable platform? <a href="vs-servemanager.html">See how this calculator and ServeManager are different tools</a> — one prices a job, the other runs the business.</p>
+</section>
+
+<section><h2>Common questions</h2>
+<h3>Why does a flat per-serve fee not tell me whether a job is worth taking?</h3><p>Because the flat fee is priced for the ordinary case -- a good address, one or two attempts, a short drive. A defendant who is hard to find adds attempts and time the base fee never covered, a bad address can mean skip tracing before you can even attempt service, and a long drive burns real fuel and vehicle wear whether or not the client's mileage add-on covers all of it. The same headline fee can be a great job or a losing one depending on those four things.</p>
+<h3>Does this tool tell me whether service was properly effected or how to serve someone who is avoiding service?</h3><p>No. This calculator only prices your own job economics from numbers you supply. It does not determine whether service was validly effected under any state's rules of civil procedure, whether you are licensed, bonded, or registered to serve process in a given jurisdiction, or whether an affidavit of service will hold up in court -- verify all of that independently.</p>
+<h3>Why does vehicle cost count for every mile driven, but mileage revenue only for miles beyond what is included?</h3><p>Because that is what actually happens on the job: fuel and wear cost you money for every mile you drive, but a client's mileage add-on typically only pays once you are past the miles their base fee already covers. Counting only the billed miles as a cost is the most common way a job's real profit gets overstated.</p>
+<h3>Does anything about my job or client fee schedules get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client fee-schedule rows you type into the comparison table are never saved anywhere -- they exist only in the page while it is open. The job inputs above are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not determine whether service was validly effected under any state's rules of civil procedure, whether you are licensed, bonded, or registered to serve process in a jurisdiction, or whether an affidavit of service will hold up in court &mdash; verify all of that independently. It does not audit your books or replace your own insurance, bond, or accountant.</p><p>MIT licensed. If it helped you decide which client to keep serving for, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p><p>Pricing a mobile notary or loan signing instead of a serve? The <a href="../notary-trip-quote/">notary trip quote calculator</a> prices travel, printing, witnesses, and after-hours work before you confirm a booking. Pricing a courier route instead of a per-serve fee? The <a href="../medical-courier-route-margin/">medical courier route margin calculator</a> prices scheduled, STAT, or dedicated routes after paid wait, deadhead, and vehicle cost — nothing uploaded either way.</p></footer>
+
+<script type="module">
+import { calculate, rankClients, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const JOB_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'process-server-fee-calculator-job-draft';
+const CLIENT_ROWS = 4;
+let counted = false;
+let clientsCounted = false;
+
+function jobInputs() { return Object.fromEntries(JOB_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_JOB_INPUTS = jobInputs();
+
+function applyJobInputs(values) {
+  for (const id of JOB_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistJob() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(jobInputs())));
+}
+
+function updateJob(count = false) {
+  try {
+    const r = calculate(jobInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
+    el('profit').textContent = money(r.netProfit);
+    el('rateLine').textContent = r.effectiveHourlyRate === null
+      ? 'no time entered'
+      : `about ${money(r.effectiveHourlyRate)}/hr worked on this job`;
+    el('revenueOut').textContent = money(r.grossRevenue);
+    el('extraAttemptOut').textContent = money(r.extraAttemptRevenue);
+    el('surchargeOut').textContent = money(r.rushRevenue + r.skipTraceRevenue);
+    el('mileageOut').textContent = money(r.mileageRevenue);
+    el('vehicleOut').textContent = money(r.vehicleCost);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    el('breakEvenOut').textContent = money(r.minBaseFeeToBreakEven);
+    if (count && !counted) { recordEvent('job-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
+    for (const id of ['rateLine', 'revenueOut', 'extraAttemptOut', 'surchargeOut', 'mileageOut', 'vehicleOut', 'marginOut', 'breakEvenOut']) el(id).textContent = '';
+  }
+}
+
+function updateClients(count = false) {
+  try {
+    const clients = [];
+    for (let row = 1; row <= CLIENT_ROWS; row++) {
+      const nameEl = document.querySelector(`.clientName[data-row="${row}"]`);
+      const profitEl = document.querySelector(`.clientProfit[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      if (!Number.isFinite(profit) || profit === 0) continue;
+      clients.push({ name: nameEl.value || `Client ${row}`, netProfit: profit });
+    }
+    const ranked = rankClients(clients);
+    el('clientErrors').hidden = true; el('clientErrors').textContent = '';
+    el('clientCount').textContent = String(ranked.clientCount);
+    el('clientBest').textContent = ranked.best ? `${ranked.best.name} (${money(ranked.best.netProfit)})` : '—';
+    el('clientWorst').textContent = ranked.worst ? `${ranked.worst.name} (${money(ranked.worst.netProfit)})` : '—';
+    el('clientSpread').textContent = money(ranked.spread);
+    if (count && !clientsCounted) { recordEvent('clients-compared'); clientsCounted = true; }
+  } catch (e) {
+    el('clientErrors').textContent = e.message; el('clientErrors').hidden = false;
+    for (const id of ['clientCount', 'clientBest', 'clientWorst', 'clientSpread']) el(id).textContent = '';
+  }
+}
+
+JOB_IDS.forEach(id => el(id).addEventListener('input', () => { updateJob(true); persistJob(); }));
+document.querySelectorAll('.clientProfit, .clientName').forEach(input => input.addEventListener('input', () => updateClients(true)));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(jobInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyJobInputs(DEFAULT_JOB_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateJob(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every job field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyJobInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyJobInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared job. Review the numbers before you use it.'
+      : 'Restored your last job from this browser. Your client comparison rows are never saved.';
+  }
+})();
+
+updateJob(false);
+updateClients(false);
+</script>
+</body></html>

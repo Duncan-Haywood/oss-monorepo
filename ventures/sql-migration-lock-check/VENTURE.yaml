@@ -1,0 +1,150 @@
+name: sql-migration-lock-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for backend and platform
+  engineers: reads a PostgreSQL schema migration and reports every statement
+  that can take a blocking lock or rewrite a table, so a routine-looking deploy
+  does not take the database down. Fifteen named checks, and the wedge is that
+  four of them are *relational* -- about one statement in the context of
+  another, which a per-statement linter cannot reach: an exclusive-lock
+  statement with no `lock_timeout` set above it (the lock-queue stampede, where
+  a 3ms `ALTER TABLE` queues behind a slow `SELECT` and every later read queues
+  behind *it*, so the table is down for as long as the slow query runs);
+  `ADD CONSTRAINT ... NOT VALID` and `VALIDATE CONSTRAINT` inside one
+  transaction, which holds the lock for the whole validation and so undoes the
+  entire point of the two-step split; `CREATE INDEX CONCURRENTLY` inside a
+  transaction block, which does not merely lock but fails outright at runtime
+  -- the most common way a correct concurrency fix gets rejected, because most
+  migration runners wrap each file in a transaction by default; and
+  `SET NOT NULL` judged against whether a *validated* `CHECK` earlier in the
+  file gives PostgreSQL 12+ its fast path, turning a locked full scan into a
+  metadata change. It reads SQL text and nothing else: no connection string,
+  no credentials, no driver, no network call of any kind, which is what makes
+  it safe to run against the migration you are about to apply to production,
+  because there is no connection to point at the wrong database.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues explicitly for this shape. It
+# follows the same "read what is actually there, report the exact evidence,
+# never fetch" contract as docker-base-image-pin-check (parses a Dockerfile
+# locally) and k8s-rollout-safety-check (parses a Deployment manifest), and
+# extends that family one stage further along the delivery pipeline: from "is
+# the image immutable?" through "does shipping it drop requests?" to "does the
+# schema change that ships with it lock the database?".
+#
+# duplicate_check.py (run 2026-09-16) scored every existing venture,
+# screened-out row and pipeline candidate at 0.10 or below against this idea's
+# description -- far under the 0.45 review bar. Closest by eye:
+# k8s-rollout-safety-check (0.10) is the structural sibling and the nearest
+# neighbour in the pipeline, but reads Kubernetes YAML for request-dropping
+# rather than SQL for lock contention, and the two are complementary halves of
+# one deploy; terraform-plan-blast-radius-check (0.08) reads a plan JSON for
+# destructive infrastructure changes, which is the same *instinct* on a
+# different artifact. No venture in the tree parses SQL at all, and nothing in
+# screened-out.md mentions migrations, schema changes or databases. The one
+# adjacent screened-out row -- `upgrade-migration-agent` -- is major-version
+# *framework* migration consulting, which failed the no-employees gate; this
+# is a static checker over a text file and shares nothing with it but the word.
+#
+# Distribution channel: PostgreSQL's own documentation states every mechanism
+# checked here -- "Explicit Locking" gives the lock conflict matrix and the
+# queueing rule that makes ACCESS EXCLUSIVE contagious to later readers;
+# "ALTER TABLE" documents the rewrite rules, the PG 11 constant-default
+# exception, the NOT VALID / VALIDATE split and its weaker SHARE UPDATE
+# EXCLUSIVE lock, the PG 12 SET NOT NULL fast path, and ADD CONSTRAINT ...
+# USING INDEX; "CREATE INDEX" documents CONCURRENTLY, its prohibition inside a
+# transaction block, and the INVALID index left behind by a failed build. So
+# every finding cites a written, sourced rule rather than an inferred
+# preference -- the same channel argument k8s-rollout-safety-check used against
+# the Kubernetes docs. Established tools exist (squawk as a linter,
+# strong_migrations as a Rails-side guard, pgroll for rollout orchestration),
+# which is evidence of sustained demand for "is this migration safe?" as a
+# query category. Based on general knowledge at screening time (unverified
+# against a live fetch this session; egress to arbitrary hosts is proxy-denied
+# here, per this repo's standing convention), the per-statement linters in that
+# set do not report the four relational checks above, and the
+# framework-specific guards only help inside their own framework. A migration
+# with a correct `NOT VALID` and a `VALIDATE` in the same `BEGIN` block passes
+# every per-statement rule and holds the table for the entire validation.
+#
+# Dogfooded on the day it graduated, and it earned its keep twice over. Run
+# against this repository's own Prisma migrations it reported 72 findings --
+# and reading them found two real defects in this tool's first draft rather
+# than two in the migrations. First, the quoted statement included its own
+# leading comment, so a correct finding rendered as
+# "-- CreateIndex CREATE UNIQUE INDEX ..." and read as commented-out code:
+# a finding that looks like a tool bug is worse than no finding. Second, and
+# the substantive one: almost every one of the 72 was a `CREATE INDEX` against
+# a table created a few lines above it in the same file -- an initial
+# migration, where the table has no rows to lock and nothing is contending for
+# it. Both fixed; the same run now reports exactly 1 finding, and that one is a
+# true positive (a later migration adds an index to the pre-existing
+# `Participant` table without CONCURRENTLY). The 72-to-1 correction is the
+# whole argument for shipping a checker against files you actually have:
+# a checker that is wrong in the common case teaches its reader to skip the
+# report, at which point the true findings are worth nothing either.
+hypotheses:
+  - claim: >-
+      A backend or platform engineer writing the post-mortem for a deploy that
+      took the database down for four minutes on a one-line `ALTER TABLE` will
+      search terms like "postgres alter table lock timeout", "migration blocked
+      all queries", "create index concurrently cannot run inside a transaction
+      block" or "postgres lock queue" and find this tool -- then wire the CLI
+      into their own CI as a gate so the next one is caught in review.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      PostgreSQL's own documentation stating each checked mechanism
+      explicitly, plus the existence of established per-statement linters and
+      framework-specific guards, show this is a real, recurring operational
+      concern with proven adjacent-category demand, under-served by a
+      zero-install tool that reports the *relation* between statements rather
+      than judging each one alone.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      An engineer who fixes a flagged migration returns with the next one, or
+      wires `--fail-on-risk` into CI, without any action from this portfolio --
+      the same repeat-usage pattern hypothesized for
+      k8s-rollout-safety-check and docker-base-image-pin-check. Migrations
+      recur on a schedule that ordinary feature work sets, so the return
+      interval should be shorter here than for a one-off audit tool.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI reads files on the user's own disk and
+  # the browser tool parses only text pasted into it. There is no server of
+  # ours in the loop either way, and no network call exists anywhere in the
+  # codebase to add one accidentally -- usage.test.mjs asserts that. Serving
+  # one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in check after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A per-statement linter in this category adds the relational checks that
+    carry this tool's differentiation (lock_timeout presence ahead of an
+    exclusive-lock statement, NOT VALID and VALIDATE sharing a transaction,
+    CONCURRENTLY inside a transaction block, SET NOT NULL against a validated
+    CHECK earlier in the file) at the same zero-install, CI-usable bar, such
+    that the wedge no longer holds.
+  - PostgreSQL removes the lock-queue behaviour that check one is about, or
+    makes a short `lock_timeout` the default, such that the headline finding
+    stops describing a real hazard.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sql-migration-lock-check/
+  analytics: null

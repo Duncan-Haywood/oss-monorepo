@@ -51,3 +51,18 @@ test('index links one hop to the asphalt-driveway-pave-bid-calculator sibling', 
   );
   assert.match(html, /asphalt driveway paving bid calculator/i);
 });
+
+// Same asphalt shop: sealcoat can price a few stalls as an add-on, but a
+// dedicated striping takeoff (ADA hash, arrows, coats, new layout) is a
+// different job. Related-tool chrome rotates inside the trades category, so
+// without an explicit one-hop a crawler on this page may never land on that
+// tool — and parking-lot-striping was a crawlable orphan with no inbound link.
+test('index links one hop to the parking-lot-striping-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/parking-lot-striping-bid-calculator\/"/,
+    'index must link ../parking-lot-striping-bid-calculator/ so crawlers reach the striping calculator in one hop',
+  );
+  assert.match(html, /parking lot striping bid calculator/i);
+});

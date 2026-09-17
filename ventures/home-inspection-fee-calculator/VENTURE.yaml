@@ -1,0 +1,31 @@
+name: home-inspection-fee-calculator
+description: Free browser calculator for independent residential home inspectors to price one inspection from square footage, stories, foundation type, and home age — the specifics a flat per-square-foot fee schedule quietly folds away — plus radon, sewer scope, termite/WDO, and mold add-ons at their own flat fee and a same-day rush premium applied to labor time only, then check a week of bookings against an income goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent home inspectors (not on a franchise fee schedule) will use a calculator that prices from stories, foundation type, and home age rather than square footage alone, since a flat per-square-foot rule prices an easy slab job and a hard crawlspace job the same and quietly underprices the harder one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how to price a home inspection, or for a home inspector fee calculator, are underserved by generic trade-pricing calculators because the foundation-type and home-age time premiums, and the radon/sewer-scope/termite/mold add-on pricing, are specific to this trade.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Inspectors who price one job will also want to check whether a week's worth of bookings, at that average profit, clears a weekly income goal, not just whether one job clears a margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/home-inspection-fee-calculator/
+  analytics: null

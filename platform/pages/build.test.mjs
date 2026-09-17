@@ -22,6 +22,7 @@ import {
   buildSite,
   categoryFor,
   collectPageTitles,
+  copyTree,
   injectFavicon,
   discoverSurfaces,
   faqEntries,
@@ -37,6 +38,8 @@ import {
   renderFavicon,
   renderFaviconSvg,
   renderRobots,
+  INDEXNOW_KEY,
+  indexNowKeyFileName,
   renderSitemapIndex,
   renderVentureSitemap,
   searchTokens,
@@ -434,8 +437,20 @@ test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
   assert.match(hub, /entirely optional/i);
+  // `\bsubscribe\b` rather than a bare `subscribe`: the guard is about a
+  // paywall *call to action* ("Subscribe", "subscribe now", "subscribe to
+  // unlock"), and every one of those forms still matches. What no longer
+  // matches is the noun -- "subscriber", "subscribers", "subscriber count" --
+  // which is a legitimate domain word rather than an ask.
+  //
+  // It first fired on 2026-09-08 against `newsletter-sponsorship-rate-
+  // calculator`, whose entire input is a newsletter's subscriber count, and
+  // it fired *after* that venture had already merged: Actions was starved, so
+  // nothing ran this suite on the PR and `main` went red on it. Rewording the
+  // venture's copy to satisfy a substring match would have made the product
+  // worse to protect a guard from a word it never meant to catch.
   assert.ok(
-    !/subscribe|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
+    !/\bsubscribe\b|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
     'no paywall language',
   );
 });
@@ -527,6 +542,15 @@ test('robots.txt points at a sitemap that reaches the hub and every venture', as
 
   const hubMap = await read('sitemap-hub.xml');
   assert.ok(hubMap.includes(`<loc>${BASE}</loc>`));
+});
+
+test('the IndexNow key is published at the site root, matching the constant', async () => {
+  const keyFile = await read(indexNowKeyFileName());
+  assert.equal(keyFile, INDEXNOW_KEY);
+  // The protocol reads this file's content as the key itself -- no trailing
+  // newline or surrounding whitespace, or a verifier comparing it byte-for-
+  // byte to the key in the submission request sees a mismatch.
+  assert.equal(keyFile.trim(), keyFile);
 });
 
 test('the index points at a sitemap for every published tool', async () => {
@@ -1258,7 +1282,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 8, 'the seven named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 10, 'the nine named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1286,6 +1310,21 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // it in "More free tools" hid it from every seller already reading the
   // marketplace section that names it.
   assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
+  // `food-service`'s three, pinned with the section that introduces them.
+  // `pour-cost-calculator` is the one that matters here: it is the only member
+  // that came from a named section rather than the catch-all, having sat in
+  // `services` for want of anywhere better, so it is the placement a later
+  // reader is most likely to undo by widening the `services` prefix list back
+  // over it. The other two are the ordinary case — a placement with no
+  // assertion is one regex edit from dropping its venture back into "More free
+  // tools", the section a visitor reads last, with nothing going red.
+  assert.equal(categoryFor('food-truck-event-margin-calculator').id, 'food-service');
+  assert.equal(categoryFor('menu-engineering-calculator').id, 'food-service');
+  assert.equal(categoryFor('pour-cost-calculator').id, 'food-service');
+  // `childcare-tuition-calculator` stayed in `services` — it prices a seat,
+  // not a plate, so `food-service`'s three did not pull it in with them.
+  assert.equal(categoryFor('childcare-tuition-calculator').id, 'services');
+  assert.equal(categoryFor('security-deposit-return-calculator').id, 'backoffice');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -3564,6 +3603,19 @@ test('a deep page loading the same script, with no button, does not', async () =
   assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
 });
 
+test('the copy-link spelling counts the same way its four cousins do', async () => {
+  // wash-and-fold-price-calculator, sponsor-ready and
+  // ai-engineering-academy/tools/rc-filter-calculator all spell their button
+  // id `copy-link` rather than one of the four spellings this gate used to
+  // recognise -- found 2026-09-10 fixing the identical gap in roundtrip.mjs.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  await fs.writeFile(path.join(dir, 'app.js'), "import { encodeShare } from './share.mjs';\n");
+  await fs.writeFile(path.join(dir, 'share.mjs'), 'export const x = 1;\n');
+  const html = '<button id="copy-link" type="button">Copy shareable link</button>'
+    + '<script type="module" src="app.js"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), true);
+});
+
 test('a button with no share module behind it does not count either', async () => {
   // mobile-detailing-bid-calculator had a `#copyLink` button and an inline
   // one-liner that serialized `readInput()` and dropped the proposal terms.
@@ -3870,6 +3922,70 @@ test('surfaceExternalFetchHosts does not flag a .mjs file that fetches only a sa
     `export async function loadExample() {
       const res = await fetch('examples/before.json');
       return res.json();
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
+test('surfaceExternalFetchHosts does not treat the word "fetch(" inside a comment as a real fetch-shaped call', async () => {
+  // cors-misconfig-check/probe.mjs explains, in its header comment, why it
+  // deliberately does NOT use fetch() -- and says so using the literal text
+  // "fetch()" twice. That alone used to satisfy the scanner's `/fetch\w*\(/`
+  // trigger, turning on the catch-all rule ("grab every https:// literal in
+  // this file") for a file that makes no fetch call anywhere in its real
+  // code. The catch-all then published the un-resolved half of this file's
+  // own template-literal test fixtures -- `cors-probe-${randomBytes(6)...}`,
+  // `evil-${hostname}` -- on /about/, llms.txt and every guide page's
+  // "except on..." sentence, mixed in with genuine hosts like dns.google.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-comment-'));
+  await fs.writeFile(
+    path.join(dir, 'probe.mjs'),
+    `// Uses Node's http/https clients deliberately, not fetch(): fetch()
+    // cannot set a spoofed Origin header, which is the whole point here.
+    import { randomBytes } from 'node:crypto';
+    export function buildProbeSet(targetUrl, { randomOrigin } = {}) {
+      const hostname = new URL(targetUrl).hostname;
+      const nonce = randomOrigin ?? \`https://cors-probe-\${randomBytes(6).toString('hex')}.invalid\`;
+      return [
+        { label: 'reflect', requestOrigin: nonce },
+        { label: 'suffix-match', requestOrigin: \`https://evil-\${hostname}\` },
+      ];
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
+test('surfaceExternalFetchHosts skips a doc comment\'s illustrative example host even when the file makes a real fetch call elsewhere', async () => {
+  // A `//` comment explaining what an attack-style Origin header looks like
+  // ("https://evil-target.example.com") is documentation, not a network
+  // target -- but the catch-all rule read raw source text, so once a file's
+  // real fetch() call turned it on, an example host mentioned only in a
+  // comment was indistinguishable from one actually requested.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-doc-example-'));
+  await fs.writeFile(
+    path.join(dir, 'lookup.mjs'),
+    `// e.g. a suffix match: "https://evil-target.example.com" is not the
+    // real target and must never be requested or reported as one.
+    export async function lookup(name) {
+      return fetch(\`https://dns.google/resolve?name=\${encodeURIComponent(name)}\`);
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), ['dns.google']);
+});
+
+test('surfaceExternalFetchHosts does not report an un-resolved template placeholder as a host', async () => {
+  // ai-crawler-access-check/cli.mjs genuinely calls fetch() -- against
+  // whatever domain the CLI's own user names, via `fetch(\`https://${input}\`
+  // )\`. The catch-all's blind quoted-string scan grabbed that literal
+  // template text whole, and `new URL('https://${input}').host` happily
+  // returns the string `${input}` -- a WHATWG URL parse succeeding is not
+  // proof the text names a real host.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-placeholder-'));
+  await fs.writeFile(
+    path.join(dir, 'cli.mjs'),
+    `export async function fetchText(input) {
+      const res = await fetch(\`https://\${input}\`, { redirect: 'follow' });
+      return res.text();
     }`,
   );
   assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
@@ -4215,8 +4331,77 @@ test('the catch-all holds only what no section claims', async () => {
   // back past a screenful means the taxonomy has stopped keeping up, which is
   // exactly the state this change found it in (14 tools, six of them one
   // coherent category).
+  //
+  // Raised 8 -> 9 on 2026-09-07/08 when two independent sessions each
+  // graduated a venture that fits none of the six named categories in the
+  // same window: `menu-engineering-calculator` (a restaurant-menu pricing
+  // classifier — not a trade bid, not a marketplace fee, not a service
+  // quote, not logistics/evidence/backoffice/CI) and `ats-resume-checker` (a
+  // job-seeker resume format checker — a different audience from every
+  // other category, which is all small-business or developer-facing).
+  // Neither is a coherent cluster on its own yet, so this is the fallback
+  // working as designed rather than a taxonomy gap to close today; lower it
+  // back if either niche grows a sibling that lets both leave the catch-all.
+  //
+  // Lowered 9 -> 5 on 2026-09-08, which is what those two raises were waiting
+  // for. The bound was one arrival from firing again and this time the answer
+  // was the category rather than another raise: enumerating the catch-all
+  // instead of judging one arrival at a time showed that five of its nine
+  // members already shared an axis no named section had -- an individual
+  // pricing their own labour or audience, rather than a business or a
+  // developer. They are now `solo-earner` in build.mjs, and the four left
+  // here really are unrelated to each other.
+  //
+  // Note the shape of the mistake this corrects: each raise was locally
+  // correct ("my venture is not a cluster on its own") and the aggregate was
+  // wrong, because nobody was looking at the aggregate. Prefer listing the
+  // catch-all to reasoning about the one venture in front of you.
+  //
+  // Fired again 2026-09-13 at 6, and the bound was not raised then either.
+  // Two sessions answered it in the same window, differently, and both landed
+  // — so the record here is worth keeping straight, because the two halves
+  // are easy to mistake for one decision:
+  //
+  //   - #4677 restored the bound, by filing `caption-quality-check` (the
+  //     arrival that tripped it) under `ci` rather than leaving it here. That
+  //     alone took the catch-all back to 5.
+  //   - `food-service` in build.mjs came out of listing the six rather than
+  //     judging the arrival, and is NOT what fixed the bound. Two of the six
+  //     (`menu-engineering-calculator`, `food-truck-event-margin-calculator`)
+  //     shared an axis with `pour-cost-calculator`, which had been sitting in
+  //     `services` for want of anywhere better: food and drink priced per item
+  //     or per event.
+  //
+  // So this guard is not the argument for that section — a reader checking
+  // later should weigh it on the axis and on `pour-cost-calculator` having a
+  // home that fits, not on a bound that something else had already restored.
+  // What the guard did do is make someone enumerate, which is the whole point
+  // of it and is how the cluster was found at all.
+  //
+  // Between them the catch-all was 3: electronics teaching calculators,
+  // daycare tuition, a security deposit refund.
+  //
+  // It is 1 as merged, and the difference is a third session in the same
+  // window. #4680 also enumerated, and filed the other two out from under
+  // this branch while it was in flight — daycare tuition to `services` (a
+  // small operator pricing a booking from its own ratio and overhead), the
+  // security deposit refund to `backoffice` (a reconciliation after the
+  // tenancy ended, the same axis as `card-processing-fee-audit`). Both are
+  // right, neither overlaps `food-service`, and this branch was merged onto
+  // them rather than around them.
+  //
+  // So the catch-all now holds `ai-engineering-academy` alone — a hub of
+  // electronics teaching calculators, which is genuinely unlike every named
+  // section here. Four free slots under the bound, which is the most headroom
+  // it has had, and the right state for it: the fallback exists so a new
+  // venture can land without an argument about taxonomy on its first commit.
+  //
+  // Worth noting what three concurrent sessions did NOT do. None raised the
+  // bound. Each enumerated, found a different true thing, and the aggregate
+  // came out coherent — which is the behaviour the paragraph above asks for,
+  // arrived at independently three times.
   assert.ok(
-    more.items.length <= 8,
+    more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });
@@ -4591,6 +4776,42 @@ test('renderGuidesPage links every guide, disclaims, and counts itself honestly'
   assert.ok(html.includes('adds no'), 'the index must say it adds nothing of its own');
 });
 
+test('renderGuidesPage names an external-call exception by its prose name, not its raw tagline', () => {
+  // The same regression `toolProseName` exists to fix, on the sixth site that
+  // splices a title into running prose: this page spans the whole catalogue
+  // (see its own header comment), so its privacy claim carries the same
+  // "except on <tools>" exception list as the About page and llms.txt, and it
+  // is built from the same `externalCallExceptions` helper.
+  const item = (file, label) => ({ slug: 'dns-change-evidence', file, label, title: label, description: 'Short.' });
+  const groups = [
+    {
+      slug: 'dns-change-evidence',
+      title: 'DNS Change Evidence — prove what a DNS change actually did',
+      description: 'DNS.',
+      category: categoryFor('dns-change-evidence'),
+      items: [item('a.html', 'A question')],
+    },
+  ];
+  const surfaces = [
+    {
+      slug: 'dns-change-evidence',
+      title: 'DNS Change Evidence — prove what a DNS change actually did',
+      externalFetchHosts: ['dns.google'],
+    },
+  ];
+  const html = renderGuidesPage({ groups, surfaces, categoryGroups: [], baseUrl: 'https://example.test/' });
+  const [sentence] = html.match(/nothing you type is uploaded[^<]*/) ?? [];
+  assert.ok(sentence, 'the privacy sentence is missing entirely');
+  assert.ok(sentence.includes('except on DNS Change Evidence'), `the exception is not named: "${sentence}"`);
+  assert.ok(
+    !sentence.includes('prove what a DNS change actually did'),
+    `the raw tagline survived into the privacy sentence: "${sentence}"`,
+  );
+  // The tool's own heading is unaffected — full title there is correct, same
+  // as disclaimerHtml's <a> per toolProseName's own doc comment.
+  assert.ok(html.includes('<h3><a href="../dns-change-evidence/"'), 'the guide heading itself must keep the full title');
+});
+
 test('the guides index is in the hub sitemap and named in llms.txt', () => {
   // Both halves of "found at all": a page in no sitemap is built, deployed and
   // never crawled, and a surface missing from llms.txt is invisible to an
@@ -4927,4 +5148,45 @@ test('the privacy exception sentence names each tool as a distinct list item', (
   const prose = listProse(named);
   assert.equal(prose, 'DNS Change Evidence and Sponsor Ready');
   assert.ok(!prose.includes('—'), 'no tagline may survive into the exception list');
+});
+
+// A developer-tool cache must never reach the artifact, and the reason this is
+// pinned by *shape* rather than by name is that the name list already lost this
+// race twice. `EXCLUDED_DIRS` learned `__pycache__` and still did not know
+// `.ruff_cache`, which appears inside a venture the moment a session runs that
+// venture's Python suite — which CLAUDE.md's pre-merge checklist instructs.
+//
+// The consequence was measured on 2026-09-09, and it is a publish outage rather
+// than clutter: `publish-branch.sh` runs `check.mjs` fail-closed, and check.mjs
+// rejects `CACHEDIR.TAG` because nothing tells nginx how to type `.tag`. So
+// following the checklist and then publishing blocked the live catalogue's only
+// working deploy route. `.well-known` is the one dot-directory that must still
+// survive, so it is asserted here rather than left to be rediscovered.
+test('copyTree drops dot-directory tool caches but keeps .well-known', async () => {
+  const from = await fs.mkdtemp(path.join(os.tmpdir(), 'copytree-src-'));
+  const to = await fs.mkdtemp(path.join(os.tmpdir(), 'copytree-out-'));
+
+  await fs.writeFile(path.join(from, 'index.html'), '<!doctype html><p>tool</p>');
+  for (const dir of ['.ruff_cache', '.pytest_cache', '.mypy_cache', '__pycache__']) {
+    await fs.mkdir(path.join(from, dir), { recursive: true });
+    await fs.writeFile(path.join(from, dir, 'CACHEDIR.TAG'), 'Signature: 8a477f597d28d172');
+    await fs.writeFile(path.join(from, dir, 'leak.html'), '<!doctype html><p>cache</p>');
+  }
+  await fs.mkdir(path.join(from, '.well-known'), { recursive: true });
+  await fs.writeFile(path.join(from, '.well-known', 'security.txt'), 'Contact: mailto:x@y.z');
+
+  await copyTree(from, to, 'https://example.test/');
+  const landed = await fs.readdir(to);
+
+  assert.ok(landed.includes('index.html'), 'the page itself must still be published');
+  for (const dir of ['.ruff_cache', '.pytest_cache', '.mypy_cache', '__pycache__']) {
+    assert.ok(
+      !landed.includes(dir),
+      `${dir} reached the artifact; check.mjs is fail-closed on CACHEDIR.TAG, so this blocks publish-branch.sh`,
+    );
+  }
+  assert.ok(
+    landed.includes('.well-known'),
+    '.well-known is the one dot-directory a static site serves on purpose',
+  );
 });

@@ -128,3 +128,11 @@ test('index links one hop to the actions-self-hosted-exposure-check sibling', ()
     'index must link ../actions-self-hosted-exposure-check/ so crawlers reach the self-hosted exposure checker in one hop',
   );
 });
+
+test('index links one hop to the actions-artifact-poisoning-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/actions-artifact-poisoning-check\/"/,
+    'index must link ../actions-artifact-poisoning-check/ so crawlers reach the artifact-poisoning checker in one hop',
+  );
+});

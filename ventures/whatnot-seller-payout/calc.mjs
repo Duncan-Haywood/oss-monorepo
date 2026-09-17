@@ -50,6 +50,15 @@ export const CATEGORY_PRESETS = Object.freeze({
   },
 });
 
+// Whatnot's published default processor rate. Exported rather than left as a
+// bare literal in `calculateSale` below because `where-to-sell-calculator`'s
+// Whatnot channel preset has to quote the same number — see that page's
+// `channel-parity.test.mjs`, which imports these two constants directly so a
+// change here fails there instead of the two tools silently disagreeing about
+// what Whatnot charges.
+export const DEFAULT_PAYMENT_RATE = 2.9;
+export const DEFAULT_PAYMENT_FIXED = 0.3;
+
 export const INPUT_IDS = Object.freeze([
   'salePrice',
   'shippingCharged',
@@ -131,8 +140,8 @@ export function calculateSale(input) {
   const itemCost = read('itemCost', 'What you paid for the lot', { allowBlank: true });
   const otherCost = read('otherCost', 'Other per-lot cost', { allowBlank: true });
   const commissionRate = read('commissionRate', 'Commission rate');
-  const paymentRate = read('paymentRate', 'Payment processing rate', { allowBlank: true, blankValue: 2.9 });
-  const paymentFixed = read('paymentFixed', 'Payment fixed fee', { allowBlank: true, blankValue: 0.3 });
+  const paymentRate = read('paymentRate', 'Payment processing rate', { allowBlank: true, blankValue: DEFAULT_PAYMENT_RATE });
+  const paymentFixed = read('paymentFixed', 'Payment fixed fee', { allowBlank: true, blankValue: DEFAULT_PAYMENT_FIXED });
   const lotsPerShow = read('lotsPerShow', 'Lots in this show', { allowBlank: true, blankValue: 1, min: 0 });
   const targetLeftover = read('targetLeftover', 'Target leftover', { allowBlank: true });
 

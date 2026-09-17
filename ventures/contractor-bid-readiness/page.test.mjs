@@ -26,3 +26,15 @@ test('index links one hop to the tender-bid-readiness sibling', () => {
   );
   assert.match(html, /tender bid readiness checker/i);
 });
+
+// The other half of the certified-payroll one-hop: a contractor who wins one
+// of these public jobs inherits the Davis-Bacon payroll obligation, so the two
+// tools sit on the same workflow either side of the award.
+test("index links one hop to the certified-payroll-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/certified-payroll-calculator\/"/,
+    'index must link ../certified-payroll-calculator/ so crawlers reach the certified payroll calculator in one hop',
+  );
+  assert.match(html, /certified payroll calculator/i);
+});

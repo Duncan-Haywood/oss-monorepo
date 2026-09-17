@@ -151,3 +151,16 @@ test("webhook coverage survives canonical JSON re-import", () => {
     assert.equal(captureSummary(restored), captureSummary(inventory));
   }
 });
+test("rejects malformed records instead of silently dropping apps", () => {
+  const app = { id: "valid", scopes: [], webhooks: [] };
+  for (const invalid of [null, "broken", 42]) {
+    for (const body of [
+      { apps: [app, invalid] },
+      { data: { apps: [app, invalid] } },
+      { data: { appInstallations: { nodes: [app, invalid] } } },
+      { data: { appInstallations: { edges: [{ node: app }, invalid] } } },
+    ]) {
+      assert.throws(() => normalizeExport(body, { apiVersion: "2026-07" }), /each app must be an object/);
+    }
+  }
+});

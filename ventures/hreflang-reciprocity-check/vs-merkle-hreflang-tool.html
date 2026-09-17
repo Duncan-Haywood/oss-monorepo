@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hreflang Reciprocity Check vs. Merkle's hreflang Tags Testing Tool</title>
+  <meta name="description" content="Merkle's hreflang Tags Testing Tool (technicalseo.com) fetches a live URL server-side and validates its hreflang set, including reciprocity, for a single page at a time. hreflang Reciprocity Check runs in your browser or as a zero-dependency, zero-install CLI you can wire into your own CI. Not affiliated with Merkle.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-merkle-hreflang-tool.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="hreflang Reciprocity Check vs. Merkle's hreflang Tags Testing Tool">
+  <meta property="og:description" content="Both check hreflang reciprocity. One is a hosted single-URL tool; the other is a free, zero-dependency CLI you can run in your own CI, plus a browser page that works from pasted HTML with nothing uploaded.">
+  <meta property="og:url" content="./vs-merkle-hreflang-tool.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use hreflang Reciprocity Check or Merkle's hreflang Tags Testing Tool?","acceptedAnswer":{"@type":"Answer","text":"Both check the same underlying thing — hreflang reciprocity and code validity — and either is a reasonable choice for checking one URL by hand. Merkle's tool fetches the live URL itself, server-side, which is convenient for a one-off check and needs no HTML pasted in. hreflang Reciprocity Check adds two things Merkle's hosted tool does not: a zero-dependency Node CLI you can run unattended in your own CI against a build's output, and a browser mode that works entirely from HTML you paste in, with nothing sent anywhere, for a page that is not live yet or that you'd rather not point a third-party tool's server at."}},{"@type":"Question","name":"Does Merkle's tool check reciprocity?","acceptedAnswer":{"@type":"Answer","text":"Yes — Merkle's hreflang Tags Testing Tool, published at technicalseo.com, is a well-known tool in the technical SEO community specifically for validating hreflang tags including whether alternates link back to each other, based on its own public documentation of what it checks."}},{"@type":"Question","name":"Is Merkle's tool free?","acceptedAnswer":{"@type":"Answer","text":"Yes, based on its own public listing on technicalseo.com — no account is required to check a single URL. hreflang Reciprocity Check is also free, with no account, and the two are not competing on price — the difference is where the check runs and what you can automate with it."}},{"@type":"Question","name":"Is this page affiliated with Merkle?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Merkle. Merkle and its hreflang Tags Testing Tool are named here only to describe what that tool does and how it differs from this one, based on Merkle's own public documentation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .91rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; hreflang Reciprocity Check</a></p>
+  <h1>hreflang Reciprocity Check vs. Merkle's hreflang Tags Testing Tool</h1>
+  <p>
+    <strong>Merkle's hreflang Tags Testing Tool</strong>, published at technicalseo.com, is a
+    well-known free tool in the technical SEO community: paste a URL, and it fetches the page
+    server-side and reports on its hreflang set, including reciprocity between the pages it finds.
+    For checking a single live URL by hand, it is a solid, established choice with a track record
+    in the field.
+  </p>
+  <p>
+    hreflang Reciprocity Check checks the same underlying things — reciprocity, valid ISO 639-1 /
+    ISO 3166-1 codes, x-default, self-reference, duplicates — but ships as two different surfaces
+    instead of one hosted page: a <strong>zero-dependency Node CLI</strong> that fetches a target and
+    its alternates over real HTTP and can run unattended as a CI gate against your own build, and a
+    <strong>browser page</strong> that works entirely from HTML you paste in, so a page that is not
+    public yet (a staging build, a draft behind a login) can still be checked without ever handing
+    its content to a third-party server.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I have one live URL and want a quick hreflang report right now.</td>
+        <td>Either tool answers this well. Merkle's needs no HTML pasted in since it fetches for you; this tool's browser page needs the page's HTML (paste it, or let it try an automatic fetch).</td>
+      </tr>
+      <tr>
+        <td>I want hreflang reciprocity checked automatically on every build, before it ships.</td>
+        <td>hreflang Reciprocity Check's CLI &mdash; <code>node check.mjs &lt;url&gt;</code> exits non-zero on a finding, wireable into any CI as an ordinary step, with no account or hosted service in the loop.</td>
+      </tr>
+      <tr>
+        <td>The page isn't public yet (staging, a draft, behind a login) and I don't want to hand its HTML to a third-party server.</td>
+        <td>hreflang Reciprocity Check's browser page &mdash; paste the HTML and it never leaves your device. A tool that fetches the URL itself can't check a page it can't reach or isn't meant to reach.</td>
+      </tr>
+      <tr>
+        <td>I want a second opinion, or to compare two tools' read of the same page.</td>
+        <td>Run both. Two independent implementations of the same documented rule agreeing is stronger evidence than either alone.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Neither tool replaces the other for every case. A one-off check of a page that's already live is
+    exactly what Merkle's hosted tool is built for. A repeatable, unattended check wired into a CI
+    pipeline, or a check of a page that isn't public, is what this tool adds.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use hreflang Reciprocity Check or Merkle's hreflang Tags Testing Tool?</h3>
+  <p>Both check the same underlying thing — hreflang reciprocity and code validity — and either is a reasonable choice for checking one URL by hand. Merkle's tool fetches the live URL itself, server-side, which is convenient for a one-off check and needs no HTML pasted in. hreflang Reciprocity Check adds two things Merkle's hosted tool does not: a zero-dependency Node CLI you can run unattended in your own CI against a build's output, and a browser mode that works entirely from HTML you paste in, with nothing sent anywhere, for a page that is not live yet or that you'd rather not point a third-party tool's server at.</p>
+  <h3>Does Merkle's tool check reciprocity?</h3>
+  <p>Yes — Merkle's hreflang Tags Testing Tool, published at technicalseo.com, is a well-known tool in the technical SEO community specifically for validating hreflang tags including whether alternates link back to each other, based on its own public documentation of what it checks.</p>
+  <h3>Is Merkle's tool free?</h3>
+  <p>Yes, based on its own public listing on technicalseo.com — no account is required to check a single URL. hreflang Reciprocity Check is also free, with no account, and the two are not competing on price — the difference is where the check runs and what you can automate with it.</p>
+  <h3>Is this page affiliated with Merkle?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Merkle. Merkle and its hreflang Tags Testing Tool are named here only to describe what that tool does and how it differs from this one, based on Merkle's own public documentation.</p>
+  <p class="note">More: <a href="why-hreflang-must-be-reciprocal.html">why hreflang links must be reciprocal</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports whether the hreflang tags on the page(s) you provided satisfy five specific, mechanically checkable rules, not a legal opinion or a ranking guarantee. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a one-way hreflang link before Google did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

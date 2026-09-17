@@ -267,7 +267,7 @@
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
-      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The numbers ride after the <code>#</code>, which is never sent to a server, so copying a link uploads nothing. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Same basement, three scopes</strong></p>
       <table>
@@ -337,6 +337,8 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your finished SF, wages, costs, or prices.</p>
     <p>Need the basement dry before you finish it? The <a href="../basement-waterproofing-bid-calculator/">basement waterproofing bid calculator</a> prices French drain, exterior excavation, window wells, and sump &mdash; nothing uploaded.</p>
     <p>Looking up <a href="how-much-to-charge-to-finish-a-basement.html">how much to charge to finish a basement</a>? The article walks the rec-room-versus-legal-living math this calculator uses. Also see <a href="./vs-buildxact.html">this calculator vs. Buildxact</a>.</p>
+    <p>Got asked to match a <a href="should-i-charge-30-a-square-foot-to-finish-a-basement.html">$30 a square foot finished-basement special</a> on a legal-living job? See why the same flyer number covers a rec-room and loses over $55,000 on a bedroom suite.</p>
+    <p>Trimming out the finished space? The <a href="../crown-molding-bid-calculator/">crown molding bid calculator</a> prices grade, profile, ceiling height, and corners &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -356,7 +358,7 @@
       BATH_PRESETS,
       JOB_PRESETS,
     } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import {
       COMPANY_FIELDS,
       buildProposal,
@@ -884,6 +886,19 @@
     restoreCompany();
     refreshProposal();
     persist();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

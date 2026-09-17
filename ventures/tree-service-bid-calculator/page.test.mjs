@@ -167,3 +167,19 @@ test('index links one hop to the lawn-care-bid-calculator sibling', () => {
   );
   assert.match(index, /lawn care bid calculator/i);
 });
+
+// The reciprocal of the assertion in
+// ventures/forestry-mulching-bid-calculator/page.test.mjs. A lot being cleared
+// carries two kinds of material -- understory a mulching head eats, and
+// standing stems it is not rated for -- and the operator quoting one is
+// regularly asked about the other. Without this explicit one-hop in both
+// directions the pair is reachable only by walking back up to the category
+// index; see platform/pages/siblings-budget.json.
+test('index links one hop to the forestry-mulching-bid-calculator sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/forestry-mulching-bid-calculator\/"/,
+    'index must link ../forestry-mulching-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(index, /forestry mulching bid calculator/i);
+});

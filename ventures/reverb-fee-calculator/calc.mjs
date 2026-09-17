@@ -210,6 +210,28 @@ export function offerThatMatchesEbayList(input) {
   };
 }
 
+// Turns the eBay-crossover number into something a seller can paste straight
+// into a Reverb offer reply, closing the gap between "here is the math" and
+// "here is what I actually type back to the buyer." Rounds the asking price
+// up to the nearest whole dollar -- a counter with cents in it reads as a
+// spreadsheet, not a person -- and rounding up rather than to nearest keeps
+// the countered price at or above the crossover it is named for, never
+// short of it.
+export function counterOfferMessage(input) {
+  const offerPrice = number(input.offerPrice, 'Offer price');
+  const match = offerThatMatchesEbayList(input);
+  const money = (value) => {
+    const format = (value) => `$${Number(value).toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
+  if (offerPrice >= match.offerPrice) {
+    return `Thanks for the offer of ${money(offerPrice)} -- that already nets as much as selling this on eBay at my list price, so I'm glad to accept it.`;
+  }
+  const ask = Math.ceil(match.offerPrice);
+  return `Thanks for the offer of ${money(offerPrice)}. To match what I'd net selling this on eBay at my list price, I'd need to land closer to $${ask} -- would you meet me there, or somewhere in between?`;
+}
+
 // Same listing, four ways to handle shipping. Marketplace and Reverb
 // Gives sit on the item price, so folding postage into the list raises
 // those lines. Absorbing the label keeps the typed list and leaves the

@@ -44,6 +44,16 @@ It also names the Reverb offer that leaves the same cash as selling the item
 on eBay at your list price, so a lowball can be compared to the other channel
 you would actually use.
 
+Seeing that crossover number is not the same as acting on it — a seller who
+agrees the offer is short still has to write the reply. "Copy counter-offer
+message" turns the same arithmetic into a message ready to paste into the
+Reverb inbox: it names the buyer's offer and, if it falls short of the
+eBay-list crossover, asks for a price rounded up to the nearest whole dollar
+(a counter with cents reads as a spreadsheet, not a person); if the offer
+already clears the crossover, it drafts an acceptance instead of a counter.
+Nothing is sent for you — it is copied to the clipboard, or shown inline if
+the browser refuses clipboard access, for the seller to review and send.
+
 The SEO page
 [`should-i-take-this-reverb-offer.html`](should-i-take-this-reverb-offer.html)
 walks the default worked example ($800 list, $720 offer, $284.33 vs $210.65
@@ -171,6 +181,26 @@ This is distinct from the eBay fee calculator (final-value fee on one
 channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
 (fulfillment and storage), and the where-to-sell ranker (a custom "other
 channel" row, not Reverb's offer-versus-list or shipping-packaging shape).
+
+## Comparing to other channels without retyping
+
+The footer's link to the
+[where-to-sell calculator](../where-to-sell-calculator/) carries this item's
+price, shipping and cost across and switches Reverb on there, so ranking it
+against eBay, Etsy, Amazon and an own store does not mean re-entering
+anything (`to-where-to-sell.mjs`). This is the reverse of that tool's own
+handoff, which already carried a comparison down into this page — until now
+the link only ran one way, so a seller who landed here first (from a search
+like "should I take this Reverb offer") had to retype the item to see it
+ranked against other channels.
+
+Only the numbers every channel shares travel — price, shipping charged,
+shipping paid, item cost, and the general-cost bucket. Reverb's own fee rates
+have no equivalent field on the where-to-sell side, so they are left out
+rather than guessed at; the receiving page prices Reverb from its own
+illustrative preset. `to-where-to-sell.test.mjs` decodes every link through
+that page's own decoder, so a change to its payload shape fails a test here
+instead of arriving as a wrong number there.
 
 ## Take the return, or refund part of it
 

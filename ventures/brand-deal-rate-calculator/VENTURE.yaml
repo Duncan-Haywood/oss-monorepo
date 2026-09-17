@@ -1,0 +1,79 @@
+name: brand-deal-rate-calculator
+description: Free browser calculator that turns a social media creator's own follower count, engagement rate, and platform into a defensible brand-deal price range for each common deliverable (feed post, Story, Reel/short-form video, dedicated long-form video) — using commonly cited creator-economy CPM benchmarks, entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a pricing
+# calculator for a creator-economy niche closely modeled on the already-
+# graduated newsletter-sponsorship-rate-calculator (same reasoning, same
+# session-time tradeoff per portfolio/pipeline/README.md's archetype-
+# saturation note -- 120+ of ~264 ventures share the trade-bid-calculator
+# shape, and the marketplace-fee-calculator and dev-tooling-checker shapes
+# are each saturated in turn, so this session weighed a third creator-economy
+# angle -- social-platform sponsorship, not email -- rather than a 265th
+# near-duplicate in an already-mined vertical).
+#
+# duplicate_check.py against "creator brand deal rate calculator: estimate a
+# fair sponsorship/UGC rate from follower count, engagement rate, platform,
+# and deliverables (post, story, reel, usage rights, exclusivity) for
+# influencers negotiating brand deals" scored nothing >= 0.10 against any
+# existing venture, pipeline candidate, or screened-out row -- the closest
+# venture matches (commercial-photo-license-calculator 0.08,
+# newsletter-sponsorship-rate-calculator not in top 10) are a different
+# product shape (photo licensing) and a different channel (email) rather
+# than a near-duplicate. Also checked directly: no venture directory or
+# screened-out.md row mentions "influencer", "brand deal", or "sponsorship
+# rate" for a social-platform creator.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- output is a price *range* derived from
+#     published, cited market benchmarks, explicitly framed as a starting
+#     point for negotiation, never a quote, guarantee, or valuation
+#     performed on the user's behalf. Being wrong costs a creator a
+#     miscalibrated ask in one negotiation, not a filing, a contract
+#     obligation, or a third party's money. No advice-of-record: the user
+#     decides and negotiates.
+#   ethical_robustness: 8 -- deterministic arithmetic over benchmark ranges,
+#     no dark patterns, no data collected server-side, does not get worse
+#     for users as traffic grows. Every input is a number the user already
+#     knows about their own account; nothing is scraped or inferred about a
+#     third party or about the brand on the other side of the deal.
+#
+# Distribution: r/InfluencerMarketing, r/NewTubers, r/socialmedia, and
+# creator-economy Discords/forums all see this exact question regularly once
+# an account passes a few thousand followers. Search phrases with real,
+# recurring volume: "how much to charge for a sponsored post", "brand deal
+# rate calculator", "influencer rate calculator", "sponsored post pricing
+# instagram". Incumbents (Intellifluence, Klear, HypeAuditor-style rate
+# estimators) are marketplaces or paid tools that require signing up or
+# connecting an account first; this is a free, standalone calculator with
+# nothing to sign up for and nothing to connect.
+hypotheses:
+  - claim: A creator who lands here from a "how much to charge for a sponsored post" search or a creator-economy subreddit thread will get a price range they did not already have and use it to set or defend an ask.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Creators below the size marketplaces like Intellifluence or Klear actively court (roughly under 10,000-50,000 followers) are underserved for pricing guidance and will use a free, no-signup calculator instead of guessing from a rate-card template found online.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/brand-deal-rate-calculator/
+  analytics: null

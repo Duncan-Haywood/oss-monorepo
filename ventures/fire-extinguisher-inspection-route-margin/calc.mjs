@@ -48,6 +48,15 @@ export const DEFAULTS = {
   mileageRate: 0.67,
   targetHourlyRate: 32,
   recordkeepingMonthlyCost: 8,
+  // Not read by calculate() itself -- it feeds incomeGap() below, against the
+  // route-wide "Your route this month" summary. It lives here anyway because
+  // DEFAULTS is also the one source share.mjs and index.html derive their
+  // persisted/shareable field list from, and this is an ordinary numeric
+  // assumption (not one of the per-site rows), so a shared or restored link
+  // should carry it too -- see vending-machine-route-margin/calc.mjs and
+  // CLAUDE.md's "168 became 169" note on the cost of a copied field list
+  // going stale instead of being imported.
+  targetMonthlyIncome: 600,
 };
 
 function number(value, label, { min = 0, max = null, exclusiveMax = false } = {}) {

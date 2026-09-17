@@ -21,12 +21,52 @@ function packageName(path) {
 }
 
 /**
+ * Yarn and pnpm lockfiles are not JSON. Without this check, dropping one
+ * surfaces as "not valid JSON" — true, but it strands a visitor who brought
+ * the only lockfile their project has. Name the format and the supported one
+ * instead. `fileName` is optional; content detection covers paste.
+ */
+function unsupportedLockfileError(text, fileName) {
+  const name = String(fileName || "")
+    .trim()
+    .split(/[\\/]/)
+    .pop()
+    .toLowerCase();
+  const head = String(text || "").slice(0, 400);
+  const looksYarn =
+    name === "yarn.lock" ||
+    /^#\s*yarn\b/i.test(head) ||
+    /\byarn lockfile v\d/i.test(head);
+  const looksPnpm =
+    name === "pnpm-lock.yaml" ||
+    name === "pnpm-lock.yml" ||
+    (/^lockfileVersion:\s*\d/m.test(head) && /\bimporters:\s*$/m.test(head));
+  if (looksYarn) {
+    return (
+      "This file is a yarn.lock. This tool only reads package-lock.json v2 or v3 " +
+        "(npm 7+). Generate one with `npm install`, or keep using yarn's own audit tools."
+    );
+  }
+  if (looksPnpm) {
+    return (
+      "This file is a pnpm-lock.yaml. This tool only reads package-lock.json v2 or v3 " +
+        "(npm 7+). Generate one with `npm install`, or keep using pnpm's own audit tools."
+    );
+  }
+  return null;
+}
+
+/**
  * Parses package-lock.json text into { root, packages }. `root` is the parsed
  * lockfile object; `packages` maps a package name to every install location
  * that resolved it. Throws with a message meant to be shown to the visitor
  * directly — this is the only place lockfile shape is validated.
  */
-function parseLockfile(text) {
+function parseLockfile(text, fileName) {
+  const unsupported = unsupportedLockfileError(text, fileName);
+  if (unsupported) {
+    throw new Error(unsupported);
+  }
   let raw;
   try {
     raw = JSON.parse(text);
@@ -73,7 +113,7 @@ function classify(name, locations, declared) {
 
 /** Builds the full evidence report from raw lockfile text and a display file name. */
 function buildReport(text, fileName) {
-  const { root, packages } = parseLockfile(text);
+  const { root, packages } = parseLockfile(text, fileName);
   const declared = declaredDependencies(root.packages[""]);
   const rows = Object.keys(packages)
     .sort()
@@ -135,5 +175,13 @@ function toJson(report) {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { parseLockfile, buildReport, toMarkdown, toJson, packageName, LIMITATIONS };
+  module.exports = {
+    parseLockfile,
+    buildReport,
+    toMarkdown,
+    toJson,
+    packageName,
+    unsupportedLockfileError,
+    LIMITATIONS,
+  };
 }

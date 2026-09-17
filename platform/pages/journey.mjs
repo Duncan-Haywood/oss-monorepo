@@ -61,7 +61,32 @@ page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
 page.on('console', (m) => {
   if (m.type() === 'error') errors.push(`console: ${m.text()}`);
 });
-page.on('requestfailed', (r) => errors.push(`requestfailed: ${r.url()}`));
+// Which document was current when each request *started*. A `requestfailed`
+// fires when the navigation that supersedes a page cancels its still-inflight
+// subresources, and by then `page.url()` is already the next page -- so the
+// only moment the originating document can be read reliably is at request
+// start. Step 8 below uses this to excise the deliberate 404's own fallout by
+// cause rather than by a timer it can lose.
+const startedOn = new WeakMap();
+// Error strings whose request began on the deliberate 404 page. Kept as a set
+// of the messages themselves rather than of indices, because step 8 splices
+// `errors` and every index after the cut would shift under it.
+const fromNotFoundPage = new Set();
+let notFoundUrl = null;
+page.on('request', (r) => startedOn.set(r, page.url()));
+// The reason matters as much as the URL and used to be dropped. Playwright
+// does not raise `requestfailed` for a 404 at all -- that is a response, not a
+// failure -- so everything arriving here is a transport-level event, and
+// `net::ERR_ABORTED` (the browser cancelled it) reads very differently from
+// `net::ERR_CONNECTION_REFUSED` (nothing was listening). Reporting only the
+// URL made an aborted precache indistinguishable from a dead asset, which cost
+// a session an hour proving that a file the server returns 200 for was in fact
+// present.
+page.on('requestfailed', (r) => {
+  const message = `requestfailed: ${r.url()} (${r.failure()?.errorText ?? 'no reason reported'})`;
+  errors.push(message);
+  if (notFoundUrl && startedOn.get(r) === notFoundUrl) fromNotFoundPage.add(message);
+});
 
 // Every product here is offline-capable by design: no CDN, no font host, no
 // analytics beacon. The hub says so in as many words ("everything runs in your
@@ -1621,8 +1646,9 @@ check(`all ${checked} sitemap URLs resolve`,
 //    after `/favicon.ico` at the origin root and 404s again. Both belong to this
 //    navigation, so everything it raises is excised by position rather than by
 //    filtering 404s everywhere, which is what let a real one hide for weeks.
+notFoundUrl = `${BASE}/no-such-page-here`;
 const beforeNotFound = errors.length;
-const notFound = await page.goto(`${BASE}/no-such-page-here`, { waitUntil: 'domcontentloaded' });
+const notFound = await page.goto(notFoundUrl, { waitUntil: 'domcontentloaded' });
 check('unknown path returns 404', notFound.status() === 404, String(notFound.status()));
 await page.waitForTimeout(300); // let the icon fallback land before the cut
 const deliberate = errors.splice(beforeNotFound, errors.length - beforeNotFound);
@@ -1642,9 +1668,24 @@ await browser.close();
 // dropped every 404 anywhere in the run -- which is how every page shipped with
 // a failing `/favicon.ico` on load until #1746, with this harness green
 // throughout.
-const realErrors = errors;
-if (deliberate.length) {
-  console.log(`\n(${deliberate.length} error(s) from the deliberate 404 step, ignored)`);
+// The positional splice above catches everything the 404 step raised *before*
+// the 300ms cut. What it cannot catch is a subresource of that page still in
+// flight when step 9 navigates away: the cancellation fires `requestfailed`
+// after the cut, so it lands attributed to step 9 and reads as a fresh defect
+// on the hub.
+//
+// Measured 2026-09-09: a full catalogue run failed on
+// `requestfailed: http://127.0.0.1:48141/icon-192.png` — the bare 404 error
+// page's own icon link, cancelled by the navigation to `/`. The asset was
+// present and served 200 from the very tree the run had built, so the check
+// was reporting a missing file that was not missing, on the one check that
+// walks the whole customer journey. Widening the 300ms wait would only make
+// the race rarer; this removes it, by asking which document the request
+// started on rather than when its failure happened to arrive.
+const lateFromNotFound = errors.filter((e) => fromNotFoundPage.has(e));
+const realErrors = errors.filter((e) => !fromNotFoundPage.has(e));
+if (deliberate.length || lateFromNotFound.length) {
+  console.log(`\n(${deliberate.length + lateFromNotFound.length} error(s) from the deliberate 404 step, ignored)`);
 }
 check('no off-origin request was made', offOrigin.length === 0, offOrigin.slice(0, 3).join(' | '));
 check('no unexpected page, console, or resource error', realErrors.length === 0,

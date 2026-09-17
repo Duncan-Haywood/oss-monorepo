@@ -1,0 +1,48 @@
+name: staffing-markup-calculator
+description: >-
+  A private browser calculator that prices one staffing placement the way an
+  agency actually bills it — a markup on the pay rate — and shows what that
+  markup earns once the employer burden it has to carry is counted: FICA,
+  FUTA and SUTA charged against their wage bases rather than as flat
+  percentages, workers' compensation at the class code's rate per $100 of
+  payroll with the overtime premium excluded where the state allows it, PTO,
+  benefits, screening and payroll admin. It reports the loaded cost an hour,
+  the real gross margin beside the margin the markup implies, the break-even
+  markup, the markup a target gross margin requires, the cost of funding
+  payroll across the client's payment terms, and a markup ladder that prices
+  the discount a client is asking for.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent staffing agencies quote a markup on the pay rate and read it as a gross margin, so a desk running a single house markup across mixed workers' comp class codes is subsidising its heavy codes out of its light ones without that showing anywhere in a monthly P&L.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The two inputs that most change the answer — the workers' comp rate per $100 of payroll and the state unemployment rate and wage base — are figures an agency owner has on a rate notice and a policy declaration, so the tool can be completed from documents they already hold rather than from an accountant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Charging the capped unemployment taxes against the wage base rather than as a flat percentage is what makes a short assignment price differently from a long one, and that difference is large enough that a recruiter pricing seasonal work will change a quote over it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The cost of funding payroll across the client's payment terms is absent from every markup quote in the trade, and putting a dollar figure on it is what makes net-60 negotiable rather than a term to accept.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three staffing agencies price a placement twice within 90 days.
+  - Agencies report that the burden inputs demand figures they do not have to hand, so the tool cannot be completed without their accountant or broker.
+  - The margins it produces prove so far from what agencies actually see that the arithmetic is rejected rather than acted on.
+  - Agencies report that they already price from a burden-loaded cost rather than a markup on the pay rate, so the mistake this tool exists to catch is not one they make.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/staffing-markup-calculator/
+  analytics: null

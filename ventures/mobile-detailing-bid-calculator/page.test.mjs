@@ -247,3 +247,16 @@ test('the result panel is announced to screen readers when it updates', () => {
     'the result section is not a live region, so updates are never announced',
   );
 });
+
+// Closest sibling: also a per-vehicle job a detailer's own customer asks
+// about. Without an explicit one-hop, platform/pages/siblings.mjs reports
+// this tool as a crawlable orphan -- reachable only through the category
+// index, never from another tool.
+test('index links one hop to the vehicle-wrap-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/vehicle-wrap-bid-calculator\/"/,
+    'index must link ../vehicle-wrap-bid-calculator/ so crawlers reach the wrap calculator in one hop',
+  );
+  assert.match(html, /vehicle wrap bid calculator/i);
+});

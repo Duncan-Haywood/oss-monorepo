@@ -1,6 +1,6 @@
 import { calculate, buildSnapshotText } from "./model.mjs";
 import { encodeShare, decodeShare } from "./share.mjs";
-import { record as usage, counts as usageCounts, clearAndDisable } from "./usage.mjs";
+import { record as usage, counts as usageCounts, clearAndDisable, enabled as usageEnabled } from "./usage.mjs";
 const ids = ["currency", "booking", "rental_days", "delivery", "cleaning", "damage", "purchase", "life", "fixed_monthly", "available", "target_margin"];
 const $ = (id) => document.getElementById(id);
 const values = () => Object.fromEntries(ids.map((id) => [id, id === "currency" ? $(id).value.trim() || "units" : Number($(id).value)]));
@@ -76,7 +76,19 @@ async function copyShare() {
 // inside render()'s try block, which showed it to the visitor as a failed
 // calculation. See the note at the top of usage.mjs.
 function recordUsage(event) { usage(event); showUsage(); }
-function showUsage() { const data = usageCounts(); $("usage").textContent = `Local usage: ${data.calculation || 0} calculations, ${data.export || 0} exports. No usage is sent anywhere.`; }
+// Say whether counting is on, not only what it counted. Turning it off left
+// this line reading "Local usage: 0 calculations" -- indistinguishable from a
+// visitor who had simply not used the tool yet, and silent about the choice
+// on the next visit.
+function showUsage() {
+  if (!usageEnabled()) {
+    $("usage").textContent = "Local usage counting is off in this browser.";
+    $("clear-usage").textContent = "Local usage counting is off";
+    return;
+  }
+  const data = usageCounts();
+  $("usage").textContent = `Local usage: ${data.calculation || 0} calculations, ${data.export || 0} exports. No usage is sent anywhere.`;
+}
 function drafts() { try { return JSON.parse(localStorage.getItem(DRAFTS_KEY) || "[]"); } catch { return []; } }
 // Same reason as usage.mjs: setItem throws when site data is blocked or the
 // quota is full, and losing a draft must not also break the page around it.

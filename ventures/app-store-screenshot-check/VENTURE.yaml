@@ -1,0 +1,136 @@
+name: app-store-screenshot-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for iOS and Android app
+  developers: reads the header bytes of the images you are about to attach to
+  an App Store Connect or Google Play listing and reports what the store will
+  refuse -- an app icon that declares an alpha channel or a tRNS transparency
+  chunk (the "can't contain an alpha channel" rejection that arrives at upload
+  time, after the build and the archive), an icon or feature graphic that is
+  not the exact required size, a file whose real bytes are HEIC or WebP
+  whatever its extension claims, a screenshot set whose members disagree about
+  their own dimensions, screenshot counts past each store's per-set limit, and
+  Google Play's side-length and 2:1 aspect-ratio bounds. It decodes no pixels
+  and opens no sockets: every property it checks lives in the first few dozen
+  bytes of the file, so the CLI is three files droppable into a CI job and the
+  browser page reads a visitor's files locally with nothing uploaded.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues explicitly for this shape over
+# another <trade>-bid-calculator, and this venture follows the same "read what
+# is actually there, report the exact evidence" shape as the rest of the
+# `*-check` family. Its distinguishing property within that family is that it
+# is the first one whose evidence is *binary* rather than text: every sibling
+# parses a robots.txt, a sitemap, a header list or a JSON payload, and this one
+# reads image container headers. That is also why the browser half is the
+# stronger half here rather than the weaker one -- unlike cors-misconfig-check
+# or redirect-chain-check, where a browser tab is forbidden from doing the
+# thing the check needs and the page falls back to pasted evidence, a browser
+# can read a local file completely via the File API. Nothing is degraded and
+# nothing has to be pasted.
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row and pipeline candidate at 0.16 or below for this idea's
+# description -- far under the 0.45 review bar. Closest matches read by eye:
+# ios-privacy-manifest-check (0.16) shares the "catch it before App Review
+# does" framing but checks a PrivacyInfo.xcprivacy declaration against the
+# required-reason API list, which is a different file, a different failure and
+# a different stage of the release; merchant-feed-check (0.15) validates a
+# product feed's fields against a shopping-feed spec, text not images;
+# mls-photo-spec-preflight (0.12) is the nearest idea structurally -- validate
+# image assets against a published spec -- and it graduated 2026-08-24 as a
+# product line of real-estate-agent-photo-app against MLS listing-photo rules,
+# an unrelated market with an unrelated specification. social-preview-check
+# (0.10) reads og:/twitter: tags, not the image bytes. Nothing in
+# screened-out.md mentions app stores, store listings, screenshots or icons.
+#
+# Distribution channel: both stores publish the requirement as a written,
+# sourced rule -- Apple's App Store Connect screenshot specifications and its
+# app-icon opacity requirement, Google Play Console's graphic-asset
+# requirements -- which is the same "documented requirement, not an inferred
+# one" channel argument sitemap-lastmod-freshness-check and redirect-chain-check
+# used. The rejection message Apple returns for a transparent icon is a
+# near-verbatim search query ("app icon can't contain alpha channel"), and it
+# is searched at the worst possible moment: mid-release, with a build already
+# archived. Paid asset *generators* (device framers, resize pipelines) are an
+# established category, which is evidence of sustained demand around store
+# assets -- but based on general knowledge at screening time (unverified
+# against a live fetch this session; egress to arbitrary hosts is proxy-denied
+# here, per this repo's standing convention), the free tooling in that category
+# generates assets rather than validating ones you already have, and none of it
+# reads the alpha declaration out of a PNG header. That gap is this tool's
+# wedge.
+#
+# Honesty constraint this venture is built around, and the reason its severity
+# model is what it is: a size table transcribed from someone else's
+# documentation is correct on the day it is written and quietly wrong a year
+# later, and this repository has learned that specific lesson repeatedly
+# (CLAUDE.md's "import, don't restate" rule, recorded three times). So the
+# checks are split explicitly in spec.mjs. Structural checks -- real format
+# from magic bytes, transparency from the PNG colour type and tRNS chunk, a
+# screenshot set compared against itself -- need no table and cannot go stale;
+# they carry danger severity. Table-derived checks carry notice severity and
+# name the tool's own table as the suspect, except for the three fixed values
+# (1024x1024, 512x512, 1024x500) that have been stable for the life of both
+# stores. A checker that fails a good build on a year-old table is worse than
+# no checker, because it teaches its user to ignore it.
+hypotheses:
+  - claim: >-
+      An indie developer or small studio whose upload was just refused will
+      search the store's own rejection wording ("app icon can't contain alpha
+      channel", "screenshot dimensions are wrong", "invalid image") or a
+      preventative query ("app store screenshot sizes", "play store feature
+      graphic size") and find this tool -- then wire the CLI into the workflow
+      that builds their release assets, so the same mistake fails a pull
+      request instead of a release.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The transparency check specifically is worth more than the size checks,
+      because it is the one no file browser, spec sheet or visual inspection
+      can perform -- an alpha channel is invisible when every pixel in it is
+      opaque -- and it fires at the most expensive moment in a release.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      The set-consistency check (screenshots in one set disagreeing about their
+      dimensions) will catch real mistakes indefinitely without maintenance,
+      because it compares the supplied files against each other rather than
+      against any published table, and so is the check most likely to still be
+      correct in two years.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI reads local files on the user's own
+  # machine and opens no sockets, and the browser tool reads files through the
+  # File API without uploading them. There is no server of ours in the loop
+  # either way, so serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or in-browser check after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - Either store ships an equivalent pre-upload validator in its own tooling
+    (a Transporter or Play Console preflight that names these specific
+    problems before an upload attempt), such that checking beforehand stops
+    being a separate step worth taking.
+  - The size tables fall far enough behind that the notice-severity checks
+    produce more false alarms than useful signal, and nobody is maintaining
+    them.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/app-store-screenshot-check/
+  analytics: null

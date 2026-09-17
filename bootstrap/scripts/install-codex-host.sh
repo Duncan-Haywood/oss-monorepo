@@ -23,17 +23,47 @@
 #
 # It does not install or touch k3s, Argo CD, the Ingress, or anything serving
 # the public site. It does not create Hetzner resources and never calls the
-# Hetzner API. It does not enable the governor: the policy switch stays wherever
-# `enable-codex-governor.sh` left it, so a box can be prepared long before it is
-# allowed to spend quota. It holds no credential -- `--credentials` reads from
-# stdin, never argv, so nothing lands in the shell history or the process table.
+# Hetzner API. It does not enable the governor *by default*: the policy switch
+# stays off unless you ask for it here, so a box can be prepared long before it
+# is allowed to spend quota. It holds no credential -- `--credentials` reads
+# from stdin, never argv, so nothing lands in the shell history or the process
+# table.
 #
 # USAGE
 #
 #   CONFIRM=install-codex-host ./bootstrap/scripts/install-codex-host.sh
 #   ./bootstrap/scripts/install-codex-host.sh --check        # report, change nothing
 #   ./bootstrap/scripts/install-codex-host.sh --credentials  # write creds from stdin
+#   ./bootstrap/scripts/install-codex-host.sh --enable       # start spending quota
+#   ./bootstrap/scripts/install-codex-host.sh --disable      # stop, keep it installed
 #   CONFIRM=install-codex-host ./bootstrap/scripts/install-codex-host.sh --uninstall
+#
+# ENABLING WITHOUT A SECOND TRIP
+#
+# `--enable` flips `"enabled"` in the policy copy this installer put on the box
+# (`$PREFIX/governor/policy.json`), which is the file the timer actually reads
+# (`host_governor.py:112`). It is the whole of step 3, and the reason it lives
+# here is arithmetic about one credential.
+#
+# Until now the only route to that flip was: edit `policy.json` in the
+# repository with `enable-codex-governor.sh`, commit it, and *re-run this
+# installer on the box* to copy the new policy over. That last clause is a
+# second SSH session, and SSH to these boxes needs `HETZNERSSHKEY` -- the one
+# owner action every route in this repository is blocked on. So the recovery
+# would install the worker, credential it, and then leave the thing switched
+# off behind the same key the owner had just spent their one session on. This
+# is the identical defect `restore-cluster.sh` fixed for the *credential* on
+# 2026-09-10 ("Step 1 is avoidable"), one step further down the sequence.
+#
+# `CODEX_ENABLED=1` on an install run does the same thing at the end of the
+# install, so the recovery can carry it in the same run. Both refuse when there
+# is no credential on the box: an enabled governor with nothing to authenticate
+# with wakes every five minutes, fails, and sits on a six-hour auth cooldown,
+# which looks from the outside exactly like a governor that is working.
+#
+# Neither touches the repository's `policy.json`. The committed default stays
+# `false` on purpose -- turning on unattended automation is an owner decision
+# taken per box, not something a merge does to everyone.
 #
 # The install apt-gets any missing prerequisite from the distribution archive
 # and re-checks; SKIP_PREREQ_INSTALL=1 reports and refuses without touching the
@@ -61,6 +91,9 @@ STATEDIR="${CODEX_HOST_STATEDIR:-/var/lib/codex-governor}"
 CODEX_HOME="${CODEX_HOST_CODEXHOME:-/var/lib/codex}"
 TOOLSDIR="${CODEX_HOST_TOOLSDIR:-/var/lib/codex-tools}"
 CREDS="$ETCDIR/credentials.env"
+# The policy the *timer* reads, which is the copy on the box rather than the
+# one in the checkout. `host_governor.py:112` resolves exactly this path.
+INSTALLED_POLICY="$PREFIX/governor/policy.json"
 
 MODE=install
 for arg in "$@"; do
@@ -68,8 +101,10 @@ for arg in "$@"; do
     --check)       MODE=check ;;
     --uninstall)   MODE=uninstall ;;
     --credentials) MODE=credentials ;;
-    -h|--help)     sed -n '2,46p' "${BASH_SOURCE[0]}"; exit 0 ;;
-    *) echo "unknown argument: $arg (want: --check | --credentials | --uninstall)" >&2; exit 2 ;;
+    --enable)      MODE=enable ;;
+    --disable)     MODE=disable ;;
+    -h|--help)     sed -n '2,77p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    *) echo "unknown argument: $arg (want: --check | --credentials | --enable | --disable | --uninstall)" >&2; exit 2 ;;
   esac
 done
 
@@ -315,13 +350,100 @@ report() {
     say "  - systemd is not managing this host (units install, but nothing starts them)"
   fi
 
+  # Report the policy the timer *reads* -- the copy on the box -- not the one
+  # in the checkout. Those two are allowed to differ (that is the whole point
+  # of `--enable`), and before this they could differ in the direction that
+  # misleads: an operator who ran `enable-codex-governor.sh` and committed, but
+  # never re-ran the installer, got "policy enabled — the timer will start
+  # workers" from a box whose installed copy still said false.
   step "governor policy"
-  if grep -qE '^  "enabled": true,$' "$SRC_AGENTS/governor/policy.json" 2>/dev/null; then
+  if [[ ! -f "$INSTALLED_POLICY" ]]; then
+    say "  - nothing installed at $INSTALLED_POLICY"
+    if policy_is_enabled "$SRC_AGENTS/governor/policy.json"; then
+      say "    (the checkout's policy is enabled, but no install has copied it here)"
+    fi
+  elif policy_is_enabled; then
     ok "policy enabled — the timer will start workers"
   else
     say "  - policy disabled; the timer will tick and hold."
-    say "    Enable with ./bootstrap/scripts/enable-codex-governor.sh"
+    say "    Enable it on this box with: $0 --enable"
   fi
+}
+
+# ------------------------------------------------------------ policy switch
+#
+# Reads the installed policy's `"enabled"` field. Absent file counts as "not
+# enabled" rather than an error: the question every caller is really asking is
+# "will the next tick start a worker?", and a box with nothing installed
+# answers that with "no".
+policy_is_enabled() {
+  local file="${1:-$INSTALLED_POLICY}"
+  grep -qE '^  "enabled": true,$' "$file" 2>/dev/null
+}
+
+# Flip the installed policy in place. Deliberately a targeted substitution on
+# the one line rather than a JSON rewrite: there is no `jq` in the prerequisite
+# list, and re-emitting the file with a different serialiser would silently
+# reformat a policy the operator may be diffing against the repository copy.
+set_policy_enabled() {
+  local want="$1"
+  require_root
+  [[ -f "$INSTALLED_POLICY" ]] || fail \
+    "no installed policy at $INSTALLED_POLICY; run the install first."
+
+  # An enabled governor with no credential is not "on", it is a five-minute
+  # loop into a six-hour auth cooldown -- and it reports as a *worker* failure
+  # against the queue item's damped score, so the visible symptom is "that item
+  # keeps failing" rather than "this box was never credentialed". Refuse, in
+  # the same spirit as `enable-codex-governor.sh` refusing to enable the
+  # cluster path before the SealedSecret is in the tree.
+  if [[ "$want" == "true" && ! -f "$CREDS" ]]; then
+    fail "refusing to enable with no credentials at $CREDS.
+  Give it one first -- in this same session, so it costs no second trip:
+      $0 --credentials < codex.env
+  It wants CODEX_AUTH_JSON (from \`codex login\`, which draws on the ChatGPT
+  plan's included quota) and GH_TOKEN. Then re-run $0 --enable."
+  fi
+
+  # Already in the requested state: nothing to write, and nothing to say --
+  # the caller prints the one authoritative line about where the box ended up.
+  if [[ "$want" == "true" ]] && policy_is_enabled; then return 0; fi
+  if [[ "$want" == "false" ]] && ! policy_is_enabled; then return 0; fi
+
+  local tmp
+  tmp="$(mktemp "${INSTALLED_POLICY}.XXXXXX")"
+  sed -E 's/^(  "enabled": )(true|false),$/\1'"$want"',/' "$INSTALLED_POLICY" > "$tmp"
+
+  # Verify before moving into place. A policy this substitution silently missed
+  # would leave the box in the state the operator just asked it to leave, and
+  # `--enable` printing success is precisely how that goes unnoticed.
+  if ! grep -qE "^  \"enabled\": ${want},\$" "$tmp"; then
+    rm -f "$tmp"
+    fail "could not set \"enabled\": ${want} in $INSTALLED_POLICY (unexpected format)."
+  fi
+  chmod 0644 "$tmp"
+  mv "$tmp" "$INSTALLED_POLICY"
+}
+
+do_enable() {
+  step "governor policy"
+  set_policy_enabled true
+  ok "enabled — the timer will start a worker on its next tick"
+  if systemd_available && ! systemctl is-enabled codex-governor.timer >/dev/null 2>&1; then
+    warn "the timer itself is not enabled, so nothing will read this."
+    warn "run the install (CONFIRM=install-codex-host $0) to put it back."
+  fi
+  say "  Watch it:  systemctl list-timers codex-governor.timer"
+  say "             journalctl -u codex-governor.service -f"
+  say "  Budget:    $PREFIX/host/host_governor.py --check"
+}
+
+do_disable() {
+  step "governor policy"
+  set_policy_enabled false
+  ok "disabled — the timer keeps ticking and will start nothing"
+  say "  The install, the credential and the budget ledger are all untouched."
+  say "  Re-enable with: $0 --enable"
 }
 
 # --------------------------------------------------------------- credentials
@@ -391,6 +513,15 @@ do_install() {
   install -d -m 0700 "$STATEDIR" "$CODEX_HOME" "$TOOLSDIR"
   ok "$PREFIX, $STATEDIR, $CODEX_HOME, $TOOLSDIR"
 
+  # Read the box's current switch *before* the payload step overwrites the
+  # installed policy with the repository's (disabled) copy. The README tells
+  # operators this installer is idempotent and to "re-run it to roll out a new
+  # queue or a new policy" -- so without this, the ordinary act of shipping a
+  # new queue item would quietly switch off a governor that was running, and
+  # the only symptom would be dev capacity that stopped doing anything.
+  local was_enabled=0
+  policy_is_enabled && was_enabled=1
+
   step "payload"
   local pair src dst mode
   for pair in "${PAYLOAD[@]}"; do
@@ -419,6 +550,61 @@ do_install() {
     count=$((count + 1))
   done
   ok "$count queue item(s)"
+
+  # `CODEX_ENABLED=1` finishes the job in this run rather than leaving step 3
+  # behind another SSH session -- see "ENABLING WITHOUT A SECOND TRIP" above.
+  #
+  # Placed here for two reasons, both learned by testing it in the wrong spot.
+  # It must come *after* the payload step, because that step overwrites the
+  # installed policy with the repository's (disabled) copy on every run, so a
+  # flip made earlier would be undone by the install that made it. And it must
+  # come *before* the systemd section, which returns early on a host where
+  # systemd is not PID 1 -- putting it after that return meant the flip
+  # silently did not happen on exactly the hosts where the installer is
+  # exercised before it is pointed at the box that matters.
+  #
+  # Precedence, and the unset case is the one that matters most:
+  #   CODEX_ENABLED=1   turn it on (refused, with a warning, if uncredentialed)
+  #   CODEX_ENABLED=0   turn it off
+  #   unset             leave the box's switch where it already was
+  #
+  # "Leave it where it was" makes the switch a property of the box rather than
+  # of whichever checkout last ran the installer, which is what an operator
+  # rolling out a queue change actually expects.
+  step "governor policy"
+  case "${CODEX_ENABLED:-}" in
+    1)
+      if [[ -f "$CREDS" ]]; then
+        set_policy_enabled true
+        ok "CODEX_ENABLED=1 — enabled; the timer will start a worker on its next tick"
+      else
+        warn "CODEX_ENABLED=1 was set, but there are no credentials at $CREDS."
+        warn "left disabled — an enabled governor with no credential just loops"
+        warn "into a six-hour auth cooldown. Both steps, still with no second trip:"
+        warn "    $0 --credentials < codex.env && $0 --enable"
+      fi
+      ;;
+    0)
+      set_policy_enabled false
+      ok "CODEX_ENABLED=0 — disabled; the timer will tick and start nothing"
+      ;;
+    *)
+      if [[ "$was_enabled" == "1" && -f "$CREDS" ]]; then
+        set_policy_enabled true
+        ok "still enabled (carried over from the previous install)"
+      elif [[ "$was_enabled" == "1" ]]; then
+        # Enabled before, but the credential is gone. Carrying the switch over
+        # would restore a governor that can only fail; and `set_policy_enabled`
+        # refuses this case anyway, which mid-install would abort a run that is
+        # otherwise fine. Say what happened instead of doing either.
+        warn "was enabled, but there are no credentials at $CREDS — left disabled."
+        warn "restore it with: $0 --credentials < codex.env && $0 --enable"
+      else
+        say "  - disabled; the timer will tick and hold."
+        say "    Enable it on this box with: $0 --enable"
+      fi
+      ;;
+  esac
 
   step "systemd units"
   # Always present on a real box; created anyway so the installer is runnable
@@ -456,10 +642,11 @@ do_install() {
     say "       $0 --credentials < codex.env"
     say "     It wants CODEX_AUTH_JSON (from \`codex login\`) and GH_TOKEN."
   fi
-  if ! grep -qE '^  "enabled": true,$' "$PREFIX/governor/policy.json" 2>/dev/null; then
+  if ! policy_is_enabled; then
     say "  2. The governor is disabled, so the timer ticks and holds."
-    say "     Enable it in the repository (./bootstrap/scripts/enable-codex-governor.sh),"
-    say "     commit, then re-run this installer to copy the new policy over."
+    say "     Enable it on this box -- no commit and no second SSH trip:"
+    say "       $0 --enable"
+    say "     (or pass CODEX_ENABLED=1 to this installer to do it in one run.)"
   fi
   say "  Watch it:  systemctl list-timers codex-governor.timer"
   say "             journalctl -u codex-governor.service -f"
@@ -501,5 +688,7 @@ case "$MODE" in
   check)       report ;;
   credentials) write_credentials ;;
   install)     do_install ;;
+  enable)      do_enable ;;
+  disable)     do_disable ;;
   uninstall)   do_uninstall ;;
 esac

@@ -84,6 +84,51 @@ Three properties make that safe to leave unattended:
 directly rather than reading it off the source, because it is the whole basis
 for letting a timer redeploy the site with nobody watching.
 
+## It is also the only host that can announce the catalogue
+
+After a successful swap, `refresh-site.sh` submits the release to
+[IndexNow](https://www.indexnow.org/) via
+[`platform/marketing/indexnow.mjs`](../../../platform/marketing/indexnow.mjs).
+That is not duplication of what `publish-branch.sh` already does — it is the
+only place the announcement can actually happen. Look at where each publisher
+stands:
+
+| publisher | egress to `api.indexnow.org` |
+|---|---|
+| `platform/pages/publish-branch.sh`, run from an agent session | none — the sandbox answers `403 to CONNECT` |
+| `.github/workflows/publish-pages-branch.yml` | yes, and it needs a metered Actions runner |
+| **this box** | **yes, and nothing is in the way** |
+
+It matters because of what `platform/ci/pages_state.py`'s `indexing` row
+measured: served from a project-Pages *subpath*, this catalogue's `robots.txt`
+— and the `Sitemap:` line naming every published page — is not the file a
+crawler reads, so sitemap auto-discovery has never once happened. IndexNow is
+the one enumeration route that survives that, because the protocol lets a
+submitter name its key's location per request instead of assuming the host
+root. Until this landed, the repository owned that route and could not execute
+it.
+
+Two properties make it safe in an unattended timer, both pinned by tests:
+
+- **It never fails the refresh.** The swap has already happened; the site is
+  live. A failed announcement logs and returns 0, so a box serving correct
+  content never enters a failed unit state. An older checkout with no
+  `indexnow.mjs`, and a host with no egress, are both clean holds.
+- **It never announces silently.** The outcome is logged either way. This is an
+  executed step rather than a line of prose precisely because the prose version
+  of the same instruction is what `publish-branch.sh`'s own header records
+  being skipped by every session that read it.
+
+`SITE_INDEXNOW=0` skips it, for a rollback or a release about to be replaced.
+A tick that finds `main` unmoved does not announce at all — there is nothing
+new to tell a crawler about.
+
+`SITE_BASE_URL` is passed through as `--base-url`. That matters here: this
+deploy checkout tracks `main` and never fetches `gh-pages`, so without it
+`indexnow.mjs` would fall back to reading the origin out of the artifact's own
+`catalog.json`. Correct either way, but the box saying which origin it serves
+is the stronger statement.
+
 ## TLS is not optional here
 
 `marisstella.dev` is a `.dev` name, and Google submitted the **entire `.dev`
@@ -131,6 +176,32 @@ and says so rather than half-installing.
 
 `SITE_TLS_EMAIL` is optional; without it the site is served over HTTP and you
 add the certificate afterwards with `--tls`.
+
+### From your laptop, standalone
+
+If you are not rebuilding the cluster — and serving this site needs no cluster
+at all — there is a one-command driver, the same shape as the Codex worker's
+and the runner's:
+
+```bash
+./bootstrap/scripts/setup-portfolio-site-from-laptop.sh              # full run
+./bootstrap/scripts/setup-portfolio-site-from-laptop.sh --check      # report only
+SITE_TLS_EMAIL=you@example.com \
+  ./bootstrap/scripts/setup-portfolio-site-from-laptop.sh --tls      # and a cert
+```
+
+It discovers the key that opens the box, checks where `marisstella.dev`
+actually resolves before it starts, copies the checkout, hands the PAT over on
+stdin, runs the installer, and then asks nginx for a status code rather than
+reporting success from a config it just wrote.
+
+It handles the two orderings the "By hand" section below describes, which is
+the whole reason it is not a copy of the other two drivers: the credential is
+written **before** the install, because the install is what clones; and `.git`
+is excluded from the rsync only when a token exists, because without one that
+`.git` is the only thing the fallback can clone from.
+`gitops/tests/test_setup_portfolio_site_from_laptop.py` pins both against a
+stubbed box.
 
 ### By hand
 

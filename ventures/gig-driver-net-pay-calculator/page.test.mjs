@@ -123,3 +123,24 @@ test('index links one hop to the owner-operator-cpm-calculator sibling', () => {
     'index must link ../owner-operator-cpm-calculator/ so crawlers reach the owner-operator cost-per-mile calculator in one hop',
   );
 });
+
+// The tax-reserve article explicitly declines to model due dates or
+// underpayment penalties ("not a filing calendar") -- quarterly-estimated-
+// tax-calendar is exactly that filing calendar for the same self-employed
+// filer. `platform/pages/siblings.mjs` only reads each venture's entry file
+// (index.html), so the link that counts lives in the footer there; the
+// article also links it for a reader who lands on that page directly.
+test('index links one hop to the quarterly-estimated-tax-calendar sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/quarterly-estimated-tax-calendar\/"/,
+    'index must link ../quarterly-estimated-tax-calendar/ so crawlers reach the filing calendar in one hop',
+  );
+});
+
+test('the tax-reserve article also links to the quarterly-estimated-tax-calendar sibling', () => {
+  assert.match(
+    article,
+    /href="\.\.\/quarterly-estimated-tax-calendar\/"/,
+  );
+});

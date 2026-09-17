@@ -100,6 +100,19 @@ test('index links one hop to the pool-plaster-bid-calculator sibling', () => {
   assert.match(html, /pool plaster bid calculator/i);
 });
 
+// Same subcategory, other direction: a spa set rather than a liner swap.
+// Reciprocal of the link added to hot-tub-bid-calculator's index so a
+// crawler can hop both ways — and so the hot-tub tool stops being a
+// crawlable orphan (no inbound tool link).
+test('index links one hop to the hot-tub-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/hot-tub-bid-calculator\/"/,
+    'index must link ../hot-tub-bid-calculator/ so crawlers reach the hot-tub calculator in one hop',
+  );
+  assert.match(html, /hot tub bid calculator/i);
+});
+
 test('the landing page names the problem in the crew’s own words', () => {
   assert.match(html, /<title>[^<]*Vinyl Liner Bid Calculator/i);
   assert.match(html, /meta name="description"[^>]*liner square feet/i);

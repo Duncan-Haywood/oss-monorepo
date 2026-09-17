@@ -1,0 +1,61 @@
+name: chrome-extension-permission-check
+description: >-
+  A free, browser-local and CLI checker for Chrome/Edge extension developers:
+  scans JavaScript/TypeScript source for chrome.* API usage and cross-checks
+  it against a manifest.json's declared permissions, optional_permissions,
+  and host_permissions -- naming the exact declared-but-unused permission
+  behind a Chrome Web Store "Purple Potassium" rejection (Google's own
+  documentation names this the single most common review rejection reason),
+  the reverse case of an API call whose permission was never declared (a
+  runtime failure), and any broad all-sites host_permissions pattern.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      Extension developers who hit a Chrome Web Store "unused permission" /
+      "excessive permissions" rejection will search the exact terminology
+      ("purple potassium chrome extension", "chrome web store unused
+      permission rejected") and find this tool, since no existing free tool
+      cross-checks manifest.json permissions against detected chrome.* API
+      usage in both directions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/chrome_extensions, r/webdev, and the chromium-extensions Google Group
+      carry real, recurring thread volume about permission-related review
+      rejections and runtime "chrome.X is undefined" errors caused by a
+      missing manifest entry.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer who gets a clean report from the CLI will wire it into
+      their own pre-submission CI as a gate, producing return usage without
+      any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Chrome materially changes the permission/review mechanism (e.g. replaces
+    manifest permission declarations with a different model entirely) such
+    that the detection/cross-check approach here no longer maps to a real
+    rejection cause.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/chrome-extension-permission-check/
+  analytics: null

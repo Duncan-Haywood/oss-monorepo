@@ -1,0 +1,119 @@
+name: caption-quality-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for video creators, course
+  producers, and accessibility/compliance teams: checks an SRT or WebVTT
+  caption file's cues against commonly-used caption style-guide thresholds
+  -- reading speed in characters per second (default cap 20, a commonly-
+  cited ceiling), minimum (5/6s) and maximum (7s) on-screen duration,
+  maximum line length (42 chars) and lines per cue (2), overlapping cues,
+  too-short gaps between cues, invalid or out-of-order timing, and empty
+  cues. This is a different, unenforced question from "do captions exist,"
+  which is all WCAG 1.2.2 / Section 508 actually require -- a caption track
+  can parse, play, and sync correctly and still be unreadable at normal
+  speed, especially when produced by automatic speech recognition, which
+  optimizes for transcription accuracy and has no model of reading speed.
+  The CLI checks a local file for CI use; the browser page works from
+  pasted text with no upload, since the whole check is arithmetic on
+  timestamps and text with no network step required either way.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype (portfolio/pipeline/README.md's "archetype itself"
+# section), but in a domain this portfolio had not yet touched: caption/
+# subtitle accessibility quality, distinct from both the saturated
+# <trade>-bid-calculator shape (141 of 280 ventures) and the saturated SEO/
+# security -check/-checker shape (38+ of 280) that pipeline/README.md flags
+# as no longer sufficient novelty on their own. duplicate_check.py (run
+# 2026-09-13) scored every existing venture, screened-out row, and pipeline
+# candidate below 0.14 for this idea's description -- nowhere near the 0.45
+# review bar. Closest matches by eye: obsidian-plugin-review-check and
+# wordpress-plugin-review-check (0.10-0.13) are unrelated plugin-metadata
+# checkers that happen to share the word "check"; nothing in
+# screened-out.md, ventures/, or the pipeline mentions captions, subtitles,
+# SRT, VTT, or reading speed.
+#
+# Distribution channel, named per DIRECTION.md North star point 2: video
+# creators and online-course producers on r/VideoEditing, r/Twitch, and
+# creator-education forums who ask "why do my auto-generated captions feel
+# too fast" or "how do I QC my SRT file before upload" -- a recurring
+# question because auto-caption tools (YouTube, Descript, Otter, Rev's
+# auto-transcription) optimize for word accuracy, not reading pace, so the
+# gap this tool checks is a structural byproduct of how those tools work,
+# not a rare mistake. Search terms with real, specific intent: "caption
+# reading speed checker", "srt reading speed", "webvtt line length limit",
+# "caption QC tool free". Paid competitors already validate willingness to
+# pay in this exact space (3Play Media, Verbit, and Rev all sell caption-QC
+# review as part of paid captioning services) -- this is the free,
+# self-serve, zero-account version of a check those vendors currently
+# charge for, the same "paid competitors prove the demand, we ship the free
+# version" pattern this portfolio uses elsewhere (e.g. redirect-chain-check
+# vs. httpstatus.io's paid tiers).
+#
+# Not advice-of-record: the tool states commonly-used, publicly-published
+# thresholds (Netflix's Timed Text Style Guide, BBC Subtitle Guidelines) as
+# defaults, makes every one configurable, and disclaims that it is not a
+# certification against WCAG, Section 508, FCC, or any single controlling
+# standard -- see index.html and why-caption-quality-matters.html. This is
+# the same evidence-not-determination positioning as eaa-remediation-
+# pipeline and ada-title-ii-evidence, applied to a mechanically-checkable
+# arithmetic property (reading speed, line length, timing) rather than a
+# rendered-page audit.
+hypotheses:
+  - claim: >-
+      A video creator, course producer, or accessibility reviewer who
+      searches "caption reading speed checker", "SRT QC tool", or "why are
+      my captions too fast" will find this tool and use it before
+      publishing or submitting a caption file, then return to it (or wire
+      the CLI into their own upload pipeline) the next time they caption new
+      content.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Paid caption-QC review already exists as part of commercial
+      captioning services (3Play Media, Verbit, Rev), which is evidence of
+      real willingness to pay for exactly this check -- a free, zero-
+      account, zero-install version of the same mechanical check is
+      under-served for the self-service creator/small-studio segment that
+      does not buy a full managed captioning contract.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      Because the whole check is arithmetic on a pasted or locally-read
+      text file with no network step, a visitor who fixes a flagged caption
+      file will return to re-check it, or wire the CLI into CI, without any
+      action from this portfolio -- the same repeat-usage pattern
+      hypothesized for the portfolio's other paste-based CLI/checker
+      ventures (redirect-chain-check, hreflang-reciprocity-check).
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: both the CLI and the browser page parse only
+  # text the user already has locally (a file on disk, or pasted text) --
+  # no server of ours in the loop either way, no network request at all.
+  # Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in report after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A materially better free tool covering the same checks with the same
+    zero-install, CI-usable bar becomes the obvious default, such that this
+    tool's differentiation (one CLI command usable in any CI, a paste-based
+    browser mode needing no upload, configurable thresholds with cited
+    sources) no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/caption-quality-check/
+  analytics: null

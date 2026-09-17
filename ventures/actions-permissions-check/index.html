@@ -101,7 +101,7 @@ python3 check.py --fail-on-risk   # exit 2 if any write-all or unspecified grant
     <p>No. This checks one specific, well-documented thing: whether a permissions block exists and is not <code>write-all</code>. It does not judge whether the scopes a workflow does declare are the minimum a job actually needs, and it makes no claim about your repository's overall security or compliance posture.</p>
     <h3>What should I put in a permissions: block?</h3>
     <p>GitHub's own guidance is to start from <code>contents: read</code> at the workflow level and add only the specific scope a job needs, such as <code>pull-requests: write</code> for a job that comments on PRs. This tool does not decide that for you — it only tells you where nothing has been decided yet.</p>
-    <p>More: <a href="how-to-set-least-privilege-permissions-for-github-actions.html">how to set least-privilege permissions for GitHub Actions</a>.</p>
+    <p>More: <a href="how-to-set-least-privilege-permissions-for-github-actions.html">how to set least-privilege permissions for GitHub Actions</a>. See also <a href="vs-openssf-scorecard.html">how this compares to OpenSSF Scorecard's Token-Permissions check</a>.</p>
   </section>
 
   <footer>
@@ -110,12 +110,14 @@ python3 check.py --fail-on-risk   # exit 2 if any write-all or unspecified grant
     <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Least-privilege permissions are one piece of a hardened CI setup: <a href="../pinned-actions-check/">Pinned Actions Check</a> flags third-party <code>uses:</code> lines referenced by a mutable tag instead of a pinned commit SHA, and <a href="../actions-injection-check/">Actions Injection Check</a> flags pwn-request checkouts and script injection from untrusted <code>${{ github.event }}</code> expressions.</p>
+    <p>And if your workflows authenticate to AWS with OIDC rather than a stored access key, the <code>permissions:</code> block is only half the boundary — the other half is the IAM role's trust policy, which lives in your cloud account rather than this repository. <a href="../oidc-trust-policy-check/">OIDC Trust Policy Check</a> reads that document and reports whether its <code>sub</code> condition actually pins the role to your repository and branch, or whether (for example) <code>repo:owner/name:*</code> has quietly admitted the <code>pull_request</code> context — and with it, a pull request opened from a fork.</p>
+    <p>A token's own scope is one axis of repository hardening; who a pull request actually gets routed to for review is a separate one. <a href="../codeowners-shadow-check/">CODEOWNERS Shadow Checker</a> resolves your <code>CODEOWNERS</code> file the way GitHub actually does — last matching pattern wins — and names every rule that never wins ownership of anything because a broader rule listed later always overrides it.</p>
     <p class="support">Free and open source. If this saved you from shipping an over-privileged token, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { scanFiles, hasUnresolvedRisk, summaryLine } from "./classify.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -240,6 +242,19 @@ jobs:
     });
 
     addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
   </script>
 </body>
 </html>

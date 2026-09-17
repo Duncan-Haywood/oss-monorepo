@@ -54,7 +54,7 @@ def _nodes(container: object) -> list | None:
         for edge in edges:
             if isinstance(edge, dict) and isinstance(edge.get("node"), dict):
                 nodes.append(edge["node"])
-            elif isinstance(edge, dict):
+            else:
                 nodes.append(edge)
         return nodes
     return None
@@ -73,7 +73,7 @@ def extract_app_records(payload: object) -> list[dict] | None:
         return None
 
     if "apps" in payload and isinstance(payload["apps"], list):
-        return [item for item in payload["apps"] if isinstance(item, dict)]
+        return payload["apps"]
 
     body = _unwrap_data(payload)
     if isinstance(body, dict):
@@ -81,17 +81,17 @@ def extract_app_records(payload: object) -> list[dict] | None:
             if key in body:
                 nodes = _nodes(body[key])
                 if nodes is not None:
-                    return [item for item in nodes if isinstance(item, dict)]
+                    return nodes
         if isinstance(body.get("currentAppInstallation"), dict):
             return [body["currentAppInstallation"]]
         if isinstance(body.get("apps"), list):
-            return [item for item in body["apps"] if isinstance(item, dict)]
+            return body["apps"]
 
     for key in ("appInstallations", "applications"):
         if key in payload:
             nodes = _nodes(payload[key])
             if nodes is not None:
-                return [item for item in nodes if isinstance(item, dict)]
+                return nodes
     return None
 
 

@@ -149,6 +149,10 @@ test("app.mjs routes every storage touch through a guarded helper", () => {
     .filter(([, line]) => /localStorage/.test(line) && !line.trim().startsWith("//"))
     .filter(([, line]) => !/^function (drafts|saveDrafts)\(/.test(line.trim()));
   assert.deepEqual(offenders, [], "unguarded localStorage in app.mjs");
-  assert.match(app, /import \{ record as usage, counts as usageCounts, clearAndDisable \} from "\.\/usage\.mjs";/);
+  // `enabled` joined the import so `showUsage()` can say whether counting is
+  // on at all: it used to print "Local usage: 0 calculations" after the
+  // visitor turned counting off, which reads exactly like a visitor who has
+  // not used the tool yet.
+  assert.match(app, /import \{ record as usage, counts as usageCounts, clearAndDisable, enabled as usageEnabled \} from "\.\/usage\.mjs";/);
   assert.doesNotMatch(app, /localStorage\.removeItem\("rental-usage"\)/);
 });

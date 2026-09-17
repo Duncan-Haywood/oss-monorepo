@@ -133,11 +133,14 @@ runner-side probe remains the credential-free way to get one.
 """
 
 import argparse
+import datetime as dt
 import fnmatch
 import json
 import os
 import re
 import sys
+import textwrap
+import urllib.parse
 
 import yaml
 
@@ -189,6 +192,41 @@ PUBLISH_WORKFLOW = os.path.join(
 # before (`pages-build-deployment` today), and any future managed Pages
 # builder still has to live under this namespace to be a Pages builder.
 PAGES_BUILDER_PREFIX = "dynamic/pages/"
+
+# The `infra_state.yaml` row this module's `deployed` verdict measures, and the
+# file it lives in. `--record` writes the reading back into that row.
+#
+# Why writing it back is worth code rather than a reminder. `decision_queue.py`
+# ages any reading older than its `STALE_AFTER_DAYS` (3) out to `unknown`, and
+# `serving_origins()` then drops this origin -- which flips the queue's header
+# from "PARTIAL OUTAGE ... the rows below are NOT all waiting on this" to
+# "OUTAGE: the public surface is down ... every other row here is downstream of
+# a host answering at all". The ageing is correct and must not be widened: an
+# un-re-measured origin must never keep suppressing that banner. But the row it
+# ages out is one this module can re-measure on demand, with no credential
+# beyond the repository read a session already has -- so the gap between "we
+# can measure this" and "somebody remembered to hand-edit the YAML" is the
+# whole defect, and it has now cost the same false OUTAGE twice (2026-09-10,
+# then again 2026-09-16 six days later, with the row's own prose in between
+# saying "if the banner regresses again, retake it").
+#
+# So this is the reminder turned into a command, the same move
+# `--require-current` is against a stale snapshot and `guard_state.py
+# --require-runnable` is against a fixable skip.
+INFRA_STATE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "portfolio",
+    "ledger",
+    "infra_state.yaml",
+)
+ORIGIN_READING = "github-pages-branch-route"
+
+# What a `deployed` verdict means for that row's `verdict:` field. `unknown` is
+# deliberately absent: a reading that measured nothing must not overwrite a
+# reading that measured something, it must let the existing row age out on its
+# own. That is the same direction `reading()` errs in, and the direction the
+# 2026-08-30..09-04 "nothing is served" episode failed in.
+DEPLOYED_TO_VERDICT = {"served": "up", "failed": "down"}
 
 # How GitHub's managed builder reports a build it abandoned because a newer
 # push to the same branch overtook it. It is the *ordinary* outcome here, not
@@ -408,7 +446,17 @@ def read_pages_deployment(api, branch=PUBLISH_BRANCH):
         # answer: nothing has deployed yet.
         return None
     latest["in_flight"] = in_flight
-    latest["last_success"] = last_success
+    # A *copy*, because when the newest completed build is itself the
+    # successful one, `last_success` and `latest` are the same object -- and
+    # `latest["last_success"] = last_success` then makes the dict reference
+    # itself. Nothing that reads a field off it notices (`verdict_deployment`
+    # only ever reads the summary keys), which is why this survived: the one
+    # caller that walks the whole structure is `--json`, and it died with
+    # `ValueError: Circular reference detected` on every healthy repository.
+    # Broken precisely when the site is fine, working only when the newest
+    # build had failed -- the inversion is why it read as "nobody uses
+    # --json" rather than as a bug.
+    latest["last_success"] = dict(last_success) if last_success is not None else None
     return latest
 
 
@@ -755,6 +803,75 @@ def source_note(repo, base_url, source="unknown", source_reason=""):
     )
 
 
+def indexing_verdict(base_url):
+    """Can a crawler discover this site's sitemap on its own?
+
+    `robots.txt` is fetched **per origin, at the origin root** -- that is the
+    protocol, not a GitHub detail. A project Pages site is served from a
+    subpath, so the `robots.txt` this repository publishes lands at
+
+        https://<owner>.github.io/<repo>/robots.txt
+
+    and the file a crawler actually reads is
+
+        https://<owner>.github.io/robots.txt
+
+    which belongs to the owner's *user* Pages site and is nothing to do with
+    this repository. So the `Sitemap:` directive `build.mjs` writes -- the one
+    line that tells a crawler all 881 published pages exist -- is in a file no
+    crawler fetches, and sitemap auto-discovery does not happen at all.
+
+    This is not a defect in anything the repository builds. `renderRobots` is
+    correct, `check.mjs` is right to require the file, and a custom domain
+    would put it at a root where it works. It is a property of *where the site
+    is currently served*, which is exactly the class of thing that goes stale
+    in prose and had gone unrecorded anywhere: nothing in this tree said the
+    published `robots.txt` is never read.
+
+    It matters more here than it would almost anywhere else. Nothing links to
+    this catalogue from outside, so link-following gives a crawler very little
+    to go on, and the sitemap is the whole discovery story for a portfolio
+    whose `portfolio/usage/usage.yaml` has never taken a visitor reading at
+    all -- `live_url_visitors` is null on every row, never measured rather
+    than measured-as-zero (`usage_state.py`).
+    `portfolio/router/allocate.py` opens every venture's top task
+    with "test the untested hypothesis", and every one of those needs traffic.
+
+    Two things fix it and both are the owner's, which is why this reports
+    rather than acts: submitting `sitemap.xml` in Google Search Console (and
+    Bing Webmaster Tools), or configuring a custom domain, after which the
+    site is at an origin root and its own `robots.txt` governs.
+
+    Crawling itself is *not* blocked by this. A missing `robots.txt` at the
+    origin root reads as "allow all", so pages reached by a link are still
+    fetched. What is lost is the enumeration.
+    """
+    if not base_url:
+        return "unknown", (
+            "no base URL could be read from build.mjs, so where robots.txt "
+            "lands is unknown -- never assume it is at an origin root"
+        )
+    parsed = urllib.parse.urlsplit(base_url)
+    if parsed.path in ("", "/"):
+        return "root", (
+            f"the site is at an origin root ({base_url}), so the robots.txt it "
+            "publishes is the one crawlers fetch and its `Sitemap:` line is "
+            "discoverable"
+        )
+    root = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+    return "subpath-robots", (
+        f"the site is served from a subpath ({base_url}), so the robots.txt it "
+        f"publishes at {base_url}robots.txt is NOT the file crawlers read -- "
+        f"that is {root}, which belongs to the owner's user Pages site. The "
+        "`Sitemap:` line is therefore never seen and sitemap auto-discovery "
+        "does not happen. Crawling is still allowed; only enumeration is lost. "
+        "Owner fix, either one: submit sitemap.xml in Google Search Console "
+        "and Bing Webmaster Tools, or configure a custom domain for this "
+        "repository, after which publish-branch.sh carries the CNAME forward "
+        "and the site is at an origin root where its own robots.txt governs"
+    )
+
+
 def collect(api):
     repo = read_repo(api)
     publish = read_publish_branch(api)
@@ -778,7 +895,10 @@ def collect(api):
     source, source_reason = verdict_source(repo, publish, read_workflow_paths(api))
     deployment = read_pages_deployment(api)
     deployed, deployed_reason = verdict_deployment(deployment, publish)
+    indexing, indexing_reason = indexing_verdict(base_url)
     return {
+        "indexing": indexing,
+        "indexing_reason": indexing_reason,
         "source": source,
         "source_reason": source_reason,
         "deployed": deployed,
@@ -799,6 +919,93 @@ def collect(api):
     }
 
 
+def record_reading(state, path=INFRA_STATE, today=None):
+    """Write this run's `deployed` measurement into `infra_state.yaml`'s row.
+
+    Returns `(changed, message)`. `changed` is False for every refusal, and the
+    message says why -- a refusal is a normal outcome here, not an error.
+
+    It edits the three *measured* fields (`verdict`, `measured`, `run`) by line
+    and touches nothing else. That is not fussiness about diff size: this file
+    is roughly nine parts hand-written prose to one part data, and every one of
+    those paragraphs is a dated lesson the repository paid for. `yaml.safe_load`
+    followed by `yaml.dump` would round-trip the data perfectly and silently
+    delete all of it, which is a far worse outcome than the stale row this
+    function exists to fix.
+
+    The division of labour in the row is deliberate: prose says how to
+    re-measure and what was learned, and carries no date; the three fields
+    below carry the date and are machine-maintained. A dated claim inside the
+    prose would go stale against the fields the moment this ran.
+    """
+    verdict = DEPLOYED_TO_VERDICT.get(state.get("deployed"))
+    if verdict is None:
+        return False, (
+            f"deployed is '{state.get('deployed')}', which measures nothing about "
+            f"whether the origin serves, so `{ORIGIN_READING}` is left alone to "
+            "age out on its own rather than being overwritten with a non-reading"
+        )
+
+    success = (state.get("deployment") or {}).get("last_success") or {}
+    run_id = success.get("run_id") or (state.get("deployment") or {}).get("run_id")
+    if not run_id:
+        return False, (
+            "the reading carries no run id, and a verdict without the run it was "
+            "taken from is exactly the unfalsifiable claim this file forbids"
+        )
+
+    today = dt.date.today() if today is None else today
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().splitlines(keepends=True)
+    except OSError as exc:
+        return False, f"could not read {path}: {exc}"
+
+    # Find the row, then its block: every following line indented deeper than
+    # the key itself, plus blank lines. Anything at the key's indent or less
+    # ends it, so a neighbouring row can never be edited by mistake.
+    head = f"  {ORIGIN_READING}:"
+    try:
+        start = next(i for i, ln in enumerate(lines) if ln.rstrip("\n") == head)
+    except StopIteration:
+        return False, f"no `{ORIGIN_READING}:` row in {path}"
+
+    end = len(lines)
+    for i in range(start + 1, len(lines)):
+        stripped = lines[i].strip()
+        if not stripped:
+            continue
+        if len(lines[i]) - len(lines[i].lstrip(" ")) <= 2:
+            end = i
+            break
+
+    wanted = {
+        "verdict": f"    verdict: {verdict}\n",
+        "measured": f'    measured: "{today.isoformat()}"\n',
+        "run": f"    run: {run_id}\n",
+    }
+    seen = set()
+    for i in range(start + 1, end):
+        key = lines[i].strip().split(":", 1)[0]
+        if key in wanted and lines[i].startswith(f"    {key}:"):
+            lines[i] = wanted[key]
+            seen.add(key)
+
+    missing = sorted(set(wanted) - seen)
+    if missing:
+        return False, (
+            f"`{ORIGIN_READING}` has no {', '.join(missing)} field to update; "
+            "refusing to guess where it belongs"
+        )
+
+    new = "".join(lines)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(new)
+    return True, (
+        f"{ORIGIN_READING}: {verdict} (run {run_id}, measured {today.isoformat()})"
+    )
+
+
 def render(state):
     lines = [
         "GitHub Pages route — what this session can read without the owner",
@@ -817,6 +1024,15 @@ def render(state):
         "",
         f"  {PUBLISH_BRANCH} snapshot  {state['snapshot']}",
         f"                    {state['snapshot_reason']}",
+        "",
+        f"  indexing          {state['indexing']}",
+    ]
+    # Wrapped, unlike the rows above: this reason is a paragraph because it has
+    # to name the file that is read instead, and an unwrapped line would run
+    # off a terminal and be skipped by the reader it exists for.
+    lines += [
+        f"                    {line}"
+        for line in textwrap.wrap(state["indexing_reason"], width=76)
     ]
     lines += ["", "  next"]
     lines += [f"    {line}" for line in state["source_note"].split("\n")]
@@ -877,6 +1093,16 @@ def main(argv=None, api=None):
             "after merging a change that touches a served surface"
         ),
     )
+    parser.add_argument(
+        "--record",
+        action="store_true",
+        help=(
+            "write this reading into `portfolio/ledger/infra_state.yaml`'s "
+            f"`{ORIGIN_READING}` row, so `decision_queue.py` stops ageing a "
+            "measurable origin out into a false OUTAGE banner; run it after "
+            "publishing, and commit what it rewrites"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if api is None:
@@ -897,6 +1123,14 @@ def main(argv=None, api=None):
         return 2
 
     print(json.dumps(state, indent=2) if args.json else render(state), end="")
+
+    if args.record:
+        changed, message = record_reading(state)
+        # Both outcomes go to stdout and both are exit 0 on their own: a
+        # refusal means the reading measured nothing worth writing, which is
+        # not a failure of this command. `--record` composes with the verdict
+        # flags below rather than replacing them.
+        print(f"\nrecorded: {message}" if changed else f"\nnot recorded: {message}")
 
     if args.require_current:
         code = freshness_exit_code(state)

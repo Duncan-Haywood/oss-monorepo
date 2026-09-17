@@ -158,3 +158,17 @@ test('the featureList describes the share/save feature that now exists', () => {
   assert.match(index, /shareable quote link/i, 'featureList does not mention the share link');
   assert.match(index, /saved quote that reopens/i, 'featureList does not mention the local draft save');
 });
+
+// Closest sibling: same "flat event price hides a turnout/attendance risk"
+// shape for an independent operator serving one-off private and corporate
+// bookings, but food service rather than portable sanitation. Without a
+// crawlable link here, a crawler entering on the portable restroom event
+// quote calculator never reaches the food truck margin calculator in one
+// hop.
+test('index links one hop to the food-truck-event-margin-calculator sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/food-truck-event-margin-calculator\/"/,
+    'index must link ../food-truck-event-margin-calculator/ so crawlers reach the food truck event margin calculator in one hop',
+  );
+});

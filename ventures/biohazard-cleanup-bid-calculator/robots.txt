@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://example.invalid/biohazard-cleanup-bid-calculator/sitemap.xml

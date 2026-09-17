@@ -457,6 +457,32 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
     assert catalog["tools"], "/catalog.json served no tools"
     assert catalog["served_here"] == len(catalog["tools"])
 
+    # And again as a client that sent `Accept-Encoding: identity`, which is the
+    # assertion that actually guards how this file is stored (added 2026-09-12,
+    # when `catalog.json` became a gz-only key to get the ConfigMap back under
+    # the etcd object budget).
+    #
+    # Every assertion above passes with `gzip_static on;` and no `gunzip on;`.
+    # That configuration serves the stored `.gz` to a client that asked for
+    # gzip and 404s every client that did not -- and for a machine-readable
+    # catalogue the second group is the common one, because a scripted fetch
+    # frequently sends no encoding header at all. So the config could be wrong
+    # in the one way that matters, for the one audience this document exists
+    # for, with a green suite. `always` plus `gunzip on` is what makes this
+    # pass, and nothing else here would have noticed its absence.
+    status, headers, identity_body = _get(front_door + "/catalog.json", gzip_ok=False)
+    assert status == 200, (
+        f"/catalog.json returned {status} to a client sending Accept-Encoding: identity. "
+        "A gz-only key needs `gzip_static always` (not plain `on`) plus `gunzip on`, and no "
+        "`try_files` -- try_files stats the uncompressed name, which is not on disk."
+    )
+    assert headers.get("Content-Encoding") != "gzip", (
+        "nginx returned gzip to a client that did not accept it -- `gunzip on` is missing"
+    )
+    assert json.loads(identity_body) == catalog, (
+        "the inflated body differs from the gzip-encoded one"
+    )
+
 
 def test_every_category_page_is_served_at_the_url_it_claims(front_door: str) -> None:
     # The category pages are the one part of the apex whose URL and whose
@@ -742,6 +768,21 @@ def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:
     # and it is what the pod's tmpfs actually holds — the number
     # `MIRROR_BYTE_CEILING` and the Deployment's memory limit both reason
     # about, taken from the artifact rather than from the generator.
+    #
+    # Read the ceiling from the generator rather than restating it: a literal
+    # here drifted from `MIRROR_BYTE_CEILING` when that constant was raised
+    # from 8 MiB to 12 MiB on 2026-09-10 (front-door-tools.mjs's own history
+    # comment records the raise), and this test kept asserting the old 8 MiB
+    # figure for six days until the mirror's ordinary daily growth crossed it
+    # — a real red herring, since the generator's actual wall was nowhere
+    # close. `test_manifests.py` already reads the same constant this way for
+    # the same reason; this mirrors that pattern instead of restating a
+    # second stale copy of it.
+    source_text = (ROOT.parent / "platform" / "marketing" / "front-door-tools.mjs").read_text()
+    match = re.search(r"MIRROR_BYTE_CEILING = (\d+) \* 1024 \* 1024", source_text)
+    assert match, "front-door-tools.mjs no longer declares MIRROR_BYTE_CEILING in MiB"
+    mirror_byte_ceiling = int(match.group(1)) * 1024 * 1024
+
     stored = sum(len(v) for v in _mirror().values())
     source = sum(len(gzip.decompress(v)) for v in _mirror().values())
     assert stored < source, "the mirror is not actually compressed"
@@ -749,7 +790,7 @@ def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:
     # by a percent; the point is that a change which silently stopped
     # compressing would show up here rather than as an OOMKill months later.
     assert source / stored > 2.0, f"compression fell to {source / stored:.2f}x, which the ceilings do not assume"
-    assert stored <= 8 * 1024 * 1024, "the served mirror is over MIRROR_BYTE_CEILING"
+    assert stored <= mirror_byte_ceiling, "the served mirror is over MIRROR_BYTE_CEILING"
 
 
 def test_it_did_not_skip_on_the_runner_that_is_supposed_to_run_it() -> None:

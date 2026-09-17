@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Much to Charge for Drone Mapping — A Worked 100-Acre Job, Line by Line</title>
+<meta name="description" content="A 100-acre mapping job priced from first principles: ground sample distance, flight lines, image count, airtime, battery swaps, processing hours and margin. Shows why quoting by the acre loses money the moment the overlap spec changes.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/drone-mapping-job-calculator/how-much-to-charge-for-drone-mapping.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How much should you charge for drone mapping?">
+<meta property="og:description" content="Price per acre is not a price. The same 100 acres is $618.72 at 70/70 and $754.03 at 80/80 — a 21.9% swing on a term that never appears in a per-acre quote.">
+<meta property="og:url" content="https://example.invalid/drone-mapping-job-calculator/how-much-to-charge-for-drone-mapping.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to price a drone mapping job",
+  "description": "Work a mapping quote from the optics outward: resolution sets altitude, altitude sets footprint, overlap sets image count, image count sets processing, and margin is taken on price rather than added to cost.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Start from the deliverable's resolution, not the acreage",
+      "text": "The client's required ground sample distance sets your altitude, and altitude sets everything downstream. GSD in cm/px is sensor width in mm times altitude in m times 100, divided by true focal length in mm times image width in px. On a Mavic 3E at 120 m that is 3.20 cm/px. Work this first, because agreeing a resolution changes the flight far more than agreeing an acreage does."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Turn the frame footprint into flight lines and exposures",
+      "text": "At 3.20 cm/px a 5280 x 3956 frame covers 169 by 127 m on the ground. Side overlap of 70% leaves 50.7 m between lines; front overlap of 75% puts an exposure every 31.6 m. A square 100-acre site is 636 m on a side, so that is 13 flight lines of 22 exposures each: 286 images and 8.9 km of path."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Convert path length into airtime and sorties",
+      "text": "8.9 km at 10 m/s is 14.8 minutes of transit, plus 8 seconds of turn overhead on each of 12 turns, giving 16.4 minutes in the air. Against a 25-minute usable battery window that is a single sortie with no swap. Check this against the batteries you actually carry — a plan needing more sorties than you have batteries is a second mobilisation, not a longer day."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Add the hours that are not airtime, because most of them are not",
+      "text": "Airtime is 16.4 minutes of a 136-minute billable day: 30 minutes of setup and site walk, 30 minutes placing and shooting five ground control points, the flight itself, and 60 minutes of round-trip travel. Airtime is 12% of the field time. A pilot who prices the flight has priced an eighth of the job."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Price processing off the image count, not the acreage",
+      "text": "286 images at 9 seconds each of attended processing time is 43 minutes. This is the line that moves when overlap changes and the line a per-acre quote cannot see, because the acreage did not move."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Take margin on the price, not as a markup on cost",
+      "text": "Field time of 136 minutes at $125/hr is $284.16; 43 minutes of processing at $95/hr is $67.93; 45 miles at $0.70 is $31.50. Total cost $383.58. A 40% margin means price equals cost divided by 0.6, which is $639.31 — not cost times 1.4, which would be $537.02 and a 28.6% margin. On a $1,000 cost the two answers are $1,666.67 and $1,400.00."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 780px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { margin-top: 1.9rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .table-wrap { overflow-x: auto; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  pre { background: rgba(127,127,127,0.15); padding: 0.7rem 0.8rem; border-radius: 6px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  .cta { display: inline-block; margin: 0.5rem 0; background: #0a7c42; color: #fff; padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 700; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.88; }
+  footer p { margin: 0.6rem 0; }
+  main a { color: #0a7c42; }
+</style>
+</head>
+<body>
+<main>
+<p><a href="index.html">&larr; Drone Mapping Job Calculator</a></p>
+<h1>How much should you charge for drone mapping?</h1>
+<p>
+  The honest answer is that <strong>price per acre is not a price</strong>, and the reason is
+  specific rather than philosophical: the term that moves a mapping job most does not appear in a
+  per-acre quote at all. That term is overlap. This page prices one real job all the way through so
+  you can see where the money actually goes, and then changes exactly one input to show the problem.
+</p>
+<p><a class="cta" href="index.html">Price your own job &rarr;</a></p>
+
+<h2>The job</h2>
+<p>
+  100 acres of a construction site, flown on a DJI Mavic 3E at 120 m AGL, 75% front and 70% side
+  overlap, 10 m/s, five ground control points, an hour of round-trip travel and 45 miles of it.
+  Field rate $125/hr, processing $95/hr, mileage $0.70, target margin 40%. Every figure below comes
+  out of the calculator on this site with those inputs.
+</p>
+
+<h2>1. Resolution first, because it sets everything else</h2>
+<p>
+  Start at the deliverable, not the parcel. The client's required ground sample distance decides
+  your altitude, and altitude decides the footprint, the line count, the image count and the
+  processing bill. The formula is:
+</p>
+<pre><code>GSD (cm/px) = sensor width (mm) × altitude (m) × 100
+              ────────────────────────────────────────
+              focal length (mm) × image width (px)</code></pre>
+<p>
+  The Mavic 3E has a 17.3 mm wide sensor, a <em>true</em> focal length of 12.29 mm, and a 5280 px
+  wide frame. At 120 m that is <strong>3.20 cm/px</strong>. Use the &ldquo;35 mm equivalent&rdquo;
+  focal length here with the real sensor width and you get a plausible-looking number and a flight
+  that comes back at the wrong resolution &mdash; it is the most common error in a hand-rolled
+  mapping spreadsheet, and it fails silently.
+</p>
+
+<h2>2. Footprint becomes flight lines</h2>
+<p>
+  At 3.20 cm/px a 5280 &times; 3956 frame covers <strong>169 &times; 127 m</strong> of ground.
+  Overlap is what is left over:
+</p>
+<ul>
+  <li>Side overlap 70% &rarr; lines are <strong>50.7 m</strong> apart (169 &times; 0.30)</li>
+  <li>Front overlap 75% &rarr; an exposure every <strong>31.6 m</strong> (127 &times; 0.25)</li>
+</ul>
+<p>
+  100 acres is 404,686 m², so a square site is 636 m on a side. That gives
+  <strong>13 flight lines</strong> of <strong>22 exposures</strong> each &mdash;
+  <strong>286 images</strong> over <strong>8.9 km</strong> of path.
+</p>
+<p>
+  A note on the square: acreage alone does not determine a flight, and a square is the shape with
+  the least perimeter for a given area. So this is the <em>optimistic</em> end of the range. Real
+  parcels run longer, never shorter. For a corridor &mdash; a pipeline, a road, a transmission line
+  &mdash; price from length and swath width instead, because the square model will be badly wrong.
+</p>
+
+<h2>3. Airtime is a small part of the day</h2>
+<p>
+  8.9 km at 10 m/s is 14.8 minutes, plus 8 seconds of turn overhead on each of 12 turns:
+  <strong>16.4 minutes</strong> in the air. One sortie, no battery swap.
+</p>
+<p>And here is the first thing worth noticing about mapping economics:</p>
+<div class="table-wrap">
+<table>
+  <caption style="text-align:left;font-size:.85rem;opacity:.8;margin-bottom:.4rem">Where the 136 billable field minutes go.</caption>
+  <thead><tr><th scope="col">Activity</th><th scope="col">Minutes</th><th scope="col">Share</th></tr></thead>
+  <tbody>
+    <tr><td>Travel, round trip</td><td>60</td><td>44%</td></tr>
+    <tr><td>Setup and site walk</td><td>30</td><td>22%</td></tr>
+    <tr><td>Ground control, 5 &times; 6 min</td><td>30</td><td>22%</td></tr>
+    <tr><td>Actually flying</td><td>16.4</td><td>12%</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  <strong>Airtime is 12% of the field time.</strong> A pilot who prices &ldquo;the flight&rdquo; has
+  priced an eighth of the job, and a pilot who discounts because &ldquo;it is only a twenty-minute
+  flight&rdquo; has discounted against a number that was never the cost.
+</p>
+
+<h2>4. Processing follows the image count</h2>
+<p>
+  286 images at 9 seconds each of attended time is <strong>43 minutes</strong>. Set that rate from
+  your own machine and your own workflow &mdash; it is the input people guess at most, and it is
+  worth timing once against a job you have already delivered.
+</p>
+<p>
+  This is the line that a per-acre quote cannot see, which is the whole problem, and section 6 is
+  where it bites.
+</p>
+
+<h2>5. The quote</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th scope="col">Line</th><th scope="col">Basis</th><th scope="col">Amount</th></tr></thead>
+  <tbody>
+    <tr><td>Field time</td><td>136 min @ $125/hr</td><td>$284.16</td></tr>
+    <tr><td>Processing</td><td>43 min @ $95/hr</td><td>$67.93</td></tr>
+    <tr><td>Mileage</td><td>45 mi @ $0.70</td><td>$31.50</td></tr>
+    <tr><td><strong>Total cost</strong></td><td></td><td><strong>$383.58</strong></td></tr>
+    <tr><td><strong>Price at 40% margin</strong></td><td>cost &divide; 0.6</td><td><strong>$639.31</strong></td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  That is <strong>$6.39 per acre</strong>, and $255.72 of margin.
+</p>
+<p>
+  <strong>Margin is not markup.</strong> A 40% margin means price = cost &divide; 0.6. Adding 40% to
+  cost gives cost &times; 1.4 = $537.02, which is a 28.6% margin, not 40%. On a job with $1,000 of
+  cost the two answers are <strong>$1,666.67</strong> and <strong>$1,400.00</strong> &mdash; a $267
+  difference on one sortie, repeated on every job you ever quote. This is the single most common
+  arithmetic error in trade pricing and it always runs in the same direction.
+</p>
+
+<h2>6. Now change one number</h2>
+<p>
+  The client asks for &ldquo;a bit more overlap &mdash; say 80/80&rdquo;. Same site, same aircraft,
+  same altitude, same rates:
+</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th scope="col">Overlap</th><th scope="col">Images</th><th scope="col">Airtime</th><th scope="col">Cost</th><th scope="col">Price</th></tr></thead>
+  <tbody>
+    <tr><td>70 / 70</td><td>234</td><td>16.4 min</td><td>$371.23</td><td>$618.72</td></tr>
+    <tr><td>80 / 80</td><td>513</td><td>23.6 min</td><td>$452.42</td><td>$754.03</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  <strong>2.19&times; the images. 1.44&times; the airtime. $135.30 more to quote</strong> &mdash;
+  21.9% on a job whose acreage did not change by a single square foot.
+</p>
+<p>Why the two ratios differ is the mechanism worth internalising:</p>
+<ul>
+  <li>
+    <strong>Image count goes as 1 / ((1&minus;front) &times; (1&minus;side))</strong>. At 70/70 you
+    keep 30% of each: 1 / (0.3 &times; 0.3) = 11.1. At 80/80 you keep 20%: 1 / (0.2 &times; 0.2) =
+    25.0. That ratio is 2.25 &mdash; a quadratic, not a linear, response to a number people discuss
+    in linear terms.
+  </li>
+  <li>
+    <strong>Airtime goes only as 1 / (1&minus;side)</strong>, because only side overlap adds flight
+    lines. Front overlap just triggers the shutter more often along a line you were flying anyway.
+    3.33 &rarr; 5.0, about 1.5&times;.
+  </li>
+</ul>
+<p>
+  So the flight looks nearly the same and the processing more than doubles. If you quoted per acre,
+  you absorbed all of it.
+</p>
+
+<h2>7. The one the regulation decides</h2>
+<p>
+  Resolution does not run upward without limit. <a href="https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.51" rel="nofollow noopener">14 CFR 107.51(b)</a>
+  caps a small unmanned aircraft at 400 ft AGL &mdash; 121.92 m &mdash; unless you are within 400 ft
+  of a structure or hold a waiver. If a <em>coarse</em> target GSD would need more altitude than
+  that, you cannot simply climb: you fly at the ceiling, deliver a finer GSD than was asked for, and
+  cover less ground per pass, so the job takes longer than an unrestricted plan implies. The
+  calculator flags that case rather than quietly planning an altitude you cannot legally fly.
+</p>
+
+<h2>What to do with this</h2>
+<ol>
+  <li><strong>Quote the specification, not the acreage.</strong> Put GSD and overlap on the quote as named terms. A change to either is a change order.</li>
+  <li><strong>Time your own processing once.</strong> Seconds-per-image is the input most often guessed and it scales with the term that moves most.</li>
+  <li><strong>Bill travel and ground control explicitly.</strong> They were 66% of the field time here and they are invisible in a per-acre number.</li>
+  <li><strong>Check the battery count against the sortie count</strong> before you commit to a date. A short day is a second mobilisation.</li>
+</ol>
+<p><a class="cta" href="index.html">Open the calculator &rarr;</a></p>
+</main>
+
+<footer>
+  <p><strong>Worked example, not a rate card.</strong> Every figure here comes from the inputs named at the top of this page. Your rates, your aircraft, your processing workflow and your market are different, and the point of the calculator is to put your own numbers through the same arithmetic rather than to adopt these.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not aviation, legal, safety, surveying or financial advice, it is not a flight plan, and it grants no airspace authorisation. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for planning and flying the actual mission safely, and for complying with 14 CFR Part 107 and every other rule that applies where you fly. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page is static and makes no network request of any kind. Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

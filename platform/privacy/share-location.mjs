@@ -152,6 +152,34 @@ function isExempt(line) {
 }
 
 /**
+ * Directories that hold generated output rather than source someone wrote.
+ *
+ * `node_modules` and `dist` were here from the start. The rest were added
+ * 2026-09-16 after a real false positive: building `ventures/vendor-watch`
+ * (`npm run build`, the step its own CI runs) leaves a `.next/` tree, and one
+ * minified Next.js server chunk in it assigns to `.search` — so this checker
+ * reported a query-string share leak in a venture that has no share link at
+ * all, naming a file no author wrote and git does not track.
+ *
+ * That red costs more than it looks. Every one of these directories is already
+ * in `.gitignore`, so nothing here can be a source file this repository ships;
+ * and a checker that goes red because you built the project is one a session
+ * learns to wave through, which is the failure mode CLAUDE.md records against
+ * starved CI, `UNRUN` steps and skipped guards alike. Scanning generated
+ * bundles was never the point: a leak lands in the *source*, which is what
+ * the fleet is fixed in.
+ */
+const GENERATED_DIRECTORIES = new Set([
+  "node_modules",
+  "dist",
+  ".next",
+  "out",
+  "build",
+  ".turbo",
+  "coverage",
+]);
+
+/**
  * Every source file under `root` that could build a share link.
  *
  * Test files are skipped: they legitimately construct query-string URLs as
@@ -170,7 +198,7 @@ export async function findShareSources(root) {
     for (const entry of entries) {
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name === "node_modules" || entry.name === "dist") continue;
+        if (GENERATED_DIRECTORIES.has(entry.name)) continue;
         await walk(full);
         continue;
       }

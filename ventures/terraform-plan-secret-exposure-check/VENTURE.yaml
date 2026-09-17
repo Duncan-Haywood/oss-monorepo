@@ -1,0 +1,84 @@
+name: terraform-plan-secret-exposure-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that reads a Terraform structured plan (terraform show -json) and reports every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive, so a platform engineer catches a missed sensitive flag in CI before the plaintext value prints into a log a much wider audience can read. A deterministic pattern-match report, not a state scanner or a policy engine.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07) argues explicitly for
+# this shape over another <trade>-bid-calculator, since 141+ of ~270
+# ventures already share that shape with zero recorded visitors between
+# them. Same "paste or load a file, get a deterministic report, matching
+# zero-dependency CLI usable as a CI gate" shape as merchant-feed-check and
+# env-example-drift-check, applied to a Terraform plan instead of a product
+# feed or an .env.example file.
+#
+# Screened 2026-09-11. duplicate_check.py's closest match by description was
+# env-example-drift-check at 0.12 -- a related but explicitly different
+# check ("not a secrets scanner and not a .env file reader") -- well under
+# the 0.45 review bar. No ventures/, screened-out.md, or pipeline/candidates
+# row covers Terraform plan output.
+#
+# Distribution channel, verified 2026-09-11 rather than assumed:
+#   - hashicorp/terraform's own issue tracker carries multiple separately-
+#     reported instances of exactly this bug class -- a provider schema
+#     missing a `sensitive` flag on an attribute that can hold a credential
+#     (#16554, #26185, #27577) -- so the audience that has already hit this
+#     failure is findable at the source.
+#   - cloudposse-archives/tfmask, a community CI-log secret-masking tool
+#     built for this same problem, is archived -- its userbase lost their
+#     tool with no clear successor, which is stronger novelty evidence than
+#     a niche with no prior art at all.
+#   - r/Terraform (~90k members) carries recurring threads on secrets
+#     leaking into plan/apply output, a real and active channel for the
+#     audience this is built for.
+#
+# Scored against portfolio/pipeline/README.md's 8-dimension rubric:
+# AI leverage 1 (deterministic regex/schema-map matching, no material model
+# work), autonomous ops 10, time-to-revenue 6 (named channels have current
+# thread volume; revenue is donation-only like the rest of the fleet),
+# gross margin 10 (static parsing, zero hosting/inference cost per user),
+# defensibility 4 (forkable like every tool here), distribution 6 (two named
+# verifiable venues plus a real subreddit), liability containment 8 (pure
+# information from a user-supplied local file; wrong output costs a missed
+# or extra flag, never a filing or a claim on the user's behalf), ethical
+# robustness 9 (gets strictly better for users as it scales; no paid tier
+# gating accuracy). Composite 6.75, floor 1 (ai_leverage) -- both hard gates
+# (liability, ethics) clear well above the 5 cutoff.
+#
+# Redaction is a deliberate safety property of the tool itself, not an
+# afterthought: the report never echoes a full matched value (engine.mjs's
+# `redact`), because the report is meant to be pasted into an issue or a CI
+# annotation, and doing that with the real secret would recreate the exact
+# leak this tool exists to catch.
+hypotheses:
+  - claim: A platform engineer or DevOps practitioner running Terraform in CI who has hit a plaintext secret in a plan/apply log will wire the CLI into their pipeline as a pre-apply gate, or use the free checker after finding this tool from the hashicorp/terraform issue threads, the archived tfmask repo, or r/Terraform.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: An engineer reviewing a plan before merge will prefer a one-command deterministic pattern check over manually re-reading every resource_changes attribute for anything that looks like a credential.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only a file loaded or
+  # pasted in the visitor's own browser (no fetch, no upload), and the CLI
+  # reads only a local file with no network call at all. Serving one more
+  # user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI/deploy pipeline within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/terraform-plan-secret-exposure-check/
+  analytics: null

@@ -85,6 +85,19 @@ class CaptureInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot read export"):
             parse_json("{")
 
+    def test_rejects_malformed_records_instead_of_silently_dropping_apps(self):
+        app = {"id": "valid", "scopes": [], "webhooks": []}
+        for invalid in (None, "broken", 42):
+            for body in (
+                {"apps": [app, invalid]},
+                {"data": {"apps": [app, invalid]}},
+                {"data": {"appInstallations": {"nodes": [app, invalid]}}},
+                {"data": {"appInstallations": {"edges": [{"node": app}, invalid]}}},
+            ):
+                with self.subTest(body=body):
+                    with self.assertRaisesRegex(ValueError, "each app must be an object"):
+                        normalize_export(body, api_version="2026-07")
+
     def test_duplicate_ids_and_scopes_are_rejected(self):
         payload = {
             "api_version": "2026-07",

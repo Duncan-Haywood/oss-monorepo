@@ -328,3 +328,21 @@ test('the result panel is announced to screen readers when it updates', () => {
     'the result section is not a live region, so updates are never announced',
   );
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: adjacent steps in one job. This tool produces the date cash
+// lands; that one turns those dates into a shortfall forecast. Rotating chrome
+// may never pair them inside the back-office subcategory.
+test('index links one hop to the cash-runway-planner sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/cash\-runway\-planner\/"/,
+    'index must link ../cash-runway-planner/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /cash runway planner/i);
+});

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Craft Fair Booth Calculator — Is This Market Worth Taking?</title>
+<meta name="description" content="Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it. Unsold stock is treated as inventory, not a loss.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Craft Fair Booth Calculator — Is This Market Worth Taking?">
+<meta property="og:description" content="A $1,500 day at a $250 booth is not $1,250. Find the sales this market has to make to break even, what the weekend actually pays you per hour, and the most a booth could cost before it stops being worth the drive.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Craft Fair Booth Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that tells a maker what one craft fair, farmers market, art festival, or holiday market booth has to sell to break even — from booth fee, jury fee, mileage, lodging, display cost, materials as a share of retail, and card processing — then reports the weekend's real hourly rate and the highest booth fee that still clears the maker's own target rate. Unsold stock is treated as inventory carried to the next event rather than a cost of this one."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't the stock I don't sell count as a cost of the event?","acceptedAnswer":{"@type":"Answer","text":"Because it is still yours. A caterer who over-preps throws food away, but a maker who brings 60 candles and sells 22 drives home with 38 candles and sells them at the next market or online. So the materials that belong in one event's break-even are the materials in what actually sold. Counting the whole table against one weekend is how a fine event gets recorded as a bad one. The stock figure is used only to express the break-even as a sell-through percentage, so you can see what share of the table has to move."}},{"@type":"Question","name":"Why is my break-even higher than the booth fee?","acceptedAnswer":{"@type":"Answer","text":"Because sales are not profit. Every dollar you take arrives with materials already spent on it and a card fee taken out of it, so only part of each dollar is left to cover the booth. At 30% materials and a card mix around 2.6% plus 10c, roughly 68c of each dollar is available — so a $370 day of fixed cost needs about $547 of sales, not $370. The calculator shows the kept-per-dollar figure it used."}},{"@type":"Question","name":"What is the most a booth should cost?","acceptedAnswer":{"@type":"Answer","text":"That depends on what you expect to sell there and what you want your own hours to earn. Given both, the calculator solves for the booth fee at which the day lands exactly on your target hourly rate — that is the number to compare against an application before you send it. If it comes out negative, the expected sales cannot clear your target rate even at a free stall, which is a fact about the event's sales rather than about its organiser."}},{"@type":"Question","name":"Why does the average order value change the answer so much on cheap items?","acceptedAnswer":{"@type":"Answer","text":"Your processor's fixed fee is charged per transaction, not per dollar. Ten cents on a $6 sticker sale is 1.7% of it; the same ten cents on an $80 print is 0.1%. A headline \"2.6% + 10c\" hides that difference completely, so a sticker table and a print table with identical percentages keep very different shares of each dollar. The calculator converts the fixed fee into a rate using your average order value, which is why that field matters more than it looks."}},{"@type":"Question","name":"Does anything about my event or my sales get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Anyone who has that link can read the numbers in it, so send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#1d2333;background:#f4f6fb}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .86fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #d9e0ef;border-radius:16px;padding:20px;box-shadow:0 8px 24px #1d233310;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #e6ebf6;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#3c4f8a;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9b8dc;border-radius:8px;font:inherit;background:#fdfdff}.result{background:#1f2b4d;color:#fff;border-color:#1f2b4d;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#55607a}.result .note{color:#c3cde8}.err{color:#ffd0d0;font-weight:700}.warn{background:#fff2e2;border:1px solid #e8b878;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3a2a10;border-color:#b98c3f;color:#ffe6b8}.good{background:#e7f6ec;border:1px solid #8dc9a3;color:#17512f;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9b8dc;background:#fff;cursor:pointer;color:#1d2333}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR MAKERS SELLING AT CRAFT FAIRS, FARMERS MARKETS &amp; ART FESTIVALS</p><h1>A $1,500 day at a $250 booth is not $1,250.</h1><p class="lede">Materials are already spent on every dollar you take, the card reader takes a slice of it, and the booth fee, jury fee, and drive were all paid before a single sale. This free calculator finds what a market has to sell to break even, what the weekend actually pays you per hour, and the most a booth could cost and still be worth the van. Nothing you type leaves your browser.</p></header>
+
+<main class="layout">
+<section><h2>This market</h2>
+<fieldset><legend>Cost of getting there</legend><div class="fields">
+<label>Booth or stall fee ($)<input id="boothFee" type="number" min="0" step="5" value="250"></label>
+<label>Application/jury fee ($)<input id="applicationFee" type="number" min="0" step="5" value="25"></label>
+<label>Round-trip miles<input id="milesRoundTrip" type="number" min="0" step="5" value="90"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+<label>Lodging ($)<input id="lodgingCost" type="number" min="0" step="10" value="0"></label>
+<label>Parking &amp; tolls ($)<input id="parkingTollsCost" type="number" min="0" step="5" value="15"></label>
+<label>Tent &amp; display, per event ($)<input id="displayCostPerEvent" type="number" min="0" step="5" value="20"></label>
+<label>Other flat cost ($)<input id="otherEventCost" type="number" min="0" step="5" value="0"></label>
+</div></fieldset>
+<fieldset><legend>What you sell</legend><div class="fields">
+<label>Average order value ($)<input id="averageOrderValue" type="number" min="0.01" step="any" value="38"></label>
+<label>Materials &amp; packaging (% of retail)<input id="materialCostPct" type="number" min="0" max="99" step="1" value="30"></label>
+<label>Stock you're bringing, at retail ($)<input id="stockBroughtRetailValue" type="number" min="0" step="50" value="2400"></label>
+<label>Sales taken by card (%)<input id="cardSharePct" type="number" min="0" max="100" step="5" value="80"></label>
+<label>Card fee (%)<input id="cardPercentFee" type="number" min="0" max="99" step="0.1" value="2.6"></label>
+<label>Card fee, fixed per sale ($)<input id="cardFixedFee" type="number" min="0" step="0.01" value="0.10"></label>
+</div></fieldset>
+<fieldset><legend>Your time, and what you expect to take</legend><div class="fields">
+<label>Prep &amp; packing hours<input id="prepHours" type="number" min="0" step="0.5" value="8"></label>
+<label>Round-trip travel hours<input id="travelHours" type="number" min="0" step="0.5" value="3"></label>
+<label>Setup &amp; teardown hours<input id="setupTeardownHours" type="number" min="0" step="0.5" value="3"></label>
+<label>Hours the booth is open<input id="sellingHours" type="number" min="0" step="0.5" value="12"></label>
+<label>What your hour is worth ($)<input id="targetHourlyRate" type="number" min="0" step="1" value="25"></label>
+<label>Sales you expect ($)<input id="expectedRevenue" type="number" min="0" step="50" value="1500"></label>
+</div></fieldset>
+<p style="margin:6px 0 4px"><button type="button" id="copyLink">Copy shareable link</button></p>
+<p id="shareStatus" class="note" role="status"></p>
+</section>
+
+<section class="result" aria-live="polite"><h2>What this booth has to sell</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="breakEven" class="big">$0.00</div><p id="breakEvenLine" class="note"></p>
+<dl>
+<dt>Fixed cost, paid before any sale</dt><dd id="fixedOut"></dd>
+<dt>Kept from each $1 of sales</dt><dd id="keptOut"></dd>
+<dt>Kept from an average order</dt><dd id="perOrderOut"></dd>
+<dt>Break-even orders (cash)</dt><dd id="beOrdersOut"></dd>
+<dt>Your hours committed</dt><dd id="hoursOut"></dd>
+<dt>What those hours are worth</dt><dd id="laborOut"></dd>
+<dt>Break-even with your time paid</dt><dd id="beWithPayOut"></dd>
+<dt>&hellip; in orders</dt><dd id="beOrdersPayOut"></dd>
+</dl>
+<p id="stockWarning" class="warn" hidden></p>
+<p class="note">A planning figure from the numbers you typed, not an audited statement. It does not add sales tax you collect and remit, income tax, or booth insurance unless you fold those into the other-cost field yourself.</p>
+</section>
+</main>
+
+<section><h2>What the day actually leaves</h2><p class="note">At the sales you entered above, once materials and card fees come out and the fixed cost of getting there is paid.</p>
+<div class="layout" style="gap:18px">
+<dl>
+<dt>Materials in what sold</dt><dd id="materialsOut"></dd>
+<dt>Card processing</dt><dd id="cardOut"></dd>
+<dt>Left after materials &amp; card</dt><dd id="contributionOut"></dd>
+<dt>Cash after the day's fixed cost</dt><dd id="cashOut"></dd>
+<dt>What that pays your hour</dt><dd id="rateOut"></dd>
+<dt>Left after paying yourself</dt><dd id="afterPayOut"></dd>
+<dt>Most a booth could cost here</dt><dd id="maxBoothOut"></dd>
+</dl>
+<div>
+<p id="verdict" class="good" hidden></p>
+<p id="rateWarning" class="warn" hidden></p>
+<p id="boothWarning" class="warn" hidden></p>
+</div>
+</div>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your booth fees, sales, costs, and hours are never uploaded, there is no account, and nothing is saved when you close the tab. <em>Copy shareable link</em> is the one way these figures leave this device, and only because you choose to send them: they ride in the page's URL fragment, which a browser never puts in a request line or a Referer header. Whoever holds that link can read the numbers in it, so send it the way you would send the numbers themselves. We count only anonymous local feature events (<code>event-priced</code>, <code>booth-fee-tested</code>, <code>link_copied</code>) so we can tell whether the calculator gets used — no fees, sales, costs, or hours are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why doesn't the stock I don't sell count as a cost of the event?</h3><p>Because it is still yours. A caterer who over-preps throws food away, but a maker who brings 60 candles and sells 22 drives home with 38 candles and sells them at the next market or online. So the materials that belong in one event's break-even are the materials in what actually sold. Counting the whole table against one weekend is how a fine event gets recorded as a bad one. The stock figure is used only to express the break-even as a sell-through percentage, so you can see what share of the table has to move.</p>
+<h3>Why is my break-even higher than the booth fee?</h3><p>Because sales are not profit. Every dollar you take arrives with materials already spent on it and a card fee taken out of it, so only part of each dollar is left to cover the booth. At 30% materials and a card mix around 2.6% plus 10c, roughly 68c of each dollar is available — so a $370 day of fixed cost needs about $547 of sales, not $370. The calculator shows the kept-per-dollar figure it used.</p>
+<h3>What is the most a booth should cost?</h3><p>That depends on what you expect to sell there and what you want your own hours to earn. Given both, the calculator solves for the booth fee at which the day lands exactly on your target hourly rate — that is the number to compare against an application before you send it. If it comes out negative, the expected sales cannot clear your target rate even at a free stall, which is a fact about the event's sales rather than about its organiser.</p>
+<h3>Why does the average order value change the answer so much on cheap items?</h3><p>Your processor's fixed fee is charged per transaction, not per dollar. Ten cents on a $6 sticker sale is 1.7% of it; the same ten cents on an $80 print is 0.1%. A headline "2.6% + 10c" hides that difference completely, so a sticker table and a print table with identical percentages keep very different shares of each dollar. The calculator converts the fixed fee into a rate using your average order value, which is why that field matters more than it looks.</p>
+<h3>Does anything about my event or my sales get uploaded?</h3><p>No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the figures on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Anyone who has that link can read the numbers in it, so send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p class="note">New to costing a market? Read the guide: <a href="./how-much-do-you-need-to-sell-at-a-craft-fair.html">how much you need to sell at a craft fair to break even</a>.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, predict how an event will actually go, read a booth contract, determine your sales-tax or vendor-permit obligations, or replace your own accountant.</p><p>Already keeping your cost of goods in <a href="vs-craftybase.html">Craftybase</a>, or wondering whether you need to? See <a href="vs-craftybase.html">how this free calculator differs</a> from ongoing inventory bookkeeping — they answer different questions and compose well.</p><p>Selling the same work online between markets? The <a href="../etsy-profit-calculator/">Etsy profit calculator</a> prices one listing after Etsy's own fees, and the <a href="../where-to-sell-calculator/">where-to-sell calculator</a> puts one item through every channel at once — both browser-local, nothing uploaded.</p><p>Printing what you sell? The <a href="../3d-print-price-calculator/">3D print price calculator</a> derives a per-print cost from filament, electricity, printer wear, and failure rate — which is where the materials percentage this page asks for comes from.</p>
+<p>Pricing a service booking rather than a table of stock? The <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a> handles a booking where unsold prep really is a loss.</p><p>MIT licensed. If it helped you decide on a market, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateEvent } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, hasSharedInputs, formValues, FIELD_IDS } from './share.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (v) => `$${v.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const OUT_IDS = ['breakEvenLine', 'fixedOut', 'keptOut', 'perOrderOut', 'beOrdersOut', 'hoursOut',
+  'laborOut', 'beWithPayOut', 'beOrdersPayOut', 'materialsOut', 'cardOut', 'contributionOut',
+  'cashOut', 'rateOut', 'afterPayOut', 'maxBoothOut'];
+let counted = false;
+let boothCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function update(count = false) {
+  try {
+    const r = calculateEvent(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('breakEven').hidden = false;
+    el('breakEven').textContent = money(r.breakEvenRevenue);
+    el('breakEvenLine').textContent = r.sellThroughNeededPct === null
+      ? `${r.breakEvenOrders} orders at your average — just to cover the cost of being there`
+      : `${r.breakEvenOrders} orders at your average — ${r.sellThroughNeededPct.toFixed(0)}% of the stock you're bringing`;
+    el('fixedOut').textContent = money(r.fixedEventCost);
+    el('keptOut').textContent = `${(r.contributionRate * 100).toFixed(1)}c`;
+    el('perOrderOut').textContent = money(r.contributionPerOrder);
+    el('beOrdersOut').textContent = String(r.breakEvenOrders);
+    el('hoursOut').textContent = `${r.committedHours.toFixed(1)} hrs`;
+    el('laborOut').textContent = money(r.laborValue);
+    el('beWithPayOut').textContent = money(r.breakEvenRevenueWithPay);
+    el('beOrdersPayOut').textContent = String(r.breakEvenOrdersWithPay);
+
+    el('materialsOut').textContent = money(r.expected.materialsCost);
+    el('cardOut').textContent = money(r.expected.cardFees);
+    el('contributionOut').textContent = money(r.expected.contribution);
+    el('cashOut').textContent = money(r.expected.cashProfit);
+    el('rateOut').textContent = r.expected.effectiveHourlyRate === null
+      ? 'n/a'
+      : `${money(r.expected.effectiveHourlyRate)}/hr`;
+    el('afterPayOut').textContent = money(r.expected.profitAfterPayingYourself);
+    el('maxBoothOut').textContent = r.noBoothFeeClearsTarget
+      ? 'none clears your rate'
+      : money(r.maxBoothFeeAtTargetRate);
+
+    // Three separate findings, shown together rather than collapsed into one
+    // verdict: a day can pay cash and still be a bad use of the weekend, and
+    // a maker deciding whether to apply again needs to see which of the two
+    // it was.
+    if (r.stockTooThin) {
+      el('stockWarning').hidden = false;
+      el('stockWarning').textContent = `Break-even needs ${r.sellThroughNeededPct.toFixed(0)}% of the stock you're bringing — more than the whole table. Even a sellout does not cover this booth, so bring more stock or leave this one.`;
+    } else {
+      el('stockWarning').hidden = true;
+    }
+    if (r.expected.belowCashBreakEven) {
+      el('rateWarning').hidden = false;
+      el('rateWarning').textContent = `At ${money(r.expected.revenue)} in sales this market loses ${money(-r.expected.cashProfit)} in cash before your own hours are counted at all.`;
+    } else if (!r.expected.clearsTargetRate) {
+      el('rateWarning').hidden = false;
+      el('rateWarning').textContent = `The day pays cash, but works out at ${money(r.expected.effectiveHourlyRate)}/hr across ${r.committedHours.toFixed(1)} committed hours — below the ${money(Number(el('targetHourlyRate').value) || 0)}/hr you set. It would need ${money(r.breakEvenRevenueWithPay)} in sales to reach that rate.`;
+    } else {
+      el('rateWarning').hidden = true;
+    }
+    el('verdict').hidden = !r.expected.clearsTargetRate;
+    if (r.expected.clearsTargetRate) {
+      el('verdict').textContent = `This market clears your ${money(Number(el('targetHourlyRate').value) || 0)}/hr and leaves ${money(r.expected.profitAfterPayingYourself)} on top.`;
+    }
+    el('boothWarning').hidden = !r.noBoothFeeClearsTarget;
+    if (r.noBoothFeeClearsTarget) {
+      el('boothWarning').textContent = 'At these expected sales no booth fee clears your target rate — a free stall would still miss it. That is about the sales, not the organiser: raise the expected take, cut the committed hours, or lower the rate you are holding out for.';
+    }
+
+    if (count && !counted) { recordEvent('event-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('breakEven').hidden = true;
+    for (const id of ['stockWarning', 'rateWarning', 'boothWarning', 'verdict']) el(id).hidden = true;
+    for (const id of OUT_IDS) el(id).textContent = '';
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => {
+  update(true);
+  // The booth-fee field is the one people scrub back and forth while
+  // looking at an application, so it gets its own counter: it is the
+  // signal that says whether the "most a booth could cost" answer is the
+  // one being used.
+  if (id === 'boothFee' && !boothCounted) { recordEvent('booth-fee-tested'); boothCounted = true; }
+}));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+// Twenty figures is more than anyone reads down a phone, so the whole event
+// goes in the link. It rides in the fragment, which a browser puts in
+// neither a request line nor a Referer header.
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(fieldInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('shareStatus').textContent = 'Link copied. It carries this event, not a usage count.';
+  } catch {
+    el('shareStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A link replaces every field, including the ones it did not carry: see
+// share.mjs for why a plain `Object.entries` of the decoded link is not the
+// supported way in.
+const fromLink = decodeInputs(location.hash || location.search);
+if (hasSharedInputs(fromLink)) {
+  for (const [id, value] of Object.entries(formValues(fromLink))) el(id).value = value;
+  el('shareStatus').textContent = 'Opened a shared event. Check the costs against your own numbers before you use them.';
+}
+
+update(false);
+</script>
+</body></html>

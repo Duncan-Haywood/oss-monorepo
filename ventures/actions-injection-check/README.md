@@ -51,12 +51,26 @@ itself makes no network requests.
 python3 check.py                  # scan .github/workflows under the current directory
 python3 check.py /path/to/repo    # scan a specific checkout
 python3 check.py --format json    # machine-readable
+python3 check.py --format sarif   # SARIF 2.1.0, for GitHub code scanning
 python3 check.py --fail-on-risk   # exit 2 if any finding exists
 ```
 
 Zero dependencies — stdlib only, one file, nothing to install, no network
 calls. Wire `--fail-on-risk` into your own CI to block a newly-added finding
-before it merges.
+before it merges, or upload the SARIF output so findings show up as code
+scanning alerts on the PR diff instead of only in a log:
+
+```yaml
+- run: python3 check.py --format sarif > results.sarif
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
+```
+
+Every artifact path in the SARIF output is resolved relative to the scanned
+directory (the default `.`, or the argument you pass), which is what
+`upload-sarif` needs to attach a result to a line in the pull request diff
+rather than dropping it silently.
 
 ## Disclaimers
 

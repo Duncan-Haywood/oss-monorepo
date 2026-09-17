@@ -67,6 +67,20 @@ on item price only is not. The same comparison now also runs on the
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
 
+## Comparing this SKU against other channels
+
+The [marketplace fee comparison](../marketplace-fee-compare/) ranks TikTok
+Shop against eBay, Etsy, Amazon, Walmart and your own store from one set of
+inputs. The [where-to-sell calculator](../where-to-sell-calculator/) is a
+second, deeper comparison — it also models return rate, sell-through and
+shelf time, and ranks TikTok Shop against eBay, Etsy, Amazon, Reverb and an
+own store. Both links at the bottom of this page carry this order's item
+price, shipping and cost over automatically — no retyping — via
+[`to-where-to-sell.mjs`](to-where-to-sell.mjs), the reverse of that page's own
+`handoff.mjs`. `to-where-to-sell.test.mjs` decodes the link through that
+page's own decoder so a shape change there fails a test here instead of
+arriving as a silently wrong number.
+
 ## Privacy
 
 Nothing is uploaded. Every figure stays in the browser. The only thing stored
@@ -77,8 +91,8 @@ when the browser sends Do Not Track or Global Privacy Control. See
 [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `order_calculated`, `affiliate_compared`, `schedule_compared`,
-`free_shipping_compared`. The first paint from the prefilled example is not
-counted.
+`free_shipping_compared`, `handoff_where_to_sell`. The first paint from the
+prefilled example is not counted.
 
 ## Limitations
 

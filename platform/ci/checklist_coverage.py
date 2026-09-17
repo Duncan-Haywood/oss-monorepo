@@ -174,16 +174,68 @@ def checklist_directories(block_text):
     return dirs
 
 
+def nested_checkout_filter(repo_root):
+    """Return `is_nested(rel)` for one scan of one repo_root.
+
+    A factory rather than a plain function with a cached default, because the
+    cache must not outlive the scan. It did: the first version keyed a
+    module-level `_cache={}` on the ancestor tuple alone, so in a process that
+    scans more than one root -- the test suite does, and so would any future
+    caller -- a `sweepwt` checkout in the first root made ordinary
+    `sweepwt/**` tests in a later root vanish from the scan. Reversing the
+    order flipped which repo got the wrong answer.
+
+    Caught by an automated reviewer on #4646 after it merged, and it deserved
+    catching: silently dropping a directory from the scan is precisely the
+    failure this whole exclusion exists to prevent, reintroduced by the fix
+    for it. A cache keyed on less than it depends on is the same defect as a
+    stale checklist line, one layer down.
+
+    A `git worktree` added inside the repository -- which CLAUDE.md tells you
+    to use, for a supersession check and to read `main` without disturbing
+    your tree -- is a second complete copy of every file, untracked by the
+    outer repo. Without this, the scans below find all 65 test directories
+    twice and this checker fails with 65 findings that name paths like
+    `sweepwt/portfolio/ledger/`, instructing the reader to add them to
+    CLAUDE.md.
+
+    Measured 2026-09-11, on a session that had a sweep running in
+    `./sweepwt`. Everything about that report is wrong, and it is wrong in
+    the most expensive direction: a guard that cries wolf is one a reader
+    learns to wave through, and this guard's whole job is to be believed the
+    one time a genuinely uncovered directory appears.
+
+    Detected by the presence of a `.git` entry (a directory for a clone or
+    submodule, a file for a linked worktree) rather than by name, so it also
+    covers a stray clone someone left in the tree.
+    """
+    cache = {}
+
+    def is_nested(rel):
+        for i in range(1, len(rel.parts)):
+            ancestor = rel.parts[:i]
+            if ancestor not in cache:
+                cache[ancestor] = (repo_root.joinpath(*ancestor) / ".git").exists()
+            if cache[ancestor]:
+                return True
+        return False
+
+    return is_nested
+
+
 def actual_test_mjs_dirs(repo_root):
     """Directories under repo_root holding a `*.test.mjs` file, as repo-root-relative
     POSIX paths, excluding ventures/*, node_modules, and dotdirs."""
     found = set()
+    is_nested = nested_checkout_filter(repo_root)
     for path in repo_root.rglob("*.test.mjs"):
         rel = path.relative_to(repo_root)
         parts = rel.parts
         if parts[0] in ("node_modules", "ventures") or parts[0].startswith("."):
             continue
         if any(p.startswith(".") or p == "node_modules" for p in parts):
+            continue
+        if is_nested(rel):
             continue
         found.add(rel.parent.as_posix())
     return found
@@ -199,12 +251,15 @@ def actual_test_py_dirs(repo_root):
     once in the checklist rather than twice in this file.
     """
     found = set()
+    is_nested = nested_checkout_filter(repo_root)
     for path in repo_root.rglob("*.py"):
         if not TEST_PY_RE.match(path.name):
             continue
         rel = path.relative_to(repo_root)
         parts = rel.parts
         if any(p.startswith(".") or p in IGNORED_PARTS for p in parts):
+            continue
+        if is_nested(rel):
             continue
         found.add(rel.parent.as_posix())
     return found

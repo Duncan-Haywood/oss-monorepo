@@ -123,6 +123,18 @@ toward *running in public* ranks with feature work here, not below it:
       python3 platform/ci/pages_state.py --require-current   # exits 1 if stale
       CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
       python3 platform/ci/pages_state.py --require-current   # must exit 0 now
+      python3 platform/ci/pages_state.py --record            # commit the row it rewrites
+
+  `--record` writes the reading into `infra_state.yaml`'s
+  `github-pages-branch-route` row. Run it even on a run that published
+  nothing: the row ages out after three days, and when it does,
+  `decision_queue.py` tells the account owner "OUTAGE: the public surface is
+  down ... every other row here is downstream of a host answering at all" about
+  a catalogue GitHub is measurably serving. That banner is addressed to the
+  owner and tells them to stop reading, so a stale row here costs more than any
+  code defect you are likely to ship in the same run. It is a read-only
+  measurement -- no runner, no cluster, no credential beyond the repository
+  read you already have.
 
   The flag exists because the prose version of this instruction did not hold:
   CLAUDE.md had carried it for a day when a session that had read it still left
@@ -181,6 +193,44 @@ quote, structured data, `sitemap.xml`, `robots.txt`, `llms.txt`, share cards,
 and internal links between related tools. `platform/pages/build.mjs` derives
 most of that from each venture's own visible copy, so improve the copy and the
 metadata follows; do not hand-write a schema block beside it.
+
+**Know what the current origin does to two items on that list before you spend
+a run on them** (added 2026-09-10). The catalogue is served from a project-Pages
+*subpath* (`https://duncan-haywood.github.io/monorepo-projects/`), and a crawler
+fetches `robots.txt` from the **host root** — which belongs to the owner's
+separate user-level Pages site. So the `robots.txt` this build publishes is not
+the file any crawler reads, and the `Sitemap:` line inside it has never been
+seen, for any of the 881 pages here. Crawling is still allowed; what is lost is
+*enumeration*. That is the leading candidate for why nothing has arrived yet,
+while every other SEO surface is in good order.
+
+**Do not restate that as "usage.yaml records zero users"** (corrected
+2026-09-11; the sentence here used to). It records no visitor measurement at
+all: `live_url_visitors` is `null` on all 399 readings, because GitHub Pages
+exposes no server-side analytics and the local counters are opt-in and off by
+default. Never-measured and measured-zero license opposite decisions — the
+second is evidence against a product, the first is evidence about nothing.
+Run `python3 platform/ci/usage_state.py` rather than quoting either.
+
+Two things follow, and the second is the one that changes what you do:
+
+- Effort spent tuning `robots.txt` on this origin cannot pay off. Effort on the
+  surfaces a crawler *does* reach — page copy, titles, FAQ content, structured
+  data, `llms.txt`, and internal links between related tools — still does, and
+  internal links matter more than usual here precisely because enumeration is
+  unavailable. A page reachable only from the sitemap is, today, reachable from
+  nothing.
+- The fix is an owner action, already queued as `pages-custom-domain` in
+  `portfolio/ledger/asks.yaml` — one DNS change pointing `marisstella.dev` at
+  Pages, needing no SSH key, no cluster and no runner. **Do not add a second
+  ask for it, and do not attempt the DNS change.** The repository half is done:
+  `publish-branch.sh` carries a `CNAME` forward, and
+  `platform/pages/custom-domain.test.mjs` pins that a build under a custom
+  origin comes out correct.
+
+Read `python3 platform/ci/pages_state.py`'s `indexing` row rather than this
+paragraph — the day a custom domain lands, that row changes and this prose
+does not.
 
 One exception, because it is the only surface not derived from the tree: if
 you land a new tool, give it a launch date so it enters the Atom feed at

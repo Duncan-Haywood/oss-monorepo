@@ -76,6 +76,7 @@ names what tripped it so a real verification step is not silently dropped.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import subprocess
@@ -160,6 +161,30 @@ MUTATING = [
 ]
 
 EXPRESSION = re.compile(r"\$\{\{")
+
+# The progress line is written in two halves -- the step's label before it
+# runs, flushed, and the verdict after -- and that is a fix rather than a
+# style. It used to print one whole line *after* `execute()` returned, which
+# combined with Python's block buffering on a pipe to make this tool look
+# hung: a session running the documented `--tree` sweep and piping it
+# anywhere sees no output at all, for as long as the slowest step takes,
+# while the parent process sits at ~0% CPU because its children are doing
+# the work. Every one of those signals reads as a wedged process.
+#
+# It was read that way. Measured 2026-09-09: the sweep over this tree takes
+# ~13 minutes and emitted nothing until it exited, and the session that
+# merged #4326 that morning recorded killing it -- "hung indefinitely
+# (near-zero CPU for 10+ minutes)" -- and falling back to running CLAUDE.md's
+# hand-copied command list instead. That is precisely the substitution
+# CLAUDE.md tells sessions to make in the other direction, on the grounds
+# that a hand-copied list goes stale and this tool cannot. Actions has been
+# starved since 2026-09-04, so during that window this *is* the CI, and a CI
+# that looks broken gets killed rather than read.
+#
+# The cheap guard against that is not a faster sweep, it is saying which step
+# is running while it runs. Note the failure it protects against is the one
+# this file already fails toward everywhere else: a check that did not
+# actually run must never be mistaken for one that did.
 
 # How each step status prints in the live progress line. One definition rather
 # than one per call site: it was two, and the second was not updated when
@@ -419,6 +444,51 @@ def missing_credential(output) -> str | None:
     return None
 
 
+def declared_unrun(output) -> str | None:
+    """What a step said when it reported itself unable to run, or None.
+
+    The same "did not run" class as the two above, reached from a third
+    direction: not a tool this sandbox lacks and not a credential it lacks,
+    but a check that ran, discovered it could not answer its own question,
+    and said so in as many words.
+
+    Added 2026-09-16 for `check_venture_regression.py`, which is the only
+    check here that already makes this distinction internally and the one
+    where getting it wrong is most expensive. It compares the tree against a
+    base ref, and a removal it spots means a live product vanished from the
+    served catalogue -- so when it *cannot prove* the removal is real (your
+    checkout is an ancestor of the base, or a shallow clone leaves ancestry
+    unanswerable) it deliberately refuses to pass, exits `EXIT_UNRUN` = 2,
+    and prints `UNRUN: ...` followed by "This check did not run, which is not
+    the same as passing."
+
+    The sweep read that as an ordinary `FAILED`, which is the costume problem
+    the two blocks above were written about, wearing a third costume. It
+    matters most in exactly the situation `--tree` creates by construction: a
+    sweep takes ~20 minutes, this repository lands merges from up to 4
+    sessions inside 15, so `main` moving *during* the sweep is the ordinary
+    case rather than an edge one. The reader then sees `main` reported red,
+    with a step name -- "Check no live venture disappears from the served
+    catalogue" -- that reads like live product going dark. Measured that day:
+    that is precisely what happened, and the checker's own diagnostic was the
+    only thing that kept it from being reported as a red `main`.
+
+    The discrimination that keeps this honest is the same one `missing_toolchain`
+    and `missing_credential` use, and it is the whole reason this matches a
+    marker rather than an exit code. A **real** regression -- the venture
+    genuinely gone, ancestry proven -- exits 1 and prints no `UNRUN:` line, so
+    it stays `failed` and stays loud. Only a check that explicitly disclaims
+    its own result is reclassified, and it is still never counted as green:
+    an `unrun` step is named, counted as not run, and owed an answer.
+    """
+    for line in output:
+        if line.strip().startswith("UNRUN:"):
+            return line.strip()[len("UNRUN:"):].strip() or (
+                "the step reported that it did not run"
+            )
+    return None
+
+
 class Step:
     """One `run:` step, with where and how it should be executed."""
 
@@ -621,6 +691,42 @@ def _grants_write(node) -> bool:
     return any(value == "write" for value in perms.values())
 
 
+# A secret is read through an Actions *expression*, so that is what this
+# looks for -- not the loose text `secrets.`, which is also how a filename
+# reads.
+#
+# The `${{ }}` wrapper is matched separately from the reference inside it
+# rather than in one pattern, because the two can be far apart
+# (`${{ inputs.x && secrets.Y || '' }}`) and a single adjacency-based regex
+# would miss that. `secrets[...]` index syntax has no readable name, so it
+# holds the job unconditionally: failing closed is the only safe direction
+# for a screen that decides what may execute locally.
+EXPRESSION_BLOCK = re.compile(r"\$\{\{(.*?)\}\}", re.S)
+SECRET_REFERENCE = re.compile(
+    r"\bsecrets\s*(?:\.\s*([A-Za-z_][A-Za-z0-9_-]*)|\[)")
+
+
+def _iter_strings(node):
+    """Every string scalar in a parsed workflow fragment, keys included.
+
+    Deliberately walks the structure instead of re-serialising it.
+    `yaml.safe_dump` line-wraps long scalars -- a shellcheck invocation
+    spanning 24 paths comes back full of `\\` continuations and escaped
+    newlines -- so a `${{ ... secrets.X ... }}` in a long command can be
+    split across two dumped lines. A screen that decides what is safe to run
+    must not be able to miss a secret because the dumper chose a line break.
+    """
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield from _iter_strings(key)
+            yield from _iter_strings(value)
+    elif isinstance(node, (list, tuple)):
+        for value in node:
+            yield from _iter_strings(value)
+    elif isinstance(node, str):
+        yield node
+
+
 def _mentions_secret(node) -> bool:
     """Whether this node reads a secret this tool has no honest stand-in for.
 
@@ -631,13 +737,48 @@ def _mentions_secret(node) -> bool:
     `_grants_write` on the declared `permissions` block. A job that reads it
     under `contents: read` can do nothing this tool should hold back.
 
-    Every other `secrets.X` still holds the job. The substitution above knows
-    one literal name; a job reading any other secret would run here against a
-    credential this tool cannot supply, and guessing is worse than not running.
+    Every other `secrets.X` still holds the job: a job reading one would run
+    here against a credential this tool cannot supply, and guessing is worse
+    than not running.
+
+    **This used to ask whether the literal text `secrets.` appeared anywhere
+    in the job, and a filename is text.** Measured 2026-09-10 across all 283
+    workflows, exactly one job was held on that reading and nothing else:
+    `hetzner-gitops-ci.yml`'s `scripts`, which declares no `permissions`
+    beyond the workflow's `contents: read`, reads no secret at all, and does
+    one thing -- `shellcheck` over the 24 shell scripts that install and run
+    every runner-free route this repository has. It was classified "reads a
+    secret" because two of the paths it lints are `bootstrap/scripts/
+    load-secrets.sh` and `bootstrap/scripts/seal-owner-secrets.sh`, and
+    `load-secrets.sh` contains the substring `secrets.`.
+
+    The cost was not theoretical and is not on the sweep. `--for-changes` is
+    the documented pre-merge check and `hetzner-gitops-ci.yml`'s `paths:`
+    filter selects it on any `bootstrap/**` or `gitops/**` diff -- so every
+    session that edited a deploy script got a report with the shell-bug gate
+    silently held back. #4435 (2026-09-10) is the record of it: it changed
+    `bootstrap/restore-cluster.sh`, reported `--for-changes 13/15`, and its
+    author separately ran "shellcheck-py 0.11.0.1 clean on restore-cluster.sh
+    (reproducing the starved scripts job by hand)". Improvising a guard the
+    tool held back is exactly what this module's docstring says it exists to
+    stop -- and `test_shellcheck_coverage.py` records `enable-codex-governor.sh`
+    shipping with two real SC2015 findings the one time that job did not run.
+
+    The fix narrows the screen and cannot widen it: a filename is not an
+    expression, and every genuine `${{ secrets.X }}` still holds its job.
     """
-    dumped = yaml.safe_dump(node, default_flow_style=False)
-    dumped = re.sub(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}", "", dumped)
-    return "secrets." in dumped
+    if isinstance(node, dict) and "secrets" in node:
+        # A reusable-workflow call passes credentials through a `secrets:`
+        # key (`secrets: inherit`, or an explicit mapping) with no `${{ }}`
+        # anywhere. Nothing here uses one today; holding on the key keeps
+        # that from becoming a hole the day something does.
+        return True
+    for text in _iter_strings(node):
+        for block in EXPRESSION_BLOCK.findall(text):
+            for name in SECRET_REFERENCE.findall(block):
+                if name != "GITHUB_TOKEN":
+                    return True
+    return False
 
 
 def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
@@ -766,9 +907,32 @@ def execute(step: Step, timeout: int) -> None:
         step.missing_kind = "credential"
         step.reason = (f"`{uncredentialed}` is not set here, so this step "
                        "never ran the check it exists to make")
+    elif (said_so := declared_unrun(output)) is not None:
+        step.status = "unrun"
+        step.missing_kind = "self-reported"
+        step.reason = said_so
     else:
         step.status = "failed"
         step.reason = f"exit {done.returncode}"
+
+
+def run_steps(steps, timeout) -> None:
+    """Execute steps, printing the live progress line for each.
+
+    One definition, called by both the single-workflow path and the sweep,
+    because there were two and they had already drifted once: the note above
+    `STATUS_MARK` records the `KeyError: 'unrun'` that cost. The progress fix
+    below landed in the sweep first and reached the by-name path only because
+    running it turned up the old output -- the same defect, caught the same
+    way, in the same eleven lines.
+    """
+    for step in steps:
+        # Name the step BEFORE running it, and flush. Both halves are
+        # load-bearing; see the note above `STATUS_MARK`.
+        print(f"  {step.label} ... ", end="", flush=True)
+        execute(step, timeout)
+        print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
+              flush=True)
 
 
 def report(name, steps, uses_skipped, forced) -> int:
@@ -804,6 +968,16 @@ def report(name, steps, uses_skipped, forced) -> int:
             print("        Set the missing credential(s) and re-run; until "
                   "then these steps have verified nothing:")
             print("          " + ", ".join(creds))
+        # A self-reported one names its own remedy, and that remedy is
+        # specific to the check (`check_venture_regression.py` asks for a
+        # fetch and a merge, not an install). Point at it rather than
+        # inventing a generic instruction that would be wrong for the next
+        # check to join this class.
+        if any(s.missing_kind == "self-reported" for s in unrun):
+            print("        A step above reported itself unable to run. Its own "
+                  "output says what it needs;")
+            print("        re-run it directly and satisfy that before reading "
+                  "this tree as verified.")
 
     for step in setup_failed:
         print(f"SETUP   {step.label}: {step.reason}")
@@ -921,6 +1095,74 @@ def run_for_changes(args) -> int:
     return _run_selected(args, selected, held)
 
 
+def checkout_fingerprint() -> tuple[str, str] | None:
+    """(HEAD sha, digest of every tracked path's content id).
+
+    Deliberately reads **tracked content only**, via `git diff HEAD --raw`,
+    whose output names each differing path and the blob id on both sides.
+    Untracked files are excluded on purpose: several steps here legitimately
+    write temp artifacts, a build directory or a node_modules tree, and a
+    fingerprint that moved on those would cry wolf on every clean run and be
+    switched off within a day -- the same fate this file's own comments
+    predict for any check that fails on correct input.
+
+    Returns None when git cannot answer (not a repository, no git binary), so
+    a missing fingerprint can be told apart from an unchanged one: the caller
+    treats "could not measure" as no finding rather than as a finding.
+    """
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO,
+                              capture_output=True, text=True, timeout=30)
+        tracked = subprocess.run(["git", "diff", "HEAD", "--raw"], cwd=REPO,
+                                 capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if head.returncode != 0 or tracked.returncode != 0:
+        return None
+    return (head.stdout.strip(),
+            hashlib.sha256(tracked.stdout.encode()).hexdigest())
+
+
+def checkout_drift(before, after) -> str | None:
+    """Describe how the checkout moved under a sweep, or None if it held still.
+
+    WHY THIS EXISTS
+    ---------------
+    `--tree` reads the checkout as it stands, and takes 40+ minutes to do it.
+    That is long enough that the obvious way to run it -- in the background,
+    while getting on with something else -- is also the way to make it lie,
+    because "something else" in this repository means checking out a PR
+    branch, merging `main`, or running `regen.mjs`.
+
+    Measured 2026-09-11: a sweep started on `main` reported
+    `FAILED validate / Check the apex tool mirror is not stale`. The mirror
+    was not stale. The session had checked out another PR's branch while the
+    sweep ran, and the step read that branch's tree. Re-run on an untouched
+    worktree at the same commit, the identical step passed 260/260.
+
+    A false red costs a session chasing a defect that does not exist. A false
+    *green* is worse and is equally available -- a sweep that reads a fixed
+    tree for the half of its run covering the broken file reports the tree
+    green. Neither is a reading, so this fails the sweep rather than warning
+    inside it: a warning in the middle of 40 minutes of scrollback is a
+    warning nobody sees, which is the argument `pages_state.py
+    --require-current` and `guard_state.py --require-runnable` already make
+    here for an exit code over a reminder.
+
+    It cannot distinguish "another session wrote to this checkout" from "a
+    step under test rewrote a tracked file", and does not try: both mean the
+    verdict covers more than one tree, and both want the same answer.
+    """
+    if before is None or after is None or before == after:
+        return None
+    head_before, _ = before
+    head_after, _ = after
+    if head_before != head_after:
+        return (f"HEAD moved from {head_before[:9]} to {head_after[:9]} while "
+                "the sweep ran")
+    return "tracked files changed while the sweep ran (HEAD did not move)"
+
+
 def _run_selected(args, selected, held, absent=()) -> int:
     """Execute the chosen workflows' read-only steps and report."""
     for name, job_id, why in held:
@@ -931,17 +1173,19 @@ def _run_selected(args, selected, held, absent=()) -> int:
             print(f"  [run   ] {name} ({', '.join(sorted(allowed))})")
         return 0
 
+    before = checkout_fingerprint()
+
     failures = []
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
-              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
-        for step in steps:
-            execute(step, args.timeout)
-            print(f"  [{STATUS_MARK[step.status]:6}] {step.label} "
-                  f"({step.seconds:.1f}s)")
+              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+              flush=True)
+        run_steps(steps, args.timeout)
         if report(name, steps, uses_skipped, False) != 0:
             failures.append(name)
+
+    drift = checkout_drift(before, checkout_fingerprint())
 
     print(f"\n{len(selected) - len(failures)}/{len(selected)} selected "
           f"workflow(s) passed.")
@@ -959,6 +1203,14 @@ def _run_selected(args, selected, held, absent=()) -> int:
     if absent:
         print("  Not a clean sweep: " + ", ".join(absent)
               + " named in VERIFICATION_ONLY but absent from the tree.")
+        return 1
+    # Reported last, and after the pass/fail line, because it invalidates that
+    # line in *both* directions -- see `checkout_drift`.
+    if drift:
+        print("\n  UNSTABLE CHECKOUT: " + drift)
+        print("  The verdict above was not taken against one tree, so it is "
+              "not a reading of anything. Re-run on a checkout nothing else "
+              "is writing to, and do not report either result.")
         return 1
     return 1 if failures else 0
 
@@ -1027,11 +1279,9 @@ def main(argv=None) -> int:
         return 0
 
     print(f"Running {name} locally "
-          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
-    for step in steps:
-        execute(step, args.timeout)
-        print(f"  [{STATUS_MARK[step.status]:6}] {step.label} "
-              f"({step.seconds:.1f}s)")
+          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+          flush=True)
+    run_steps(steps, args.timeout)
 
     return report(name, steps, uses_skipped, args.force)
 

@@ -1,0 +1,47 @@
+name: self-storage-rate-increase-calculator
+description: >-
+  A private browser calculator for independent self-storage operators that
+  prices an existing-customer rate increase against the move-outs it causes.
+  It costs one induced move-out properly — the rent lost during lease-up, the
+  move-in concession the replacement tenant receives, and the turn, less the
+  uplift from re-letting at the street rate rather than the departing tenant's
+  in-place rent — and reports the induced move-out rate at which the increase
+  finishes level, the units that represents, the margin of safety in
+  percentage points, what the increase is worth across the group over a chosen
+  horizon, and the same decision at every increase from 5% to 25% with a flag
+  on any rung that prices the raised rent above the facility's own street rate.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent operators price a move-out at the departing tenant's rent rather than at the gap between keeping them and re-letting at street, and that error is large enough — $1,772 against $272 on the shipped example — that correcting it changes the size of the increase they send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The inputs this needs — in-place rent, street rate, days to lease up, turn cost, concession, and the cohort's ordinary move-out rate — are all figures an operator can read off their own management software in a few minutes, so the tool can be completed without an analyst.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators cannot estimate induced churn but can judge a threshold, so reporting a break-even move-out rate is more usable than any forecast of move-outs would be, and is the format that gets acted on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The point at which a raised rent crosses the facility's own street rate is the decision boundary that matters most and the one least visible in a rate-management spreadsheet, so flagging it changes which cohorts get raised.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three self-storage operators price an increase twice within 90 days.
+  - Operators report that they do not know their own days-to-lease-up or turn cost well enough to complete the tool, so the answer is never better than the guess it replaces.
+  - Operators report that their management software already reports a break-even move-out rate, so the number this exists to supply is one they already have.
+  - The break-even rates it produces are so far above any move-out response operators recognise that the arithmetic is rejected rather than acted on.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-storage-rate-increase-calculator/
+  analytics: null

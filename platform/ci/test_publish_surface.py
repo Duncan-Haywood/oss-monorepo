@@ -824,6 +824,107 @@ class PagesBranchSurvey(unittest.TestCase):
             self.assertEqual(ps.pages_branch_survey()["state"], "unfetched")
 
 
+def fake_git_by_ref(*, refs, message="", counts=None):
+    """Like fake_git, but answers each ref SEPARATELY rather than by prefix.
+
+    `fake_git` above returns one answer for `refs/heads/main` and
+    `refs/remotes/origin/main` alike, which is exactly why the suite could not
+    see the bug these tests pin: a survey reading the wrong one of the two is
+    indistinguishable from a survey reading the right one. `refs` maps the full
+    ref name to a sha (or None), and `counts` maps a `<source>..<main>` range
+    to what `rev-list --count` says about it.
+    """
+    counts = counts or {}
+
+    def run(*args):
+        if args[0] == "rev-parse":
+            return refs.get(args[-1].removesuffix("^{commit}"))
+        if args[0] == "log":
+            return message
+        if args[0] == "rev-list":
+            return counts.get(args[-1])
+        raise AssertionError(f"unexpected git call: {args}")
+
+    return run
+
+
+class PagesBranchPrefersTheRemoteRef(unittest.TestCase):
+    """The comparison must read `origin/main`, not a stale local `main`.
+
+    A web session's clone carries a local `main` at whatever commit its branch
+    was cut from, and `git fetch origin main` updates only the remote-tracking
+    ref -- so the local one is stale on the default path, not in a corner case.
+    """
+
+    STALE_LOCAL = "b" * 40
+
+    def survey(self, **kwargs):
+        with unittest.mock.patch.object(ps, "_git", fake_git_by_ref(**kwargs)):
+            return ps.pages_branch_survey()
+
+    def test_a_stale_local_main_does_not_fabricate_a_behind_count(self):
+        # Measured 2026-09-11: gh-pages was staged from the tip of origin/main
+        # and the local `main` sat 6829 commits away on a diverged branch. The
+        # tool called the live deploy route "6829 commit(s) behind" and told
+        # the reader to restage an artifact that was already current.
+        row = self.survey(
+            refs={
+                "refs/remotes/origin/gh-pages": STAGED,
+                "refs/remotes/origin/main": SOURCE,
+                "refs/heads/main": self.STALE_LOCAL,
+            },
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{SOURCE}": "0", f"{SOURCE}..{self.STALE_LOCAL}": "6829"},
+        )
+        self.assertEqual(row["state"], "current")
+        self.assertEqual(row["behind"], 0)
+
+    def test_a_local_main_behind_the_snapshot_does_not_read_as_current(self):
+        # The direction that matters. When the stale local ref is BEHIND the
+        # snapshot's source, `source..main` is 0 and the row renders `current`
+        # -- an artifact genuinely lagging `main` reporting as fresh, with no
+        # error anywhere to say so.
+        row = self.survey(
+            refs={
+                "refs/remotes/origin/gh-pages": STAGED,
+                "refs/remotes/origin/main": "c" * 40,
+                "refs/heads/main": self.STALE_LOCAL,
+            },
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{'c' * 40}": "12", f"{SOURCE}..{self.STALE_LOCAL}": "0"},
+        )
+        self.assertEqual(row["state"], "behind")
+        self.assertEqual(row["behind"], 12)
+
+    def test_the_local_ref_is_still_the_fallback_when_no_remote_ref_exists(self):
+        # A CI clone that fetched only the branch under test has no
+        # remote-tracking ref, and a local ref is a better answer than
+        # `unfetched` there. Preferring the remote must not become requiring it.
+        row = self.survey(
+            refs={"refs/heads/gh-pages": STAGED, "refs/heads/main": SOURCE},
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{SOURCE}": "0"},
+        )
+        self.assertEqual(row["state"], "current")
+        self.assertEqual(row["ref"], "refs/heads/gh-pages")
+
+    def test_an_unpushed_local_gh_pages_does_not_mask_the_served_artifact(self):
+        # Serving reads the pushed branch, so when both exist the remote one is
+        # what a visitor receives. A local build that was never pushed must not
+        # be reported as what is staged.
+        row = self.survey(
+            refs={
+                "refs/remotes/origin/gh-pages": STAGED,
+                "refs/heads/gh-pages": "d" * 40,
+                "refs/remotes/origin/main": SOURCE,
+            },
+            message=PUBLISHED,
+            counts={f"{SOURCE}..{SOURCE}": "0"},
+        )
+        self.assertEqual(row["ref"], "refs/remotes/origin/gh-pages")
+        self.assertEqual(row["tip"], STAGED)
+
+
 class PagesBranchRendering(unittest.TestCase):
     def test_unfetched_says_it_is_not_evidence_of_absence(self):
         out = ps.render_pages_branch({"branch": "gh-pages", "state": "unfetched", "source": None, "behind": None})

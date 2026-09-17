@@ -80,3 +80,21 @@ test('every .html file in the venture is reachable from the sitemap', async () =
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the same developer on the same repository, in the browser
+// with nothing uploaded — shipped dependencies there, stale branches here.
+// Rotating chrome may never pair them, so link explicitly.
+test('index links one hop to the npm-deployment-evidence sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/npm\-deployment\-evidence\/"/,
+    'index must link ../npm-deployment-evidence/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /npm deployment evidence/i);
+});

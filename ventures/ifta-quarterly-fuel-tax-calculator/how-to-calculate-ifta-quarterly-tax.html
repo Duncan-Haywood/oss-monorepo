@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Is IFTA Quarterly Tax Calculated? One Quarter, Line by Line</title>
+  <meta name="description" content="A worked IFTA quarterly return for a two-truck carrier: average fleet MPG, taxable gallons per jurisdiction, net taxable gallons, and the Indiana/Kentucky surcharge that turns a $91.53 fuel credit into a $479.37 bill.">
+  <meta property="og:title" content="How is IFTA quarterly tax calculated?">
+  <meta property="og:description" content="Five jurisdictions, 29,320 miles, 3,890 gallons. The tax line nets to a credit. The return still owes $479.37 — here is every step of why.">
+  <link rel="canonical" href="./how-to-calculate-ifta-quarterly-tax.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does the fleet MPG look like a truck?","acceptedAnswer":{"@type":"Answer","text":"A qualified vehicle usually returns somewhere between 3 and 12 MPG. Outside that band, the likeliest explanation is not a remarkable fleet: it is a jurisdiction's miles or gallons left out, miles and gallons entered in the wrong columns, or litres entered as gallons. Every taxable-gallon figure descends from this number, so an error here is an error in all of them."}},{"@type":"Question","name":"Did you buy fuel where you ran no miles?","acceptedAnswer":{"@type":"Answer","text":"A purchase in a jurisdiction with no recorded miles is a standard audit query. Either the trip records are missing those miles, or the receipt belongs to a different state."}},{"@type":"Question","name":"Is any rate still zero?","acceptedAnswer":{"@type":"Answer","text":"A jurisdiction with taxable miles and a rate of zero contributes nothing to the total and looks, on the page, exactly like a jurisdiction that has been dealt with."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eef0f2; }
+    body { max-width: 780px; margin: 0 auto; padding: 34px 18px 48px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.08; letter-spacing: -.035em; margin: 0 0 14px; }
+    h2 { margin-top: 34px; font-size: 1.25rem; }
+    h3 { margin-top: 24px; font-size: 1.02rem; }
+    p, li { line-height: 1.62; }
+    .lede { font-size: 1.08rem; }
+    a { color: #143a5e; }
+    .cta { display: inline-block; margin: 18px 0; background: #143a5e; color: #f2f6f9; text-decoration: none; padding: 11px 17px; border-radius: 8px; font-weight: 650; }
+    .cta:hover { background: #0f2c48; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; margin: 14px 0; }
+    th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid #ccd4da; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; color: #47535e; }
+    tfoot td { font-weight: 700; border-top: 2px solid #9fabb4; }
+    .wrap { overflow-x: auto; }
+    .callout { background: #fbfcfd; border: 1px solid #ccd4da; border-left: 4px solid #143a5e; border-radius: 10px; padding: 15px 17px; margin: 20px 0; }
+    .callout p:first-child { margin-top: 0; }
+    .callout p:last-child { margin-bottom: 0; }
+    footer { margin-top: 40px; font-size: .82rem; color: #47535e; border-top: 1px solid #ccd4da; padding-top: 18px; }
+  </style>
+</head>
+<body>
+  <h1>How is IFTA quarterly tax calculated?</h1>
+  <p class="lede">Four steps, one of which almost every hand-built worksheet gets wrong. Here is a full quarter for a two-truck carrier based in Illinois, worked line by line, ending in a return that owes money on a quarter whose fuel tax nets to a credit.</p>
+
+  <p><a class="cta" href="./">Open the calculator with this quarter loaded</a></p>
+
+  <h2>The quarter</h2>
+  <p>Two trucks, one Midwest lane, five jurisdictions. The rates below are illustrative &mdash; real ones come from the official IFTA rate table for the quarter being filed, which is why the calculator asks you for them rather than shipping a table that would be stale within weeks.</p>
+
+  <div class="wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Jurisdiction</th><th scope="col">Miles</th><th scope="col">Gallons bought</th><th scope="col">Tax rate</th><th scope="col">Surcharge</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>IL</td><td>8,400</td><td>1,420.00</td><td>$0.6270</td><td>&mdash;</td></tr>
+        <tr><td>IN</td><td>6,150</td><td>380.00</td><td>$0.3400</td><td>$0.6200</td></tr>
+        <tr><td>KY</td><td>4,820</td><td>910.00</td><td>$0.2160</td><td>$0.1020</td></tr>
+        <tr><td>OH</td><td>7,310</td><td>1,180.00</td><td>$0.4700</td><td>&mdash;</td></tr>
+        <tr><td>MI</td><td>2,640</td><td>0.00</td><td>$0.3130</td><td>&mdash;</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Total</td><td>29,320</td><td>3,890.00</td><td></td><td></td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <h2>Step 1 &mdash; one fleet MPG, for the whole fleet and the whole quarter</h2>
+  <p>Every gallon figure on the return descends from this one number: total miles everywhere, over total gallons bought everywhere.</p>
+  <p><strong>29,320 &divide; 3,890.00 = 7.54 MPG.</strong></p>
+  <p>Two things about it are load-bearing. It is <em>fleet-wide</em> &mdash; there is no per-jurisdiction MPG, and computing one is the most common way a spreadsheet produces figures that look reasonable and reconcile to nothing. And it is carried to <em>two decimals</em>, because that is the figure the return itself carries; a worksheet that keeps full precision disagrees with the filed return by a few dollars per jurisdiction, which is small and is exactly the sort of unexplainable variance that lengthens an audit.</p>
+
+  <h2>Step 2 &mdash; taxable gallons, from miles rather than from purchases</h2>
+  <p>What a jurisdiction taxes is the fuel you <em>burned</em> inside it, which it works out from your miles and your fleet MPG. What you bought there is a separate figure entirely, and it arrives as a credit in step 3.</p>
+  <p>Michigan is the clearest case: 2,640 miles, not a drop of fuel bought. <strong>2,640 &divide; 7.54 = 350.13 taxable gallons</strong>, every one of them owed at $0.3130 &mdash; <strong>$109.59</strong>.</p>
+
+  <h2>Step 3 &mdash; net taxable gallons, and the tax that follows</h2>
+  <p>Net taxable gallons are what you burned there less what you already paid tax on there. Negative means you bought more fuel in that state than you burned in it, and the state owes you.</p>
+  <p>Illinois: <strong>1,114.06 burned &minus; 1,420.00 bought = &minus;305.94</strong>, at $0.6270 &rarr; a credit of <strong>$191.82</strong>. Ohio and Kentucky come back in credit too. Add the five tax lines together and the fuel tax on this quarter is a <strong>credit of $91.53</strong>.</p>
+
+  <div class="callout">
+    <p>At this point a carrier working from a spreadsheet concludes the quarter is a refund and files accordingly. It is not.</p>
+  </div>
+
+  <h2>Step 4 &mdash; the surcharge, which is not another tax rate</h2>
+  <p>Indiana, Kentucky and Virginia collect part of their diesel tax as a <strong>surcharge on the return</strong> rather than at the pump. Two properties make it behave unlike everything above:</p>
+  <ul>
+    <li>It is charged on <strong>taxable gallons</strong> &mdash; the fuel you burned there &mdash; not on net taxable gallons.</li>
+    <li>There is <strong>nothing to credit against it</strong>. Fuel you bought in the state reduced the tax line; it does not touch this one.</li>
+  </ul>
+  <p>Indiana: 815.65 taxable gallons &times; $0.6200 = <strong>$505.70</strong>. Kentucky: 639.26 &times; $0.1020 = <strong>$65.20</strong>. Together, <strong>$570.90</strong>.</p>
+  <p>Kentucky is the instructive one. Its tax line is a credit &mdash; 270.74 gallons in hand &mdash; and it still owes the surcharge in full. Model the surcharge as one more rate to be netted against that credit and you would compute &minus;270.74 &times; $0.1020, a further credit, instead of a charge.</p>
+
+  <h2>The return</h2>
+  <div class="wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Jurisdiction</th><th scope="col">Taxable gal</th><th scope="col">Tax-paid gal</th><th scope="col">Net taxable</th><th scope="col">Tax</th><th scope="col">Surcharge</th><th scope="col">Row total</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>IL</td><td>1,114.06</td><td>1,420.00</td><td>&minus;305.94</td><td>&minus;$191.82</td><td>&mdash;</td><td>&minus;$191.82</td></tr>
+        <tr><td>IN</td><td>815.65</td><td>380.00</td><td>435.65</td><td>$148.12</td><td>$505.70</td><td>$653.82</td></tr>
+        <tr><td>KY</td><td>639.26</td><td>910.00</td><td>&minus;270.74</td><td>&minus;$58.48</td><td>$65.20</td><td>$6.72</td></tr>
+        <tr><td>OH</td><td>969.50</td><td>1,180.00</td><td>&minus;210.50</td><td>&minus;$98.94</td><td>&mdash;</td><td>&minus;$98.94</td></tr>
+        <tr><td>MI</td><td>350.13</td><td>0.00</td><td>350.13</td><td>$109.59</td><td>&mdash;</td><td>$109.59</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Total</td><td></td><td></td><td></td><td>&minus;$91.53</td><td>$570.90</td><td>$479.37</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <p>The fuel tax is a credit of <strong>$91.53</strong>. The return owes <strong>$479.37</strong>. A worksheet that netted the surcharge would have reported <strong>$242.48</strong> of surcharge instead of $570.90 &mdash; <strong>$328.42</strong> short, in one quarter, on a return its author believed was a refund.</p>
+
+  <h2>If the return is late</h2>
+  <p>Interest accrues to <em>each jurisdiction you owe</em>, at one twelfth of the annual rate for every month or part of a month. A credit due back from another jurisdiction does not offset it. So a return that nets to a refund overall can still carry interest &mdash; on the quarter above, Indiana, Kentucky and Michigan would each accrue on their own row total, and Illinois and Ohio would accrue nothing and reduce nothing.</p>
+
+  <h2>The three checks worth running before you file</h2>
+  <h3>Does the fleet MPG look like a truck?</h3>
+  <p>A qualified vehicle usually returns somewhere between 3 and 12 MPG. Outside that band, the likeliest explanation is not a remarkable fleet: it is a jurisdiction's miles or gallons left out, miles and gallons entered in the wrong columns, or litres entered as gallons. Every taxable-gallon figure descends from this number, so an error here is an error in all of them.</p>
+  <h3>Did you buy fuel where you ran no miles?</h3>
+  <p>A purchase in a jurisdiction with no recorded miles is a standard audit query. Either the trip records are missing those miles, or the receipt belongs to a different state.</p>
+  <h3>Is any rate still zero?</h3>
+  <p>A jurisdiction with taxable miles and a rate of zero contributes nothing to the total and looks, on the page, exactly like a jurisdiction that has been dealt with.</p>
+
+  <p><a class="cta" href="./">Work your own quarter &mdash; free, in your browser</a></p>
+
+  <p>Other tools for the same desk: the <a href="../owner-operator-cpm-calculator/">owner-operator cost-per-mile calculator</a> prices what a mile costs before you quote it, and the <a href="../freight-accessorial-auditor/">freight accessorial auditor</a> checks whether an accessorial on an invoice was billed correctly.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about what your base jurisdiction requires, which miles any jurisdiction exempts, whether your vehicle is qualified, what rate applies to your fuel type, or what you owe &mdash; and the rates used above are an illustrative example rather than a rate table. It is arithmetic on the numbers you type. Verify every figure against your own trip and fuel records, the official IFTA rate table for the quarter you are filing, and a qualified tax professional before you file from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your mileage, fuel purchases, jurisdictions and the figures worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

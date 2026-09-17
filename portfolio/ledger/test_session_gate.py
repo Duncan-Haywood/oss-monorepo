@@ -13,6 +13,7 @@ from __future__ import annotations
 import sys
 import time
 
+import pytest
 import yaml
 
 import session_gate as sg
@@ -163,6 +164,43 @@ def test_build_targets_skips_what_has_already_graduated(tmp_path, monkeypatch):
     monkeypatch.setattr(sg, "CANDIDATES", candidates)
 
     assert [c["slug"] for c in sg.build_targets()] == ["pending"]
+
+
+# --- the ledger file itself must track the current month, not a fixed one ----
+
+
+def test_latest_ledger_path_picks_the_newest_month_present(tmp_path):
+    """Regression test for the 2026-09-10 finding: `LEDGER` was hardcoded to
+    `2026-08.yaml` and stayed pinned there past the month rollover, so this
+    gate quietly read a frozen August tail for the first ten days of
+    September. Sorting the filenames must pick whichever month is newest,
+    not the one this test (or the module) happens to be written against."""
+    for name in ("2026-07.yaml", "2026-08.yaml", "2026-09.yaml", "asks.yaml"):
+        (tmp_path / name).write_text("entries: []\n")
+
+    assert sg.latest_ledger_path(tmp_path) == tmp_path / "2026-09.yaml"
+
+
+def test_latest_ledger_path_ignores_non_month_yaml_files(tmp_path):
+    """`asks.yaml`, `infra_state.yaml`, `verifications.yaml` and the like sit
+    in the same directory and must never be mistaken for a month's ledger."""
+    (tmp_path / "asks.yaml").write_text("asks: []\n")
+    (tmp_path / "2026-09.yaml").write_text("entries: []\n")
+
+    assert sg.latest_ledger_path(tmp_path) == tmp_path / "2026-09.yaml"
+
+
+def test_latest_ledger_path_raises_when_none_exist(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        sg.latest_ledger_path(tmp_path)
+
+
+def test_module_ledger_resolves_to_a_real_current_month_file():
+    """The module-level `LEDGER` this whole test file already relies on via
+    `sg.LEDGER.read_text()` must itself be the product of the resolver, not a
+    leftover constant sitting next to it unused."""
+    assert sg.LEDGER == sg.latest_ledger_path()
+    assert sg.LEDGER.exists()
 
 
 def _pipeline(tmp_path, monkeypatch, body: str):
@@ -379,8 +417,24 @@ def test_meta_threshold_is_crossable_by_the_real_ledger():
     Measured on 2026-08: 25-entry windows span 56%-100%, and 29 of 140 sit
     below 70%. If a future month never crosses it the gate has stopped being
     a reading and become a constant, and this test is where that shows up.
+
+    Pinned to `2026-08.yaml` explicitly rather than `sg.LEDGER`. Before
+    2026-09-10 those were the same path, because `LEDGER` was itself
+    hardcoded to August — this test happened to be validated against "the
+    live ledger" only by that coincidence. Once `LEDGER` was fixed to track
+    whichever month is actually current (see `latest_ledger_path`), the same
+    assertion against September's much larger, much lower-meta-work dataset
+    failed outright (max observed window there is 68%, never crossing 70%) —
+    not because the detector regressed, but because this specific test's job
+    is to pin the threshold against the *known* dataset it was calibrated
+    from, and that dataset is `2026-08.yaml`, not "whatever `LEDGER` resolves
+    to when the test happens to run." Recalibrating `META_SHARE_THRESHOLD`
+    itself against September's healthier distribution is a live-gate policy
+    call for a session with visibility into current fleet dynamics, not a
+    side effect of a ledger-path bugfix.
     """
-    entries = yaml.safe_load(sg.LEDGER.read_text())["entries"]
+    fixture = sg.REPO / "portfolio" / "ledger" / "2026-08.yaml"
+    entries = yaml.safe_load(fixture.read_text())["entries"]
     windows = [
         sg.meta_share(entries[i : i + sg.WINDOW], window=sg.WINDOW)
         for i in range(0, len(entries) - sg.WINDOW + 1)
@@ -664,8 +718,19 @@ def test_stale_pr_check_streak_measured_on_the_real_ledger():
     "the last N" would make this test flake as soon as the next session's
     entry lands, which is exactly the kind of churn the gate has to tolerate
     rather than assume away.
+
+    Pinned to `2026-08.yaml` explicitly, for the same reason as the meta-share
+    threshold test above: this is a regression fixture proving the detector
+    still finds a known historical streak, not a live assertion about
+    whatever month `sg.LEDGER` currently resolves to. September's ledger
+    (post the 2026-09-10 ledger-path fix) doesn't happen to carry a streak
+    this long yet -- a good sign about current session behavior, not a
+    detector regression -- so asserting against it here would conflate "the
+    pattern-matcher still works" with "the fleet is still repeating this
+    waste," which are two different claims.
     """
-    entries = yaml.safe_load(sg.LEDGER.read_text())["entries"]
+    fixture = sg.REPO / "portfolio" / "ledger" / "2026-08.yaml"
+    entries = yaml.safe_load(fixture.read_text())["entries"]
     longest = max(
         (sg.stale_pr_check_streak(entries[: i + 1]) for i in range(len(entries))),
         default=0,

@@ -259,6 +259,7 @@ jobs:
             bootstrap/scripts/install-portfolio-site-host.sh \
             bootstrap/scripts/setup-runner-from-laptop.sh \
             bootstrap/scripts/setup-codex-host-from-laptop.sh \
+            bootstrap/scripts/setup-portfolio-site-from-laptop.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \

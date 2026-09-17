@@ -93,3 +93,16 @@ test('index links one hop to the moving-bid-calculator sibling', () => {
   );
   assert.match(html, /moving company bid calculator/i);
 });
+
+// Closest disposal sibling: same landfill ticket math, but a roll-off rental
+// rather than a same-day haul. Without a crawlable link here, a crawler entering
+// on the junk-removal calculator may never reach the dumpster rental tool in
+// one hop.
+test('index links one hop to the dumpster-rental-margin-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/dumpster-rental-margin-calculator\/"/,
+    'index must link ../dumpster-rental-margin-calculator/ so crawlers reach the dumpster rental calculator in one hop',
+  );
+  assert.match(html, /dumpster rental margin calculator/i);
+});

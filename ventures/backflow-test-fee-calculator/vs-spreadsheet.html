@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a spreadsheet — Backflow Test Fee Calculator</title>
+<meta name="description" content="Many backflow testers price a multi-device job in a spreadsheet: first device full price, each additional device discounted, a filing fee per device, a retest fee for failures. This free calculator applies the same arithmetic directly and shows the full breakdown.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet can price a multi-device backflow test job, if every row's discount and filing fee is right. This calculator applies the same arithmetic directly and shows the breakdown.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet price a multi-device backflow test job?","acceptedAnswer":{"@type":"Answer","text":"Yes, with the right formula: full price for the first device, a discounted rate for every device after it, a per-device filing fee added regardless of the discount, and a retest fee for any device that failed. The arithmetic is not hard — getting every row's discount and filing fee right, and keeping it right as devices are added or removed, is where a hand-built sheet most often drifts."}},{"@type":"Question","name":"Where does a hand-built backflow fee sheet usually go wrong?","acceptedAnswer":{"@type":"Answer","text":"Two places: applying the multi-device discount to the first device by mistake (it should stay full price, since it carries the trip's travel and setup cost), and forgetting the filing fee still applies to a discounted or failed device, since most water utilities require a separate report per device regardless of the testing rate charged."}},{"@type":"Question","name":"What does a spreadsheet not check for you?","acceptedAnswer":{"@type":"Answer","text":"Whether a copied formula still points at the right row after a device was added or removed, and whether the filing fee and retest fee were both included for every device that needed them. A calculator built for this one job runs the same formula every time and shows the full per-device breakdown so the total is checkable by eye."}},{"@type":"Question","name":"Does either one know my water utility's requirements?","acceptedAnswer":{"@type":"Answer","text":"No. Both this calculator and a spreadsheet only total the fee schedule you enter. Neither knows your water utility's required report form, filing deadline, or device-type requirements — confirm those against your local cross-connection control program before invoicing or filing."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f4f2f7}
+body{max-width:820px;margin:auto;padding:28px}
+a{color:#2a6b8e;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,4.6vw,2.5rem);line-height:1.1;margin:0 0 14px;color:#1f4a5d}
+h2{font-size:1.15rem;margin:0 0 10px;color:#1f4a5d}
+h3{font-size:1rem;margin:18px 0 4px}
+p,li{line-height:1.6}
+.lede{font-size:1.05rem;color:#3c3644}
+.card{background:#fff;border:1px solid #d6e0e6;border-radius:14px;padding:22px;box-shadow:0 8px 24px #1f4a5d10;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #e6e0ee;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#4c5a68}
+.note,footer{font-size:.86rem;color:#4c5a68}
+footer{margin-top:28px;border-top:1px solid #d6e0e6;padding-top:16px}
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">A backflow tester who prices multi-device jobs more than once usually ends up with a spreadsheet: full price for the first device, a discounted rate for each additional one, a filing fee per device, and a retest line for anything that failed. That sheet is correct if every row's formula is right and stays right every time a device is added or removed. This page names no specific product -- it compares against the generic method of pricing a job in a spreadsheet or by hand, not a competing calculator.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A spreadsheet</strong> can price this correctly, and many testers already have one. What it does not do on its own is stop a discount formula from being applied to the wrong row after a device is added, or catch a filing fee left off a device that failed.</p>
+<p><strong>This calculator</strong> applies the first-device-full-price rule, the multi-device discount, the per-device filing fee, and the retest fee to the devices you enter, shows every line separately, and lets you copy the full breakdown as a plain-text record for an invoice or work order -- no formula to write or re-check.</p>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Can I price a multi-device job in a spreadsheet?</td><td>Yes -- if the discount and filing-fee rows stay right as devices change.</td></tr>
+<tr><td>Does the discount apply to the first device?</td><td>No -- only to devices after the first, the mistake this calculator's FAQ and this page both call out.</td></tr>
+<tr><td>Does the filing fee still apply to a discounted or failed device?</td><td>Yes -- filing is per device regardless of the testing discount or pass/fail result.</td></tr>
+<tr><td>Can I hand someone the full breakdown without re-deriving it?</td><td>This calculator's copy-breakdown output, not a screenshot of a formula bar.</td></tr>
+<tr><td>Does either one know my water utility's requirements?</td><td>Neither -- both only total the fee schedule you enter.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Can a spreadsheet price a multi-device backflow test job?</h3>
+<p>Yes, with the right formula: full price for the first device, a discounted rate for every device after it, a per-device filing fee added regardless of the discount, and a retest fee for any device that failed. The arithmetic is not hard &mdash; getting every row's discount and filing fee right, and keeping it right as devices are added or removed, is where a hand-built sheet most often drifts.</p>
+<h3>Where does a hand-built backflow fee sheet usually go wrong?</h3>
+<p>Two places: applying the multi-device discount to the first device by mistake (it should stay full price, since it carries the trip's travel and setup cost), and forgetting the filing fee still applies to a discounted or failed device, since most water utilities require a separate report per device regardless of the testing rate charged.</p>
+<h3>What does a spreadsheet not check for you?</h3>
+<p>Whether a copied formula still points at the right row after a device was added or removed, and whether the filing fee and retest fee were both included for every device that needed them. A calculator built for this one job runs the same formula every time and shows the full per-device breakdown so the total is checkable by eye.</p>
+<h3>Does either one know my water utility's requirements?</h3>
+<p>No. Both this calculator and a spreadsheet only total the fee schedule you enter. Neither knows your water utility's required report form, filing deadline, or device-type requirements &mdash; confirm those against your local cross-connection control program before invoicing or filing.</p>
+<h3>Is anything I enter uploaded anywhere?</h3>
+<p>No. The calculator this page links to runs entirely in your browser; nothing you enter is uploaded.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply the fee schedule and discount you configure to numbers you supply; they are not legal, engineering, or regulatory advice. <strong>You are responsible for verifying anything here against your own fee schedule and your water utility's requirements.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>Nothing here says or implies that a spreadsheet is a bad way to price a backflow test job &mdash; it is a different job: a formula you maintain yourself where this calculator applies the same arithmetic for you and shows the breakdown. This page names no specific product.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

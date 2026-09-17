@@ -29,6 +29,41 @@ test('every input the arithmetic reads exists on the form', () => {
   assert.ok(ids.has('categoryPreset'));
 });
 
+// A seller retyping the category preset and every rate on each visit is the
+// retyping this venture's own kill criteria asks whether they'll tolerate
+// twice in 90 days — so the form must be saveable and shareable, not just
+// calculable.
+test('the page saves and shares its inputs rather than losing them on reload', () => {
+  assert.ok(ids.has('copyLink'), 'missing #copyLink');
+  assert.ok(ids.has('reset'), 'missing #reset');
+  assert.ok(ids.has('status'));
+  assert.match(script, /from '\.\/share\.mjs'/);
+  assert.match(script, /encodeInputs/);
+  assert.match(script, /decodeInputs/);
+  assert.match(script, /localStorage\.setItem\(STORAGE_KEY/);
+  assert.match(script, /localStorage\.removeItem\(STORAGE_KEY\)/);
+});
+
+test('reset restores the page\'s own shipped defaults, not a blank form', () => {
+  assert.match(script, /const DEFAULT_INPUTS = readInput\(\)/);
+  assert.match(script, /applyInputs\(DEFAULT_INPUTS\)/);
+});
+
+test('a shared or restored lot wins over the shipped worked example', () => {
+  assert.match(script, /const fromLink = decodeInputs\(location\.hash \|\| location\.search\)/);
+  assert.match(script, /exampleNote'\)\.hidden = hasRestored/);
+});
+
+test('a shared link is applied through formValues rather than a plain spread', () => {
+  // Regression for the shared-link-clears defect (platform/ci/check_shared_link_clears.py):
+  // a plain `{ ...saved, ...fromLink }` merge looks like the link wins and is
+  // not -- a numeric field the sender left blank falls through to the
+  // recipient's own saved draft instead of being cleared. formValues(fromLink)
+  // is what actually clears it.
+  assert.match(script, /applyInputs\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(script, /\{\s*\.\.\.saved\s*,\s*\.\.\.fromLink\s*\}/);
+});
+
 test('every form number input is one the arithmetic knows about', () => {
   const known = new Set([...INPUT_IDS, 'usageOptOut']);
   const formInputs = [...markup.matchAll(/<input id="([^"]+)"/g)].map(m => m[1]);
@@ -193,6 +228,43 @@ test('index links to the related marketplace fee compare hub', () => {
   );
 });
 
+// The comparison page names Whatnot to say what this tool is *not*, so the
+// two lines that keep it honest are the ones most likely to be lost in a
+// later edit: the not-affiliated statement, and the reverse link from index.
+// Without the link a crawler entering on the hub never reaches it -- the same
+// one-way orphan class the marketplace-fee-compare test above guards against.
+test('the comparison page disclaims affiliation and is reachable from index', () => {
+  const source = page('vs-whatnot-seller-dashboard.html');
+  assert.match(source, /not affiliated with, endorsed by, or sponsored by Whatnot/i);
+  assert.match(source, /href="\.\/"/, 'must link back to the calculator');
+  assert.match(
+    markup,
+    /href="\.\/vs-whatnot-seller-dashboard\.html"/,
+    'index must link the comparison page so crawlers can reach it',
+  );
+});
+
+// The FAQ answers are duplicated between visible copy and the JSON-LD block.
+// A crawler that reads structured data disagreeing with the page is the defect
+// CLAUDE.md records from #3671, so pin that they stay identical.
+test('comparison page FAQ structured data matches the visible answers', () => {
+  const source = page('vs-whatnot-seller-dashboard.html');
+  const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(source)[1]);
+  assert.equal(ld['@type'], 'FAQPage');
+  const visible = source.replace(/<script[\s\S]*?<\/script>/g, '');
+  for (const entry of ld.mainEntity) {
+    const question = entry.name.replace(/&/g, '&amp;');
+    assert.ok(
+      visible.includes(`<h3>${question}</h3>`),
+      `structured-data question is not on the page: ${entry.name}`,
+    );
+    assert.ok(
+      visible.includes(`<p>${entry.acceptedAnswer.text}</p>`),
+      `structured-data answer does not match the visible copy for: ${entry.name}`,
+    );
+  }
+});
+
 function near(actual, expected, tolerance = 0.001) {
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} is not within ${tolerance} of ${expected}`);
 }
@@ -201,3 +273,27 @@ function nearMoney(html, value, printed = Number(value.toFixed(2))) {
   const pretty = printed.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   assert.match(html, new RegExp(`\\$${pretty.replace(/,/g, ',')}`));
 }
+
+// Both price one transaction through platform-specific fees to find the true
+// seller payout -- a livestream lot and a nightly stay. Without a crawlable
+// link here, a crawler entering on this page never reaches the STR host
+// payout calculator in one hop.
+test('index links one hop to the str-host-payout-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/str-host-payout-calculator\/"/,
+    'index must link ../str-host-payout-calculator/ so crawlers reach the STR host payout calculator in one hop',
+  );
+});
+
+// Half of a reciprocal pair: the storage auction calculator links back here
+// too, so a crawler entering on either page reaches the other in one hop --
+// buying the lot at auction and reselling it on Whatnot are the two ends of
+// the same flip.
+test('index links one hop to the storage-auction-max-bid-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/storage-auction-max-bid-calculator\/"/,
+    'index must link ../storage-auction-max-bid-calculator/ so crawlers reach the storage auction bid calculator in one hop',
+  );
+});

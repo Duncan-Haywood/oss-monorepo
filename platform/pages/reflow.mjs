@@ -44,6 +44,19 @@
 //      breaking applies only where wrapping is permitted at all, so the source
 //      reads as though this were handled and the measurement says otherwise.
 //
+// And a fourth on 2026-09-10, which is why the list stays dated:
+//
+//   4. **A heading holding one unbreakable token.**
+//      `security-headers-check/vs-securityheaders.html` was 365px inside a
+//      360px window — by then the only page of 929 still scrolling. The whole
+//      5px was its `<h1>`, "This checker vs. Security Headers
+//      (securityheaders.com)": a bare domain carries no space and no hyphen, so
+//      there is nowhere to break the line, and the heading's content ran 29px
+//      past its own box with `overflow: visible` handing the difference to the
+//      document. Comparison pages name the competitor in the title and the
+//      competitor is a hostname, so this recurs by construction rather than by
+//      accident.
+//
 // What this file does about each
 // ------------------------------
 // **The table** is wrapped, at build time, in a `overflow-x:auto` box, so the
@@ -67,10 +80,17 @@
 // build pass — `<pre>` already means "preformatted" — so it applies to a
 // venture that has not been written yet.
 //
-// None of the three is conditional on measuring the page. A wrapper around a
+// **The heading** is given `overflow-wrap: break-word`, which breaks a long
+// word only where it would otherwise overflow and leaves everything that
+// already fits laid out exactly as before. Not `anywhere`, which would also
+// shrink the heading's min-content width and so change how its flex or grid
+// parent sizes it — a layout change on every page to fix five pixels on one.
+//
+// None of the four is conditional on measuring the page. A wrapper around a
 // table that fits never scrolls, never takes a tab stop and is visually
 // identical; a grid that already reflows is not changed by being allowed to; a
-// `<pre>` that fits gets no scrollbar. That matters more
+// `<pre>` that fits gets no scrollbar; a heading whose words fit never breaks
+// one. That matters more
 // than the saved bytes: the next calculator to land here gets both on the day
 // it ships, which is the failure mode this repository keeps re-learning — a
 // gate that only covers what was broken on the day it was written stops being a
@@ -278,6 +298,32 @@ export const REFLOW_CSS = `
      this rule and the blunt one described above. */
   :where(body>*,main,section,article,aside,header,footer,form,fieldset){min-width:0}
 }
+
+/* Cause (4): a heading holding one unbreakable token. Measured 2026-09-10 on
+   security-headers-check/vs-securityheaders.html, the only page of 929 still
+   scrolling: 365px inside a 360px window. The whole 5px was the <h1> "This
+   checker vs. Security Headers (securityheaders.com)" — a bare domain has no
+   space and no hyphen, so there is nowhere for the line to break, and the
+   heading's content ran 29px past its own box with overflow:visible handing
+   the difference to the document.
+
+   Headings are where this happens because they are the one place a product
+   name, a domain or a header field is written out at 2rem with no wrapper: a
+   comparison page's title names the competitor, and the competitor is a
+   hostname. Body copy has the same hazard and far more room to absorb it.
+
+   overflow-wrap:break-word rather than 'anywhere': break-word breaks a long
+   word only when it would otherwise overflow, and leaves the line-breaking of
+   text that fits alone, so a heading that was already fine is laid out
+   identically. 'anywhere' additionally shrinks the min-content width, which
+   changes how flex and grid size the heading's parent — a layout change on
+   every page to fix five pixels on one.
+
+   Not restricted to a narrow viewport, and not conditional on measuring the
+   page: a token too long for the line is too long at any width, and the next
+   comparison page to name a hostname gets this on the day it ships. Zero
+   specificity, so a venture that set its own value keeps it. */
+:where(h1,h2,h3,h4,h5,h6){overflow-wrap:break-word}
 `;
 
 /**

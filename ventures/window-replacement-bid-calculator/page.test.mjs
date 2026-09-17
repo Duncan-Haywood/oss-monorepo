@@ -131,3 +131,15 @@ test('index links one hop to the egress-window-bid-calculator sibling', () => {
     'index must link ../egress-window-bid-calculator/ so crawlers reach the egress calculator in one hop',
   );
 });
+
+// Closest covering sibling: same openings subcategory, but plantation shutters
+// rather than replacing the unit. Without a crawlable link here, a crawler
+// entering on the replacement calculator never reaches the shutter tool in one
+// hop.
+test('index links one hop to the plantation-shutter-bid-calculator sibling', () => {
+  assert.match(
+    page('index.html'),
+    /href="\.\.\/plantation-shutter-bid-calculator\/"/,
+    'index must link ../plantation-shutter-bid-calculator/ so crawlers reach the plantation shutter calculator in one hop',
+  );
+});

@@ -14,10 +14,40 @@
 <p class="seo-link"><a href="./should-i-bid-on-this-tender.html">Should I bid on this tender?</a> &middot; <a href="./vs-govwin.html">This checker vs. GovWin IQ</a> &middot; <a href="../tender-radar/">Tender Radar — shortlist a CSV of tenders first</a> &middot; <a href="../contractor-bid-readiness/">Contractor bid readiness checklist — track requirements you list by hand</a></p>
 <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.<br><br>Everything runs in your browser. Your text is never uploaded. We count anonymous feature events locally, never people, and you can disable that count with the checkbox below. Counting honors Do Not Track and Global Privacy Control. <label><input type="checkbox" id="usage" checked> count local usage</label><br><br><a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> if this saved you a wasted bid week — optional, the tool stays free either way.</footer></main>
 <script type="module">
+    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'tender-bid-readiness-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
 import { checkTender } from './check.mjs';
 const $=id=>document.getElementById(id), output=$('output');
 const escapeHtml=value=>String(value).replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 const count=event=>{if(!$('usage').checked||navigator.doNotTrack==='1'||navigator.globalPrivacyControl)return;try{const k='tender-bid-readiness:'+event;localStorage.setItem(k,String(Number(localStorage.getItem(k)||0)+1))}catch{}}
 function render(){const result=checkTender($('source').value);count('checked');output.innerHTML=`<p class="metric">${result.score}% signal coverage</p><p>Green means a phrase was found, not that the requirement is satisfied.</p>${result.findings.map(f=>`<article class="finding ${f.found?'found':''}"><strong>${f.found?'Found':'Not found'}: ${escapeHtml(f.key)}</strong><p>${escapeHtml(f.action)}</p>${f.evidence?`<p class="evidence">Evidence: ${escapeHtml(f.evidence)}</p>`:''}</article>`).join('')}<aside><strong>Read this first:</strong><ul>${result.warnings.map(w=>`<li>${escapeHtml(w)}</li>`).join('')}</ul></aside>`}
 $('check').onclick=render;$('clear').onclick=()=>{$('source').value='';output.innerHTML='<p>Nothing is uploaded. The check runs on this device.</p>'};
+
 </script></body></html>

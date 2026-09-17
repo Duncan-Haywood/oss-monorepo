@@ -512,13 +512,49 @@ export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-do
 /** The structured half of the same handshake. See `renderFrontDoorCatalog`. */
 export const CATALOG_FILE = 'catalog.json';
 
-/** Where `--write` puts it, beside the page it describes. */
+/**
+ * The ConfigMap key it is stored under, gzipped — see `COMPRESSED_SUFFIX`.
+ *
+ * Compressed since 2026-09-12, and the reason is that it had become the
+ * largest key in `portfolio-front-html` and the one growing fastest. Measured
+ * that day, `fleet-repair-or-replace-planner` graduating took the object to
+ * 943,974 bytes against the 943,718-byte test budget in
+ * `gitops/tests/test_manifests.py` — over by 256 bytes, which is a build
+ * failure whose blast radius is the whole `prod` Application rather than one
+ * document (the hashed ConfigMap name never gets created, new pods sit in
+ * ContainerCreating, Argo reports Degraded).
+ *
+ * This file was the right one to compress rather than the front page or the
+ * category pages, on the criterion the `COMPRESSED_SUFFIX` note already
+ * states: it *grows with the catalogue*. At 148,099 bytes plain for 269 tools
+ * it carries a title, category and description per tool and gains ~550 bytes
+ * with every venture the fleet ships; the front page and the category pages
+ * do not scale that way. Gzipped it costs about a sixth of that even after
+ * the 4/3 base64 expansion `binaryData` imposes, which is roughly thirty more
+ * ventures of headroom rather than none.
+ *
+ * The *URL* is unchanged and stays `/catalog.json` — `CATALOG_FILE` is what
+ * `llms.txt` and the front page link, and a well-known path is not something
+ * to move to save bytes. Only the stored key changes.
+ */
+export const catalogStoredKey = () => `${CATALOG_FILE}${COMPRESSED_SUFFIX}`;
+
+/**
+ * Where `--write` puts it, beside the page it describes.
+ *
+ * The suffix is spelled out rather than taken from `COMPRESSED_SUFFIX`, which
+ * is declared several hundred lines below this: a `const` is hoisted into the
+ * temporal dead zone, not initialised, so a forward reference here would throw
+ * at module load rather than read as a stale copy. `catalogStoredKey()` above
+ * is the accessor that does use the constant, and
+ * `front-door.test.mjs` asserts the two agree so this literal cannot drift.
+ */
 export const CATALOG_OUTPUT_FILE = path.join(
   REPO_ROOT,
   'gitops',
   'prod',
   'front-door',
-  CATALOG_FILE,
+  `${CATALOG_FILE}.gz`,
 );
 
 /**
@@ -1212,6 +1248,16 @@ export const COMPARE_KEY = 'compare.html';
  * where inlined bytes with no extra content-phase work is worth more than the
  * KB. A mechanism is cheapest where it is applied narrowly and for a reason
  * that can be stated.
+ *
+ * `catalog.json` joined them on 2026-09-12, on that same stated criterion
+ * rather than as an exception to it — it grows with the catalogue, and by then
+ * it was both the largest key in the object and the one that took it over
+ * budget. See `catalogStoredKey` for the measurement. `sitemap.xml` (113,830
+ * bytes) and `llms.txt` (106,635) are the next two by the same test and are
+ * deliberately left plain for now: one key bought roughly thirty ventures of
+ * headroom, and compressing a well-known path is a change to how nginx
+ * answers it, so it is worth doing one at a time and against a measurement
+ * rather than all three on the strength of the first one working.
  *
  * nginx serves them with `gzip_static always; gunzip on;`, reached by a
  * `rewrite`, never a `try_files`. That is not style: `try_files` stats the
@@ -1941,7 +1987,34 @@ const NO_WARRANTY =
 const NO_SLA =
   'Best-effort hosting, no SLA. These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.';
 
-const STYLE = `
+// The nine pages that share this stylesheet by interpolating `STYLE` — the
+// front page, About, and the seven category pages, none of which are on
+// `COMPRESSED_SUFFIX`'s gzip lever — all serialise into the one
+// `portfolio-front-html` ConfigMap `test_generated_configmaps_stay_under_the_
+// etcd_object_ceiling` measures. Nine copies of the same authored CSS, most
+// of it comments and indentation kept for the humans editing `STYLE_SOURCE`
+// below, cost real budget in that object for zero visual difference — the
+// same "a mechanism is cheapest applied where it earns its keep" reasoning
+// `COMPRESSED_SUFFIX`'s own comment makes, one level short of where gzip
+// already caught it. `minifyCss` strips what nginx's `gzip on` would have
+// thrown away anyway, once, at module load, so `STYLE_SOURCE` keeps its
+// comments for the next person reading it and every page that inlines
+// `STYLE` gets the smaller string for free.
+// Only collapses whitespace runs (the indentation and blank lines authored
+// for readability) to a single space and drops comments -- it does not touch
+// a single space that is already there, deliberately: several tests assert on
+// an exact rule's text, spaces included (e.g. `border: 1px solid
+// var(--field-edge);`), and a tighter minifier that also closed the space
+// after `:` or before `{` would pass byte-for-byte but fail those for a
+// property this function was never meant to change.
+function minifyCss(css) {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const STYLE_SOURCE = `
   :root {
     color-scheme: light dark;
     --ink: #16191d;
@@ -2057,6 +2130,8 @@ const STYLE = `
   .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
   .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
 `;
+
+const STYLE = minifyCss(STYLE_SOURCE);
 
 /** Examples, not instructions: one trade, one marketplace, one back-office job. */
 const FILTER_PLACEHOLDER = 'roofing, ebay, cash flow…';
@@ -2761,8 +2836,14 @@ if (isMain) {
     // And once more, with one extra edge: `llms.txt` now *links* this file, so
     // a run that wrote the one without the other would publish a document
     // pointing a model at a path this host answers with the front page.
-    await fs.writeFile(CATALOG_OUTPUT_FILE, catalog);
-    console.log(`wrote ${path.relative(REPO_ROOT, CATALOG_OUTPUT_FILE)} (${catalog.length} bytes)`);
+    // Gzipped, unlike the three writes above it: this is the key that grows
+    // fastest with the catalogue and it is what took the object over budget on
+    // 2026-09-12. See `catalogStoredKey`. The URL is still `/catalog.json`.
+    const storedCatalog = compress(catalog);
+    await fs.writeFile(CATALOG_OUTPUT_FILE, storedCatalog);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, CATALOG_OUTPUT_FILE)} (${storedCatalog.length} bytes, ${catalog.length} uncompressed)`,
+    );
     // And once more, for the reason every write above gives: each mirrored
     // entry page links these two absolute paths, so a run that wrote the
     // mirror without them would ship 169 pages whose embed box is unstyled and
@@ -2835,7 +2916,14 @@ if (isMain) {
     // catch-all would still find the stale plain copy, so a regeneration that
     // silently stopped writing one would keep serving the other for as long as
     // anybody looked.
-    for (const stale of [COMPARE_KEY, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
+    // `CATALOG_FILE` joins this sweep for exactly the reason the note above
+    // gives, and it is the case that reason was written for: a plain
+    // `catalog.json` left beside the new `.gz` would still be found by the
+    // `location = /catalog.json` block's own `root`, so a regeneration that
+    // stopped writing the compressed copy would go on serving a frozen
+    // catalogue -- 200s, valid JSON, quietly describing a catalogue that has
+    // moved on.
+    for (const stale of [COMPARE_KEY, CATALOG_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
       const file = path.join(path.dirname(OUTPUT_FILE), stale);
       if (await fs.stat(file).then(() => true, () => false)) {
         await fs.rm(file);

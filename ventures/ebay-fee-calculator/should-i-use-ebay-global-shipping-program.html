@@ -242,7 +242,7 @@
   </footer>
   <script type="module">
     import { compareGlobalShipping, globalShippingNote } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const ids = [
       "price", "shippingCharged", "finalValueRate", "fixedFee",
@@ -313,6 +313,19 @@
     ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
     document.getElementById("usageOptOut").addEventListener("change", update);
     update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

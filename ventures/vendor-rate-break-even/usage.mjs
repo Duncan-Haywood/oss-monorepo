@@ -54,3 +54,33 @@ export function setUsageOptOut(value) {
     // Optional persistence; opting out should never throw.
   }
 }
+
+// The page-facing pair. `${countsKey}-opt-out` spells the same string as
+// optOutKey, so the first draft did not invent a second key here -- it
+// invented a second *encoding*. `setUsageOptOut` has always stored
+// `String(Boolean(value))`, so an existing opt-out reads `"true"`, and a
+// reader accepting only `"1"` painted the control unchecked for exactly the
+// visitors who had already chosen: counting correctly off, and the control
+// saying their choice had been forgotten. One key, one encoding, and
+// `setUsageOptOut` remains the thing that defines it.
+export function readOptOut(storage = globalThis.localStorage) {
+  try {
+    return storage?.getItem(optOutKey) === 'true';
+  } catch {
+    // A blocked or full store must never be read as consent.
+    return false;
+  }
+}
+
+export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+  if (!storage) return;
+  // Independent writes, counters first: sharing one try means a setItem
+  // that throws on a full quota skips the delete entirely, and the
+  // visitor gets neither half of what the control promised.
+  if (optedOut) {
+    try { storage.removeItem(countsKey); } catch { /* storage is optional */ }
+    try { storage.setItem(optOutKey, 'true'); } catch { /* storage is optional */ }
+  } else {
+    try { storage.removeItem(optOutKey); } catch { /* storage is optional */ }
+  }
+}

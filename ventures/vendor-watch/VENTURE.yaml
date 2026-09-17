@@ -1,5 +1,5 @@
 name: vendor-watch
-description: Free tool that lets a visitor paste a public vendor page (terms, privacy policy, subprocessor list) and get a timestamped, source-linked diff when the text changes — an evidence feed, not legal or compliance advice.
+description: Free tool that lets a visitor paste a public vendor page (terms, privacy policy, subprocessor list) and get a timestamped, source-linked diff when the text changes — as a browser tool or as a CLI that keeps baselines on your own disk and exits non-zero on a change, so a cron job can watch a page. An evidence feed, not legal or compliance advice.
 stage: prototype
 
 owner: duncan

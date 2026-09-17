@@ -57,6 +57,21 @@ test('the 90-day landing page uses the same worked example the tests lock', () =
   assert.match(html, /FAQPage/);
 });
 
+// Closest cross-venture sibling: a self-published author with a mailing
+// list is a common overlap with a newsletter operator, and each tool prices
+// a different revenue lever on the same audience. Related-tool chrome
+// rotates by category, so without an explicit one-hop a crawler on this page
+// may never land on that tool (platform/pages/siblings.test.mjs's orphan budget).
+test('index links one hop to the newsletter-sponsorship-rate-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/newsletter-sponsorship-rate-calculator\/"/,
+    'index must link ../newsletter-sponsorship-rate-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(html, /newsletter sponsorship rate calculator/i);
+});
+
 test('the comparison page is linked, listed, and not affiliated', () => {
   const hub = page('index.html');
   const vs = page('vs-amazon-kdp-royalty-calculator.html');
@@ -100,4 +115,25 @@ test('an invalid input hides stale results instead of leaving them next to a sil
 
 test('the result panel is announced to screen readers when it updates', () => {
   assert.match(page('index.html'), /id="result"[^>]*aria-live="polite"/);
+});
+
+// This venture's `recordUsage` is `(event, optedOut, storage)`. Most siblings
+// spell it `(storage, optedOut, event)`, and a call written in the sibling
+// order type-checks nowhere and fails silently everywhere: `event` becomes the
+// Storage object, so the tally key is `[object Storage]:<date>`, and `storage`
+// becomes the event string, so `storage.getItem` throws into the catch that
+// usage.mjs keeps precisely so a calculator survives a storage failure. The
+// button works, the number is never counted, and nothing anywhere goes red.
+// That shipped once here, on the "Copy shareable link" handler.
+test('every recordUsage call passes the event name first, as this venture spells it', () => {
+  const script = page('index.html').match(/<script type="module">([\s\S]*)<\/script>/)[1];
+  const calls = [...script.matchAll(/recordUsage\(([^,)]+)/g)].map((m) => m[1].trim());
+  assert.ok(calls.length >= 2, `expected the calculate and share calls, found ${calls.length}`);
+  for (const first of calls) {
+    assert.match(
+      first,
+      /^'[a-z_]+'$/,
+      `recordUsage's first argument must be the event name, got \`${first}\` — see usage.mjs`,
+    );
+  }
 });

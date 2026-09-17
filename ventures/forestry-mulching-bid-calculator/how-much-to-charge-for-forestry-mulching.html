@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Much to Charge for Forestry Mulching — A Worked 3-Acre Job, Line by Line</title>
+<meta name="description" content="A 3-acre forestry mulching job priced from first principles: acres per machine-hour from head width and advance speed, cost per hour including carbide tooth wear and the machine payment, mobilization as its own line, and margin on price. Shows why one flat price per acre loses money.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/forestry-mulching-bid-calculator/how-much-to-charge-for-forestry-mulching.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How much should you charge for forestry mulching?">
+<meta property="og:description" content="Price per acre is a quotient, not a rate. At $1,000 an acre the same 3 acres makes $2,059.29 on light brush and loses $3,810.40 in 8-12 inch understory.">
+<meta property="og:url" content="https://example.invalid/forestry-mulching-bid-calculator/how-much-to-charge-for-forestry-mulching.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to price a forestry mulching job",
+  "description": "Work a mulching quote from the machine outward: swath geometry sets acres per hour, acres per hour sets machine hours, five cost lines set the hourly rate, mobilization is its own line because it does not scale with acreage, and margin is taken on price rather than added to cost.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Start from acres per machine-hour, not from acreage",
+      "text": "Production rate is swath geometry: head width times advance speed while cutting, times sixty minutes, times the share of the hour you are actually cutting, divided by the number of passes over the same ground and by 43,560 square feet. A 6 ft head at 42 ft/min, 80% of the hour cutting, one pass, on rolling ground rated at 85%, is 0.236 acres an hour. Everything else in the quote hangs off that number."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Turn the rate into machine hours and days on site",
+      "text": "3 acres at 0.236 acres an hour is 12.7 machine hours, which is 1.6 days at eight machine hours a day. Machine hours, not acres, is the unit your costs are denominated in, and it is the unit a customer never asks about."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Build the cost of one machine hour from five lines",
+      "text": "Operator $45.00, fuel 5 gal/hr at $3.90 is $19.50, carbide teeth $1,800 a set over 250 hours is $7.20, a service and repair reserve of $12.00, and a $2,400 monthly payment plus $4,800 a year of insurance over 70 billable hours a month is $40.00. That is $123.70 an hour. The last two lines are the ones a hand-written quote leaves out, and together they are $47.20 of it."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Price mobilization separately, because it does not scale with acreage",
+      "text": "Loading, floating out, unloading and reversing all of it is 2.5 hours of operator time at $45.00, which is $112.50, plus 70 round-trip miles at $1.35 for truck and trailer, which is $94.50. Total $207.00 — the same $207.00 whether the lot is half an acre or ten. Charging it per acre overcharges the jobs you want and undercharges the ones you will regret."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Take margin on the price, not as a markup on cost",
+      "text": "12.7 machine hours at $123.70 is $1,572.24, plus $207.00 of mobilization, for a total cost of $1,779.24. A 35% margin means price equals cost divided by 0.65, which is $2,737.29. Adding 35% to cost gives $2,401.97, which is only a 25.9% margin — $335.32 left on the table on one job and repeated on every job after it."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Read the per-acre figure last, as the quotient it is",
+      "text": "$2,737.29 over 3 acres is $912.43 an acre, and break-even is $593.08. Those two numbers are outputs of this lot's density, not a rate card. Re-run the same acreage at a heavier class before you quote the next lot at the same number: at $1,000 an acre this job earns $2,059.29 on light brush and loses $3,810.40 in 8 to 12 inch understory."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 780px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { margin-top: 1.9rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  .table-wrap { overflow-x: auto; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  pre { background: rgba(127,127,127,0.15); padding: 0.7rem 0.8rem; border-radius: 6px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  .cta { display: inline-block; margin: 0.5rem 0; background: #1f4b28; color: #fff; padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 700; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.88; }
+  footer p { margin: 0.6rem 0; }
+  main a { color: #1f4b28; }
+</style>
+</head>
+<body>
+<main>
+<p><a href="index.html">&larr; Forestry Mulching Bid Calculator</a></p>
+<h1>How much should you charge for forestry mulching?</h1>
+<p>
+  The honest answer is that <strong>price per acre is not a rate, it is a quotient</strong>, and the
+  reason is specific rather than philosophical. The machine is paid for by the hour. The acre is
+  what the customer counts. What sits between them is your production rate &mdash; acres per
+  machine-hour &mdash; and that number is not a property of the lot's size. It is a property of what
+  is standing on it, and across the four densities people actually call about it moves by nine to
+  one. This page prices one real job all the way through, then changes exactly one input to show the
+  problem.
+</p>
+<p><a class="cta" href="index.html">Price your own job &rarr;</a></p>
+
+<h2>The job</h2>
+<p>
+  3 acres of an old pasture growing back in &mdash; medium brush, stems 2&ndash;4 inches with the
+  odd 6 &mdash; on rolling but dry ground. A 75 hp compact track loader with a 6 ft drum mulcher.
+  Operator cost $45/hr burdened, 5 gal/hr of fuel at $3.90, a $1,800 set of teeth lasting 250 hours,
+  a $12/hr service reserve, a $2,400 monthly machine payment, $4,800 a year of insurance, and 70
+  billable machine hours in an average month. One round trip on the trailer: 2.5 hours and 70 miles
+  at $1.35 a mile. Target margin 35%. Every figure below comes out of the calculator on this site
+  with exactly those inputs.
+</p>
+
+<h2>1. Acres per hour, because it sets everything else</h2>
+<p>
+  Start at the machine, not the parcel. The rate is swath geometry and nothing more:
+</p>
+<pre><code>acres/hr = head width (ft) × advance (ft/min) × 60 × cutting share
+           ──────────────────────────────────────────────────────
+                        43,560 × passes</code></pre>
+<p>
+  A 6 ft head at <strong>42 ft/min</strong> while cutting is 15,120 sq ft an hour if you never
+  stopped and the ground were flat. You do stop &mdash; repositioning, fuel, walking the boundary,
+  knocking mulch out of the head &mdash; so <strong>80%</strong> of the hour is cutting; and rolling
+  ground with stumps to steer around slows the advance, here <strong>85%</strong> of the quoted
+  speed. One pass. That is <strong>0.236 acres an hour</strong>.
+</p>
+<p>
+  Two notes on that number. It is a model, not a measurement: if you have ever timed a finished lot,
+  put <em>your</em> rate in instead and the calculator will tell you what advance speed it implies,
+  which is a better sanity check than any published table. And the &ldquo;share of the hour
+  cutting&rdquo; figure is the one people flatter themselves about &mdash; it is what separates a
+  clean 5-acre rectangle from a wooded lot cut up by a creek and a driveway.
+</p>
+
+<h2>2. Rate becomes hours, hours become days</h2>
+<p>
+  3 acres &divide; 0.236 acres/hr = <strong>12.7 machine hours</strong>, which at eight machine
+  hours a day is <strong>1.6 days on site</strong>. Machine hours is the unit your costs are
+  denominated in. It is also the unit a customer never asks about, which is the whole difficulty.
+</p>
+
+<h2>3. What one machine hour actually costs</h2>
+<div class="table-wrap">
+<table>
+  <caption style="text-align:left;font-size:.85rem;opacity:.8;margin-bottom:.4rem">Cost of one hour with the drum turning.</caption>
+  <thead><tr><th scope="col">Line</th><th scope="col">Basis</th><th scope="col">$ / hr</th></tr></thead>
+  <tbody>
+    <tr><td>Operator</td><td>burdened</td><td>$45.00</td></tr>
+    <tr><td>Fuel</td><td>5 gal/hr @ $3.90</td><td>$19.50</td></tr>
+    <tr><td>Carbide teeth</td><td>$1,800 set &divide; 250 hr</td><td>$7.20</td></tr>
+    <tr><td>Service and repair reserve</td><td>stated</td><td>$12.00</td></tr>
+    <tr><td>Payment and insurance</td><td>($2,400 + $400) &divide; 70 hr</td><td>$40.00</td></tr>
+    <tr><td><strong>Total</strong></td><td></td><td><strong>$123.70</strong></td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  The last two lines are the ones a hand-written quote leaves out, and together they are
+  <strong>$47.20</strong> of the $123.70 &mdash; more than fuel and teeth combined.
+</p>
+<p>
+  <strong>Teeth are a consumable, not a repair.</strong> A set is consumed over hundreds of hours
+  and the bill arrives months after the jobs that caused it, with no job attached to it, which is
+  exactly why it never makes it into a quote. Clean standing timber is kind to carbide; sand, rock
+  and cutting near grade are not. If you are unsure of the life figure, halve it and look at the
+  price again before you send it.
+</p>
+<p>
+  <strong>The payment is a utilisation number wearing a pricing number's clothes.</strong> At 70
+  billable hours a month it is $40.00 an hour &mdash; <strong>32.3%</strong> of what the machine
+  costs to run. At 160 billable hours the same payment and insurance are $17.50, the hourly cost
+  falls to $101.20, and the same job prices at $2,297.32 instead of $2,737.29. If your per-acre
+  number feels uncompetitive, check that figure before you cut the price: you may be looking at an
+  idle-machine problem rather than a market one.
+</p>
+
+<h2>4. Mobilization is its own line, and that is not a formality</h2>
+<p>
+  Loading, floating out, unloading, and reversing all of it: <strong>2.5 hours</strong> at the
+  operator rate is $112.50, and <strong>70 round-trip miles</strong> at $1.35 for truck and trailer
+  is $94.50. <strong>$207.00.</strong>
+</p>
+<p>
+  That $207.00 is the same $207.00 on a half-acre lot and on a ten-acre one, and this is where a
+  flat per-acre rate does its quietest damage:
+</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th scope="col">Lot</th><th scope="col">Price at 35%</th><th scope="col">$ / acre</th><th scope="col">Mobilization share</th></tr></thead>
+  <tbody>
+    <tr><td>0.5 acres</td><td>$721.60</td><td>$1,443.20</td><td>29%</td></tr>
+    <tr><td>3 acres</td><td>$2,737.29</td><td>$912.43</td><td>8%</td></tr>
+    <tr><td>10 acres</td><td>$8,381.22</td><td>$838.12</td><td>2%</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  Same machine, same ground, same margin, and the honest per-acre price runs from $838.12 to
+  $1,443.20 on nothing but lot size. Quote a single number across all three and you have
+  overcharged the ten-acre job you wanted and underbid the half-acre one you now have to drive to.
+  Once mobilization passes about a quarter of the price &mdash; which it does at half an acre here
+  &mdash; stop quoting that job per acre. A day rate or a stated minimum charge is the honest shape
+  for it.
+</p>
+
+<h2>5. The quote</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th scope="col">Line</th><th scope="col">Basis</th><th scope="col">Amount</th></tr></thead>
+  <tbody>
+    <tr><td>Machine time</td><td>12.7 hr @ $123.70</td><td>$1,572.24</td></tr>
+    <tr><td>Mobilization</td><td>2.5 hr + 70 mi</td><td>$207.00</td></tr>
+    <tr><td><strong>Total cost</strong></td><td></td><td><strong>$1,779.24</strong></td></tr>
+    <tr><td><strong>Price at 35% margin</strong></td><td>cost &divide; 0.65</td><td><strong>$2,737.29</strong></td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  That is <strong>$912.43 per acre</strong>, with <strong>$593.08 per acre</strong> as break-even
+  and $958.05 of margin on the job.
+</p>
+<p>
+  <strong>Margin is not markup.</strong> A 35% margin means price = cost &divide; 0.65. Adding 35%
+  to cost gives cost &times; 1.35 = <strong>$2,401.97</strong>, which is a 25.9% margin, not 35%.
+  The gap is <strong>$335.32</strong> on this one job, and it repeats on every job you ever quote.
+  This is the most common arithmetic error in trade pricing and it always runs in the same
+  direction.
+</p>
+
+<h2>6. Now change one number</h2>
+<p>
+  You quote the next lot at the same $1,000 an acre without walking it, because the last one worked
+  out. Same 3 acres, same machine, same costs, same quote &mdash; only what is standing on the
+  ground is different:
+</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th scope="col">What is standing</th><th scope="col">Acres / hr</th><th scope="col">Machine hours</th><th scope="col">Your cost</th><th scope="col">Break-even / acre</th><th scope="col">Profit at $1,000/acre</th></tr></thead>
+  <tbody>
+    <tr><td>Light brush, saplings under 2 in</td><td>0.506</td><td>5.9</td><td>$940.71</td><td>$313.57</td><td>$2,059.29</td></tr>
+    <tr><td>Medium brush, 2&ndash;4 in</td><td>0.236</td><td>12.7</td><td>$1,779.24</td><td>$593.08</td><td>$1,220.76</td></tr>
+    <tr><td>Heavy brush, 4&ndash;8 in</td><td>0.112</td><td>26.7</td><td>$3,508.70</td><td>$1,169.57</td><td>-$508.70</td></tr>
+    <tr><td>Heavy understory, 8&ndash;12 in</td><td>0.056</td><td>53.4</td><td>$6,810.40</td><td>$2,270.13</td><td>-$3,810.40</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+  <strong>$2,059.29 at the top and &minus;$3,810.40 at the bottom: a $5,869.69 spread on one
+  quote.</strong> The acreage never moved. What moved is that the same 3 acres is 5.9 machine hours
+  of work in one case and 53.4 in the other &mdash; nine times the machine time.
+</p>
+<p>Why it compounds the way it does is worth internalising, because it is two effects, not one:</p>
+<ul>
+  <li>
+    <strong>The advance speed falls.</strong> Heavier stems mean less forward progress per minute
+    with the drum loaded &mdash; here 90 ft/min in saplings down to 30 ft/min in 8&ndash;12 inch
+    material, a factor of three.
+  </li>
+  <li>
+    <strong>And the pass count rises.</strong> Light material falls small enough on the first pass.
+    Heavy material comes down standing on the first pass and the mat then has to be reworked, twice
+    more here, to reach a particle size a customer calls finished. That is another factor of three,
+    multiplying the first.
+  </li>
+</ul>
+<p>
+  Three times three is the nine. A customer describing their lot on the phone cannot tell you which
+  of these four rows they are in, and neither &ldquo;it's a bit brushy&rdquo; nor a satellite photo
+  will settle it. Walk it.
+</p>
+
+<h2>7. What is not in the per-acre number at all</h2>
+<ul>
+  <li>
+    <strong>Stumps.</strong> Mulching takes standing material down and leaves a mat. It does not
+    remove a stump below grade. If the customer's idea of &ldquo;cleared&rdquo; includes grubbing,
+    that is a different machine and a separate line.
+  </li>
+  <li>
+    <strong>Stems above what the head is rated for.</strong> A 16 inch stem on a head rated to 8 is
+    a felling job before it is a mulching job, and the time to drop it is in no production rate.
+    Price those separately or exclude them in writing &mdash; forcing oversized material through the
+    drum is how a day goes to teeth, a belt, or the drum itself.
+  </li>
+  <li>
+    <strong>Everything the site says no to.</strong> Permits, burn rules, stream and wetland
+    buffers, erosion control, protected species, property lines and buried or overhead utilities.
+    None of it is arithmetic and none of it is in this tool. It is the part of the job that turns a
+    priced quote into a legal one, and it is yours.
+  </li>
+</ul>
+
+<h2>What to do with this</h2>
+<ol>
+  <li><strong>Quote the density, not the acreage.</strong> Write the stem size and the finish standard into the quote as named terms. A lot that turns out heavier than described is a change order, not a lesson.</li>
+  <li><strong>Time yourself once.</strong> One finished lot with a start and a stop time gives you a production rate worth more than every published per-acre figure put together.</li>
+  <li><strong>Put the teeth and the payment in the hourly rate</strong> before you divide by anything. They are $47.20 of $123.70 here and they are invisible per acre.</li>
+  <li><strong>Use a minimum charge for anything under about an acre</strong>, because the trailer does not care how big the lot is.</li>
+</ol>
+<p><a class="cta" href="index.html">Open the calculator &rarr;</a></p>
+</main>
+
+<footer>
+  <p><strong>Worked example, not a rate card.</strong> Every figure here comes from the inputs named at the top of this page. Your machine, your ground, your market and your own timings are different, and the point of the calculator is to put your numbers through the same arithmetic rather than to adopt these. The density presets in particular are starting points to overwrite, not survey data.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not forestry, engineering, environmental, legal, tax or financial advice, and it does not replace a qualified professional. It does not tell you whether mulching is a permitted or appropriate clearing method on any particular parcel, and it says nothing about permits, burn rules, wetland or stream buffers, erosion control, protected species, or utility and property lines. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for checking the site yourself, and for meeting every obligation that applies to the work. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page is static and makes no network request of any kind. Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p>The felling side of the same lot: <a href="../tree-service-bid-calculator/">tree service bid calculator</a> prices standing trees per stem, which is where the material a mulching head is not rated for has to go.</p>
+</footer>
+</body>
+</html>

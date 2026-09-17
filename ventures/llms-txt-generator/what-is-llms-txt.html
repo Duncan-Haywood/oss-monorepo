@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Is llms.txt, and Do You Need One?</title>
+  <meta name="description" content="What the llms.txt convention actually is, why it exists alongside robots.txt and sitemap.xml rather than replacing either, what belongs in it, and how to tell whether your site benefits from having one.">
+  <link rel="canonical" href="./what-is-llms-txt.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does llms.txt replace robots.txt or sitemap.xml?","acceptedAnswer":{"@type":"Answer","text":"No. robots.txt controls crawler access, sitemap.xml lists every URL that should be indexed, and llms.txt is a curated, short map of the pages that actually explain a site or product — a different job from either, and a site can have all three at once."}},{"@type":"Question","name":"Do you need one?","acceptedAnswer":{"@type":"Answer","text":"It helps most on documentation sites, API references, and developer-facing tools where there is real depth to summarize and a real audience (including AI coding assistants) that benefits from a shortcut past the marketing pages. A five-page brochure site has little to gain."}},{"@type":"Question","name":"What should not go in it?","acceptedAnswer":{"@type":"Answer","text":"Everything your sitemap already lists is the wrong scope — llms.txt is meant to be curated and short, not exhaustive. Leave out marketing pages, legal boilerplate, and anything not meant to inform an assistant answering a question about the product."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a.back { display: inline-block; margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+  <a class="back" href="./">&larr; Back to the llms.txt generator</a>
+  <h1>What is llms.txt, and do you need one?</h1>
+
+  <p><a href="https://llmstxt.org/" rel="noopener"><code>llms.txt</code></a> is a proposal from Answer.AI (published by Jeremy Howard) for a plain-text Markdown file at <code>/llms.txt</code> that gives an AI assistant a short, curated map of a site's most useful pages. The convention is not a web standard, and no browser or search engine is required to read it — it exists because some AI tools already fetch it when they encounter it, and more documentation platforms (several static-site generators and docs hosts) have started publishing one by default.</p>
+
+  <h2>How it differs from robots.txt and sitemap.xml</h2>
+  <p>These three files answer different questions, and a site can have all three at once:</p>
+  <ul>
+    <li><strong>robots.txt</strong> — "which crawlers may fetch which paths." An access rule, not a content summary.</li>
+    <li><strong>sitemap.xml</strong> — "every URL that exists and should be indexed." Exhaustive and machine-generated, not curated.</li>
+    <li><strong>llms.txt</strong> — "the handful of pages that actually explain this site or product." Curated and short by design — the opposite of exhaustive.</li>
+  </ul>
+  <p>If you already publish a sitemap with hundreds of URLs, llms.txt is not a second copy of it — pasting your whole sitemap in verbatim (which this tool's sitemap mode makes easy to do by accident) defeats the point. The <a href="./#mode-list">page-list tab</a> is the better starting point for most sites: hand-pick the pages that matter.</p>
+
+  <h2>The shape the convention describes</h2>
+  <pre class="cmd"><code># Site or Project Name
+
+&gt; One-sentence summary of what this is.
+
+## Docs
+- [Getting started](https://example.com/docs/start): what this page covers
+- [API reference](https://example.com/docs/api)
+
+## Optional
+- [Changelog](https://example.com/changelog)</code></pre>
+  <p>An H1 title, an optional blockquote summary, then any number of "## Section" headings each holding Markdown link bullets. The convention's own suggestion is an "## Optional" section at the end for links that can be skipped first if an assistant has limited context to spend — this generator lets you name any section, including that one.</p>
+
+  <p>A docs site with a few hundred pages, several formats of the same content, or a lot of historical/versioned material is exactly the case the convention was written for.</p>
+
+  <h2>Keeping it current</h2>
+  <p>An llms.txt that links to a page you deleted, or omits a major new doc, is worse than not having one — the same "a guard nobody runs is worth less than no guard" problem any generated artifact has. If you regenerate it from a sitemap or docs tree on every deploy (the CLI is built for exactly that — see the main page), it can't go stale the way a hand-maintained one will.</p>
+
+  <h2>Frequently asked questions</h2>
+  <h3>Does llms.txt replace robots.txt or sitemap.xml?</h3>
+  <p>No. robots.txt controls crawler access, sitemap.xml lists every URL that should be indexed, and llms.txt is a curated, short map of the pages that actually explain a site or product — a different job from either, and a site can have all three at once.</p>
+  <h3>Do you need one?</h3>
+  <p>It helps most on documentation sites, API references, and developer-facing tools where there is real depth to summarize and a real audience (including AI coding assistants) that benefits from a shortcut past the marketing pages. A five-page brochure site has little to gain.</p>
+  <h3>What should not go in it?</h3>
+  <p>Everything your sitemap already lists is the wrong scope — llms.txt is meant to be curated and short, not exhaustive. Leave out marketing pages, legal boilerplate, and anything not meant to inform an assistant answering a question about the product.</p>
+
+  <p><a href="./">Build one now &rarr;</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational, not a specification. Confirm anything load-bearing against <a href="https://llmstxt.org/" rel="noopener">llmstxt.org</a> itself, which may change.</p>
+  </footer>
+</body>
+</html>

@@ -198,11 +198,20 @@ $("clear-draft").onclick = () => {
   record("draft_cleared");
 };
 
-$("usage").onclick = () => {
-  setEnabled(!enabled());
+const paintUsage = () => {
   $("usage").textContent = enabled() ? "Turn off local usage counting" : "Turn on local usage counting";
   $("usage-status").textContent = enabled() ? "" : " Local counting is off.";
 };
+
+$("usage").onclick = () => {
+  setEnabled(!enabled());
+  paintUsage();
+};
+
+// Say it on arrival too. `setEnabled` already persisted the choice, and the
+// button still came back offering to turn counting off -- which tells a
+// visitor who already turned it off that their click never took.
+paintUsage();
 
 // A returning visitor's pasted CSV and filters are restored from this
 // browser's own storage -- nothing is fetched or uploaded to restore them --

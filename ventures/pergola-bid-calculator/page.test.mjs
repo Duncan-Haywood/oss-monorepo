@@ -93,3 +93,15 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest outdoor-living sibling: the deck under the cover. Without a
+// crawlable link here, a crawler entering on the pergola calculator never
+// reaches the deck tool in one hop — and this page was a crawlable orphan.
+test('index links one hop to the deck-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/deck-bid-calculator\/"/,
+    'index must link ../deck-bid-calculator/ so crawlers reach the deck calculator in one hop',
+  );
+  assert.match(html, /deck bid calculator/i);
+});

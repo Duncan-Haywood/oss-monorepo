@@ -131,18 +131,47 @@ test("the own-store demand caveat is in the markup, not only in prose", () => {
 test("every channel and every excluded channel link to their deep calculator", () => {
   for (const channel of [...CHANNELS, ...EXCLUDED_CHANNELS]) {
     assert.ok(
-      scriptSource.includes("../${escapeHtml(channel.deepTool)}/"),
+      scriptSource.includes("../${channel.deepTool}/"),
       "deep-tool links must be generated from the model",
     );
   }
   // Two generated link lists: the per-channel caveats and the excluded note.
+  // The slug still comes from `channel.deepTool` in both, which is what this
+  // guards — a hand-typed slug here is how the caveat about one calculator
+  // ends up above a link into a different one.
   assert.equal(
-    (scriptSource.match(/\.\.\/\$\{escapeHtml\(channel\.deepTool\)\}\//g) ?? []).length,
+    (scriptSource.match(/\.\.\/\$\{channel\.deepTool\}\//g) ?? []).length,
     2,
   );
   assert.ok(
     EXCLUDED_CHANNELS.some((c) => c.deepTool === "whatnot-seller-payout"),
     "Whatnot must be in EXCLUDED_CHANNELS so the hub generates its deep link",
+  );
+});
+
+test("both pointer lists carry the item rather than linking bare", () => {
+  // The defect this replaced: three routes out of this page, only one of them
+  // carrying the seller's numbers. The ranked "continue with these numbers"
+  // list used `handoffUrl`, while these two rendered a bare `../<slug>/` and
+  // dropped price, postage, cost of goods and packaging on the floor.
+  assert.match(scriptSource, /handoffUrl\(channel\.id, item\)/);
+  assert.match(scriptSource, /excludedHandoffUrl\(channel\.deepTool, item\)/);
+
+  // And they are rebuilt per render, not once at load — a link built before
+  // the first paint can only ever hold the page's own defaults.
+  assert.match(scriptSource, /function paintPointers\(item\)/);
+  assert.match(scriptSource, /\n\s*paintPointers\(item\);/);
+});
+
+test("following a pointer is counted, without recording which tool", () => {
+  assert.match(scriptSource, /data-pointer=/);
+  assert.match(scriptSource, /count\("pointer_followed"\)/);
+  // The counter must not be handed the slug: whether the route is used at all
+  // is the question, and one seller's chosen marketplace is closer to a price
+  // than to a page view.
+  assert.ok(
+    !/count\("pointer_followed",[^)]/.test(scriptSource),
+    "pointer_followed must not carry the tool that was opened",
   );
 });
 
@@ -273,4 +302,90 @@ test("index links statically to the Whatnot payout calculator", () => {
     /href="\.\.\/whatnot-seller-payout\/"/,
     "index must carry a static ../whatnot-seller-payout/ href — a runtime-built link is invisible to a crawler",
   );
+});
+
+// ---------------------------------------------------------------------------
+// The "continue with these numbers" handoff is actually wired to the page
+// ---------------------------------------------------------------------------
+//
+// `handoff.test.mjs` proves the mapping and the URLs are right. It imports the
+// module directly and never looks at the page, so it stays green if the section
+// this feature renders into is missing, misspelled, or never un-hidden — the
+// exact shape of defect CLAUDE.md records as having shipped here before: "a
+// page whose markup swallowed its own app scriptSource rendered perfectly and did
+// nothing". These assertions are the other half.
+
+test("the page imports the handoff module", () => {
+  assert.match(
+    scriptSource,
+    /import\s*\{[^}]*handoffsForRows[^}]*\}\s*from\s*["']\.\/handoff\.mjs["']/,
+    "index.html must import handoffsForRows — the module is dead code otherwise",
+  );
+});
+
+test("every id the handoff renderer touches exists in the markup", () => {
+  for (const id of ["handoffSection", "handoffs"]) {
+    assert.ok(
+      markup.includes(`id="${id}"`),
+      `scriptSource writes to #${id} but the markup has no such element`,
+    );
+  }
+});
+
+test("the handoff section starts hidden and is un-hidden by a render", () => {
+  // It sits inside #resultSection, which is itself hidden until the inputs
+  // parse. Shipping it visible would show an empty "Continue with these
+  // numbers" heading above nothing on a page with bad inputs.
+  assert.match(
+    markup,
+    /id="handoffSection"[^>]*class="[^"]*\bhidden\b/,
+    "handoffSection must ship hidden",
+  );
+  // Asserted against the renderer's body rather than one exact expression, so
+  // it survives an ordinary refactor while still failing if the section can
+  // only ever be hidden (or only ever shown).
+  const body = /function paintHandoffs\([\s\S]*?\n  \}/.exec(scriptSource);
+  assert.ok(body, "no paintHandoffs function to check");
+  assert.ok(
+    /el\("handoffSection"\)/.test(body[0]),
+    "paintHandoffs never reads #handoffSection",
+  );
+  assert.ok(
+    /classList\.remove\("hidden"\)/.test(body[0]),
+    "nothing ever un-hides handoffSection",
+  );
+  assert.ok(
+    /classList\.add\("hidden"\)/.test(body[0]),
+    "handoffSection is never re-hidden when there are no links",
+  );
+});
+
+test("paint renders the handoffs, so they follow the current inputs", () => {
+  // If paintHandoffs were called only once at startup, the links would keep the
+  // page's default item forever and quietly hand over numbers the seller
+  // replaced — a wrong number on arrival, with nothing red anywhere.
+  assert.match(scriptSource, /function paint\(\)[\s\S]*?paintHandoffs\(rows, item\)/,
+    "paint() must call paintHandoffs so the links track the inputs");
+});
+
+test("following a handoff is counted", () => {
+  // The measurement this feature exists to produce. Without it there is no way
+  // to tell whether the ranking leads anywhere, which is the whole hypothesis.
+  assert.match(scriptSource, /count\("handoff_followed"\)/, "handoff clicks are not counted");
+  assert.match(
+    scriptSource,
+    /el\("handoffs"\)\.addEventListener\("click"/,
+    "the counter must be delegated — the links are rebuilt on every render",
+  );
+});
+
+test("the handoff links are relative and carry a fragment, never a query", () => {
+  // Asserted at the page level too because a template that hard-coded an
+  // absolute origin would break under the GitHub Pages project path prefix, and
+  // one that used "?" would put the seller's cost of goods in a server log.
+  assert.ok(
+    !/href="https?:\/\/[^"]*(ebay|etsy|amazon|walmart|tiktok|shopify)-[^"]*calculator/.test(markup),
+    "a deep-tool link is absolute; it must stay relative",
+  );
+  assert.match(scriptSource, /href="\$\{escapeHtml\(link\.href\)\}"/, "link href is not escaped");
 });

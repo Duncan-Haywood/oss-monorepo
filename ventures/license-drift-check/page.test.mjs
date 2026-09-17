@@ -45,3 +45,20 @@ test('index links one hop to the actions-injection-check sibling', async () => {
     'index must link ../actions-injection-check/ so crawlers reach this tool in one hop from a sibling',
   );
 });
+
+test('index links to the vs-fossa comparison page', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="vs-fossa\.html"/,
+    'index must link the comparison page so crawlers can reach it',
+  );
+});
+
+test('vs-fossa page links back to the tool and carries required clauses', async () => {
+  const page = await readFile(new URL('./vs-fossa.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\/"/, 'must link back to the tool');
+  assert.match(page, /no warranty/i, 'missing the no-warranty clause');
+  assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/, 'missing the sponsor link');
+  assert.match(page, /not affiliated with, endorsed by, or sponsored by FOSSA/i, 'missing the non-affiliation disclaimer');
+});

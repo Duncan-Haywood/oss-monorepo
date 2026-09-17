@@ -59,6 +59,25 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
 
 export const DAYS_PER_MONTH = 365 / 12;
 
+/**
+ * Every input id this page offers, and so every name a link may fill in.
+ *
+ * It lives here rather than inline in `index.html` because it is a *contract*
+ * with the rest of the portfolio, not a detail of this page. Sibling
+ * comparison tools build "continue with these numbers" links into this
+ * calculator, and a name they send that this list does not carry is dropped
+ * silently by `restoreScenario()` — the reader then prices an item they never
+ * entered, with no error anywhere. Exporting the list lets those tools assert
+ * their mapping against it instead of hard-coding names that can drift, which
+ * is what the five other deep calculators in this portfolio already do.
+ */
+export const FIELD_IDS = Object.freeze([
+  "itemPrice", "shippingCharged", "referralRate", "facilitationRate",
+  "affiliateRate", "returnRate", "cogs", "fulfillmentCost", "otherPerOrder",
+  "adSpend", "unsellableRate", "returnShipping", "targetMargin",
+  "unitsPerDay", "paymentRate", "platformDiscount", "freeShipPrice",
+]);
+
 function number(value, name, { min = 0, allowZero = true } = {}) {
   if (value === undefined || value === null || value === "") {
     throw new Error(`${name} is required`);

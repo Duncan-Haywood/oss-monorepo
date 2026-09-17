@@ -66,3 +66,18 @@ test('index links one hop to the equipment-rental-break-even sibling', async () 
     'index must link ../equipment-rental-break-even/ so crawlers reach the equipment rental break-even calculator in one hop',
   );
 });
+
+// Closest sibling: same fixed-cost-over-occupancy shape (a room or a lesson
+// slot both cost the same whether filled or not), but a classroom of
+// enrolled children rather than one teacher's booked lessons. Without a
+// crawlable link here, a crawler entering on the music lesson calculator
+// never reaches the daycare tuition calculator in one hop -- it was a
+// crawlable orphan (siblings.mjs) until this link closed it.
+test('index links one hop to the childcare-tuition-calculator sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/childcare-tuition-calculator\/"/,
+    'index must link ../childcare-tuition-calculator/ so crawlers reach the daycare tuition calculator in one hop',
+  );
+});

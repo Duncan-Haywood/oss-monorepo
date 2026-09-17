@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Artifact Poisoning Check vs. zizmor</title>
+  <meta name="description" content="zizmor is an open-source CLI auditing GitHub Actions workflows against 41 checks, but none of them is this one: a workflow_run job that downloads an artifact and executes something from it, or downloads one with no name: pin. This free page checks exactly that, on one pasted file, with nothing to install.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-zizmor.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Artifact Poisoning Check vs. zizmor">
+  <meta property="og:description" content="zizmor's dangerous-triggers audit flags any workflow_run trigger by its mere presence; its artipacked audit flags the opposite direction (credentials leaking out via an uploaded artifact). Neither checks whether a workflow_run job downloads and executes an artifact. This page does, free, with nothing to install.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/vs-zizmor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or zizmor?","acceptedAnswer":{"@type":"Answer","text":"Both, for different questions. zizmor is an open-source, MIT-licensed static analysis CLI (installed with pip install zizmor or cargo install zizmor) that audits a GitHub Actions workflow, or a whole repository of them, against 41 checks per its own documentation -- unpinned actions, excessive permissions, credential leakage, impostor commits, template injection, and more, with SARIF output for GitHub code scanning. None of those 41 is the specific pattern this page checks: a workflow_run job that downloads an artifact and later executes something from it, or a download-artifact step with no name: pin. If you want one maintained tool covering a broad catalogue of GitHub Actions security patterns, run zizmor. If you want to know whether the one workflow_run job in front of you actually does something dangerous with a downloaded artifact, this page answers that specifically, with nothing to install."}},{"@type":"Question","name":"Does zizmor already catch what this tool catches?","acceptedAnswer":{"@type":"Answer","text":"Not the same finding. zizmor's dangerous-triggers audit flags workflow_run by its mere presence in a workflow -- per its own documentation it is one of the trigger types the audit treats as fundamentally dangerous, and it fires on every workflow that uses the trigger at all, regardless of what the job actually does. zizmor's artipacked audit checks the opposite direction of an artifact pipeline: a credential persisted by actions/checkout leaking out through an uploaded artifact, not a downloaded artifact's contents being executed. Neither audit inspects what a workflow_run job does with something it downloads. This page fills that specific gap: it flags only a downloaded artifact getting executed later in the same job, or a download-artifact step with no name: input, and says nothing about a workflow_run job that does neither."}},{"@type":"Question","name":"Why check something zizmor's broader trigger audit already flags?","acceptedAnswer":{"@type":"Answer","text":"Because zizmor's signal there is coarse on purpose: dangerous-triggers exists to warn that pull_request_target and workflow_run are hard to use safely at all, not to say which specific job behavior makes one unsafe. A workflow_run job that never touches an artifact, and one that downloads and executes a fork-controlled artifact, both trip the same zizmor finding with the same severity. This page reads what the job actually does with a download and reports only the two behaviors that make it dangerous, so a maintainer already carrying a dangerous-triggers finding can tell whether this specific job is the one that needs fixing first."}},{"@type":"Question","name":"Does this tool need a GitHub token or repository access the way some zizmor audits do?","acceptedAnswer":{"@type":"Answer","text":"No, never. zizmor documents an optional online mode -- enabled by setting GH_TOKEN, GITHUB_TOKEN or ZIZMOR_GITHUB_TOKEN -- that some of its audits use for checks needing GitHub API access, such as confirming a pinned commit is genuinely reachable from the repository. This page has no online mode to opt into and no repository access at all: you paste the YAML, and the scan runs entirely in this browser tab with no network call of its own under any configuration."}},{"@type":"Question","name":"Is this page affiliated with zizmor or its maintainers?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by zizmor, zizmorcore, or its maintainers. zizmor is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source repository at github.com/zizmorcore/zizmor."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #9a3412; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #9a3412; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Artifact Poisoning Check</a></p>
+    <h1>Actions Artifact Poisoning Check vs. zizmor</h1>
+    <p class="lede">zizmor audits a GitHub Actions workflow against 41 checks, per its own documentation, but none of
+      them looks at what a <code>workflow_run</code> job does with a downloaded artifact. Its
+      <code>dangerous-triggers</code> audit flags <code>workflow_run</code> itself, by its mere presence, on every
+      job that uses it. Its <code>artipacked</code> audit checks the opposite direction of an artifact pipeline --
+      credentials leaking out through an upload, not a download's contents getting executed. This page checks the
+      specific behavior neither of those covers, free, on one pasted file, with nothing to install.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>zizmor</strong> (<code>github.com/zizmorcore/zizmor</code>) is an open-source, MIT-licensed static
+        analysis tool for GitHub Actions, installed with <code>pip install zizmor</code> or
+        <code>cargo install zizmor</code> and run against workflow files or a whole repository. Per its own
+        documentation it ships 41 audits covering unpinned or typosquatted <code>uses:</code> references, excessive
+        permission scopes, template injection, impostor commits, and more, and can emit SARIF for GitHub code
+        scanning. Two of its audits sit near this page's territory without covering it:
+        <code>dangerous-triggers</code> flags <code>pull_request_target</code> and <code>workflow_run</code> as
+        fundamentally hard to use safely, by the trigger's presence alone; <code>artipacked</code> flags
+        <code>actions/checkout</code> persisting a credential that a later <code>upload-artifact</code> step might
+        publish. Neither inspects what a <code>workflow_run</code> job does with something it <em>downloads</em>.
+      </p>
+      <p>
+        <strong>This checker</strong> does exactly that and nothing else: paste the YAML of a workflow file, and it
+        finds every <code>workflow_run</code> job that downloads an artifact
+        (<code>actions/download-artifact</code> or <code>dawidd6/action-download-artifact</code>) and later runs
+        something that looks like it executes a file from disk, plus every <code>download-artifact</code> step with
+        no <code>name:</code> input. It runs entirely in your browser, needs no install and no token, and makes no network call of its own under any configuration.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want one maintained scanner covering a broad catalogue of GitHub Actions security patterns.</td><td>zizmor -- 41 audits is its entire job, and this tool checks one narrow pattern none of them covers.</td></tr>
+          <tr><td>My workflow already trips zizmor's <code>dangerous-triggers</code> finding on a <code>workflow_run</code> job -- is <em>this specific job</em> the dangerous one?</td><td>This checker -- it reads what the job actually does with a download, rather than flagging the trigger's presence alone.</td></tr>
+          <tr><td>I want to know if a credential could leak out through an artifact my workflow uploads.</td><td>zizmor's <code>artipacked</code> audit -- that is the upload side of the pipeline, which this tool does not check.</td></tr>
+          <tr><td>I want to know if a downloaded artifact could get executed, or is pulled in unscoped, in a privileged <code>workflow_run</code> job.</td><td>This checker -- paste the YAML, get the two-row answer, no CLI and no repository access.</td></tr>
+          <tr><td>I want SARIF output wired into GitHub code scanning, or a report across an entire repository of workflows.</td><td>zizmor -- its CLI and GitHub Action are built for exactly that.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">The two are complementary, not competing: a repository can run zizmor in CI for its full catalogue and still reach for this page the moment the question is specifically "does this <code>workflow_run</code> job download and execute an artifact" -- a question zizmor's own audit list, read closely, does not currently answer.</p>
+      <p><a class="cta" href="./">Run the free artifact poisoning check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or zizmor?</h3>
+      <p>Both, for different questions. zizmor is an open-source, MIT-licensed static analysis CLI (installed with <code>pip install zizmor</code> or <code>cargo install zizmor</code>) that audits a GitHub Actions workflow, or a whole repository of them, against 41 checks per its own documentation -- unpinned actions, excessive permissions, credential leakage, impostor commits, template injection, and more, with SARIF output for GitHub code scanning. None of those 41 is the specific pattern this page checks: a <code>workflow_run</code> job that downloads an artifact and later executes something from it, or a <code>download-artifact</code> step with no <code>name:</code> pin. If you want one maintained tool covering a broad catalogue of GitHub Actions security patterns, run zizmor. If you want to know whether the one <code>workflow_run</code> job in front of you actually does something dangerous with a downloaded artifact, this page answers that specifically, with nothing to install.</p>
+      <h3>Does zizmor already catch what this tool catches?</h3>
+      <p>Not the same finding. zizmor's <code>dangerous-triggers</code> audit flags <code>workflow_run</code> by its mere presence in a workflow -- per its own documentation it is one of the trigger types the audit treats as fundamentally dangerous, and it fires on every workflow that uses the trigger at all, regardless of what the job actually does. zizmor's <code>artipacked</code> audit checks the opposite direction of an artifact pipeline: a credential persisted by <code>actions/checkout</code> leaking out through an uploaded artifact, not a downloaded artifact's contents being executed. Neither audit inspects what a <code>workflow_run</code> job does with something it downloads. This page fills that specific gap: it flags only a downloaded artifact getting executed later in the same job, or a <code>download-artifact</code> step with no <code>name:</code> input, and says nothing about a <code>workflow_run</code> job that does neither.</p>
+      <h3>Why check something zizmor's broader trigger audit already flags?</h3>
+      <p>Because zizmor's signal there is coarse on purpose: <code>dangerous-triggers</code> exists to warn that <code>pull_request_target</code> and <code>workflow_run</code> are hard to use safely at all, not to say which specific job behavior makes one unsafe. A <code>workflow_run</code> job that never touches an artifact, and one that downloads and executes a fork-controlled artifact, both trip the same zizmor finding with the same severity. This page reads what the job actually does with a download and reports only the two behaviors that make it dangerous, so a maintainer already carrying a <code>dangerous-triggers</code> finding can tell whether this specific job is the one that needs fixing first.</p>
+      <h3>Does this tool need a GitHub token or repository access the way some zizmor audits do?</h3>
+      <p>No, never. zizmor documents an optional online mode -- enabled by setting <code>GH_TOKEN</code>, <code>GITHUB_TOKEN</code> or <code>ZIZMOR_GITHUB_TOKEN</code> -- that some of its audits use for checks needing GitHub API access, such as confirming a pinned commit is genuinely reachable from the repository. This page has no online mode to opt into and no repository access at all: you paste the YAML, and the scan runs entirely in this browser tab with no network call of its own under any configuration.</p>
+      <h3>Is this page affiliated with zizmor or its maintainers?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by zizmor, zizmorcore, or its maintainers. zizmor is an independent open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation and source repository at github.com/zizmorcore/zizmor.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against artifact poisoning, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against zizmor -- it is a static page describing category facts sourced from zizmor's own public documentation, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

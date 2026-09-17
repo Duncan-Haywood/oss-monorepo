@@ -1,0 +1,64 @@
+name: wordpress-plugin-review-check
+description: >-
+  A free, browser-local and CLI checker for WordPress plugin developers:
+  cross-checks a plugin's readme.txt Stable tag against its main file's
+  Version header (the directory serves whichever version Stable tag names,
+  so a mismatch ships a stale build), flags missing required readme/header
+  fields (Stable tag, License, License URI, Plugin Name, Version), scans PHP
+  source for a $_GET/$_POST/$_REQUEST/$_COOKIE/$_SERVER value echoed with no
+  escaping function on the same line, and flags a file that reads $_POST
+  with no nonce-verification call anywhere in it -- the patterns behind the
+  most common wordpress.org Plugin Directory review rejections and notes.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      Plugin developers who hit a Stable tag mismatch note, or want to catch
+      unescaped output and missing nonce checks before submitting, will
+      search the exact terminology ("wordpress plugin stable tag mismatch",
+      "readme.txt stable tag not updating", "wordpress plugin nonce
+      verification missing") and find this tool, since no existing free tool
+      cross-checks readme.txt against the plugin header in both directions
+      and scans for these specific security patterns at once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/WordPress, r/ProWordPress, the wordpress.org support forums'
+      developer sections, and the Advanced WordPress Facebook group carry
+      real, recurring thread volume about plugin review rejections, Stable
+      tag confusion, and "why was my plugin flagged for security" questions
+      from developers preparing a submission or update.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer who gets a clean report from the CLI will wire it into
+      their own pre-release/pre-submission workflow as a gate, producing
+      return usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - wordpress.org materially changes the readme.txt/plugin-header mechanism
+    or its escaping/nonce APIs (e.g. replaces Stable tag with a different
+    release-selection model entirely) such that the detection/cross-check
+    approach here no longer maps to a real review cause.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wordpress-plugin-review-check/
+  analytics: null

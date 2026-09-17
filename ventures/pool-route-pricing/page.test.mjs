@@ -98,3 +98,21 @@ test('a link built from the page defaults decodes back to those same defaults', 
   const hash = url.split('#')[1];
   assert.deepEqual(decodeInputs(hash), DEFAULTS);
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the same recurring stop-based route business priced per
+// site after drive time and materials — inspection stops there, pool accounts
+// here. Rotating chrome may never pair them, so link explicitly.
+test('index links one hop to the fire-extinguisher-inspection-route-margin sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/fire\-extinguisher\-inspection\-route\-margin\/"/,
+    'index must link ../fire-extinguisher-inspection-route-margin/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /fire\-extinguisher/i);
+});

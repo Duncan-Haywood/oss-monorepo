@@ -1386,7 +1386,414 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 209 since 2026-09-07, when `3d-print-price-calculator` graduated — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 209  # `infra/OWNER_CHECKLIST.md`'s own "N of the 209 tools" wording.
+    # 210 since 2026-09-07, when `food-truck-event-margin-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 211 since 2026-09-07, when `ats-resume-checker` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 212 since 2026-09-07, when `menu-engineering-calculator` graduated —
+    # same shape again, and landing in the same hour as the one above, which
+    # is why this merge had to keep both rather than pick a side.
+    # 214 since 2026-09-08. Three ventures graduated within hours of each
+    # other -- `poshmark-fee-calculator`, `duplicate-payment-audit` and
+    # `ats-resume-checker` -- and each branch, correctly, raised the count by
+    # one from its own base. Merging them has to add three, not one, which is
+    # why this number has now been resolved upward twice in one evening. Same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 215 since 2026-09-08, when `certified-payroll-calculator` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 216 since 2026-09-08, when `newsletter-sponsorship-rate-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 217 since 2026-09-08, when `ios-privacy-manifest-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 218 since 2026-09-08, when `security-deposit-return-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 219 since 2026-09-09, when `structured-data-drift-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 220 since 2026-09-09, when `actions-artifact-poisoning-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 221 since 2026-09-09, when `env-example-drift-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 222 since 2026-09-09, when `package-exports-drift-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 223 since 2026-09-09, when `affiliate-disclosure-checker` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 224 since 2026-09-09, when `chrome-extension-permission-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 225 since 2026-09-09, when `wordpress-plugin-review-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 226 since 2026-09-10, when `cors-misconfig-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 227 since 2026-09-10, when `wash-and-fold-price-calculator` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 228 since 2026-09-10, when `apparel-decoration-price-calculator` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 229 since 2026-09-10, when `craft-fair-booth-calculator` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 230 since 2026-09-10, when `merchant-feed-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 231 since 2026-09-10, when `sri-check` also graduated the same day —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 232 since 2026-09-10, when `email-auth-check` also graduated the same
+    # day — same shape again: a new venture with a static `index.html` from
+    # its first commit, entering the mirror and the total together.
+    # 233 since 2026-09-10, when `pwa-installability-check` also graduated
+    # the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the
+    # total together.
+    # 234 since 2026-09-10, when `staffing-markup-calculator` also graduated
+    # the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 235 since 2026-09-10, when `self-storage-rate-increase-calculator` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 236 since 2026-09-10, when `security-headers-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 237 since 2026-09-10, when `bounce-house-rental-calculator` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 238 since 2026-09-10, when `docker-base-image-pin-check` also graduated
+    # the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 239 since 2026-09-10, when `oidc-trust-policy-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 240 since 2026-09-10, when `canonical-tag-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 241 since 2026-09-10, when `cookie-security-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 242 since 2026-09-10, when `social-preview-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 243 since 2026-09-10, when `wildlife-exclusion-bid-calculator` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 244 since 2026-09-10, when `cache-control-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 245 since 2026-09-11, when `ifta-quarterly-fuel-tax-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 246 since 2026-09-11, when `drone-mapping-job-calculator` also graduated
+    # the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 247 since 2026-09-11, when `hreflang-reciprocity-check` graduated too —
+    # the third venture to land the same day, and the one that makes the point
+    # this comment block has been accumulating toward: three sessions each
+    # bumped this constant by one, in parallel, and each bump was correct
+    # against the tree its author measured. Only the merge order decides which
+    # number is right, which is why this is a conflict every time rather than
+    # a count anybody can compute once.
+    # 248 since 2026-09-11, when `sitemap-lastmod-freshness-check` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 249 since 2026-09-11, when `redirect-chain-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 250 since 2026-09-11, when `k8s-rollout-safety-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 251 since 2026-09-11, when `app-store-screenshot-check` graduated too —
+    # the two landed within the same hour and each branch, correctly, moved the
+    # total from 249 to 250. Merging them makes it 251: the count is of the
+    # tree, not of either diff, which is exactly why this assertion is here.
+    # 252 since 2026-09-11, when `llms-txt-generator` also graduated the same
+    # day — same shape again: a new venture with a static `index.html` from
+    # its first commit, entering the mirror and the total together.
+    # 253 since 2026-09-11, when `actions-minutes-estimator` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 254 since 2026-09-11, when `codeowners-shadow-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 255 since 2026-09-11, when `ai-coding-plan-cost-calculator` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 256 since 2026-09-11, when `forestry-mulching-bid-calculator` also
+    # graduated the same day — the count is of the tree, not of either
+    # session's own diff, which is why two sibling ventures graduating in
+    # parallel each correctly claimed 255 from their own base and merging
+    # both makes it 256.
+    # 257 since 2026-09-11, when `epk-generator` also graduated the same
+    # day, merging on top of both of the above — same shape again: a new
+    # venture with a static `index.html` from its first commit, entering
+    # the mirror and the total together.
+    # 258 since 2026-09-11, when `brand-deal-rate-calculator` also graduated
+    # the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 259 since 2026-09-11, when `quarterly-estimated-tax-calendar` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 260 since 2026-09-11, when `influencer-media-kit-generator` also
+    # graduated the same day, merging on top of the above — the count is of
+    # the tree, not of either session's own diff, which is why two sibling
+    # ventures graduating in parallel each correctly claimed 259 from their
+    # own base and merging both makes it 260.
+    # 261 since 2026-09-11, when `terraform-plan-secret-exposure-check` also
+    # graduated the same day: a zero-dependency CLI + browser tool with a
+    # static `index.html` from its first commit, entering the mirror and the
+    # total together, same shape as the rest of this running count.
+    # 262 since 2026-09-11, when `auto-repair-effective-labor-rate` graduated
+    # in parallel, merging on top of the above — same shape again, and the
+    # same reason the count keeps moving several times a day: it is of the
+    # tree, not of any one session's diff, so two sibling ventures graduating
+    # in parallel each correctly claimed 261 from their own base and merging
+    # both makes it 262.
+    # 263 since 2026-09-11, when `dental-ppo-writeoff-calculator` graduated —
+    # the first venture here for a healthcare practice's own back office, and a
+    # static `index.html` from its first commit, so it entered the mirror and
+    # the total together like the three above it.
+    # 264 since 2026-09-11, when `cat-adjuster-fee-calculator` graduated (its
+    # own PR #4629 did not update this count) — a static `index.html` from
+    # its first commit, same shape as the venture above it.
+    # 265 since 2026-09-11, when `vpat-acr-generator` graduated — a static
+    # `index.html` from its first commit, same shape as the venture above it.
+    # 266 since 2026-09-11, when `terraform-plan-blast-radius-check` graduated
+    # — the second tool over the `terraform show -json` structured plan, after
+    # the secret-exposure one further up, and a static `index.html` from its
+    # first commit, so it entered the mirror and the total together like the
+    # five above it.
+    # 267 since 2026-09-11, when `home-inspection-fee-calculator` also
+    # graduated the same day, merging on top of the above — the count is of
+    # the tree, not of any one session's diff, so concurrent ventures
+    # graduating in parallel each correctly claimed their own base and
+    # merging all of them advances the total by one per venture.
+    # 268 since 2026-09-11, when `process-server-fee-calculator` graduated —
+    # a static `index.html` from its first commit, same shape as the venture
+    # above it.
+    # 269 since 2026-09-11, when `1099k-reconciliation-worksheet` also
+    # graduated the same day (#4641) — a multi-platform gig/marketplace
+    # 1099-K reconciliation worksheet with a static `index.html` from its
+    # first commit, merging on top of the above the same way the two
+    # ventures before it did: concurrent graduations each correctly claimed
+    # their own base, and merging both advances the total by one per venture.
+    # 270 since 2026-09-12, when `fleet-repair-or-replace-planner` graduated —
+    # a repair-versus-replace planner for a small trade fleet, with a static
+    # `index.html` from its first commit, so it entered the mirror and the
+    # total together like the rest of this running count.
+    # 271 since 2026-09-13, when `obsidian-plugin-review-check` graduated — a
+    # free CLI + browser tool for Obsidian community-plugin developers, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    # 272 since 2026-09-13, when `caption-quality-check` graduated — a free
+    # CLI + browser tool checking SRT/WebVTT caption files for reading speed,
+    # line length, and timing problems against commonly-used caption
+    # style-guide thresholds, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 273 since 2026-09-13, when `court-reporter-transcript-calculator`
+    # graduated — a freelance court reporter deposition-invoice and
+    # agency-offer calculator, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 274 since 2026-09-16, when `pdf-accessibility-tag-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool checking a PDF's own tag
+    # structure, title, language, alt text, and form-field labels against
+    # PDF/UA and Section 508, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 275 since 2026-09-16, when `photo-addon-pricing-calculator` graduated —
+    # an independent wedding/event photographer's package add-on pricing
+    # calculator, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 276 since 2026-09-16, when `agent-instructions-drift-check` graduated —
+    # a zero-dependency CLI + no-upload browser tool checking an AI-coding-
+    # agent instruction file (AGENTS.md/CLAUDE.md) for broken file
+    # references, undefined npm scripts, and known interpreter-mismatch
+    # shell footguns, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 277 since 2026-09-16, when `security-txt-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool validating a `security.txt`
+    # against RFC 9116 (an expired or missing `Expires`, a `Contact` that is
+    # not a URI, a key pasted where an `Encryption` URI belongs), with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    # 278 since 2026-09-16, when `hoa-reserve-fund-calculator` graduated — a
+    # browser-local calculator projecting an HOA/condo association's reserve
+    # fund year by year against known capital component replacements, naming
+    # the first year a special assessment is likely and solving for the
+    # contribution that avoids it, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 279 since 2026-09-16, when `overtime-pay-calculator` graduated — a free
+    # browser calculator for standard single-rate overtime pay plus the FLSA
+    # weighted-average (blended rate) method for a workweek worked at two or
+    # more different pay rates, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 280 since 2026-09-16, when `cron-dst-drift-check` graduated — a
+    # zero-dependency CLI + browser tool computing a cron expression's
+    # upcoming run times against a real IANA timezone, flagging
+    # spring-forward-gap and fall-back-overlap occurrences, plus a
+    # fixed-UTC-cron (GitHub Actions `schedule:` style) drift calculator,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    # 281 since 2026-09-16, when `bridal-hair-makeup-pricing-calculator`
+    # graduated — a browser-local calculator pricing a mobile bridal hair
+    # and makeup booking (bride, bridal party, hair-only, makeup-only, kids)
+    # plus an early-start fee, mileage, a service-minimum top-up, and a
+    # schedule-capacity check for whether the artists booked can finish the
+    # group on time, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 282 since 2026-09-16, when `sql-migration-lock-check` graduated — a
+    # zero-dependency CLI + browser tool reading a PostgreSQL schema
+    # migration and reporting every statement that can take a blocking lock
+    # or rewrite a table, including four relational checks a per-statement
+    # linter cannot make (a missing `lock_timeout` above an exclusive-lock
+    # statement, `NOT VALID` and `VALIDATE CONSTRAINT` sharing a
+    # transaction, `CREATE INDEX CONCURRENTLY` inside a transaction block,
+    # and `SET NOT NULL` judged against a validated `CHECK` earlier in the
+    # file), with a static `index.html` from its first commit, same shape as
+    # the rest of this running count.
+    # 283 since 2026-09-16, when `sbom-diff-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool comparing two CycloneDX
+    # or SPDX SBOM documents and reporting added, removed, and
+    # version-changed packages between two builds, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    # 284 since 2026-09-16, when `commissary-kitchen-cost-split-calculator`
+    # graduated — a browser-local calculator splitting a shared commissary
+    # kitchen's pooled monthly costs across multiple food-truck tenants by
+    # hours booked and/or storage used (a largest-remainder allocation so
+    # every tenant's total sums exactly to the pool total, to the cent),
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    # 285 since 2026-09-16, when `backflow-test-fee-calculator` graduated —
+    # a browser-local calculator pricing a multi-device backflow-preventer
+    # test visit (per-device fee, a multi-device discount for devices after
+    # the first, a per-device report-filing fee, travel, and a retest fee
+    # for failures), with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 286 since 2026-09-16, when `land-survey-bid-calculator` graduated — a
+    # browser-local bid calculator pricing a boundary/topographic/ALTA survey
+    # job from corners located vs. set, terrain, record research, crew and
+    # drafting time, then comparing the result to a flat per-acre quote, with
+    # a static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    # 287 since 2026-09-17, when `estate-sale-net-proceeds-calculator`
+    # graduated -- a browser-local calculator applying a company's tiered
+    # commission schedule and fees to an estimated estate-sale gross, with
+    # an optional minimum-guarantee floor and a two-quote comparison, same
+    # shape as the rest of this running count.
+    # 288 since 2026-09-16, when `wedding-florist-proposal-calculator`
+    # graduated — a no-upload browser calculator pricing a wedding florist's
+    # proposal from the stem recipe up, rounding each line to whole wholesale
+    # bunches rather than loose stems, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    # 289 since 2026-09-17, when `world-clock-widget` gained a browser surface
+    # -- a world clock showing local time, sunrise, sunset, daylight length and
+    # a waking-hours band for several cities at once, computed in the browser
+    # from the USNO almanac algorithm. Unlike every other entry in this running
+    # count it is not a new venture: the venture already existed as a Swift app
+    # that needs an Apple account to reach anyone, and `site/` is a second
+    # surface over the same tested core. So this is the first line here added
+    # by *deploying* a product that was already finished rather than by
+    # graduating a new one -- worth keeping distinct when reading the count
+    # back as a rate of new ventures, which it no longer purely is.
+    # 290 since 2026-09-17, when `openapi-breaking-change-check` graduated —
+    # a zero-dependency CLI + no-upload browser tool diffing two OpenAPI
+    # 3.0/3.1 documents and classifying each difference as a breaking change
+    # (removed operation, newly-required parameter, narrowed type, removed
+    # enum value, request body now required) or non-breaking, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    # 291 since 2026-09-17, when `asbestos-abatement-bid-calculator`
+    # graduated -- a browser-local bid calculator pricing an asbestos
+    # removal job from OSHA/EPA containment class (Class I/II/III), square
+    # footage, containment areas, crew and supervisor rates, air
+    # monitoring, and waste disposal, then comparing the result to a flat
+    # rate per square foot, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 292 since 2026-09-17, when `tutor-package-pricing-calculator`
+    # graduated -- a no-upload browser calculator comparing a discounted
+    # prepaid session package to pay-per-session pricing on both revenue and
+    # effective hourly pay, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 293 since 2026-09-17, when `biohazard-cleanup-bid-calculator` graduated
+    # -- a browser-local calculator pricing a biohazard/trauma-scene cleanup
+    # job from crew labor, PPE decon-cycle sets, and regulated-waste disposal
+    # rounded up to whole containers, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before `tutor-package-pricing-calculator` landed, so
+    # it only ever knew its own predecessor's number (292) until this merge
+    # -- the same ordinary collision shape recorded throughout this list.
+    # 294 since 2026-09-17, when `storage-auction-max-bid-calculator`
+    # graduated — a no-upload browser calculator pricing the maximum
+    # profitable hammer bid for a storage-unit lien-auction lot from a
+    # realistic resale recovery rate, resale-channel fees, the buyer's
+    # premium, and the cleanout/dump/holding cost stack, then comparing it to
+    # the flat percent-of-value rule of thumb most auction forums repeat, with
+    # a static `index.html` from its first commit, same shape as the rest of
+    # this running count. Landed the same afternoon as
+    # `asbestos-abatement-bid-calculator`, `tutor-package-pricing-calculator`
+    # and `biohazard-cleanup-bid-calculator`, so the resolved total is 294
+    # rather than any one branch's own count.
+    # 295 since 2026-09-17, when `vector-db-cost-calculator` graduated --
+    # a browser-local calculator estimating a vector embedding index's
+    # storage footprint (vector count, dimension, metadata, a user-set
+    # index-overhead multiplier) and comparing monthly cost across up to
+    # three vector database providers using rates the visitor types in,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch was open before
+    # `tutor-package-pricing-calculator`, `biohazard-cleanup-bid-calculator`
+    # and `storage-auction-max-bid-calculator` landed, so it only ever knew
+    # its own predecessor's number (291) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    # 296 since 2026-09-17, when `required-checks-drift-check` graduated -- a
+    # browser-local/CLI checker comparing a repository's branch-protection
+    # required status check names against the job names its GitHub Actions
+    # workflows would currently report, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before `storage-auction-max-bid-calculator` and
+    # `vector-db-cost-calculator` landed, so it only ever knew its own
+    # predecessor's number (294, then 295) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    # 297 since 2026-09-17, when `dog-boarding-daycare-pricing` graduated --
+    # a browser-local calculator pricing a boarding/daycare reservation from
+    # staff time, supplies, and overhead, with a threshold-based long-stay
+    # discount and a multi-dog discount, plus a facility-level kennel/run
+    # occupancy break-even distinct from any one reservation's price, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch was open before
+    # `vector-db-cost-calculator` and `required-checks-drift-check` landed,
+    # so it only ever knew its own predecessor's number (295, then 296)
+    # until this merge.
+    total = 297  # `infra/OWNER_CHECKLIST.md`'s own "N of the 297 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

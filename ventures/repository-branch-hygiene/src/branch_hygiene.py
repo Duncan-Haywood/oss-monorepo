@@ -78,7 +78,61 @@ def load_pr_export(path: Path) -> list[dict[str, Any]]:
     normalized.reverse()
     return normalized
 
-def snapshot_from_repo(repo: Path, protected: set[str] | None = None, pr_export: Path | None = None) -> dict[str, Any]:
+def _default_branch(repo: Path, override: str | None = None) -> str:
+    """The repository's actual default branch, not just whatever is checked out.
+
+    The customer this tool is built for -- a team with an automated PR fleet
+    -- almost never runs it from the default branch: a CI job checks out the
+    PR head, and an agent session works from its own feature branch. Trusting
+    `git symbolic-ref HEAD` there silently protects the wrong ref while
+    reporting the repository's real default branch (main, say) as an ordinary
+    "uncertain" branch -- indistinguishable in the output from stale bot work.
+    `refs/remotes/origin/HEAD` records the remote's own default and survives a
+    non-default checkout -- but plenty of real checkouts never populate it in
+    the first place: `git fetch` does not set it, and neither does the
+    checkout step most CI systems use (a shallow, branch-only fetch). This
+    portfolio's own 568-branch checkout is exactly that case. Recovering it
+    needs `git remote set-head origin -a`, which asks the remote and so is
+    outside what a "never contacts a remote" tool may do on its own. So when
+    `origin` is configured but its `HEAD` symref is missing, this still falls
+    back to current HEAD (preserving the one-branch local-dev case, where that
+    is almost always correct) but says so on stderr instead of silently
+    guessing -- the same "surface the ambiguity" rule the classifier itself
+    follows for a branch it cannot place.
+    """
+    if override:
+        return override
+    result = subprocess.run(
+        ["git", "-C", str(repo), "symbolic-ref", "--short", "refs/remotes/origin/HEAD"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        return result.stdout.strip().removeprefix("origin/")
+    current = _git(repo, "symbolic-ref", "--short", "HEAD").strip()
+    has_origin = subprocess.run(
+        ["git", "-C", str(repo), "remote", "get-url", "origin"],
+        capture_output=True,
+        text=True,
+    ).returncode == 0
+    if has_origin:
+        print(
+            "warning: refs/remotes/origin/HEAD is not set, so the repository's real default "
+            f"branch cannot be told apart from whatever is checked out ('{current}'). Run "
+            "`git remote set-head origin -a` first, or pass --default-branch, if that is not "
+            "actually the default branch -- otherwise it may be scanned as an ordinary branch "
+            "instead of protected.",
+            file=sys.stderr,
+        )
+    return current
+
+
+def snapshot_from_repo(
+    repo: Path,
+    protected: set[str] | None = None,
+    pr_export: Path | None = None,
+    default_branch: str | None = None,
+) -> dict[str, Any]:
     """Build a read-only snapshot from local refs without contacting a remote.
 
     When `pr_export` is given, its pull-request records are resolved against
@@ -93,7 +147,7 @@ def snapshot_from_repo(repo: Path, protected: set[str] | None = None, pr_export:
     ]
     if not names:
         raise ValueError("repository has no local branches")
-    default = _git(repo, "symbolic-ref", "--short", "HEAD").strip()
+    default = _default_branch(repo, default_branch)
     branches = []
     for name in names:
         commits = _git(repo, "rev-list", "--max-count=100", name).splitlines()
@@ -224,6 +278,14 @@ def main() -> int:
     parser.add_argument("--repo", type=Path, help="scan local branches from this checkout")
     parser.add_argument("--protect", action="append", default=[], help="additional protected branch name")
     parser.add_argument(
+        "--default-branch",
+        help=(
+            "override the repository's default branch (requires --repo); use this when the "
+            "checkout has no origin remote, or origin/HEAD is unset, so the tool is not left "
+            "guessing from whatever branch happens to be checked out"
+        ),
+    )
+    parser.add_argument(
         "--pr-json",
         type=Path,
         help=(
@@ -251,8 +313,10 @@ def main() -> int:
         parser.error("provide exactly one of SNAPSHOT or --repo")
     if args.pr_json and not args.repo:
         parser.error("--pr-json requires --repo")
+    if args.default_branch and not args.repo:
+        parser.error("--default-branch requires --repo")
     snapshot = (
-        snapshot_from_repo(args.repo, set(args.protect), args.pr_json)
+        snapshot_from_repo(args.repo, set(args.protect), args.pr_json, args.default_branch)
         if args.repo
         else json.loads(args.snapshot.read_text(encoding="utf-8"))
     )

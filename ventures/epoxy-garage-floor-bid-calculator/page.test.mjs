@@ -43,3 +43,14 @@ test('robots and sitemap expose the landing page and both how-to pages', () => {
   assert.match(sitemap, /how-much-to-charge-for-an-epoxy-garage-floor\.html/);
   assert.match(sitemap, /how-much-to-charge-for-polyaspartic-garage-floor\.html/);
 });
+
+// Closest sibling: same concrete/site subcategory, but a new pour rather than
+// coating an existing garage slab. Without a crawlable link here, a crawler
+// entering on the epoxy calculator never reaches the pour tool in one hop.
+test('index links one hop to the concrete-bid-calculator sibling', () => {
+  assert.match(
+    read('index.html'),
+    /href="\.\.\/concrete-bid-calculator\/"/,
+    'index must link ../concrete-bid-calculator/ so crawlers reach the concrete pour calculator in one hop',
+  );
+});

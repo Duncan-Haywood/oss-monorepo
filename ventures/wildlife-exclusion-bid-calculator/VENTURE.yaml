@@ -1,0 +1,54 @@
+name: wildlife-exclusion-bid-calculator
+description: >-
+  A private browser calculator for independent nuisance wildlife control
+  operators that prices a bat, raccoon, squirrel, bird or ground-animal
+  exclusion job from the costs a flat "removal fee" never carries: a return
+  trip for every day the traps are out, paid drive time on all of them, the
+  height tier the seal is actually at as a multiplier on exclusion labor, one-
+  way devices and the trip back to pull them, attic decontamination and
+  insulation replacement by the square foot, disposal, and a reserve against
+  the multi-year warranty that was sold with the seal. Reports the walk-away
+  price, the bid at a target margin, the visit count and price per crew hour,
+  a full cost breakdown, a margin check against a price already on the table,
+  a comparison against the flat removal fee the customer is shopping, and
+  flags for trapping days with no checks budgeted, a maternity-season
+  schedule, devices left with no removal trip, traps quoted on a species
+  nobody traps, and a warranty sold with no reserve.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent wildlife control operators price exclusion jobs against the flat removal fee homeowners bring from a search result, and that fee prices one visit while the job is commonly six to ten, so making the visit count explicit changes what they quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Exclusion work priced per linear foot from a single rate is wrong in the same direction on every multi-story house, because reaching the work is most of the work, and a height tier applied to exclusion labor alone corrects it without inflating trap checks or attic time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The inputs this needs — crew size and burdened rate, miles and drive minutes, trap days and checks per day, linear feet of exclusion, attic square footage, and the warranty already being offered — are figures an operator already knows or reads off their own job sheet, so the tool can be completed without an analyst.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Flagging a maternity-season schedule as a prompt to check with the state wildlife agency is useful to operators and stays clearly distinct from a determination that any date is or is not permitted.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators sell multi-year warranties on exclusion work and reserve nothing against the callback, so a reserve sized against the warranted work alone — not the whole invoice — is small enough to charge and large enough to matter.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three wildlife control operators use the calculator twice within 90 days.
+  - Operators report that their existing job sheet or field software already counts trap-check visits, tiers exclusion labor by height, and reserves against the warranty, so the gap this tool corrects does not exist for them.
+  - Operators report that the visit-count framing does not help them defend a bid against a flat removal fee, because the objection they actually meet is about the total rather than about what the total is made of.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wildlife-exclusion-bid-calculator/
+  analytics: null

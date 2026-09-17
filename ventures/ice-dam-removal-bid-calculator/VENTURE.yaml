@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Operators report that separating the rate card from the job's fixed cost is more work than their existing flat per-foot pricing without changing the number they would have quoted.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/ice-dam-removal-bid-calculator/
   analytics: null

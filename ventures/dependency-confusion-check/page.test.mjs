@@ -119,3 +119,11 @@ test('index links one hop to the mcp-supply-chain-watch sibling', () => {
     'index must link ../mcp-supply-chain-watch/ so crawlers reach the supply-chain monitor in one hop',
   );
 });
+
+test('index links one hop to the ios-privacy-manifest-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/ios-privacy-manifest-check\/"/,
+    'index must link ../ios-privacy-manifest-check/ so crawlers reach the iOS privacy-manifest checker in one hop',
+  );
+});

@@ -11,6 +11,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 
 import { checkSource, checkVentures, findShareSources } from "./share-location.mjs";
 
@@ -125,6 +126,37 @@ test("it skips test files, which build ?-links as fixtures on purpose", async ()
   // `no-show-fee-calculator` keeps its suite in a `test/` directory rather
   // than beside the source, and it asserts a legacy `?` link still opens.
   assert.equal(files.filter((f) => f.split(path.sep).includes("test")).length, 0);
+});
+
+// Regression, 2026-09-16. Building `ventures/vendor-watch` -- the step its own
+// CI runs -- leaves a `.next/` tree, and one minified Next.js server chunk in
+// it assigns to `.search`. The checker read that as a share leak in a venture
+// with no share link, naming a file nobody wrote and git does not track. A red
+// that fires because you built the project is one a session learns to wave
+// through, so it is worth a test of its own rather than a quiet skip-list edit.
+test("it skips generated build output, which is not source anyone wrote", async () => {
+  const generated = path.join(VENTURES, ".share-location-fixture");
+  const buildDir = path.join(generated, ".next");
+  await mkdir(buildDir, { recursive: true });
+  await writeFile(path.join(buildDir, "chunk.js"), 'e.search=`?${t}`;\n', "utf8");
+  await writeFile(path.join(generated, "real.mjs"), "export const ok = 1;\n", "utf8");
+
+  try {
+    const files = await findShareSources(VENTURES);
+    assert.ok(
+      files.some((f) => f.endsWith(path.join(".share-location-fixture", "real.mjs"))),
+      "the fixture's own source must still be scanned, or this test proves nothing",
+    );
+    assert.equal(
+      files.filter((f) => f.split(path.sep).includes(".next")).length,
+      0,
+      "a .next/ build tree must not be scanned",
+    );
+    const { findings } = await checkVentures(VENTURES);
+    assert.equal(findings.filter((f) => f.file.includes(".next")).length, 0);
+  } finally {
+    await rm(generated, { recursive: true, force: true });
+  }
 });
 
 test("no venture writes share state to the query string", async () => {

@@ -530,6 +530,25 @@ class DeploymentVote(unittest.TestCase):
         self.assertIn("gh-pages", why)
         self.assertIn("already granted", why)
 
+    def test_the_reading_is_json_serialisable_on_a_healthy_repository(self):
+        """`--json` died with `Circular reference detected` on every good repo.
+
+        When the newest *completed* build is itself the successful one,
+        `latest` and `last_success` are the same summary object, so attaching
+        one to the other made the dict reference itself. Nothing that reads a
+        field off it noticed -- `verdict_deployment` only ever reads summary
+        keys -- so the only caller that walks the whole structure was the one
+        that broke, and it broke exactly when the site was fine. A repo whose
+        newest build had *failed* serialised correctly, which is the inversion
+        that let it read as "nobody uses --json".
+        """
+        deployment = ps.read_pages_deployment(fake_api(runs=[pages_run()]))
+        self.assertIsNot(deployment["last_success"], deployment)
+        json.dumps(deployment)  # would raise ValueError before the fix
+        # The copy still carries the fields `verdict_deployment` reads.
+        self.assertEqual(deployment["last_success"]["run_id"], deployment["run_id"])
+        self.assertEqual(deployment["last_success"]["conclusion"], "success")
+
     def test_a_failed_build_is_not_served_but_still_names_the_source(self):
         """A failed deploy still proves the branch is the source.
 
@@ -781,3 +800,200 @@ class RequireCurrent(unittest.TestCase):
         )
         with unittest.mock.patch("sys.stdout", new=io.StringIO()):
             self.assertEqual(ps.main([], api=api), 0)
+
+
+class IndexingVerdict(unittest.TestCase):
+    """Can a crawler discover this site's sitemap on its own?
+
+    `robots.txt` is fetched per origin, at the origin root. A project Pages
+    site is served from a subpath, so the file this repository publishes is
+    not the file a crawler reads -- and nothing in the tree said so, which is
+    why this row exists rather than a paragraph somewhere.
+    """
+
+    def test_a_subpath_site_names_the_file_crawlers_actually_read(self):
+        verdict, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertEqual(verdict, "subpath-robots")
+        self.assertIn("https://duncan-haywood.github.io/robots.txt", why)
+        self.assertIn("monorepo-projects/robots.txt", why)
+
+    def test_a_subpath_site_names_both_owner_fixes(self):
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertIn("Search Console", why)
+        self.assertIn("custom domain", why)
+
+    def test_a_subpath_site_says_crawling_is_still_allowed(self):
+        """The row must not read as 'the site is blocked from search'."""
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertIn("Crawling is still allowed", why)
+
+    def test_an_origin_root_site_is_fine_and_says_so(self):
+        for base in ("https://marisstella.dev/", "https://marisstella.dev"):
+            verdict, why = ps.indexing_verdict(base)
+            self.assertEqual(verdict, "root", base)
+            self.assertIn("discoverable", why)
+
+    def test_an_unreadable_base_url_is_unknown_never_root(self):
+        """Absence reads as unknown, never as health -- the house rule."""
+        for base in ("", None):
+            verdict, _ = ps.indexing_verdict(base)
+            self.assertEqual(verdict, "unknown", repr(base))
+
+    def test_the_row_reaches_the_rendered_report(self):
+        state = {
+            "private": True, "has_pages": True,
+            "plan_verdict": "likely-up", "plan_reason": "r",
+            "source": "branch", "source_reason": "r",
+            "deployed": "served", "deployed_reason": "r",
+            "snapshot": "current", "snapshot_reason": "r",
+            "indexing": "subpath-robots", "indexing_reason": "why " * 40,
+            "source_note": "n",
+        }
+        out = ps.render(state)
+        self.assertIn("indexing          subpath-robots", out)
+        # Wrapped rather than one long line: an unwrapped paragraph runs off a
+        # terminal and is skipped by the reader this row exists for.
+        self.assertTrue(all(len(line) <= 100 for line in out.split("\n")), out)
+
+    def test_it_does_not_change_the_exit_code(self):
+        """A subpath robots.txt is an owner action, not a broken route -- and
+        folding it into the exit code would make a green run mean two things,
+        the same reason freshness has its own gate."""
+        for verdict in ("root", "subpath-robots", "unknown"):
+            self.assertEqual(ps.exit_code({"plan_verdict": "likely-up", "indexing": verdict}), 0)
+
+
+SAMPLE_ROW = '''# a leading comment the writer cares about
+readings:
+
+  github-actions-runners:
+    verdict: down
+    measured: "2026-09-01"
+    run: 1
+    how: >-
+      unrelated row, must not be touched
+
+  github-pages-branch-route:
+    verdict: down
+    measured: "2026-01-01"
+    run: 11111
+    how: >-
+      prose that carries the lesson and must survive a record
+    note: >-
+      a second prose field, also load-bearing
+
+  k3s-cluster:
+    verdict: down
+    measured: "2026-09-04"
+    run: 2
+'''
+
+
+def served_state(run_id=99, deployed="served"):
+    return {
+        "deployed": deployed,
+        "deployment": {"last_success": {"run_id": run_id}},
+    }
+
+
+class RecordReading(unittest.TestCase):
+    """`--record` writes the measured fields back into infra_state.yaml.
+
+    The reason this is code rather than a reminder is in `ORIGIN_READING`'s
+    comment: `decision_queue.py` ages this row out after three days and then
+    prints "OUTAGE: the public surface is down" about a catalogue GitHub is
+    measurably serving. The tests below pin the two halves that make the
+    automation safe to trust -- it must not overwrite a real reading with a
+    non-reading, and it must not eat the prose.
+    """
+
+    def setUp(self):
+        import tempfile, os
+        fd, self.path = tempfile.mkstemp(suffix=".yaml")
+        os.close(fd)
+        with open(self.path, "w", encoding="utf-8") as fh:
+            fh.write(SAMPLE_ROW)
+
+    def tearDown(self):
+        import os
+        os.unlink(self.path)
+
+    def body(self):
+        with open(self.path, encoding="utf-8") as fh:
+            return fh.read()
+
+    def test_it_writes_verdict_measured_and_run(self):
+        import datetime as dt
+        changed, msg = ps.record_reading(
+            served_state(run_id=35156548733), self.path, today=dt.date(2026, 9, 16)
+        )
+        self.assertTrue(changed, msg)
+        body = self.body()
+        self.assertIn('    verdict: up\n', body)
+        self.assertIn('    measured: "2026-09-16"\n', body)
+        self.assertIn("    run: 35156548733\n", body)
+
+    def test_it_preserves_every_comment_and_prose_field(self):
+        """A `yaml.safe_load`/`yaml.dump` round-trip would delete all of this.
+
+        `infra_state.yaml` is roughly nine parts dated lesson to one part data,
+        so silently dropping the prose would cost far more than the stale row
+        this function exists to fix.
+        """
+        ps.record_reading(served_state(), self.path)
+        body = self.body()
+        self.assertIn("# a leading comment the writer cares about", body)
+        self.assertIn("prose that carries the lesson and must survive a record", body)
+        self.assertIn("a second prose field, also load-bearing", body)
+
+    def test_it_touches_no_other_row(self):
+        """The block ends at the next key at the row's own indent."""
+        ps.record_reading(served_state(), self.path)
+        body = self.body()
+        self.assertIn('    measured: "2026-09-01"\n', body)  # github-actions-runners
+        self.assertIn('    measured: "2026-09-04"\n', body)  # k3s-cluster
+        self.assertIn("      unrelated row, must not be touched", body)
+
+    def test_a_failed_build_records_down(self):
+        changed, _ = ps.record_reading(served_state(deployed="failed"), self.path)
+        self.assertTrue(changed)
+        self.assertIn("    verdict: down\n", self.body())
+
+    def test_an_unknown_reading_refuses_and_changes_nothing(self):
+        """The direction the 2026-08-30..09-04 episode failed in.
+
+        `unknown` measured nothing about whether the origin serves, so writing
+        it would replace a real reading (and its run id) with a non-reading.
+        Letting the existing row age out on its own is the honest outcome.
+        """
+        before = self.body()
+        changed, msg = ps.record_reading(served_state(deployed="unknown"), self.path)
+        self.assertFalse(changed)
+        self.assertIn("age out", msg)
+        self.assertEqual(before, self.body())
+
+    def test_a_verdict_without_a_run_id_refuses(self):
+        """`infra_state.yaml`'s own rule: do not edit a verdict without one."""
+        before = self.body()
+        changed, msg = ps.record_reading(
+            {"deployed": "served", "deployment": {}}, self.path
+        )
+        self.assertFalse(changed)
+        self.assertIn("run id", msg)
+        self.assertEqual(before, self.body())
+
+    def test_a_missing_row_refuses_rather_than_appending(self):
+        with open(self.path, "w", encoding="utf-8") as fh:
+            fh.write("readings:\n\n  k3s-cluster:\n    verdict: down\n")
+        changed, msg = ps.record_reading(served_state(), self.path)
+        self.assertFalse(changed)
+        self.assertIn(ps.ORIGIN_READING, msg)
+
+    def test_the_real_file_still_carries_the_row_it_edits(self):
+        """Guards the constant against a rename in infra_state.yaml.
+
+        A recorder that silently refuses forever is the same shape as a guard
+        nobody runs, which is the defect CLAUDE.md records most often.
+        """
+        with open(ps.INFRA_STATE, encoding="utf-8") as fh:
+            self.assertIn(f"  {ps.ORIGIN_READING}:\n", fh.read())

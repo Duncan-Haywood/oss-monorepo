@@ -1,0 +1,80 @@
+name: docker-base-image-pin-check
+description: Free, read-only checker that scans a repository's Dockerfiles and flags every FROM line referencing a base image by a mutable tag (node:18, python:3.11-slim, or bare latest) instead of a pinned content digest (@sha256:...), printing the docker buildx imagetools inspect command to look up the digest yourself.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row, and ai-first-markets idea --
+# top score 0.13 (`pinned-actions-check`), well below the 0.45 read-this-first
+# bar. Not a duplicate of `pinned-actions-check` (that is about a repository's
+# own GitHub Actions workflow `uses:` references, never a container image),
+# `dependency-confusion-check` (pip/npm registry-precedence configuration, not
+# image tagging), or `npm-lifecycle-script-check` (install-time scripts inside
+# a dependency tree, not the base image a Dockerfile starts `FROM`). Like that
+# same sibling, this is a direct graduation of an already-obvious, low-risk
+# dev-tool idea, not a pipeline-candidate write-up.
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# found 141+ of 247 ventures are <trade>-bid-calculator clones with zero
+# measured visitors, and told sessions to weigh a CLI/checker shape over
+# another calculator when there is no unusually strong named channel -- this
+# is exactly that recommended shape, following `pinned-actions-check`'s
+# precedent (a generalized dev-tool CLI + browser port + SEO landing page +
+# comparison page, not a pipeline-candidate write-up), applied to a different,
+# equally well-documented supply-chain surface: the base image a container
+# build starts from rather than the CI actions that build and push it.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high -- this is a mechanical, read-only linter with no advice-of-record, no
+# compliance claim, no data leaving the user's device, and no scraping. It
+# makes no network calls of its own anywhere in the code (check.py,
+# classify.mjs): a mutable finding prints a `docker buildx imagetools inspect`
+# command for the user to run themselves, it never resolves anything on our
+# behalf. Comparable to `pinned-actions-check`, `repository-branch-hygiene`,
+# and `actions-runner-starvation-check`, all already graduated and live on
+# this exact reasoning.
+hypotheses:
+  - claim: >-
+      A developer hardening a Dockerfile after reading Docker's own
+      "Pin base image versions" guidance, the SLSA build-provenance
+      requirements, or a CIS Docker Benchmark item on base-image pinning will
+      search the exact question ("docker pin base image digest", "FROM
+      node:18 not pinned", "docker buildx imagetools inspect digest") and
+      find this tool -- landing on r/docker, r/devops, or a Dockerfile-
+      hardening blog post that names the pattern -- since no existing free
+      tool states the specific-tag trap this directly (node:18 looks pinned
+      and is not) and stays entirely local, with no upload, no registry
+      login, and no install.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `check.py --fail-on-risk` into their own CI to block a
+      newly-added unpinned base image before it merges, the same way
+      `pinned-actions-check`'s CLI convention is meant to be used, after
+      finding that Hadolint's own DL3006/DL3007 rules stop at "has an
+      explicit, non-latest tag" and do not require a digest (see
+      `vs-hadolint.html`).
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/docker-base-image-pin-check/
+  analytics: null

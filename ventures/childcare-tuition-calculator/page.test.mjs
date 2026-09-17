@@ -47,3 +47,37 @@ test('the ratio disclaimer is not undercut by an asserted state ratio table anyw
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /does not assert (either one|one) for you|never asserts one/);
 });
+
+// Closest sibling: same fixed-cost-over-occupancy shape (a room or a lesson
+// slot both cost the same whether filled or not), but one teacher's booked
+// lessons rather than a classroom of enrolled children. It was a crawlable
+// orphan (siblings.mjs) until this link closed it.
+test('index links one hop to the music-lesson-break-even sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/music-lesson-break-even\/"/,
+    'index must link ../music-lesson-break-even/ so crawlers reach the music lesson pricing calculator in one hop',
+  );
+});
+
+test('page wires a shareable link that wins over the saved local draft', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  for (const id of ['copyLink', 'linkStatus']) assert.match(page, new RegExp(`id="${id}"`));
+  assert.match(page, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  const scriptMatch = page.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  const savedIndex = body.indexOf("localStorage.getItem(storageKey)");
+  const linkIndex = body.indexOf('decodeInputs(location.hash');
+  assert.ok(savedIndex !== -1 && linkIndex !== -1 && savedIndex < linkIndex,
+    'the shared-link restore must run after the saved-draft restore so a link wins');
+  assert.match(body, /document\.querySelector\('#copyLink'\)\.addEventListener\('click'/);
+  assert.match(body, /encodeInputs\(values\(\)\)/);
+  assert.match(body, /navigator\.clipboard\.writeText/);
+});
+
+test('the FAQ answer about uploads names the shareable link honestly', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /Copy shareable link button puts the same numbers in the page's URL fragment/);
+});

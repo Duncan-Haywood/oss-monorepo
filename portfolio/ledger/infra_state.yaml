@@ -33,8 +33,8 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-07"
-    run: 34111214478
+    measured: "2026-09-16"
+    run: 35095456643
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -165,6 +165,73 @@ readings:
       recorded here, not a new pattern. Do not read this as "fixed" any more
       than the 06:33Z entry meant "broken forever" — classify the next push
       on its own merits.
+      Re-measured 2026-09-09T18:15:59Z from a scheduled autonomous session:
+      still down. `ci_starvation.py --run 34387947196` exits 1 on
+      `runner_id: 0`, 3s, no steps — `Pages freshness` on the `main` push of
+      eae12000. It was not an isolated job: all five workflow runs that push
+      triggered (34387947196, 34387947142, 34387947072, 34387947157,
+      34387947161) were created at 18:15:59Z and concluded `failure` at
+      18:16:04Z, a five-second wall across the whole push. So the window that
+      the 09-07 readings above show flipping open and shut is, two days on,
+      still shut, and the 2026-10-01 allowance-reset expectation stands.
+      What that costs, stated once rather than re-derived: `main` has been
+      merged to repeatedly since, every one of those merges verified only by
+      the session that made it. This session ran
+      `run_workflow_locally.py --tree` against the tip and it came back 9/9
+      workflows, 63/63 `run:` steps in `portfolio-validate.yml` — so `main`
+      is genuinely green right now, measured rather than assumed.
+      Re-measured 2026-09-10T01:01Z from a scheduled autonomous session, off
+      ordinary PR traffic rather than a dispatch: every one of 14 distinct
+      check names on PR #4374 (`validate`, `check`, `scripts`,
+      `page-integrity`, `test` x6, `site-test` x2, `build` x2,
+      `sibling-links`, `resolve-pr`, `gitops`, `hcloud-scope`, `coverage`,
+      `link-contrast`, `tofu`) came back `failure` within 2-3s.
+      `ci_starvation.py --run 34423728610` and `--run 34423728696` both exit
+      1 on `runner_id: 0` — a still-open window, one day past the 09-09
+      reading and unmoved from the 2026-10-01 allowance-reset expectation.
+      Merged that PR on local verification only (node --test, pytest, all 15
+      `platform/ci` unittest modules, all 8 `portfolio-validate.yml`
+      validators, `build.mjs` + `check.mjs`), per this file's own standing
+      guidance -- and re-confirmed `main` is green independent of that PR's
+      own red checks by running the same suites again post-merge.
+      Re-measured 2026-09-11T09:45-10:12Z from a scheduled autonomous session,
+      prompted by an owner check-in asking whether deploy/CI/CD is being kept
+      a priority. Two readings 27 minutes apart disagree, which is the same
+      "flips inside a session" shape as 09-07: `portfolio-pages` run
+      34585762340 (09:45:25Z, the `gh-pages` publish of a42e8f2d) got three
+      real runner ids (`1000077799`/`1000077800`/`1000077801`), all
+      `success`. A fresh `Outage triage` dispatch at 10:12:04Z
+      (run 34588034490), and the prior scheduled dispatch of the same
+      workflow the day before (34475459008, 2026-09-10T12:12:53Z), both came
+      back `runner_id: 0` in 3-6s -- `ci_starvation.py --run 34588034490` and
+      `--run 34475459008` both exit 1. So today's evidence is one real run and
+      two starved ones, not a clean recovery; verdict stays `down` per the
+      06:33Z/09:15Z precedent above (classify the next push on its own
+      merits, do not infer from one green run). Net effect for the k3s-cluster
+      row below: the re-measurement this reading exists to unblock (dispatch
+      `Outage triage` once a runner is available) still did not land a runner,
+      so that row remains unmeasured since 2026-09-04 -- now 7 days past
+      `STALE_AFTER_DAYS` (3) -- and should be read as unknown, not as the
+      `down` verdict it still carries below, until a dispatch actually gets a
+      runner assigned.
+      Re-measured 2026-09-16T12:22Z from a scheduled autonomous session, off
+      ordinary push traffic rather than a dispatch: all ten workflow runs that
+      the #4691 merge commit triggered on `main` (e223221d) concluded
+      `failure` between 4 and 40 seconds after creation, and
+      `ci_starvation.py --run 35095456643` (`Portfolio validate`) exits 0
+      naming `runner_id: 0 -- no runner was ever assigned, so no step ran`.
+      Five days unmoved from the 09-11 reading, and consistent with the
+      2026-10-01 allowance-reset expectation. No dispatch was spent
+      confirming it: this row's own guidance is one classification per
+      session, and ordinary merge traffic supplied it for free.
+      Two consequences worth stating rather than re-deriving. `k3s-cluster`
+      below is still unmeasurable (its `Outage triage` dispatch needs the
+      runner this row says does not exist), so it stays 12 days stale and
+      should be read as unknown. And `indexnow_state.py` reports the
+      announcement route has now starved on all 60 completed runs of
+      `publish-pages-branch.yml` -- so 1037 published URLs remain announced
+      to nobody, which is this outage's largest ongoing product cost and is
+      not visible anywhere in the tree.
 
   k3s-cluster:
     verdict: down
@@ -175,6 +242,28 @@ readings:
       needs no secret and reports per-port reachability from a runner.
       Note this itself needs a runner, so it cannot be re-measured while
       `github-actions-runners` is down.
+      **Do not substitute a TCP probe from a session sandbox, and do not
+      believe one you have already run** (added 2026-09-10, after running
+      exactly that). A raw `socket.connect()` to either box reports
+      `:80` and `:443` **OPEN** and `:22` and `:6443` timed out — which
+      inverts the real signature (`:22` open, the rest refused) and reads
+      like a cluster that has come back serving. It is the agent egress
+      proxy answering on the two ports it proxies: an HTTP request to
+      `89.167.29.39:80` returns `403` with `x-deny-reason:
+      host_not_allowed` and a body naming the egress allowlist, not
+      anything from Hetzner. The timeouts are equally meaningless — they
+      are ports the proxy does not handle, not ports the box refused. So a
+      sandbox can measure *nothing* about these hosts, in either
+      direction, and a reading that looks like recovery is the one to
+      distrust most: it would retire this row, drop
+      `hetzner-ssh-key-is-a-public-key` down the queue, and send the next
+      session to build on a cluster that is still dead.
+      Attempted 2026-09-11T10:12Z from a scheduled autonomous session: a
+      fresh dispatch (run 34588034490) came back `runner_id: 0` in 3s --
+      `github-actions-runners` was starved at that exact moment (see that
+      row's 09-11 note), so this row is still stuck at the 2026-09-04
+      reading, now 7 days stale. Re-measure on the next push or dispatch
+      that lands a real runner rather than trusting this verdict as current.
     note: >-
       `:6443` refused on both boxes, so the k3s API server is not listening —
       a dead or absent cluster rather than a crashed ingress. `:22` is open
@@ -202,7 +291,7 @@ readings:
     # which is `hetzner-ssh-key-is-a-public-key`. What it is *not* downstream
     # of is the two rows that have blocked everything else all week.
     verdict: up
-    measured: "2026-09-05"
+    measured: "2026-09-16"
     # No run id: verified in a session sandbox, not from a dispatch, because
     # a dispatch is precisely what this route does not need. The commands
     # below reproduce it anywhere with bash, python3 and systemd-analyze.
@@ -213,6 +302,60 @@ readings:
       scratch prefix with a scrubbed environment. `systemd-analyze verify` on
       `gitops/agents/host/codex-governor.{service,timer}` checks the units.
       Neither needs a runner, a cluster or a credential.
+      Re-measured 2026-09-10 from a scheduled autonomous session (the row had
+      aged past `STALE_AFTER_DAYS` since 2026-09-08): both commands still
+      pass clean (45/45 tests; `systemd-analyze verify` on both units prints
+      nothing, which is success). Still not installed anywhere -- still
+      genuinely blocked on nothing but `hetzner-ssh-key-is-a-public-key`,
+      already the #1 row in `decision_queue.py`. Not re-adding that ask.
+      Re-measured again 2026-09-13, prompted by the owner explicitly asking
+      for Hetzner CI/CD, marketing-material deployment and this exact Codex
+      dev-worker route in the same session: still clean (56/56 tests -- the
+      suite grew by 11 since 2026-09-10 -- and `systemd-analyze verify`
+      prints nothing on both units). Still not installed; still the same
+      single blocker. `decision_queue.py`'s #1 row already spells out the
+      one-shot recovery (`bootstrap/restore-cluster.sh` with
+      `WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1
+      WITH_PORTFOLIO_SITE_HOST=1`, the third flag being what serves the
+      portfolio/marketing site directly from the box), which needs the
+      owner's own machine and five credentials no agent session holds
+      (`HETZNERSSHKEY`, `ARGOCD_REPO_TOKEN`, `SITE_GH_TOKEN`,
+      `CODEX_AUTH_JSON`, `RUNNER_TOKEN`). Nothing for an agent session to do
+      here but keep the reading current.
+      Re-measured 2026-09-16, on the same owner ask repeated verbatim
+      (Hetzner CI/CD, marketing materials deployed on the boxes, and the
+      Codex CLI running dev work against the plan's included quota): still
+      clean -- 56/56 tests, and `systemd-analyze verify` exits 0 printing
+      nothing on both units. The recovery dry run was rehearsed too, which
+      the 09-13 reading did not do: `DRY_RUN=1 WITH_CODEX_HOST=1
+      WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+      bootstrap/restore-cluster.sh` prints the no-SSH half correctly (all
+      three extras resolved to a box, each naming the credential standing
+      behind it) and then exits 1 at the SSH gate on both hosts, exactly as
+      documented. So the route is not merely unit-tested -- the owner's
+      one-shot recovery was executed as far as a session can take it, and
+      the first thing it cannot do is the first thing it needs.
+      One more thing was checked rather than assumed, because the third ask
+      is about the *prompt* and not only the install:
+      `gitops/agents/workers/mandate.md` already carries the product-first
+      mandate this account runs on, including the three-PR drain floor, in
+      sync. Nothing to port.
+      Re-measured again 2026-09-16, prompted by the same owner ask repeating
+      verbatim (Hetzner CI/CD, marketing-material deployment, this Codex
+      dev-worker route) three days after the 2026-09-13 reading above: still
+      clean (56/56 tests, `systemd-analyze verify` silent on both units).
+      Re-checked `agent-session-egress` from inside this session rather than
+      trusting its 2026-09-06 reading unchanged: `$HTTPS_PROXY/__agentproxy/
+      status` still shows live `403 to CONNECT` rejections for
+      non-allowlisted hosts, and `cat < /dev/null > /dev/tcp/89.167.29.39/22`
+      still times out rather than connecting -- the blocker holds. One
+      correction to that older reading: this image now ships an `ssh` binary
+      at `/usr/bin/ssh` (it did not on 2026-09-06), but the transport is still
+      blocked before a client binary would matter, so the verdict is
+      unchanged. The ask repeating is not evidence anything changed here; it
+      is evidence the owner has not yet run `bootstrap/restore-cluster.sh`
+      with the flags above from a machine that holds the five credentials.
+      That action is still the entire remaining gap.
     note: >-
       Added 2026-09-05. The Codex worker's dev capacity had exactly two
       schedulers and both are down: the k3s CronJob (`k3s-cluster` below) and,
@@ -345,47 +488,48 @@ readings:
       in Settings → Billing is what turns this into a real verdict.
 
   github-pages-branch-route:
-    # A third Pages question, distinct from both rows around it.
-    #   `github-pages-plan`   — could this account serve a private repo's site?
-    #   `github-pages-branch-route` — is the runner-free `gh-pages` branch
-    #                                 source the one the site is pointed at?
-    #   `github-pages-origin` — does the URL actually return a page?
-    # Until 2026-09-05 the middle one was believed unreadable from a session,
-    # so it was folded into the third and both stayed `unknown`.
-    # CHANGED 2026-09-06: down -> up. The owner flipped the dropdown, or it
-    # was already flipped; either way the route this row tracks is live and
-    # the 2026-09-05 reading below is superseded rather than deleted, because
-    # the way it was wrong is the reusable part.
     verdict: up
-    measured: "2026-09-06"
-    run: 34055759342
+    measured: "2026-09-17"
+    run: 35183580428
     how: >-
-      RE-MEASURED 2026-09-06T19:42Z, run 34055759342, after publishing a
-      merge that touched `ventures/**`: the managed builder ran on `gh-pages`
-      and concluded `success` again, so the route is not a one-off reading.
-      Keeping this row fresh is now load-bearing rather than tidy.
-      `decision_queue.py`'s `PUBLIC_ORIGINS` consults it through `reading()`,
-      so once it ages past `STALE_AFTER_DAYS` the owner's banner reverts to
-      announcing that the catalogue is dark -- which is what it wrongly said
-      all day on 2026-09-06 until this row was wired into it. Re-measure it
-      on any session that publishes.
-      `python3 platform/ci/pages_state.py` and read the **`deployed`** row
-      (added 2026-09-06). It lists runs of GitHub's managed builder filtered
-      to `gh-pages` and looks for a completed one. A managed Pages build is
-      triggered only by a push to the *configured source*, so a successful run
-      on `gh-pages` names the branch and shows a real deployment -- which the
-      `source` row below cannot do: that one reads whether the builder is
-      *listed*, which establishes that some branch source exists but names no
-      branch and proves no build ever ran.
-      Superseded reading, kept for the shape of the error:
-      `python3 platform/ci/pages_state.py` and read the `source` row (added
-      2026-09-05). It lists every workflow GitHub reports for this repository
-      and looks for the synthetic `dynamic/pages/` path. GitHub creates that
-      managed builder if and only if Pages serves from a *branch*; when the
-      source is "GitHub Actions" no such workflow exists. The call is
-      `GET /repos/{owner}/{repo}/actions/workflows` — the same endpoint
-      `ci_starvation.py` already uses, so it needs no new scope, no runner and
-      no owner. Re-measure by re-running the tool.
+      `python3 platform/ci/pages_state.py --record`, which takes the reading
+      and writes the three fields above. It needs no runner, no cluster and no
+      credential beyond the repository read a session already has. The reading
+      itself is GitHub's managed builder
+      `dynamic/pages/pages-build-deployment` running on `gh-pages` and
+      concluding `success`: a managed Pages build is triggered only by a push
+      to the configured source, so a successful run names `gh-pages` as that
+      source and shows the snapshot deployed. `read_pages_deployment` verifies
+      it against the run object itself (`head_branch`, `path`, `conclusion`)
+      rather than from a summary that restates it.
+
+      **Deliberately undated prose.** This block says how to re-measure and
+      what was learned; `verdict`, `measured` and `run` carry the date and are
+      machine-written by `--record`. A dated narrative here would contradict
+      those fields the moment anyone retook the reading, which is what the
+      block it replaced had started to do.
+
+      Why this row is the one that got a command, which is the reusable part.
+      `STALE_AFTER_DAYS` is 3, so this row ages out to `unknown` on the fourth
+      day -- and `serving_origins()` then correctly drops it, which flips
+      `decision_queue.py`'s header from "PARTIAL OUTAGE ... the rows below are
+      NOT all waiting on this" to "OUTAGE: the public surface is down. ...
+      every other row here is downstream of a host answering at all". Both
+      sentences cannot be true, and the second is the one #3199 was written to
+      stop printing: the catalogue is served by GitHub Pages, and
+      `pages-custom-domain` (exposure `none`) is downstream of no host at all.
+      An owner who reads the false one spends their session on the expensive
+      Hetzner route while the cheap one stays untaken.
+      The ageing is deliberate and right -- `serving_origins()`'s own docstring
+      says an un-re-measured origin must fall back rather than keep suppressing
+      the banner on a reading nobody retook -- so the defect is never the rule
+      that ages it. **Do not widen the window to silence it.** It happened on
+      2026-09-10 and the fix was to retake the reading by hand, with this block
+      then saying "if the banner regresses again, retake it". It regressed
+      again on 2026-09-16, six days later, because a reminder addressed to
+      whoever happens to look is the one thing this repository has repeatedly
+      measured itself failing at. The retake is now one command, and the
+      publish block in CLAUDE.md runs it.
     note: >-
       Measured 2026-09-05 across all 232 workflows in this repository. The
       three `dynamic/` entries are
@@ -525,7 +669,7 @@ readings:
     # here — can actually reach. `down` means it cannot reach the boxes or any
     # hosted secret store, so it cannot be the machine that deploys.
     verdict: down
-    measured: "2026-09-06"
+    measured: "2026-09-16"
     run: null
     how: >-
       From inside a session: `curl -s -o /dev/null -w '%{http_code}'
@@ -556,6 +700,20 @@ readings:
       key would still fail to reach `:22`, and the obvious reading of that
       failure is "the key is wrong" — which is exactly the sentence this
       repository has already spent a week on once.
+      Re-measured 2026-09-16, and the two hosts checked were chosen because a
+      product route now turns on each. `api.indexnow.org` and `www.bing.com`
+      both come back `CONNECT tunnel failed, response 403`, reported by the
+      proxy as `connect_rejected ... organization policy` — so the 1037-URL
+      announcement `indexnow.mjs` has ready and verified cannot be sent from
+      here, and the runner that could send it is starved (see
+      `github-actions-runners`). `duncan-haywood.github.io` is refused the
+      same way, which is why no session can confirm the published catalogue
+      returns 200 to a stranger, only that GitHub deployed it.
+      That last one is worth keeping separate from the rest of this row. The
+      denial is about *this sandbox*, not about the site — reading it as
+      evidence the catalogue is unreachable would repeat the exact
+      manifest-derived error the "nothing is served" episode cost a week on,
+      running in the opposite direction.
       This does not supersede `github-actions-runners` or `k3s-cluster`; it is
       orthogonal to both. It says who can act while they are down.
       **Added 2026-09-06: do not port-probe :80 or :443 from a session — the
@@ -582,3 +740,31 @@ readings:
       28/28 probes blocked). The trap is only for hand-rolled socket probes,
       which is precisely what a session reaches for when the tool says it
       cannot answer.
+      **That last sentence was wrong, and it cost three days (corrected
+      2026-09-09).** `platform/ci/outage_triage.py` is not a hand-rolled probe
+      — it is the committed tool whose entire diagnostic value is the
+      open/refused/no-answer distinction — and it called `socket.connect()`
+      with no control at all. So this row named the hazard, named the exact
+      two-address control that detects it, and the one tool in the repository
+      that needed that control did not have it. Same shape `CLAUDE.md` records
+      for `platform/proposal/` and the browser checks: the guard was written
+      down and never wired into the thing it guards.
+      Measured 2026-09-09 from a session, before the fix: the two live nodes
+      and TEST-NET-2 returned the *same four states* — 80/443 `open`, 22/6443
+      `no answer` — so `outage_triage.py` rendered identical output whether the
+      boxes were healthy, dead, or had never existed. Both halves misleading in
+      the expensive direction: 443 `open` reads as a serving ingress while the
+      origin is down, and 22 `no answer` reads as sshd gone, which is exactly
+      the reading the tool's own docstring says would send the owner after
+      console access instead of `hetzner-ssh-key-is-a-public-key` — the
+      top-ranked ask and the only route back to the origin.
+      Closed the same day: `detect_interception()` probes all three RFC 5737
+      ranges before layer 2 runs, the port layer is *skipped* rather than
+      reported when any of them answers, the verdict refuses to diagnose and
+      says in terms that it neither supports nor sinks the SSH ask, and
+      `main()` exits 2 so "no reading taken" cannot read as a pass. The
+      three-address design is not belt-and-braces: TEST-NET-1 is denylisted by
+      the proxy and answers `refused` on every port, so a single control picked
+      from it reports a clean transport. Pinned by
+      `platform/ci/test_outage_triage.py::InterceptedTransport`, whose tables
+      are the readings above rather than invented ones.

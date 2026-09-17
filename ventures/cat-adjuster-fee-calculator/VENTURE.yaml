@@ -1,0 +1,31 @@
+name: cat-adjuster-fee-calculator
+description: A browser-local calculator for independent catastrophe (CAT) claims adjusters to find real net profit for a storm deployment after estimating-software, lodging, per diem, vehicle, and mileage cost — including the unpaid travel days spent driving to and from the disaster zone — then compare two or three IA firms' fee schedules by what they actually pay per hour, not just their headline per-claim rate.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent CAT adjusters will use a deployment profit calculator because a fee schedule's headline per-claim rate hides whether a deployment is actually worth taking once software, lodging, per diem, vehicle cost, and unpaid travel days are netted out against a realistic claims-per-day pace.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers and forum members asking "how much do CAT adjusters make," "is this fee schedule worth it," or comparing named IA firms' per-claim rates are underserved by generic gig-work or freelance-rate calculators, because the daily-cost-versus-claims-pace arithmetic and the unpaid-travel-day cost are specific to storm deployment work.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Adjusters comparing multiple IA firms' offers for the same deployment window will use the fee-schedule comparison table, not just the single-offer calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified independent CAT adjusters use the calculator twice within 90 days of public distribution.
+  - Users say their own fee-schedule spreadsheet or mental math produces the same accept/decline decision just as fast.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cat-adjuster-fee-calculator/
+  analytics: null

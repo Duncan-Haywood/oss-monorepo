@@ -1,0 +1,92 @@
+name: structured-data-drift-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that checks whether an HTML page''s JSON-LD structured data (FAQPage, HowTo, Article/BlogPosting/NewsArticle, Product, LocalBusiness/Organization, Review) actually appears, word for word, in that same page''s own visible rendered text -- catching stale, mismatched, or fabricated structured data. A deterministic string-diff/linter, not an SEO audit or a compliance verdict.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07) argues explicitly for
+# this shape over another <trade>-bid-calculator, since 141+ of ~226
+# ventures already share that shape with zero recorded visitors between
+# them.
+#
+# duplicate_check.py (run 2026-09-09) scored every existing venture,
+# screened-out row, and pipeline candidate below 0.09 for this idea's
+# description -- nowhere near the 0.45 review bar. Closest matches by eye:
+# npm-lifecycle-script-check and license-drift-check share the "paste two
+# things, get a deterministic diff" shape but diff two *point-in-time
+# snapshots* of a dependency tree against each other, never a page's own
+# markup against its own rendered text. ai-crawler-access-check checks
+# whether robots.txt lets AI crawlers reach a page at all -- a different
+# question (can a crawler fetch this page) from what this tool answers (is
+# what the page's own JSON-LD claims actually true of the page). Neither
+# reads a page's application/ld+json blocks or compares them to rendered
+# copy.
+#
+# The exact core technique is already proven inside this repo, for one
+# schema type: platform/pages/faq-visible.test.mjs (paired with
+# platform/pages/entities.mjs's decodeEntities) extracts a page's visible
+# text and its authored FAQPage question/answer pairs, then finds the exact
+# character where they diverge by bisection search. That guard exists
+# because this portfolio shipped exactly this defect once (a page's
+# FAQPage JSON-LD didn't match its own visible copy) and only caught it
+# because a whole-portfolio scan happened to check. This venture
+# generalizes the same technique to five more schema.org types
+# (HowTo, Article/BlogPosting/NewsArticle, Product, LocalBusiness/
+# Organization, Review), for any page on the web, not just this repo's
+# own. Standalone ventures in this portfolio do not import from platform/
+# (confirmed: no venture directory imports platform/pages/entities.mjs or
+# platform/pages/build.mjs's text helpers -- e.g. coverage-drop-check and
+# flaky-test-finder each vendor their own small decodeEntities), so the
+# entity table and visible-text extraction are vendored into engine.mjs
+# rather than imported.
+#
+# Distribution channel: real, dated, documented demand rather than an
+# evergreen query. Google's own Search Central documentation for FAQPage
+# and HowTo structured data requires the markup to describe content
+# visible on the page -- a written, sourced requirement, not an inferred
+# one -- and names ineligibility for the rich result as the consequence of
+# violating it. That is a recurring, event-driven trigger: any site that
+# hand-edits FAQ copy or a how-to guide without also touching its schema
+# drifts out of compliance the moment the edit ships, and a Search Console
+# "Enhancement" report flagging FAQPage/HowTo issues is exactly the moment
+# someone searches for a way to check this before Google finds it for them.
+# Communities where JSON-LD is hand-authored and drifts from copy during
+# routine edits: r/TechSEO, r/webdev, Hacker News "Show HN", dev.to, and
+# static-site-generator communities (Next.js/Astro/Eleventy/Hugo, where
+# schema is commonly hand-written in a template separate from the content
+# file). The AI-answer-engine risk (JSON-LD read as ground truth with no
+# published visibility requirement at all) is the newer half of the
+# argument and applies to all six types this tool checks, not just the two
+# Google has written a rule about.
+hypotheses:
+  - claim: A developer or SEO practitioner who gets a Search Console FAQPage/HowTo "Rich result issue" report, or who edits FAQ/HowTo copy through a CMS separate from where the JSON-LD lives, will search for a way to check the two against each other before Google's next crawl does, and will wire the CLI into a build's CI as a gate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A site owner who has started thinking about AI answer engines (ChatGPT, Perplexity, Claude) summarizing their pages will want to know whether the JSON-LD those systems read as ground truth actually matches what a human visitor sees, beyond what any Search Console report checks.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted
+  # into it, in the visitor's own browser, and the CLI reads only local
+  # files with no network call at all. Serving one more user costs a
+  # static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/structured-data-drift-check/
+  analytics: null

@@ -311,6 +311,50 @@ class Main(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(check.main([tmp]), 0)
 
+    def test_sarif_output_is_valid_and_uploadable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_repo(
+                tmp,
+                "on: pull_request_target\njobs:\n  b:\n    steps:\n"
+                "      - uses: actions/checkout@v4\n        with:\n"
+                "          ref: ${{ github.event.pull_request.head.sha }}\n"
+                "      - run: echo \"${{ github.event.pull_request.title }}\"\n",
+            )
+            result = subprocess.run(
+                [sys.executable, str(Path(__file__).parent / "check.py"), tmp, "--format", "sarif"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            sarif = json.loads(result.stdout)
+            self.assertEqual(sarif["version"], "2.1.0")
+            run = sarif["runs"][0]
+            rule_ids = {rule["id"] for rule in run["tool"]["driver"]["rules"]}
+            self.assertEqual(rule_ids, check.RISK_CLASSIFICATIONS)
+            self.assertEqual(len(run["results"]), 2)
+            for result_entry in run["results"]:
+                self.assertIn(result_entry["ruleId"], rule_ids)
+                # A path rooted at the scanned directory (an OS-specific
+                # absolute path here) must come out relative, or Code
+                # Scanning silently drops the result rather than annotating
+                # the file github/codeql-action/upload-sarif was pointed at.
+                uri = result_entry["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+                self.assertFalse(uri.startswith("/"), uri)
+                self.assertFalse(uri.startswith("./"), uri)
+                self.assertTrue(uri.startswith(".github/workflows/"), uri)
+
+    def test_sarif_output_with_no_findings_is_still_valid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self._write_repo(tmp, "on: push\njobs:\n  b:\n    steps:\n      - run: echo hi\n")
+            result = subprocess.run(
+                [sys.executable, str(Path(__file__).parent / "check.py"), tmp, "--format", "sarif"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            sarif = json.loads(result.stdout)
+            self.assertEqual(sarif["runs"][0]["results"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

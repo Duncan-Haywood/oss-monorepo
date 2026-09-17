@@ -204,6 +204,80 @@ def check(path, errors):
             f"(e.g. `{expr.split('.', 1)[0]}.{expr.split('_', 1)[1]}`)"
         )
 
+    for job, step in unguarded_shallow_fetches(data):
+        err(
+            f"job `{job}` step `{step}` runs `git fetch --depth=...` without first "
+            "checking `git rev-parse --is-shallow-repository`. A `--depth` fetch "
+            "does not only limit what it downloads -- it writes `.git/shallow` and "
+            "truncates the WHOLE repository, including refs the step never named. "
+            "On a runner that is free, because `actions/checkout` already checked "
+            "out depth 1; on a full clone it is destructive, and it is "
+            "`run_workflow_locally.py` that runs these same `run:` steps against "
+            "one. Guard it: `if [ \"$(git rev-parse --is-shallow-repository)\" = "
+            "true ]; then git fetch --depth=1 ...; else git fetch ...; fi`"
+        )
+
+
+# A `git fetch` carrying `--depth` / `--depth=N`, anywhere in a `run:` body.
+# `--unshallow` and `--deepen` are the opposite operation and are not matched.
+_SHALLOW_FETCH = re.compile(r"git\s+fetch\b[^\n]*(?<!un)\B--depth[=\s]")
+
+# The one question that makes such a fetch safe: it is only destructive on a
+# clone that is NOT already shallow, and this is how a step tells the two apart.
+_SHALLOW_GUARD = "is-shallow-repository"
+
+
+def unguarded_shallow_fetches(data):
+    """Every `(job, step)` whose `run:` shallow-fetches without asking first.
+
+    Measured 2026-09-17: `portfolio-validate.yml` fetched its venture-regression
+    base with an unconditional `git fetch --no-tags --depth=1`. Run on a runner
+    that is exactly right -- `actions/checkout@v4` already made the checkout
+    depth 1, so the flag costs nothing and changes nothing. Run by
+    `run_workflow_locally.py --tree` on a full clone, the same line wrote
+    `.git/shallow` and collapsed a 7,289-commit checkout of `main` to one
+    commit. The very next step then needs `git merge-base --is-ancestor` to
+    tell "a venture was deleted" from "your tree is behind the base", cannot
+    get it out of a shallow clone, and correctly refuses to pass an unproven
+    removal -- so the sweep reported `main` RED for a deletion that never
+    happened, having caused the condition itself one step earlier.
+
+    That sweep is what CLAUDE.md prescribes for "is `main` green right now?"
+    during an Actions starvation window, which is precisely when no runner is
+    checking and a false red has nothing to contradict it. The blast radius is
+    wider than the one check, too: CLAUDE.md's "Duplicate PRs" section
+    documents at length how a silently-shallow clone makes `git merge` refuse
+    with "unrelated histories" and `git rev-list --count origin/main..<branch>`
+    report every branch as carrying thousands of unique commits -- readings
+    that argue equally for mass PR creation and for dismissing the whole
+    backlog. It describes that state as a clone artifact to recover from; what
+    nothing recorded is that a workflow step this repository runs locally is
+    one of the things that creates it.
+
+    Hence a validator rather than a comment: the guard is one `if` and the
+    failure it prevents is invisible at the call site, which is the shape that
+    gets "simplified" back out by the next person to read the line.
+    """
+    found = []
+    jobs = data.get("jobs")
+    if not isinstance(jobs, dict):
+        return found
+    for job_name, body in jobs.items():
+        if not isinstance(body, dict):
+            continue
+        steps = body.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for index, step in enumerate(steps):
+            if not isinstance(step, dict):
+                continue
+            run = step.get("run")
+            if not isinstance(run, str):
+                continue
+            if _SHALLOW_FETCH.search(run) and _SHALLOW_GUARD not in run:
+                found.append((job_name, step.get("name") or f"#{index + 1}"))
+    return found
+
 
 # `${{ ... }}` expression bodies, wherever they appear in a scalar.
 _EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}", re.S)
@@ -351,6 +425,24 @@ def check_venture_tests_run(paths, ventures_dir=VENTURES_DIR):
     *run* the tests. Five of the sixteen ventures this check first found had
     the first half and not the second: a slug-filtered workflow that ran only
     `pytest`, added before the venture had a browser page.
+
+    **The remedy this check names creates a second obligation, and saying so is
+    part of the message (added 2026-09-11).** Adding `<slug>-ci.yml` is a new
+    workflow, and `publish_surface.py --check` fails on any workflow absent
+    from `publish-surface.yaml` -- deliberately, because a new workflow is a
+    new thing a merge to `main` could publish and its classification is worth
+    confirming by hand rather than inferring. So this check tells a session to
+    do the exact thing that turns another check red, and until now it did not
+    mention the second step.
+
+    That is not hypothetical. #4573 graduated `actions-minutes-estimator`,
+    followed this message, added the workflow, and left `main` red on
+    `publish_surface.py --check` and `test_publish_surface` -- for the rest of
+    the day, because Actions was starved (`runner_id: 0`) and no check that
+    could have said so ever ran. The two graduations either side of it
+    (#4559, #4567) updated the snapshot in the same commit and were fine, which
+    is what a step carried by recollection rather than by the instruction looks
+    like: mostly done, silently missed, and only visible when CI is watching.
     """
     if not ventures_dir.is_dir():
         return []
@@ -387,7 +479,11 @@ def check_venture_tests_run(paths, ventures_dir=VENTURES_DIR):
             "do not run venture unit tests, so these assertions execute only on "
             "a contributor's machine. Add `.github/workflows/"
             f"{venture.name}-ci.yml` (copy a sibling), or add a `node --test` "
-            "job to the workflow this venture already has"
+            "job to the workflow this venture already has. If you add the "
+            "workflow file, record it in the same commit with `python3 "
+            "platform/ci/publish_surface.py --write` -- a new workflow is a new "
+            "thing a merge to `main` could publish, so `--check` fails until the "
+            "snapshot names it and its classification has been confirmed"
         )
     return errors
 

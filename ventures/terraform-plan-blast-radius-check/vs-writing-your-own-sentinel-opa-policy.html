@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This checker vs. writing your own Sentinel or OPA policy | Terraform Plan Blast Radius Check</title>
+<meta name="description" content="Sentinel (Terraform Cloud/Enterprise) and OPA/Conftest can catch a destructive apply too -- but only after someone writes and maintains a policy that lists which resource types hold data, in a policy language, per provider. This free tool ships that detection built in, runs on any CI with plain Node.js, and needs no account.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="vs-writing-your-own-sentinel-opa-policy.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. writing your own Sentinel or OPA policy">
+<meta property="og:description" content="Sentinel and OPA/Conftest can gate a destructive apply -- once somebody writes and maintains a policy naming every stateful resource type, in a policy language, per provider. This free tool ships that detection already built, with no policy to write and no platform to buy.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or write a Sentinel or OPA policy instead?","acceptedAnswer":{"@type":"Answer","text":"They solve the same problem at different costs. Sentinel (bundled with Terraform Cloud/Enterprise) and OPA/Conftest can both block an apply that would destroy or replace a stateful resource — once somebody writes a policy in Sentinel's or Rego's policy language that enumerates which resource types count as stateful, keeps that list current as your providers add types, and maintains it across every workspace. This tool ships that detection already built, as a plain Node.js CLI or a browser page, with nothing to write and nothing to keep in sync."}},{"@type":"Question","name":"Do I need Terraform Cloud or Enterprise to use this?","acceptedAnswer":{"@type":"Answer","text":"No. Sentinel policies only run inside Terraform Cloud or Terraform Enterprise, so adopting Sentinel for this one check means adopting that platform. This tool reads the same terraform show -json file open-source Terraform and OpenTofu already produce, so it runs in any CI system, any pre-commit hook, or a browser, with no platform requirement."}},{"@type":"Question","name":"Can this checker replace an existing Sentinel or OPA policy set entirely?","acceptedAnswer":{"@type":"Answer","text":"Only for this specific question. Sentinel and OPA/Conftest are general-purpose policy engines organizations use for cost limits, tagging standards, allowed regions, module version pins, and many rules beyond destructive changes — this tool checks exactly one thing, whether a replace or destroy lands on a resource type that holds data. Teams already invested in Sentinel or OPA for other policies can still run this tool as a fast, zero-configuration second opinion on that one question, or port its token-matching approach into their existing Rego or Sentinel policy."}},{"@type":"Question","name":"What happens when this tool does not recognize a new resource type?","acceptedAnswer":{"@type":"Answer","text":"It is biased toward flagging rather than staying silent: the heuristic matches on tokens in the resource type name itself (database, disk, bucket, DNS, and so on), not a hand-maintained list of exact type names, so a provider's new resource type is caught automatically if its name carries one of those tokens. A hand-written Sentinel or Rego policy that enumerates exact type strings has the opposite failure mode — it stays silent on any type nobody added yet, which is the gap this tool's name-based matching is built to avoid."}}]}</script>
+<style>
+:root{font:16px system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}
+body{max-width:820px;margin:auto;padding:32px 18px 48px}
+a{color:#17604a;overflow-wrap:anywhere}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:#17604a;margin:0 0 6px}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.3rem 0;max-width:30ch;letter-spacing:-.02em;color:#17324a}
+.lede{font-size:1.05rem;max-width:66ch;color:#55606f}
+p{line-height:1.6}
+section.card{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #17324a10;margin:1rem 0}
+h2{margin-top:0;color:#17324a}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}
+.fine,.note{font-size:.88rem;color:#55606f}
+footer{color:#55606f;font-size:.86rem;margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px}
+footer p{margin:.6rem 0}
+@media (max-width:820px){body{padding:20px 14px 40px}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Terraform Plan Blast Radius Check</a></p>
+<header>
+<h1>This checker vs. writing your own Sentinel or OPA policy</h1>
+<p class="lede">Same failure, different cost. Sentinel and OPA/Conftest can both stop an apply that destroys or replaces a stateful resource &mdash; once somebody writes and maintains a policy that says which resource types count. This tool ships that detection already built, with no policy language and no platform to adopt.</p>
+</header>
+<section class="card">
+<h2>What each one is for</h2>
+<p>
+  <strong>Sentinel</strong> is HashiCorp's policy-as-code engine, bundled with
+  Terraform Cloud and Terraform Enterprise. <strong>OPA</strong> (Open Policy
+  Agent) and <strong>Conftest</strong> are open-source alternatives that
+  evaluate a plan against a policy written in Rego, usually wired into CI by
+  hand. Both are general-purpose: an organization typically uses them for
+  cost ceilings, region allow-lists, tagging rules, module version pins, and
+  destructive-change checks, all as separate policies someone writes,
+  reviews, and keeps current as providers add resource types.
+</p>
+<p>
+  <strong>This tool</strong> checks exactly one thing &mdash; whether a
+  replace or destroy in the plan lands on a resource type that holds data
+  &mdash; and ships that detection already built, as a zero-dependency
+  Node.js CLI or a browser page that reads the same <code>terraform show
+  -json</code> file. There is no policy to author, no Rego or Sentinel
+  language to learn, and no Terraform Cloud or Enterprise subscription to
+  adopt just to get this one check.
+</p>
+<p>
+  It exists because that one check is easy to write once and easy to let go
+  stale. See <a href="./why-terraform-replace-destroys-data.html">why a
+  replace destroys data, and why the plan text does not always say which
+  attribute forced it</a> for the mechanics this tool's token-matching
+  heuristic is built against.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Is this apply about to destroy a database, disk, or bucket, right now?</td><td>This checker &mdash; paste or load your plan, free, no account.</td></tr>
+<tr><td>Do I already have a Sentinel or OPA policy for this?</td><td>Check its resource-type list against this checker's report; a name-based heuristic catches types a hand-written list has not been updated for yet.</td></tr>
+<tr><td>Do I need to buy Terraform Cloud/Enterprise for policy-as-code?</td><td>Only if you want Sentinel specifically, or its other policy features. This one check needs no platform.</td></tr>
+<tr><td>Should I replace my whole Sentinel/OPA policy set with this?</td><td>No &mdash; those cover cost, tagging, region, and version rules this tool does not attempt. Run this alongside them for the destroy/replace question.</td></tr>
+<tr><td>Is my plan uploaded anywhere?</td><td>No. The browser page and the CLI both read the file locally and make no network call.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  This checker is a narrow, zero-configuration alternative to one specific
+  policy, not a policy-as-code platform. It does not evaluate cost, tagging,
+  region, or version rules, and it does not integrate with Terraform Cloud's
+  or Terraform Enterprise's policy sets.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the CLI reads a local file with no network call, and the browser page parses a pasted or loaded file entirely on your device.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>Should I use this checker or write a Sentinel or OPA policy instead?</h3>
+<p>They solve the same problem at different costs. Sentinel (bundled with Terraform Cloud/Enterprise) and OPA/Conftest can both block an apply that would destroy or replace a stateful resource &mdash; once somebody writes a policy in Sentinel's or Rego's policy language that enumerates which resource types count as stateful, keeps that list current as your providers add types, and maintains it across every workspace. This tool ships that detection already built, as a plain Node.js CLI or a browser page, with nothing to write and nothing to keep in sync.</p>
+<h3>Do I need Terraform Cloud or Enterprise to use this?</h3>
+<p>No. Sentinel policies only run inside Terraform Cloud or Terraform Enterprise, so adopting Sentinel for this one check means adopting that platform. This tool reads the same <code>terraform show -json</code> file open-source Terraform and OpenTofu already produce, so it runs in any CI system, any pre-commit hook, or a browser, with no platform requirement.</p>
+<h3>Can this checker replace an existing Sentinel or OPA policy set entirely?</h3>
+<p>Only for this specific question. Sentinel and OPA/Conftest are general-purpose policy engines organizations use for cost limits, tagging standards, allowed regions, module version pins, and many rules beyond destructive changes &mdash; this tool checks exactly one thing, whether a replace or destroy lands on a resource type that holds data. Teams already invested in Sentinel or OPA for other policies can still run this tool as a fast, zero-configuration second opinion on that one question, or port its token-matching approach into their existing Rego or Sentinel policy.</p>
+<h3>What happens when this tool does not recognize a new resource type?</h3>
+<p>It is biased toward flagging rather than staying silent: the heuristic matches on tokens in the resource type name itself (database, disk, bucket, DNS, and so on), not a hand-maintained list of exact type names, so a provider's new resource type is caught automatically if its name carries one of those tokens. A hand-written Sentinel or Rego policy that enumerates exact type strings has the opposite failure mode &mdash; it stays silent on any type nobody added yet, which is the gap this tool's name-based matching is built to avoid.</p>
+<p class="note">
+  Open the <a href="./">Terraform Plan Blast Radius Check</a> against your own plan, or read <a href="./why-terraform-replace-destroys-data.html">why a replace destroys data</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is informational only. It is not legal, security, compliance, or other professional advice, and a clean report is not a statement that an apply is safe -- only that nothing in the plan matched the patterns it checks. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The CLI and the browser page both read your plan file locally and make no network call. This page describes Sentinel, Terraform Cloud, Terraform Enterprise, OPA, Rego, and Conftest in general terms for comparison; it is not affiliated with, endorsed by, or sponsored by HashiCorp, the Open Policy Agent project, Styra, or any of their trademark holders. Terraform and Sentinel are trademarks of HashiCorp.</p>
+<p class="support">Free and open source. If it helps you catch a destructive apply, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

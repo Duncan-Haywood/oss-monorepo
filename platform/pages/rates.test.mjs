@@ -100,6 +100,50 @@ const NO_SHARED_SHOP_RATES = {
     'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
     'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
     'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'forestry-mulching-bid-calculator':
+    'it costs a machine hour, not a crew hour, and carries none of the four canonical ids. Its ' +
+    'operator line (`operatorWagePerHour`) is explicitly a burdened rate -- wage and payroll ' +
+    'burden together -- so aliasing `hourlyWage` onto it would prefill a raw wage into a field ' +
+    'that already includes burden and understate every hour of the job, the same defect the ' +
+    'vehicle-wrap entry above records. There is no payroll-burden field to alias, and no ' +
+    'overhead-on-direct-cost percentage either: this tool carries overhead as the machine\'s own ' +
+    'payment and insurance spread over billable hours a month, in dollars per hour, which is a ' +
+    'different quantity from a percentage of direct cost. Only target margin means the same ' +
+    'thing, spelled `targetMarginPct` and capped at 95 rather than 99.9, and one carried field ' +
+    'is below MIN_CARRIED_FIELDS, so no bar is shown and no PARTIAL_SHOP_RATE_PAGES note is due.',
+  'land-survey-bid-calculator':
+    'its per-person wage is spelled `crewHourlyRatePerPerson` rather than `hourlyWage`, but means the ' +
+    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
+    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
+    'aliased too. It has no separate payroll-burden field, and it prices office research and drafting ' +
+    'time as their own hourly rates rather than an overhead percentage of direct cost, so it carries ' +
+    'two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'asbestos-abatement-bid-calculator':
+    'its per-worker wage is spelled `crewHourlyRatePerWorker` rather than `hourlyWage`, but means the ' +
+    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
+    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
+    'aliased too. It has no separate payroll-burden field, and it prices containment setup, air ' +
+    'monitoring, and waste disposal as their own line items rather than an overhead percentage of ' +
+    'direct cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'biohazard-cleanup-bid-calculator':
+    'its per-tech rate is spelled `laborRatePerHour` rather than `hourlyWage`, but means the same ' +
+    'raw, loaded hourly rate for one technician\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
+    'margin" is spelled `targetMarginPercent` and means the same net-margin-on-price concept as ' +
+    '`targetMargin` -- aliased too. It has no separate payroll-burden field and no overhead-on-' +
+    'direct-cost percentage (equipment, supplies and disposal are priced as their own line items, ' +
+    'not a percentage markup), so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'storage-auction-max-bid-calculator':
+    'this is not a contractor job bid -- it is a max hammer bid for a stranger\'s storage-unit ' +
+    'contents at a lien auction. Its `laborRatePerHour` prices cleanout hours on one unit, not a ' +
+    'crew wage the business pays across every job, and there is no payroll-burden or ' +
+    'overhead-on-direct-cost field at all: cleanout cost is a flat dump fee plus a labor line, and ' +
+    '`targetMarginPercent` is margin on realized resale revenue after channel fees, a different base ' +
+    'from the spec\'s margin on a priced job. Zero of the four canonical concepts apply, so no bar is ' +
+    'shown and no PARTIAL_SHOP_RATE_PAGES note is due. (Same field names as ' +
+    'biohazard-cleanup-bid-calculator above, coincidentally -- the two calculators were built the ' +
+    'same afternoon and independently landed on `laborRatePerHour`/`targetMarginPercent`, but the ' +
+    'underlying quantities differ: that page carries two of the four via aliasing, this one carries ' +
+    'zero because there is no crew wage or overhead-on-direct-cost concept here at all.)',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

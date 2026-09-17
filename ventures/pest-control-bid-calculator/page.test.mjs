@@ -7,7 +7,11 @@ const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 test('the static page contains its executable module and queried controls', () => {
   assert.match(page, /<script type="module">/);
   assert.match(page, /import \{ calculateBid, SERVICE_PRESETS \} from '\.\/calc\.mjs';/);
-  assert.match(page, /import \{ recordUsage \} from '\.\/usage\.mjs';/);
+  assert.match(page, /import \{ recordUsage, readOptOut, writeOptOut \} from '\.\/usage\.mjs';/);
+  // The page stores and restores the opt-out itself: the module takes the
+  // choice as an argument, so nothing else would remember it.
+  assert.match(page, /readOptOut\(localStorage\)/);
+  assert.match(page, /writeOptOut\(localStorage, /);
 
   for (const id of [
     'services',
@@ -88,4 +92,22 @@ test('the service rows ride in the bid link, not just the cost fields', () => {
   for (const key of ['type', 'minutes', 'quantity', 'materialPerUnit', 'everyVisit']) {
     assert.match(page, new RegExp(`key:\\s*'${key}'`), `service row field '${key}' is missing from BID_SPEC`);
   }
+});
+
+test('links to the janitorial bid calculator', () => {
+  assert.match(page, /href="\.\.\/janitorial-bid-calculator\/"/, 'the sibling-tool link is missing');
+});
+
+// Closest sibling in the other direction: the same operator gets the call, but
+// a raccoon in an attic is a one-off project with a warranty on it, not a route
+// stop. Pricing it here undercharges badly, so the link is a correction as much
+// as a cross-sell -- and without an explicit one-hop, a crawler on this page may
+// never reach that tool at all.
+test('index links one hop to the wildlife-exclusion-bid-calculator sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/wildlife-exclusion-bid-calculator\/"/,
+    'index must link ../wildlife-exclusion-bid-calculator/ so crawlers reach the exclusion calculator in one hop',
+  );
+  assert.match(page, /wildlife exclusion bid calculator/i);
 });

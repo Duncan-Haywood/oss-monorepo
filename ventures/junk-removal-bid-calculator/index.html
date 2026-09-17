@@ -315,12 +315,13 @@
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Weight is an estimate until a scale ticket prints. Verify every figure against your own dump tickets, payroll, insurance, and fuel costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your address, load, dump rates, wages, or prices.</p>
     <p>Pricing a local household move instead of a junk haul on the same property? The <a href="../moving-bid-calculator/">moving company bid calculator</a> prices inventory hours, stairs, long carry, and packing &mdash; nothing uploaded.</p>
+    <p>Leaving a roll-off instead of hauling the load yourself? The <a href="../dumpster-rental-margin-calculator/">dumpster rental margin calculator</a> prices the included weight allowance, tipping fee, and overage rate &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it keeps you off a losing half-truck special, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, formatBidSummary, MATERIAL_PRESETS } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
     import {
       withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
@@ -733,6 +734,19 @@
     restoreCompany();
     refreshProposal();
 // proposal:end
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

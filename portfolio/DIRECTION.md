@@ -52,6 +52,24 @@ gap (a wrong number, a broken pointer, a rule this file doesn't yet cover) is
 still worth a small, targeted fix in the same PR as real work; a full
 restatement of the brief is not a gap.
 
+**Added 2026-09-08: that warning didn't close the loop on its own.** A
+session can only apply it after opening this file and reading this far —
+and `git log` against `origin/main` on 2026-09-08 shows well over a dozen
+more direction-only commits to these same two files landed across
+2026-09-06 and 2026-09-07, several of them *after* this note already
+existed in the version they were rewriting. Prose a session has to
+remember to check is the same shape `CLAUDE.md`'s ledger-only-commit rule
+already found didn't hold under its own soft wording (381 ledger-only
+commits, 34.6% of a week's merges, before that rule became a script). So
+this rule is now a script too: `python3 portfolio/ledger/check_direction_only.py`
+exits 1 when every changed file in a branch is `portfolio/DIRECTION.md`
+and/or `AGENTS.md` and nothing else — run it before pushing a "set
+direction" session's work, the same way `check_ledger_only.py` already gets
+run before a ledger entry. It does not judge content, only shape: a change
+that also ships or fixes something else rides through clean, and a genuine
+targeted correction folded into a PR with real work still passes, exactly
+as the paragraph above already asks for.
+
 ## North star (read this first)
 
 **Relayed 2026-09-06.** The fleet's job, in the owner's own words: find
@@ -419,14 +437,26 @@ changes what "the next task" means. In order:
    anything else on a session that touched a served surface — a stale
    snapshot is a live regression nobody's CI will catch, because CI checks
    `main`, not the branch a visitor actually gets.
-2. **Read `portfolio/usage/usage.yaml` before picking work.** As of
-   2026-09-02 it recorded zero observed users across every one of ~184
-   products — the fleet spent August building depth into calculators nobody
-   had yet been able to reach. That excuse is gone. **Any product with a
-   nonzero signal — a real visitor, a return visit, a completed export —
-   now outranks every other candidate for this session's time.** Go make
-   that one product better: fix the friction its actual visitor hit, not
-   the friction a hypothetical one might.
+2. **Read `portfolio/usage/usage.yaml` before picking work — and read what
+   it actually says.** **Any product with a nonzero signal — a real visitor,
+   a return visit, a completed export — outranks every other candidate for
+   this session's time.** Go make that one product better: fix the friction
+   its actual visitor hit, not the friction a hypothetical one might.
+
+   **As of 2026-09-11 that rule has never once fired, and cannot on this
+   data.** This clause used to open "As of 2026-09-02 it recorded zero
+   observed users across every one of ~184 products". It records no such
+   thing. `live_url_visitors` is `null` on all 399 readings — never
+   measured, not measured-as-zero — because GitHub Pages exposes no
+   server-side visitor analytics, this portfolio adds no third-party one
+   (`usage/README.md`, "No analytics vendor"), and the local counters are
+   opt-in and off by default, so they only ever report from a machine we do
+   not own. The thirty nonzero readings in the file are `portfolio-pages`
+   build statistics and a lone `1` on the day each counter was added: the
+   author running their own tool once. So the selector above has nothing to
+   select, which makes it a gate that never opens — read
+   `python3 platform/ci/usage_state.py` rather than this paragraph, and do
+   not read a null row as evidence about any product's worth.
 3. **A product that has had a fair run and stayed at zero is not the next
    place to add a comparison page.** "Fair run" here means: live and
    reachable from the apex catalogue's own index/sitemap for a couple of
@@ -434,7 +464,16 @@ changes what "the next task" means. In order:
    `PRODUCT_PLAYBOOK.md` §5e. If those are true and `usage.yaml`'s trend
    line for it is still flat zero, say so in one ledger line (the pattern
    `usage/README.md` already asks for — "listed for two weeks, still zero,
-   stopping work on it") and spend the session elsewhere. This is not
+   stopping work on it") and spend the session elsewhere.
+
+   **Check which zero you are looking at first (added 2026-09-11).** This
+   rule retires a product, so it must not fire on a product that was never
+   counted. A flat line of `null` is not a flat line of zero: per the
+   correction in point 2, no visitor reading has ever been taken here, so
+   *no* product can currently satisfy "had a fair run and stayed at zero"
+   and this rule should retire nothing today. `usage_state.py`'s `visitors`
+   row is the discriminator — while it reads `never-measured`, a flat trend
+   is a fact about our instrumentation, not about the product. This is not
    deletion: the product stays live, free, and disclaimed. It just stops
    being where build time goes until something changes the picture — a new
    channel, a rescoring, an actual piece of inbound interest. Ventures

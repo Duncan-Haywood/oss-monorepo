@@ -669,6 +669,368 @@ class RefusesToPublishAnUnmergedSource(unittest.TestCase):
             )
 
 
+class AnnouncingThePublishedSnapshot(unittest.TestCase):
+    """`publish-branch.sh` announces to IndexNow; the workflow no longer does.
+
+    The announcement used to live only in this workflow's own `Notify IndexNow`
+    step. That step needs an Actions runner, runners have been starved since
+    2026-09-04, and so every publish that actually reached the live site in
+    that window was a by-hand `publish-branch.sh` run -- which had no such
+    step and announced nothing, silently. `platform/marketing/README.md`
+    covered the gap in prose ("Run it after any publish-branch.sh that
+    actually pushes"), which is the mitigation this repository has three times
+    recorded as insufficient.
+
+    It matters on this origin specifically: `pages_state.py`'s `indexing` row
+    measured that sitemap auto-discovery cannot happen from a project-Pages
+    subpath, so IndexNow is the only page-enumeration route the catalogue has.
+
+    These cases pin the three ways that fix could quietly come undone.
+    """
+
+    SHELL = ROOT / "platform" / "pages" / "publish-branch.sh"
+    FUNCTION = "announce_to_indexnow"
+
+    def setUp(self) -> None:
+        self.assertTrue(self.SHELL.is_file(), f"{self.SHELL} is missing")
+        self.source = self.SHELL.read_text()
+
+    def _function_body(self) -> str:
+        """The function's own text, so it can be run without the whole script.
+
+        Extracted rather than sourced because the script is top-to-bottom under
+        `set -euo pipefail` and would try to publish. If the function is
+        renamed this returns nothing and every case below fails by name, which
+        is the intended way for a rename to surface.
+        """
+        start = self.source.find(f"{self.FUNCTION}() {{")
+        self.assertNotEqual(
+            start, -1, f"{self.FUNCTION} is not defined in {self.SHELL.name}"
+        )
+        end = self.source.find("\n}\n", start)
+        self.assertNotEqual(end, -1, f"{self.FUNCTION} has no closing brace")
+        return self.source[start : end + 3]
+
+    def _run_function(self, node_exit: int, env: dict | None = None):
+        """Run the function alone, with a stub `node` that exits how we choose."""
+        import subprocess
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bin_dir = tmp_path / "bin"
+            bin_dir.mkdir()
+            stub = bin_dir / "node"
+            stub.write_text(f"#!/bin/sh\nexit {node_exit}\n")
+            stub.chmod(0o755)
+
+            harness = (
+                "set -euo pipefail\n"
+                'say() { printf "%s\\n" "$*"; }\n'
+                f'repo_root="{tmp_path}"\n'
+                # The two globals the real script sets before this point.
+                # `BRANCH` in particular is load-bearing: the announcement
+                # passes `--ref "$BRANCH"`, so a non-default serving branch is
+                # announced from its own ref rather than from `gh-pages`.
+                'BRANCH="${BRANCH:-gh-pages}"\n'
+                f"{self._function_body()}\n"
+                # `|| echo` rather than a bare call: under `set -e` a non-zero
+                # return would end the harness, and "did it return 0?" is
+                # precisely what the deploy-must-not-fail case asserts.
+                f"{self.FUNCTION} || echo RETURNED_NONZERO\n"
+            )
+            run_env = {
+                "PATH": f"{bin_dir}:/usr/bin:/bin",
+                **(env or {}),
+            }
+            return subprocess.run(
+                ["bash", "-c", harness],
+                capture_output=True,
+                text=True,
+                env=run_env,
+            )
+
+    def test_the_push_branch_announces_the_snapshot(self) -> None:
+        """The call sits on the pushed path, and only there."""
+        self.assertIn(
+            self.FUNCTION + "\n",
+            self.source,
+            f"{self.SHELL.name} defines {self.FUNCTION} but never calls it",
+        )
+        pushed = self.source.find('say "pushed"')
+        not_pushed = self.source.find("not pushed (set PUSH=1 to push)")
+        self.assertNotEqual(pushed, -1)
+        self.assertNotEqual(not_pushed, -1)
+        call = self.source.find(f"  {self.FUNCTION}\n", pushed)
+        self.assertNotEqual(call, -1, "the announcement is not on the pushed path")
+        self.assertLess(
+            call,
+            not_pushed,
+            "the announcement must sit inside the PUSH=1 branch -- announcing a "
+            "snapshot that was built and verified but never pushed tells the "
+            "engines about content that is not live",
+        )
+
+    def test_the_workflow_announces_when_the_script_cannot(self) -> None:
+        """Exactly one announce path is reachable per configuration.
+
+        Corrected 2026-09-11. This case used to assert the workflow never
+        submits directly, on the reasoning that both of its steps go through
+        `publish-branch.sh` and a second copy would double-submit. The
+        de-duplication was right; the coverage claim inside it was not, and the
+        difference is the whole finding.
+
+        Folding the announcement into the script's PUSH=1 branch made it
+        reachable only on a run that *pushes*, and on this repository's real
+        configuration no such run exists. `vars.PAGES_BRANCH_PUBLISH` is not
+        `true` -- read from evidence, since a workflow cannot print a variable:
+        every commit on `gh-pages` is authored `CI <ci@example.com>`, an agent
+        session's identity, and none by `github-actions[bot]`. So the runner
+        route resolves to the PUSH=0 step and never reaches the announcement,
+        while the by-hand route that does reach it runs in a sandbox whose
+        egress proxy 403s `api.indexnow.org` and exits `EXIT_NO_EGRESS` every
+        time.
+
+        Between them those two routes covered every publish and announced none
+        of them: the route with egress never reached the call, and the route
+        that reached the call had no egress. Verified against run history --
+        every `Publish Pages branch` run since IndexNow landed in #4366 came
+        back `runner_id: 0` in 3-5s.
+
+        So the invariant is not "the workflow never submits". It is that the
+        two paths are exact complements: never both (a double-submit), and
+        never neither (a silently unannounced catalogue, which is what was
+        actually shipping).
+        """
+        doc = load()
+        steps = doc["jobs"]["publish"]["steps"]
+
+        direct = [
+            s
+            for s in steps
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        ]
+        self.assertEqual(
+            len(direct),
+            1,
+            "expected exactly one step that submits to IndexNow directly; the "
+            "script's own announce covers only the PUSH=1 path, which this "
+            "repository's configuration never takes",
+        )
+
+        pushing = [
+            s
+            for s in steps
+            if SCRIPT in str(s.get("run", ""))
+            and str(s.get("env", {}).get("PUSH", "")).strip() == "1"
+        ]
+        self.assertEqual(len(pushing), 1, f"expected one {SCRIPT} step with PUSH=1")
+
+        push_gate = _norm(pushing[0].get("if"))
+        announce_gate = _norm(direct[0].get("if"))
+        self.assertIsNotNone(
+            announce_gate,
+            "an ungated announce would double-submit whenever the script also "
+            "announces -- it must be the complement of the publish gate",
+        )
+
+        # The complement, spelled as the negation of the same comparison rather
+        # than merely "some other condition": anything looser reopens one of
+        # the two failures above.
+        self.assertEqual(
+            push_gate,
+            "vars.PAGES_BRANCH_PUBLISH == 'true'",
+            "the publish gate moved; the announce complement below is written "
+            "against this exact expression",
+        )
+        self.assertEqual(
+            announce_gate,
+            "vars.PAGES_BRANCH_PUBLISH != 'true'",
+            "the direct announce must run exactly when the script's own "
+            "announce cannot, so that precisely one of them fires",
+        )
+
+    def test_the_direct_announce_reads_the_live_snapshot(self) -> None:
+        """It announces what is served, not what this run happened to build.
+
+        On the path that reaches it the run did *not* push, so "what this run
+        built" is not live and must not be announced. `gh-pages` is the serving
+        branch, and both `indexnow.mjs --ref` and `published-base-url.mjs` read
+        it as a *local* git ref (`git show gh-pages:...`) -- which
+        `actions/checkout` does not provide, since it fetches only the pushed
+        ref. Without the fetch the origin degrades to `assumed-default`, which
+        `publishedBaseUrl` itself flags as "NOT a reading".
+        """
+        doc = load()
+        step = next(
+            s
+            for s in doc["jobs"]["publish"]["steps"]
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        )
+        run = str(step["run"])
+        self.assertIn(
+            "--ref gh-pages",
+            run,
+            "the direct announce must name the serving branch explicitly",
+        )
+        self.assertIn(
+            "gh-pages:gh-pages",
+            run,
+            "the serving branch must be fetched as a local ref, or both the "
+            "catalog read and the origin reading fall back to a guess",
+        )
+
+    def _run_announce_step(self, node_exit: int, fetch_exit: int = 0):
+        """Execute the workflow step's own shell, with stub `node` and `git`.
+
+        Asserting on the text of a `run:` block only proves it mentions the
+        right words. This runs it, under the same `bash -e` GitHub Actions uses
+        for a `run:` step, so a `case` pattern that never matches or an `exit`
+        that fires on the wrong branch fails here rather than on a merge.
+        """
+        import subprocess
+        import tempfile
+
+        doc = load()
+        step = next(
+            s
+            for s in doc["jobs"]["publish"]["steps"]
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bin_dir = tmp_path / "bin"
+            bin_dir.mkdir()
+            (bin_dir / "node").write_text(f"#!/bin/sh\nexit {node_exit}\n")
+            (bin_dir / "node").chmod(0o755)
+            (bin_dir / "git").write_text(f"#!/bin/sh\nexit {fetch_exit}\n")
+            (bin_dir / "git").chmod(0o755)
+
+            summary = tmp_path / "summary.md"
+            summary.touch()
+
+            run_env = {
+                "PATH": f"{bin_dir}:/usr/bin:/bin",
+                "GITHUB_STEP_SUMMARY": str(summary),
+                **{k: str(v) for k, v in (step.get("env") or {}).items()},
+            }
+            result = subprocess.run(
+                ["bash", "-e", "-c", str(step["run"])],
+                capture_output=True,
+                text=True,
+                env=run_env,
+            )
+            return result, summary.read_text()
+
+    def test_a_successful_announce_exits_zero_and_records_it(self) -> None:
+        result, summary = self._run_announce_step(node_exit=0)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("IndexNow notified", summary)
+
+    def test_no_egress_does_not_fail_the_workflow(self) -> None:
+        """Exit 3 broke nothing: the site is published either way."""
+        result, summary = self._run_announce_step(node_exit=3)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "EXIT_NO_EGRESS must not fail a merge -- nothing was submitted and "
+            f"nothing broke.\n{result.stdout}\n{result.stderr}",
+        )
+        self.assertIn("IndexNow not reached", summary)
+
+    def test_a_genuine_refusal_fails_the_step(self) -> None:
+        """An invalid key file would silently cost every future submission."""
+        result, _ = self._run_announce_step(node_exit=1)
+        self.assertEqual(
+            result.returncode,
+            1,
+            "a refusal from IndexNow itself must stay loud rather than be "
+            f"reported and passed over.\n{result.stdout}\n{result.stderr}",
+        )
+        self.assertIn("::error::", result.stdout + result.stderr)
+
+    def test_an_unpublished_serving_branch_is_not_an_error(self) -> None:
+        """Before the first publish there is simply nothing to announce."""
+        result, _ = self._run_announce_step(node_exit=0, fetch_exit=1)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not published yet", result.stdout)
+
+    def test_the_direct_announce_tolerates_no_egress_but_not_a_refusal(self) -> None:
+        """The same distinction the script makes, for the same reason.
+
+        `EXIT_NO_EGRESS` means the request never left the runner: nothing was
+        submitted and nothing broke, so it must not fail a merge. Any other
+        non-zero status means IndexNow saw the request and refused it -- an
+        invalid or unpublished key file, which would silently cost every future
+        submission and so must stay loud.
+        """
+        doc = load()
+        step = next(
+            s
+            for s in doc["jobs"]["publish"]["steps"]
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        )
+        run = str(step["run"])
+        self.assertIn(
+            "EXIT_NO_EGRESS",
+            run,
+            "the no-egress exit code must be handled by name, not by a bare "
+            "`|| true` that would swallow a genuine refusal too",
+        )
+        self.assertRegex(
+            run,
+            r"exit\s+\"?\$\{?status",
+            "a genuine refusal must propagate rather than be reported and "
+            "passed over",
+        )
+
+    def test_a_host_without_egress_does_not_fail_the_publish(self) -> None:
+        """Exit 3 (EXIT_NO_EGRESS) reports; it never fails a live deploy."""
+        result = self._run_function(node_exit=3)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("RETURNED_NONZERO", result.stdout)
+        combined = result.stdout + result.stderr
+        self.assertIn("no egress", combined)
+        self.assertIn(
+            "the site is already published",
+            combined,
+            "a reader must not mistake a missed notification for a failed deploy",
+        )
+
+    def test_a_no_egress_result_is_distinguishable_from_a_real_rejection(self) -> None:
+        """The two failures must not read alike.
+
+        `gitops/tests/test_publish_branch.py` pins the shared "did not go
+        through -- not fatal" wording, and both branches carry it. What must
+        differ is *why*: exit 3 means the request never left the machine (the
+        expected outcome from an agent sandbox), and any other exit means
+        IndexNow saw the request and refused it -- a real defect in the payload
+        or the published key file. Reporting them identically is what teaches a
+        reader to ignore the line.
+        """
+        no_egress = self._run_function(node_exit=3).stdout
+        rejected = self._run_function(node_exit=1).stdout
+        self.assertIn("no egress", no_egress)
+        self.assertNotIn("no egress", rejected)
+
+    def test_any_other_failure_is_reported_and_still_does_not_fail(self) -> None:
+        result = self._run_function(node_exit=1)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("RETURNED_NONZERO", result.stdout)
+        self.assertIn("did not go through", result.stdout + result.stderr)
+
+    def test_a_successful_submission_says_so(self) -> None:
+        result = self._run_function(node_exit=0)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("IndexNow notified", result.stdout)
+
+    def test_it_can_be_switched_off_without_editing_the_script(self) -> None:
+        """INDEXNOW=0, for a rollback you deliberately do not announce."""
+        result = self._run_function(node_exit=0, env={"INDEXNOW": "0"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("skipped (INDEXNOW=0)", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

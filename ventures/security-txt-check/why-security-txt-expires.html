@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why RFC 9116 Made security.txt Expire</title>
+  <meta name="description" content="RFC 9116 makes Expires a mandatory field in security.txt, and says data in an expired file must be considered stale. That turns a one-time publish into a recurring obligation, and it is the reason a valid file becomes invalid with no commit and no deploy. Here is what expiry actually costs, why the RFC chose it, and the other conformance mistakes that are just as silent.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./why-security-txt-expires.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Why RFC 9116 Made security.txt Expire">
+  <meta property="og:description" content="An expired security.txt still serves, still looks right, and publishes no contact at all to a conforming consumer. That is by design — here is the reasoning, and how to stop being caught by it.">
+  <meta property="og:url" content="./why-security-txt-expires.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why did RFC 9116 make Expires mandatory?","acceptedAnswer":{"@type":"Answer","text":"Because the failure mode the format had before it was an abandoned file that still looked authoritative. A security.txt published in 2019 naming an address that stopped being monitored in 2021 gives a researcher every reason to believe they have reached the right place, and no way to tell they have not. A mandatory expiry date makes staleness explicit rather than invisible: after that date, a conforming consumer knows the file is no longer vouched for, instead of guessing from a timestamp nobody publishes."}},{"@type":"Question","name":"What does an expired file actually do?","acceptedAnswer":{"@type":"Answer","text":"RFC 9116 says data in an expired file must be considered stale and should not be used. In practice that means a conforming researcher or automated consumer treats you as publishing no disclosure contact — so a person holding a real finding falls back to whatever they can find: a support form, a public issue tracker, a social post, or nothing. The server keeps returning 200, the text still reads correctly to a human, and no monitoring you have will notice."}},{"@type":"Question","name":"How long should Expires be?","acceptedAnswer":{"@type":"Answer","text":"RFC 9116 recommends less than a year into the future. A shorter value is a stronger claim — it says someone looked at this recently — and a very long one gives away most of the benefit, since the point is to force a periodic re-check rather than to be a formality. The practical answer is to pick a period you will actually honour and automate the renewal, because a date chosen to avoid maintenance is a date that will pass unnoticed."}},{"@type":"Question","name":"What else silently fails in a security.txt?","acceptedAnswer":{"@type":"Answer","text":"The quiet ones share a shape: they are legal-looking text a conforming parser ignores. \"Acknowledgements\" with the middle e is not the RFC field name, so the page it points at is never found. A bare email address in Contact is not a URI, so a consumer that resolves URIs skips it. An unknown field name must be ignored by conforming parsers, per the RFC, so anything you invented does nothing. None of these produce an error anywhere — the file parses, serves, and under-delivers."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    h2 { font-size: 1.1rem; margin: 1.4rem 0 .4rem; color: #17324a; }
+    h3 { font-size: 1rem; margin: 1.1rem 0 .3rem; }
+    pre.example { background: #f7f9fb; padding: 10px 12px; border-radius: 8px; font-size: .84rem; overflow-x: auto; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; security.txt Checker</a></p>
+  <h1>Why RFC 9116 made <code>security.txt</code> expire</h1>
+  <p>
+    Most conformance rules are static. You fix the file once, and it stays fixed until somebody
+    edits it. <code>Expires</code> is not like that: it is a date, so a file that passes every check
+    today fails on its own — with no commit, no deploy, and nothing in any log to point at.
+    That is not an oversight in the specification. It is the specification's main idea.
+  </p>
+
+  <h2>The problem the field exists to solve</h2>
+  <p>
+    Before RFC 9116, the worst outcome for a published disclosure contact was not a missing file.
+    It was an <em>abandoned</em> one. A <code>security.txt</code> published in 2019, naming an
+    address that stopped being monitored in 2021, gives a researcher every reason to believe they
+    have reached the right place — and no way at all to tell that they have not. They send the
+    report, they wait, they hear nothing, and eventually they conclude you do not care. From your
+    side, nothing happened, because nothing arrived.
+  </p>
+  <p>
+    A mandatory expiry date makes that staleness explicit. After the date, the file is no longer
+    vouching for itself, and a consumer knows to stop trusting it rather than having to infer
+    abandonment from silence.
+  </p>
+
+  <h2>What an expired file actually does</h2>
+  <p>
+    RFC 9116 states that data in an expired file <strong>must be considered stale and should not be
+    used</strong>. So to a conforming researcher or automated consumer, an expired
+    <code>security.txt</code> publishes nothing at all. A person holding a real finding falls back
+    to whatever else they can find — a support form that routes to billing, a public issue tracker,
+    a social post, or nobody.
+  </p>
+  <p>
+    Meanwhile: the server returns 200. The text still reads correctly to a human. Every uptime
+    check, every link checker, and every deploy pipeline you have stays green. This failure has no
+    symptom on your side, which is exactly why it is worth checking deliberately.
+  </p>
+
+  <h2>Choosing a value</h2>
+  <p>
+    The RFC recommends less than a year ahead. Two competing pressures decide where inside that
+    range you land:
+  </p>
+  <ul>
+    <li><strong>Shorter is a stronger claim.</strong> A date three months out says somebody looked
+      at this recently. A date eleven months out says somebody wanted to not think about it.</li>
+    <li><strong>But the date has to be one you will honour.</strong> A short expiry you forget is
+      strictly worse than a long one you meant, because it lapses sooner.</li>
+  </ul>
+  <p>
+    The way out of that trade-off is not a cleverer date, it is automation. If a scheduled job
+    checks the file, the expiry length stops being a bet on your own memory:
+  </p>
+  <pre class="example">node check.mjs example.com   # exit 1 once Expires has passed</pre>
+  <p>
+    That is the one check in this catalogue genuinely worth putting on a schedule rather than in a
+    per-commit pipeline, because the thing that changes is the calendar, not the code.
+  </p>
+
+  <h2>The other silent failures</h2>
+  <p>
+    Expiry is the most common, but it shares a shape with the rest of the quiet ones: they are all
+    legal-looking text that a conforming parser simply ignores.
+  </p>
+  <h3><code>Acknowledgements</code> with the middle "e"</h3>
+  <p>
+    The RFC field is <code>Acknowledgments</code>. The British spelling is not a recognised field,
+    and RFC 9116 says consumers must ignore fields they do not recognise — so the hall-of-fame page
+    you are pointing at is simply never found. No error, no warning, nothing.
+  </p>
+  <h3>A bare address in <code>Contact</code></h3>
+  <p>
+    <code>Contact</code> is defined as a URI field. <code>security@example.com</code> is not a URI;
+    <code>mailto:security@example.com</code> is. A consumer that resolves URIs will skip the first
+    one, and a human reading the file will not notice the difference.
+  </p>
+  <h3>A key pasted into the file</h3>
+  <p>
+    RFC 9116 is explicit that keys must not appear in <code>security.txt</code> —
+    <code>Encryption</code> takes a URI that points at one. An inline PGP block also breaks the
+    line-oriented format for every field after it, so it tends to take the rest of your file down
+    with it.
+  </p>
+  <h3>A signed file with no <code>Canonical</code></h3>
+  <p>
+    A cleartext signature proves the text is yours. It does not prove where the text was meant to
+    live, so a signed file copied to another host verifies just as well. <code>Canonical</code> is
+    what closes that gap, which is why the RFC says to use it when the file is signed.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>Why did RFC 9116 make Expires mandatory?</h3>
+  <p>Because the failure mode the format had before it was an abandoned file that still looked authoritative. A <code>security.txt</code> published in 2019 naming an address that stopped being monitored in 2021 gives a researcher every reason to believe they have reached the right place, and no way to tell they have not. A mandatory expiry date makes staleness explicit rather than invisible: after that date, a conforming consumer knows the file is no longer vouched for, instead of guessing from a timestamp nobody publishes.</p>
+  <h3>What does an expired file actually do?</h3>
+  <p>RFC 9116 says data in an expired file must be considered stale and should not be used. In practice that means a conforming researcher or automated consumer treats you as publishing no disclosure contact — so a person holding a real finding falls back to whatever they can find: a support form, a public issue tracker, a social post, or nothing. The server keeps returning 200, the text still reads correctly to a human, and no monitoring you have will notice.</p>
+  <h3>How long should Expires be?</h3>
+  <p>RFC 9116 recommends less than a year into the future. A shorter value is a stronger claim — it says someone looked at this recently — and a very long one gives away most of the benefit, since the point is to force a periodic re-check rather than to be a formality. The practical answer is to pick a period you will actually honour and automate the renewal, because a date chosen to avoid maintenance is a date that will pass unnoticed.</p>
+  <h3>What else silently fails in a security.txt?</h3>
+  <p>The quiet ones share a shape: they are legal-looking text a conforming parser ignores. "Acknowledgements" with the middle e is not the RFC field name, so the page it points at is never found. A bare email address in <code>Contact</code> is not a URI, so a consumer that resolves URIs skips it. An unknown field name must be ignored by conforming parsers, per the RFC, so anything you invented does nothing. None of these produce an error anywhere — the file parses, serves, and under-delivers.</p>
+
+  <p class="note">Check your own file: <a href="./">security.txt Checker</a>. See also: <a href="vs-securitytxt-org-generator.html">how this differs from securitytxt.org's generator and validator</a>.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents are provided free and as-is, without warranty of any kind, express or implied. Nothing here is legal or security advice. <strong>You are responsible for reviewing and verifying any output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. The code is under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

@@ -212,3 +212,15 @@ test('index links one hop to the gig-driver-net-pay-calculator sibling', () => {
     'index must link ../gig-driver-net-pay-calculator/ so crawlers reach the gig driver net pay calculator in one hop',
   );
 });
+
+// Both cost a route's economics per vehicle-hour or per mile for a
+// self-employed driver -- a long-haul owner-operator and a medical courier.
+// Without a crawlable link here, a crawler entering on this page never
+// reaches the medical-courier page in one hop.
+test('index links one hop to the medical-courier-route-margin sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/medical-courier-route-margin\/"/,
+    'index must link ../medical-courier-route-margin/ so crawlers reach the medical courier route margin calculator in one hop',
+  );
+});

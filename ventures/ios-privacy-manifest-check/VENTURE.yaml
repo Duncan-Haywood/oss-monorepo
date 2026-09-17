@@ -1,0 +1,57 @@
+name: ios-privacy-manifest-check
+description: >-
+  A free, browser-local and CLI checker for iOS/macOS developers: scans Swift
+  and Objective-C source for Apple's Required Reason API usage (file
+  timestamps, disk space, system boot time, active keyboards, UserDefaults)
+  and cross-checks it against a PrivacyInfo.xcprivacy manifest, naming the
+  exact category, file, and line behind an ITMS-91061 (missing manifest) or
+  ITMS-91055 (invalid reason code) App Store Connect rejection.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      iOS developers who hit an ITMS-91061 or ITMS-91055 App Store Connect
+      rejection will search the exact error code and find this tool, since no
+      existing free tool cross-checks source usage against the manifest by
+      category and flags invalid reason codes specifically.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/iOSProgramming, r/swift, and Stack Overflow's ios / privacy-manifest
+      tags carry real, recurring search and thread volume for these exact
+      error codes -- developers ask "why was my app rejected ITMS-91061" and
+      "ITMS-91055 invalid API reason declaration" verbatim.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer who gets a clean report from the CLI will wire it into
+      their own CI as a pre-submission gate, producing return usage without
+      any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Apple materially changes the Required Reason API mechanism (e.g. replaces
+    manifest declarations with a different enforcement method) such that the
+    detection/cross-check approach here no longer maps to a real rejection
+    cause.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ios-privacy-manifest-check/
+  analytics: null

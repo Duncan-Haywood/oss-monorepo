@@ -134,3 +134,7 @@ test("the venture-root sitemap lists the real site/ pages, not README.md", () =>
   assert.match(sitemap, /site\//);
   assert.match(sitemap, /why-was-my-listing-photo-rejected\.html/);
 });
+
+test("links to the print-file preflight tool", () => {
+  assert.match(html, /href="\.\.\/print-atelier\/"/, "the sibling-tool link is missing");
+});

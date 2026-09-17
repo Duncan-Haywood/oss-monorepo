@@ -3,26 +3,45 @@
 #
 # WHY THIS EXISTS
 #
-# This repository has ~175 finished products and, as of 2026-09-06, no way for
-# a stranger to open any of them. Every route to a public surface is down, and
-# two of the three are down because they were built on top of each other:
+# This repository has ~175 finished products. `marisstella.dev`, the
+# portfolio's own name, still refuses every connection, and two of the three
+# routes that would serve it are down because they were built on top of each
+# other:
 #
 #   route                                   state   why
 #   ------------------------------------    -----   ---------------------------
 #   Argo CD on k3s (gitops/prod)            down    :6443 refused on both boxes
-#   GitHub Pages (.github/workflows)        down    needs a runner; minutes out
+#   GitHub Pages, Actions source            down    needs a runner; minutes out
+#     (.github/workflows/portfolio-pages.yml)
 #   self-hosted runners (gitops/ci)         down    they are pods in that k3s
+#
+# CORRECTED 2026-09-06: this comment used to say "no way for a stranger to
+# open any of them", written before the `gh-pages` *branch* route (pushed by
+# platform/pages/publish-branch.sh) was confirmed live the same day -- a
+# fourth path, distinct from the Actions-source row above and not downstream
+# of a runner. GitHub's own managed builder deploys that branch, so the
+# catalogue is reachable today at
+# https://duncan-haywood.github.io/monorepo-projects/. What the table above
+# still describes correctly is `marisstella.dev` itself: none of its three
+# routes serve it, so the portfolio's own name still refuses every connection
+# even though the catalogue has a public URL elsewhere. See
+# gitops/prod/host/README.md's "Why this exists" section (fixed the same way
+# in #3504) and portfolio/hosting/README.md's "Amended 2026-09-06" section for
+# the fuller picture -- do not read this file as saying the catalogue is
+# unreachable.
 #
 # `gitops/agents/host/` and `gitops/ci/host/` already answer this for the two
 # things that *build*: put them on the box's own systemd, where neither k3s nor
 # an Actions runner is in the way. Both of their READMEs note that the boxes
 # themselves were up the whole time -- `:22` answers on both.
 #
-# Nothing had yet done the same for the thing that *serves*. So the repository
-# could restore its dev capacity and its CI to a box that still showed a
-# stranger a refused connection. That is the gap this closes, and it is the
-# only one of the three whose completion a user can see: it turns a dark
-# catalogue into a served one, using the artifact `platform/pages/build.mjs`
+# Nothing had yet done the same for the thing that *serves marisstella.dev
+# itself*. So the repository could restore its dev capacity and its CI to a
+# box that still showed a stranger a refused connection at the portfolio's own
+# name -- while a stranger could already reach the catalogue at the github.io
+# URL above. This closes the `marisstella.dev` gap, and it is the only one of
+# the three whose completion a user *visiting that domain* can see: it turns a
+# dark name into a served one, using the artifact `platform/pages/build.mjs`
 # already produces and `platform/pages/check.mjs` already validates.
 #
 # WHAT IT DOES NOT DO
@@ -83,7 +102,7 @@ for arg in "$@"; do
     --tls)         MODE=tls ;;
     --credentials) MODE=credentials ;;
     --uninstall)   MODE=uninstall ;;
-    -h|--help)     sed -n '2,52p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    -h|--help)     sed -n '2,67p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *) echo "unknown argument: $arg (want: --check | --tls | --credentials | --uninstall)" >&2; exit 2 ;;
   esac
 done

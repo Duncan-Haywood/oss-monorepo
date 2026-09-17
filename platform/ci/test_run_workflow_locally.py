@@ -448,6 +448,74 @@ class CredentialMissing(unittest.TestCase):
         self.assertEqual(step.missing_kind, "tool")
 
 
+class DeclaredUnrun(unittest.TestCase):
+    """The same "did not run" class, reached by the check saying so itself.
+
+    Added 2026-09-16 for `check_venture_regression.py` -- the only check here
+    that already draws this distinction internally, and the one where reading
+    it wrong is most expensive. When it cannot *prove* that a venture missing
+    from the tree is really gone (your checkout is an ancestor of the base, or
+    a shallow clone leaves ancestry unanswerable) it refuses to pass, exits 2,
+    and prints `UNRUN: ...`. The sweep read that as an ordinary `FAILED`, so
+    `main` was reported red under a step named "Check no live venture
+    disappears from the served catalogue" -- which reads like live product
+    going dark.
+
+    That is not a rare race. A `--tree` sweep takes ~20 minutes and this
+    repository lands merges from up to 4 sessions inside 15, so `main` moving
+    mid-sweep is the ordinary case. Measured 2026-09-16: it happened on the
+    first sweep of the session.
+    """
+
+    def run_one(self, command, workdir="."):
+        step = runner.Step("j", "n", command, workdir)
+        runner.execute(step, timeout=60)
+        return step
+
+    def test_the_real_checker_against_a_ref_it_cannot_resolve_is_unrun(self):
+        """The measured case, run against the tool itself rather than a fake."""
+        step = self.run_one(
+            "python3 platform/ci/check_venture_regression.py "
+            "--base HEAD --head refs/nope/definitely-absent")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "self-reported")
+
+    def test_the_unrun_marker_carries_the_step_s_own_words(self):
+        step = self.run_one("echo 'UNRUN: your checkout is behind the base' >&2; exit 2")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "self-reported")
+        self.assertIn("behind the base", step.reason)
+
+    def test_a_real_regression_stays_a_failure(self):
+        """The discrimination this class turns on.
+
+        A venture genuinely gone, with ancestry proven, exits 1 and prints no
+        `UNRUN:` line. Reclassifying that would bury the one defect this check
+        exists to catch, so the marker -- not the exit code -- is what decides.
+        """
+        step = self.run_one(
+            "echo '1 live venture removed by this change:'; "
+            "echo '    widget-calculator'; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_the_word_unrun_in_prose_is_not_a_self_report(self):
+        """Only a line that *starts* with the marker counts.
+
+        A step that merely mentions the word -- a checker describing its own
+        exit codes, say -- is reporting a result, not disclaiming one.
+        """
+        step = self.run_one(
+            "echo 'exits UNRUN: when it cannot tell' >&2; "
+            "echo 'assertion failed' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_missing_tool_still_reports_as_a_tool(self):
+        """Order matters: a toolchain miss is the more specific diagnosis."""
+        step = self.run_one("python3 -m absent_module_xyz")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "tool")
+
+
 class StatusMark(unittest.TestCase):
     """Every status the executor can set must be printable.
 
@@ -797,6 +865,77 @@ class ReadOnlyJobs(unittest.TestCase):
         self.assertTrue(any("--test" in s.run for s in steps),
                         "the build job must still carry the test step")
 
+    def test_a_filename_that_contains_secrets_does_not_hold_a_job(self):
+        """The regression this narrowing fixes, reduced to its essentials.
+
+        The screen used to ask whether the literal text `secrets.` appeared
+        anywhere in the job. `load-secrets.sh` contains it, so a job that
+        merely *names* the file was classified as reading a credential.
+        """
+        allowed, held = runner.read_only_jobs(workflow("""
+            permissions:
+              contents: read
+            jobs:
+              lint:
+                steps:
+                  - run: shellcheck bootstrap/scripts/load-secrets.sh
+        """))
+        self.assertEqual(allowed, {"lint"}, f"held: {held}")
+
+    def test_the_gitops_shellcheck_job_runs_while_its_ssh_jobs_stay_held(self):
+        """Both halves on the real file, because both halves matter.
+
+        `hetzner-gitops-ci.yml` is the only workflow here that both validates
+        the whole delivery path and can log into the two live boxes. The
+        `scripts` job is pure `shellcheck` over the 24 scripts that install
+        every runner-free route; `preflight` and `restore` SSH to production
+        and `restore` reinstalls k3s on it. A screen that cannot tell those
+        apart is either useless or dangerous, so this pins which is which.
+        """
+        parsed = runner.load_workflow(
+            os.path.join(runner.WORKFLOWS, "hetzner-gitops-ci.yml"))
+        allowed, held = runner.read_only_jobs(parsed)
+        held_ids = [job for job, _ in held]
+
+        self.assertIn("scripts", allowed, f"held: {held}")
+        steps, _ = runner.collect(parsed, only={"scripts"})
+        self.assertTrue(any("shellcheck" in s.run for s in steps),
+                        "the scripts job must still carry the shellcheck step")
+
+        for job_id in ("preflight", "restore", "hcloud-scope"):
+            self.assertIn(job_id, held_ids,
+                          f"{job_id} reads a secret and must never auto-run")
+
+    def test_a_secret_reference_holds_the_job_however_long_the_command(self):
+        """Why the screen walks scalars instead of re-serialising them.
+
+        `yaml.safe_dump` line-wraps long strings, and this repository has a
+        `run:` step 24 paths long. A screen that reads the dump can have a
+        `${{ secrets.X }}` split across two lines by the dumper -- a false
+        *negative* on the safety-critical side, which is the one direction
+        this must never fail in.
+        """
+        long_command = "\n".join(
+            f"shellcheck bootstrap/scripts/some-rather-long-name-{i}.sh"
+            for i in range(40))
+        job = {"steps": [{
+            "run": long_command,
+            "env": {"KEY": "${{ secrets.HETZNERSSHKEY }}"},
+        }]}
+        self.assertTrue(runner._mentions_secret(job))
+
+    def test_the_screen_fails_closed_on_forms_it_cannot_read_a_name_from(self):
+        # `secrets[...]` yields no readable name, and a reusable-workflow
+        # `secrets:` key passes credentials with no `${{ }}` anywhere. Both
+        # must hold the job rather than be waved through.
+        self.assertTrue(runner._mentions_secret(
+            {"steps": [{"run": "x", "env": {"K": "${{ secrets['NAME'] }}"}}]}))
+        self.assertTrue(runner._mentions_secret({"secrets": "inherit"}))
+        # And a secret reached through a longer expression is still a secret.
+        self.assertTrue(runner._mentions_secret(
+            {"steps": [{"run": "x",
+                        "env": {"K": "${{ inputs.on && secrets.TOKEN || '' }}"}}]}))
+
     def test_no_auto_run_job_in_the_repo_can_write_or_read_a_secret(self):
         """Whole-repository sweep: the gate must hold across all 218 files.
 
@@ -919,6 +1058,183 @@ class Tree(unittest.TestCase):
                 argparse.Namespace(list=False, timeout=1), [], [])
         self.assertEqual(code, 1)
         self.assertIn("nothing was verified", out.getvalue().lower())
+
+    def test_a_step_is_named_before_it_runs_not_after(self):
+        # A sweep of this tree takes ~13 minutes. If the label is printed
+        # only once `execute()` returns, a session that pipes the output --
+        # which Python then block-buffers -- watches a silent process at ~0%
+        # CPU and reasonably concludes it has hung. That happened: the
+        # session that merged #4326 killed it on exactly that reading and
+        # fell back to CLAUDE.md's hand-copied command list, the substitution
+        # this tool exists to make unnecessary.
+        #
+        # So the property under test is ordering, not formatting: at the
+        # moment a step begins, its name must already be on stdout.
+        seen = []
+        out = io.StringIO()
+
+        def fake_execute(step, _timeout):
+            seen.append(out.getvalue())
+            step.status = "ok"
+            step.seconds = 0.0
+
+        wf = workflow("""
+            jobs:
+              j:
+                steps:
+                  - name: the-slow-one
+                    run: echo 1
+        """)
+        real_execute = runner.execute
+        runner.execute = fake_execute
+        try:
+            with contextlib.redirect_stdout(out):
+                runner._run_selected(
+                    argparse.Namespace(list=False, timeout=1),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.execute = real_execute
+
+        self.assertEqual(len(seen), 1, "the step did not run")
+        self.assertIn("the-slow-one", seen[0],
+                      "the step ran before its name reached stdout; a long "
+                      "step is then indistinguishable from a hang")
+
+    def test_only_run_steps_prints_the_progress_line(self):
+        # The by-name path and the sweep each had their own copy of this
+        # loop, and they drifted twice: once into `KeyError: 'unrun'` (see
+        # the note above STATUS_MARK), and once when the progress fix landed
+        # in the sweep and left the by-name path still printing after the
+        # fact. Both were found by running the tool, not by reading it.
+        #
+        # So the rule is mechanical: exactly one place renders a step's
+        # status. A second copy fails here rather than in six weeks.
+        import inspect
+        src = inspect.getsource(runner)
+        printers = [ln.strip() for ln in src.splitlines()
+                    if "STATUS_MARK[" in ln]
+        self.assertEqual(
+            len(printers), 1,
+            "STATUS_MARK is rendered in more than one place: "
+            f"{printers}. Call run_steps() instead of restating the loop.")
+        self.assertIn("STATUS_MARK[", inspect.getsource(runner.run_steps),
+                      "run_steps no longer renders the status line")
+
+    def test_progress_is_flushed_rather_than_left_in_the_buffer(self):
+        # Naming the step first only helps if it actually leaves the process.
+        # Python block-buffers stdout when it is not a tty, which is the case
+        # this matters in -- a session piping the sweep to a file or a pager.
+        flushes = []
+
+        class Recorder(io.StringIO):
+            def flush(self):
+                flushes.append(self.getvalue())
+                super().flush()
+
+        def fake_execute(step, _timeout):
+            step.status = "ok"
+            step.seconds = 0.0
+
+        wf = workflow("""
+            jobs:
+              j:
+                steps:
+                  - name: the-slow-one
+                    run: echo 1
+        """)
+        out = Recorder()
+        real_execute = runner.execute
+        runner.execute = fake_execute
+        try:
+            with contextlib.redirect_stdout(out):
+                runner._run_selected(
+                    argparse.Namespace(list=False, timeout=1),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.execute = real_execute
+
+        self.assertTrue(
+            any("the-slow-one" in f for f in flushes),
+            "the step label was never flushed, so a piped sweep shows "
+            "nothing until the buffer fills or the process exits")
+
+
+class CheckoutStability(unittest.TestCase):
+    """A sweep whose tree moved under it is not a reading of anything.
+
+    Measured 2026-09-11: a `--tree` sweep started on `main` reported
+    `FAILED validate / Check the apex tool mirror is not stale`. The mirror
+    was not stale -- the session had checked out another PR's branch while
+    the sweep ran. Re-run on an untouched worktree at the same commit, the
+    identical step passed 260/260.
+    """
+
+    def sweep(self, before, after):
+        """Run an empty-but-nonzero selection with a fingerprint sequence."""
+        real = runner.checkout_fingerprint
+        seq = iter([before, after])
+        runner.checkout_fingerprint = lambda: next(seq)
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.checkout_fingerprint = real
+        return code, out.getvalue()
+
+    def test_a_moved_head_fails_the_sweep_and_names_both_commits(self):
+        code, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
+        self.assertEqual(code, 1)
+        self.assertIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("aaaaaaaaa", out)
+        self.assertIn("bbbbbbbbb", out)
+
+    def test_changed_tracked_files_fail_even_when_head_held_still(self):
+        # The commoner shape: another session runs `regen.mjs` or resolves a
+        # conflict in this checkout without committing. HEAD never moves.
+        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d2"))
+        self.assertEqual(code, 1)
+        self.assertIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("HEAD did not move", out)
+
+    def test_a_still_checkout_does_not_trip_it(self):
+        # A guard that fails on correct input gets switched off within a day.
+        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d1"))
+        self.assertEqual(code, 0)
+        self.assertNotIn("UNSTABLE CHECKOUT", out)
+
+    def test_an_unmeasurable_fingerprint_is_not_a_finding(self):
+        # No git binary, or not a repository. "Could not measure" must not
+        # masquerade as "the tree moved" -- the same distinction this file
+        # draws between UNRUN and FAILED.
+        code, out = self.sweep(None, None)
+        self.assertEqual(code, 0)
+        self.assertNotIn("UNSTABLE CHECKOUT", out)
+        self.assertIsNone(runner.checkout_drift(None, ("a" * 40, "d1")))
+        self.assertIsNone(runner.checkout_drift(("a" * 40, "d1"), None))
+
+    def test_the_failure_is_reported_after_the_verdict_it_invalidates(self):
+        # It invalidates a pass and a failure alike, so it has to read as a
+        # note about the whole run rather than as one more failing workflow.
+        _, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
+        self.assertLess(out.index("workflow(s) passed."),
+                        out.index("UNSTABLE CHECKOUT"))
+
+    def test_the_real_fingerprint_reads_this_repository(self):
+        # Asserts the premise rather than assuming it: the function really
+        # does return this checkout's HEAD, so a test suite passing on
+        # mocks cannot hide a fingerprint that never measured anything.
+        fp = runner.checkout_fingerprint()
+        self.assertIsNotNone(fp)
+        head, digest = fp
+        self.assertEqual(len(head), 40, head)
+        self.assertEqual(len(digest), 64, digest)
+        self.assertEqual(fp, runner.checkout_fingerprint(),
+                         "the fingerprint is not stable across two reads of "
+                         "an unchanged tree, so it would cry wolf on every run")
 
 
 if __name__ == "__main__":

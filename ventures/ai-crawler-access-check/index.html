@@ -102,6 +102,8 @@ node cli.mjs --robots-file ./robots.txt --llms-file ./llms.txt</code></pre>
     <h3>What is llms.txt?</h3>
     <p>An emerging, optional convention (see llmstxt.org) for a plain-text file at /llms.txt that gives an AI assistant a short, structured map of a site's key pages. This tool checks the basic shape the convention describes — an H1 title, an optional summary, and Markdown link sections — not full spec conformance.</p>
     <p>More: <a href="how-to-block-or-allow-ai-crawlers.html">exact robots.txt lines to block or allow each AI crawler, and what llms.txt is for</a>.</p>
+    <p>Already using (or considering) a hosted, account-based service for this? See <a href="vs-known-agents.html">this tool vs. Known Agents (formerly Dark Visitors)</a>.</p>
+    <p>Don't have an <code>llms.txt</code> yet, or want one built from your docs instead of hand-written? <a href="../llms-txt-generator/">llms.txt Generator</a> builds a spec-compliant one from a pasted page list, a sitemap.xml, or a local Markdown docs tree — the complementary job to this page's structural check.</p>
   </section>
 
   <footer>
@@ -114,7 +116,7 @@ node cli.mjs --robots-file ./robots.txt --llms-file ./llms.txt</code></pre>
 
   <script type="module">
     import { auditRobots, validateLlmsTxt } from "./audit.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -237,6 +239,19 @@ Allow: /
       event.target.textContent = "Usage counting is off";
       event.target.disabled = true;
     });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
   </script>
 </body>
 </html>

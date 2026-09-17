@@ -75,7 +75,8 @@ proposal.
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-carpet.html`](how-much-to-charge-to-install-carpet.html).
+Search phrases: [`how-much-to-charge-to-install-carpet.html`](how-much-to-charge-to-install-carpet.html)
+and [`should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html`](should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html).
 
 ## Privacy
 

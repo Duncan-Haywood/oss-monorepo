@@ -82,3 +82,18 @@ test('index links one hop to the equipment-rental-break-even sibling', () => {
   );
   assert.match(html, /equipment rental break-even calculator/i);
 });
+
+// Second sibling, added 2026-09-12 in the commit that graduated it. Same
+// capital decision one level up: this page prices ONE asset's lease buyout
+// against return-and-replace, that page decides WHICH of several vehicles or
+// machines to act on at all, against a fixed budget. The orphan budget in
+// platform/pages/siblings-budget.json is 0, so the inbound link ships with
+// the new tool rather than being closed later off a worklist.
+test('index links one hop to the fleet-repair-or-replace-planner sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/fleet-repair-or-replace-planner\/"/,
+    'index must link ../fleet-repair-or-replace-planner/ so crawlers reach the fleet planner in one hop',
+  );
+  assert.match(html, /fleet repair-or-replace planner/i);
+});

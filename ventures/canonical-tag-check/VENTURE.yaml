@@ -1,0 +1,67 @@
+name: canonical-tag-check
+description: >-
+  A free CLI (+ a browser report viewer) for developers and SEO practitioners:
+  fetches a URL for real, reads its <link rel=canonical> tag(s), and -- when
+  there is exactly one -- fetches that URL too, classifying the evidence into
+  named canonicalization misconfiguration patterns: multiple conflicting
+  canonical tags, a relative or cross-domain canonical, a protocol mismatch,
+  and a canonical target that is unreachable, redirects, or is itself marked
+  noindex. The browser page can only render a pasted report, never fetch on
+  its own, because reading another origin's response from inside a page is
+  CORS-gated and most sites set no Access-Control-Allow-Origin.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer or SEO practitioner debugging why a page is not indexed, or
+      auditing a migration for leftover mixed http/https or staging-domain
+      canonicals, will search the exact terminology ("canonical tag checker",
+      "conflicting canonical tags", "canonical points to noindex page",
+      "cross-domain canonical URL") and find this tool, since no existing free
+      tool packages all eight patterns behind one command with a plain-English
+      report naming the exact tag and fetch that proves each one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Canonicalization is one of the most commonly misconfigured on-page SEO
+      signals in practice (surveyed repeatedly by the technical-SEO community
+      and covered at length by Google's own Search Central documentation), and
+      a zero-install, evidence-first, both CLI-and-report-viewer tool in the
+      same shape as this portfolio's other response-evidence checkers
+      (cors-misconfig-check, security-headers-check, sri-check) under-serves a
+      real, recurring need relative to full-site crawlers that require a
+      desktop install to check even one URL.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or SEO team that gets a clean report will wire the CLI into
+      their own staging-environment CI as a regression gate, producing return
+      usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free tool covering the same eight patterns with the
+    same zero-install bar becomes the obvious default, such that this tool's
+    differentiation (one command, plain-English report, shared classification
+    core tested independently of the network layer) no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/canonical-tag-check/
+  analytics: null

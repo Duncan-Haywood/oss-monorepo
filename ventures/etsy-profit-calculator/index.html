@@ -209,12 +209,13 @@
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Selling the same product somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Etsy against eBay, Amazon, Reverb and your own store on one item, and can hand these numbers into this page.</p>
+    <p>Selling the same product somewhere else too? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Etsy against eBay, Amazon, Reverb and your own store on one item — it opens with this order's price, shipping and cost already filled in and Etsy switched on, no retyping. It can also hand numbers the other way, into this page.</p>
     <p>Comparing Etsy to other marketplaces on the same item? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks Etsy against eBay, Amazon, Walmart, TikTok Shop and your own store side by side from one set of inputs, then points here for the parts a headline rate cannot carry.</p>
+    <p>Selling the same product wholesale on Faire as well as retail here? The <a href="../faire-wholesale-calculator/">Faire wholesale fee calculator</a> prices an opening order after commission, Faire Pay Now, and payout float on the wholesale side of that same channel decision.</p>
     <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs';
+    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs'; import { whereToSellUrl } from './to-where-to-sell.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -613,6 +614,8 @@
         document.getElementById('labelsRows').replaceChildren();
         document.getElementById('labelsNote').textContent = '';
       }
+      const whereToSellLink = document.getElementById('whereToSellLink');
+      if (whereToSellLink) whereToSellLink.href = whereToSellUrl(currentInputs());
     }
 
     // Repricing panel: the target-margin price and the +/- $10 scenario rows.
@@ -717,7 +720,26 @@
       update(); flash('Reset to the default example order.');
     });
 
+    document.getElementById('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(safe(() => localStorage), field('usageOptOut').checked, 'handoff_where_to_sell');
+    });
+
     update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
+  <meta name="description" content="Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues. A zero-dependency CLI runs the same checks in your own CI. Nothing uploaded.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Caption Quality Checker">
+  <meta property="og:description" content="Checks an SRT or WebVTT caption file for reading speed, line length, duration, overlap, and gap problems against commonly-used caption style-guide thresholds -- from pasted text in your browser, or as a CI gate with the CLI.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Caption Quality Checker","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks an SRT or WebVTT caption file's cues against commonly-used caption style-guide thresholds: reading speed in characters per second, minimum and maximum cue duration, maximum line length, maximum lines per cue, overlapping cues, too-short gaps between cues, invalid or out-of-order timing, and empty cues. The zero-dependency CLI reads a local .srt/.vtt file for CI use; the browser page works from pasted caption text.","featureList":["Flags cues above a configurable reading-speed cap in characters per second","Flags cues shorter than a configurable minimum duration or longer than a configurable maximum","Flags lines above a configurable maximum length and cues with more than a configurable number of lines","Flags overlapping cues and gaps between cues that are too short to register as a new cue","Flags invalid timing (end at or before start) and out-of-order cues","Zero-dependency CLI checks a local caption file for CI use; the browser page works from pasted text with no upload"]}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as \"too fast\" for captions?","acceptedAnswer":{"@type":"Answer","text":"There is no single legal reading-speed limit, but caption style guides converge on a similar range: a commonly-cited ceiling for adult-content captions is around 20 characters per second (roughly 160-180 words per minute), with a lower cap often used for children's content. This tool defaults to 20 characters per second and lets you lower or raise it with --max-cps on the CLI."}},{"@type":"Question","name":"Why does caption quality matter if WCAG only requires that captions exist?","acceptedAnswer":{"@type":"Answer","text":"WCAG Success Criterion 1.2.2 requires captions for prerecorded audio content, but it does not grade how readable those captions are once they exist. A caption track can be technically present — it parses, it plays, it is synced — and still fail the viewer it exists for if the text moves faster than a typical reading speed, crowds too many lines into the frame, or flickers past in under a second. Quality is a separate, unenforced question from presence, and this tool checks the quality question."}},{"@type":"Question","name":"Where do the specific numbers (42 characters per line, two lines, 20 cps) come from?","acceptedAnswer":{"@type":"Answer","text":"They are commonly-used industry thresholds, not one single controlling standard — publicly published caption style guides such as Netflix's Timed Text Style Guide and the BBC's Subtitle Guidelines state versions of these same numbers (reading speed caps, a two-line maximum, minimum and maximum on-screen duration). This tool cites them as widely-used defaults and makes every threshold configurable on the CLI, because a specific broadcaster, platform, or client contract may set its own numbers."}},{"@type":"Question","name":"Does this replace a human caption review?","acceptedAnswer":{"@type":"Answer","text":"No. It checks mechanically verifiable properties of the timing and text you provide — reading speed, line length, duration, overlap, and gaps. It cannot judge whether a caption is an accurate transcription, whether speaker labels or sound descriptions are used correctly, or whether the translation (for subtitles) reads naturally. Treat a clean report as evidence that the mechanical thresholds are met, not as a substitute for reviewing the captions yourself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 8px; min-height: 220px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: .92rem; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .89rem; }
+    .table-wrap { overflow-x: auto; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.pass { background: #dcfce7; color: #14532d; }
+    .pill.fail { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .87rem; line-height: 1.6; overflow-x: auto; }
+    .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.9rem; margin: 0.7rem 0; }
+    .finding.notice { border-left-color: #b8860b; }
+    .finding h3 { margin: 0 0 0.2rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .stat { display: inline-block; margin: 0 16px 8px 0; font-size: .9rem; }
+    .stat b { font-size: 1.15rem; display: block; color: #17324a; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CAPTION QUALITY CHECKER · RUNS IN YOUR BROWSER</p>
+    <h1>Do your captions read too fast, too crowded, or off-sync?</h1>
+    <p>
+      Paste an <strong>SRT</strong> or <strong>WebVTT</strong> caption file and check every cue's
+      <strong>reading speed</strong>, <strong>line length</strong>, <strong>lines per cue</strong>,
+      <strong>on-screen duration</strong>, and <strong>timing</strong> (overlaps, too-short gaps,
+      invalid or out-of-order cues) against commonly-used caption style-guide thresholds.
+    </p>
+    <p class="note">Nothing is uploaded. The caption text you paste is parsed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check a caption file</h2>
+    <label for="captions-text">Caption file contents (SRT or WebVTT)</label>
+    <textarea id="captions-text" spellcheck="false" placeholder="1&#10;00:00:01,000 --> 00:00:04,000&#10;Hello, and welcome to the show.&#10;&#10;2&#10;00:00:05,000 --> 00:00:06,000&#10;Let's get started."></textarea>
+    <p class="note">Paste the whole file, including the <code>WEBVTT</code> header for a VTT track, or the numeric cue index for an SRT track.</p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with issues)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. Report</h2>
+    <p>
+      <span class="stat"><b id="stat-cues">0</b>cues</span>
+      <span class="stat"><b id="stat-danger">0</b>danger</span>
+      <span class="stat"><b id="stat-notice">0</b>notice</span>
+      <span class="pill" id="verdict-pill"></span>
+    </p>
+    <p class="note" id="input-error" hidden></p>
+
+    <div id="findings-section" hidden>
+      <h3>Findings</h3>
+      <div id="findings"></div>
+    </div>
+
+    <div id="cues-section" hidden>
+      <h3>Per-cue metrics</h3>
+      <div class="table-wrap" tabindex="0">
+        <table>
+          <thead><tr><th>#</th><th>Start</th><th>Duration</th><th>Chars</th><th>CPS</th><th>Lines</th><th>Text</th></tr></thead>
+          <tbody id="cues-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>The CLI reads a local <code>.srt</code>/<code>.vtt</code> file and runs the identical checks — no browser, no upload, nothing goes through this site:</p>
+    <pre class="cmd" tabindex="0">node check.mjs captions.srt --json
+node check.mjs captions.vtt --max-cps 17
+node check.mjs captions.srt --max-line-length 32 --max-lines 2</pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/caption-quality-check" rel="noopener">check.mjs and engine.mjs from the repo</a> — plain Node 18+, nothing to install. Exit code 1 when a danger-severity finding is produced (reading too fast, overlapping cues, invalid or out-of-order timing) or the file cannot be read at all.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <div class="table-wrap" tabindex="0">
+      <table>
+        <thead><tr><th>Check</th><th>What it flags</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td>Reading too fast</td><td>Characters per second above the cap (default 20)</td><td>Danger</td></tr>
+          <tr><td>Invalid timing</td><td>A cue's end time is at or before its start time</td><td>Danger</td></tr>
+          <tr><td>Out of order</td><td>A cue starts before an earlier one in the file</td><td>Danger</td></tr>
+          <tr><td>Overlapping cues</td><td>A cue's end time is after the next cue's start time</td><td>Danger</td></tr>
+          <tr><td>Duration too short</td><td>On screen for less than the minimum (default 5/6 second)</td><td>Notice</td></tr>
+          <tr><td>Duration too long</td><td>On screen for more than the maximum (default 7 seconds)</td><td>Notice</td></tr>
+          <tr><td>Line too long</td><td>A line above the maximum length (default 42 characters)</td><td>Notice</td></tr>
+          <tr><td>Too many lines</td><td>More lines in one cue than the maximum (default 2)</td><td>Notice</td></tr>
+          <tr><td>Gap too short</td><td>Less than the minimum gap (default ~84ms) between two cues</td><td>Notice</td></tr>
+          <tr><td>Empty cue</td><td>A cue with no visible text at all</td><td>Notice</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">More: <a href="why-caption-quality-matters.html">why caption quality is a separate question from caption presence, and where these thresholds come from</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What counts as "too fast" for captions?</h3>
+    <p>There is no single legal reading-speed limit, but caption style guides converge on a similar range: a commonly-cited ceiling for adult-content captions is around 20 characters per second (roughly 160-180 words per minute), with a lower cap often used for children's content. This tool defaults to 20 characters per second and lets you lower or raise it with <code>--max-cps</code> on the CLI.</p>
+    <h3>Why does caption quality matter if WCAG only requires that captions exist?</h3>
+    <p>WCAG Success Criterion 1.2.2 requires captions for prerecorded audio content, but it does not grade how readable those captions are once they exist. A caption track can be technically present — it parses, it plays, it is synced — and still fail the viewer it exists for if the text moves faster than a typical reading speed, crowds too many lines into the frame, or flickers past in under a second. Quality is a separate, unenforced question from presence, and this tool checks the quality question.</p>
+    <h3>Where do the specific numbers (42 characters per line, two lines, 20 cps) come from?</h3>
+    <p>They are commonly-used industry thresholds, not one single controlling standard — publicly published caption style guides such as Netflix's Timed Text Style Guide and the BBC's Subtitle Guidelines state versions of these same numbers (reading speed caps, a two-line maximum, minimum and maximum on-screen duration). This tool cites them as widely-used defaults and makes every threshold configurable on the CLI, because a specific broadcaster, platform, or client contract may set its own numbers.</p>
+    <h3>Does this replace a human caption review?</h3>
+    <p>No. It checks mechanically verifiable properties of the timing and text you provide — reading speed, line length, duration, overlap, and gaps. It cannot judge whether a caption is an accurate transcription, whether speaker labels or sound descriptions are used correctly, or whether the translation (for subtitles) reads naturally. Treat a clean report as evidence that the mechanical thresholds are met, not as a substitute for reviewing the captions yourself.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, accessibility-compliance, or broadcast-standards advice, and it does not replace a qualified professional or a human caption review. It reports whether the caption file you provided satisfies specific, mechanically checkable, commonly-used thresholds — nothing more, and not a certification of WCAG, FCC, or any other standard's compliance. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p>Everything you paste runs in your browser and is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+    <p>Also worth a look if captioning is part of a broader accessibility push: <a href="../ada-title-ii-evidence/">ADA Title II Evidence</a> and <a href="../shopify-a11y-evidence/">Shopify Accessibility Evidence</a> both produce disclosed, evidence-based accessibility records rather than a compliance guarantee.</p>
+    <p class="support">Free and open source. If this caught a caption problem before your viewers did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { checkCaptionsText } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      text: $('#captions-text'), status: $('#status'),
+      reportCard: $('#report-card'),
+      statCues: $('#stat-cues'), statDanger: $('#stat-danger'), statNotice: $('#stat-notice'),
+      verdictPill: $('#verdict-pill'), inputError: $('#input-error'),
+      findingsSection: $('#findings-section'), findings: $('#findings'),
+      cuesSection: $('#cues-section'), cuesRows: $('#cues-rows'),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    function render() {
+      const result = checkCaptionsText(els.text.value);
+
+      if (result.inputError) {
+        els.inputError.hidden = false;
+        els.inputError.textContent = result.inputError;
+        els.findingsSection.hidden = true;
+        els.cuesSection.hidden = true;
+        els.statCues.textContent = '0';
+        els.statDanger.textContent = '0';
+        els.statNotice.textContent = '0';
+        els.verdictPill.textContent = '';
+        els.verdictPill.className = 'pill';
+        els.reportCard.hidden = false;
+        return;
+      }
+      els.inputError.hidden = true;
+
+      els.statCues.textContent = String(result.cueCount);
+      els.statDanger.textContent = String(result.dangerCount);
+      els.statNotice.textContent = String(result.noticeCount);
+      els.verdictPill.textContent = result.ok ? 'Clean' : 'Issues found';
+      els.verdictPill.className = `pill ${result.ok ? 'pass' : 'fail'}`;
+
+      els.findingsSection.hidden = false;
+      els.findings.innerHTML = result.findings.length === 0
+        ? '<p class="ok">None of the checked caption-quality issues were found.</p>'
+        : result.findings.map((f) => `
+          <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+            <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+            <p>${escapeHtml(f.detail)}</p>
+          </div>`).join('');
+
+      els.cuesSection.hidden = result.cues.length === 0;
+      els.cuesRows.innerHTML = result.cues.map((c) => `
+        <tr>
+          <td>${c.index + 1}</td>
+          <td>${c.startMs}ms</td>
+          <td>${c.durationMs}ms</td>
+          <td>${c.charCount}</td>
+          <td>${c.cps === null ? '—' : c.cps.toFixed(1)}</td>
+          <td>${c.lines.length}</td>
+          <td><code>${escapeHtml(c.text.replace(/\n/g, ' / '))}</code></td>
+        </tr>`).join('');
+
+      els.reportCard.hidden = false;
+    }
+
+    $('#check').addEventListener('click', () => {
+      if (!els.text.value.trim()) {
+        els.status.innerHTML = '<span class="error">Paste a caption file first (or load the worked example).</span>';
+        return;
+      }
+      els.status.textContent = '';
+      render();
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    });
+
+    const EXAMPLE = [
+      '1',
+      '00:00:01,000 --> 00:00:02,000',
+      'This line is deliberately packed with far too many characters to read in just one second.',
+      '',
+      '2',
+      '00:00:02,050 --> 00:00:03,000',
+      'Overlapping the previous cue by fifty milliseconds and also far',
+      'too crowded onto three lines total which is one line over the limit',
+      'right here on this very long third line of text.',
+      '',
+      '3',
+      '00:00:03,200 --> 00:00:03,300',
+      'Flash!',
+      '',
+    ].join('\n');
+
+    $('#load-example').addEventListener('click', () => {
+      els.text.value = EXAMPLE;
+      render();
+      els.status.textContent = 'Worked example: a cue that reads far too fast, an overlap, a three-line cue, and a cue on screen for only 100ms.';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    });
+
+    $('#clear').addEventListener('click', () => {
+      els.text.value = '';
+      els.reportCard.hidden = true;
+      els.status.textContent = 'Paste a caption file and click Check.';
+    });
+
+    // Remember the visitor's usage-counting choice between visits.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+</body>
+</html>

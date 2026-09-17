@@ -1,0 +1,78 @@
+name: env-example-drift-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that diffs a repo''s .env.example (or .env.sample) against the environment variables actually referenced in its own source code (process.env.X in JS/TS, os.getenv/os.environ in Python, ENV[] in Ruby, System.getenv in Java) -- flagging variables the code reads that the example file never mentions (the #1 cause of a new contributor''s app crashing right after clone+install) and variables the example file declares that no code path reads anymore (stale onboarding docs). A deterministic text diff/linter, not a secrets scanner and not a .env file reader.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07) argues explicitly for
+# this shape over another <trade>-bid-calculator, since 141+ of ~228
+# ventures already share that shape with zero recorded visitors between
+# them. This is the same shape as structured-data-drift-check
+# (2026-09-09): a deterministic self-consistency check between two things a
+# repo already has, not a compliance verdict.
+#
+# duplicate_check.py (run 2026-09-09) scored every existing venture,
+# screened-out row, and pipeline candidate below 0.13 for this idea's
+# description -- nowhere near the 0.45 review bar. Closest matches by eye:
+# ios-privacy-manifest-check, structured-data-drift-check, license-drift-check
+# and npm-lifecycle-script-check share the "deterministic diff between two
+# things already in a repo, exit 1 on drift" shape but diff completely
+# different pairs (a privacy manifest against declared APIs, a page's own
+# JSON-LD against its own visible text, two dependency-tree snapshots).
+# None of them reads process.env/os.getenv/ENV[]/System.getenv call sites
+# or an .env.example file. Grepped ventures/*/VENTURE.yaml for "env" by
+# hand first (2026-09-09): the only two hits, ebay-fee-calculator and
+# sunroom-bid-calculator, use "environment" in an unrelated sentence, not
+# an .env file.
+#
+# Distribution channel: this is one of the most common README-vs-reality
+# bugs in open source, not a hypothetical one. GitHub's own "Contributing"
+# guide template and countless project READMEs instruct a new contributor
+# to `cp .env.example .env`, and the whole point of that instruction is
+# that the example file is supposed to be authoritative -- nothing
+# mechanical keeps it that way once a PR adds a new `process.env.FOO` read
+# without touching the example file, which is a normal, easy-to-miss
+# oversight in a code review, not a rare one. The failure is maximally
+# visible and maximally frustrating: it is the very first command a new
+# contributor or a CI runner executes after cloning, so a missing variable
+# reads as "this project is broken" rather than as what it is, a doc that
+# fell one PR behind. Searchable channels with real, recurring thread
+# volume: r/node, r/webdev, r/opensource, and Stack Overflow's own
+# "process.env.X is undefined" / "KeyError" env-var questions, most of
+# which trace back to exactly this gap rather than to a real secrets
+# problem. dotenv-linter and eslint-plugin-node's process-env rules cover
+# adjacent ground (a good sign the pain is real) but neither one diffs an
+# example file's declared names against actual call sites the way this
+# tool does; that gap is the wedge.
+hypotheses:
+  - claim: A maintainer who has watched a new contributor's `npm start` (or `python app.py`) crash immediately after `cp .env.example .env` will run the CLI once, see the missing variable named, and wire it into CI as a merge gate so the same PR that adds the read also has to update the example file.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A developer onboarding onto an unfamiliar repo (their own project after months away, or someone else's) will paste their .env.example and a handful of source files into the browser tool to answer "is this example file actually current" before spending time guessing at undocumented variables from a stack trace.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted
+  # into it, in the visitor's own browser, and the CLI reads only local
+  # files it is pointed at, with no network call at all. Serving one more
+  # user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/env-example-drift-check/
+  analytics: null

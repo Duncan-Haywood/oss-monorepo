@@ -51,12 +51,46 @@ recurring weekly thread, and the search phrases "whatnot seller fees",
 either restate the headline 8% or run the $50 example without the
 shipping-base trap or the $1,500 cap.
 
+## Save and share your numbers
+
+Retyping the category preset, your rates, and the lot every time you price a
+show is the retyping this tool's own kill criteria asks whether a seller will
+put up with twice in 90 days — so it keeps the form for you:
+
+- **Restored on return.** Your category preset, rates, and lot are saved in
+  your browser and reappear the next time you open the page. **Reset to
+  defaults** clears them and puts back Whatnot's published $50 TCG example.
+- **Shareable link.** **Copy shareable link** writes your current inputs into
+  the page URL and copies it. A link's values always take precedence over
+  whatever a browser had saved, because opening a link means you meant to see
+  that lot.
+
+The link and the saved copy contain only the numbers and preset you chose.
+They travel in the URL's fragment (`#...`), which a browser never sends to a
+server or a `Referer` header, so nothing is uploaded either way.
+
+## Comparing this lot against other channels
+
+Whatnot's commission-on-the-hammer-plus-separate-processing shape does not
+fit the fixed-fee retail model the [marketplace fee compare](../marketplace-fee-compare/)
+uses for eBay, Etsy, Amazon, Walmart, TikTok Shop and Shopify, so it stays out
+of that ranking. The [where-to-sell calculator](../where-to-sell-calculator/)
+models Whatnot the way this page does and ranks it against eBay, Etsy, Amazon,
+Reverb and an own store, plus what each is worth per day of wait and per
+month of shelf time. The link at the bottom of this page carries this lot's
+sale price, shipping and cost over automatically — no retyping — via
+[`to-where-to-sell.mjs`](to-where-to-sell.mjs), the reverse of that page's own
+`handoff.mjs`. `to-where-to-sell.test.mjs` decodes the link through that
+page's own decoder so a shape change there fails a test here instead of
+arriving as a silently wrong number.
+
 ## Privacy
 
 Everything runs in your browser. Hammers, costs, and leftovers are never
 uploaded and never appear in a usage count — those are anonymous tallies of
-which features were used, stored locally. We don't have accounts, tracking
-cookies, or an analytics vendor.
+which features were used, stored locally, including `handoff_where_to_sell`
+when you follow the where-to-sell link (the lot itself is never counted). We
+don't have accounts, tracking cookies, or an analytics vendor.
 
 ## Disclaimer
 

@@ -133,6 +133,75 @@ export const HANDOFFS = [
       monthlyOrders: 'monthlyOrders',
     },
   },
+  {
+    channel: 'tiktok',
+    slug: 'tiktok-shop-fee-calculator',
+    label: 'TikTok Shop fee calculator',
+    // What it adds: the decisions this page prices as one flat referral rate —
+    // organic versus affiliate-sourced orders, creator facilitation, the
+    // announced 1 Oct 2026 fee-schedule change, free-shipping thresholds, and
+    // bundle discounts.
+    //
+    // TikTok Shop has no separate "what you pay for shipping" field; its
+    // `fulfillmentCost` covers pick/pack/label however the seller ships
+    // (TikTok-fulfilled, 3PL, or their own postage), which is the natural home
+    // for this page's `shippingCost`. It also has no separate packaging
+    // input — `otherPerOrder` is documented there as "packaging, inserts,
+    // payment-out fees" — so packaging is folded in rather than dropped, the
+    // same rule `combine` follows for every other target with fewer inputs.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'fulfillmentCost',
+      otherCost: 'otherPerOrder',
+    },
+    combine: { otherPerOrder: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'whatnot',
+    slug: 'whatnot-seller-payout',
+    label: 'Whatnot seller payout calculator',
+    // What it adds: the category commission cap (TCG, coins, sports singles,
+    // pallets), the giveaway shape, the per-show lot roll-up, and the price a
+    // lot needs to clear a target leftover.
+    //
+    // Field names line up almost one-for-one — both tools were built for the
+    // same shape of sale. Whatnot has no separate packaging input, so it is
+    // folded into `otherCost`, which it does have, the same rule `combine`
+    // follows for every other target with fewer inputs than this page.
+    fields: {
+      price: 'salePrice',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
+    channel: 'poshmark',
+    slug: 'poshmark-fee-calculator',
+    label: 'Poshmark fee calculator',
+    // What it adds: the two-tier schedule's effective rate on this exact
+    // price, how much the flat $2.95 costs against what 20% would have
+    // charged, the break-even price, and the offer-negotiation arithmetic —
+    // whether accepting an offer that drops the price under $15 costs more
+    // than the discount itself.
+    //
+    // Neither shipping field is mapped, and that is deliberate rather than an
+    // omission: the buyer buys a prepaid label from Poshmark at checkout, so
+    // it is neither seller revenue nor a seller cost, and the dedicated
+    // calculator has no input for it at all. Mapping it anywhere would put
+    // postage inside a payout that never sees it. This page's own Poshmark
+    // preset starts both at zero for the same reason, so a comparison built
+    // here has nothing to lose on the trip.
+    fields: {
+      price: 'salePrice',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);

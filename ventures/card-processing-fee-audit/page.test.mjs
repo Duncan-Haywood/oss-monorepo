@@ -75,3 +75,17 @@ test('the tool makes no network request', () => {
   assert.doesNotMatch(script, /\bfetch\(|XMLHttpRequest|navigator\.sendBeacon|new WebSocket/);
   assert.doesNotMatch(html, /<script[^>]+src=/);
 });
+
+// Closest payments sibling: the same merchant, the other half of the job.
+// This tool answers "what is card acceptance costing me"; the packet builder
+// answers "how do I fight this one disputed charge". Related-tool chrome
+// rotates alphabetically inside a subcategory and these two sit in different
+// ones, so without an explicit one-hop a crawler here may never reach it.
+test('index links one hop to the chargeback-evidence-packet sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/chargeback-evidence-packet\/"/,
+    'index must link ../chargeback-evidence-packet/ so crawlers reach the chargeback packet builder in one hop',
+  );
+  assert.match(html, /chargeback evidence packet builder/i);
+});

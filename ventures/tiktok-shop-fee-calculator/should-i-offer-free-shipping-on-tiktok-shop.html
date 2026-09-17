@@ -209,7 +209,7 @@
 
   <script type="module">
     import { compareFreeShipping, freeShippingNote } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
 
     const FIELD_IDS = [
       "itemPrice", "shippingCharged", "freeShipPrice", "referralRate",
@@ -286,6 +286,19 @@
     });
 
     paint();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

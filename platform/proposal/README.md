@@ -20,6 +20,32 @@ arithmetic and layout in the browser, like everything else here.
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
 ready, and what is blocked. As of 2026-09-07 that is 112 adopted, 0 blocked.
 
+**`biohazard-cleanup` (`biohazard-cleanup-bid-calculator`) is the current
+holdout**, graduated 2026-09-17 without the proposal. It genuinely wants one —
+a biohazard/trauma-scene job is exactly the kind of bid a customer receives a
+printed proposal for — so this is not a "no work to describe" case like the
+`mobile-detailing` holdback above. `adopt.mjs` needs a `trades.json` entry
+templating the scope from `computeJobBid`'s result (crew hours, PPE sets,
+disposal containers, supplies, equipment, travel) with a deposit split and a
+disclaimer naming what the tool is not (a hauler contract, an OSHA
+bloodborne-pathogen determination, or an insurance-claim adjudication); that
+entry was not authored in the session that shipped the calculator, so
+adoption is tracked as a follow-up rather than rushed against a template it
+was not proven against.
+
+**And, separately, `storage-auction-max`** (`storage-auction-max-bid-calculator`,
+graduated 2026-09-17) does not adopt at all, deliberately — unlike
+`biohazard-cleanup` above, this is not a holdout waiting on a `trades.json`
+entry. For the same reason `owner-operator-cpm-calculator` and
+`shop-rate-calculator` are deliberately excluded from `adopt.mjs`'s filter
+below: it prices a figure the bidder keeps to themselves — the hammer bid to
+raise a hand at — and there is no customer to hand a proposal to. Its slug
+happens to end in `-bid-calculator` because the bid itself is the product
+(a lien-auction bid on a stranger's storage unit, not a contractor's job bid),
+which is what puts it in `discoverability.test.mjs`'s population even though it
+is not a trade calculator at all. Mechanical readiness is not a reason to
+adopt, the same rule the two exclusions above already state.
+
 The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
 graduated in #3580, unblocked in the same session that added this line). It
 priced the job inline from individual `el(...)` reads rather than through the

@@ -97,6 +97,44 @@ def test_every_registered_secret_is_documented():
         assert row[0] in doc, f"{row[0]} is in registry.tsv but not in infra/SECRETS.md"
 
 
+_NUMBER_WORDS = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+    "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+    "eleven": 11, "twelve": 12,
+}
+
+
+def test_secrets_md_credential_count_matches_the_registry():
+    """"Six credentials" drifted to seven and stayed put — #4435 (2026-09-10)
+    added CODEX_AUTH_JSON as its own registry row (splitting what had been a
+    single OPENAI_API_KEY row) and updated "the last two" to "the last three"
+    a few lines down, but never touched the opening count. The row-vs-doc test
+    above only checks that every registered name is *mentioned* somewhere in
+    the file, which a stale headline count still satisfies -- so it caught
+    nothing. This is the same restate-instead-of-import shape CLAUDE.md
+    records against the front-door mirror, arrived at from the one file in
+    this repo whose entire job is to be the authoritative count.
+    """
+    doc = DOC.read_text()
+    prose_match = re.search(r"\n(\w+) credentials, and the reason", doc)
+    assert prose_match, "expected a '<N> credentials, and the reason...' sentence in infra/SECRETS.md"
+    word = prose_match.group(1).lower()
+    assert word in _NUMBER_WORDS, f"unrecognised number word {word!r} in infra/SECRETS.md"
+    stated_count = _NUMBER_WORDS[word]
+
+    table_rows = re.findall(r"^\| `([A-Z0-9_]+)` \|", doc, re.MULTILINE)
+    actual_count = len(registry_rows())
+
+    assert stated_count == actual_count, (
+        f"infra/SECRETS.md says {word!r} ({stated_count}) credentials but "
+        f"infra/secrets/registry.tsv has {actual_count} rows"
+    )
+    assert len(table_rows) == actual_count, (
+        f"infra/SECRETS.md's own table lists {len(table_rows)} secrets but "
+        f"infra/secrets/registry.tsv has {actual_count} rows"
+    )
+
+
 def test_actions_only_secrets_are_not_in_the_local_store():
     """The line the doc draws has to hold, or the store's blast radius grew.
 

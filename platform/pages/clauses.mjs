@@ -83,7 +83,11 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
  * `slug/relative` display path, with why, rather than loosening the pattern
  * for everyone else.
  */
-const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+// Exported because `surface-budget.mjs` budgets exactly this class of page --
+// the comparison written against a generic method rather than a named product
+// -- and deriving that class a second time from filenames would let a page be
+// one kind for the disclaimer check and the other kind for the budget.
+export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -93,6 +97,162 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page's own FAQ already says so explicitly
   // ("does not name or link to any specific survey publisher").
   'custom-farm-rate-calculator/vs-survey-rates.html',
+  // Compares against "a PPO fee-schedule negotiation service" -- an industry
+  // role many different firms perform, charging a flat per-payer fee or a
+  // percentage of the increase they win. The page names no specific company
+  // and its own footer says so explicitly.
+  'dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html',
+  // Compares against "a spreadsheet or mental math" -- a method every
+  // adjuster already has, not a company or product this could be mistaken
+  // for.
+  'cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html',
+  // Compares against "a spreadsheet or a guess under a deadline" -- a
+  // method every reporter already has, not a company or product this could
+  // be mistaken for.
+  'court-reporter-transcript-calculator/vs-spreadsheet-or-guessing.html',
+  // Compares against reconciling a 1099-K by hand in a spreadsheet -- a
+  // method every marketplace seller already has, not a company or product
+  // this could be mistaken for. Same reasoning as the cat-adjuster page
+  // above.
+  '1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html',
+  // Compares against "checking pricing pages and doing the arithmetic by
+  // hand" -- a generic method every user of the calculator already has
+  // access to, not a company or product this could be mistaken for.
+  'ai-coding-plan-cost-calculator/vs-checking-pricing-pages-yourself.html',
+  // Compares against "clicking Re-run failed jobs and seeing what happens" --
+  // a generic manual habit every GitHub Actions user already has, not a
+  // company or product this could be mistaken for.
+  'actions-runner-starvation-check/vs-rerunning-the-job.html',
+  // Compares against "pricing an add-on by comparing to what other studios
+  // charge" -- a generic pricing method every independent photographer
+  // already uses, not one specific company or product this could be
+  // mistaken for. The page's own FAQ says so explicitly ("has no data on
+  // what any other studio charges").
+  'photo-addon-pricing-calculator/vs-pricing-by-comparing-to-other-studios.html',
+  // Compares against "reading the resistor color code by eye" -- a manual
+  // reading method every user of this calculator already has access to,
+  // not a company or product this could be mistaken for. Same reasoning as
+  // the other manual-method pages above.
+  'ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html',
+  // Compares against "a spreadsheet" -- a generic method every HOA board
+  // treasurer already has, not a company or product this could be mistaken
+  // for. Same reasoning as the other vs-spreadsheet pages above.
+  'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "a flat day rate" -- a generic pricing method every
+  // bridal artist already knows, not a company or product this could be
+  // mistaken for. Same reasoning as the other generic-method pages above.
+  'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "the headline commission rate a company quotes" -- the
+  // industry-wide convention of leading with one percentage out of a tiered
+  // schedule, not a company or product this could be mistaken for. The page
+  // names no estate sale company at all: its worked example uses "Company A"
+  // and "Company B" and says in its own copy that the figures are "not a
+  // claim about any real company's pricing". Same reasoning as the other
+  // generic-method pages above.
+  'estate-sale-net-proceeds-calculator/vs-headline-commission-rate.html',
+  // Compares against "a spreadsheet formula" -- a generic method every
+  // payroll admin already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'overtime-pay-calculator/vs-spreadsheet.html',
+  // Compares against "doing the blended-rate arithmetic by hand or in a
+  // spreadsheet" -- a generic method every payroll admin already has, not a
+  // company or product this could be mistaken for. Same reasoning as the
+  // other vs-spreadsheet / by-hand pages above.
+  'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method every tutor already
+  // has, not a company or product this could be mistaken for. Same reasoning
+  // as the other vs-spreadsheet pages above.
+  'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "your phone's built-in world clock" -- a generic
+  // feature every phone platform ships, not a company or product this could
+  // be mistaken for. The page itself names no specific platform or vendor
+  // (asserted by a test).
+  'world-clock-widget/vs-your-phones-clock-app.html',
+  // Compares against "checking a DST calendar by hand" -- a generic manual
+  // habit every developer already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other manual-method
+  // pages above.
+  'cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html',
+  // Compares against "diffing the raw JSON files by hand" and "a generic
+  // online JSON-diff tool" -- a method and a category of tool, not any one
+  // company's product this could be mistaken for. The page's own footer
+  // says so explicitly ("names no specific product").
+  'sbom-diff-check/vs-diffing-the-raw-json-files.html',
+  // Compares against "splitting the kitchen bill evenly" -- a generic method
+  // every commissary/shared-kitchen operator already has, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above.
+  'commissary-kitchen-cost-split-calculator/vs-splitting-evenly.html',
+  // Compares against "opening the instructions file and checking every link
+  // and script reference by hand" -- a generic manual habit every developer
+  // and reviewer already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other manual-method pages above.
+  'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  // Compares against "a flat price per square foot" -- a generic pricing
+  // method every insulation crew already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above.
+  'attic-insulation-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a spreadsheet" -- a generic method every backflow
+  // tester already has, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // product"). Same reasoning as the other vs-spreadsheet pages above.
+  'backflow-test-fee-calculator/vs-spreadsheet.html',
+  // Compares against "a flat per-acre quote" -- a generic pricing method
+  // every land surveyor already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other generic-method
+  // pages above (e.g. attic-insulation-bid-calculator's flat-rate page).
+  'land-survey-bid-calculator/vs-a-flat-per-acre-quote.html',
+  // Compares against "a flat rate per square foot" -- a generic pricing
+  // method every abatement contractor already has access to, not a company
+  // or product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above.
+  'asbestos-abatement-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a recipe markup spreadsheet" -- the sheet nearly every
+  // floral studio builds for itself, which is a working method rather than
+  // any one company's product this could be mistaken for. The page's own
+  // footer says so explicitly ("names no specific product, company, or
+  // software"). Same reasoning as the vs-spreadsheet / by-hand pages above.
+  'wedding-florist-proposal-calculator/vs-a-recipe-markup-spreadsheet.html',
+  // Compares against "manually reading the spec diff" -- a generic method
+  // every API developer already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // manual-method pages above.
+  'openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html',
+  // Compares against "a flat rate per lineal foot" -- a generic pricing
+  // method every waterproofing contractor already has access to, not a
+  // company or product this could be mistaken for. Same reasoning as the
+  // other generic-method pages above (e.g. asbestos-abatement-bid-calculator's
+  // flat-rate page).
+  'basement-waterproofing-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "a flat day rate plus a per-pound hazmat estimate" --
+  // a generic pricing method every biohazard/trauma-scene technician
+  // already has access to, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // regulated-waste hauler, estimating software, or franchise"). Same
+  // reasoning as the other generic-method pages above.
+  'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
+  // Compares against "a flat nightly rate copied from local competitors" --
+  // a generic pricing habit every independent dog boarding/daycare operator
+  // already has access to, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // competitor, product, or company"). Same reasoning as the other
+  // generic-method pages above.
+  'dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html',
+  // Compares against "tracking offers in a spreadsheet" -- a generic method
+  // every Reverb seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above.
+  'reverb-fee-calculator/vs-tracking-offers-in-a-spreadsheet.html',
+  // Compares against "a flat-rate boiler special" -- a generic pricing
+  // method every hydronic/steam tech already has access to, not a company
+  // or product this could be mistaken for. The page's own footer says so
+  // explicitly ("common, honest shortcut"). Same reasoning as the other
+  // generic-method pages above (e.g. attic-insulation-bid-calculator's
+  // flat-rate page).
+  'boiler-replacement-bid-calculator/vs-a-flat-rate-boiler-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

@@ -147,6 +147,179 @@ pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
 
+**And when `pip` itself cannot reach PyPI, use apt (measured 2026-09-11).**
+The line above assumes `pip install pytest` works. In this web session it did
+not, twice, and not quickly: it spent its timeout and ended in
+
+```
+pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(
+  host='files.pythonhosted.org', port=443): Read timed out.
+```
+
+`files.pythonhosted.org` is in the egress proxy's `noProxy` list, so this is a
+reachability failure rather than a policy denial — which makes it the kind that
+can recur on one session and not the next, with nothing in the tree to say so.
+The distribution's own package works and is one line:
+
+```
+apt-get install -y --no-install-recommends python3-pytest   # pytest 7.4.4
+```
+
+That is enough for every `pytest` line in this checklist. Recorded here for the
+same reason the `apt-get update &&` paragraph below exists: a session that
+follows this block exactly and hits a failing install has to choose between
+reporting the tree green with `gitops/tests` unrun and spending the session
+rediscovering a one-line workaround, and this file already knows which one gets
+picked.
+
+**Keep the `python3 -m` in front of it, and do not "simplify" it to bare
+`pytest` (measured 2026-09-11).** Every pytest line in this checklist is
+spelled `python3 -m pytest`, and that is load-bearing rather than habit. In
+this web session `pytest` on `PATH` was `/root/.local/bin/pytest` — a `uv
+tool install`, whose shebang points at its own isolated interpreter
+(`/root/.local/share/uv/tools/pytest/bin/python`) that does not have the
+repository's dependencies. So the two spellings disagree, on the same suite,
+in the same shell, minutes apart:
+
+```
+python3 -m pytest gitops/tests -q   # 581 passed, 1 skipped
+pytest gitops/tests -v              # UNRUN: `yaml` is not installed here
+```
+
+`python3 -m pytest` resolves against `/usr/local/bin/python3`, which has
+`yaml` 6.0.1 and everything else. It matters beyond this checklist because
+`hetzner-gitops-ci.yml`'s own `gitops / pytest` step invokes bare `pytest`,
+so `run_workflow_locally.py` reports that step `UNRUN` while the identical
+suite passes 581/1 under the checklist spelling. That is the tool being
+honest — it cannot know the module is importable under a *different*
+interpreter — but a session reading only the sweep concludes `gitops/tests`
+never ran, and a session reading only the checklist concludes it did. Both
+are right about what they ran. Run the `python3 -m` form and say which
+spelling you used.
+
+**It is not only pytest, and the mypy instance is worse because it reports as
+a real failure rather than as `UNRUN` (measured 2026-09-12).**
+`vendor-change-watch-ci.yml`'s lint job runs bare `mypy .`, and
+`run_workflow_locally.py` reported it `FAILED` on two files this PR does not
+touch:
+
+```
+tests/test_usage.py:1: error: Cannot find implementation or library stub for
+  module named "pytest"  [import-not-found]
+Found 2 errors in 2 files (checked 11 source files)
+```
+
+Same shim, same shape: `/root/.local/bin/mypy` is a `uv tool install` whose
+shebang is `/root/.local/share/uv/tools/mypy/bin/python`, and that interpreter
+has no pytest — `python3` has 7.4.4. So the two spellings disagree in the same
+shell, minutes apart:
+
+```
+mypy .              # Found 2 errors: pytest has no stub here
+python3 -m mypy .   # Success: no issues found in 11 source files
+```
+
+The sweep cannot classify this one as `UNRUN`, and that is not a bug in the
+sweep: mypy *did* run, and an `import-not-found` is a result it is entitled to
+report. Only the reader can tell that the missing module is missing from the
+wrong interpreter. So the rule generalises past pytest — **prefer `python3 -m
+<tool>` for every Python tool in this checklist, and when a workflow step
+spells it bare, run both before you believe the red.**
+
+**`pip install pytest` is not the whole barrier, and the rest of it has been
+invisible since it was written (added 2026-09-10).** That parenthesis warns
+about the run that fails loudly. The run that *succeeds* needs two more lines:
+
+```
+apt-get update && apt-get install -y --no-install-recommends nginx-light openssh-client
+python3 platform/ci/guard_state.py --require-runnable   # what still is not running
+```
+
+**`apt-get update &&` is load-bearing, and this line was missing it for a day
+(measured 2026-09-10).** Without it, in a web session, that install does not
+merely warn — it fails outright:
+
+```
+Failed to fetch .../nginx-light_1.24.0-2ubuntu7.6_all.deb  404  Not Found
+```
+
+The image ships a package index pinned to versions the mirror has already
+superseded (`7.6` → `7.17`), so apt requests a `.deb` that no longer exists.
+With `apt-get update` first the same install succeeds and all 24 assertions
+run. The failure matters more than its size: a session that followed this
+block exactly still could not clear a skip `guard_state.py` had just labelled
+**FIXABLE**, and the honest next move from there is to report the tree green
+with 24 guards unrun — the precise outcome `--require-runnable` was added to
+prevent. This is the same defect the rest of this section keeps recording, one
+layer further in: not a missing guard, and not even a missing install line, but
+an install line that does not work. A fix instruction that fails costs more
+than none, because it also spends the reader's trust in the next one.
+
+Measured that day on a clean checkout of `main`, with pytest already
+installed, the `gitops/tests` line read `533 passed, 25 skipped` — which is
+what a clean run looks like, and is why the sessions reporting the tree green
+off it were not being careless. **Seventeen of those 25 were
+`test_front_door_serving.py`**: the only check in this tree that boots a real
+nginx over the front door's own built ConfigMaps and asks it for a tool page.
+Its own docstring says why it is the one worth having — both ways the gz-only
+mirror can go dark (`try_files` on an absent uncompressed name, a positional
+capture in a `rewrite`) are *textually clean*, so every other check on the
+apex passes while the entire product surface 404s. Six more were
+`test_load_ssh_key.py`, guarding the loader for `HETZNERSSHKEY`, the one
+credential every route to the Hetzner boxes is blocked on.
+
+Both skipped for a missing binary, both installed in one `apt-get`, and both
+then passed — 19 and 11. Nothing was broken. That is the point: the session
+could not have known that, and neither could the ones before it. The CI
+workflow had already learned this (`hetzner-gitops-ci.yml` installs
+`nginx-light` and carries a comment explaining why); only the list a session
+follows during a starvation window had not — which is precisely the window in
+which CI running them is the same as nothing running them.
+
+This is the same defect as the Playwright block below, reached from a sixth
+direction, and the arithmetic is identical: one install line was the entire
+barrier between a correct guard and a guard nobody runs. `guard_state.py` is
+that command turned into a check — it runs the checklist's pytest suites,
+reads what actually skipped, and sorts each reason into **FIXABLE** (names a
+tool, prints the install line), **ENVIRONMENTAL** (wants a GitHub-hosted
+runner; genuinely not about this tree) or **UNCLASSIFIED**, which it prints
+loudest because an unrecognised reason is how its own table would go stale.
+`--require-runnable` exits 1 while a fixable skip stands, for the same reason
+`pages_state.py --require-current` does: a reminder competes with everything
+else in a long file, and an exit code does not.
+
+It reads what skipped rather than scanning the sources for skip predicates,
+deliberately — a static scan would miss every guard whose condition is
+computed (`test_front_door_serving.py` resolves nginx from a candidate list,
+not a literal) while inventing guards from `shutil.which` calls that skip
+nothing. Same import-don't-restate rule this file records three times over.
+
+**A skip is a green that means nothing ran.** `run_workflow_locally.py` closed
+this hole at the *step* level on 2026-09-07 by reporting `UNRUN` rather than
+`FAILED`, on the stated grounds that a red meaning "nothing ran" wearing the
+costume of a red meaning "your code is broken" trains a reader to ignore the
+result. A skip is that costume worn the other way round, and it is worse,
+because nobody investigates a pass.
+
+**The same shape had a third instance, in `node --test` rather than pytest, and
+it is closed (2026-09-07).** `platform/webcheck/page-integrity.test.mjs` pins
+its checker against the exact `index.html` blobs from the commits where two
+products shipped dead — the suite's most valuable test, because it is proven
+against the real defect and not an approximation of it. It reads them with
+`git show <sha>:<path>`, and a web session's clone is **shallow** (50 commits),
+so both history-pinned tests failed with `fatal: invalid object name '1a8feb3'`
+on a clean checkout of `main`. Measured that day: a session running the block
+above sees `# fail 2` and must choose between "the checker regressed" (burn the
+run chasing nothing) and "ignore it" (learn to ignore a suite that also catches
+real regressions). `platform/webcheck/history-blob.mjs` now makes the one
+discrimination that matters — object absent **and** clone shallow is a SKIP
+naming `git fetch --unshallow`; object absent in a **full** clone still fails,
+because a test pinned to a sha that a complete history lacks has gone stale and
+must go red. Verified both ways: 20 pass / 2 skip shallow, 22 pass / 0 skip
+after unshallowing. If you want those two to actually run, `git fetch
+--unshallow` first — which `CLAUDE.md` already tells you to do before any
+supersession check, for the same underlying reason.
+
 **That parenthesis is no longer the only thing standing between a session and
 a wrong reading of `main` (changed 2026-09-07).** It warns about the raw
 `node --test`/`pytest` lines above, and `run_workflow_locally.py` — the line
@@ -330,7 +503,67 @@ published snapshot** (added 2026-09-05):
 python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
 CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
 python3 platform/ci/pages_state.py --require-current   # and 0 once you have
+python3 platform/ci/pages_state.py --record            # then commit the row it rewrites
+python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
 ```
+
+**`--record` was added 2026-09-16, and the defect it closes had already been
+fixed once by hand and come back.** `decision_queue.py` ages any reading older
+than `STALE_AFTER_DAYS` (3) out to `unknown`, and `serving_origins()` then
+drops `github-pages-branch-route` — which flips the queue's header from
+"PARTIAL OUTAGE ... the rows below are NOT all waiting on this" to **"OUTAGE:
+the public surface is down. hetzner-ssh-key-is-a-public-key comes first; every
+other row here is downstream of a host answering at all."** That sentence is
+false whenever Pages is serving, and it is the most expensive sentence in the
+repository: it is addressed to the owner, it tells them to stop reading, and it
+sends the one session they have at the Hetzner SSH route while
+`pages-custom-domain` — the row that would actually put the catalogue in front
+of a search engine, and that is downstream of no host at all — sits below the
+fold.
+
+Measured 2026-09-16: the row was last measured 2026-09-10, so it had aged out,
+and the queue printed the OUTAGE banner while GitHub's managed builder had
+deployed `gh-pages` twenty minutes earlier (run 35156548733, snapshot current
+at the tip of `main`). That is the *second* time — it happened on 2026-09-10
+too, and the fix then was to retake the reading by hand and write "if the
+banner regresses again, retake it" into the row. Six days later it regressed.
+
+The ageing rule is correct and **must not be widened to silence the banner**:
+an un-re-measured origin must never keep suppressing it on the strength of a
+reading nobody retook. What was wrong is that the retake was addressed to
+whoever happened to look, for a reading this repo can take on demand with no
+runner, no cluster and no credential. `--record` is that reminder turned into a
+command, the same move `--require-current` is against a stale snapshot and
+`guard_state.py --require-runnable` is against a fixable skip. It writes only
+`verdict`, `measured` and `run`, by line, so the file's prose survives — a
+`yaml.safe_load`/`yaml.dump` round-trip would round-trip the data perfectly and
+delete every dated lesson in it. It refuses to record a `deployed: unknown`
+rather than overwriting a real reading with a non-reading.
+
+**That last line was added 2026-09-11, and the answer it returned on the day
+it was written was `never` — for all 964 published pages.** The publish script
+announces to IndexNow in `announce_to_indexnow`, right after the push above,
+and that call has never once reached the API. Both routes are individually
+correct and between them they cover every publish and announce none of it: the
+by-hand route (this block) pushes and so does reach the call, from a sandbox
+whose egress proxy 403s `api.indexnow.org`; the runner route has real egress
+but, with `vars.PAGES_BRANCH_PUBLISH` unset, takes its `PUSH=0` step and never
+reaches the call at all.
+
+It matters more here than it would on an ordinary site. `pages_state.py`'s
+`indexing` row measured that sitemap auto-discovery *cannot happen* from a
+project-Pages subpath — crawlers read `robots.txt` at the host root, which
+belongs to someone else's site — so IndexNow is the only page-enumeration
+route this catalogue has that does not need the owner's login. Zero observed
+visitors across 248 products is consistent with never having asked.
+
+`publish-pages-branch.yml` now carries an announce step gated on the exact
+complement of its publish gate, so precisely one of the two paths fires and
+the announcement happens the moment a runner is available again. Until then
+`indexnow_state.py` is how you tell "announced" from "nobody ever asked" —
+a distinction that leaves no trace in the tree, since a submission writes no
+artifact and IndexNow has no confirmation API. It reports `never` only with a
+named reason, and `unknown` rather than `never` when it cannot read.
 
 **If that middle line refuses with "publishing backwards", another session
 published while you were building** (added 2026-09-06). Do exactly what it
@@ -682,6 +915,39 @@ Scheduled sessions often overlap. Before opening a PR, check open PRs and
 recent commits. Extend or consolidate instead of duplicating. If the backlog
 is large, merge the strongest and close the rest with a pointer.
 
+**Before you add a marketing surface to a venture, ask the tree what it
+already has** (added 2026-09-16):
+
+```
+node platform/pages/surface-budget.mjs --for <slug>
+```
+
+It prints every comparison and guide page the venture publishes and the angle
+each one takes, so "is this angle already covered?" is one command instead of
+a judgement. Run it *in addition to* checking open PRs, not instead — the two
+answer different questions, and the gap between them is where this went wrong.
+
+Measured that day: three sessions built a comparison page for
+`overtime-pay-calculator` on the afternoon it shipped — #4768 ("vs. doing it
+by hand"), #4771 ("vs. a spreadsheet") three hours later, and a third that
+reached a pushed branch and an open PR before noticing. **Every one of those
+sessions ran the overlap check this section prescribes, and every one ran it
+honestly and got a clean answer**, because the collisions landed in the window
+between reading open PRs and pushing. A check against *pull requests* cannot
+see a sibling page that merged ten minutes ago. The tree can, and it is not
+racing anything.
+
+`--check` is the same reading as a gate, wired into `portfolio-validate.yml`:
+it budgets the generic-method page ("vs. a spreadsheet", "vs. doing it by
+hand") at one per venture, because there is one real "you could do this
+yourself" angle per tool. Comparisons against *distinct named products* are
+unbudgeted — `locksmith-bid-calculator` carries three, against Jobber, Workiz
+and Housecall Pro, and a reader comparing against one is not served by a page
+about another. A naive count of comparison pages per venture flags exactly the
+two ventures that are fine and misses the one that is not, which is why the
+budget reads `clauses.mjs`'s own exemption set rather than guessing from
+filenames.
+
 **A close that names a survivor must verify the survivor is still open —
 immediately before closing, and again after.** Two sessions can each close
 their PR pointing at the other's as the one to keep; both pointers then aim
@@ -780,6 +1046,46 @@ Without it there is no merge base with `main`, so `git merge` refuses with
 "unrelated histories" and `git diff origin/main <branch>` reports thousands
 of files. That is the clone, not the branch — do not read it as a conflict
 or as a reason to close anything.
+
+**And `git fetch --unshallow` on its own is not proof you are out of that
+state (measured 2026-09-13).** If you fetched one branch by name earlier in
+the session — `git fetch origin main`, which every session here does to read
+the tip — that ref is deepened to exactly one commit and a later bare
+`--unshallow` **does not go back for it**. The repository then reports itself
+complete while `main` alone is a stump:
+
+```
+git rev-parse --is-shallow-repository   # false
+ls .git/shallow                         # absent
+git rev-list --count origin/main        # 1      <-- the whole history
+git rev-list --max-parents=0 origin/main   # main's own TIP, as a root commit
+```
+
+So the remedy this paragraph prescribes reports success and leaves the exact
+symptom it warns about, which is worse than the plain shallow case: there,
+`is-shallow-repository` tells you. Both readings then point somewhere wrong,
+and neither looks like a clone artifact:
+
+- `git merge origin/main` → `refusing to merge unrelated histories`, and
+  `git merge-base origin/main <branch>` is empty. That reads as *`main` has
+  been rebuilt or force-pushed*, which is a much more alarming conclusion
+  than the truth and invites archaeology into a non-problem.
+- `git rev-list --count origin/main..<branch>` reports ~7,100 for **every**
+  branch, because the counted range is the branch's entire history. A sweep
+  of all branches then says every one carries thousands of unique commits —
+  which argues equally for mass PR creation and for dismissing the whole set,
+  and is the same "thousands of files" misreading one level up.
+
+The fix is to name the ref: `git fetch --unshallow origin main`. Check the
+count, never the flag. `git rev-list --count origin/main` in the hundreds or
+more is the cheap assertion; `1` means you are in this state whatever
+`is-shallow-repository` says.
+
+Note what this does *not* touch, because it is the reason the error above was
+caught rather than acted on: anything reading file **content** at a ref is
+unaffected. `git show origin/main:<path>` and `supersede_check.py` were both
+correct throughout — only history-shaped questions (merge base, commit
+counts, `git merge`) were wrong. If the two disagree, trust the content.
 
 On 2026-08-24 between 17:24 and 17:25, two sessions closed finished,
 tested features minutes apart — #1006 ("superseded by the merged eBay
@@ -962,10 +1268,25 @@ python3 portfolio/ledger/check_ledger_only.py
 Exit 1 means your branch is ledger prose and nothing else. That is not a
 session's output — it is a footnote to output that does not exist. In the
 seven days to 2026-09-02 the fleet landed **381 such commits, 34.6% of the
-1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still recorded
-zero observed users across all 184 products. The rule that was supposed to
-prevent that ("do not open ledger-only PRs that re-state known blockers") had
-an escape hatch, and every session used it.
+1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still carried
+no visitor measurement at all for any of the 184 products. The rule that was
+supposed to prevent that ("do not open ledger-only PRs that re-state known
+blockers") had an escape hatch, and every session used it.
+
+**That sentence used to end "still recorded zero observed users", and the
+correction is worth more than the sentence (2026-09-11).** The file has never
+recorded a zero. It carries `live_url_visitors: null` — 399 readings, not one
+of them a number — because GitHub Pages exposes no server-side analytics, this
+portfolio adds no third-party one, and the local counters are opt-in and off by
+default. Eleven places in the tree had turned that `null` into "zero observed
+users", which is the same absence-read-as-measurement error this file records
+against the 2026-09-05 Pages reading and `infra_state.yaml` records against a
+stale row — running the other way, and worse, because an absence reading as a
+*negative result* is evidence, and it licenses retiring a product or declaring
+an archetype saturated. "Never measured" licenses exactly one thing: go get a
+reading. `python3 platform/ci/usage_state.py --require-honest` fails while a
+steering document calls the null a zero, and goes quiet the moment either the
+sentence or the data changes.
 
 So: record outcomes per `portfolio/ledger/README.md` when you **shipped
 something**, in the same commit or PR as the thing you shipped. If you found a
@@ -976,6 +1297,26 @@ a ledger entry into a PR waiting on the owner.
 `git fetch origin main` before appending; skip if the latest entry already
 covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is
 ordinary platform code, exempt from the check and mergeable on its own.
+
+**A "set direction" brief has the same failure mode, and it now has the same
+kind of check.** `portfolio/DIRECTION.md`'s "Before rewriting this brief
+again" section asked sessions to check recent history before restating the
+north star; well over a dozen direction-only commits to `DIRECTION.md` and
+`AGENTS.md` landed anyway across 2026-09-06/07, because the check lived in
+prose a session only sees after opening the file. Run this before pushing a
+direction-setting session's work:
+
+```
+python3 portfolio/ledger/check_direction_only.py
+```
+
+Exit 1 means every file in your branch is `portfolio/DIRECTION.md` and/or
+`AGENTS.md` and nothing else — restate nothing; instead check
+`git log -5 -- portfolio/DIRECTION.md AGENTS.md`, and if the brief is
+already current, spend the session on `portfolio/router/allocate.py`'s top
+candidate or a fresh venture screened against `screened-out.md`. A genuine,
+targeted correction to either file still passes as long as it rides with
+real work in the same PR.
 
 ## Automation
 
