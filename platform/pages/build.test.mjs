@@ -1136,6 +1136,17 @@ test('the search index carries description text the card is too small to show', 
   const html = await read('index.html');
   const surfaces = (await site()).surfaces;
 
+  // A word this test picks to probe with must not be one the catalogue has
+  // itself declared too common to search on (the same `catalogueStopwords`
+  // cut the "drops the catalogue words that narrow nothing" test above
+  // verifies) -- otherwise, as the catalogue grows, a perfectly ordinary
+  // word ("browser", say) can cross that frequency threshold and this test
+  // would fail on a card for correctly *not* indexing a word every other
+  // card also dropped, rather than on a real missing-from-index defect.
+  const cards = [...html.matchAll(/data-name="([^"]*)" data-strong="[^"]*" data-search="([^"]*)"/g)]
+    .map(([, name, index]) => ({ name, index }));
+  const stops = catalogueStopwords(cards, CATALOGUE_STOPWORD_SHARE);
+
   const truncated = surfaces.filter(
     (s) => s.fullDescription && s.fullDescription.length > s.description.replace(/…$/, '').length + 1,
   );
@@ -1145,7 +1156,7 @@ test('the search index carries description text the card is too small to show', 
   for (const surface of truncated) {
     const shown = surface.description.replace(/…$/, '');
     const tail = surface.fullDescription.slice(shown.length);
-    const word = searchTokens([tail]).split(' ').filter((w) => w.length > 4)[0];
+    const word = searchTokens([tail]).split(' ').filter((w) => w.length > 4 && !stops.has(w))[0];
     if (!word) continue;
     const index = html.match(
       new RegExp(`data-search="([^"]*)"[^>]*>\\s*<a href="${surface.slug}/`),
