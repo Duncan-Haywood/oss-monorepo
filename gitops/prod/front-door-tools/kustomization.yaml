@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555780 bytes
-#   portfolio-front-tools-1: 106 files, 554528 bytes
-#   portfolio-front-tools-2: 148 files, 556399 bytes
-#   portfolio-front-tools-3: 140 files, 556861 bytes
-#   portfolio-front-tools-4: 123 files, 555961 bytes
-#   portfolio-front-tools-5: 138 files, 553610 bytes
-#   portfolio-front-tools-6: 120 files, 555962 bytes
-#   portfolio-front-tools-7: 133 files, 556266 bytes
-#   portfolio-front-tools-8: 111 files, 545940 bytes
-#   portfolio-front-tools-9: 112 files, 555728 bytes
-#   portfolio-front-tools-10: 119 files, 544573 bytes
-#   portfolio-front-tools-11: 130 files, 555655 bytes
-#   portfolio-front-tools-12: 109 files, 550292 bytes
-#   portfolio-front-tools-13: 107 files, 555545 bytes
-#   portfolio-front-tools-14: 114 files, 554918 bytes
-#   portfolio-front-tools-15: 70 files, 356310 bytes
+#   portfolio-front-tools-0: 133 files, 555785 bytes
+#   portfolio-front-tools-1: 106 files, 554518 bytes
+#   portfolio-front-tools-2: 148 files, 556391 bytes
+#   portfolio-front-tools-3: 140 files, 556853 bytes
+#   portfolio-front-tools-4: 123 files, 555955 bytes
+#   portfolio-front-tools-5: 138 files, 553608 bytes
+#   portfolio-front-tools-6: 120 files, 556071 bytes
+#   portfolio-front-tools-7: 133 files, 556263 bytes
+#   portfolio-front-tools-8: 111 files, 545969 bytes
+#   portfolio-front-tools-9: 110 files, 553295 bytes
+#   portfolio-front-tools-10: 122 files, 555670 bytes
+#   portfolio-front-tools-11: 128 files, 556982 bytes
+#   portfolio-front-tools-12: 113 files, 556223 bytes
+#   portfolio-front-tools-13: 107 files, 555510 bytes
+#   portfolio-front-tools-14: 114 files, 554863 bytes
+#   portfolio-front-tools-15: 70 files, 356257 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1367,6 +1367,9 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz
       - kitchen-tile-backsplash-bid-calculator__usage.mjs.gz=kitchen-tile-backsplash-bid-calculator__usage.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz=kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz
+      - land-survey-bid-calculator__calc.mjs.gz=land-survey-bid-calculator__calc.mjs.gz
+      - land-survey-bid-calculator__index.html.gz=land-survey-bid-calculator__index.html.gz
+      - land-survey-bid-calculator__usage.mjs.gz=land-survey-bid-calculator__usage.mjs.gz
       - landscape-lighting-bid-calculator__calc.mjs.gz=landscape-lighting-bid-calculator__calc.mjs.gz
       - landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz=landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz
       - landscape-lighting-bid-calculator__index.html.gz=landscape-lighting-bid-calculator__index.html.gz
@@ -1375,16 +1378,16 @@ configMapGenerator:
       - license-drift-check__cli.mjs.gz=license-drift-check__cli.mjs.gz
       - license-drift-check__engine.mjs.gz=license-drift-check__engine.mjs.gz
       - license-drift-check__how-a-dependency-license-change-reaches-your-lockfile.html.gz=license-drift-check__how-a-dependency-license-change-reaches-your-lockfile.html.gz
-      - license-drift-check__index.html.gz=license-drift-check__index.html.gz
-      - license-drift-check__usage.mjs.gz=license-drift-check__usage.mjs.gz
-      - license-drift-check__vs-fossa.html.gz=license-drift-check__vs-fossa.html.gz
-      - llms-txt-generator__cli.mjs.gz=llms-txt-generator__cli.mjs.gz
-      - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - license-drift-check__index.html.gz=license-drift-check__index.html.gz
+      - license-drift-check__usage.mjs.gz=license-drift-check__usage.mjs.gz
+      - license-drift-check__vs-fossa.html.gz=license-drift-check__vs-fossa.html.gz
+      - llms-txt-generator__cli.mjs.gz=llms-txt-generator__cli.mjs.gz
+      - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
       - llms-txt-generator__index.html.gz=llms-txt-generator__index.html.gz
       - llms-txt-generator__usage.mjs.gz=llms-txt-generator__usage.mjs.gz
       - llms-txt-generator__vs-a-hosted-docs-platform.html.gz=llms-txt-generator__vs-a-hosted-docs-platform.html.gz
@@ -1502,13 +1505,13 @@ configMapGenerator:
       - patio-door-bid-calculator__index.html.gz=patio-door-bid-calculator__index.html.gz
       - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
       - patio-door-bid-calculator__vs-jobber.html.gz=patio-door-bid-calculator__vs-jobber.html.gz
-      - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
-      - paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz=paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
+      - paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz=paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
       - paver-patio-bid-calculator__share.mjs.gz=paver-patio-bid-calculator__share.mjs.gz
       - paver-patio-bid-calculator__usage.mjs.gz=paver-patio-bid-calculator__usage.mjs.gz
@@ -1635,15 +1638,15 @@ configMapGenerator:
       - quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz=quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz
       - quote-margin-check__if-they-ask-for-10-percent-off.html.gz=quote-margin-check__if-they-ask-for-10-percent-off.html.gz
       - quote-margin-check__index.html.gz=quote-margin-check__index.html.gz
-      - quote-margin-check__markdown.mjs.gz=quote-margin-check__markdown.mjs.gz
-      - quote-margin-check__report.mjs.gz=quote-margin-check__report.mjs.gz
-      - quote-margin-check__review.mjs.gz=quote-margin-check__review.mjs.gz
-      - quote-margin-check__should-i-send-a-fixed-quote-or-bill-hourly.html.gz=quote-margin-check__should-i-send-a-fixed-quote-or-bill-hourly.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - quote-margin-check__markdown.mjs.gz=quote-margin-check__markdown.mjs.gz
+      - quote-margin-check__report.mjs.gz=quote-margin-check__report.mjs.gz
+      - quote-margin-check__review.mjs.gz=quote-margin-check__review.mjs.gz
+      - quote-margin-check__should-i-send-a-fixed-quote-or-bill-hourly.html.gz=quote-margin-check__should-i-send-a-fixed-quote-or-bill-hourly.html.gz
       - quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz=quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz
       - quote-margin-check__summary.mjs.gz=quote-margin-check__summary.mjs.gz
       - quote-margin-check__usage.mjs.gz=quote-margin-check__usage.mjs.gz

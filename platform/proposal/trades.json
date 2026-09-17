@@ -3958,5 +3958,50 @@
       "notes": "Access for a truck and trailer is needed at the parcel entrance. Property lines and any buried utilities are to be marked before work starts."
     },
     "disclaimerTail": "It is a work quote, not a land-clearing plan, a permit, or an environmental assessment, and it is not an opinion on whether mulching is a permitted or appropriate clearing method for this parcel."
+  },
+  "land-survey-bid-calculator": {
+    "jobTitle": "{surveyTypeLabel} survey — {parcelAcres}-acre parcel",
+    "jobTitleFallback": "Boundary survey",
+    "priceField": "finalPrice",
+    "fields": {
+      "surveyTypeLabel": {
+        "select": "surveyType",
+        "map": {
+          "boundary": "Boundary retracement",
+          "topo": "Topographic",
+          "alta": "ALTA/NSPS land title"
+        }
+      },
+      "parcelAcres": {
+        "number": "parcelAcres"
+      },
+      "cornersToLocate": {
+        "number": "cornersToLocate"
+      },
+      "cornersToSet": {
+        "number": "cornersToSet"
+      }
+    },
+    "scope": [
+      "Perform a {surveyTypeLabel} survey of the {parcelAcres}-acre parcel",
+      {
+        "line": "Locate {cornersToLocate} existing boundary corner(s)",
+        "when": "cornersToLocate"
+      },
+      {
+        "line": "Set {cornersToSet} boundary corner(s) with no recoverable monument",
+        "when": "cornersToSet"
+      },
+      "Research the deed, plat, and easement record for the property",
+      "Prepare a signed and sealed plat of survey"
+    ],
+    "placeholders": {
+      "companyName": "Meridian Land Surveying LLC",
+      "companyLicense": "State PLS #12345",
+      "scope": "Boundary retracement of the 5-acre parcel\nLocate 3 existing corners, set 1\nRecord research and a signed, sealed plat",
+      "exclusions": "Topographic contours or utility locates\nA property-line determination beyond the deed of record",
+      "notes": "Field work is weather-dependent; the plat is delivered within 10 business days of the field visit."
+    },
+    "disclaimerTail": "It is not a legal boundary determination, and delivery is subject to weather and courthouse record-office access."
   }
 }

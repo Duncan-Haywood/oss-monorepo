@@ -329,6 +329,20 @@ test('the calculator links one hop to its commercial-photo-license sibling', () 
   );
 });
 
+// The reciprocal of the assertion in
+// ventures/land-survey-bid-calculator/page.test.mjs. Both tools price a
+// "survey" -- one from the air, one on the ground with a physical crew -- and
+// the reciprocal link is what keeps land-survey-bid-calculator, which shipped
+// after this venture, off the crawlable-orphan list on its first commit
+// rather than as a spell to close later.
+test('the calculator links one hop to its land-survey-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/land-survey-bid-calculator\/"/,
+    'index must link ../land-survey-bid-calculator/ so crawlers reach it in one hop',
+  );
+});
+
 // platform/pages/invalid.mjs injects the real highlighter into any page that
 // prints this sentence verbatim, and skips any page that does not. Spelling it
 // differently ("fix the highlighted input", as this page first did) means the

@@ -1,0 +1,32 @@
+name: land-survey-bid-calculator
+description: Free browser calculator for independent licensed land surveyors to price a boundary, topographic, or ALTA/NSPS survey job from corners located vs. corners set, terrain and access, record research hours, crew and office rates, and drafting time, then compares the result against a flat per-acre quote for the same job.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent survey crews currently quote off a flat per-acre rate or gut feel, and a corner-and-research-driven price for the exact same job diverges from that rate often enough (in either direction) that seeing the gap changes how they write the quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The corner distinction (locate vs. set) is the genuinely counter-intuitive part rather than merely tedious, because a per-acre or per-corner-flat estimate treats every corner the same when a corner with no recoverable monument can run two to three times the field time of one that is simply relocated.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Search and community demand exists for survey-specific pricing help ("how to price a boundary survey", "land survey cost calculator", state surveyor-society and r/surveying discussion of pricing) that a free, no-account tool can capture without paid acquisition.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Surveyors report the corner locate/set distinction is not news -- the trade already prices it that way -- and the per-acre framing this tool argues against is not what real bids look like.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/land-survey-bid-calculator/
+  analytics: null
