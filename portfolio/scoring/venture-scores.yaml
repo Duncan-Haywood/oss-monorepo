@@ -12876,3 +12876,62 @@ ventures:
       Ethically: deterministic arithmetic, no data collected
       server-side, and no incentive to steer the comparison toward
       either company since the tool never recommends one.
+
+  - slug: wedding-florist-proposal-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the florist types. Rounding a
+      stem count up to whole bunches and multiplying by a markup is
+      exactly computable; there is nothing to infer and nothing a model
+      would do better than a ceiling division.
+    basis: >-
+      Screened 2026-09-16. duplicate_check.py against the venture
+      description scored the closest existing venture at 0.09
+      (forestry-mulching-bid-calculator and staffing-markup-calculator tie,
+      both on the generic "calculator / margin / pricing" vocabulary rather
+      than on the job), with bridal-hair-makeup-pricing-calculator -- the
+      nearest neighbour by buyer, not by mechanism -- at 0.08. Well under
+      the 0.45 flag bar, and the mechanism is genuinely distinct: that
+      venture prices per-person services against a schedule, this one
+      converts a stem recipe into a wholesale purchase. No florist or
+      floral-pricing row exists in screened-out.md.
+      Autonomous ops 10 / gross margin 10: a static page that computes in
+      the visitor's browser with nothing uploaded and nothing fetched, so
+      serving one more user costs a static file and needs no human review
+      of any output.
+      Distribution 5, above sbom-diff-check's 3: the audience is every
+      studio and solo florist pricing weddings, which is a larger and more
+      search-active population than teams generating SBOMs, and the query
+      shape ("how much to charge for wedding flowers", "floral recipe
+      cost") is a question people type. Not higher, because no search-volume
+      tool was queried to confirm magnitude and the portfolio has no
+      measured traffic of its own to extrapolate from.
+      Time to revenue 6, defensibility 3: donations-only; ceiling division
+      over a recipe is easy to reimplement, so defensibility rests on the
+      specific framing (that a markup applied to a stem count is applied to
+      a cost never paid, and that a cost-percentage shrink allowance is
+      wrong in both directions) and this portfolio's disclaimer/usage
+      conventions, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: planning arithmetic over figures the florist supplies, run
+      entirely in their own browser, with no network call, no stored data
+      and nothing leaving the device. It quotes no wholesale prices of its
+      own and makes no claim about what any flower costs or what any
+      wedding should be priced at -- both pages' footers say so plainly,
+      and note that wholesale availability and price move week to week so a
+      quote is the user's to verify. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to push a price up or down,
+      and it helps a small business charge for costs it is already paying.
