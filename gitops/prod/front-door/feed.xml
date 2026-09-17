@@ -44,6 +44,15 @@
     <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Tutor Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutor-package-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tutor-package-pricing-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-instructions-drift-check/"/>
     <id>tag:marisstella.dev,2026:tool/agent-instructions-drift-check</id>
