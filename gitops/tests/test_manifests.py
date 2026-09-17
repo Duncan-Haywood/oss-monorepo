@@ -1869,7 +1869,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # already declared, the direct Android-side counterpart to
     # `ios-privacy-manifest-check`, with a static `index.html` from its
     # first commit, same shape as the rest of this running count.
-    total = 305  # `infra/OWNER_CHECKLIST.md`'s own "N of the 305 tools" wording.
+    # 306 since 2026-09-17, when `deploy-concurrency-check` graduated -- a
+    # browser-local and CLI checker reading GitHub Actions workflow YAML for
+    # the five ways a deploying workflow is permitted to apply an older
+    # revision over a newer one (no concurrency group, a group keyed on
+    # something that changes every run, cancel-in-progress on a deploy, two
+    # jobs or workflows writing one environment under different group names,
+    # and a deploying job checking out a moving branch), with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    total = 306  # `infra/OWNER_CHECKLIST.md`'s own "N of the 306 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

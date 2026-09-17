@@ -1,0 +1,101 @@
+name: deploy-concurrency-check
+description: >-
+  Free, read-only checker (browser + stdlib-only CLI) that reads GitHub
+  Actions workflow YAML and reports every way a deploying workflow is
+  permitted to apply an older revision over a newer one -- no concurrency
+  group, a group keyed on something that changes every run,
+  cancel-in-progress on a deploy, two jobs or two workflows writing one
+  environment under different group names, and a deploying job checking out
+  a moving branch. The failure it is aimed at produces no red check: both
+  runs succeed, the older finishes last, and a green check on the newer
+  commit sits above a target running the older code.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row and ai-first-markets idea --
+# top score 0.16 (`sql-migration-lock-check`), far under the 0.45 read-this-
+# first bar. The eight existing `actions-*` checkers were read individually
+# rather than trusted to the score: `actions-permissions-check` is about a
+# workflow's `permissions:` grant, `pinned-actions-check` about a `uses:`
+# ref, `required-checks-drift-check` about branch-protection check names,
+# `actions-runner-starvation-check` about whether a job got a runner at all.
+# None reads `concurrency:`, and none is about deployment ordering.
+# `k8s-rollout-safety-check` (0.12) is the nearest in spirit and operates on
+# a different artifact entirely (a Kubernetes Deployment manifest, about
+# dropping requests during a rolling update, not about which revision wins).
+# Direct graduation of a low-risk dev-tool idea following
+# `required-checks-drift-check`'s and `pinned-actions-check`'s precedent.
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# told sessions to weigh a CLI/checker shape over another
+# <trade>-bid-calculator absent an unusually strong named channel. This is
+# that shape. It is also the shape this repository has the most direct
+# evidence for: CLAUDE.md's "publishing backwards" note records this exact
+# class of defect happening *here* -- two sessions overlapped, one published
+# the merge that had just landed, the other force-pushed a second later
+# holding the previous commit and took a just-shipped venture off the live
+# site, with nothing going red. That is finding #1 and #4 in this tool's own
+# vocabulary, and dogfooding it against this repo's 360 workflow files on the
+# day it was written produced three findings and stayed quiet on the other
+# 357.
+#
+# Gate self-assessment: liability_containment and ethical_robustness both
+# high. Read-only and mechanical: it opens the files the user names and
+# prints. It makes no network call anywhere in the code (classify.mjs,
+# check.py), never touches the GitHub API, never reads a token, never edits a
+# workflow, and never opens a pull request. Nothing pasted into the page
+# leaves the device. Every page states, in the page rather than a footnote,
+# that a clean report is not a safety guarantee -- the one claim that could
+# do real harm if a reader over-read it. Comparable to
+# `required-checks-drift-check`, `pinned-actions-check` and
+# `actions-permissions-check`, all graduated on this exact reasoning.
+hypotheses:
+  - claim: >-
+      An engineer debugging "the fix I shipped isn't live, but the check is
+      green" will search for that symptom (or "github actions deploy race",
+      "concurrency group not working", "older commit deployed") and find this
+      tool, because the symptom is well known and confusing and no existing
+      free tool states this specific failure mode directly, stays entirely
+      local, and needs no repository access, login, or install.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `check.py .github/workflows/ --fail-on-risk` into the
+      pull request that changes a workflow, converting a one-day-true review
+      into a standing check -- the same way `pinned-actions-check`'s
+      `--fail-on-risk` convention is meant to be used, and the reason the CLI
+      is stdlib-only with no network access.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The cross-file finding (`split-concurrency-group` across two workflows)
+      is the one that earns a return visit, because it is the only one of the
+      five that is not visible by reading either file on its own -- so a team
+      that already reviewed their workflows by hand still learns something
+      the first time they scan the directory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/deploy-concurrency-check/
+  analytics: null
