@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 106 files, 554522 bytes
 #   portfolio-front-tools-2: 148 files, 556334 bytes
 #   portfolio-front-tools-3: 140 files, 556923 bytes
-#   portfolio-front-tools-4: 121 files, 541939 bytes
+#   portfolio-front-tools-4: 122 files, 546686 bytes
 #   portfolio-front-tools-5: 137 files, 551918 bytes
 #   portfolio-front-tools-6: 117 files, 553935 bytes
 #   portfolio-front-tools-7: 136 files, 544428 bytes
@@ -736,6 +736,7 @@ configMapGenerator:
       - basement-waterproofing-bid-calculator__index.html.gz=basement-waterproofing-bid-calculator__index.html.gz
       - basement-waterproofing-bid-calculator__share.mjs.gz=basement-waterproofing-bid-calculator__share.mjs.gz
       - basement-waterproofing-bid-calculator__usage.mjs.gz=basement-waterproofing-bid-calculator__usage.mjs.gz
+      - basement-waterproofing-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=basement-waterproofing-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
       - basement-waterproofing-bid-calculator__vs-oblyss.html.gz=basement-waterproofing-bid-calculator__vs-oblyss.html.gz
       - boiler-replacement-bid-calculator__calc.mjs.gz=boiler-replacement-bid-calculator__calc.mjs.gz
       - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
