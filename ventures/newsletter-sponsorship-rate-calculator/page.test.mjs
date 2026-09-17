@@ -49,6 +49,18 @@ test("index links one hop to the brand-deal-rate-calculator sibling", () => {
   assert.match(html, /brand deal rate calculator/i);
 });
 
+// Same shape as the brand-deal sibling above: a podcast is a third channel
+// for the same underlying creator, priced by its own CPM logic.
+test("index links one hop to the podcast-sponsorship-rate-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/podcast-sponsorship-rate-calculator\/"/,
+    "index must link ../podcast-sponsorship-rate-calculator/ so crawlers reach it in one hop",
+  );
+  assert.match(html, /podcast\s+sponsorship\s+rate calculator/i);
+});
+
 // A rate card is only useful once the sponsor can see it. These three claims
 // have to hold together: the button exists, a decoded link is applied through
 // formValues (so a box the sender cleared arrives cleared rather than showing

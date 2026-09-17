@@ -8278,6 +8278,52 @@ ventures:
       their own account, nothing is scraped or inferred about a third
       party or about the brand on the other side of the deal, and all
       computation is client-side.
+  - slug: podcast-sponsorship-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on
+      downloads-per-1000 CPM benchmarks against numbers the podcaster
+      already knows about their own show, and adding inference would only
+      make the result less checkable.
+    basis: >-
+      Graduated 2026-09-17 as a browser-local podcast sponsorship pricing
+      calculator, modeled on the already-graduated
+      newsletter-sponsorship-rate-calculator and brand-deal-rate-calculator
+      (same reasoning: a creator-economy audience the portfolio does not
+      otherwise serve with this exact pricing math, this time podcast ad
+      inventory priced by placement and read type rather than email opens
+      or social engagement). duplicate_check.py scored nothing >= 0.30
+      against any existing venture, pipeline candidate, or screened-out
+      row. Defensibility 3: the downloads-based CPM pricing logic is
+      publicly documented by marketplaces and network rate cards
+      themselves; what is not free elsewhere is seeing those benchmark
+      numbers without first listing a show or connecting it to one of
+      them. Distribution 6: "how much to charge for a podcast ad" and
+      "podcast sponsorship rates" are recurring, named-intent queries in
+      r/podcasting and r/podcasters — real but a narrower buyer pool than
+      a mass-market trade niche.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price range framed explicitly as a negotiation
+      starting point, never a quote, guarantee, or valuation performed on
+      the user's behalf — being wrong costs a podcaster a miscalibrated
+      ask in one negotiation, not a filing or a contract obligation.
+      Ethically: every input is a number the podcaster already knows about
+      their own show, nothing is scraped or inferred about a third party
+      or about the sponsor on the other side of the deal, and all
+      computation is client-side.
   - slug: ios-privacy-manifest-check
     scores:
       ai_leverage: 1

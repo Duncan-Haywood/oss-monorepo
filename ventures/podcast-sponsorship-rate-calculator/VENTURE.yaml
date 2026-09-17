@@ -1,0 +1,77 @@
+name: podcast-sponsorship-rate-calculator
+description: Free browser calculator that turns a podcast's own average downloads per episode, niche, and ad read type (host-read or produced) into a defensible sponsorship price range for each common ad placement (pre-roll, mid-roll, post-roll) — using commonly cited podcast-ad-market CPM-per-1000-downloads benchmarks, entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a pricing
+# calculator for a creator-economy niche closely modeled on the already-
+# graduated newsletter-sponsorship-rate-calculator and brand-deal-rate-
+# calculator (same reasoning, same session-time tradeoff per
+# portfolio/pipeline/README.md's archetype-saturation note), extending the
+# creator-economy monetization archetype to a third distinct audience and
+# ad market -- podcast advertising, priced against downloads within the
+# industry-standard 7-day window, not email opens or social engagement.
+#
+# duplicate_check.py against "Podcast sponsorship ad read pricing
+# calculator vs. a flat per-episode rate" scored nothing >= 0.30 against any
+# existing venture, pipeline candidate, or screened-out row (closest:
+# dumpster-rental-margin-calculator at 0.29, on generic "pricing calculator"
+# word overlap only). newsletter-sponsorship-rate-calculator and brand-deal-
+# rate-calculator both price a different creator revenue channel (email
+# opens, social engagement) with different benchmark math; podcast CPM
+# pricing is driven by placement position within an episode (pre/mid/post-
+# roll) and read type (host-read vs. produced), neither of which the other
+# two tools model.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- output is a price *range* derived from
+#     published, cited market benchmarks, explicitly framed as a starting
+#     point for negotiation, never a quote, guarantee, or valuation
+#     performed on the user's behalf. Being wrong costs a podcaster a
+#     miscalibrated ask in one negotiation, not a filing, a contract
+#     obligation, or a third party's money. No advice-of-record: the user
+#     decides and negotiates.
+#   ethical_robustness: 8 -- deterministic arithmetic over benchmark ranges,
+#     no dark patterns, no data collected server-side, does not get worse
+#     for users as traffic grows. Every input is a number the user already
+#     knows about their own show; nothing is scraped or inferred about a
+#     third party.
+#
+# Distribution: r/podcasting, r/podcasters, and creator-economy newsletters
+# and Discords see this exact question ("how much should I charge for a
+# podcast ad") regularly once a show passes a few thousand downloads per
+# episode. Search phrases with real, recurring volume: "podcast sponsorship
+# rates", "how much to charge for a podcast ad", "podcast CPM calculator",
+# "podcast ad rates by download". Incumbents (Podcorn, AdvertiseCast,
+# Gumball) are marketplaces or agencies that take a cut, require a listing
+# or a minimum audience, or both; this is a free, standalone calculator with
+# nothing to sign up for and nothing to list.
+hypotheses:
+  - claim: A podcaster who lands here from a "how much to charge for a podcast ad" search or an r/podcasting thread will get a price range they did not already have and use it to set or defend an ask.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Shows below the size marketplaces like Podcorn or AdvertiseCast actively court are underserved for pricing guidance and will use a free, no-signup calculator instead of guessing from a competitor's public rate card.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/podcast-sponsorship-rate-calculator/
+  analytics: null

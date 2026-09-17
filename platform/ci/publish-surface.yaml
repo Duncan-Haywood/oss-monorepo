@@ -725,6 +725,9 @@ workflows:
 - workflow: plantation-shutter-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: podcast-sponsorship-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pole-barn-bid-calculator-ci.yml
   classification: none
   publishes: []
