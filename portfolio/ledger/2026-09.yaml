@@ -32115,3 +32115,58 @@ entries:
         cannot happen from the project-Pages subpath. All three hypotheses
         in `VENTURE.yaml` remain untested.
     mrr_end: 0
+  - venture: ice-dam-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed a workflow-completeness gap rather than adding another
+        comparison page: session_gate.py's build-now pipeline was empty and
+        the last two sessions had already covered new-venture and
+        comparison-page ground this week (#4867, #4865, #4862, #4859,
+        #4853), so this session picked CLAUDE.md's third-ranked option --
+        meaningfully improving an already-shipped product -- instead of a
+        142nd `<trade>-bid-calculator` variant or a fourth comparison page
+        collision in the same afternoon.
+      - >-
+        Added a "Copy share link" feature to
+        ventures/ice-dam-removal-bid-calculator (one of 130 ventures, out of
+        307, that had no share.mjs): a setter's footage, crew, rate-card,
+        and overhead inputs, plus the proposal panel's deposit and hold-
+        period terms, now round-trip through the page's own URL fragment so
+        a bid can be sent to a partner or the office, or reopened on the
+        setter's own next visit, without retyping the whole form. Modeled
+        on the existing pattern in the closely related
+        snow-removal-bid-calculator venture (flat SHARE_FIELDS allowlist,
+        JSON-in-fragment encoding) rather than inventing a fourth shape.
+        Nothing is transmitted -- the link is built and copied entirely in
+        the visitor's own browser.
+      - >-
+        Verified against platform/proposal/term-ids.test.mjs before
+        anything else: that guard exists because a proposal's deposit/terms
+        silently not surviving a shared link cost this exact bug on five
+        other ventures in the past (2026-08-29). The new share.mjs carries
+        all five term ids the generated proposal panel offers, and the
+        101-assertion platform/proposal suite passes clean with this
+        venture now included in its scan.
+      - >-
+        Checked platform/pages/surface-budget.mjs --for
+        ice-dam-removal-bid-calculator first per CLAUDE.md's overlap rule --
+        this PR adds no comparison/guide page, so the 1-of-1 generic-method
+        budget it already carries (vs-jobber.html) is untouched and there is
+        no collision to check against open PRs or branches (confirmed none
+        of the 596 open branches touch this venture).
+      - >-
+        Verified locally rather than by CI, which is starved this cycle
+        (ci_starvation.py; runner_id 0 on the last dispatch): 98/98
+        venture assertions (ventures/ice-dam-removal-bid-calculator/*.test.mjs,
+        including 8 new in share.test.mjs and one extended in page.test.mjs),
+        101/101 platform/proposal, and the platform/marketing +
+        platform/pages suites.
+      - >-
+        No usage signal yet, and none is claimed: usage.yaml has never
+        recorded a visitor measurement for this or any product in the
+        portfolio (`live_url_visitors: null`, not zero). The new
+        `share_link_copied` event is counted locally, opt-out, and never
+        transmitted, per portfolio/usage/README.md.
+    mrr_end: 0
