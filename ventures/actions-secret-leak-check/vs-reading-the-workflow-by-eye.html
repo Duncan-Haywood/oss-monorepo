@@ -126,7 +126,8 @@
     line itself signals that the value being exported was freshly derived
     from a secret (an OAuth token minted from it, a signed URL, a session
     cookie) and was therefore never registered on GitHub's masking list. A
-    reviewer would have to know the specific rule and trace the value back to
+    reviewer would have to know the specific rule (derived values need their
+    own <code>::add-mask::</code> call) and trace the value back to
     its secret source across steps to catch it, which a visual scan does
     not do.</p>
     <h3>Is a human reviewer worse at this than a tool, generally?</h3>
