@@ -1982,7 +1982,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # tag/digest rather than ENV/ARG/COPY secret exposure), cross-linked
     # reciprocally. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
-    total = 314  # `infra/OWNER_CHECKLIST.md`'s own "N of the 314 tools" wording.
+    #
+    # 315 since 2026-09-17, when `1099-vendor-tracker` graduated concurrently
+    # with `ny-llc-transparency-act-tracker` and `docker-build-secrets-check`
+    # above -- a browser-local tracker flagging which vendors cross the 2026
+    # $2,000 OBBBA 1099-NEC reporting threshold (up from $600) and need a
+    # 1099-NEC, applying the corporation exemption and its attorney-fee
+    # exception and tracking missing W-9s before the January 31 deadline.
+    # This branch was open before the other two landed, so it only ever knew
+    # 313 until this merge. Recorded from `sync_tree_counts.py`'s own fresh
+    # measurement against the merged tree, not a hand sum.
+    total = 315  # `infra/OWNER_CHECKLIST.md`'s own "N of the 315 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
