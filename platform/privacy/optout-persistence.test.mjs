@@ -193,7 +193,11 @@ const RELATIVE_SELF = relative(
 // `vector-db-cost-calculator` and `required-checks-drift-check` landed, so
 // it only ever knew its own predecessor's number (280, then 281) until
 // this merge.
-const SWITCHES_IN_THE_CATALOGUE = 282;
+// 282 -> 283 on 2026-09-17, when `podcast-sponsorship-rate-calculator`
+// graduated with its own `record`/`setUsageOptOut`/`usageOptedOut` switch,
+// the same pattern as its `newsletter-sponsorship-rate-calculator` and
+// `brand-deal-rate-calculator` siblings.
+const SWITCHES_IN_THE_CATALOGUE = 283;
 
 let counter = 0;
 function fixture(source) {

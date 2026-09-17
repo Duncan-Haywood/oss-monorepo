@@ -33,23 +33,23 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555824 bytes
-#   portfolio-front-tools-1: 106 files, 554413 bytes
-#   portfolio-front-tools-2: 147 files, 553035 bytes
-#   portfolio-front-tools-3: 140 files, 553703 bytes
-#   portfolio-front-tools-4: 123 files, 549456 bytes
-#   portfolio-front-tools-5: 136 files, 555047 bytes
-#   portfolio-front-tools-6: 122 files, 556887 bytes
-#   portfolio-front-tools-7: 136 files, 548077 bytes
-#   portfolio-front-tools-8: 113 files, 557004 bytes
-#   portfolio-front-tools-9: 110 files, 553946 bytes
-#   portfolio-front-tools-10: 120 files, 553059 bytes
-#   portfolio-front-tools-11: 122 files, 549751 bytes
-#   portfolio-front-tools-12: 128 files, 543819 bytes
-#   portfolio-front-tools-13: 98 files, 554947 bytes
-#   portfolio-front-tools-14: 113 files, 550122 bytes
-#   portfolio-front-tools-15: 77 files, 367669 bytes
-#   portfolio-front-tools-16: 51 files, 263310 bytes
+#   portfolio-front-tools-0: 133 files, 555810 bytes
+#   portfolio-front-tools-1: 106 files, 554409 bytes
+#   portfolio-front-tools-2: 147 files, 553036 bytes
+#   portfolio-front-tools-3: 140 files, 553712 bytes
+#   portfolio-front-tools-4: 123 files, 549435 bytes
+#   portfolio-front-tools-5: 136 files, 555114 bytes
+#   portfolio-front-tools-6: 122 files, 556902 bytes
+#   portfolio-front-tools-7: 136 files, 548082 bytes
+#   portfolio-front-tools-8: 113 files, 557011 bytes
+#   portfolio-front-tools-9: 110 files, 553941 bytes
+#   portfolio-front-tools-10: 120 files, 553087 bytes
+#   portfolio-front-tools-11: 124 files, 554425 bytes
+#   portfolio-front-tools-12: 131 files, 555061 bytes
+#   portfolio-front-tools-13: 98 files, 554916 bytes
+#   portfolio-front-tools-14: 113 files, 550036 bytes
+#   portfolio-front-tools-15: 77 files, 367654 bytes
+#   portfolio-front-tools-16: 51 files, 263342 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1602,6 +1602,11 @@ configMapGenerator:
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
       - plantation-shutter-bid-calculator__usage.mjs.gz=plantation-shutter-bid-calculator__usage.mjs.gz
       - plantation-shutter-bid-calculator__vs-jobber.html.gz=plantation-shutter-bid-calculator__vs-jobber.html.gz
+      - podcast-sponsorship-rate-calculator__calculator.mjs.gz=podcast-sponsorship-rate-calculator__calculator.mjs.gz
+      - podcast-sponsorship-rate-calculator__index.html.gz=podcast-sponsorship-rate-calculator__index.html.gz
+      - podcast-sponsorship-rate-calculator__share.mjs.gz=podcast-sponsorship-rate-calculator__share.mjs.gz
+      - podcast-sponsorship-rate-calculator__usage.mjs.gz=podcast-sponsorship-rate-calculator__usage.mjs.gz
+      - podcast-sponsorship-rate-calculator__vs-podcorn.html.gz=podcast-sponsorship-rate-calculator__vs-podcorn.html.gz
       - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
       - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
       - pole-barn-bid-calculator__index.html.gz=pole-barn-bid-calculator__index.html.gz
@@ -1632,14 +1637,14 @@ configMapGenerator:
       - pour-cost-calculator__share.mjs.gz=pour-cost-calculator__share.mjs.gz
       - pour-cost-calculator__usage.mjs.gz=pour-cost-calculator__usage.mjs.gz
       - pour-cost-calculator__vs-binwise.html.gz=pour-cost-calculator__vs-binwise.html.gz
-      - pour-cost-calculator__vs-wisk.html.gz=pour-cost-calculator__vs-wisk.html.gz
-      - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
-      - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pour-cost-calculator__vs-wisk.html.gz=pour-cost-calculator__vs-wisk.html.gz
+      - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
+      - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
       - pressure-washing-bid-calculator__index.html.gz=pressure-washing-bid-calculator__index.html.gz
       - pressure-washing-bid-calculator__share.mjs.gz=pressure-washing-bid-calculator__share.mjs.gz
       - pressure-washing-bid-calculator__usage.mjs.gz=pressure-washing-bid-calculator__usage.mjs.gz
