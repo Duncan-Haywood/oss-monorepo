@@ -46,10 +46,10 @@
 #   portfolio-front-tools-10: 118 files, 553096 bytes
 #   portfolio-front-tools-11: 122 files, 550658 bytes
 #   portfolio-front-tools-12: 132 files, 546510 bytes
-#   portfolio-front-tools-13: 98 files, 548466 bytes
+#   portfolio-front-tools-13: 99 files, 553099 bytes
 #   portfolio-front-tools-14: 111 files, 549716 bytes
 #   portfolio-front-tools-15: 98 files, 460046 bytes
-#   portfolio-front-tools-16: 50 files, 262952 bytes
+#   portfolio-front-tools-16: 50 files, 262943 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1856,6 +1856,7 @@ configMapGenerator:
       - skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz=skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz
       - skylight-install-bid-calculator__index.html.gz=skylight-install-bid-calculator__index.html.gz
       - skylight-install-bid-calculator__usage.mjs.gz=skylight-install-bid-calculator__usage.mjs.gz
+      - skylight-install-bid-calculator__vs-a-flat-rate-per-skylight-special.html.gz=skylight-install-bid-calculator__vs-a-flat-rate-per-skylight-special.html.gz
       - skylight-install-bid-calculator__vs-jobber.html.gz=skylight-install-bid-calculator__vs-jobber.html.gz
       - snow-removal-bid-calculator__calc.mjs.gz=snow-removal-bid-calculator__calc.mjs.gz
       - snow-removal-bid-calculator__how-much-to-charge.html.gz=snow-removal-bid-calculator__how-much-to-charge.html.gz
