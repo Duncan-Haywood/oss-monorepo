@@ -266,7 +266,8 @@ step "What is left, and only you can do it"
 # restate-instead-of-import defect CLAUDE.md records against the front-door
 # mirror, one script further out). A missing or reworded sentence degrades to
 # a vaguer line rather than breaking the script.
-switch_sentence="$(grep -oE '[0-9]+ of the [0-9]+ \`runs-on\` lines across [0-9]+ workflows' \
+# shellcheck disable=SC2016  # backticks are regex literals here, not command substitution
+switch_sentence="$(grep -oE '[0-9]+ of the [0-9]+ `runs-on` lines across [0-9]+ workflows' \
   "$repo_root/gitops/ci/README.md" 2>/dev/null | head -1 || true)"
 switch_note="${switch_sentence:-most workflows already read the switch}"
 
