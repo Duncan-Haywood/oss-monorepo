@@ -1862,7 +1862,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # as `whatnot-seller-payout` and `poshmark-fee-calculator`, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 304  # `infra/OWNER_CHECKLIST.md`'s own "N of the 304 tools" wording.
+    # 305 since 2026-09-17, when `android-data-safety-check` graduated -- a
+    # browser-local and CLI checker cross-checking an Android project's
+    # AndroidManifest.xml permissions and Gradle SDK dependencies against
+    # the Google Play Data safety categories the developer says they've
+    # already declared, the direct Android-side counterpart to
+    # `ios-privacy-manifest-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    total = 305  # `infra/OWNER_CHECKLIST.md`'s own "N of the 305 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
