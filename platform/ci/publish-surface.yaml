@@ -188,6 +188,9 @@ workflows:
 - workflow: cache-control-check-ci.yml
   classification: none
   publishes: []
+- workflow: call-recording-consent-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
