@@ -279,6 +279,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly ("common, honest shortcut"). Same reasoning as the other
   // generic-method pages above.
   'skylight-install-bid-calculator/vs-a-flat-rate-per-skylight-special.html',
+  // Compares against "tracking payouts in a spreadsheet" -- a generic method
+  // every Whatnot seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above (e.g. reverb-fee-calculator's).
+  'whatnot-seller-payout/vs-tracking-payouts-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

@@ -159,6 +159,55 @@ test("parameter type change is breaking", () => {
   assert.equal(match[0].to, "integer");
 });
 
+test("OpenAPI 3.1 nullable-style type array (['string', 'null']) unchanged is not flagged as a type change", () => {
+  // OpenAPI 3.1 adopts JSON Schema 2020-12, where `type` may be an array
+  // (e.g. ["string", "null"] instead of 3.0's `nullable: true`). Two freshly
+  // parsed documents never share array instances, so a naive `!==` compares
+  // identity, not content, and would flag every unchanged nullable-style
+  // parameter as "param-type-changed" on every single diff.
+  const oldOps = new Map([
+    ["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: ["string", "null"], enum: null }]]), requestBodyRequired: null }],
+  ]);
+  const newOps = new Map([
+    ["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: ["string", "null"], enum: null }]]), requestBodyRequired: null }],
+  ]);
+  const diff = diffOperations(oldOps, newOps);
+  assert.deepEqual(diff, { breaking: [], nonBreaking: [] });
+});
+
+test("a genuine type-array change is still detected as breaking", () => {
+  const oldOps = new Map([
+    ["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: ["string", "null"], enum: null }]]), requestBodyRequired: null }],
+  ]);
+  const newOps = new Map([
+    ["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: ["integer", "null"], enum: null }]]), requestBodyRequired: null }],
+  ]);
+  const diff = diffOperations(oldOps, newOps);
+  assert.equal(diff.breaking.length, 1);
+  assert.equal(diff.breaking[0].type, "param-type-changed");
+  assert.deepEqual(diff.breaking[0].from, ["string", "null"]);
+  assert.deepEqual(diff.breaking[0].to, ["integer", "null"]);
+});
+
+test("end-to-end: two identical OpenAPI 3.1 documents using nullable-style type arrays produce no diff", () => {
+  // The same bug via the public parseOpenApi -> diffOperations path, so the
+  // fix is proven against real document parsing and not only against the
+  // internal parameter shape.
+  const spec = JSON.stringify({
+    openapi: "3.1.0",
+    paths: {
+      "/widgets": {
+        get: { parameters: [{ name: "limit", in: "query", required: false, schema: { type: ["integer", "null"] } }] },
+      },
+    },
+  });
+  const oldOps = parseOpenApi(spec, "old").operations;
+  const newOps = parseOpenApi(spec, "new").operations;
+  const diff = diffOperations(oldOps, newOps);
+  assert.equal(hasBreakingChange(diff), false);
+  assert.deepEqual(diff, { breaking: [], nonBreaking: [] });
+});
+
 test("added enum value is non-breaking", () => {
   const diff = diffFixtures();
   const match = diff.nonBreaking.filter((c) => c.type === "added-enum-value");
