@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 140 files, 553691 bytes
 #   portfolio-front-tools-4: 124 files, 553883 bytes
 #   portfolio-front-tools-5: 136 files, 556397 bytes
-#   portfolio-front-tools-6: 124 files, 552387 bytes
+#   portfolio-front-tools-6: 125 files, 553378 bytes
 #   portfolio-front-tools-7: 135 files, 554069 bytes
 #   portfolio-front-tools-8: 113 files, 555275 bytes
 #   portfolio-front-tools-9: 111 files, 549338 bytes
@@ -980,6 +980,7 @@ configMapGenerator:
       - delivery-app-margin-calculator__usage.mjs.gz=delivery-app-margin-calculator__usage.mjs.gz
       - delivery-app-margin-calculator__vs-toast.html.gz=delivery-app-margin-calculator__vs-toast.html.gz
       - dental-ppo-writeoff-calculator__calc.mjs.gz=dental-ppo-writeoff-calculator__calc.mjs.gz
+      - dental-ppo-writeoff-calculator__form.mjs.gz=dental-ppo-writeoff-calculator__form.mjs.gz
       - dental-ppo-writeoff-calculator__index.html.gz=dental-ppo-writeoff-calculator__index.html.gz
       - dental-ppo-writeoff-calculator__usage.mjs.gz=dental-ppo-writeoff-calculator__usage.mjs.gz
       - dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz=dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz
