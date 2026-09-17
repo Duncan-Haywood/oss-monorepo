@@ -1739,7 +1739,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # monitoring, and waste disposal, then comparing the result to a flat
     # rate per square foot, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 291  # `infra/OWNER_CHECKLIST.md`'s own "N of the 291 tools" wording.
+    # 292 since 2026-09-17, when `tutor-package-pricing-calculator`
+    # graduated -- a no-upload browser calculator comparing a discounted
+    # prepaid session package to pay-per-session pricing on both revenue and
+    # effective hourly pay, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 292  # `infra/OWNER_CHECKLIST.md`'s own "N of the 292 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
