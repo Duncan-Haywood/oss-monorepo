@@ -8,10 +8,8 @@ a price-per-square-foot special goes out.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
-step, no network calls, no accounts. Not yet deployed to a public URL —
-publishing under the portfolio's name is owner-gated per
-[`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
-deploy as-is.
+step, no network calls, no accounts. Live at
+<https://duncan-haywood.github.io/monorepo-projects/attic-insulation-bid-calculator/>.
 
 ```bash
 # Serve it locally
@@ -21,7 +19,9 @@ cd ventures/attic-insulation-bid-calculator && node --test
 ```
 
 See [this calculator vs. FieldCamp](vs-fieldcamp.html) for which job fits a
-one-off bid check versus an ongoing, paid job-management platform.
+one-off bid check versus an ongoing, paid job-management platform, and
+[this calculator vs. a flat price-per-square-foot special](vs-a-flat-price-per-square-foot.html)
+for where a postcard rate usually gets the job wrong.
 
 After using this, you can now **quote blown-in attic insulation from areas,
 existing versus target R-value, and bag yield instead of a flat house

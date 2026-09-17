@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Backflow Test Fee Calculator — Multi-Device Job Quote, Free</title>
+  <meta name="description" content="Free backflow-preventer test fee calculator: per-device test fee with a multi-device discount, a per-device report-filing fee, a travel fee, and a retest fee for failed devices. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Backflow Test Fee Calculator — multi-device job quote, free">
+  <meta property="og:description" content="Quote a backflow-preventer test job with multiple devices: per-device fee with a multi-device discount, report-filing fee, travel fee, and retest fee for failed devices. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Backflow Test Fee Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Quotes a backflow-preventer test job with one or more devices (RPZ, double-check, PVB): a per-device test fee, a multi-device discount applied to every device after the first on the same property visit, a per-device municipal report-filing fee, a one-time travel fee, and a retest fee for devices that fail. Copies the full breakdown as a plain-text record for an invoice or work order. Entirely client-side; nothing is uploaded.","featureList":"Per-device test fee, multi-device discount for additional devices on the same visit, per-device report-filing fee, one-time travel fee, retest fee for failed devices, copy a plain-text breakdown"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to test multiple backflow devices at one property?","acceptedAnswer":{"@type":"Answer","text":"Most testers charge full price for the first device on a visit, then a reduced fee for each additional device on the same property — since the travel and setup time is already covered by the first device's fee — plus a per-device report-filing fee, since most water utilities require a separate submitted report for each assembly."}},{"@type":"Question","name":"Why does the report-filing fee apply to every device, even with a multi-device discount?","acceptedAnswer":{"@type":"Answer","text":"The multi-device discount reflects shared travel and setup time on one visit, not shared paperwork. Most water utilities require a separate test report submitted for every device — passed or failed — so the filing fee is charged per device regardless of the testing discount."}},{"@type":"Question","name":"How should a failed device be billed?","acceptedAnswer":{"@type":"Answer","text":"This calculator assumes a failed device is retested on the same visit, billed at a flat retest fee with no added travel charge. If a failed device needs a separate return trip — for example waiting on a repair part — add that trip's travel fee separately; this calculator only totals the fee schedule you enter, it does not schedule or track return visits."}},{"@type":"Question","name":"Does this tell me if a device passed or failed, or what my water utility requires?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only totals your own fee schedule against the devices on one job. It does not test anything, does not determine pass or fail, and does not know your water utility's required report form, filing deadline, or device-type requirements — those vary by state and by utility. Confirm those against your local cross-connection control program."}},{"@type":"Question","name":"Is this compliance or regulatory advice?","acceptedAnswer":{"@type":"Answer","text":"No. It applies the fee schedule and discount you configure to the devices you enter — it is not legal, engineering, or regulatory advice, and it does not replace checking your water utility's own backflow-testing requirements."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button.small { padding: 6px 10px; font-size: .85rem; margin: 4px 0 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    .device-row { display: grid; grid-template-columns: 1.4fr 1fr 100px auto auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .device-row label { margin: 0; font-weight: 400; font-size: .8rem; color: #4c5a68; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+    @media (max-width: 640px) {
+      .device-row { grid-template-columns: 1fr 1fr; grid-template-areas: "label type" "fee failed" "remove remove"; }
+      .device-row .device-label { grid-area: label; }
+      .device-row .device-type { grid-area: type; }
+      .device-row .device-fee { grid-area: fee; }
+      .device-row .device-failed { grid-area: failed; display: flex; align-items: center; gap: 6px; }
+      .device-row .remove-device { grid-area: remove; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BACKFLOW TEST FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Quote a multi-device backflow test job in seconds</h1>
+    <p>Add every device on the property visit — RPZ, double-check, PVB, or
+    any other assembly — and this applies your own fee schedule: full price
+    for the first device, a <strong>multi-device discount</strong> for every
+    device after it on the same trip, a <strong>per-device report-filing
+    fee</strong> (most water utilities require a separate submitted report
+    for each device), a one-time travel fee, and a retest fee for whatever
+    failed. Everything runs entirely in this browser.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>Devices on this visit</h2>
+    <p class="note">Add a row for each backflow assembly being tested at
+    this property, with that device's test fee. Check "failed" for any
+    device that needs a retest.</p>
+    <div id="device-rows"></div>
+    <p><button type="button" class="secondary small" id="add-device">+ Add device</button></p>
+    <div class="grid">
+      <div>
+        <label for="discount-percent">Additional-device discount (%)</label>
+        <input type="number" id="discount-percent" min="0" step="1" placeholder="e.g. 20" value="20">
+      </div>
+      <div>
+        <label for="travel-fee">Travel fee, per visit ($)</label>
+        <input type="number" id="travel-fee" min="0" step="0.01" placeholder="e.g. 25" value="0">
+      </div>
+      <div>
+        <label for="filing-fee">Report-filing fee, per device ($)</label>
+        <input type="number" id="filing-fee" min="0" step="0.01" placeholder="e.g. 10" value="0">
+      </div>
+      <div>
+        <label for="retest-fee">Retest fee, per failed device ($)</label>
+        <input type="number" id="retest-fee" min="0" step="0.01" placeholder="e.g. 25" value="0">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate quote</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Add each device and its test fee, then click Calculate quote.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Job quote</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Device</th><th>Type</th><th>Test fee</th><th>Filing</th><th>Retest</th><th>Line total</th></tr></thead>
+      <tbody id="report-body"></tbody>
+    </table>
+    <div id="findings"></div>
+    <button type="button" id="copy-breakdown">Copy breakdown</button>
+    <p class="note" id="copy-breakdown-status">Copies every device, its test fee, filing fee and retest fee, the subtotals, and the total as plain text to paste into an invoice or work order. The jurisdiction caveat is copied with it.</p>
+    <div id="breakdown-fallback" hidden>
+      <label class="note" for="breakdown-text">Select and copy the breakdown:</label>
+      <textarea id="breakdown-text" rows="14" readonly></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This calculator totals the fee schedule you enter against the devices
+    on one job. It does not test anything and does not determine whether a
+    device passed or failed — that judgment is yours. It also does not know
+    your water utility's required report form, filing deadline, or
+    device-type requirements, which vary by state and by utility. Confirm
+    those against your local cross-connection control program before
+    invoicing or filing.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge to test multiple backflow devices at one property?</h3>
+    <p>Most testers charge full price for the first device on a visit, then a reduced fee for each additional device on the same property — since the travel and setup time is already covered by the first device's fee — plus a per-device report-filing fee, since most water utilities require a separate submitted report for each assembly.</p>
+    <h3>Why does the report-filing fee apply to every device, even with a multi-device discount?</h3>
+    <p>The multi-device discount reflects shared travel and setup time on one visit, not shared paperwork. Most water utilities require a separate test report submitted for every device — passed or failed — so the filing fee is charged per device regardless of the testing discount.</p>
+    <h3>How should a failed device be billed?</h3>
+    <p>This calculator assumes a failed device is retested on the same visit, billed at a flat retest fee with no added travel charge. If a failed device needs a separate return trip — for example waiting on a repair part — add that trip's travel fee separately; this calculator only totals the fee schedule you enter, it does not schedule or track return visits.</p>
+    <h3>Does this tell me if a device passed or failed, or what my water utility requires?</h3>
+    <p>No. This calculator only totals your own fee schedule against the devices on one job. It does not test anything, does not determine pass or fail, and does not know your water utility's required report form, filing deadline, or device-type requirements — those vary by state and by utility. Confirm those against your local cross-connection control program.</p>
+    <h3>Is this compliance or regulatory advice?</h3>
+    <p>No. It applies the fee schedule and discount you configure to the devices you enter — it is not legal, engineering, or regulatory advice, and it does not replace checking your water utility's own backflow-testing requirements.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, engineering, or regulatory advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your water utility's own report and filing requirements. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote_calculated</code>, <code>breakdown_copied</code>, <code>example_loaded</code>) are counted only in local storage on your device. Copying the breakdown puts it on your clipboard and nowhere else — the text is built in this browser and is never sent anywhere. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Doing this arithmetic by hand or in a spreadsheet? See <a href="./vs-spreadsheet.html">this calculator vs. a spreadsheet</a> for where a hand-built multi-device fee sheet usually drifts.</p>
+    <p>Running a route of recurring inspections instead of one-off tests? The <a href="../fire-extinguisher-inspection-route-margin/">fire extinguisher inspection route margin calculator</a> covers the same recurring-inspection shape for a different trade.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeJobQuote, formatQuoteBreakdown } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function money(n) {
+      const format = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const value = Number(n) || 0;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(container, findings) {
+      if (findings.length === 0) {
+        container.innerHTML = "";
+        return;
+      }
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    const els = {
+      rows: $("#device-rows"), discount: $("#discount-percent"), travel: $("#travel-fee"),
+      filing: $("#filing-fee"), retest: $("#retest-fee"), status: $("#status"),
+      report: $("#report"), stats: $("#stats"), body: $("#report-body"), findings: $("#findings"),
+      copyStatus: $("#copy-breakdown-status"), fallback: $("#breakdown-fallback"), textarea: $("#breakdown-text"),
+    };
+
+    // Held from the last calculate so the copy button can never hand out a
+    // breakdown that disagrees with the table above it -- the same reasoning
+    // CLAUDE.md records against share.mjs's own field allowlist, and the
+    // same pattern overtime-pay-calculator's lastResult uses.
+    let lastResult = null;
+
+    function addDeviceRow(label = "", deviceType = "rpz", fee = "", failed = false) {
+      const row = document.createElement("div");
+      row.className = "device-row";
+      row.innerHTML = `
+        <input type="text" class="device-label" aria-label="Device label" placeholder="e.g. Fire line RPZ" value="${label}">
+        <select class="device-type" aria-label="Device type">
+          <option value="rpz" ${deviceType === "rpz" ? "selected" : ""}>RPZ</option>
+          <option value="dc" ${deviceType === "dc" ? "selected" : ""}>Double check</option>
+          <option value="pvb" ${deviceType === "pvb" ? "selected" : ""}>PVB</option>
+          <option value="other" ${deviceType === "other" ? "selected" : ""}>Other</option>
+        </select>
+        <input type="number" class="device-fee" aria-label="Test fee, dollars" min="0" step="0.01" placeholder="Fee ($)" value="${fee}">
+        <label class="device-failed"><input type="checkbox" class="device-failed-check" ${failed ? "checked" : ""}> Failed</label>
+        <button type="button" class="secondary small remove-device">Remove</button>`;
+      row.querySelector(".remove-device").addEventListener("click", () => row.remove());
+      els.rows.appendChild(row);
+    }
+
+    function readDeviceRows() {
+      return [...els.rows.querySelectorAll(".device-row")].map((row) => ({
+        label: row.querySelector(".device-label").value,
+        deviceType: row.querySelector(".device-type").value,
+        testFee: Number(row.querySelector(".device-fee").value),
+        failed: row.querySelector(".device-failed-check").checked,
+      }));
+    }
+
+    function runCalculate() {
+      const devices = readDeviceRows();
+      const result = computeJobQuote({
+        devices,
+        additionalDeviceDiscountPercent: Number(els.discount.value) || 0,
+        travelFee: Number(els.travel.value) || 0,
+        reportFilingFeePerDevice: Number(els.filing.value) || 0,
+        retestFee: Number(els.retest.value) || 0,
+      });
+
+      els.body.innerHTML = result.lineItems
+        .map((d) => `<tr><td>${d.label}${d.failed ? " (failed)" : ""}</td><td>${d.deviceType}</td><td>${money(d.discountedFee)}</td><td>${money(d.filingFee)}</td><td>${money(d.retestFee)}</td><td>${money(d.lineTotal)}</td></tr>`)
+        .join("");
+      els.stats.innerHTML = `${result.deviceCount} device(s), ${result.failedCount} failed. Testing ${money(result.subtotalTesting)} + filing ${money(result.subtotalFiling)} + retest ${money(result.subtotalRetest)} + travel ${money(result.travelFee)}. <strong>Total: <span class="price">${money(result.grandTotal)}</span></strong> (avg ${money(result.averagePerDevice)}/device).`;
+      renderFindings(els.findings, result.findings);
+      lastResult = result;
+      els.fallback.hidden = true;
+      els.copyStatus.textContent = COPY_HINT;
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("quote_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const COPY_HINT = "Copies every device, its test fee, filing fee and retest fee, the subtotals, and the total as plain text to paste into an invoice or work order. The jurisdiction caveat is copied with it.";
+
+    $("#copy-breakdown").addEventListener("click", async () => {
+      if (!lastResult) {
+        els.copyStatus.innerHTML = `<span class="error">Calculate the quote first, then copy the breakdown.</span>`;
+        return;
+      }
+      const text = formatQuoteBreakdown(lastResult);
+      els.textarea.value = text;
+      try {
+        // Absent over plain http, in some embedded webviews, and whenever the
+        // permission is refused -- so the textarea below is the route that
+        // always works, not a nicety.
+        await navigator.clipboard.writeText(text);
+        els.fallback.hidden = true;
+        els.copyStatus.textContent = "Breakdown copied. Paste it into your invoice or work order — read it once before sending.";
+      } catch {
+        els.fallback.hidden = false;
+        els.copyStatus.textContent = "This browser blocked the clipboard. The breakdown is in the box below — select it and copy.";
+        els.textarea.focus();
+        els.textarea.select();
+      }
+      record("breakdown_copied");
+    });
+
+    $("#add-device").addEventListener("click", () => addDeviceRow());
+
+    $("#calculate").addEventListener("click", () => {
+      const devices = readDeviceRows().filter((d) => d.testFee > 0);
+      if (devices.length === 0) {
+        els.status.innerHTML = `<span class="error">Add at least one device with a test fee above first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.rows.innerHTML = "";
+      addDeviceRow("Fire line RPZ", "rpz", "95");
+      addDeviceRow("Irrigation double check", "dc", "60");
+      addDeviceRow("Domestic PVB", "pvb", "55", true);
+      els.discount.value = "20";
+      els.travel.value = "25";
+      els.filing.value = "10";
+      els.retest.value = "20";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a 3-device commercial property, one device failed.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.rows.innerHTML = "";
+      els.discount.value = "20";
+      els.travel.value = "0";
+      els.filing.value = "0";
+      els.retest.value = "0";
+      els.report.hidden = true;
+      // Drop the held result with the inputs that produced it, so a copy
+      // after a clear cannot hand out the cleared row's figures.
+      lastResult = null;
+      els.fallback.hidden = true;
+      els.textarea.value = "";
+      els.copyStatus.textContent = COPY_HINT;
+      els.status.textContent = "Add each device and its test fee, then click Calculate quote.";
+      addDeviceRow();
+      addDeviceRow();
+    });
+
+    addDeviceRow();
+    addDeviceRow();
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

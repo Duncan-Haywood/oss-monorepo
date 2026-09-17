@@ -133,6 +133,7 @@ runner-side probe remains the credential-free way to get one.
 """
 
 import argparse
+import datetime as dt
 import fnmatch
 import json
 import os
@@ -191,6 +192,41 @@ PUBLISH_WORKFLOW = os.path.join(
 # before (`pages-build-deployment` today), and any future managed Pages
 # builder still has to live under this namespace to be a Pages builder.
 PAGES_BUILDER_PREFIX = "dynamic/pages/"
+
+# The `infra_state.yaml` row this module's `deployed` verdict measures, and the
+# file it lives in. `--record` writes the reading back into that row.
+#
+# Why writing it back is worth code rather than a reminder. `decision_queue.py`
+# ages any reading older than its `STALE_AFTER_DAYS` (3) out to `unknown`, and
+# `serving_origins()` then drops this origin -- which flips the queue's header
+# from "PARTIAL OUTAGE ... the rows below are NOT all waiting on this" to
+# "OUTAGE: the public surface is down ... every other row here is downstream of
+# a host answering at all". The ageing is correct and must not be widened: an
+# un-re-measured origin must never keep suppressing that banner. But the row it
+# ages out is one this module can re-measure on demand, with no credential
+# beyond the repository read a session already has -- so the gap between "we
+# can measure this" and "somebody remembered to hand-edit the YAML" is the
+# whole defect, and it has now cost the same false OUTAGE twice (2026-09-10,
+# then again 2026-09-16 six days later, with the row's own prose in between
+# saying "if the banner regresses again, retake it").
+#
+# So this is the reminder turned into a command, the same move
+# `--require-current` is against a stale snapshot and `guard_state.py
+# --require-runnable` is against a fixable skip.
+INFRA_STATE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "portfolio",
+    "ledger",
+    "infra_state.yaml",
+)
+ORIGIN_READING = "github-pages-branch-route"
+
+# What a `deployed` verdict means for that row's `verdict:` field. `unknown` is
+# deliberately absent: a reading that measured nothing must not overwrite a
+# reading that measured something, it must let the existing row age out on its
+# own. That is the same direction `reading()` errs in, and the direction the
+# 2026-08-30..09-04 "nothing is served" episode failed in.
+DEPLOYED_TO_VERDICT = {"served": "up", "failed": "down"}
 
 # How GitHub's managed builder reports a build it abandoned because a newer
 # push to the same branch overtook it. It is the *ordinary* outcome here, not
@@ -883,6 +919,93 @@ def collect(api):
     }
 
 
+def record_reading(state, path=INFRA_STATE, today=None):
+    """Write this run's `deployed` measurement into `infra_state.yaml`'s row.
+
+    Returns `(changed, message)`. `changed` is False for every refusal, and the
+    message says why -- a refusal is a normal outcome here, not an error.
+
+    It edits the three *measured* fields (`verdict`, `measured`, `run`) by line
+    and touches nothing else. That is not fussiness about diff size: this file
+    is roughly nine parts hand-written prose to one part data, and every one of
+    those paragraphs is a dated lesson the repository paid for. `yaml.safe_load`
+    followed by `yaml.dump` would round-trip the data perfectly and silently
+    delete all of it, which is a far worse outcome than the stale row this
+    function exists to fix.
+
+    The division of labour in the row is deliberate: prose says how to
+    re-measure and what was learned, and carries no date; the three fields
+    below carry the date and are machine-maintained. A dated claim inside the
+    prose would go stale against the fields the moment this ran.
+    """
+    verdict = DEPLOYED_TO_VERDICT.get(state.get("deployed"))
+    if verdict is None:
+        return False, (
+            f"deployed is '{state.get('deployed')}', which measures nothing about "
+            f"whether the origin serves, so `{ORIGIN_READING}` is left alone to "
+            "age out on its own rather than being overwritten with a non-reading"
+        )
+
+    success = (state.get("deployment") or {}).get("last_success") or {}
+    run_id = success.get("run_id") or (state.get("deployment") or {}).get("run_id")
+    if not run_id:
+        return False, (
+            "the reading carries no run id, and a verdict without the run it was "
+            "taken from is exactly the unfalsifiable claim this file forbids"
+        )
+
+    today = dt.date.today() if today is None else today
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().splitlines(keepends=True)
+    except OSError as exc:
+        return False, f"could not read {path}: {exc}"
+
+    # Find the row, then its block: every following line indented deeper than
+    # the key itself, plus blank lines. Anything at the key's indent or less
+    # ends it, so a neighbouring row can never be edited by mistake.
+    head = f"  {ORIGIN_READING}:"
+    try:
+        start = next(i for i, ln in enumerate(lines) if ln.rstrip("\n") == head)
+    except StopIteration:
+        return False, f"no `{ORIGIN_READING}:` row in {path}"
+
+    end = len(lines)
+    for i in range(start + 1, len(lines)):
+        stripped = lines[i].strip()
+        if not stripped:
+            continue
+        if len(lines[i]) - len(lines[i].lstrip(" ")) <= 2:
+            end = i
+            break
+
+    wanted = {
+        "verdict": f"    verdict: {verdict}\n",
+        "measured": f'    measured: "{today.isoformat()}"\n',
+        "run": f"    run: {run_id}\n",
+    }
+    seen = set()
+    for i in range(start + 1, end):
+        key = lines[i].strip().split(":", 1)[0]
+        if key in wanted and lines[i].startswith(f"    {key}:"):
+            lines[i] = wanted[key]
+            seen.add(key)
+
+    missing = sorted(set(wanted) - seen)
+    if missing:
+        return False, (
+            f"`{ORIGIN_READING}` has no {', '.join(missing)} field to update; "
+            "refusing to guess where it belongs"
+        )
+
+    new = "".join(lines)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(new)
+    return True, (
+        f"{ORIGIN_READING}: {verdict} (run {run_id}, measured {today.isoformat()})"
+    )
+
+
 def render(state):
     lines = [
         "GitHub Pages route — what this session can read without the owner",
@@ -970,6 +1093,16 @@ def main(argv=None, api=None):
             "after merging a change that touches a served surface"
         ),
     )
+    parser.add_argument(
+        "--record",
+        action="store_true",
+        help=(
+            "write this reading into `portfolio/ledger/infra_state.yaml`'s "
+            f"`{ORIGIN_READING}` row, so `decision_queue.py` stops ageing a "
+            "measurable origin out into a false OUTAGE banner; run it after "
+            "publishing, and commit what it rewrites"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if api is None:
@@ -990,6 +1123,14 @@ def main(argv=None, api=None):
         return 2
 
     print(json.dumps(state, indent=2) if args.json else render(state), end="")
+
+    if args.record:
+        changed, message = record_reading(state)
+        # Both outcomes go to stdout and both are exit 0 on their own: a
+        # refusal means the reading measured nothing worth writing, which is
+        # not a failure of this command. `--record` composes with the verdict
+        # flags below rather than replacing them.
+        print(f"\nrecorded: {message}" if changed else f"\nnot recorded: {message}")
 
     if args.require_current:
         code = freshness_exit_code(state)

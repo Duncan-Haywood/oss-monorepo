@@ -100,7 +100,7 @@ node cli.mjs check AGENTS.md --json                   # machine-readable</pre>
         <tr><td>Interpreter-mismatch footgun</td><td>A bare <code>pytest</code> or <code>mypy</code> inside a fenced code block, without a <code>python3 -m</code> (or <code>python -m</code>) prefix on the same line</td></tr>
       </tbody>
     </table>
-    <p class="note">Restricted to markdown links and inline code spans on purpose — that is how instruction files actually cite a path when they mean it literally, and scanning ordinary prose for anything path-shaped would flag far more false positives than real drift. A shorthand reference that relies on nearby prose for its directory ("the same <code>validate.py</code> as above") reports as not found even when a longer form of the same path exists elsewhere — a known, disclosed limitation, not a bug. See <a href="why-ai-agent-instruction-files-rot.html">why these files rot, and where this checker's own edges are</a>.</p>
+    <p class="note">Restricted to markdown links and inline code spans on purpose — that is how instruction files actually cite a path when they mean it literally, and scanning ordinary prose for anything path-shaped would flag far more false positives than real drift. A shorthand reference that relies on nearby prose for its directory ("the same <code>validate.py</code> as above") reports as not found even when a longer form of the same path exists elsewhere — a known, disclosed limitation, not a bug. See <a href="why-ai-agent-instruction-files-rot.html">why these files rot, and where this checker's own edges are</a>, or <a href="vs-checking-it-by-hand.html">this checker vs. checking it by hand</a>.</p>
   </section>
 
   <section class="card">

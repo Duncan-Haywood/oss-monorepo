@@ -151,11 +151,36 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "checking a DST calendar by hand" -- a generic manual
+  // habit every developer already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other manual-method
+  // pages above.
+  'cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html',
   // Compares against "diffing the raw JSON files by hand" and "a generic
   // online JSON-diff tool" -- a method and a category of tool, not any one
   // company's product this could be mistaken for. The page's own footer
   // says so explicitly ("names no specific product").
   'sbom-diff-check/vs-diffing-the-raw-json-files.html',
+  // Compares against "splitting the kitchen bill evenly" -- a generic method
+  // every commissary/shared-kitchen operator already has, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above.
+  'commissary-kitchen-cost-split-calculator/vs-splitting-evenly.html',
+  // Compares against "opening the instructions file and checking every link
+  // and script reference by hand" -- a generic manual habit every developer
+  // and reviewer already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other manual-method pages above.
+  'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  // Compares against "a flat price per square foot" -- a generic pricing
+  // method every insulation crew already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above.
+  'attic-insulation-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a spreadsheet" -- a generic method every backflow
+  // tester already has, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // product"). Same reasoning as the other vs-spreadsheet pages above.
+  'backflow-test-fee-calculator/vs-spreadsheet.html',
   // Compares against "a recipe markup spreadsheet" -- the sheet nearly every
   // floral studio builds for itself, which is a working method rather than
   // any one company's product this could be mistaken for. The page's own

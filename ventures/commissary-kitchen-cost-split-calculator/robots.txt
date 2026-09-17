@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://example.invalid/commissary-kitchen-cost-split-calculator/sitemap.xml

@@ -143,6 +143,9 @@ workflows:
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: backflow-test-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
@@ -237,6 +240,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: commercial-photo-license-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: commissary-kitchen-cost-split-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: concrete-bid-calculator-ci.yml
@@ -540,6 +546,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: land-survey-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: landscape-lighting-bid-calculator-ci.yml

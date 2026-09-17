@@ -6379,3 +6379,27 @@ products:
           how often the schedule-capacity check actually changes a staffing
           decision is the calculator's differentiated claim, not the price
           total a flat rate could also produce.
+  - slug: backflow-test-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          quote_calculated: 0
+          breakdown_copied: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit.
+          `live_url_visitors` is null, not zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet, not measured-and-zero. Named channel to watch: the
+          American Backflow Prevention Association (ABPA) and state
+          cross-connection-control association forums, and search for
+          "backflow test fee calculator" or "how to price backflow testing
+          multiple devices". The reading worth watching is
+          `breakdown_copied` against `quote_calculated` -- whether a visitor
+          took the itemized quote somewhere else (an invoice or work order),
+          the same ratio overtime-pay-calculator watches for its own
+          breakdown copy.
