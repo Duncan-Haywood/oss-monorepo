@@ -313,7 +313,14 @@ const RELATIVE_SELF = relative(
 // 294 -> 295 after merging `cnc-machining-quote-calculator` (#4957), which
 // landed on `main` with its own opt-out switch while this branch was
 // still mid-merge -- the same collision shape one more time.
-const SWITCHES_IN_THE_CATALOGUE = 295;
+//
+// 295 -> 296 on 2026-09-17, when `ny-llc-transparency-act-tracker`
+// graduated with its own `setUsageOptOut`/`usageOptedOut` switch, the same
+// `usage.mjs` shape as `call-recording-consent-check`. Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/ny-llc-transparency-act-tracker/usage.mjs`) and no deletions,
+// so this is a graduation and not a switch that stopped being one.
+const SWITCHES_IN_THE_CATALOGUE = 296;
 
 let counter = 0;
 function fixture(source) {

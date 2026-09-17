@@ -56,6 +56,19 @@ test("the beneficial-owner worksheet is never put into a shareable URL", () => {
   assert.doesNotMatch(html, /id="copy-link"/);
 });
 
+// siblings.mjs named grant-deadline-tracker as the nearest tool with no
+// inbound link when this venture graduated (both in "Compliance checks &
+// evidence records"). The reciprocal link is asserted in that venture's own
+// page.test.mjs; this closes the pair from this side.
+test("index links one hop to the grant-deadline-tracker sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/grant-deadline-tracker\/"/,
+    "index must link ../grant-deadline-tracker/ so crawlers reach it in one hop",
+  );
+  assert.match(html, /grant deadline tracker/i);
+});
+
 test("the persistence toggle is opt-in and off by default", () => {
   assert.match(html, /off by default/);
   assert.match(html, /Not saved\. Reloading this page clears the worksheet/);

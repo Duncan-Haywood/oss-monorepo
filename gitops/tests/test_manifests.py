@@ -1952,7 +1952,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # next commit (#4969) registered it. No venture graduated between the
     # two -- the mirror gained one entry it should have had from the start.
     # Recorded from `sync_tree_counts.py`'s own fresh measurement.
-    total = 311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 311 tools" wording.
+    # 312 since 2026-09-17: `ny-llc-transparency-act-tracker` graduated,
+    # merged onto `main` at 311 (post-#4969/#4972). Recorded from
+    # `sync_tree_counts.py`'s own fresh measurement against the merged tree.
+    total = 312  # `infra/OWNER_CHECKLIST.md`'s own "N of the 312 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
