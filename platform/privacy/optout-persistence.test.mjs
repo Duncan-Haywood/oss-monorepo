@@ -150,7 +150,12 @@ const RELATIVE_SELF = relative(
 // graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `land-survey-bid-calculator` use), same
 // discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 276;
+// 276 -> 277 on 2026-09-17, when `tutor-package-pricing-calculator`
+// graduated with a `usage.mjs` opt-out following the same
+// `setUsageOptOut`/`usageOptedOut` pattern as
+// `overtime-pay-calculator`'s switch, same discovery method as the rest of
+// this running count.
+const SWITCHES_IN_THE_CATALOGUE = 277;
 
 let counter = 0;
 function fixture(source) {
