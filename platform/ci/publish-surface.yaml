@@ -968,6 +968,9 @@ workflows:
 - workflow: subcontractor-cashflow-planner-ci.yml
   classification: none
   publishes: []
+- workflow: subpath-robots-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: subscription-price-impact-ci.yml
   classification: none
   publishes: []
