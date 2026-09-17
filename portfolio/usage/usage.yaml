@@ -5388,6 +5388,27 @@ products:
           `example_loaded` -- a visitor who only ever loads the example has not
           brought their own input to it, which is the difference between a demo
           and a tool.
+  - slug: actions-transitive-pin-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded the same day the venture shipped, from its
+          first commit -- unlike several siblings above, this one is not a
+          retroactive catch-up. It fetches what a pinned reusable workflow or
+          composite action itself loads and flags it if that is unpinned
+          underneath, a gap `pinned-actions-check`'s own "no network calls of
+          any kind" design cannot see. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet. The
+          reading worth watching is `check_run` against `example_loaded` -- a
+          visitor who only ever loads the example has not brought their own
+          input to it, which is the difference between a demo and a tool.
   - slug: affiliate-disclosure-checker
     surface: github-pages
     readings:

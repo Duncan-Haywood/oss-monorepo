@@ -1938,6 +1938,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `cnc-machining-quote-calculator` landed, so it only ever knew 310
     # until this merge -- both branches independently wrote "310" for what
     # the merged tree made 311.
+    # `actions-transitive-pin-check` also graduated concurrently -- a CLI +
+    # browser tool that, for every top-level `uses:` reference already
+    # pinned to a commit SHA, fetches that exact file from
+    # `raw.githubusercontent.com` and classifies its own `uses:` lines the
+    # same way, flagging a reference pinned at the call site but loading
+    # something unpinned underneath -- a gap `pinned-actions-check`'s own
+    # "no network calls" design cannot see into. A prior merge of these same
+    # four concurrent branches guessed 311 by hand and got it wrong (measured
+    # 310 fresh against the actual tree, most likely because one of the four
+    # was already reflected in the baseline the arithmetic started from) --
+    # recorded here as the reminder not to repeat that: the number below is
+    # `sync_tree_counts.py`'s own measurement against this merge's tree, not
+    # a hand sum of the four.
     total = 311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 311 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
