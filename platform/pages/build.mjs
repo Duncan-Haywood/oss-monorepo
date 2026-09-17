@@ -665,8 +665,18 @@ const CATEGORY_RULES = [
     // marketplace fee. It shipped with a reciprocal inbound sibling link
     // from `appointment-deposit-calculator`'s first commit rather than
     // landing as a crawlable orphan to close later.
+    //
+    // `backflow-test-fee-calculator` joined 2026-09-16, filed here on its
+    // first commit rather than left for a catch-all spell: a certified
+    // backflow-preventer tester pricing a multi-device property visit from a
+    // per-device test fee, a multi-device discount, a per-device filing fee,
+    // travel, and a retest fee for failures is the exact same shape as
+    // `fire-extinguisher-inspection-route-margin` above — a solo or small-crew
+    // recurring-compliance-test business turning a device/stop list and its
+    // own fee schedule into a customer-facing price. Not a trade bid (nothing
+    // priced by area or a construction job) and not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee)/.test(
         slug,
       ),
   },

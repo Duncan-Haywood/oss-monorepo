@@ -166,6 +166,21 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // product this could be mistaken for. Same reasoning as the other
   // vs-spreadsheet / by-hand pages above.
   'commissary-kitchen-cost-split-calculator/vs-splitting-evenly.html',
+  // Compares against "opening the instructions file and checking every link
+  // and script reference by hand" -- a generic manual habit every developer
+  // and reviewer already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other manual-method pages above.
+  'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  // Compares against "a flat price per square foot" -- a generic pricing
+  // method every insulation crew already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above.
+  'attic-insulation-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a spreadsheet" -- a generic method every backflow
+  // tester already has, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // product"). Same reasoning as the other vs-spreadsheet pages above.
+  'backflow-test-fee-calculator/vs-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
