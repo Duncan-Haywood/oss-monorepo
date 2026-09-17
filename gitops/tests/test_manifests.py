@@ -1932,7 +1932,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # open before `actions-secret-leak-check` landed, so it only ever knew
     # 309 until this merge -- both branches independently wrote "309" for
     # what the merged tree made 310.
-    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
+    # 311 since 2026-09-17, when `cnc-machining-quote-calculator` graduated
+    # concurrently with `twitch-payout-calculator` above -- a CNC job shop
+    # part-quoting calculator. This branch was open before
+    # `cnc-machining-quote-calculator` landed, so it only ever knew 310
+    # until this merge -- both branches independently wrote "310" for what
+    # the merged tree made 311.
+    total = 311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 311 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

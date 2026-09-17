@@ -307,7 +307,13 @@ const RELATIVE_SELF = relative(
 // no deletions. This branch was open before `actions-secret-leak-check`
 // landed, so it only ever knew 293 until this merge -- both branches
 // independently wrote "293" for what the merged tree made 294.
-const SWITCHES_IN_THE_CATALOGUE = 294;
+// 294 -> 295 on 2026-09-17, when `cnc-machining-quote-calculator` graduated
+// concurrently with `twitch-payout-calculator` above, with its own
+// `usage.mjs` opt-out switch. This branch was open before
+// `cnc-machining-quote-calculator` landed, so it only ever knew 294 until
+// this merge -- both branches independently wrote "294" for what the
+// merged tree made 295.
+const SWITCHES_IN_THE_CATALOGUE = 295;
 
 let counter = 0;
 function fixture(source) {

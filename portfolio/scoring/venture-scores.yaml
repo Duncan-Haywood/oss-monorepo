@@ -14188,3 +14188,70 @@ ventures:
       Ethically: donations-only with no per-use fee, so nothing biases the
       arithmetic toward a higher or lower result, and the tool never
       touches payout processing itself.
+
+  - slug: cnc-machining-quote-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over rates the shop reads off its own
+      supplier invoices, payroll, tooling records and machine monitor.
+      There is no inference step: the output is a sum, a division, a
+      floor function for parts per bar or sheet, and a ceiling function
+      for the whole parts that have to be started against a scrap
+      allowance.
+    basis: >-
+      Graduated 2026-09-17 as a free job-costing and quantity-break
+      calculator for CNC job shops quoting a part. The substance is that
+      four costs behave in ways a per-part price hides, and it models all
+      four: setup, programming and first-article inspection are flat per
+      lot, so the same part is a materially different cost at 5 pieces
+      than at 500; material is bought in whole bars or sheets, making
+      cost per part a step function rather than a rate, and surfacing
+      parts already paid for; scrap is an integer, so a 3% allowance on a
+      10-piece order is really 10%; and an outside-process lot minimum,
+      not its per-part rate, is what prices a short run.
+      A niche the portfolio does not otherwise serve — duplicate_check
+      scored 0.17 at most against a 0.45 threshold on two phrasings.
+      shop-rate-calculator is genuinely upstream rather than overlapping
+      (an hour's worth against a part's cost) and the two are wired
+      together through the four canonical shared field ids that
+      platform/pages/rates.mjs carries between tools.
+      Distribution 7 for the same reason apparel-decoration earned it:
+      "am I quoting this right?" and "what's your shop rate?" are weekly
+      threads in r/Machinists, r/CNC and r/Manufacturing, Practical
+      Machinist has decade-old quoting threads still being replied to,
+      and the search phrases ("cnc machining cost per part", "how to
+      quote cnc machining jobs", "how much to charge for cnc machining")
+      are the evergreen version of the same question, asked at the
+      predictable moment an RFQ lands or a shop resets its rates.
+      Time to revenue 5 and defensibility 3 on the family's usual
+      grounds: donations only, and the arithmetic is copyable — what is
+      not trivially copied is which four effects are worth modelling.
+      Gross margin 10 and autonomous ops 10: a static client-side page
+      with no server, no key and no per-use cost.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Output is arithmetic on the shop's own numbers, not tax, financial,
+      engineering, or business advice, and every page says the result is a
+      cost floor to verify rather than a price to charge. It asserts no
+      market rate, no material price, no achievable cycle time, and no
+      vendor's minimum, and it renders no opinion on whether a part can be
+      made to its drawing or on any tolerance, material certification,
+      inspection standard, or export control — stated explicitly, because a
+      machining drawing is the one place a reader might expect otherwise.
+      Nothing typed leaves the browser, which matters more here than on most
+      of these tools: a customer's part dimensions are frequently somebody
+      else's confidential drawing. The usage counter is local-only and
+      switch-off-able, and honours Do Not Track and Global Privacy Control
+      unprompted.

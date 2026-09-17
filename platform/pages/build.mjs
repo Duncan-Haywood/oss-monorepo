@@ -584,6 +584,33 @@ const CATEGORY_RULES = [
     // own output, and a four-person shop quoting a corporate order is not
     // that; the axis here is a business pricing work for a customer, which is
     // what this is.
+    // `cnc-machining-quote-calculator` joined 2026-09-17 on the same axis, and
+    // for the same reason spelled out for `apparel-decoration` directly above:
+    // a small shop turning its own labour, machine and material costs into a
+    // number it quotes a customer. Nothing is priced by area or by site visit,
+    // so it is not a trade bid, and no marketplace takes a cut. `trades` was
+    // the near miss because `shop-rate-calculator` and `cut-list-optimizer`
+    // both live there and this tool links to both — but the first exists to
+    // feed trade bid calculators an hourly rate (it is upstream of this one,
+    // not a peer) and the second solves a nesting problem rather than pricing
+    // a job. `solo-earner` could have claimed it on the strength of
+    // `3d-print-price-calculator`, the closest thing to it by shape and
+    // cross-linked to it; that section groups on the *earner*, one person
+    // monetising their own output, and a job shop quoting a purchase order is
+    // a business pricing work for a customer instead — the identical call, on
+    // the identical pair of candidates, already made for `apparel-decoration`.
+    //
+    // Found by enumerating the catch-all after this arrival pushed it to 6
+    // rather than by judging the arrival alone, which is what
+    // `build.test.mjs`'s bound asks for. Worth recording for whoever trips it
+    // next, because the enumeration turned up one more that looks misfiled and
+    // was left alone deliberately: `android-data-safety-check` sits in the
+    // catch-all while its own `VENTURE.yaml` calls it "the direct Android-side
+    // counterpart to `ios-privacy-manifest-check`", and that counterpart is
+    // filed under `ci`. Moving it would take the catch-all to 4, but it is
+    // another session's arrival from the same day and filing this one restored
+    // the bound on its own, so it is noted rather than moved.
+    //
     // `staffing-markup-calculator` joined 2026-09-10 and is filed here on its
     // first commit rather than after a spell in the catch-all — which is what
     // `build.test.mjs`'s catch-all bound is for, and it fired. A staffing
@@ -739,7 +766,7 @@ const CATEGORY_RULES = [
     // Not a trade bid (nothing priced by area or a construction job) and
     // not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
         slug,
       ),
   },
