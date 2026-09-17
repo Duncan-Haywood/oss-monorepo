@@ -88,7 +88,8 @@ decisions:
     `bootstrap/scripts/load-secrets.sh --put HETZNERSSHKEY < ~/.ssh/<key>`,
     `bootstrap/scripts/load-secrets.sh --put ARGOCD_REPO_TOKEN`, then
     `bootstrap/scripts/load-secrets.sh --exec -- env CONFIRM=restore-cluster
-    WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+    WITH_CODEX_HOST=1 CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1
+    WITH_PORTFOLIO_SITE_HOST=1
     SITE_GH_TOKEN=<pat> SITE_TLS_EMAIL=<your address>
     bootstrap/restore-cluster.sh`
     — that is the whole recovery, end to end, and it needs no runner and no
@@ -100,14 +101,16 @@ decisions:
     private key — during the one session this whole recovery gets. It now
     prints the half that needs no SSH *first*: which extras were asked
     for, and which credential is standing behind each. Run `DRY_RUN=1
-    WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1
+    WITH_CODEX_HOST=1 CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1
     WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh` with your env
     set and read that block. It still exits 1 without the key — it
     genuinely could not probe the boxes — but it names what it did check,
     so the mistake worth catching early is catchable early. The expensive
     one is setting `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was meant:
     both credential the Codex worker, and only the second draws on your
-    plan's included quota.
+    plan's included quota. Pass `CODEX_ENABLED=1` to the rehearsal too,
+    so the dry run prints the state the real run will leave behind rather
+    than a held one you would then have to go back and change.
     **Two more `--put`s are worth making before that run, and as of 2026-09-10
     they finish the job rather than starting a second one.**
     `bootstrap/scripts/load-secrets.sh --put CODEX_AUTH_JSON < ~/.codex/auth.json`
@@ -123,11 +126,25 @@ decisions:
     resolves it before `OPENAI_API_KEY` and withholds the API key when both are
     present, so a tick on the plan's quota costs nothing extra where a tick on
     the API key is billed per token.
-    One deliberate step is still yours afterwards and is not automated on
-    purpose: the Codex worker holds until you flip `policy.json`
-    (`./bootstrap/scripts/enable-codex-governor.sh --host-only`), commit, and
-    re-run the installer. Installing and credentialing are not the same act as
-    authorising unattended spend.
+    **`CODEX_ENABLED=1` is in the command above as of 2026-09-17, and leaving
+    it out is what this row used to ask for.** Authorising unattended spend is
+    still a separate act from installing and credentialing — that has not
+    changed, and it must not. What changed is *where* the owner performs it:
+    typing the flag is the authorisation, and typing it in the recovery command
+    authorises it in the one session this whole recovery gets, instead of
+    behind a second SSH trip for the one key every route here is blocked on.
+    The account owner has since asked, in the standing scheduled brief, for the
+    Codex worker to be doing dev work against the ChatGPT plan's *included*
+    quota — so a recovery that installs the worker and leaves it held does not
+    deliver what was asked, and the previous wording of this row guaranteed
+    exactly that outcome for anyone who followed it verbatim.
+    Omit the flag and nothing is lost but time: the worker installs, holds,
+    spends nothing, and
+    `./bootstrap/scripts/enable-codex-governor.sh --host-only` plus a re-run of
+    the installer still turns it on later. `CODEX_ENABLED=1` is also ignored,
+    with a warning, when no credential was supplied — an enabled governor with
+    nothing to authenticate against only loops into a six-hour auth cooldown —
+    so the flag cannot start spend that the credentials do not already permit.
     The store is why this is now two pastes and not six: it lives on the
     machine that runs your agents (`infra/SECRETS.md`), so Cursor and a local
     Claude Code session can drive the same recovery without you re-pasting
@@ -139,8 +156,8 @@ decisions:
     because nobody could make.
     The older form still works if you prefer it:
     `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> WITH_CODEX_HOST=1
-    WITH_GITHUB_RUNNER_HOST=1 bootstrap/restore-cluster.sh`, with the key in
-    your own SSH agent.
+    CODEX_ENABLED=1 WITH_GITHUB_RUNNER_HOST=1 bootstrap/restore-cluster.sh`,
+    with the key in your own SSH agent.
     `WITH_CODEX_HOST=1` is optional and worth taking while you are already
     holding the key. It installs the Codex worker's systemd-timer scheduler
     (`gitops/agents/host/`) on the agent box: the same governor, running with
