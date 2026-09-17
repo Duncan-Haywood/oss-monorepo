@@ -1853,7 +1853,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (301, then 302) until this merge -- the same
     # ordinary collision shape recorded throughout this list: both branches
     # independently wrote "302" for what the merged tree made 303.
-    total = 303  # `infra/OWNER_CHECKLIST.md`'s own "N of the 303 tools" wording.
+    # 304 since 2026-09-17, when `helm-values-schema-check` graduated -- a
+    # zero-dependency CLI + browser tool validating a Helm chart's
+    # values.yaml against its own values.schema.json without running Helm,
+    # flagging a field values.yaml sets that the schema does not declare
+    # (the shape a typo takes, which helm lint only catches when the schema
+    # sets additionalProperties: false) alongside real schema violations,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. Cross-links `k8s-deprecated-api-check`,
+    # its nearest sibling in the same `ci` category.
+    total = 304  # `infra/OWNER_CHECKLIST.md`'s own "N of the 304 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

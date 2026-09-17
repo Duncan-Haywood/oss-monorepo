@@ -1,0 +1,133 @@
+name: helm-values-schema-check
+description: >-
+  Free, zero-dependency CLI + browser tool that validates a Helm chart's
+  values.yaml against its own values.schema.json (JSON Schema) without
+  running Helm. Flags every field values.yaml sets that the schema does not
+  declare -- the exact shape a typo like "repositry" instead of "repository"
+  takes, which helm lint only catches when the schema explicitly sets
+  additionalProperties: false, and most real schemas do not -- plus every
+  real schema violation (a missing required field, a type mismatch, an
+  enum or min/max violation). No Helm binary, no chart dependency
+  resolution, no cluster, no network call; it reads only the two files it
+  is given.
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues for this shape over another
+# <trade>-bid-calculator (141+ of ~300 ventures already share that shape
+# with zero recorded visitors). Filed beside k8s-deprecated-api-check and
+# k8s-rollout-safety-check in the `ci` category -- same "read what is
+# actually there, report the exact evidence, never fetch" shape, applied to
+# a distinct, well-documented failure mode with a specific, verified
+# mechanism (below), not chosen merely because "checker" was underused.
+#
+# Screened 2026-09-17. duplicate_check.py's closest match across two
+# phrasings was obsidian-plugin-review-check at 0.22 and 0.16 respectively
+# -- well under the 0.45 review bar -- and openapi-breaking-change-check
+# (0.14), which diffs two OpenAPI documents for breaking changes rather
+# than validating one YAML file against one JSON Schema; neither subsumes
+# this. No existing venture mentions Helm at all (grepped VENTURE.yaml
+# description fields). Not in portfolio/pipeline/screened-out.md.
+#
+# The mechanism, stated precisely rather than assumed: Go's text/template
+# and html/template packages, which Helm renders chart templates through,
+# return the zero value for an undefined map key rather than erroring --
+# so a values.yaml field the schema never declares renders silently, most
+# often as a blank or a chart default standing in for what the typo'd key
+# should have set. Helm has supported values.schema.json validation since
+# 3.5.0, but JSON Schema's default for additionalProperties is permissive
+# (allowed unless explicitly set to false), so helm lint enforces the
+# undeclared-field case only when a schema author remembered to forbid it
+# -- most real charts' schemas do not. This tool flags an undeclared field
+# either way: high severity if the schema forbids it outright (a real
+# helm install --dry-run --validate rejection), informational if the
+# schema is merely silent about it (very often a typo, per the mechanism
+# above, but not itself a schema violation). See
+# why-helm-silently-accepts-a-typo-in-values-yaml.html for the full
+# explanation and vs-helm-lint.html for exactly where each tool's coverage
+# stops -- they overlap but are not the same check.
+#
+# Distribution channels, named rather than assumed:
+#   - Helm's own chart-development documentation describes
+#     values.schema.json validation directly (helm.sh/docs/topics/charts,
+#     the "Schema Files" section) -- the canonical reference a chart author
+#     reaches for when adding or debugging one.
+#   - Specific, real search strings a chart author facing this exact
+#     confusion is likely to use: "helm lint values.schema.json not
+#     catching typo", "helm values.yaml field ignored", "additionalProperties
+#     helm schema".
+#   - r/kubernetes and r/helm carry recurring chart-authoring-pain threads;
+#     smaller and less certain than the r/kubernetes cluster-upgrade
+#     audience k8s-deprecated-api-check draws on, which is reflected in a
+#     more conservative distribution score below rather than claimed at
+#     the same strength.
+#   - No single well-known, actively-maintained competing OSS tool for
+#     this exact narrow question was identified (unlike Pluto for
+#     k8s-deprecated-api-check) -- vs-helm-lint.html compares against
+#     Helm's own built-in lint command instead, which is a real and
+#     directly relevant comparison, but a weaker organic-search draw than
+#     a named third-party tool would be. Scored accordingly rather than
+#     assumed to match its sibling.
+#
+# Scored against portfolio/pipeline/README.md's 8-dimension rubric:
+# AI leverage 1 (deterministic JSON Schema walk against parsed YAML, no
+# model work), autonomous ops 10 (browser page and CLI both parse only
+# locally supplied text, no network call in either), time to revenue 5
+# (donation-only like the rest of the fleet; real but narrower named
+# channels than a sibling with a well-known competing tool to draw
+# comparison traffic from), gross margin 10 (static parsing, zero
+# hosting/inference cost per user), defensibility 4 (forkable like every
+# checker in this portfolio; the JSON Schema walk and the YAML reader are
+# the whole product, no proprietary data), distribution 5 (Helm's own
+# docs, specific real search strings, a smaller and less certain
+# subreddit audience than the Kubernetes-upgrade case, no named competing
+# tool). Composite 5.833, floor 1 (ai_leverage) -- deliberate, not a
+# defect: no AI in the product, since whether a value matches its declared
+# type/enum/range or a key exists in a schema's properties is a
+# deterministic structural comparison, not a judgment call.
+#
+# Liability/ethics, read against portfolio/DIRECTION.md's legal
+# guardrails rather than filed as a separate formal gate (this graduated
+# the same lightweight path k8s-deprecated-api-check did -- straight to
+# VENTURE.yaml, no candidates.yaml probe): pure information about two
+# files the user supplies, no filing, signature, deployment action, or
+# determination on the user's behalf. A wrong finding costs a missed or
+# extra flag in a text report, never an infrastructure change -- the tool
+# makes no Helm call and touches no chart, cluster, or release. Every
+# claim in the docs and comparison pages about Helm's own template
+# behavior and helm lint's additionalProperties handling is verifiable
+# directly against Helm's public documentation and source, not asserted
+# from memory of an undocumented internal.
+hypotheses:
+  - claim: A Helm chart author or platform engineer who has just spent time tracing a "why is my value not taking effect" bug back to a values.yaml typo will use the free checker, or wire the CLI into CI, after finding it from Helm's own schema documentation, a targeted search for the undeclared-field symptom, or r/kubernetes / r/helm.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team authoring or reviewing a values.schema.json will prefer a zero-install browser check over installing Helm just to run helm lint for a one-off values.yaml sanity check, particularly in a lightweight CI job or pre-commit hook that should not depend on the Helm binary.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only YAML/JSON
+  # loaded or pasted in the visitor's own browser (no fetch, no upload),
+  # and the CLI reads only local files with no network call at all.
+  # Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI/release pipeline within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/helm-values-schema-check/
+  analytics: null
