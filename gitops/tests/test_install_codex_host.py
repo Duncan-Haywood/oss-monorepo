@@ -755,3 +755,66 @@ def test_check_reports_the_box_not_the_checkout(box):
     assert "disabled" in run(box, "--check", confirm=False).stdout
     run(box, "--enable", confirm=False)
     assert "policy enabled" in run(box, "--check", confirm=False).stdout
+
+
+def test_check_reports_the_queue_items_an_install_would_copy(box):
+    """`--check` must say whether the box will have any work to do.
+
+    The switch half of that question was already reported (the policy above);
+    the queue half was not, and the two are equally decisive. Measured against
+    a rehearsal install: an enabled, credentialed governor pointed at an empty
+    queue reports `decision: hold -- queue empty` and exits 0 -- nothing fails,
+    the timer stays active, and a box that will never do any work looks exactly
+    like one that is between items. `--check` is the read-only preview an
+    operator runs *before* spending their one SSH session, so it is the place
+    that has to answer it.
+    """
+    out = run(box, "--check", confirm=False).stdout
+    assert "== queue ==" in out
+    # Named individually, not just counted: which items a box will run is the
+    # thing the operator is deciding about.
+    for item in (REPO / "gitops" / "agents" / "queue").glob("*.yaml"):
+        if item.name == "example.item.yaml":
+            continue
+        assert item.name in out, f"{item.name} is installed as work but --check does not name it"
+
+
+def test_check_does_not_offer_the_schema_example_as_work(box):
+    """The same exclusion the install applies, applied to the report.
+
+    `queue_items()` is shared by both for this reason: a second copy of the
+    glob and the exclusion could disagree with the installer while both looked
+    right.
+    """
+    out = run(box, "--check", confirm=False).stdout
+    assert "example.item.yaml" not in out
+
+
+def test_check_warns_when_an_installed_queue_is_empty(box):
+    """The one state that is silent everywhere else.
+
+    An operator who deleted the last queue item upstream and re-ran the
+    installer gets an enabled governor with nothing to run, and neither
+    `systemctl status` nor the policy line says so.
+    """
+    run(box)
+    queue = Path(box["CODEX_HOST_PREFIX"]) / "queue"
+    for item in queue.iterdir():
+        item.unlink()
+    result = run(box, "--check", confirm=False)
+    combined = result.stdout + result.stderr
+    assert "installed but empty" in combined
+
+
+def test_check_reports_the_installed_queue_separately_from_the_checkout(box):
+    """A box installed before an item shipped has the older set, legitimately.
+
+    That difference is exactly what `--check` is run to see, so the two counts
+    are reported separately rather than one inferred from the other.
+    """
+    run(box)
+    queue = Path(box["CODEX_HOST_PREFIX"]) / "queue"
+    (queue / "left-over.yaml").write_text("id: left-over\nrepo: x\nprompt: p\n")
+    out = run(box, "--check", confirm=False).stdout
+    assert "installed on this box" in out
+    assert "left-over.yaml" in out, "the report inferred the box's queue from the checkout"
