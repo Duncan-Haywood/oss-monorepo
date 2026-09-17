@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a flat per-acre rate — Land Survey Bid Calculator</title>
+<meta name="description" content="A flat per-acre survey rate gets the price wrong in both directions: it can underprice a small parcel with lost corners by hundreds of percent, and overprice a large, clean one by two-thirds. Two worked examples from this calculator's own math show exactly how far off, and why.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-flat-per-acre-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-acre rate">
+<meta property="og:description" content="A flat per-acre rate prices every corner the same and ignores the title research. Two worked examples show it underpricing a small, tricky parcel by 821% and overpricing a large, clean one by 65%.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's a typical per-acre rate for a land survey, and why doesn't this tool just use one?","acceptedAnswer":{"@type":"Answer","text":"Quoted per-acre rates the trade swaps informally run roughly $80 to $200 an acre depending on region, but that figure is an average across whatever mix of jobs someone had that year -- easy and hard parcels blended together. Applied to one specific job, it tells you nothing about whether that job's corners are easy or its title chain is clean, which is exactly what drives the hours."}},{"@type":"Question","name":"How far off can a flat per-acre quote actually be?","acceptedAnswer":{"@type":"Answer","text":"On the two worked examples below, a per-acre quote underprices a small parcel with lost corners by 821% (it would have quoted $240 for a job that actually costs $2,211) and overprices a large, clean parcel by about 65% (quoting $2,400 for a job that prices out at the $850 minimum). Both are the same flat rate; the parcel is what changes the direction."}},{"@type":"Question","name":"Why does a large parcel sometimes cost less to survey than a small one?","acceptedAnswer":{"@type":"Answer","text":"Because acreage does not drive field time -- corners do. A large open parcel with a few easy-to-locate corners and no title tangle can need less field and research time than a small parcel where three corners have no recoverable monument and have to be set from a messy deed chain. Per-acre pricing assumes size and difficulty move together; on real jobs they often don't."}},{"@type":"Question","name":"If per-acre pricing is wrong, why is it still what most of the trade quotes?","acceptedAnswer":{"@type":"Answer","text":"It's fast to say out loud and easy for a client to compare across surveyors, so it survives as a rule of thumb even though everyone doing the work knows a lost corner or a tangled title changes the job. The rate of thumb isn't dishonest -- it's just an average standing in for a number that actually depends on the specific parcel."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #0f2a24; background: #eef7f2; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1c6e4e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #0f3d2c; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0f3d2c; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #26463b; }
+  .card { background: #fff; border: 1px solid #bfe0cf; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0f2a2410; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #d7ecdf; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #1c6e4e; }
+  .price { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .over { color: #9a351d; }
+  .under { color: #1c6e4e; }
+  .note, footer { font-size: .86rem; color: #3f6656; }
+  footer { margin-top: 28px; border-top: 1px solid #bfe0cf; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. a flat per-acre rate</h1>
+<p class="lede">A flat per-acre rate is fast to quote and easy for a client to compare, and it prices every corner and every deed chain the same. Two jobs of the same acreage can take very different field and research time, and a rate that only sees acreage gets one of them wrong -- not by a rounding error, but by hundreds of dollars in either direction. The two worked examples below use this calculator's own <code>naivePerAcreQuote</code> and corner-driven pricing on the same inputs, so the gap is arithmetic, not a claim.</p>
+
+<section class="card">
+<h2>Two real jobs, one flat rate</h2>
+<table>
+<thead><tr><th scope="col">Job</th><th scope="col">Corner-driven price</th><th scope="col">Flat per-acre quote<br><span style="font-weight:400;text-transform:none">(120/acre)</span></th><th scope="col">Gap</th></tr></thead>
+<tbody>
+<tr>
+  <td>2-acre parcel, 1 corner to locate, 3 to set, heavy terrain, 6 hrs record research</td>
+  <td class="price">$2,211</td>
+  <td class="price">$240</td>
+  <td class="under">+$1,971 (821% underpriced)</td>
+</tr>
+<tr>
+  <td>20-acre parcel, 4 corners to locate, 0 to set, open terrain, 1 hr record research</td>
+  <td class="price">$850 <span class="note">(minimum job fee)</span></td>
+  <td class="price">$2,400</td>
+  <td class="over">&minus;$1,550 (65% overpriced)</td>
+</tr>
+</tbody>
+</table>
+<p class="note">Both rows use the same $120/acre naive rate and the same crew, office, and drafting rates this calculator defaults to. The only inputs that changed are acreage, corner count and type, terrain, and research hours -- the numbers a per-acre rate never asks for.</p>
+</section>
+
+<section class="card">
+<h2>Why the direction flips</h2>
+<p>The first job is small on paper -- two acres -- so a per-acre rate prices it cheap. But three of its four corners have no recoverable monument, the terrain is heavy, and the title chain needs six hours of research. None of that shows up in "two acres." The actual cost is field time (corner-driven, and setting a corner runs more than double the time of locating one) plus research plus drafting plus travel, priced at a target margin -- and it comes out to $2,211, not $240.</p>
+<p>The second job is the opposite: twenty acres sounds like a big job, and a per-acre rate prices it accordingly. But every corner is already there and easy to find, the terrain is open, and there's barely any title research. The corner-driven price comes out under this calculator's $850 minimum job fee, less than a third of what the flat rate would have quoted.</p>
+<p>Acreage alone can't see either of these differences. Corners, terrain, and research hours can, because they're what a crew and an office actually spend time on.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's a typical per-acre rate for a land survey, and why doesn't this tool just use one?</h3>
+<p>Quoted per-acre rates the trade swaps informally run roughly $80 to $200 an acre depending on region, but that figure is an average across whatever mix of jobs someone had that year -- easy and hard parcels blended together. Applied to one specific job, it tells you nothing about whether that job's corners are easy or its title chain is clean, which is exactly what drives the hours.</p>
+<h3>How far off can a flat per-acre quote actually be?</h3>
+<p>On the two worked examples below, a per-acre quote underprices a small parcel with lost corners by 821% (it would have quoted $240 for a job that actually costs $2,211) and overprices a large, clean parcel by about 65% (quoting $2,400 for a job that prices out at the $850 minimum). Both are the same flat rate; the parcel is what changes the direction.</p>
+<h3>Why does a large parcel sometimes cost less to survey than a small one?</h3>
+<p>Because acreage does not drive field time -- corners do. A large open parcel with a few easy-to-locate corners and no title tangle can need less field and research time than a small parcel where three corners have no recoverable monument and have to be set from a messy deed chain. Per-acre pricing assumes size and difficulty move together; on real jobs they often don't.</p>
+<h3>If per-acre pricing is wrong, why is it still what most of the trade quotes?</h3>
+<p>It's fast to say out loud and easy for a client to compare across surveyors, so it survives as a rule of thumb even though everyone doing the work knows a lost corner or a tangled title changes the job. The rate of thumb isn't dishonest -- it's just an average standing in for a number that actually depends on the specific parcel.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply a pricing worksheet to numbers you supply. It is not surveying, engineering, or legal advice, and it does not replace a qualified licensed professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> This is a pricing worksheet, not a legal boundary determination or a check against any state's minimum technical standards. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p>This page names no specific product -- it compares against "a flat per-acre rate", the shorthand most of the trade already quotes from, not a competing calculator.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

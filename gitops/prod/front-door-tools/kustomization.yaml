@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 118 files, 556586 bytes
 #   portfolio-front-tools-7: 134 files, 546494 bytes
 #   portfolio-front-tools-8: 112 files, 556817 bytes
-#   portfolio-front-tools-9: 110 files, 552850 bytes
+#   portfolio-front-tools-9: 111 files, 556745 bytes
 #   portfolio-front-tools-10: 123 files, 549412 bytes
 #   portfolio-front-tools-11: 128 files, 555841 bytes
 #   portfolio-front-tools-12: 112 files, 547217 bytes
@@ -1374,6 +1374,7 @@ configMapGenerator:
       - land-survey-bid-calculator__calc.mjs.gz=land-survey-bid-calculator__calc.mjs.gz
       - land-survey-bid-calculator__index.html.gz=land-survey-bid-calculator__index.html.gz
       - land-survey-bid-calculator__usage.mjs.gz=land-survey-bid-calculator__usage.mjs.gz
+      - land-survey-bid-calculator__vs-flat-per-acre-rate.html.gz=land-survey-bid-calculator__vs-flat-per-acre-rate.html.gz
       - landscape-lighting-bid-calculator__calc.mjs.gz=landscape-lighting-bid-calculator__calc.mjs.gz
       - landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz=landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz
       - landscape-lighting-bid-calculator__index.html.gz=landscape-lighting-bid-calculator__index.html.gz

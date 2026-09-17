@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateSurveyBid, DEFAULTS } from './calc.mjs';
+import { calculateSurveyBid, pricingGap, DEFAULTS } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 
 test('the page has a title, meta description, and robots tag', () => {
   assert.match(html, /<title>Land Survey Bid Calculator/);
@@ -113,6 +114,90 @@ test('the calculator links one hop to its drone-mapping-job-calculator sibling',
     /href="\.\.\/drone-mapping-job-calculator\/"/,
     'index must link ../drone-mapping-job-calculator/ so crawlers reach it in one hop',
   );
+});
+
+// The comparison page is this venture's organic-discovery surface for the
+// "typical per-acre survey rate" / "how far off is a per-acre quote" query --
+// guide-coverage.mjs flagged this venture as the one live surface with no
+// secondary page beside its entry page.
+test('index links to the vs-flat-per-acre-rate comparison page', () => {
+  assert.match(html, /href="\.\/vs-flat-per-acre-rate\.html"/);
+});
+
+test('the comparison page links back to the calculator and its FAQPage JSON-LD matches the visible text', () => {
+  const vs = page('vs-flat-per-acre-rate.html');
+  assert.match(vs, /href="\.\/"/);
+  const blocks = [...vs.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  const visible = vs.replace(/&mdash;/g, '—').replace(/&amp;/g, '&').replace(/&minus;/g, '−');
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(visible.includes(name), `question not found verbatim: ${name}`);
+    assert.ok(visible.includes(acceptedAnswer.text), `answer not found verbatim for: ${name}`);
+  }
+});
+
+test('the comparison page carries the disclaimers and names no specific product', () => {
+  const vs = page('vs-flat-per-acre-rate.html');
+  assert.match(vs, /No warranty/);
+  assert.match(vs, /Nothing leaves your browser/);
+  assert.match(vs, /names no specific product/i);
+});
+
+test('the comparison page does not repeat a question the index page already answers', () => {
+  const faqOf = (name) => {
+    const src = page(name);
+    const block = [...src.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => JSON.parse(m[1]))
+      .find((b) => b['@type'] === 'FAQPage');
+    return new Set(block.mainEntity.map((q) => q.name));
+  };
+  const overlap = [...faqOf('vs-flat-per-acre-rate.html')].filter((q) => faqOf('index.html').has(q));
+  assert.deepEqual(overlap, [], `duplicated FAQ question(s): ${overlap.join(', ')}`);
+});
+
+// The two worked examples in the table are the page's whole argument, so they
+// are pinned to calc.mjs's own output rather than typed independently -- if
+// the pricing model ever changes, this fails instead of the page quietly
+// going wrong while it keeps citing round numbers.
+test('the comparison page\'s worked examples match calc.mjs output exactly', () => {
+  const vs = page('vs-flat-per-acre-rate.html');
+  const small = pricingGap({
+    parcelAcres: 2, cornersToLocate: 1, cornersToSet: 3, terrain: 'heavy',
+    recordResearchHours: 6, crewSize: 2, crewHourlyRatePerPerson: 45,
+    officeHourlyRate: 85, draftingHourlyRate: 55, draftingBaseHours: 2,
+    draftingMinutesPerCorner: 20, travelMilesRoundTrip: 40, averageSpeedMph: 40,
+    minimumTravelHours: 0.5, mileageRatePerMile: 0.67, rushJob: false,
+    rushSurchargePercent: 0.25, targetMarginPercent: 0.35, minimumJobFee: 850,
+    naivePerAcreRate: 120,
+  });
+  const large = pricingGap({
+    parcelAcres: 20, cornersToLocate: 4, cornersToSet: 0, terrain: 'open',
+    recordResearchHours: 1, crewSize: 2, crewHourlyRatePerPerson: 45,
+    officeHourlyRate: 85, draftingHourlyRate: 55, draftingBaseHours: 2,
+    draftingMinutesPerCorner: 20, travelMilesRoundTrip: 40, averageSpeedMph: 40,
+    minimumTravelHours: 0.5, mileageRatePerMile: 0.67, rushJob: false,
+    rushSurchargePercent: 0.25, targetMarginPercent: 0.35, minimumJobFee: 850,
+    naivePerAcreRate: 120,
+  });
+  assert.ok(small.underpriced, 'the small/tricky example should be underpriced by the naive rate');
+  assert.equal(Math.round(small.finalPrice), 2211);
+  assert.equal(small.naiveQuote, 240);
+  assert.equal(Math.round(small.percentGap * 100), 821);
+  assert.match(vs, /\$2,211/);
+  assert.match(vs, /\$240/);
+  assert.match(vs, /821%/);
+
+  assert.ok(!large.underpriced, 'the large/clean example should be overpriced by the naive rate');
+  assert.equal(Math.round(large.finalPrice), 850);
+  assert.equal(large.naiveQuote, 2400);
+  assert.equal(Math.round(large.percentGap * 100), -65);
+  assert.match(vs, /\$850/);
+  assert.match(vs, /\$2,400/);
+  assert.match(vs, /65% overpriced/);
 });
 
 test('every input and select carries a visible <label> for accessibility', () => {

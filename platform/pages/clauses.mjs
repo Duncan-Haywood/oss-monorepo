@@ -181,6 +181,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // for. The page's own footer says so explicitly ("names no specific
   // product"). Same reasoning as the other vs-spreadsheet pages above.
   'backflow-test-fee-calculator/vs-spreadsheet.html',
+  // Compares against "a flat per-acre rate" -- the shorthand most of the
+  // land-survey trade already quotes from, not a company or product this
+  // could be mistaken for. The page's own footer says so explicitly.
+  'land-survey-bid-calculator/vs-flat-per-acre-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
