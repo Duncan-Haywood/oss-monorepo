@@ -273,6 +273,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // generic-method pages above (e.g. attic-insulation-bid-calculator's
   // flat-rate page).
   'boiler-replacement-bid-calculator/vs-a-flat-rate-boiler-special.html',
+  // Compares against "tracking payouts in a spreadsheet" -- a generic method
+  // every Whatnot seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above (e.g. reverb-fee-calculator's).
+  'whatnot-seller-payout/vs-tracking-payouts-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
