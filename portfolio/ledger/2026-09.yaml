@@ -32509,3 +32509,58 @@ entries:
         (`live_url_visitors: null`, not zero). All three hypotheses in
         `VENTURE.yaml` remain untested.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `browser_state.py` reported all 8 whole-catalogue checks stale after
+        the front-door mirror moved for #4897 (`import-landed-cost-calculator`),
+        so ran the full recorded sweep (`playwright@1.56.0` + `axe-core`,
+        pinned per CLAUDE.md). `sideways.mjs` found one real failure:
+        `openapi-breaking-change-check/vs-oasdiff.html`, 4px over at 360px.
+      - >-
+        Root-caused with a live Playwright inspection rather than guessing
+        from CSS: the page's own `.table-wrap{overflow-x:auto}` correctly
+        contained its table (documented `sideways.mjs` "widest: table" line
+        was a red herring — a clipped child's own bounding-rect can report a
+        `right` past the viewport without contributing to
+        `document.documentElement.scrollWidth`). The actual overflow was an
+        inline `<code>--fail-on-breaking</code>` flag in body copy, outside
+        any table or `<pre>`, with nowhere to break.
+      - >-
+        While diagnosing, found `main` had already merged a fix for the
+        same symptom (#4898, from a concurrent session): a one-line
+        `code{overflow-wrap:break-word}` rule scoped to this single venture's
+        `<style>` block. Fixed the systemic gap instead, in
+        `platform/pages/reflow.mjs`'s build-injected `REFLOW_CSS` — the same
+        file already carries this identical fix for headings
+        (`:where(h1..h6){overflow-wrap:break-word}`, added 2026-09-10 for
+        `security-headers-check/vs-securityheaders.html`, whose own comment
+        already predicted "body copy has the same hazard"). Extended it to
+        `:where(code){overflow-wrap:break-word}` so every current and future
+        page with an unbreakable flag/hostname/token in an inline `<code>` is
+        covered on the day it ships, not the day someone reruns the sweep —
+        the same import-don't-restate principle CLAUDE.md already records
+        against the front-door mirror. #4898's per-page rule is now
+        redundant but harmless; left in place rather than reverted, since
+        removing someone else's merged fix for no functional gain is not
+        this session's call to make.
+      - >-
+        Verified: `reflow.test.mjs` (17/17, added 2 new assertions for the
+        `code` rule), a live before/after Playwright check confirming
+        `vs-oasdiff.html`'s `scrollWidth` now equals `innerWidth` exactly,
+        a full-catalogue `sideways.mjs` rerun (1138/1138 pages, none scroll
+        sideways) against a build of the merged tree, and the full
+        `platform/marketing` + `platform/pages` suite (1272/1272). The other
+        7 whole-catalogue checks the same sweep ran (presets, roundtrip,
+        highlight, contrast, optout) were already clean before this fix;
+        `sweep` and `journey` did not finish in the same run (the process
+        ended without output past the `sweep` header, cause unclear — no
+        OOM evidence, plenty of free memory) and were not re-attempted this
+        session for time. Recording via `browser_state.py --record` was
+        therefore not done — it refuses a run with skips or a partial
+        result, correctly, and a `sideways`-only fix does not license
+        writing a whole-catalogue clean reading the other checks did not
+        finish producing.
+    mrr_end: 0

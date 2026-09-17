@@ -324,6 +324,17 @@ export const REFLOW_CSS = `
    comparison page to name a hostname gets this on the day it ships. Zero
    specificity, so a venture that set its own value keeps it. */
 :where(h1,h2,h3,h4,h5,h6){overflow-wrap:break-word}
+/* Cause (4) again, in body copy rather than a heading. Measured 2026-09-17 on
+   openapi-breaking-change-check/vs-oasdiff.html, 4px over at 360px: an inline
+   <code>--fail-on-breaking</code> flag inside a <p>, sitting outside any
+   table or <pre>, with nowhere to break. "Body copy has the same hazard and
+   far more room to absorb it" was already written above the day the heading
+   fix landed; this is that hazard, not a new one. Applies to <pre> code too,
+   harmlessly: the :where(pre) rule above already makes those boxes scroll
+   instead of wrap, and pre's own white-space:pre means overflow-wrap never
+   gets a chance to act there, so a command block's copy-pasteable single
+   line is untouched. */
+:where(code){overflow-wrap:break-word}
 `;
 
 /**
