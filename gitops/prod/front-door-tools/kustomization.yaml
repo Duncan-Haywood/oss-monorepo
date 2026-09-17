@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555780 bytes
-#   portfolio-front-tools-1: 106 files, 554528 bytes
-#   portfolio-front-tools-2: 148 files, 556399 bytes
-#   portfolio-front-tools-3: 140 files, 556861 bytes
-#   portfolio-front-tools-4: 123 files, 555961 bytes
-#   portfolio-front-tools-5: 138 files, 553610 bytes
-#   portfolio-front-tools-6: 120 files, 555962 bytes
-#   portfolio-front-tools-7: 133 files, 556266 bytes
-#   portfolio-front-tools-8: 111 files, 545940 bytes
-#   portfolio-front-tools-9: 112 files, 555728 bytes
-#   portfolio-front-tools-10: 119 files, 544573 bytes
-#   portfolio-front-tools-11: 130 files, 555655 bytes
-#   portfolio-front-tools-12: 109 files, 550292 bytes
-#   portfolio-front-tools-13: 107 files, 555545 bytes
-#   portfolio-front-tools-14: 114 files, 554918 bytes
-#   portfolio-front-tools-15: 70 files, 356310 bytes
+#   portfolio-front-tools-0: 133 files, 555779 bytes
+#   portfolio-front-tools-1: 106 files, 554518 bytes
+#   portfolio-front-tools-2: 148 files, 556391 bytes
+#   portfolio-front-tools-3: 140 files, 556857 bytes
+#   portfolio-front-tools-4: 123 files, 555959 bytes
+#   portfolio-front-tools-5: 138 files, 553608 bytes
+#   portfolio-front-tools-6: 120 files, 555965 bytes
+#   portfolio-front-tools-7: 132 files, 556965 bytes
+#   portfolio-front-tools-8: 115 files, 555525 bytes
+#   portfolio-front-tools-9: 112 files, 555693 bytes
+#   portfolio-front-tools-10: 119 files, 544529 bytes
+#   portfolio-front-tools-11: 130 files, 555699 bytes
+#   portfolio-front-tools-12: 109 files, 550362 bytes
+#   portfolio-front-tools-13: 107 files, 555510 bytes
+#   portfolio-front-tools-14: 114 files, 554887 bytes
+#   portfolio-front-tools-15: 70 files, 356288 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1100,6 +1100,9 @@ configMapGenerator:
       - equipment-rental-break-even__share.mjs.gz=equipment-rental-break-even__share.mjs.gz
       - equipment-rental-break-even__usage.mjs.gz=equipment-rental-break-even__usage.mjs.gz
       - equipment-rental-break-even__vs-booqable.html.gz=equipment-rental-break-even__vs-booqable.html.gz
+      - estate-sale-net-proceeds-calculator__calc.mjs.gz=estate-sale-net-proceeds-calculator__calc.mjs.gz
+      - estate-sale-net-proceeds-calculator__index.html.gz=estate-sale-net-proceeds-calculator__index.html.gz
+      - estate-sale-net-proceeds-calculator__usage.mjs.gz=estate-sale-net-proceeds-calculator__usage.mjs.gz
       - ev-charger-bid-calculator__calc.mjs.gz=ev-charger-bid-calculator__calc.mjs.gz
       - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
       - ev-charger-bid-calculator__index.html.gz=ev-charger-bid-calculator__index.html.gz
@@ -1143,15 +1146,15 @@ configMapGenerator:
       - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
       - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
       - flooring-bid-calculator__index.html.gz=flooring-bid-calculator__index.html.gz
-      - flooring-bid-calculator__share.mjs.gz=flooring-bid-calculator__share.mjs.gz
-      - flooring-bid-calculator__usage.mjs.gz=flooring-bid-calculator__usage.mjs.gz
-      - flooring-bid-calculator__vs-rfms.html.gz=flooring-bid-calculator__vs-rfms.html.gz
-      - food-truck-event-margin-calculator__calc.mjs.gz=food-truck-event-margin-calculator__calc.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - flooring-bid-calculator__share.mjs.gz=flooring-bid-calculator__share.mjs.gz
+      - flooring-bid-calculator__usage.mjs.gz=flooring-bid-calculator__usage.mjs.gz
+      - flooring-bid-calculator__vs-rfms.html.gz=flooring-bid-calculator__vs-rfms.html.gz
+      - food-truck-event-margin-calculator__calc.mjs.gz=food-truck-event-margin-calculator__calc.mjs.gz
       - food-truck-event-margin-calculator__how-much-to-charge-for-a-food-truck-catering-event.html.gz=food-truck-event-margin-calculator__how-much-to-charge-for-a-food-truck-catering-event.html.gz
       - food-truck-event-margin-calculator__index.html.gz=food-truck-event-margin-calculator__index.html.gz
       - food-truck-event-margin-calculator__share.mjs.gz=food-truck-event-margin-calculator__share.mjs.gz

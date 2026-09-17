@@ -1692,7 +1692,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the first, a per-device report-filing fee, travel, and a retest fee
     # for failures), with a static `index.html` from its first commit, same
     # shape as the rest of this running count.
-    total = 284  # `infra/OWNER_CHECKLIST.md`'s own "N of the 284 tools" wording.
+    # 285 since 2026-09-17, when `estate-sale-net-proceeds-calculator`
+    # graduated -- a browser-local calculator applying a company's tiered
+    # commission schedule and fees to an estimated estate-sale gross, with
+    # an optional minimum-guarantee floor and a two-quote comparison, same
+    # shape as the rest of this running count.
+    total = 285  # `infra/OWNER_CHECKLIST.md`'s own "N of the 285 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

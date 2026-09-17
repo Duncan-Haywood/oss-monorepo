@@ -383,6 +383,9 @@ workflows:
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
+- workflow: estate-sale-net-proceeds-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []
