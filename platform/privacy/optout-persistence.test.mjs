@@ -150,14 +150,19 @@ const RELATIVE_SELF = relative(
 // graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `land-survey-bid-calculator` use), same
 // discovery method as the rest of this running count.
-// 276 -> 277 on 2026-09-17, when `storage-auction-max-bid-calculator`
+// 276 -> 277 on 2026-09-17, when `tutor-package-pricing-calculator`
+// graduated with a `usage.mjs` opt-out following the same
+// `setUsageOptOut`/`usageOptedOut` pattern as
+// `overtime-pay-calculator`'s switch, same discovery method as the rest of
+// this running count.
+// 277 -> 278 on 2026-09-17, when `storage-auction-max-bid-calculator`
 // graduated with its own `toggleUsage`/`usageAllowed` switch (opts out of
 // the `bid-calculated`/`overbid-warning-shown`/`link_copied` counters, the
 // same pattern `wedding-florist-proposal-calculator` uses), same discovery
 // method as the rest of this running count. Landed the same afternoon as
-// `asbestos-abatement-bid-calculator`, so the resolved number is 277 rather
-// than either branch's own 276.
-const SWITCHES_IN_THE_CATALOGUE = 277;
+// `asbestos-abatement-bid-calculator` and `tutor-package-pricing-calculator`,
+// so the resolved number is 278 rather than any one branch's own count.
+const SWITCHES_IN_THE_CATALOGUE = 278;
 
 let counter = 0;
 function fixture(source) {

@@ -1739,7 +1739,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # monitoring, and waste disposal, then comparing the result to a flat
     # rate per square foot, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    # 292 since 2026-09-17, when `storage-auction-max-bid-calculator`
+    # 292 since 2026-09-17, when `tutor-package-pricing-calculator`
+    # graduated -- a no-upload browser calculator comparing a discounted
+    # prepaid session package to pay-per-session pricing on both revenue and
+    # effective hourly pay, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 293 since 2026-09-17, when `storage-auction-max-bid-calculator`
     # graduated — a no-upload browser calculator pricing the maximum
     # profitable hammer bid for a storage-unit lien-auction lot from a
     # realistic resale recovery rate, resale-channel fees, the buyer's
@@ -1747,9 +1752,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the flat percent-of-value rule of thumb most auction forums repeat, with
     # a static `index.html` from its first commit, same shape as the rest of
     # this running count. Landed the same afternoon as
-    # `asbestos-abatement-bid-calculator`, so the resolved total is 292
-    # rather than either branch's own 291.
-    total = 292  # `infra/OWNER_CHECKLIST.md`'s own "N of the 292 tools" wording.
+    # `asbestos-abatement-bid-calculator` and `tutor-package-pricing-calculator`,
+    # so the resolved total is 293 rather than any one branch's own count.
+    total = 293  # `infra/OWNER_CHECKLIST.md`'s own "N of the 293 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

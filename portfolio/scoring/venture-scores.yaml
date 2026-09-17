@@ -13062,6 +13062,62 @@ ventures:
       class than the job actually requires, and the flat-rate comparison
       is disclosed methodology (FAQ: "why not just quote a flat rate per
       square foot") rather than a black-box number.
+  - slug: tutor-package-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the instructor supplies: a
+      price, a session count, a no-show rate, and a makeup policy. Both
+      pricing models' revenue and effective hourly pay are exact
+      calculations against those inputs, not a judgment call -- the same
+      reasoning this portfolio applies to overtime-pay-calculator and
+      music-lesson-break-even.
+    basis: >-
+      Screened 2026-09-17 during a PROCEED-verdict session with an empty
+      build-now queue. `duplicate_check.py` top match 0.18
+      (craft-fair-booth-calculator), well under the 0.45 flag bar; the
+      nearest venture by buyer, music-lesson-break-even, solves a
+      different problem (the minimum per-lesson price that clears a
+      target annual income) and does not compare a package to
+      per-session pricing at all -- the two cross-link as siblings
+      rather than overlapping. No tutoring, coaching, or session-package
+      row exists in screened-out.md.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no
+      server component, zero marginal cost per visitor.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is trivially cloneable, so defensibility rests on the
+      specific framing (a package discount deeper than the no-show rate,
+      with makeup owed, can pay worse per hour despite safer revenue)
+      and this portfolio's disclaimer/usage conventions, not on any
+      moat.
+      Distribution 5: independent tutors, test-prep coaches, and similar
+      1:1 instructors are a real and search-active audience ("tutoring
+      package pricing", "should I offer a lesson package"), comparable
+      to music-lesson-break-even's audience -- not scored higher because
+      no search-volume tool was queried to confirm magnitude and the
+      portfolio has no measured traffic of its own to extrapolate from.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: arithmetic over figures the instructor supplies, run entirely
+      in their own browser, with no network call, no stored data, and
+      nothing leaving the device. It does not track any specific
+      student's attendance or makeup obligation, schedule anything, or
+      determine what policy to run -- both pages' footers say so
+      plainly. Ethically: donations-only with no per-use fee, so the
+      tool has no incentive to push a visitor toward either pricing
+      model, and it helps an instructor see a tradeoff their own
+      package discount already creates.
   - slug: storage-auction-max-bid-calculator
     scores:
       ai_leverage: 1

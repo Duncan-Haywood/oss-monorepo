@@ -59,9 +59,14 @@ RUNNER_TARBALL_NAME="actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.g
 RUNNER_TARBALL_URL="${RUNNER_HOST_TARBALL_URL:-https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/${RUNNER_TARBALL_NAME}}"
 # From the release's own "SHA-256 Checksums" section
 # (https://github.com/actions/runner/releases/tag/v2.328.0), read there on
-# 2026-09-05. Re-verify against that page before a first real install -- a
-# wrong value only ever fails closed (extraction below refuses on a mismatch),
-# never silently, but it is worth being right the first time.
+# 2026-09-05, and independently confirmed 2026-09-17 by downloading
+# RUNNER_TARBALL_URL and running `sha256sum` on the artifact itself rather than
+# re-reading the same page -- a session's own compromise of that page would
+# have reproduced a copy-paste error, not caught one. The bytes match this
+# value exactly. Re-verify the same way (download + sha256sum, not the page)
+# before pinning a *different* version -- a wrong value only ever fails closed
+# (extraction below refuses on a mismatch), never silently, but it is worth
+# being right the first time.
 RUNNER_TARBALL_SHA256="${RUNNER_HOST_TARBALL_SHA256:-01066fad3a2893e63e6ca880ae3a1fad5bf9329d60e77ee15f2b97c148c3cd4e}"
 # A local tarball path instead of the network, for tests and for a box
 # provisioned without outbound internet at install time.
