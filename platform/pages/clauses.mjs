@@ -172,6 +172,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the division themselves. Same reasoning as the other generic-method pages
   // above.
   'auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html',
+  // Compares against "a flat per-vehicle price card" -- sedan/SUV/truck
+  // pricing every mobile detailer already posts, not a company or product
+  // this could be mistaken for. The page names no specific detailing
+  // franchise, app, or competitor (the venture's own named-product
+  // comparison, vs-mobiletechrx, carries its own trademark disclaimer) and
+  // its copy opens by agreeing the flat card is the right tool for
+  // advertising. Same reasoning as the other generic-method pages above.
+  'mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
