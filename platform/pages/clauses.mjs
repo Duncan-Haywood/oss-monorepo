@@ -377,6 +377,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page's own footer says so explicitly ("common, honest shortcut"). Same
   // reasoning as the other generic-method pages above.
   'egress-window-bid-calculator/vs-a-flat-rate-egress-window-special.html',
+  // Compares against "a flat $8-a-foot" crown molding special -- a generic
+  // pricing method every finish carpenter already has access to, not a
+  // company or product this could be mistaken for. The page's own footer
+  // says so explicitly ("common, honest shortcut"). Same reasoning as the
+  // other generic-method pages above.
+  'crown-molding-bid-calculator/vs-a-flat-rate-crown-molding-special.html',
   // Compares against "tracking payouts in a spreadsheet" -- a generic method
   // every Whatnot seller already has access to, not a company or product
   // this could be mistaken for. The page's own footer says so explicitly
