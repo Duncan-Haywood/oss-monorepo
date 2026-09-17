@@ -1744,7 +1744,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # prepaid session package to pay-per-session pricing on both revenue and
     # effective hourly pay, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 292  # `infra/OWNER_CHECKLIST.md`'s own "N of the 292 tools" wording.
+    # 293 since 2026-09-17, when `biohazard-cleanup-bid-calculator` graduated
+    # -- a browser-local calculator pricing a biohazard/trauma-scene cleanup
+    # job from crew labor, PPE decon-cycle sets, and regulated-waste disposal
+    # rounded up to whole containers, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before `tutor-package-pricing-calculator` landed, so
+    # it only ever knew its own predecessor's number (292) until this merge
+    # -- the same ordinary collision shape recorded throughout this list.
+    total = 293  # `infra/OWNER_CHECKLIST.md`'s own "N of the 293 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
