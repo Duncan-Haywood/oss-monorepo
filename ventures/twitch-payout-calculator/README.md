@@ -1,6 +1,6 @@
 # Twitch Payout Calculator
 
-Twitch streamers can use this free browser-local calculator to find real monthly take-home from Tier 1/2/3 subscriptions and Bits — after their revenue split (50% standard, 70% for Partner Plus) — plus any other income they supply, then check it against a monthly payout goal. **After using this, you can tell how many more Tier 1 subs close an income gap, instead of guessing from a dashboard total that doesn't show the split.**
+Twitch streamers can use this free browser-local calculator to find real monthly take-home from Tier 1/2/3 subscriptions and Bits — after their revenue split (50% default, or 60%/70% under the Plus Program) — plus any other income they supply, then check it against a monthly payout goal. **After using this, you can tell how many more Tier 1 subs close an income gap, instead of guessing from a dashboard total that doesn't show the split.**
 
 Open `index.html` directly, or serve this directory with `python3 -m http.server`. The deterministic calculation works with no account, API key, upload, or paid dependency.
 
@@ -8,7 +8,7 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 
 "$414 in sub revenue this month" is not what lands in your bank account, and two common beliefs about the gap get the mechanics backwards:
 
-- **The revenue split is real and does move payout.** Standard Affiliates and most Partners keep 50% of subscription revenue; Partners in Twitch's Partner Plus program keep 70%. This is the one lever that actually changes take-home per sub.
+- **The revenue split is real and does move payout.** Everyone starts at 50% of subscription revenue. Affiliates and Partners who sustain 100 Plus Points for three consecutive months move to 60% under Twitch's Plus Program, and those who reach 300 Plus Points move to 70%. This is the one lever that actually changes take-home per sub.
 - **Purchase platform (web vs. the iOS/Android app) does not.** Twitch charges more for a mobile subscription specifically to absorb the app store's cut, so payout per sub is the same either way — see [`does-a-mobile-subscription-pay-me-less.html`](does-a-mobile-subscription-pay-me-less.html) for the worked explanation.
 - **Bits are flat, not split.** A cheered Bit is worth $0.01 to the streamer regardless of the subscription split, because Twitch's cut is already built into what a viewer pays for the Bits bundle.
 

@@ -1,5 +1,5 @@
 name: twitch-payout-calculator
-description: A private browser calculator for Twitch streamers to find real monthly take-home from Tier 1/2/3 subscriptions and Bits after their revenue split (50% standard, 70% for Partner Plus), plus any other income they supply, then check it against a monthly payout goal and see how many more Tier 1 subs close the gap. Corrects the common belief that a mobile-purchased subscription pays less, which stopped being true after Twitch's October 2024 pricing change.
+description: A private browser calculator for Twitch streamers to find real monthly take-home from Tier 1/2/3 subscriptions and Bits after their revenue split (50% default, 60% or 70% for qualifying Plus Program tiers), plus any other income they supply, then check it against a monthly payout goal and see how many more Tier 1 subs close the gap. Corrects the common belief that a mobile-purchased subscription pays less, which stopped being true after Twitch's October 2024 pricing change.
 stage: prototype
 owner: duncan
 hypotheses:
