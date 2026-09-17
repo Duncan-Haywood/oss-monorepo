@@ -29,6 +29,9 @@ export const SHARE_FIELDS = Object.freeze([
   'overheadRate',
   'targetMargin',
   'minimumServiceCharge',
+  // Not part of the rate-card form -- the reconciliation section's own
+  // input, read separately in index.html because it has no DEFAULTS entry.
+  'actualHours',
   // The proposal panel's terms -- see the file header and term-ids.test.mjs.
   'depositPercent', 'validDays', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
 ]);

@@ -247,6 +247,7 @@ const PROPOSAL_TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'propo
 async function copyShare() {
   const hash = encodeShare({
     ...readInput(),
+    actualHours: el('actualHours').value,
     ...Object.fromEntries(PROPOSAL_TERM_IDS.map(id => [id, el(id).value])),
   });
   const url = `${location.origin}${location.pathname}#${hash}`;
@@ -352,6 +353,7 @@ if (shared) {
   for (const id of PROPOSAL_TERM_IDS) {
     if (shared[id] !== undefined) el(id).value = shared[id];
   }
+  if (shared.actualHours !== undefined) el('actualHours').value = shared.actualHours;
 }
 updateQuote(false);
 updateActual(false);
