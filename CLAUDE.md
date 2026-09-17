@@ -75,6 +75,7 @@ in the PR what they said:
 
 ```
 python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
+python3 platform/ci/sync_tree_counts.py  # AFTER merging main: fixes the counts a concurrent merge just invalidated
 node platform/marketing/regen.mjs        # then commit whatever it rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
@@ -89,6 +90,44 @@ python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root p
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
 python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?
 ```
+
+**`sync_tree_counts.py` was added 2026-09-17, and the reason is that two of
+the numbers in this tree cannot be got right on a branch.** Two counts are
+derived facts written down by hand in eight places between them: the
+mirrored-tool count (`infra/OWNER_CHECKLIST.md` x3,
+`gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf` x2,
+and `total =` in `gitops/tests/test_manifests.py`) and
+`SWITCHES_IN_THE_CATALOGUE` in `platform/privacy/optout-persistence.test.mjs`.
+Both already had guards that go red on drift, and both guards work. Neither
+*fixed* anything — which is the same tax `gitops/ci/sync_readme_counts.py`
+was written to remove for the `runs-on` count, and whose docstring records two
+whole pull requests spent in one afternoon retyping three integers.
+
+Measured over 2026-09-16/17, that tax came due three times in two days, and
+not one of them was an author being careless:
+
+- #4853's branch was open before #4859 landed. Each raised
+  `SWITCHES_IN_THE_CATALOGUE` by one against a base where the other had not,
+  so the pair of graduations moved it once and `main` went red the moment the
+  second merged (fixed in #4869).
+- The same collision hit the mirrored-tool total the same day: both branches
+  independently wrote `297` for what the merged tree made `298`.
+- `optout-persistence.test.mjs` already records a third instance, the
+  bridal-hair-makeup/#4766 pair, from the day before.
+
+With up to 4 sessions merging inside one 15-minute window (`session_gate.py`),
+**any constant that counts the tree will be written by two branches at once,
+and both will be right about the base they could see.** The arithmetic is not
+wrong on the branch; it is unknowable there. It becomes knowable at the merge,
+which is why this line sits right after the merge and before `regen.mjs`.
+
+It derives both numbers through the guards' own code — importing
+`_mirrored_venture_slugs()` and calling `checkAll` — rather than keeping a
+second copy of either scan, the same import-don't-restate rule this file
+already records twice against the front-door mirror. It rewrites numbers only:
+it prints, and will not write, the running-comment entry saying *why* a count
+moved, because a rise no venture addition accounts for is a regression and
+then the number is not what needs changing. Run it, then write that line.
 
 **That last line is not optional, and it is the one this block was missing
 until 2026-09-07.** Every line above it runs *tests*. `portfolio-validate.yml`
