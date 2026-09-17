@@ -430,15 +430,15 @@
         "sideways",
         "sweep"
       ],
-      "commit": "4cf6a17d08c4bee46749ba5a1fc2753e7c79adb1",
+      "commit": "860e9bd302c3beb6ef215f38cc567a64fcf8cd55",
       "measured": "2026-09-17",
-      "pages": 1144,
+      "pages": 1140,
       "result": "pass",
       "scope": "full",
       "surface": {
         "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "2ef8716fb6ce8767f20207a69b2de6c1e0910737",
-        "ventures": "a99b0d7947f87f6a44481275a241d9368bed0fd0"
+        "platform/pages": "ee1b060858df6314997722d6e964a83a0c1b4dca",
+        "ventures": "b4429fcce8bd4722c33c432aa6b9358a626ca30c"
       }
     }
   ]

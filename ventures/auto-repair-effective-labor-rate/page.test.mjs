@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { ALL_INPUT_IDS, NUMERIC_IDS } from './calc.mjs';
+import { ALL_INPUT_IDS, NUMERIC_IDS, calculateEffectiveLaborRate } from './calc.mjs';
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
@@ -195,10 +195,11 @@ test('robots and sitemap let crawlers find every page', () => {
   assert.match(sitemap, /what-is-my-effective-labor-rate\.html/);
   assert.match(sitemap, /vs-tekmetric\.html/);
   assert.match(sitemap, /vs-shop-ware\.html/);
+  assert.match(sitemap, /vs-dividing-labor-sales-by-hours\.html/);
 });
 
 test('every published page carries Open Graph tags', () => {
-  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['vs-tekmetric.html', page('vs-tekmetric.html')], ['vs-shop-ware.html', page('vs-shop-ware.html')]]) {
+  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['vs-tekmetric.html', page('vs-tekmetric.html')], ['vs-shop-ware.html', page('vs-shop-ware.html')], ['vs-dividing-labor-sales-by-hours.html', page('vs-dividing-labor-sales-by-hours.html')]]) {
     assert.match(html, /property="og:title"/, `${name} has no og:title`);
     assert.match(html, /property="og:description"/, `${name} has no og:description`);
   }
@@ -292,4 +293,76 @@ test('index links one hop to the shop-rate-calculator sibling', () => {
 
 test('index links one hop to a second sibling', () => {
   assert.match(markup, /href="\.\.\/hvac-maintenance-contract-calculator\//);
+});
+
+test('index links to the divide-it-yourself comparison, and the page links back', () => {
+  assert.match(markup, /href="vs-dividing-labor-sales-by-hours\.html"/);
+  const vsPage = page('vs-dividing-labor-sales-by-hours.html');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the tool');
+  // This one compares against a generic method rather than a product, so it
+  // carries no trademark disclaimer and must name no management system --
+  // that is the claim `COMPARISON_DISCLAIMER_EXEMPT` in clauses.mjs records
+  // for it, and the reason it needs no "not affiliated with" line.
+  assert.doesNotMatch(vsPage, /Tekmetric|Shop-Ware|Mitchell|AllData|Shopmonkey/i);
+});
+
+test('wide tables on the divide-it-yourself page scroll in their own box, not the page', () => {
+  const vsPage = page('vs-dividing-labor-sales-by-hours.html');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('every figure quoted on the divide-it-yourself page is what the calculator actually returns', () => {
+  // The page argues from a worked example, so its credibility is entirely in
+  // whether those numbers are the ones the tool produces from the defaults the
+  // form ships. Nothing else in this suite would notice the calculator's
+  // arithmetic changing and the prose staying still, which is exactly how a
+  // comparison page turns into a false claim about our own product.
+  const vsPage = page('vs-dividing-labor-sales-by-hours.html');
+  const r = calculateEffectiveLaborRate(defaults);
+  assert.ok(r.ok, 'the shipped defaults must produce a result');
+
+  const money = (n) => `$${n.toFixed(2)}`;
+  const quoted = [
+    money(r.effectiveLaborRate),            // $138.84 blended
+    money(r.effectiveRateOnAllHours),       // $128.94 on consumed hours
+    money(r.customerPayEffectiveRate),      // $145.00 customer-pay
+    money(r.warrantyEffectiveRate),         // $95.00 warranty
+    money(r.costPerBilledHour),             // $52.60
+    money(r.costPerClockHour),              // $40.00
+    money(r.requiredEffectiveRate),         // $175.34
+    money(r.requiredPostedRate),            // $208.39
+    `$${r.laborSales.toLocaleString('en-US')}`,          // $50,675
+    `$${r.totalBillingGap.toLocaleString('en-US')}`,     // $9,550
+    `$${r.internalOpportunity.toLocaleString('en-US')}`, // $4,620
+    `$${r.annualInternalOpportunity.toLocaleString('en-US')}`, // $55,440
+    `${r.soldHours} hours sold`,
+    `${r.consumedHours}`,
+  ];
+  for (const figure of quoted) {
+    assert.ok(vsPage.includes(figure), `the page no longer quotes ${figure} from the calculator`);
+  }
+
+  // The rounded percentages the prose leans on.
+  assert.ok(vsPage.includes(`${Math.round(r.realizationRatio * 100)} cents`), 'realization in cents on the dollar');
+  assert.ok(vsPage.includes(`${Math.round(r.gapShares.customerPay)}%`), 'customer-pay share of the gap');
+  assert.ok(vsPage.includes(`${Math.round(r.gapShares.warranty)}%`), 'warranty share of the gap');
+  assert.ok(vsPage.includes(`${Math.round(r.technicianEfficiency)}% efficiency`), 'technician efficiency');
+
+  // The gross-up claim: posting the required *effective* rate collects less,
+  // which is the whole point of the fourth section.
+  const shortfall = r.requiredEffectiveRate * r.realizationRatio;
+  assert.ok(vsPage.includes(money(shortfall)), `the page no longer quotes ${money(shortfall)} as what posting the required rate collects`);
+
+  // The difference between the two denominators, quoted in section 1.
+  assert.ok(
+    vsPage.includes(money(r.effectiveLaborRate - r.effectiveRateOnAllHours)),
+    'the sold-vs-consumed difference is no longer the calculator\'s',
+  );
 });
