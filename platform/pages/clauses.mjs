@@ -418,6 +418,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly ("Names no specific product or company"). Same reasoning as
   // the other vs-spreadsheet / by-hand pages above.
   'twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
+  // Compares against "reading the workflow diff by eye" -- the ordinary code
+  // review habit every GitHub Actions maintainer already has, not a company
+  // or product this could be mistaken for. The page names no specific
+  // reviewer, team, or code-review tool at all.
+  'actions-secret-leak-check/vs-reading-the-workflow-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
