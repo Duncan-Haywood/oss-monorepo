@@ -314,7 +314,7 @@ const RELATIVE_SELF = relative(
 // entrants into the same ordinary collision shape recorded throughout this
 // list. The number below is `sync_tree_counts.py`'s own measurement against
 // this merge's actual tree, not a hand sum of every branch's guess.
-const SWITCHES_IN_THE_CATALOGUE = 295;
+const SWITCHES_IN_THE_CATALOGUE = 296;
 
 let counter = 0;
 function fixture(source) {
