@@ -40,15 +40,15 @@
 #   portfolio-front-tools-4: 124 files, 553922 bytes
 #   portfolio-front-tools-5: 135 files, 554499 bytes
 #   portfolio-front-tools-6: 124 files, 552472 bytes
-#   portfolio-front-tools-7: 135 files, 553249 bytes
-#   portfolio-front-tools-8: 113 files, 554594 bytes
-#   portfolio-front-tools-9: 110 files, 552685 bytes
+#   portfolio-front-tools-7: 135 files, 554103 bytes
+#   portfolio-front-tools-8: 113 files, 555317 bytes
+#   portfolio-front-tools-9: 111 files, 556839 bytes
 #   portfolio-front-tools-10: 120 files, 555740 bytes
 #   portfolio-front-tools-11: 123 files, 556799 bytes
 #   portfolio-front-tools-12: 131 files, 552480 bytes
 #   portfolio-front-tools-13: 98 files, 553705 bytes
-#   portfolio-front-tools-14: 114 files, 553666 bytes
-#   portfolio-front-tools-15: 78 files, 373193 bytes
+#   portfolio-front-tools-14: 114 files, 555059 bytes
+#   portfolio-front-tools-15: 79 files, 375950 bytes
 #   portfolio-front-tools-16: 51 files, 263342 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1086,6 +1086,7 @@ configMapGenerator:
       - electrical-panel-upgrade-bid-calculator__index.html.gz=electrical-panel-upgrade-bid-calculator__index.html.gz
       - electrical-panel-upgrade-bid-calculator__share.mjs.gz=electrical-panel-upgrade-bid-calculator__share.mjs.gz
       - electrical-panel-upgrade-bid-calculator__usage.mjs.gz=electrical-panel-upgrade-bid-calculator__usage.mjs.gz
+      - electrical-panel-upgrade-bid-calculator__vs-a-flat-panel-upgrade-price.html.gz=electrical-panel-upgrade-bid-calculator__vs-a-flat-panel-upgrade-price.html.gz
       - electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz=electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz
       - email-auth-check__analyze.mjs.gz=email-auth-check__analyze.mjs.gz
       - email-auth-check__cli.mjs.gz=email-auth-check__cli.mjs.gz
@@ -1150,12 +1151,12 @@ configMapGenerator:
       - exterior-painting-bid-calculator__usage.mjs.gz=exterior-painting-bid-calculator__usage.mjs.gz
       - exterior-painting-bid-calculator__vs-paintscout.html.gz=exterior-painting-bid-calculator__vs-paintscout.html.gz
       - fire-extinguisher-inspection-route-margin__calc.mjs.gz=fire-extinguisher-inspection-route-margin__calc.mjs.gz
-      - fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz=fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz=fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz
       - fire-extinguisher-inspection-route-margin__index.html.gz=fire-extinguisher-inspection-route-margin__index.html.gz
       - fire-extinguisher-inspection-route-margin__share.mjs.gz=fire-extinguisher-inspection-route-margin__share.mjs.gz
       - fire-extinguisher-inspection-route-margin__usage.mjs.gz=fire-extinguisher-inspection-route-margin__usage.mjs.gz
@@ -1268,12 +1269,12 @@ configMapGenerator:
       - hardwood-refinishing-bid-calculator__index.html.gz=hardwood-refinishing-bid-calculator__index.html.gz
       - hardwood-refinishing-bid-calculator__share.mjs.gz=hardwood-refinishing-bid-calculator__share.mjs.gz
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
-      - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
@@ -1921,6 +1922,7 @@ configMapGenerator:
       - storage-auction-max-bid-calculator__index.html.gz=storage-auction-max-bid-calculator__index.html.gz
       - storage-auction-max-bid-calculator__share.mjs.gz=storage-auction-max-bid-calculator__share.mjs.gz
       - storage-auction-max-bid-calculator__usage.mjs.gz=storage-auction-max-bid-calculator__usage.mjs.gz
+      - storage-auction-max-bid-calculator__vs-storagetreasures.html.gz=storage-auction-max-bid-calculator__vs-storagetreasures.html.gz
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
@@ -1994,12 +1996,12 @@ configMapGenerator:
       - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
       - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
       - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
-      - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
       - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
       - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
       - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
