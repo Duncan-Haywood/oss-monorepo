@@ -127,7 +127,21 @@ const RELATIVE_SELF = relative(
 // graduated with a `toggleUsage`/`usageAllowed` switch (opts out of the
 // `proposal-priced`/`rounding-gap-shown`/`link_copied` counters), same
 // discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 273;
+// 273 -> 274 on 2026-09-17, when `world-clock-widget` gained a browser surface
+// with its own `setUsageOptOut`/`usageOptedOut` switch in
+// `ventures/world-clock-widget/site/usage.mjs` (the same `record`/`readUsage`
+// pattern `cron-dst-drift-check` uses), same discovery method as the rest of
+// this running count. Note this one is NOT a venture graduating, which every
+// other line above is: the venture already existed as a Swift app, and the
+// addition is a second surface over the same core. The distinction matters
+// only for reading this list back -- the switch is a switch either way.
+//
+// The 271 -> 272 pair above is worth reading together: two branches were open
+// at once and each raised the constant by one against a base where the other
+// had not landed, exactly the collision the 265 -> 266 entry records. Both
+// additions are real and both survive here, which is why the resolved number
+// is 274 rather than either branch's 273.
+const SWITCHES_IN_THE_CATALOGUE = 274;
 
 let counter = 0;
 function fixture(source) {

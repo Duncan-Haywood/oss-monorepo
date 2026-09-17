@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555791 bytes
-#   portfolio-front-tools-1: 106 files, 554521 bytes
-#   portfolio-front-tools-2: 148 files, 556388 bytes
-#   portfolio-front-tools-3: 140 files, 556995 bytes
+#   portfolio-front-tools-0: 133 files, 555796 bytes
+#   portfolio-front-tools-1: 106 files, 554541 bytes
+#   portfolio-front-tools-2: 148 files, 556395 bytes
+#   portfolio-front-tools-3: 140 files, 557006 bytes
 #   portfolio-front-tools-4: 123 files, 556119 bytes
-#   portfolio-front-tools-5: 138 files, 553770 bytes
-#   portfolio-front-tools-6: 118 files, 553437 bytes
-#   portfolio-front-tools-7: 135 files, 554312 bytes
-#   portfolio-front-tools-8: 113 files, 554136 bytes
-#   portfolio-front-tools-9: 111 files, 552315 bytes
-#   portfolio-front-tools-10: 122 files, 554771 bytes
-#   portfolio-front-tools-11: 124 files, 554286 bytes
-#   portfolio-front-tools-12: 118 files, 532251 bytes
-#   portfolio-front-tools-13: 100 files, 554238 bytes
-#   portfolio-front-tools-14: 114 files, 552186 bytes
-#   portfolio-front-tools-15: 87 files, 439914 bytes
+#   portfolio-front-tools-5: 138 files, 553779 bytes
+#   portfolio-front-tools-6: 118 files, 553576 bytes
+#   portfolio-front-tools-7: 135 files, 554334 bytes
+#   portfolio-front-tools-8: 113 files, 554172 bytes
+#   portfolio-front-tools-9: 111 files, 552324 bytes
+#   portfolio-front-tools-10: 122 files, 554791 bytes
+#   portfolio-front-tools-11: 124 files, 554297 bytes
+#   portfolio-front-tools-12: 118 files, 532255 bytes
+#   portfolio-front-tools-13: 100 files, 554242 bytes
+#   portfolio-front-tools-14: 114 files, 552190 bytes
+#   portfolio-front-tools-15: 90 files, 455923 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2076,3 +2076,6 @@ configMapGenerator:
       - wordpress-plugin-review-check__stable-tag-mismatch.html.gz=wordpress-plugin-review-check__stable-tag-mismatch.html.gz
       - wordpress-plugin-review-check__usage.mjs.gz=wordpress-plugin-review-check__usage.mjs.gz
       - wordpress-plugin-review-check__vs-plugin-check.html.gz=wordpress-plugin-review-check__vs-plugin-check.html.gz
+      - world-clock-widget__index.html.gz=world-clock-widget__index.html.gz
+      - world-clock-widget__solar.mjs.gz=world-clock-widget__solar.mjs.gz
+      - world-clock-widget__usage.mjs.gz=world-clock-widget__usage.mjs.gz
