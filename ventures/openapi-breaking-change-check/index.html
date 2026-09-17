@@ -103,7 +103,7 @@ python3 openapi_diff.py old.json new.json --fail-on-breaking  # exit 2 only if a
     <p>No. Both documents you paste are read in this browser and never leave your device. An OpenAPI spec can describe an unreleased API surface, so this page makes no network requests of its own — pasting is the only way it sees anything.</p>
     <h3>Does it support Swagger 2.0 or YAML specs?</h3>
     <p>Not yet. This tool reads OpenAPI 3.0 and 3.1 JSON documents only. A Swagger 2.0 document is detected and explicitly rejected — its parameter and body shape differ enough that silently reading it as OpenAPI 3 would misreport rather than just refuse. Convert a YAML spec to JSON first with any OpenAPI tool's own export, or a YAML-to-JSON converter, before pasting it here.</p>
-    <p>More: <a href="vs-manually-reading-the-spec-diff.html">how this compares to manually reading a diff of the spec files</a>.</p>
+    <p>More: <a href="vs-manually-reading-the-spec-diff.html">how this compares to manually reading a diff of the spec files</a>, or <a href="vs-oasdiff.html">how this compares to oasdiff</a>, the open-source CLI with a much deeper change catalogue.</p>
   </section>
 
   <footer>

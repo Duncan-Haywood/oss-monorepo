@@ -92,6 +92,16 @@ tool.
 Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood)
 never changes what this tool does.
 
+## How this compares
+
+- [vs. manually reading the spec diff](vs-manually-reading-the-spec-diff.html) --
+  why classifying breaking-vs-non-breaking beats scrolling a raw text diff.
+- [vs. oasdiff](vs-oasdiff.html) -- oasdiff is an open-source Go CLI with 755
+  documented change rules reaching into request/response body schemas and
+  its own GitHub Action; this tool checks 12 of the most common
+  operation/parameter/request-body changes, in a browser, with nothing to
+  install.
+
 ## Privacy-conscious usage tracking
 
 The browser page counts anonymous feature events (`diff_run`,
