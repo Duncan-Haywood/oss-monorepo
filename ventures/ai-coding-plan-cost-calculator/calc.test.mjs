@@ -6,6 +6,7 @@ import {
   dailyApiCostUsd,
   formatUsd,
   MODEL_PRESETS,
+  PLAN_MODEL_DEFAULT,
   PLAN_PRESETS,
   USAGE_TIERS,
 } from './calc.mjs';
@@ -97,6 +98,50 @@ test('every model preset has all four rate fields and a label', () => {
       assert.equal(typeof preset[field], 'number', `${key}.${field}`);
     }
   }
+});
+
+test('openai-gpt and gemini presets exist so a ChatGPT Plus, Copilot, or Cursor visitor gets a matching API, not silently only Claude rates', () => {
+  assert.ok(MODEL_PRESETS['openai-gpt'], 'missing openai-gpt preset');
+  assert.ok(MODEL_PRESETS.gemini, 'missing gemini preset');
+});
+
+test('openai-gpt and gemini bill no cache-write rate, unlike the Claude presets, because neither vendor charges to populate its automatic prompt cache', () => {
+  assert.equal(MODEL_PRESETS['openai-gpt'].cacheWrite, 0);
+  assert.equal(MODEL_PRESETS.gemini.cacheWrite, 0);
+  for (const key of ['claude-opus', 'claude-sonnet', 'claude-haiku']) {
+    assert.ok(MODEL_PRESETS[key].cacheWrite > 0, `${key} should carry a nonzero cache-write premium`);
+  }
+});
+
+test('every model preset\'s cache-read rate is cheaper than its fresh-input rate, or both are zero', () => {
+  for (const [key, preset] of Object.entries(MODEL_PRESETS)) {
+    if (preset.input === 0) continue;
+    assert.ok(preset.cacheRead <= preset.input, `${key}: cache reads should not cost more than fresh input`);
+  }
+});
+
+test('every PLAN_PRESETS key has a PLAN_MODEL_DEFAULT entry naming a real model preset', () => {
+  for (const planKey of Object.keys(PLAN_PRESETS)) {
+    const modelKey = PLAN_MODEL_DEFAULT[planKey];
+    assert.ok(modelKey, `${planKey} has no PLAN_MODEL_DEFAULT entry`);
+    assert.ok(MODEL_PRESETS[modelKey], `${planKey} maps to unknown model preset "${modelKey}"`);
+  }
+});
+
+test('the OpenAI-backed plans (ChatGPT Plus, both Copilot tiers) default to the openai-gpt preset, not a Claude rate', () => {
+  for (const planKey of ['chatgpt-plus', 'copilot-individual', 'copilot-business']) {
+    assert.equal(PLAN_MODEL_DEFAULT[planKey], 'openai-gpt', planKey);
+  }
+});
+
+test('compare: a ChatGPT Plus-sized plan against openai-gpt rates prices sensibly, not against Claude rates by accident', () => {
+  const result = compare({
+    planMonthlyUsd: PLAN_PRESETS['chatgpt-plus'].monthlyUsd,
+    usage: USAGE_TIERS.typical,
+    rates: MODEL_PRESETS[PLAN_MODEL_DEFAULT['chatgpt-plus']],
+  });
+  assert.ok(Number.isFinite(result.apiMonthlyUsd));
+  assert.ok(result.apiMonthlyUsd > 0);
 });
 
 test('every plan preset has a label and a non-negative monthly price', () => {

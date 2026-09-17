@@ -867,9 +867,27 @@ const CATEGORY_RULES = [
     // visit, route, or booking for a customer. Slug ends in `-check`, not
     // any suffix above, and starts with `call-`, which none of the
     // prefixes above would guess.
+    // `1099-k-threshold-checker` joined 2026-09-17, filed here on its first
+    // commit rather than after a spell in the catch-all -- which is what
+    // `build.test.mjs`'s catch-all bound is for. It is the payee-side twin
+    // of `1099-vendor-tracker` right above (also filed here, via the
+    // `tracker$` suffix): that one screens whether the *payer* owes a
+    // 1099-NEC, this one screens whether the *payee* will receive a
+    // 1099-K, and both are the same "produce a dated record of what you
+    // checked" job this section's own blurb names. Not `backoffice`, where
+    // its sibling `1099k-reconciliation-worksheet` sits: that tool
+    // reconciles a 1099-K already received down to net profit (money
+    // already in hand), while this one answers whether a form is coming at
+    // all (before it exists) -- the same forward-looking-check-vs-
+    // after-the-sale-reconciliation distinction that keeps the two
+    // `1099-vendor-tracker`/`1099k-reconciliation-worksheet` siblings in
+    // different sections already. Slug ends in `-checker`, not any suffix
+    // this rule already catches, so it is added by exact match rather than
+    // widening the suffix list to a word this is the only user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug),
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
+      || slug === '1099-k-threshold-checker',
   },
   {
     id: 'backoffice',
@@ -962,7 +980,17 @@ const CATEGORY_RULES = [
       // "after the fact" axis as `card-processing-fee-audit` (splitting a
       // processor's bill after the sale) and `cam-reconciliation-check` (a
       // landlord's own statement), just for a move-out deposit instead.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return)/.test(slug),
+      // `no-tax-on-tips-overtime-calculator` joined 2026-09-17, filed here on
+      // its first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. It estimates a federal
+      // deduction on tips and overtime pay already earned -- the same
+      // "downstream obligation on income already earned" axis as
+      // `quarterly-estimated-tax-calendar` right above it in this same rule,
+      // just a deduction owed to the filer instead of a payment owed to the
+      // IRS. Not `solo-earner`: that section groups people pricing their own
+      // labour or audience before a sale; this runs after the pay period,
+      // on a W-2 or 1099 figure already received.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|no-tax-on-tips-overtime-calculator)/.test(slug),
   },
   {
     id: 'ci',

@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>No Tax on Tips &amp; Overtime Calculator — 2026 Deduction Estimator, Free</title>
+  <meta name="description" content="Free calculator for the federal 'no tax on tips' and 'no tax on overtime' deductions (2025-2028): applies the $25,000 tip cap, the $12,500/$25,000 overtime cap, and the shared MAGI phase-out, and computes the overtime deduction's easy-to-miss half-time-premium-only rule. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="No Tax on Tips & Overtime Calculator — free 2026 deduction estimator">
+  <meta property="og:description" content="Estimate the federal qualified-tips and qualified-overtime-compensation deductions, including the income phase-out and the overtime premium-only rule. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"No Tax on Tips & Overtime Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the federal qualified-tips deduction (up to $25,000) and qualified-overtime-compensation deduction (up to $12,500 single/head-of-household, $25,000 married filing jointly) enacted by the One Big Beautiful Bill Act for tax years 2025-2028, applying the shared MAGI phase-out ($100 reduction per $1,000 of MAGI over $150,000 single or $300,000 joint) and computing the overtime deduction from raw hours and rate using the FLSA half-time-premium-only rule rather than the full time-and-a-half rate. Entirely client-side; nothing is uploaded.","featureList":"Qualified-tips deduction with cap and MAGI phase-out, qualified-overtime-compensation deduction with cap and phase-out, FLSA half-time overtime premium calculator from hours and rate, self-employment net-profit cap, rough tax-savings estimate at a chosen marginal rate"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much can I deduct under 'no tax on tips'?","acceptedAnswer":{"@type":"Answer","text":"Up to $25,000 of qualified cash tips per year, for tax years 2025 through 2028, if your occupation is on Treasury's published list of occupations that customarily and regularly receive tips. The deduction phases out for higher earners -- see the phase-out question below."}},{"@type":"Question","name":"How much can I deduct under 'no tax on overtime'?","acceptedAnswer":{"@type":"Answer","text":"Up to $12,500 per year (single or head of household) or $25,000 (married filing jointly) of qualified overtime compensation, for tax years 2025 through 2028 -- but only the FLSA 'half-time' premium portion of overtime pay (the extra 0.5x for hours over 40 in a week), not your full time-and-a-half overtime wages. If you earned $30/hr on overtime hours from a $20/hr regular rate, only the $10/hr premium counts, not the full $30/hr."}},{"@type":"Question","name":"What is the income phase-out for these deductions?","acceptedAnswer":{"@type":"Answer","text":"Both deductions are reduced by $100 for every $1,000 (or part of $1,000) that your modified adjusted gross income (MAGI) exceeds $150,000 (single or head of household) or $300,000 (married filing jointly). The tip deduction reaches $0 at $400,000 MAGI single / $550,000 joint. The overtime deduction reaches $0 at $275,000 MAGI single or head of household (its cap is smaller) / $550,000 joint."}},{"@type":"Question","name":"Do these deductions reduce Social Security, Medicare, or state income tax?","acceptedAnswer":{"@type":"Answer","text":"No. Both are federal income-tax deductions only. Your tips and overtime pay remain fully subject to Social Security and Medicare (FICA) tax if you are an employee, or self-employment (SECA) tax if you are self-employed, and most states will still tax them in full unless that state has separately chosen to conform to the federal deduction."}},{"@type":"Question","name":"Can I claim these if I file married filing separately?","acceptedAnswer":{"@type":"Answer","text":"No. Both deductions require married taxpayers to file a joint return; married filing separately is not eligible for either one."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published statutory caps and phase-out formula to the numbers you enter. It is not a full tax return, it does not know your complete tax situation, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .grid[hidden] { display: none; }
+    .checkrow { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0; }
+    .checkrow input { width: auto; margin-top: 4px; }
+    .checkrow label { font-weight: 400; margin: 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button.small { padding: 6px 10px; font-size: .85rem; margin: 4px 0 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ot-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tabs button { margin: 0; background: #e4edf1; color: #1f4a5d; }
+    .tabs button.active { background: #2a6b8e; color: #fff; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+    @media (max-width: 480px) {
+      .ot-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NO TAX ON TIPS &amp; OVERTIME CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's the "no tax on tips" and "no tax on overtime" deduction worth?</h1>
+    <p>Two new federal deductions apply to tax years 2025 through 2028: up to
+    <strong>$25,000</strong> of qualified tips, and up to <strong>$12,500
+    ($25,000 married filing jointly)</strong> of qualified overtime
+    compensation — but only the <strong>half-time premium portion</strong>
+    of overtime pay, not your full time-and-a-half wages, and both shrink
+    once your income clears $150,000 (single) or $300,000 (joint). This
+    estimates both, including the part people usually get wrong.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status &amp; income</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="joint">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="magi">Estimated MAGI ($)</label>
+        <input type="number" id="magi" min="0" step="1000" placeholder="e.g. 65000">
+      </div>
+      <div>
+        <label for="marginal-rate">Your marginal federal tax rate</label>
+        <select id="marginal-rate">
+          <option value="10">10%</option>
+          <option value="12" selected>12%</option>
+          <option value="22">22%</option>
+          <option value="24">24%</option>
+          <option value="32">32%</option>
+          <option value="35">35%</option>
+          <option value="37">37%</option>
+        </select>
+      </div>
+    </div>
+    <p class="note">MAGI here is modified adjusted gross income — for most
+    filers with no foreign income or certain exclusions, this is close to
+    the AGI on last year's return, adjusted for this year's income. Not sure
+    of your bracket? See the reference table below the results.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Qualified tips</h2>
+    <div class="checkrow">
+      <input type="checkbox" id="occupation-eligible">
+      <label for="occupation-eligible">My occupation customarily and
+      regularly receives tips (servers, bartenders, hairdressers/barbers,
+      nail technicians, rideshare and delivery drivers, casino dealers, and
+      similar — check Treasury's full published occupation list before
+      relying on this)</label>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="qualified-tips">Qualified cash tips received this year ($)</label>
+        <input type="number" id="qualified-tips" min="0" step="1" placeholder="e.g. 14000">
+      </div>
+    </div>
+    <div class="checkrow">
+      <input type="checkbox" id="self-employed">
+      <label for="self-employed">I'm self-employed / gig work for this tipped
+      income (Schedule C) — the deduction can't exceed net profit from that
+      work</label>
+    </div>
+    <div class="grid" id="net-profit-wrap" hidden>
+      <div>
+        <label for="net-profit">Net profit from the tipped trade or business ($)</label>
+        <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 11000">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Qualified overtime compensation</h2>
+    <p class="note">This is only the <strong>extra half-time premium</strong>
+    on overtime hours — not your full overtime pay. If you already know the
+    figure (for example, tax year 2025+ W-2s show it in Box 14 as "FLSA OT
+    Prem"), enter it directly. Otherwise compute it from your hours below.</p>
+    <div class="tabs">
+      <button type="button" id="tab-known" class="active">I know the total</button>
+      <button type="button" id="tab-compute">Compute it from hours</button>
+    </div>
+    <div id="known-panel">
+      <div class="grid">
+        <div>
+          <label for="ot-known">Qualified overtime premium this year ($)</label>
+          <input type="number" id="ot-known" min="0" step="1" placeholder="e.g. 2200">
+        </div>
+      </div>
+    </div>
+    <div id="compute-panel" hidden>
+      <p class="note">Add a row per hourly rate you were paid overtime at
+      this year: rate, overtime hours in a typical week at that rate, and
+      how many weeks. Premium = rate &times; 0.5 &times; overtime hours
+      &times; weeks. Worked at <em>two different rates in the same week</em>?
+      Use this portfolio's own <a href="../overtime-pay-calculator/">blended-rate
+      overtime calculator</a> first and enter its overtime-premium-per-hour
+      figure as the rate here — that FLSA weighted-average arithmetic is
+      already built and tested there.</p>
+      <div id="ot-rows"></div>
+      <p><button type="button" class="secondary small" id="add-ot-row">+ Add row</button></p>
+    </div>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in filing status, MAGI, tips, and overtime above, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Estimate</h2>
+    <p class="stats" id="report-stats"></p>
+    <table>
+      <thead><tr><th>Deduction</th><th>Amount</th></tr></thead>
+      <tbody id="report-body"></tbody>
+    </table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates two
+      deductions only — not your total tax liability, other deductions or
+      credits, self-employment tax, or state tax.</li>
+      <li><strong>Occupation eligibility for tips</strong> is confirmed by
+      you, not verified against Treasury's official list here — check the
+      published Treasury Tipped Occupation Code list before filing.</li>
+      <li><strong>FICA/SECA and state tax are unaffected</strong> — see the
+      footer disclaimer.</li>
+      <li><strong>2026 W-2 changes:</strong> starting with tax year 2026,
+      employers report a Treasury Tipped Occupation Code in Box 14b and
+      qualified tips under code "TP" in Box 12; qualified overtime premium
+      appears in Box 14 as "FLSA OT Prem". Use those figures directly if you
+      have them.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>2025 federal marginal tax brackets (reference)</h2>
+    <p class="note">For choosing the rate above. Sourced from the IRS's
+    published 2025 brackets; verify current-year brackets before filing, and
+    remember your marginal rate is the rate on your <em>last</em> dollar of
+    income, not your average rate.</p>
+    <table>
+      <thead><tr><th>Rate</th><th>Single</th><th>Married filing jointly</th></tr></thead>
+      <tbody>
+        <tr><td>10%</td><td>$0 – $11,925</td><td>$0 – $23,850</td></tr>
+        <tr><td>12%</td><td>$11,925 – $48,475</td><td>$23,850 – $96,950</td></tr>
+        <tr><td>22%</td><td>$48,475 – $103,350</td><td>$96,950 – $206,700</td></tr>
+        <tr><td>24%</td><td>$103,350 – $197,300</td><td>$206,700 – $394,600</td></tr>
+        <tr><td>32%</td><td>$197,300 – $250,525</td><td>$394,600 – $501,050</td></tr>
+        <tr><td>35%</td><td>$250,525 – $626,350</td><td>$501,050 – $751,600</td></tr>
+        <tr><td>37%</td><td>over $626,350</td><td>over $751,600</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much can I deduct under 'no tax on tips'?</h3>
+    <p>Up to $25,000 of qualified cash tips per year, for tax years 2025 through 2028, if your occupation is on Treasury's published list of occupations that customarily and regularly receive tips. The deduction phases out for higher earners -- see the phase-out question below.</p>
+    <h3>How much can I deduct under 'no tax on overtime'?</h3>
+    <p>Up to $12,500 per year (single or head of household) or $25,000 (married filing jointly) of qualified overtime compensation, for tax years 2025 through 2028 -- but only the FLSA 'half-time' premium portion of overtime pay (the extra 0.5x for hours over 40 in a week), not your full time-and-a-half overtime wages. If you earned $30/hr on overtime hours from a $20/hr regular rate, only the $10/hr premium counts, not the full $30/hr.</p>
+    <h3>What is the income phase-out for these deductions?</h3>
+    <p>Both deductions are reduced by $100 for every $1,000 (or part of $1,000) that your modified adjusted gross income (MAGI) exceeds $150,000 (single or head of household) or $300,000 (married filing jointly). The tip deduction reaches $0 at $400,000 MAGI single / $550,000 joint. The overtime deduction reaches $0 at $275,000 MAGI single or head of household (its cap is smaller) / $550,000 joint.</p>
+    <h3>Do these deductions reduce Social Security, Medicare, or state income tax?</h3>
+    <p>No. Both are federal income-tax deductions only. Your tips and overtime pay remain fully subject to Social Security and Medicare (FICA) tax if you are an employee, or self-employment (SECA) tax if you are self-employed, and most states will still tax them in full unless that state has separately chosen to conform to the federal deduction.</p>
+    <h3>Can I claim these if I file married filing separately?</h3>
+    <p>No. Both deductions require married taxpayers to file a joint return; married filing separately is not eligible for either one.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published statutory caps and phase-out formula to the numbers you enter. It is not a full tax return, it does not know your complete tax situation, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your occupation's eligibility and your own MAGI before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Working at two different pay rates in the same overtime week? The <a href="../overtime-pay-calculator/">overtime pay calculator</a> computes the correct FLSA blended regular rate first.</p>
+    <p>Doing this arithmetic by hand or on the IRS worksheet? See <a href="./vs-estimating-the-deduction-by-hand.html">where a hand calculation of these two deductions usually goes wrong</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeCombinedEstimate, sumOvertimePremiumRows, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), magi: $("#magi"), marginalRate: $("#marginal-rate"),
+      occupationEligible: $("#occupation-eligible"), qualifiedTips: $("#qualified-tips"),
+      selfEmployed: $("#self-employed"), netProfitWrap: $("#net-profit-wrap"), netProfit: $("#net-profit"),
+      tabKnown: $("#tab-known"), tabCompute: $("#tab-compute"), knownPanel: $("#known-panel"), computePanel: $("#compute-panel"),
+      otKnown: $("#ot-known"), otRows: $("#ot-rows"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), body: $("#report-body"), findings: $("#report-findings"),
+    };
+
+    let otMode = "known";
+
+    function setTab(mode) {
+      otMode = mode;
+      els.tabKnown.classList.toggle("active", mode === "known");
+      els.tabCompute.classList.toggle("active", mode === "compute");
+      els.knownPanel.hidden = mode !== "known";
+      els.computePanel.hidden = mode !== "compute";
+    }
+    els.tabKnown.addEventListener("click", () => setTab("known"));
+    els.tabCompute.addEventListener("click", () => setTab("compute"));
+
+    els.selfEmployed.addEventListener("change", () => {
+      els.netProfitWrap.hidden = !els.selfEmployed.checked;
+    });
+
+    function addOtRow(rate = "", hours = "", weeks = "") {
+      const row = document.createElement("div");
+      row.className = "ot-row";
+      row.innerHTML = `
+        <input type="number" class="ot-rate" min="0" step="0.01" placeholder="Rate ($/hr)" value="${rate}">
+        <input type="number" class="ot-hours" min="0" step="0.25" placeholder="OT hours/week" value="${hours}">
+        <input type="number" class="ot-weeks" min="0" step="1" placeholder="Weeks" value="${weeks}">
+        <button type="button" class="secondary small remove-ot">Remove</button>`;
+      row.querySelector(".remove-ot").addEventListener("click", () => row.remove());
+      els.otRows.appendChild(row);
+    }
+    function readOtRows() {
+      return [...els.otRows.querySelectorAll(".ot-row")].map((row) => ({
+        hourlyRate: Number(row.querySelector(".ot-rate").value),
+        overtimeHours: Number(row.querySelector(".ot-hours").value),
+        weeks: Number(row.querySelector(".ot-weeks").value) || 1,
+      }));
+    }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function currentOvertimePremium() {
+      if (otMode === "known") return Number(els.otKnown.value) || 0;
+      return sumOvertimePremiumRows(readOtRows());
+    }
+
+    function runCalculate() {
+      const filingStatus = els.filingStatus.value;
+      const magi = Number(els.magi.value) || 0;
+      const result = computeCombinedEstimate({
+        filingStatus,
+        magi,
+        qualifiedTips: Number(els.qualifiedTips.value) || 0,
+        isSelfEmployed: els.selfEmployed.checked,
+        netProfitFromTippedWork: els.selfEmployed.checked ? (els.netProfit.value === "" ? null : Number(els.netProfit.value)) : null,
+        overtimePremium: currentOvertimePremium(),
+        marginalRatePercent: Number(els.marginalRate.value),
+        occupationEligible: els.occupationEligible.checked ? true : (Number(els.qualifiedTips.value) > 0 ? false : true),
+      });
+
+      els.stats.innerHTML = `Combined estimated deduction: <strong><span class="price">${money(result.totalDeduction)}</span></strong> — roughly <strong>${money(result.estimatedSavings)}</strong> less federal income tax at your selected marginal rate.`;
+      els.body.innerHTML = `
+        <tr><td>Qualified tips</td><td>${money(result.tipDeduction)}</td></tr>
+        <tr><td>Qualified overtime premium</td><td>${money(result.overtimeDeduction)}</td></tr>
+        <tr><td><strong>Total</strong></td><td><strong>${money(result.totalDeduction)}</strong></td></tr>`;
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "single";
+      els.magi.value = "58000";
+      els.marginalRate.value = "12";
+      els.occupationEligible.checked = true;
+      els.qualifiedTips.value = "14000";
+      els.selfEmployed.checked = false;
+      els.netProfitWrap.hidden = true;
+      setTab("known");
+      els.otKnown.value = "2100";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a single filer, $58,000 MAGI, $14,000 in tips, $2,100 in overtime premium.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.magi.value = "";
+      els.qualifiedTips.value = "";
+      els.occupationEligible.checked = false;
+      els.selfEmployed.checked = false;
+      els.netProfitWrap.hidden = true;
+      els.netProfit.value = "";
+      els.otKnown.value = "";
+      els.otRows.innerHTML = "";
+      addOtRow();
+      els.report.hidden = true;
+      els.status.textContent = "Fill in filing status, MAGI, tips, and overtime above, then click Calculate.";
+    });
+
+    $("#add-ot-row").addEventListener("click", () => addOtRow());
+    addOtRow();
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
