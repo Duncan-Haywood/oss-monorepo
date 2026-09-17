@@ -10,6 +10,7 @@
     "actions-permissions-check": "2026-09-07",
     "actions-runner-starvation-check": "2026-09-07",
     "actions-self-hosted-exposure-check": "2026-09-07",
+    "actions-transitive-pin-check": "2026-09-17",
     "ada-title-ii-evidence": "2026-09-07",
     "affiliate-disclosure-checker": "2026-09-09",
     "agent-instructions-drift-check": "2026-09-16",
