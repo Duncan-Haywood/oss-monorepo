@@ -1964,7 +1964,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # mobile-purchased subscription pays less. The number below is
     # `sync_tree_counts.py`'s own fresh measurement against this merge's
     # tree, not a hand sum of any of the above.
-    total = 312  # `infra/OWNER_CHECKLIST.md`'s own "N of the 312 tools" wording.
+    #
+    # 313 since 2026-09-17, when `1099-vendor-tracker` graduated -- a
+    # browser-local tracker flagging which vendors cross the 2026 $2,000
+    # OBBBA reporting threshold (up from $600) and need a 1099-NEC, applying
+    # the corporation exemption and its attorney-fee exception, and tracking
+    # missing W-9s before the January 31 deadline. Same shape again: a new
+    # venture with a static `index.html` from its first commit, entering the
+    # mirror and the total together.
+    total = 313  # `infra/OWNER_CHECKLIST.md`'s own "N of the 313 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

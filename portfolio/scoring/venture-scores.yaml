@@ -14327,3 +14327,48 @@ ventures:
       else's confidential drawing. The usage counter is local-only and
       switch-off-able, and honours Do Not Track and Global Privacy Control
       unprompted.
+
+  - slug: 1099-vendor-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic threshold and date arithmetic over numbers the user types
+      in. There is no inference step: a year-to-year threshold lookup, a
+      corporation-exemption boolean with one named exception, and a
+      next-business-day rollover of January 31.
+    basis: >-
+      Graduated 2026-09-17 as a free browser tracker for small-business
+      bookkeepers who keep their 1099-NEC vendor list on a spreadsheet. The
+      2026 One Big Beautiful Bill Act (OBBBA) raised the reporting threshold
+      from $600 to $2,000 -- the first change since 1954 -- and the first
+      filing season under the new figure is January 2027, so a bookkeeper
+      re-deriving the old $600 line by habit is the exact audience this
+      graduated against. Applies the corporation exemption and its
+      always-reportable attorney-fee exception, tracks whether a W-9 is on
+      file per vendor, and deliberately declines to compute two related
+      categories (gross proceeds paid to an attorney, medical/health-care
+      payments) whose separate thresholds this build could not verify to the
+      same standard from an environment where irs.gov is egress-blocked --
+      those rows are flagged "Check separately" rather than given a guessed
+      number. No account, network, payment, or paid API dependency.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The tracker never files anything, never claims an IRS TIN match, and
+      states plainly that its TIN check is a format check only. Being wrong
+      costs a business a missed-1099 penalty it can still correct, not a
+      lawsuit -- the same risk envelope as this portfolio's other tax-adjacent
+      evidence tools. It carries no adverse incentive in either direction (no
+      upsell that profits from over- or under-reporting) and gets strictly
+      more useful to a bookkeeper as more vendors are added, with no
+      degradation at scale.

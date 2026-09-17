@@ -33964,3 +33964,89 @@ entries:
         asking rather than by trusting the file: the egress proxy answers
         `CONNECT tunnel failed, response 403` for both `api.indexnow.org` and
         `www.bing.com/indexnow`. It needs a runner or the Hetzner box.
+  - venture: 1099-vendor-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Researched and graduated a fresh niche rather than reusing the
+        pipeline queue (which is empty). Rejected two adjacent ideas first
+        for failing DIRECTION.md's channel-evidence bar despite clearing
+        duplicate_check.py: an "economic nexus sales-tax threshold checker"
+        and a "state privacy law applicability checker" each turned up five
+        or more existing free competitor calculators with no distinguishing
+        channel found via WebSearch -- the "searchable, like everything
+        else" trap the pipeline README explicitly warns against. Found the
+        graduated niche by following PRODUCT_PLAYBOOK.md 1's own
+        instruction ("a rule changed and nobody has shipped the boring tool
+        for it yet"): the One Big Beautiful Bill Act raised the Form
+        1099-NEC/1099-MISC nonemployee-compensation reporting threshold from
+        $600 to $2,000 for payments made on or after 2026-01-01 -- the first
+        change since 1954, corroborated independently across Patriot
+        Software, Avalara, Withum, Jackson Hewitt, Landmark CPAs and the
+        IRS's own instructions-page title (irs.gov itself is egress-blocked
+        from this environment) -- with the first filing season under the
+        new figure landing January 2027, four months out from this session.
+        Distribution evidence: an established paid-tool category (Track1099,
+        Tax1099, TaxBandits, Zoho Books) already exists for this exact task,
+        which is the "competitor's own comparison-search traffic" evidence
+        DIRECTION.md's North star point 2 names as acceptable.
+      - >-
+        Shipped `ventures/1099-vendor-tracker` (#TBD): a browser-local
+        tracker (localStorage, no account, no network) flagging which
+        vendors cross the year-appropriate $600/$2,000 threshold, applying
+        the corporation exemption and its always-reportable attorney-fee
+        exception, and tracking missing W-9s before the January 31 deadline
+        (rolled to the next business day on a weekend, verified against
+        2027-01-31 landing on a Sunday whose real cutoff is 2027-02-01).
+        Deliberately declines to compute two related categories -- gross
+        proceeds paid to an attorney (1099-MISC box 10, its own $600
+        threshold OBBBA did not move) and medical/health-care payments --
+        flagging them "Check separately" rather than printing a number this
+        build could not verify to the same standard from this environment;
+        this is the tracker archetype (localStorage review queue), not the
+        141-deep bid-calculator or 60-plus-deep dev-checker shape the
+        pipeline README already flags as saturated with zero measured
+        traffic. Cross-linked with the venture's nearest real sibling,
+        `1099k-reconciliation-worksheet` (1099-K reconciliation, the other
+        half of the same filing season), in both directions, closing the
+        orphan `siblings.test.mjs` flagged. Disclaimer (no legal/tax advice,
+        no IRS TIN match, no filing), privacy line, opt-in local usage
+        counting honouring DNT/GPC, GitHub Sponsors link, LICENSE, sitemap,
+        robots.txt, and JSON-LD (SoftwareApplication + FAQPage, byte-matched
+        to the visible copy) all in place from the first commit.
+      - >-
+        Graduated in `portfolio/pipeline/candidates.yaml` and
+        `candidates/1099-vendor-tracker.md` (composite 6.375, floor 1 on
+        ai_leverage, both liability_containment and ethical_robustness
+        comfortably above the gate at 6 and 8) and README.md's ranked table,
+        inserted at its correct composite-sorted position (row 41) with
+        every row after it renumbered rather than appended out of order.
+        Scored again in `portfolio/scoring/venture-scores.yaml` on the
+        six ai-first-markets-comparable dimensions (composite 6.167).
+      - >-
+        Verified before pushing: the venture's own suite (30/30, including a
+        JSON-LD-must-match-visible-copy regression this session hit and
+        fixed on the first pass), `check_no_payment_code.py`, `clauses.mjs`
+        (fleet-wide), `checklist_coverage.py`, full `platform/marketing` +
+        `platform/pages` suites (1272/1272 after fixing the launched.json
+        gap, the siblings-budget orphan, and the FAQPage dash mismatch this
+        venture introduced), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (142/142), `gitops/tests`
+        (583 passed, 25 skipped, after `sync_tree_counts.py` and
+        `gitops/ci/sync_readme_counts.py` repaired the 312->313 and
+        406->407 drift this venture's addition caused), all 27
+        `platform/ci` unittest modules individually (`publish_surface.py
+        --write` needed after adding the venture's CI workflow),
+        `platform/ci/agent_review` (21/21),
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (443 passed after the score-row fix), `router/validate.py` (321
+        valid), `score_ventures.py --check` (321 scored, consistent),
+        `usage/validate_usage.py` (269 products, 455 readings),
+        `guard_state.py --require-runnable` (only the GitHub-hosted-runner-only
+        front-door-serving guard unrun, correctly classified ENVIRONMENTAL),
+        and a `--only 1099-vendor-tracker` Playwright/axe browser pass
+        (contrast, sweep, roundtrip, optout, journey all ok; highlight
+        skipped as inapplicable) via `npm install --no-save
+        playwright@1.56.0 axe-core`. `run_workflow_locally.py --for-changes`
+        run against the full diff; see the PR for its result.

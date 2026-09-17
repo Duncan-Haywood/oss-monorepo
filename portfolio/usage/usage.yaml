@@ -6591,3 +6591,21 @@ products:
           are the four the whole catalogue shares. A visitor who quotes once
           and never saves got an answer; one who saves is treating it as a
           tool.
+  - slug: 1099-vendor-tracker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Baseline at graduation. A browser-local 1099-NEC vendor tracker
+          flagging which vendors cross the 2026 $2,000 OBBBA reporting
+          threshold (up from $600), applying the corporation exemption and
+          its attorney-fee exception, and tracking missing W-9s before the
+          January 31 deadline. `live_url_visitors` is null, not zero --
+          nobody has measured yet. Named channel to watch: the existing paid
+          1099/W-9-tracking tool category (Track1099, Tax1099, TaxBandits,
+          Zoho Books) is evidence of real search volume for this task, and
+          the OBBBA threshold change is a fresh, timely search driver ahead
+          of the January 2027 filing season, the first under the new figure.

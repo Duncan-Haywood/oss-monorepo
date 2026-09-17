@@ -1501,3 +1501,26 @@ candidates:
     mitigation: Keep the classification purely a disclosed fixed-table lookup -- never phrase a result as a determination for the user's specific call, name the two states (Nevada, Michigan) with a real disclosed ambiguity between statute text and applied law rather than smoothing them into a flat answer, cite a specific statute only for the 14 all-party states this build is confident in rather than inventing a pinpoint citation for the other 36, and frame the interstate combining rule as the commonly recommended conservative reading backed by one cited precedent (Kearney v. Salomon Smith Barney) rather than a universal rule; measure real user engagement before adding any state-specific exception (in-person conversations, minors, industry-specific notice rules) this v0 deliberately does not model, given this candidate's currently unproven distribution and its liability_containment score sitting at the gate rather than comfortably above it.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: 1099-vendor-tracker
+    name: 1099-NEC vendor tracker
+    doc: candidates/1099-vendor-tracker.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-17
+    initiated_path: ventures/1099-vendor-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the arithmetic deterministic and the two adjacent categories (gross proceeds paid to an attorney, medical/health-care payments) flagged "Check separately (not calculated)" rather than computed, since this build could not corroborate their thresholds and deadlines to the same standard as the general nonemployee-compensation threshold from this environment's blocked egress to irs.gov; never phrase a row as a filing or an IRS TIN match, and expose a threshold override so a later year's inflation-adjusted figure does not require a code change to apply.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
