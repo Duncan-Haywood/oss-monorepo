@@ -114,6 +114,23 @@ export function parseOpenApi(text, label = "<spec>") {
   return { version: format.version, operations: extractOperations(doc) };
 }
 
+/** Value-equality for a schema's `type`, which OpenAPI 3.1 (JSON Schema
+ * 2020-12) allows to be either a string ("string") or an array of strings
+ * (["string", "null"], the JSON Schema spelling of "nullable"). Comparing
+ * two type arrays with `!==`, as a naive port of Python's `!=` might do,
+ * compares object identity rather than contents: two freshly-parsed
+ * documents never share array instances, so an unchanged
+ * `type: ["string", "null"]` would falsely diff as "param-type-changed" on
+ * every single comparison, whereas Python's list `!=` already compares by
+ * value and gets this right. Order-sensitive, matching Python's list
+ * equality exactly, so the two ports keep agreeing on order-preserving
+ * documents (the overwhelmingly common case) rather than trading one
+ * false positive for a different false negative. */
+function typesEqual(before, after) {
+  const key = (t) => (Array.isArray(t) ? JSON.stringify(t) : t);
+  return key(before) === key(after);
+}
+
 function paramChanges(operationKey, oldParams, newParams) {
   const breaking = [];
   const nonBreaking = [];
@@ -133,7 +150,7 @@ function paramChanges(operationKey, oldParams, newParams) {
     if (!before.required && after.required) {
       breaking.push({ operation: operationKey, parameter: key, type: "param-now-required" });
     }
-    if (before.type && after.type && before.type !== after.type) {
+    if (before.type && after.type && !typesEqual(before.type, after.type)) {
       breaking.push({ operation: operationKey, parameter: key, type: "param-type-changed", from: before.type, to: after.type });
     }
     if (before.enum && after.enum) {

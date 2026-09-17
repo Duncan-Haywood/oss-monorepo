@@ -1801,13 +1801,28 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # and `required-checks-drift-check` landed, so it only ever knew its own
     # predecessor's number (296) until this merge -- the same ordinary
     # collision shape recorded throughout this list.
-    # 299 since 2026-09-17, when `subpath-robots-check` graduated -- a
+    # 299 since 2026-09-17, when `podcast-sponsorship-rate-calculator`
+    # graduated -- a browser-local calculator pricing a podcast ad spot
+    # (pre-roll, mid-roll, post-roll) from a show's own average downloads
+    # per episode, niche, and read type (host-read or produced) against
+    # commonly cited CPM-per-1000-downloads benchmarks, a third
+    # creator-economy pricing angle alongside `newsletter-sponsorship-rate-
+    # calculator` and `brand-deal-rate-calculator`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch was open before `call-recording-consent-check`
+    # landed, so it only ever knew its own predecessor's number (297) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    # 300 since 2026-09-17, when `subpath-robots-check` graduated -- a
     # browser-local checker plus a zero-dependency CLI reporting whether a
     # site published at a URL subpath can govern its own robots.txt, and the
     # sitemap auto-discovery gap that follows when it cannot, with a static
     # `index.html` from its first commit, same shape as the rest of this
-    # running count.
-    total = 299  # `infra/OWNER_CHECKLIST.md`'s own "N of the 299 tools" wording.
+    # running count. This branch was open before
+    # `podcast-sponsorship-rate-calculator` landed, so it only ever knew its
+    # own predecessor's number (298, then 299) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 300  # `infra/OWNER_CHECKLIST.md`'s own "N of the 300 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

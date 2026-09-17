@@ -1589,6 +1589,15 @@ const CATEGORY_RULES = [
     // `gig-driver-net-pay-calculator`'s gig driver and
     // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
     // own labour, not a business quoting a customer.
+    //
+    // `podcast-sponsorship-rate-calculator` joined the same day: a third
+    // creator-economy channel alongside `newsletter-sponsorship-rate-
+    // calculator` (email opens) and `brand-deal-rate-calculator` (social
+    // engagement) -- a podcaster pricing an ad slot from their own
+    // downloads-per-episode figure, the same move on a different audience
+    // and CPM market. Shipped with reciprocal inbound sibling links from
+    // both of those ventures' first commits rather than landing in the
+    // catch-all.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1601,6 +1610,7 @@ const CATEGORY_RULES = [
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
+        'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',
       ].includes(slug),

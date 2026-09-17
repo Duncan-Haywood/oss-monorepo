@@ -212,15 +212,23 @@ const RELATIVE_SELF = relative(
 // refuses to trust the number, which is what makes the collision a one-line
 // fix here instead of a silent wrong count -- and the reason it must be
 // found by running the guard, since CI is starved and cannot find it.
-// 283 -> 284 on 2026-09-17, when `subpath-robots-check` graduated with its
+// 283 -> 284 on 2026-09-17, when `podcast-sponsorship-rate-calculator`
+// graduated with its own `record`/`setUsageOptOut`/`usageOptedOut` switch,
+// the same pattern as its `newsletter-sponsorship-rate-calculator` and
+// `brand-deal-rate-calculator` siblings. This branch was open before
+// `call-recording-consent-check` (#4853) landed, so it only ever knew its
+// own predecessor's number (282) until this merge -- same collision shape
+// as the entry immediately above.
+// 284 -> 285 on 2026-09-17, when `subpath-robots-check` graduated with its
 // own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
 // `check_run`/`example_loaded` counters), same discovery method as the rest
 // of this running count. Verified the way this file's error message
-// prescribes rather than by assuming: the diff from the pinning commit plus
-// the working tree carries exactly one added `usage.mjs`
+// prescribes rather than by assuming: exactly one added `usage.mjs`
 // (`ventures/subpath-robots-check/usage.mjs`) and no deletions, so this is a
-// graduation and not a switch that stopped being a switch.
-const SWITCHES_IN_THE_CATALOGUE = 284;
+// graduation and not a switch that stopped being a switch. This branch was
+// open before `podcast-sponsorship-rate-calculator` landed, so it only ever
+// knew its own predecessor's number (283) until this merge.
+const SWITCHES_IN_THE_CATALOGUE = 285;
 
 let counter = 0;
 function fixture(source) {
