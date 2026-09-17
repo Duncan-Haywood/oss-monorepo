@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 556469 bytes
 #   portfolio-front-tools-3: 140 files, 556937 bytes
 #   portfolio-front-tools-4: 125 files, 552320 bytes
-#   portfolio-front-tools-5: 136 files, 552639 bytes
+#   portfolio-front-tools-5: 137 files, 556692 bytes
 #   portfolio-front-tools-6: 117 files, 546960 bytes
 #   portfolio-front-tools-7: 137 files, 554425 bytes
 #   portfolio-front-tools-8: 110 files, 553177 bytes
@@ -774,6 +774,7 @@ configMapGenerator:
       - bridal-hair-makeup-pricing-calculator__share.mjs.gz=bridal-hair-makeup-pricing-calculator__share.mjs.gz
       - bridal-hair-makeup-pricing-calculator__usage.mjs.gz=bridal-hair-makeup-pricing-calculator__usage.mjs.gz
       - bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz=bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz
+      - bridal-hair-makeup-pricing-calculator__vs-honeybook.html.gz=bridal-hair-makeup-pricing-calculator__vs-honeybook.html.gz
       - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
       - cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz=cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz
       - cabinet-refinishing-bid-calculator__index.html.gz=cabinet-refinishing-bid-calculator__index.html.gz
