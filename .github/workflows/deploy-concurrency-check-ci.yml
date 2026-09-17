@@ -53,15 +53,28 @@ jobs:
       # Dogfooding, and it is a real check rather than a flourish: this
       # repository's own workflows are the largest body of GitHub Actions YAML
       # the tool has to survive, and a scan that crashes or floods on one of
-      # 360 real files is a defect the fixtures would not catch. `--quiet`
-      # keeps the log to the findings themselves. This step does NOT use
-      # --fail-on-risk: the three findings it currently reports are real
-      # defects in this repo's own deploy workflows, tracked separately, and
-      # gating this venture's CI on them would make an unrelated repair a
-      # prerequisite for every future change to this venture.
+      # 363 real files is a defect the fixtures would not catch. `--quiet`
+      # keeps the log to the findings themselves.
+      #
+      # `--fail-on-risk` was added once the tree was clean. When this venture
+      # shipped, the scan reported three genuine defects in this repository's
+      # own deploy workflows, so gating on it would have made an unrelated
+      # repair a prerequisite for every future change here. Those three are
+      # fixed (`ai-first-markets-deploy.yml` had no concurrency group,
+      # `retail-pilot-intel-deploy-docs.yml` deployed `github-pages` under a
+      # different group name from `portfolio-pages.yml`, and the photo-app docs
+      # deploy cancelled in progress), the scan now reports no deployment race
+      # across 363 files, and the flag keeps it that way.
+      #
+      # Note what this does and does not gate. It fires on changes to this
+      # venture, not on changes to an arbitrary workflow, because this file's
+      # path filters are scoped to the venture. Making it a standing repo-wide
+      # gate means a workflow of its own with `.github/workflows/**` in its
+      # paths; that is a deliberate separate change, not something to smuggle
+      # in here.
       - name: Scan this repository's own workflows
         working-directory: .
-        run: python3 ventures/deploy-concurrency-check/check.py .github/workflows/ --quiet
+        run: python3 ventures/deploy-concurrency-check/check.py .github/workflows/ --quiet --fail-on-risk
       # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
       # page, and it is the half build.mjs cannot inject: what a tool is not
       # advice *about* is written in the venture's own voice. Checked here so
