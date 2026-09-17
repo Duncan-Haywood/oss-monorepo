@@ -731,7 +731,19 @@ const CATEGORY_RULES = [
     // four times a year — same desk, same audience, and the three tools link
     // to each other. Named explicitly rather than folded into a wider pattern
     // because the slug starts with an acronym no other rule here would guess.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier)/.test(slug),
+    //
+    // `vector-db-` joined 2026-09-17, found by enumerating the catch-all
+    // rather than judging the arrival that tripped `build.test.mjs`'s
+    // bound alone (that arrival was `tutor-package-pricing-calculator`,
+    // which belongs nowhere near this section — see `solo-earner` below).
+    // `vector-db-cost-calculator` sizes a storage/query cost decision
+    // before committing to a vendor, the same "size a transfer window
+    // before you sign for it" shape this section's own blurb already
+    // names — it is `cloud-egress-calculator`'s direct sibling (both are
+    // bring-your-own-rates infrastructure cost estimators, and the two
+    // pages already cross-link each other as Related), just for a
+    // different resource (a vector index instead of object storage).
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db)/.test(slug),
   },
   {
     id: 'evidence',
@@ -1424,8 +1436,20 @@ const CATEGORY_RULES = [
     // not earn a whole family pattern, and landing it here rather than the
     // catch-all is also what keeps that catch-all inside the bound
     // `build.test.mjs` puts on it.
+    //
+    // `required-checks-drift-check` joined 2026-09-17. Same shape as the
+    // rest of this family -- a browser-local checker plus a matching
+    // zero-dependency CLI, run by a maintainer against a required-checks
+    // list and workflow YAML they already have, reporting exactly which
+    // required status check name no job can ever report again -- just for
+    // branch-protection drift instead of an npm/Actions/iOS/OpenAPI
+    // artifact. It cross-links `pinned-actions-check` as Related (both are
+    // free, browser-only GitHub Actions/branch-protection checkers), and
+    // that link is reciprocal, closing the same crawlable-orphan gap a new
+    // venture with no existing sibling otherwise opens. Listed by exact
+    // slug rather than a new prefix, for the same reason as its neighbors.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check)/.test(
         slug,
       ),
   },
@@ -1519,6 +1543,15 @@ const CATEGORY_RULES = [
     // first commits rather than landing in the catch-all, which is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on
     // it.
+    //
+    // `tutor-package-pricing-calculator` joined 2026-09-17, found by
+    // enumerating the catch-all after a merge pushed it to 6 rather than by
+    // judging either arrival alone: an independent tutor or coach deciding
+    // whether a discounted prepaid session package still pays as well per
+    // hour as billing per session is the same move as
+    // `gig-driver-net-pay-calculator`'s gig driver and
+    // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
+    // own labour, not a business quoting a customer.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1532,6 +1565,7 @@ const CATEGORY_RULES = [
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
+        'tutor-package-pricing-calculator',
       ].includes(slug),
   },
 ];

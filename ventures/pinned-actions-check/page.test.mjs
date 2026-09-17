@@ -116,3 +116,14 @@ test('index links one hop to the actions-injection-check sibling', () => {
     'index must link ../actions-injection-check/ so crawlers reach the injection checker in one hop',
   );
 });
+
+// Reciprocal link closing required-checks-drift-check's own crawlable-orphan
+// gap (platform/pages/siblings.test.mjs): both are free, browser-only
+// GitHub Actions/branch-protection checkers.
+test('index links one hop to the required-checks-drift-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/required-checks-drift-check\/"/,
+    'index must link ../required-checks-drift-check/ so crawlers reach it in one hop',
+  );
+});

@@ -170,7 +170,22 @@ const RELATIVE_SELF = relative(
 // `asbestos-abatement-bid-calculator`, `tutor-package-pricing-calculator`
 // and `biohazard-cleanup-bid-calculator`, so the resolved number is 279
 // rather than any one branch's own count.
-const SWITCHES_IN_THE_CATALOGUE = 279;
+// 279 -> 280 on 2026-09-17, when `vector-db-cost-calculator` graduated with
+// its own `setUsageEnabled`/`usageAllowed` switch (the same
+// `countUsage`/`usageAllowed` pair `cloud-egress-calculator` uses), same
+// discovery method as the rest of this running count. This branch was open
+// before `tutor-package-pricing-calculator`, `biohazard-cleanup-bid-calculator`
+// and `storage-auction-max-bid-calculator` landed, so it only ever knew its
+// own predecessor's number (276) until this merge.
+// 280 -> 281 on 2026-09-17, when `required-checks-drift-check` graduated
+// with a `usage.mjs` opt-out following the same
+// `setUsageOptOut`/`usageOptedOut` pattern as `pinned-actions-check`'s
+// switch (copied from it directly), same discovery method as the rest of
+// this running count. This branch was open before
+// `storage-auction-max-bid-calculator` and `vector-db-cost-calculator`
+// landed, so it only ever knew its own predecessor's number (279, then
+// 280) until this merge.
+const SWITCHES_IN_THE_CATALOGUE = 281;
 
 let counter = 0;
 function fixture(source) {

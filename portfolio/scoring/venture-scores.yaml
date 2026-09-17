@@ -9561,6 +9561,63 @@ ventures:
       -- digest pinning -- not a security audit, a compliance attestation,
       or a claim that the build is safe from supply-chain attacks.
 
+  - slug: required-checks-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line/indentation scan over pasted workflow YAML and a
+      pasted required-checks list already on disk or in the clipboard. There
+      is nothing to infer: a job's check name is its `name:` field or its
+      job id, computed the same way GitHub computes it, and either it
+      matches a required check name or it does not.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as pinned-actions-check and docker-base-image-pin-check, not a
+      295th <trade>-bid-calculator. duplicate_check.py scored the closest
+      existing venture (agent-instructions-drift-check, a different drift
+      entirely -- that venture diffs an agent-instructions file against a
+      committed baseline, never a branch-protection setting) at 0.20 against
+      the final description, well under the 0.45 flag bar; no existing
+      venture reads branch-protection required-check names.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the browser
+      page classifies pasted text client-side and the CLI runs on the
+      user's own machine against files already on disk, so serving one more
+      user costs a static file and needs no human review of any output.
+      Distribution 6, above docker-base-image-pin-check's 5: the failure
+      mode has a specific, verbatim, high-signal search string ("Expected —
+      Waiting for status to be reported") that years of unresolved GitHub
+      Community and Stack Overflow threads already use, rather than a
+      general audience inferred from a role ("any developer maintaining a
+      Dockerfile"). That is a stronger organic-search hook than most of this
+      family, though still unmeasured against this portfolio's own traffic.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      name-comparison over a well-documented naming convention is easy to
+      reimplement, so defensibility rests on the specific failure-mode
+      framing and this portfolio's disclaimer/usage conventions, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only comparator over workflow YAML and a required-checks
+      list the user already has or pastes in -- no network call of its own,
+      no GitHub API credential, no data leaving the browser or the user's
+      own machine, and no repository or branch-protection setting is ever
+      changed on the user's behalf. Both pages' footers and FAQs state
+      plainly that a clean result answers one narrow question -- does this
+      required check name match a job that would report on a pull request
+      today -- not a full audit of branch protection or CI configuration.
+
   - slug: oidc-trust-policy-check
     scores:
       ai_leverage: 1
@@ -13243,3 +13300,70 @@ ventures:
       rent (the "storage wars" hobby), not a circumvention or advice-of-
       record category, and donations-only pricing gives the tool no
       incentive to push a bid up or down.
+
+  - slug: vector-db-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The storage-sizing arithmetic
+      (vectorCount * dimension * 4 bytes plus metadata, times a
+      user-supplied overhead multiplier) and the per-provider cost
+      comparison are both decided entirely by numbers the visitor types
+      in -- the calculator does not fetch or assert any vendor's price,
+      the same bring-your-own-rates discipline cloud-egress-calculator
+      already uses for cloud storage pricing.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.26
+      (terraform-plan-blast-radius-check, an existing venture with an
+      unrelated domain -- infra-as-code plans, not vector databases),
+      well under the 0.45 read-this-first bar. Distinct from every
+      existing "-check" scanner and bid calculator: no venture in the
+      tree prices vector database storage or query cost, and this is not
+      a further instance of the saturated <trade>-bid-calculator or
+      GitHub Actions security-scanner archetypes.
+      Autonomous ops 10 / gross margin 10: the page computes everything
+      client-side from typed inputs, nothing uploaded, no network call,
+      so serving one more user costs a static file -- same shape as every
+      other browser-local calculator in this portfolio.
+      Distribution 4: a real and current engineering decision (choosing a
+      vector database for a RAG or agent-memory workload) with plausible
+      channels named in VENTURE.yaml (r/vectordatabase, r/MachineLearning,
+      r/LangChain threads already asking this exact "which vector DB is
+      cheapest" question, Hacker News Show HN, and search terms like
+      "pinecone vs qdrant pricing"), but scored below this portfolio's
+      strongest distribution rows because no search-volume or existing
+      thread was actually confirmed this session -- egress from this
+      sandbox cannot reach Reddit, Hacker News, or a search engine to
+      verify the channel claim, so it is asserted from general knowledge
+      of the RAG/agent-tooling niche, not measured.
+      Time to revenue 6, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable), but the
+      bring-your-own-rates design plus the index-overhead explainer page
+      is a small, specific wedge over a generic two-column cost
+      calculator, matching openapi-breaking-change-check's reasoning for
+      the same pair of scores.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never fetches or asserts a vendor's current price --
+      every rate is typed in by the visitor -- and the footer/FAQ state
+      plainly that the output is an estimate from entered rates, not a
+      live quote, to be verified against each provider's own pricing
+      before committing spend. The index-overhead multiplier is
+      explicitly user-set rather than a number this tool claims to know
+      about any vendor's internals, so a stale or wrong vendor-specific
+      figure is never presented as fact. Ethically: donations-only with no
+      per-comparison fee, so the tool has no incentive to bias the ranking
+      toward any provider, and it gets more useful the more providers a
+      visitor adds rather than steering toward fewer.

@@ -1,0 +1,44 @@
+name: vector-db-cost-calculator
+description: A free, private browser calculator that estimates a vector embedding index's real storage footprint from vector count, dimension, metadata size, and a user-set index-overhead multiplier, then compares monthly cost across up to three vector database providers using the storage and query rates the user pastes in from each vendor's own pricing page. No vendor pricing is fetched or asserted.
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: ML engineers and teams sizing a RAG or agent-memory vector store want a provider-neutral way to turn vector count, dimension, and metadata size into an actual dollar comparison before committing, and currently do this by hand across each vendor's own separate pricing page or calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A deterministic, provider-agnostic storage-and-cost estimator that lets the user set their own index-overhead multiplier (rather than asserting one) is trusted and used repeatedly by engineers who would otherwise distrust a tool claiming to know vendor internals.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors run a comparison with all three provider rows filled in within 90 days.
+  - Users cannot correctly reproduce a known vendor's storage-and-cost number using the calculator and that vendor's own published rates.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/vector-db-cost-calculator/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: r/vectordatabase, r/MachineLearning, and
+  r/LangChain threads that already ask "pinecone vs qdrant vs weaviate cost"
+  or "how much will my embeddings cost to store"; Hacker News "Show HN" for a
+  zero-dependency, no-signup dev tool; and organic search for
+  "vector database cost calculator", "pinecone vs weaviate pricing", and
+  "how much storage does a vector index use" -- all live search terms as
+  retrieval-augmented-generation and agent-memory workloads have made vector
+  database selection a common, recent engineering decision with no existing
+  free, provider-neutral sizing tool.
