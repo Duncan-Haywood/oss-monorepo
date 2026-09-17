@@ -1965,14 +1965,34 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `sync_tree_counts.py`'s own fresh measurement against this merge's
     # tree, not a hand sum of any of the above.
     #
-    # 313 since 2026-09-17, when `1099-vendor-tracker` graduated -- a
-    # browser-local tracker flagging which vendors cross the 2026 $2,000
-    # OBBBA reporting threshold (up from $600) and need a 1099-NEC, applying
-    # the corporation exemption and its attorney-fee exception, and tracking
-    # missing W-9s before the January 31 deadline. Same shape again: a new
-    # venture with a static `index.html` from its first commit, entering the
-    # mirror and the total together.
-    total = 313  # `infra/OWNER_CHECKLIST.md`'s own "N of the 313 tools" wording.
+    # 313 since 2026-09-17, when `ny-llc-transparency-act-tracker` graduated
+    # concurrently with `twitch-payout-calculator` above -- a browser-local
+    # eligibility check, deadline counter, and beneficial-owner worksheet
+    # for New York's LLC Transparency Act. This branch was open before
+    # `twitch-payout-calculator` landed, so it only ever knew 312 until this
+    # merge. Recorded from `sync_tree_counts.py`'s own fresh measurement
+    # against the merged tree, not a hand sum.
+    #
+    # 314 since 2026-09-17, when `docker-build-secrets-check` graduated -- a
+    # browser-local and zero-dependency-CLI checker for Dockerfile build-time
+    # secret exposure: an ENV/ARG instruction whose name looks like a secret,
+    # or a COPY/ADD of a well-known credential file, with a BuildKit
+    # `RUN --mount=type=secret` fix for each finding. Direct sibling of
+    # `docker-base-image-pin-check` (same file, a different question -- FROM
+    # tag/digest rather than ENV/ARG/COPY secret exposure), cross-linked
+    # reciprocally. Recorded from `sync_tree_counts.py`'s own fresh
+    # measurement against the merged tree, not a hand sum.
+    #
+    # 315 since 2026-09-17, when `1099-vendor-tracker` graduated concurrently
+    # with `ny-llc-transparency-act-tracker` and `docker-build-secrets-check`
+    # above -- a browser-local tracker flagging which vendors cross the 2026
+    # $2,000 OBBBA reporting threshold (up from $600) and need a 1099-NEC,
+    # applying the corporation exemption and its attorney-fee exception, and
+    # tracking missing W-9s before the January 31 deadline. This branch was
+    # open before either of the other two landed, so it only ever knew 313
+    # until this merge. Recorded from `sync_tree_counts.py`'s own fresh
+    # measurement against the merged tree, not a hand sum.
+    total = 315  # `infra/OWNER_CHECKLIST.md`'s own "N of the 315 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

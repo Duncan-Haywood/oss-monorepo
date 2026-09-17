@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docker Build Secrets Check — Is a Secret Baked Into Your Image?</title>
+  <meta name="description" content="Paste your Dockerfile and find every ENV or ARG instruction whose name looks like a secret, and every COPY/ADD of a credential file like .env or id_rsa into the build. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Is a secret baked into your Docker image?">
+  <meta property="og:description" content="An ENV or ARG with a secret-looking name is present in the final image and viewable via docker history or docker inspect, per Docker's own documentation. Paste your Dockerfile and get every finding, with a BuildKit --mount=type=secret fix.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Docker Build Secrets Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans a Dockerfile for ENV/ARG instructions with a secret-looking name and COPY/ADD of well-known credential files into the build context. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is an ENV instruction with a secret-looking name a risk?","acceptedAnswer":{"@type":"Answer","text":"Docker's own \"Build secrets\" documentation states it directly: passing a secret through ARG or ENV \"is not recommended, since this data is present in the final image\" and can be viewed by anyone with access to it using docker history or docker inspect. That is true whether the ENV value is a literal string in the Dockerfile or resolved from a build argument (ARG TOKEN, then ENV TOKEN=$TOKEN) — either way, the resolved value is written into the image's config layer and stays there even if a later instruction deletes the file it came from."}},{"@type":"Question","name":"Does this tool verify that a flagged name actually holds a secret?","acceptedAnswer":{"@type":"Answer","text":"No, and it cannot. This is a name-pattern heuristic over Dockerfile text, not a value scanner — it never sees what a build actually resolves ARG or ENV to. A name like API_KEY is flagged because it looks like a secret, even if the value behind it is a public, non-sensitive identifier; a genuine secret under an unrecognised name is a false negative this tool cannot close. Read every finding and use your own judgment."}},{"@type":"Question","name":"What is the difference between the three finding types?","acceptedAnswer":{"@type":"Answer","text":"env-secret and sensitive-copy are flagged unconditionally: an ENV value is always baked into the image config, and a copied credential file persists in its layer even after a later instruction deletes it. arg-literal means a secret-looking ARG carries a default value written directly in the Dockerfile — committed to source control. arg-declared is advisory only: a bare ARG with no default commits nothing to the Dockerfile itself, but invites a caller to pass a secret with --build-arg, which BuildKit still records for the build unless it is mounted as a build secret instead."}},{"@type":"Question","name":"Does this tool fetch or send anything anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. It makes no network calls of any kind — nothing here can, because nothing here talks to a registry, a secrets manager, or any API. The Dockerfile text you paste is read entirely in this browser tab and never leaves your device."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.env-secret, .pill.arg-literal, .pill.sensitive-copy { background: #fde8e8; color: #9a3412; }
+    .pill.arg-declared { background: #fef3c7; color: #92400e; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DOCKER BUILD SECRETS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is a secret baked into your Docker image?</h1>
+    <p>An <code>ENV</code> or <code>ARG</code> instruction with a secret-looking name is, per Docker's own "Build secrets" documentation, <strong>present in the final image</strong> and viewable by anyone with access to it via <code>docker history</code> or <code>docker inspect</code> — whether the value is a literal string or resolved from a build argument. Paste your Dockerfile below and this page finds every instruction that risks that, plus any <code>COPY</code>/<code>ADD</code> of a well-known credential file, with the BuildKit build-secret fix for each.</p>
+    <p class="note">Nothing is uploaded. The Dockerfile you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more Dockerfiles</h2>
+    <p class="note">Copy the contents of each <code>Dockerfile</code> (or <code>Dockerfile.*</code> / <code>*.dockerfile</code>) you want checked. Add more blocks for more files — nothing here reads your repository, so pasting is how it sees anything.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another Dockerfile</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one Dockerfile above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>File : Line</th><th>Instruction</th><th>Name</th><th>Status</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan every Dockerfile under the current directory
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any high-risk finding is found</code></pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/docker-build-secrets-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added secret-looking ENV or a copied credential file before it merges.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why is an <code>ENV</code> instruction with a secret-looking name a risk?</h3>
+    <p>Docker's own "Build secrets" documentation states it directly: passing a secret through <code>ARG</code> or <code>ENV</code> "is not recommended, since this data is present in the final image" and can be viewed by anyone with access to it using <code>docker history</code> or <code>docker inspect</code>. That is true whether the <code>ENV</code> value is a literal string in the Dockerfile or resolved from a build argument (<code>ARG TOKEN</code>, then <code>ENV TOKEN=$TOKEN</code>) — either way, the resolved value is written into the image's config layer and stays there even if a later instruction deletes the file it came from.</p>
+    <h3>Does this tool verify that a flagged name actually holds a secret?</h3>
+    <p>No, and it cannot. This is a name-pattern heuristic over Dockerfile text, not a value scanner — it never sees what a build actually resolves <code>ARG</code> or <code>ENV</code> to. A name like <code>API_KEY</code> is flagged because it looks like a secret, even if the value behind it is a public, non-sensitive identifier; a genuine secret under an unrecognised name is a false negative this tool cannot close. Read every finding and use your own judgment.</p>
+    <h3>What is the difference between the three finding types?</h3>
+    <p><code>env-secret</code> and <code>sensitive-copy</code> are flagged unconditionally: an <code>ENV</code> value is always baked into the image config, and a copied credential file persists in its layer even after a later instruction deletes it. <code>arg-literal</code> means a secret-looking <code>ARG</code> carries a default value written directly in the Dockerfile — committed to source control. <code>arg-declared</code> is advisory only: a bare <code>ARG</code> with no default commits nothing to the Dockerfile itself, but invites a caller to pass a secret with <code>--build-arg</code>, which BuildKit still records for the build unless it is mounted as a build secret instead.</p>
+    <h3>Does this tool fetch or send anything anywhere?</h3>
+    <p>No. It makes no network calls of any kind — nothing here can, because nothing here talks to a registry, a secrets manager, or any API. The Dockerfile text you paste is read entirely in this browser tab and never leaves your device.</p>
+    <p>More: <a href="how-to-pass-a-docker-build-secret-without-baking-it-into-the-image.html">how to pass a Docker build secret without baking it into the image</a>. Already run <a href="vs-gitleaks.html">gitleaks</a>? See <a href="vs-gitleaks.html">how this checker compares</a> for the Dockerfile-instruction question specifically.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your build has no secret exposure, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/docker-build-secrets-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The Dockerfile you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>A build-time secret is one slice of a hardened container pipeline: <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> asks whether the base image your <code>FROM</code> line starts from is addressed immutably, and <a href="../terraform-plan-secret-exposure-check/">Terraform Plan Secret Exposure Check</a> and <a href="../actions-secret-leak-check/">GitHub Actions Secret Leak Check</a> ask the same "is a secret about to be exposed" question of a Terraform plan and a CI workflow, respectively.</p>
+    <p class="support">Free and open source. If this saved you from shipping an image with a baked-in secret, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasUnresolvedRisk, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: "Dockerfile",
+        text: `FROM node:18 AS builder
+ARG NODE_VERSION=18
+ARG DB_PASSWORD=hunter2
+ARG SIGNING_TOKEN
+WORKDIR /app
+COPY package*.json ./
+COPY .env /app/.env
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:18-slim AS runtime
+ENV NODE_ENV=production \\
+    API_KEY=abc123
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+CMD ["node", "dist/server.js"]
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder="Dockerfile" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the Dockerfile here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `Dockerfile.${i + 1}`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><code>${escapeHtml(f.instruction)}</code></td>
+          <td><code>${escapeHtml(f.name)}</code></td>
+          <td><span class="pill ${f.classification}">${f.classification}</span></td>
+          <td>${escapeHtml(f.remediation)}</td>
+        </tr>`).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one Dockerfile first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasUnresolvedRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a literal ARG default, a bare ARG declaration, a copied .env file, and an ENV baking a secret into the runtime stage.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one Dockerfile above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it -- but the button came back saying "turn
+    // counting off", which tells the visitor their click did not take. A
+    // control that appears not to have worked is one the visitor clicks
+    // again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

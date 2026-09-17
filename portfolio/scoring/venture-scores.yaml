@@ -9653,6 +9653,70 @@ ventures:
       -- digest pinning -- not a security audit, a compliance attestation,
       or a claim that the build is safe from supply-chain attacks.
 
+  - slug: docker-build-secrets-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic name-pattern classification of ENV/ARG instructions and
+      COPY/ADD source paths already present in the Dockerfile on disk. There
+      is nothing to infer: an instruction's name either normalises to
+      contain one of a fixed set of secret-shaped substrings or it does not,
+      and a COPY/ADD source either matches a fixed set of credential
+      filenames or it does not.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as docker-base-image-pin-check, not a 311th <trade>-bid-
+      calculator. duplicate_check.py scored the closest existing venture
+      (helm-values-schema-check) at 0.11 against the final description,
+      well under the 0.45 flag bar; no existing venture reads a Dockerfile
+      for secret exposure specifically -- docker-base-image-pin-check reads
+      the same file for a different question (FROM tag vs. digest, not
+      ENV/ARG/COPY secret exposure). Autonomous ops 10 / gross margin 10:
+      nothing to host -- the browser page classifies pasted text
+      client-side and the CLI runs on the user's own machine against files
+      already on disk, so serving one more user costs a static file and
+      needs no human review of any output. Distribution 5: any developer
+      maintaining a Dockerfile with a build-time credential is a plausible
+      searcher, and the specific gap this tool names -- Docker's own "Build
+      secrets" documentation states plainly that ARG/ENV secrets are
+      "present in the final image" and viewable via `docker history`/
+      `docker inspect`, a documented risk with no existing free tool
+      stating it Dockerfile-instruction-specifically -- is the same
+      "obvious in hindsight, unnamed in practice" gap docker-base-image-
+      pin-check found for tag pinning. Set level with docker-base-image-
+      pin-check rather than above it: no forum volume specific to this
+      portfolio has been measured yet. Time to revenue 6, defensibility 4:
+      donations-only; a transparent name-pattern classifier over Dockerfile
+      instructions is easy to reimplement, so defensibility rests on the
+      Dockerfile-instruction-aware framing (see `vs-gitleaks.html`) and
+      this portfolio's disclaimer/usage conventions, not on any moat or
+      first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only static-text scanner over Dockerfile content the user
+      already has on disk or pastes in -- no network call of its own, no
+      secrets manager credential, no data leaving the browser or the user's
+      own machine, and it never handles or transmits the user's actual
+      secret material, only instruction text. Every finding prints the
+      exact BuildKit `RUN --mount=type=secret` remediation for the user to
+      apply themselves rather than resolving, storing, or transmitting
+      anything on the tool's behalf. The page's footer and FAQ state
+      plainly that this is a name-pattern heuristic, not a value scanner --
+      it cannot verify a flagged name actually holds a secret, and a clean
+      scan is not a security or compliance claim about the build.
+
   - slug: required-checks-drift-check
     scores:
       ai_leverage: 1
@@ -14372,3 +14436,70 @@ ventures:
       upsell that profits from over- or under-reporting) and gets strictly
       more useful to a bookkeeper as more vendors are added, with no
       degradation at scale.
+
+  - slug: ny-llc-transparency-act-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an LLC likely falls into
+      the Reporting Company or Exempt Company category, and what its
+      initial filing deadline is, is decided entirely by a fixed rule
+      applying NYDOS's own confirmed scope narrowing (2025-12-31) to the
+      filer's own four answers -- never a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py scored every venture, screened-out row, and
+      pipeline candidate at or below 0.08 against the final description.
+      Distribution 6 reflects a real, dated, verified channel: New York's
+      LLC Transparency Act took effect 2026-01-01 and NYDOS narrowed its
+      reporting scope to foreign-formed LLCs only in guidance confirmed
+      2025-12-31, producing a wave of 2026 law-firm client alerts (Sidley,
+      Holland & Knight, Katten, Crowell & Moring, Seyfarth, Baker
+      McKenzie, Venable, McDermott -- verified via web search this
+      session) and an acutely time-bound initial deadline (2026-12-31,
+      ~3.5 months out at graduation) rather than an evergreen-someday
+      topic. No search-volume tool was queried to confirm magnitude.
+      Defensibility 3: the classification rule and deadline arithmetic are
+      easy to reproduce once someone thinks to, offset somewhat by the
+      worksheet/organizer UX being the less obvious half of the product.
+      Time to revenue 6: donations-only, but the near-term deadline is a
+      real forcing function on a first visit within this venture's own
+      graduation window, not a distant one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, but at the floor rather than comfortably above it, for two
+      compounding reasons this portfolio's other compliance tools don't
+      both carry: a wrong reporting/exempt classification could lead a
+      filer to skip a real obligation, and the worksheet handles a
+      beneficial owner's own PII (name, address, date of birth, ID
+      number) rather than a business's own numbers. Mitigated by design:
+      every classification is framed as "likely" with an inline
+      not-a-determination caveat (not just a footer disclaimer); the tool
+      ships no share.mjs/copy-link feature at all, the one deliberate
+      omission from this fleet's usual calculator pattern, so PII is never
+      encodable into a URL; the worksheet is held only in page memory by
+      default and needs a separate, explicit opt-in before anything is
+      written to local storage, stricter than this portfolio's own
+      baseline; and the tool never contacts New York State or claims to
+      file anything -- it produces a draft the filer reviews and emails
+      themselves. Every citable fact (bill number, effective date, the
+      2025-12-31 scope narrowing, the two-track deadline, the interim
+      email-filing address) was verified against 2026 sources this
+      session rather than asserted from memory, and no exemption category
+      or statute section is invented anywhere it could not be confirmed.
+      Ethically: donations-only with no per-use fee, so there is no
+      incentive to bias the classification in either direction, and the
+      tool gets strictly more useful to a filer the more accurately they
+      answer the four questions.
