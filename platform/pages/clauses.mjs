@@ -119,6 +119,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the cat-adjuster page
   // above.
   '1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html',
+  // Compares against "quoting in a spreadsheet" -- the method essentially
+  // every small job shop already uses, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // footer says so explicitly. Same reasoning as the cat-adjuster page above.
+  'cnc-machining-quote-calculator/vs-quoting-in-a-spreadsheet.html',
   // Compares against "checking pricing pages and doing the arithmetic by
   // hand" -- a generic method every user of the calculator already has
   // access to, not a company or product this could be mistaken for.
