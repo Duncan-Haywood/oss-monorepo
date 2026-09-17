@@ -92,6 +92,7 @@
     "deploy-concurrency-check": "2026-09-17",
     "dns-configuration-evidence": "2026-08-24",
     "docker-base-image-pin-check": "2026-09-10",
+    "docker-build-secrets-check": "2026-09-17",
     "dog-boarding-daycare-pricing": "2026-09-17",
     "dog-walking-route-pricing": "2026-09-06",
     "drone-mapping-job-calculator": "2026-09-11",

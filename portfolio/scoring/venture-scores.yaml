@@ -9653,6 +9653,70 @@ ventures:
       -- digest pinning -- not a security audit, a compliance attestation,
       or a claim that the build is safe from supply-chain attacks.
 
+  - slug: docker-build-secrets-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic name-pattern classification of ENV/ARG instructions and
+      COPY/ADD source paths already present in the Dockerfile on disk. There
+      is nothing to infer: an instruction's name either normalises to
+      contain one of a fixed set of secret-shaped substrings or it does not,
+      and a COPY/ADD source either matches a fixed set of credential
+      filenames or it does not.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as docker-base-image-pin-check, not a 311th <trade>-bid-
+      calculator. duplicate_check.py scored the closest existing venture
+      (helm-values-schema-check) at 0.11 against the final description,
+      well under the 0.45 flag bar; no existing venture reads a Dockerfile
+      for secret exposure specifically -- docker-base-image-pin-check reads
+      the same file for a different question (FROM tag vs. digest, not
+      ENV/ARG/COPY secret exposure). Autonomous ops 10 / gross margin 10:
+      nothing to host -- the browser page classifies pasted text
+      client-side and the CLI runs on the user's own machine against files
+      already on disk, so serving one more user costs a static file and
+      needs no human review of any output. Distribution 5: any developer
+      maintaining a Dockerfile with a build-time credential is a plausible
+      searcher, and the specific gap this tool names -- Docker's own "Build
+      secrets" documentation states plainly that ARG/ENV secrets are
+      "present in the final image" and viewable via `docker history`/
+      `docker inspect`, a documented risk with no existing free tool
+      stating it Dockerfile-instruction-specifically -- is the same
+      "obvious in hindsight, unnamed in practice" gap docker-base-image-
+      pin-check found for tag pinning. Set level with docker-base-image-
+      pin-check rather than above it: no forum volume specific to this
+      portfolio has been measured yet. Time to revenue 6, defensibility 4:
+      donations-only; a transparent name-pattern classifier over Dockerfile
+      instructions is easy to reimplement, so defensibility rests on the
+      Dockerfile-instruction-aware framing (see `vs-gitleaks.html`) and
+      this portfolio's disclaimer/usage conventions, not on any moat or
+      first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only static-text scanner over Dockerfile content the user
+      already has on disk or pastes in -- no network call of its own, no
+      secrets manager credential, no data leaving the browser or the user's
+      own machine, and it never handles or transmits the user's actual
+      secret material, only instruction text. Every finding prints the
+      exact BuildKit `RUN --mount=type=secret` remediation for the user to
+      apply themselves rather than resolving, storing, or transmitting
+      anything on the tool's behalf. The page's footer and FAQ state
+      plainly that this is a name-pattern heuristic, not a value scanner --
+      it cannot verify a flagged name actually holds a secret, and a clean
+      scan is not a security or compliance claim about the build.
+
   - slug: required-checks-drift-check
     scores:
       ai_leverage: 1
