@@ -2024,7 +2024,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # and `no-tax-on-tips-overtime-calculator` landed, so it only ever knew
     # 316 until this merge. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
-    total = 318  # `infra/OWNER_CHECKLIST.md`'s own "N of the 318 tools" wording.
+    #
+    # 319 since 2026-09-17, when `docker-cache-order-check` graduated -- a
+    # zero-dependency CLI + browser checker reading a Dockerfile's
+    # instruction order for build-cache-invalidation mistakes (a dependency
+    # manifest copied/installed after a whole-context `COPY . .`, or an
+    # `apt-get update` split from `install` across layers). A different
+    # object from this portfolio's other two Dockerfile checkers, which each
+    # check one instruction against a rule rather than instruction order.
+    total = 319  # `infra/OWNER_CHECKLIST.md`'s own "N of the 319 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
