@@ -1822,7 +1822,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `podcast-sponsorship-rate-calculator` landed, so it only ever knew its
     # own predecessor's number (298, then 299) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
-    total = 300  # `infra/OWNER_CHECKLIST.md`'s own "N of the 300 tools" wording.
+    # 301 since 2026-09-17, when `import-landed-cost-calculator` graduated --
+    # a browser-local calculator pricing an import shipment's total landed
+    # cost (item cost, freight, insurance, duty, a supplemental/Section 301
+    # tariff, the Merchandise Processing Fee, the Harbor Maintenance Fee,
+    # and a customs broker fee) for small e-commerce importers, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch was open before `subpath-robots-check`
+    # landed, so it only ever knew its own predecessor's number (299, then
+    # 300) until this merge -- the same ordinary collision shape recorded
+    # throughout this list.
+    total = 301  # `infra/OWNER_CHECKLIST.md`'s own "N of the 301 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

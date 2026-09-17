@@ -291,6 +291,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // ("names no specific product"). Same reasoning as the other
   // vs-spreadsheet / by-hand pages above (e.g. reverb-fee-calculator's).
   'whatnot-seller-payout/vs-tracking-payouts-in-a-spreadsheet.html',
+  // Compares against "tracking landed cost in a spreadsheet" -- a generic
+  // method every small importer already has access to, not a company or
+  // product this could be mistaken for. The page's own copy says so
+  // explicitly ("Names no specific product or company"). Same reasoning as
+  // the other vs-spreadsheet / by-hand pages above (e.g. reverb-fee-
+  // calculator's).
+  'import-landed-cost-calculator/vs-tracking-landed-cost-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
