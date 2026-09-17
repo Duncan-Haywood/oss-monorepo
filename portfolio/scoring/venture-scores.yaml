@@ -13413,3 +13413,58 @@ ventures:
       per-comparison fee, so the tool has no incentive to bias the ranking
       toward any provider, and it gets more useful the more providers a
       visitor adds rather than steering toward fewer.
+
+  - slug: call-recording-consent-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a state defaults to
+      one-party or all-party call-recording consent, and what the combined
+      interstate requirement is, is decided entirely by a fixed table and a
+      stated combining rule -- never a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's scoring
+      process; full write-up at
+      portfolio/pipeline/candidates/call-recording-consent-check.md.
+      duplicate_check.py scored every venture, screened-out row, and
+      pipeline candidate at or below 0.11 against the final description
+      before this venture existed; the only lexically-close row,
+      consent-change-record, is a website cookie/tracking-consent diff
+      tool, a different consent regime entirely, confirmed by reading its
+      VENTURE.yaml and named explicitly on this venture's own page.
+      Defensibility 2, distribution 6: scored deliberately modest on
+      defensibility -- a state-consent table and a combining rule are easy
+      to reproduce once someone thinks to -- while distribution reflects a
+      real, named, heavily-published search topic ("call recording laws by
+      state") with an underserved interstate/script-generation gap, not a
+      channel invented from nothing. No search-volume tool was queried to
+      confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, but at the floor rather than comfortably above it -- see the
+      dedicated liability section in the candidate write-up. A wrong
+      call-recording consent classification has a more serious worst case
+      than most of this portfolio's checkers (per-violation statutory
+      damages in several all-party states; rare criminal exposure), so the
+      pass rests on disclosure discipline rather than a low-stakes subject:
+      every page states this is not legal advice and not a determination
+      for a specific call, the two states with a real disclosed ambiguity
+      (Nevada, Michigan) are named rather than smoothed over, the
+      interstate guidance is framed as a conservative reading backed by one
+      cited precedent rather than a universal rule, and pinpoint statute
+      citations are given only for the states this build is confident in.
+      Ethically: donations-only with no per-use fee, so the tool has no
+      incentive to bias the classification in either direction, and it
+      gets strictly more useful to a multi-state caller the more accurately
+      they identify both parties' states.
