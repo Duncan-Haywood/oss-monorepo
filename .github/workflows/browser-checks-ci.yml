@@ -138,8 +138,19 @@ jobs:
       # `|| true`: a repository with Pages not yet configured has no such
       # branch, and that is not a reason to fail a site verification. The
       # helper says on stderr which case it landed in, in the step below.
+      #
+      # `--depth=1` only when the clone is already shallow: on a runner that is
+      # free (checkout is depth 1 anyway), and on a full clone a `--depth`
+      # fetch writes `.git/shallow` and truncates the WHOLE repository, not
+      # just the ref being fetched. See the same guard in
+      # `portfolio-validate.yml` for what that costs a local run.
       - name: Fetch the branch GitHub Pages serves
-        run: git fetch --depth=1 origin gh-pages:refs/remotes/origin/gh-pages || true
+        run: |
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch --depth=1 origin gh-pages:refs/remotes/origin/gh-pages || true
+          else
+            git fetch origin gh-pages:refs/remotes/origin/gh-pages || true
+          fi
 
       - uses: actions/setup-node@v4
         with:
