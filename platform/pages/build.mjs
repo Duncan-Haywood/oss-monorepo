@@ -653,8 +653,20 @@ const CATEGORY_RULES = [
     // marketplace fee. It shipped with a reciprocal inbound sibling link
     // from `appointment-deposit-calculator`'s first commit rather than
     // landing as a crawlable orphan to close later.
+    // `wedding-florist-proposal-calculator` joined 2026-09-16 on its first
+    // commit, filed here rather than left for a spell in the catch-all —
+    // which is what `build.test.mjs`'s catch-all bound is for. A floral
+    // studio pricing one event booking from flowers, hard goods, design and
+    // on-site labour, and delivery is the same job as `photo-booth-event-
+    // quote`, `bounce-house-rental-calculator` and `bridal-hair-makeup-
+    // pricing-calculator`, which it cross-links to: a small operator turning
+    // materials, labour and travel into a price for one booking. Not a trade
+    // bid (nothing is priced by area or a site visit) and not a marketplace
+    // fee. The near miss was `solo-earner`, which groups on a person
+    // monetising their own output; a studio quoting a couple's wedding is a
+    // business pricing work for a customer, the axis this section uses.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|wedding-florist-proposal)/.test(
         slug,
       ),
   },

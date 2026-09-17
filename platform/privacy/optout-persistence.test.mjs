@@ -107,7 +107,11 @@ const RELATIVE_SELF = relative(
 // `setUsageOptOut`/`usageOptedOut` switch (opts out of the
 // `diff_run`/`example_loaded` counters), same discovery method as the rest
 // of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 268;
+// 268 -> 269 on 2026-09-16, when `wedding-florist-proposal-calculator`
+// graduated with a `toggleUsage`/`usageAllowed` switch (opts out of the
+// `proposal-priced`/`rounding-gap-shown`/`link_copied` counters), same
+// discovery method as the rest of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 269;
 
 let counter = 0;
 function fixture(source) {

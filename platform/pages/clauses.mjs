@@ -156,6 +156,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company's product this could be mistaken for. The page's own footer
   // says so explicitly ("names no specific product").
   'sbom-diff-check/vs-diffing-the-raw-json-files.html',
+  // Compares against "a recipe markup spreadsheet" -- the sheet nearly every
+  // floral studio builds for itself, which is a working method rather than
+  // any one company's product this could be mistaken for. The page's own
+  // footer says so explicitly ("names no specific product, company, or
+  // software"). Same reasoning as the vs-spreadsheet / by-hand pages above.
+  'wedding-florist-proposal-calculator/vs-a-recipe-markup-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

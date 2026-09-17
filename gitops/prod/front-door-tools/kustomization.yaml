@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555799 bytes
-#   portfolio-front-tools-1: 106 files, 554524 bytes
-#   portfolio-front-tools-2: 148 files, 556400 bytes
-#   portfolio-front-tools-3: 139 files, 552740 bytes
-#   portfolio-front-tools-4: 122 files, 553187 bytes
-#   portfolio-front-tools-5: 137 files, 552960 bytes
-#   portfolio-front-tools-6: 121 files, 556655 bytes
-#   portfolio-front-tools-7: 133 files, 554122 bytes
-#   portfolio-front-tools-8: 111 files, 554412 bytes
-#   portfolio-front-tools-9: 113 files, 551179 bytes
-#   portfolio-front-tools-10: 122 files, 555669 bytes
-#   portfolio-front-tools-11: 129 files, 556237 bytes
-#   portfolio-front-tools-12: 106 files, 551136 bytes
-#   portfolio-front-tools-13: 109 files, 550464 bytes
-#   portfolio-front-tools-14: 113 files, 553247 bytes
-#   portfolio-front-tools-15: 64 files, 327194 bytes
+#   portfolio-front-tools-0: 133 files, 555808 bytes
+#   portfolio-front-tools-1: 106 files, 554528 bytes
+#   portfolio-front-tools-2: 148 files, 556424 bytes
+#   portfolio-front-tools-3: 139 files, 552770 bytes
+#   portfolio-front-tools-4: 122 files, 553231 bytes
+#   portfolio-front-tools-5: 137 files, 553004 bytes
+#   portfolio-front-tools-6: 121 files, 556677 bytes
+#   portfolio-front-tools-7: 133 files, 554101 bytes
+#   portfolio-front-tools-8: 111 files, 554390 bytes
+#   portfolio-front-tools-9: 113 files, 551176 bytes
+#   portfolio-front-tools-10: 122 files, 555671 bytes
+#   portfolio-front-tools-11: 129 files, 556289 bytes
+#   portfolio-front-tools-12: 106 files, 551138 bytes
+#   portfolio-front-tools-13: 109 files, 550476 bytes
+#   portfolio-front-tools-14: 113 files, 553248 bytes
+#   portfolio-front-tools-15: 69 files, 346634 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1995,6 +1995,11 @@ configMapGenerator:
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
+      - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
+      - wedding-florist-proposal-calculator__index.html.gz=wedding-florist-proposal-calculator__index.html.gz
+      - wedding-florist-proposal-calculator__share.mjs.gz=wedding-florist-proposal-calculator__share.mjs.gz
+      - wedding-florist-proposal-calculator__usage.mjs.gz=wedding-florist-proposal-calculator__usage.mjs.gz
+      - wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz=wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz

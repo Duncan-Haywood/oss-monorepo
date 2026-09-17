@@ -31927,3 +31927,52 @@ entries:
         customer, and is recorded as a product fix, not evidence toward
         either `VENTURE.yaml` hypothesis.
     mrr_end: 0
+  - venture: wedding-florist-proposal-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, built and shipped in one session. Wedding and event
+        florists price proposals from a "recipe" — a per-piece stem list —
+        and nearly every studio multiplies that stem count by a per-stem
+        price in a spreadsheet. Wholesalers sell bunches, so the studio pays
+        for whole bunches whether the design uses them or not, and a markup
+        applied to the stem count is applied to a cost that was never paid.
+        The calculator converts the recipe into a purchase: shrink is added
+        to the stem count first, each of six lines is rounded up to whole
+        bunches, and the markup lands on what is actually bought. On the
+        page's own worked example that is $804 of flowers against a $669
+        per-stem basis — a $135 cost gap and, at a 3.5x markup, $472.50 of
+        quoted price the spreadsheet method leaves behind.
+      - >-
+        Second finding in the same tool: labour priced by the hour against
+        the trade's "labour is about a third of flowers" rule of thumb. The
+        rule holds where hours track stems and fails on installs, so the
+        page reports both and names the gap ($252.60 on the worked example,
+        an install-heavy wedding). The rule never enters the total — a test
+        asserts setting it to zero leaves the proposal unchanged.
+      - >-
+        Verified locally rather than by CI, which has been starved since
+        2026-09-04 (`ci_starvation.py`; see `infra_state.yaml`). 56
+        venture assertions (`calc`, `page`, `content-pages`, `usage`,
+        including a source scan asserting no module can reach the network);
+        1271 across `platform/marketing` + `platform/pages`; 101
+        `platform/proposal`; 142 `platform/privacy` + `platform/webcheck`;
+        581 `gitops/tests`; 446 across the portfolio Python suites; all 25
+        `platform/ci` unittest modules plus `agent_review`. Pages snapshot
+        republished so the live site carries it.
+      - >-
+        Five repo-level counters moved with the venture rather than being
+        left to drift, each one a guard that fires on exactly this: the
+        privacy opt-out switch count (268 -> 269), the mirrored-tool count
+        typed in four places, `gitops/ci/README.md`'s runs-on sentence, the
+        `publish-surface.yaml` classification for the new workflow, and a
+        reciprocal sibling link with `bridal-hair-makeup-pricing-calculator`
+        that kept the venture from landing as a crawlable orphan.
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for any product in this portfolio
+        (`live_url_visitors: null`, not zero), and sitemap auto-discovery
+        cannot happen from the project-Pages subpath. Both hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0

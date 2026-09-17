@@ -1686,7 +1686,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # version-changed packages between two builds, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 283  # `infra/OWNER_CHECKLIST.md`'s own "N of the 283 tools" wording.
+    # 284 since 2026-09-16, when `wedding-florist-proposal-calculator`
+    # graduated — a no-upload browser calculator that prices a wedding
+    # florist's proposal from the stem recipe up, buying each line in whole
+    # wholesale bunches rather than loose stems, with a static `index.html`
+    # from its first commit, same shape as the rest of this running count.
+    total = 284  # `infra/OWNER_CHECKLIST.md`'s own "N of the 284 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
