@@ -61,6 +61,18 @@ test("index links one hop to the 1099k-reconciliation-worksheet sibling", () => 
   );
 });
 
+// Sibling-orphan budget: reciprocal half of the link added to
+// depreciation-recapture-calculator the same session -- that page sold no
+// sibling any inbound link at all until this pair closed it.
+test("index links one hop to the depreciation-recapture-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/depreciation-recapture-calculator\/"/,
+    'index must link ../depreciation-recapture-calculator/ so crawlers reach it in one hop',
+  );
+});
+
 test("index links the Keeper incumbent-comparison page and the sitemap lists it too", () => {
   const html = page("index.html");
   const sitemap = page("sitemap.xml");

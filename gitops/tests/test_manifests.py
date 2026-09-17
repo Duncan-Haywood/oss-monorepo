@@ -1992,7 +1992,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # open before either of the other two landed, so it only ever knew 313
     # until this merge. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
-    total = 315  # `infra/OWNER_CHECKLIST.md`'s own "N of the 315 tools" wording.
+    #
+    # 316 since 2026-09-17, when `depreciation-recapture-calculator`
+    # graduated -- a browser-local calculator splitting the gain on a rental
+    # property sale into unrecaptured Section 1250 depreciation recapture
+    # (ordinary rate, capped at 25%) and the remainder at the seller's
+    # capital-gains rate, with an optional NIIT add-on and a 1031 exchange
+    # boot/deferral comparison. Filed under `backoffice` (the same
+    # after-the-fact tax-arithmetic axis as `quarterly-estimated-tax-calendar`,
+    # which it cross-links reciprocally). Recorded from
+    # `sync_tree_counts.py`'s own fresh measurement against the merged tree,
+    # not a hand sum.
+    total = 316  # `infra/OWNER_CHECKLIST.md`'s own "N of the 316 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
