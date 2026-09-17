@@ -67,8 +67,17 @@
     <id>tag:marisstella.dev,2026:tool/tutor-package-pricing-calculator</id>
     <published>2026-09-17T00:00:00Z</published>
     <updated>2026-09-17T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Vector Database Cost Calculator (Pinecone, Weaviate, Qdrant, pgvector)</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vector-db-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/vector-db-cost-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Logistics, freight &amp; cloud cost"/>
+    <summary type="text">Estimate your embedding index&#39;s real storage footprint from vector count, dimension, and metadata, then compare monthly cost across up to three vector database providers using their own quoted rates. Free, private, no signup.</summary>
   </entry>
   <entry>
     <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>

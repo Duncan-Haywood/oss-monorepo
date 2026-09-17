@@ -1004,6 +1004,9 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: vector-db-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: vehicle-wrap-bid-calculator-ci.yml
   classification: none
   publishes: []
