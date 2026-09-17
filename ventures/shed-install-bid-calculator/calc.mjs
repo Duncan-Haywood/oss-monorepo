@@ -404,16 +404,21 @@ export function calculateBid(input) {
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);
   const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);
-  const extraCost = extraHardware
-    + hoursPad * loadedWage
-    + hoursAccess * loadedWage
-    + hoursWindows * loadedWage
-    + hoursDoors * loadedWage
-    + hoursRampWork * loadedWage
-    + hoursLoftWork * loadedWage
-    + hoursHaul * loadedWage
-    + hoursElectrical * loadedWage
-    + hoursDelivery * loadedWage;
+  // "Pad, delivery, extras" on the result panel, shown beside "Loaded labor",
+  // "Shed / lumber", "Travel & other", and "Overhead" as a breakdown of
+  // total cost. Those five lines have to sum to totalCost, the way
+  // directCost + overhead does above — a dealer reading a cost breakdown
+  // expects the parts to add to the total printed right under them.
+  // extraCost is the pad/delivery/extras MATERIAL and invoice spend only
+  // (extraHardware); the labor to install them is already inside laborCost,
+  // which is every crew-hour (build, set, pad, access, windows, doors, ramp,
+  // loft, haul-away, electrical, delivery, site) at the loaded wage. Adding
+  // those same hours' cost into extraCost again — as this used to — double
+  // counted them: "Loaded labor" already paid for the pad and delivery
+  // hours, and "Pad, delivery, extras" paid for them a second time, so the
+  // five displayed lines summed to more than the total cost shown below
+  // them and the extras category looked bigger than it actually is.
+  const extraCost = extraHardware;
 
   return {
     fulfillment,
