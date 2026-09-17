@@ -244,6 +244,9 @@
     <loc>https://marisstella.dev/tools/actions-secret-leak-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-secret-leak-check/vs-reading-the-workflow-by-eye.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-secret-leak-check/why-github-actions-secret-masking-fails.html</loc>
   </url>
   <url>
