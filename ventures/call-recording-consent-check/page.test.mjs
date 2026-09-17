@@ -60,6 +60,24 @@ test("index has a usage opt-out control", async () => {
   assert.match(page, /id="optout"/);
 });
 
+test("index has a copy-shareable-link control and wires the real share functions", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="copy-link"/);
+  assert.match(page, /id="copy-link-status"/);
+  assert.match(page, /import\s*{\s*encodeInputs,\s*decodeInputs,\s*formValues\s*}\s*from\s*"\.\/share\.mjs"/);
+});
+
+test("a shared link is applied through formValues(), never handed to the form bare (see check_shared_link_clears.py)", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /applyShared\(formValues\(sharedInputs\)\)/);
+});
+
+test("the privacy paragraph names the two share-related events it actually records", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /link_shared/);
+  assert.match(page, /link_loaded/);
+});
+
 test("index's FAQPage JSON-LD text matches the visible copy", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   const blocks = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) =>
