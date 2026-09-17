@@ -1,0 +1,67 @@
+name: actions-transitive-pin-check
+description: Free checker for GitHub Actions workflows that goes one hop past ordinary SHA-pinning checks -- given a workflow where a reusable workflow or composite action is pinned to a commit SHA, it fetches that exact pinned file and reports whether IT loads a third-party action by a mutable tag underneath, a gap a top-level pin does not close.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row, and ai-first-markets idea --
+# top score 0.22 (pinned-actions-check itself), well below the 0.45
+# read-this-first bar, and confirmed by reading pinned-actions-check/check.py:
+# it explicitly scans only the workflow file's own `uses:` lines and makes
+# "no network calls of any kind" by design, so it has no visibility into
+# what a pinned reusable workflow or composite action itself loads. This is
+# a different, narrower question, not a restatement of that tool.
+#
+# Channel evidence (2026-09-17, WebSearch): GitHub's own 2026 Actions
+# security roadmap names this exact gap -- "a reusable workflow's SHA pin
+# does not pin the composite action it loads" -- and describes a planned
+# workflow lockfile (pinning every direct and transitive action dependency
+# by commit SHA, "like go.sum but for workflows") as the future fix, which
+# means it is not solved by SHA pinning alone today. Security vendors
+# (StepSecurity, Wiz, Corgea) and open GitHub issues discuss the same gap
+# independently. Per portfolio/pipeline/README.md's "archetype itself"
+# section (avoid a 39th generic checker with no evidence beyond "not yet
+# tried"), this is not a fresh shape -- it is the CI-hardening checker
+# family the fleet already has six of -- but it targets a specific,
+# named, currently-unsolved technical gap in that family's own coverage,
+# rather than a 39th narrow misconfiguration scan with no distinguishing
+# evidence.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high, same reasoning as pinned-actions-check -- read-only, no
+# advice-of-record, no compliance claim. The one real difference from that
+# sibling is that this tool DOES make network calls (to raw.githubusercontent.com,
+# unauthenticated, fetching only the public files the pasted/scanned
+# workflow's own pinned references name) -- disclosed plainly in the privacy
+# section of index.html and README.md rather than inheriting the sibling's
+# "makes no network calls" claim, which would now be false. An unresolved
+# fetch is always reported as unresolved, never silently read as clean.
+hypotheses:
+  - claim: A maintainer who has already pinned their third-party actions to commit SHAs (using pinned-actions-check or by hand) will run this to check whether that pinning is actually sufficient, once they learn a SHA pin does not cover what a reusable workflow or composite action loads underneath it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire `check.mjs --fail-on-risk` into their own CI to block a newly-added reference that is pinned at the top level but loads something unpinned underneath, the same way pinned-actions-check's --fail-on-risk is meant to be used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-transitive-pin-check/
+  analytics: null

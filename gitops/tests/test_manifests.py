@@ -1924,6 +1924,22 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `deploy-concurrency-check` landed, so it only ever knew 308 until this
     # merge -- both branches independently wrote "308" for what the merged
     # tree made 309.
+    # 310 since 2026-09-17, when `actions-transitive-pin-check` graduated --
+    # a CLI + browser tool that, for every top-level `uses:` reference
+    # already pinned to a commit SHA, fetches that exact file from
+    # `raw.githubusercontent.com` and classifies its own `uses:` lines the
+    # same way, flagging a reference that is pinned at the call site but
+    # loads something unpinned underneath -- a gap `pinned-actions-check`'s
+    # own "no network calls" design cannot see into. Cross-linked with
+    # `pinned-actions-check` from the first commit. This branch was open
+    # before `actions-secret-leak-check` and `deploy-concurrency-check`
+    # landed, so it only ever knew 308 until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    # 311 since 2026-09-17, when `cnc-machining-quote-calculator` graduated
+    # concurrently -- filed under `services` and cross-linked with
+    # `shop-rate-calculator` and `cut-list-optimizer`. Both branches
+    # independently wrote counts against a base neither could see the other
+    # land on; `sync_tree_counts.py` settles the true figure after merge.
     total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
