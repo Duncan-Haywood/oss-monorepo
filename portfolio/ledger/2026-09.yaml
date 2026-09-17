@@ -34103,3 +34103,102 @@ entries:
         CLAUDE.md's standing job and recorded the reading with
         `pages_state.py --record` -- see the PR/commit for the run id, or a
         later entry if this one records "not yet done."
+  - venture: docker-build-secrets-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Deploy/marketing pipeline health checked first, per this session's
+        brief: `pages_state.py` snapshot was current, `surface-budget.mjs
+        --check` clean, `browser_state.py` showed all 8 checks stale only
+        from routine builder-data-row churn (new venture graduations, not a
+        rendering-logic change) rather than a real defect. `indexnow_state.py`
+        reported `never` (all runs starved); confirmed directly with `curl`
+        that the sandbox egress proxy still 403s `api.indexnow.org` and
+        `www.bing.com` rather than assuming the old finding still held. No
+        broken live surface found, so per `session_gate.py` (PROCEED,
+        build-now pipeline empty) screened and graduated a new venture in
+        the CLI/browser-checker shape `portfolio/pipeline/README.md`
+        recommends over another `<trade>-bid-calculator`.
+      - >-
+        Graduated `docker-build-secrets-check`: a free, read-only checker
+        (zero-dependency Python CLI + browser port) for Dockerfile
+        build-time secret exposure -- an `ENV`/`ARG` instruction whose name
+        looks like a secret (an `ENV` is always flagged, since its value is
+        unconditionally baked into the image config per Docker's own "Build
+        secrets" documentation; a literal `ARG` default is flagged as
+        committed to the Dockerfile; a bare `ARG` declaration is
+        advisory-only), and `COPY`/`ADD` of a well-known credential file
+        (`.env`, `id_rsa`, `.npmrc`, `.aws/credentials`, ...). Every finding
+        carries the exact `RUN --mount=type=secret` remediation.
+        `duplicate_check.py` scored the closest existing venture
+        (`helm-values-schema-check`) at 0.11 against the final description,
+        well under the 0.45 flag bar; not a duplicate of
+        `docker-base-image-pin-check` (same file, a different question --
+        `FROM` tag/digest, not `ENV`/`ARG`/`COPY` secret exposure),
+        `actions-secret-leak-check` (GitHub Actions YAML), or
+        `terraform-plan-secret-exposure-check` (Terraform plan JSON).
+      - >-
+        Shipped: `check.py` (51 unit tests), `classify.mjs` (browser port
+        kept in lock-step, including a CLI-parity test), a working
+        `index.html` (not a landing page), a how-to guide, and
+        `vs-gitleaks.html` (a named comparison distinguishing this
+        Dockerfile-instruction-aware checker from a general regex/entropy
+        secret scanner that has no idea an `ENV` always bakes its value in
+        regardless of shape). Opt-in, local-only usage counters (DNT/GPC
+        honoured); PRODUCT_PLAYBOOK.md 5b disclaimers on every page.
+        Cross-linked `docker-base-image-pin-check` (reciprocal edit),
+        `terraform-plan-secret-exposure-check`, and
+        `actions-secret-leak-check` so neither side of the new pair shipped
+        as a crawlable orphan (`siblings-budget.json` orphan budget is 0).
+      - >-
+        Verified locally throughout (Actions starved this session). The
+        venture's own suites: 51 Python unit tests, 45 `node --test`
+        assertions across `classify.test.mjs` (incl. CLI parity) and
+        `page.test.mjs`; the edited `docker-base-image-pin-check` suite 45
+        assertions. Full `platform/pages` + `platform/marketing` suites
+        1010/1010 and 262/262 after `regen.mjs` (re-run twice: main moved
+        under this branch three times mid-session, each time via
+        `git fetch origin main && git reset --hard origin/main`, reapplying
+        the saved substantive diffs, and regenerating fresh rather than
+        hand-resolving a binary-shard merge conflict). `platform/proposal`
+        101/101, `platform/privacy` + `platform/webcheck` clean after the
+        count sync below. All 1003 `platform/ci` unittest assertions (27
+        modules) and the 21 `agent_review` ones green -- including adding
+        `.github/workflows/docker-build-secrets-check-ci.yml` and running
+        `publish_surface.py --write`, both required by
+        `test_validate_workflows.py`'s venture-test-coverage guard.
+        `portfolio/scoring` + `router` + `ledger` + `usage` + `pipeline` +
+        `infra/tests` 446 passed, after adding a merit-score row to
+        `venture-scores.yaml` (composite 6.0, same dimensions as
+        `docker-base-image-pin-check`). `gitops/tests` 607 passed/1 skipped
+        after `apt-get update && apt-get install nginx-light
+        openssh-client`. `run_workflow_locally.py --for-changes` clean
+        aside from environment-only gaps (no pip/PyPI egress for the
+        install step, no `refs/ci/base-main` ref in this sandbox).
+      - >-
+        Two derived counts this venture's addition moves --
+        mirrored-tool total and `SWITCHES_IN_THE_CATALOGUE` -- were left
+        red on the branch and fixed forward with `sync_tree_counts.py`
+        immediately after merging main (#4990), exactly as CLAUDE.md
+        prescribes, rather than hand-edited pre-merge where the number is
+        unknowable against a moving base. Also added the running-comment
+        entries in `test_manifests.py` and
+        `optout-persistence.test.mjs` naming this venture as the
+        graduation that moved each count.
+      - >-
+        Deployment: after merge, refreshed the `gh-pages` snapshot
+        (`pages_state.py --require-current` was stale; ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`,
+        confirmed current, recorded with `pages_state.py --record`, #4992).
+        IndexNow submission attempted from the publish script and did not
+        reach the API, consistent with the confirmed-still-blocked egress
+        noted above -- not fatal, the site was already published.
+      - >-
+        Merged as three PRs rather than one, because main advanced multiple
+        times per hour throughout this session (four other ventures
+        graduated concurrently): #4987 (the venture itself, after two
+        rounds of reset/reapply/regen against a moving base), #4990
+        (`sync_tree_counts.py`'s post-merge count fix), #4992 (the Pages
+        publish record). All three squash-merged directly, no human review,
+        per CLAUDE.md's "Ship without review ceremony."
