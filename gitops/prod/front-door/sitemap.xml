@@ -1912,6 +1912,15 @@
     <loc>https://marisstella.dev/tools/junk-removal-bid-calculator/vs-workiz.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/vs-pluto.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/why-a-manifest-fails-a-kubernetes-upgrade.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/k8s-rollout-safety-check/</loc>
   </url>
   <url>

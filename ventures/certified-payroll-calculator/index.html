@@ -211,8 +211,12 @@
       }
 
       el('hero').textContent = money(result.shortfallPerHour);
-      el('hero').className = `hero-number ${result.shortfallPerHour > 0 ? 'negative' : 'positive'}`;
-      el('heroLabel').textContent = result.shortfallPerHour > 0 ? 'shortfall per hour vs. the required rate' : 'meets the required combined rate';
+      el('hero').className = `hero-number ${result.compliant ? 'positive' : 'negative'}`;
+      el('heroLabel').textContent = result.shortfallPerHour > 0
+        ? 'shortfall per hour vs. the required rate'
+        : result.compliant
+          ? 'meets the required combined rate'
+          : 'combined rate matches, but overtime still underpays this week';
 
       el('requiredTotalRate').textContent = perHour(result.requiredTotalRate);
       el('actualTotalRate').textContent = perHour(result.actualTotalRate);
@@ -230,7 +234,9 @@
       verdict.className = `verdict${result.compliant ? '' : ' bad'}`;
       verdict.innerHTML = result.compliant
         ? `Meets the required combined rate of <strong>${money(result.requiredTotalRate)}/hr</strong> for this classification.`
-        : `Falls <strong>${money(result.shortfallPerHour)}/hr short</strong> of the required combined rate of ${money(result.requiredTotalRate)}/hr — a total underpayment of <strong>${money(result.underpaymentTotal)}</strong> this week.`;
+        : result.shortfallPerHour > 0
+          ? `Falls <strong>${money(result.shortfallPerHour)}/hr short</strong> of the required combined rate of ${money(result.requiredTotalRate)}/hr — a total underpayment of <strong>${money(result.underpaymentTotal)}</strong> this week.`
+          : `Meets the required combined rate of ${money(result.requiredTotalRate)}/hr on paper, but a total underpayment of <strong>${money(result.underpaymentTotal)}</strong> remains this week — overtime premium is only ever owed on base pay plus cash fringe, so paying more of the required rate as a bona fide plan contribution does not cover the overtime hours worked.`;
 
       const ratioVerdict = el('ratioVerdict');
       if (!result.ratio) {
@@ -253,7 +259,11 @@
         `CERTIFIED PAYROLL WEEK — ${classification || 'Classification'}`,
         '',
         `Required rate: ${perHour(result.requiredTotalRate)} | Actual rate: ${perHour(result.actualTotalRate)}`,
-        result.compliant ? 'Meets the required combined rate.' : `Shortfall: ${perHour(result.shortfallPerHour)} (total underpayment ${money(result.underpaymentTotal)})`,
+        result.compliant
+          ? 'Meets the required combined rate.'
+          : result.shortfallPerHour > 0
+            ? `Shortfall: ${perHour(result.shortfallPerHour)} (total underpayment ${money(result.underpaymentTotal)})`
+            : `Combined rate matches on paper, but total underpayment ${money(result.underpaymentTotal)} remains (overtime premium is not owed on a bona fide plan contribution).`,
         `Straight-time rate: ${perHour(result.straightRatePerHour)} | Overtime rate: ${perHour(result.otRatePerHour)}`,
         `Cash wages: ${money(result.totalCashWagesPaid)} | Bona fide fringe: ${money(result.totalBonaFideFringeDue)} | Total compensation: ${money(result.totalCompensationPaid)}`,
         `Cost of paying cash fringe at straight time during overtime: ${money(result.otUnderpaymentIfCashFringeExcluded)}`,

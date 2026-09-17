@@ -10640,6 +10640,70 @@ ventures:
       page states plainly that a clean result means these named checks
       found nothing -- not a production-readiness audit, and not a
       guarantee of a zero-downtime deploy.
+  - slug: k8s-deprecated-api-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a manifest's apiVersion+
+      kind pair has been removed, and at which release, is a table lookup
+      against Kubernetes' own Deprecated API Migration Guide, sourced with a
+      fixed release number rather than inferred -- a factual, deterministic
+      comparison, not a model judgment, and it never claims to cover an
+      in-progress or future-dated deprecation it cannot cite a release
+      number for.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not another
+      <trade>-bid-calculator, chosen for a specific named channel rather
+      than because "checker" is underused (the same section's 2026-09-11
+      follow-up already notes 38+ ventures share that shape too).
+      duplicate_check.py's closest match was k8s-rollout-safety-check at
+      0.37 -- both read Kubernetes YAML, but one judges rollout safety
+      (readiness probes, PodDisruptionBudgets) and this judges whether an
+      apiVersion will be rejected outright; well under the 0.45 review bar
+      and substantively different questions, cross-linked both ways.
+      Distribution 6: Kubernetes' own Deprecated API Migration Guide is the
+      canonical, heavily-linked page every platform team consults before a
+      minor-version cluster upgrade; the failure mode throws a fixed,
+      verbatim runtime error (`no matches for kind "X" in version "Y"`) that
+      an affected team searches directly rather than a hypothetical query;
+      r/kubernetes carries recurring threads tied to each managed provider's
+      release cadence, a repeating trigger rather than a one-off; and Pluto
+      (FairwindsOps), the established OSS tool for this exact problem, is
+      actively maintained -- evidence the underlying problem sustains a
+      dedicated tool, and this tool's vs-pluto.html comparison page gives it
+      a landing spot for either tool's name. Autonomous ops 10 / gross
+      margin 10: both the browser page and the CLI parse only locally
+      supplied YAML text, no network call in either, so serving one more
+      user costs a static file. Defensibility 4: forkable like every
+      checker in this portfolio; the deprecation table and the YAML-header
+      extraction are the whole product, no proprietary data. Time to
+      revenue 6: donations-only like the rest of the fleet, scored against a
+      channel with a recurring trigger event (each Kubernetes minor release)
+      rather than a one-time search spike.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports table matches against manifest YAML the user
+      supplies and fully controls -- no filing, signature, or determination
+      made on the user's behalf, and the worst case is a missed or extra
+      flag, never a claim the user relies on as advice. The table is
+      deliberately conservative (engine.mjs's module comment): it lists only
+      removals Kubernetes' own guide documents with a fixed release number,
+      never a guessed future deprecation, so it never asserts a claim the
+      product can't back up. Ethical robustness: gets strictly better for
+      users as it scales -- more upgrade failures caught before they happen,
+      free, with no paid tier gating accuracy and no adversarial dynamic.
   - slug: app-store-screenshot-check
     scores:
       ai_leverage: 1

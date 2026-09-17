@@ -32564,3 +32564,94 @@ entries:
         writing a whole-catalogue clean reading the other checks did not
         finish producing.
     mrr_end: 0
+  - venture: k8s-deprecated-api-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        that reads Kubernetes manifest YAML and reports every apiVersion +
+        kind pair a past or named-target Kubernetes release has removed --
+        `extensions/v1beta1 Ingress`, `batch/v1beta1 CronJob`,
+        `policy/v1beta1 PodSecurityPolicy`, and 25 more pairs across the
+        1.16/1.22/1.25/1.26 removal waves -- sourced from Kubernetes' own
+        Deprecated API Migration Guide with a fixed release number per
+        entry, never a guessed future deprecation. Chosen as a CLI/checker
+        shape per `PRODUCT_PLAYBOOK.md` §2 and `pipeline/README.md`'s
+        archetype guidance, over a 311th `<trade>-bid-calculator` (141 of
+        ~300 ventures already share that shape with zero recorded
+        visitors).
+      - >-
+        Screened with `duplicate_check.py`: closest match
+        `k8s-rollout-safety-check` at 0.37, well under the 0.45
+        near-duplicate bar and a substantively different question (rollout
+        *safety* -- readiness probes, PodDisruptionBudgets -- vs. whether
+        the manifest's `apiVersion` itself survives an upgrade at all); the
+        two cross-link each other both ways in their index pages, closing
+        the crawlable-orphan gap a new venture otherwise opens. Distribution
+        named at graduation: Kubernetes' own Deprecated API Migration Guide
+        (the canonical page every platform team reads before a
+        minor-version cluster upgrade); the exact, verbatim runtime error
+        an affected team hits and searches (`no matches for kind "Ingress"
+        in version "extensions/v1beta1"`, and the same shape for CronJob,
+        PodDisruptionBudget, HorizontalPodAutoscaler); r/kubernetes, whose
+        threads on this recur with each managed provider's (EKS/GKE/AKS)
+        release cadence rather than as a one-off; and comparison-search
+        traffic against Pluto (FairwindsOps), the established OSS tool for
+        this exact problem -- `vs-pluto.html` gives this tool's zero-install
+        version a landing page a searcher for either name can reach.
+      - >-
+        No claim goes beyond what Kubernetes' own guide documents: the
+        removal table lists only pairs with a fixed, cited release number,
+        and both the page and docs page say plainly that an in-progress or
+        future-dated deprecation is out of scope -- per `DIRECTION.md`'s
+        legal guardrails (no claim the product can't back up). It reads
+        only pasted/loaded YAML text or a local file; no kubeconfig, no API
+        server call, no network call anywhere in the codebase, so it is
+        safe to run in CI against production manifests with no cluster
+        access granted at all.
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`check_run`, `example_loaded`, `file_loaded`), a
+        matching zero-dependency CLI (`--target-version`, `--strict`,
+        `--json`), one discoverability docs page ("why a manifest that
+        applied yesterday fails after a Kubernetes upgrade") citing
+        Kubernetes' deprecation policy directly, and one named-competitor
+        comparison page (`vs-pluto.html`) with the nominative-fair-use
+        disclaimer, verified by `node platform/pages/clauses.mjs
+        k8s-deprecated-api-check`. 43 venture assertions (`engine`, `cli`,
+        `page`).
+      - >-
+        Classified into the existing `ci` category ("CI checks & developer
+        gates") in `platform/pages/build.mjs` on its first commit, beside
+        `k8s-rollout-safety-check`, rather than left for the catch-all --
+        confirmed by building the site locally and checking
+        `catalog.json`'s entry before and after the edit
+        (`More free tools` -> `CI checks & developer gates`).
+      - >-
+        Registered in `venture-scores.yaml` (composite 6.167, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `platform/ci/sync_tree_counts.py` re-run after the merge to update
+        the mirrored-tool and opt-out-switch counts it derives, with the
+        running-comment entries this graduation moved (`test_manifests.py`,
+        `optout-persistence.test.mjs`) and `gitops/ci/sync_readme_counts.py`
+        for the new workflow's `runs-on` line, per CLAUDE.md's collision
+        guidance for a constant that counts the tree.
+      - >-
+        Verified: venture suite (43/43), full `platform/pages` suite
+        (1010/1010, including `faq-visible.test.mjs` and
+        `siblings.test.mjs`, both of which caught real defects this
+        graduation introduced -- a JSON-LD/visible-text punctuation
+        mismatch and a crawlable orphan -- fixed before merge), full
+        `platform/marketing` suite (262/262), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (142/142), `gitops/tests`
+        (601 passed, 1 environmental skip), all 15 `platform/ci` unittest
+        modules (988/988) plus `agent_review` (21/21), and
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (446/446). `platform/ci/check_no_payment_code.py`,
+        `platform/router/validate.py`, `publish_surface.py --check`,
+        `score_ventures.py --check`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_probe_index.py`,
+        `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
+    mrr_end: 0
