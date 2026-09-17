@@ -1711,7 +1711,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commission schedule and fees to an estimated estate-sale gross, with
     # an optional minimum-guarantee floor and a two-quote comparison, same
     # shape as the rest of this running count.
-    total = 287  # `infra/OWNER_CHECKLIST.md`'s own "N of the 287 tools" wording.
+    # 288 since 2026-09-17, when `asbestos-abatement-bid-calculator`
+    # graduated -- a browser-local bid calculator pricing an asbestos
+    # removal job from OSHA/EPA containment class (Class I/II/III), square
+    # footage, containment areas, crew and supervisor rates, air
+    # monitoring, and waste disposal, then comparing the result to a flat
+    # rate per square foot, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 288  # `infra/OWNER_CHECKLIST.md`'s own "N of the 288 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
