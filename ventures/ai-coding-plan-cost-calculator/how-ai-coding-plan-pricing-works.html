@@ -45,6 +45,15 @@
   </section>
 
   <section class="card">
+    <h2>What happens after the allowance runs out</h2>
+    <p>The comparison above quietly assumes the flat fee buys unlimited usage. For a light user it does. For the heavy agentic user actually asking this question it usually does not, and the error runs one way: treating a metered plan as unlimited always flatters the subscription, because it books the overflow at nothing.</p>
+    <p>Enter an allowance in the calculator's optional field and the plan side gets an honest total — the flat fee, plus whatever runs past the allowance priced at the same API rates as the other column. It also names the active day you exhaust it on, which is often the more useful number: "you run out on day 14" tells you something a monthly average hides.</p>
+    <p>That changes the shape of the break-even question, and the answer is not intuitive. Below the allowance, growing usage pushes the API column up while the plan stays flat, so the two cross somewhere — that is the usual break-even. Above it, both columns grow at exactly the same per-token rate, so the gap between them stops moving. It settles at the value of your allowance at those rates, minus what you pay for it. Past that point more usage does not change the answer at all: the only things that move it are the rates and the size of the allowance.</p>
+    <p>One consequence worth naming, because it is the whole decision for a heavy user: if your allowance is worth less at API rates than the fee you pay for it, no amount of extra usage will ever make the plan win. The usual advice to "use it more to get your money's worth" is only true up to the ceiling.</p>
+    <p class="note">The calculator ships no default allowance for any named plan, on purpose. Vendors publish these limits in messages, "premium requests", or rolling five-hour windows — not in tokens — so there is no sourced figure to pre-fill, and a made-up one would be worse than an empty field. Your own estimate, from your own usage, is the number that belongs there.</p>
+  </section>
+
+  <section class="card">
     <h2>Seats change the comparison, not just the total</h2>
     <p>Business and team subscription tiers are priced per seat, and the API-equivalent side scales with actual usage, not headcount — a team where three of five seats are light users is a very different comparison from one where all five run agentic loops most of the day. Enter the seat count that matches your plan and let the usage fields reflect a typical member, or run the calculator once per usage band if your team is uneven.</p>
   </section>
