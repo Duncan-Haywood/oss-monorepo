@@ -40,8 +40,8 @@
 #   portfolio-front-tools-4: 126 files, 549274 bytes
 #   portfolio-front-tools-5: 129 files, 555781 bytes
 #   portfolio-front-tools-6: 130 files, 555402 bytes
-#   portfolio-front-tools-7: 136 files, 554320 bytes
-#   portfolio-front-tools-8: 112 files, 544814 bytes
+#   portfolio-front-tools-7: 136 files, 553910 bytes
+#   portfolio-front-tools-8: 113 files, 549339 bytes
 #   portfolio-front-tools-9: 111 files, 553844 bytes
 #   portfolio-front-tools-10: 118 files, 547715 bytes
 #   portfolio-front-tools-11: 128 files, 555733 bytes
@@ -1055,6 +1055,7 @@ configMapGenerator:
       - duplicate-payment-audit__export.mjs.gz=duplicate-payment-audit__export.mjs.gz
       - duplicate-payment-audit__index.html.gz=duplicate-payment-audit__index.html.gz
       - duplicate-payment-audit__usage.mjs.gz=duplicate-payment-audit__usage.mjs.gz
+      - duplicate-payment-audit__vs-a-spreadsheet.html.gz=duplicate-payment-audit__vs-a-spreadsheet.html.gz
       - duplicate-payment-audit__vs-bill-com.html.gz=duplicate-payment-audit__vs-bill-com.html.gz
       - duplicate-payment-audit__vs-prgx.html.gz=duplicate-payment-audit__vs-prgx.html.gz
       - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
@@ -1150,12 +1151,12 @@ configMapGenerator:
       - ev-charger-bid-calculator__index.html.gz=ev-charger-bid-calculator__index.html.gz
       - ev-charger-bid-calculator__share.mjs.gz=ev-charger-bid-calculator__share.mjs.gz
       - ev-charger-bid-calculator__usage.mjs.gz=ev-charger-bid-calculator__usage.mjs.gz
-      - ev-charger-bid-calculator__vs-servicetitan.html.gz=ev-charger-bid-calculator__vs-servicetitan.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ev-charger-bid-calculator__vs-servicetitan.html.gz=ev-charger-bid-calculator__vs-servicetitan.html.gz
       - ev-charger-bid-calculator__vs-workiz.html.gz=ev-charger-bid-calculator__vs-workiz.html.gz
       - exterior-painting-bid-calculator__calc.mjs.gz=exterior-painting-bid-calculator__calc.mjs.gz
       - exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz=exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz
