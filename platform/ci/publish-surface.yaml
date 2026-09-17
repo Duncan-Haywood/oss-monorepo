@@ -497,6 +497,9 @@ workflows:
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: helm-values-schema-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []

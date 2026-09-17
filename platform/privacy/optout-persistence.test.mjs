@@ -264,7 +264,19 @@ const RELATIVE_SELF = relative(
 // `branch-protection-drift-check` landed, so it only ever knew an earlier
 // predecessor's number until this merge -- the same ordinary collision
 // shape recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 290;
+// 290 -> 291 on 2026-09-17, when `helm-values-schema-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded`/`file_loaded` counters), the same
+// `usage.mjs` shape as its sibling `k8s-deprecated-api-check`. Verified the
+// way this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/helm-values-schema-check/usage.mjs`) and no deletions, so this
+// is a graduation and not a switch that stopped being one. This branch was
+// open before `stockx-seller-payout-calculator`,
+// `android-data-safety-check`, and `branch-protection-drift-check` landed,
+// so it only ever knew an earlier predecessor's number until this merge --
+// the same ordinary collision shape recorded throughout this list: both
+// branches independently wrote "290" for what the merged tree made 291.
+const SWITCHES_IN_THE_CATALOGUE = 291;
 
 let counter = 0;
 function fixture(source) {
