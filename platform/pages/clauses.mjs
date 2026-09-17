@@ -372,6 +372,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the other manual-method
   // pages above.
   'subpath-robots-check/vs-checking-robots-txt-by-eye.html',
+  // Compares against "sorting an AP export by vendor in a spreadsheet and
+  // scanning for repeats" -- a generic method every small business or
+  // bookkeeper already has access to, not a company or product this could
+  // be mistaken for. The page names no specific spreadsheet product. Same
+  // reasoning as the other vs-spreadsheet / by-hand pages above.
+  'duplicate-payment-audit/vs-a-spreadsheet.html',
   // Compares against "tracking StockX payouts in a spreadsheet" -- a
   // generic method every reseller already has access to, not a company or
   // product this could be mistaken for. The page's own copy says so
