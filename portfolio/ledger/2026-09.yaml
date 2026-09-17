@@ -34288,3 +34288,101 @@ entries:
         (`sync_tree_counts.py`'s post-merge count fix), #4992 (the Pages
         publish record). All three squash-merged directly, no human review,
         per CLAUDE.md's "Ship without review ceremony."
+  - venture: actions-transitive-pin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First attempt this session collided with a concurrent one: picked
+        `cnc-machining-quote-calculator` (via `surface-budget.mjs --check`,
+        which showed it as the only `*-bid-calculator`/`*-calculator`
+        venture with zero comparison pages) and opened PR #4991, only to find
+        on push that #4984 had merged the same page for the same venture 20
+        minutes earlier from a concurrent session, reading the same signal.
+        `supersede_check.py 4991` correctly reported NOT SUPERSEDED (my
+        file/wording did not literally exist on `main`), but merging both
+        would have pushed the venture's generic-method budget from 1 to 2 and
+        failed `surface-budget.mjs --check` -- the exact overtime-pay-
+        calculator collision shape CLAUDE.md's "Duplicate PRs" section
+        describes. Closed #4991 unmerged with a comment naming #4984 as
+        the stronger, already-merged survivor (it pins every figure to
+        `calculator.mjs` directly and has a real Playwright/axe pass; mine
+        used illustrative prose and no browser verification), reset the
+        branch to `origin/main`, and picked a venture outside the
+        `*-calculator`/`*-check` families most other concurrent sessions
+        were visibly farming that hour (8 comparison-page merges landed to
+        `main` in under 30 minutes during this run).
+      - >-
+        Searched more precisely the second time: rather than
+        `surface-budget.mjs`'s generic-method-budget count (which only
+        tracks pages already in `clauses.mjs`'s exemption list, and is what
+        every session scanning for "room" reads first), scanned every
+        venture's actual `vs-*.html` file count directly. Only 2 of 314
+        published surfaces had zero comparison pages of *any* kind, named or
+        generic: `ny-llc-transparency-act-tracker` (graduated minutes
+        earlier in this same burst, high collision risk) and
+        `actions-transitive-pin-check` (shipped 2026-09-17 via #4959, guide
+        page added by #4979, older and less likely to be independently
+        re-picked). Chose the latter.
+      - >-
+        Shipped `ventures/actions-transitive-pin-check/vs-manually-checking-
+        nested-references.html`: a generic-method comparison (no competitor
+        named) against clicking through to each pinned reusable-workflow or
+        composite-action reference on GitHub and reading its own `uses:`
+        lines by eye -- the manual method this tool's own FAQ already
+        contrasts itself against. Registered in `sitemap.xml`, linked from
+        `index.html`, and added to `clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT`. `surface-budget.mjs --for` now
+        reports exactly 1 generic-method page, at budget. Extended the
+        venture's `page.test.mjs` with 9 new assertions (link-back,
+        no-warranty clause, meta tags, no network access, FAQPage JSON-LD
+        matching visible copy via `entities.mjs`'s decoder).
+      - >-
+        While verifying, found `main` red on `faq-visible.test.mjs`
+        (1271/1272) -- unrelated to this venture, introduced by two other
+        concurrent sessions' merges minutes earlier
+        (`actions-secret-leak-check/vs-reading-the-workflow-by-eye.html` and
+        `required-checks-drift-check/vs-reading-every-workflow-file-by-
+        hand.html`, both shipping a `FAQPage` JSON-LD whose answer text
+        diverged from the visible paragraph -- a missing parenthetical in
+        one case, a literal `--` in JSON-LD against a rendered `&mdash;` in
+        three others). In scope as a genuine, already-shipped-product defect
+        (CLAUDE.md's improve-existing-products preference 1) rather than
+        scope creep: fixed both files in the same commit -- added the
+        missing detail to the visible copy where JSON-LD had it and the page
+        didn't, and switched the JSON-LD's plain `--`/`->` to the real
+        `—`/`→` characters the rendered `&mdash;`/`&rarr;` decode
+        to, everywhere `faq-visible.test.mjs` flagged a divergence. Verified
+        `faq-visible.test.mjs` 4/4 and both ventures' own suites (33 + 39)
+        clean after.
+      - >-
+        This session hit a moving `main` twice (once per venture attempt),
+        confirming `session_gate.py`'s own reading that morning: "5 distinct
+        sessions committed to `main` within a 15-minute window in the last
+        6h." After the second edit round, re-fetched and fast-forward-merged
+        `origin/main` (then at a further 2 commits ahead, adding a
+        `cnc-machining-quote-calculator` share-link feature that touched no
+        file this PR touches) before running `regen.mjs` a final time, so
+        the committed mirror reflects the tree this PR would actually
+        produce on top of the `main` it merges into, not a stale snapshot.
+      - >-
+        Ran `node platform/marketing/regen.mjs` (both edited ventures are
+        mirrored to the Argo front door) and committed what it rewrote.
+      - >-
+        Verified, locally, Actions starved
+        (`ci_starvation.py --run 35244637154`: `runner_id: 0`, no steps):
+        `actions-transitive-pin-check` + `actions-secret-leak-check` +
+        `required-checks-drift-check` + `cnc-machining-quote-calculator`
+        venture suites combined, 218/218; `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`,
+        1272/1272 (re-run clean after the final `regen.mjs`, following two
+        earlier runs that correctly caught staleness from each edit round);
+        `checklist_coverage.py` clean; rebuilt the Pages artifact and ran
+        `check.mjs` -- 314 products, 1191 pages, no dead links; `gitops/tests`
+        after `apt-get update && apt-get install -y --no-install-recommends
+        python3-pytest nginx-light openssh-client`, 607 passed / 1 skipped,
+        run as `python3 -m pytest`; `node platform/pages/clauses.mjs` on all
+        three touched ventures, clean; `surface-budget.mjs --check`, no
+        venture over budget (257 with 0, 56 with 1, 1 with 2). HEAD matched
+        `origin/main` exactly at push time -- no drift between the last
+        verification run and what was pushed.

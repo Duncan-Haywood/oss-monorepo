@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 133 files, 554700 bytes
 #   portfolio-front-tools-1: 104 files, 556032 bytes
 #   portfolio-front-tools-2: 149 files, 544220 bytes
-#   portfolio-front-tools-3: 137 files, 556829 bytes
-#   portfolio-front-tools-4: 131 files, 542060 bytes
+#   portfolio-front-tools-3: 136 files, 551356 bytes
+#   portfolio-front-tools-4: 133 files, 550692 bytes
 #   portfolio-front-tools-5: 129 files, 554611 bytes
 #   portfolio-front-tools-6: 126 files, 556315 bytes
 #   portfolio-front-tools-7: 132 files, 555376 bytes
@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 116 files, 555573 bytes
 #   portfolio-front-tools-11: 125 files, 556595 bytes
 #   portfolio-front-tools-12: 132 files, 555287 bytes
-#   portfolio-front-tools-13: 109 files, 551798 bytes
+#   portfolio-front-tools-13: 109 files, 551828 bytes
 #   portfolio-front-tools-14: 106 files, 555177 bytes
 #   portfolio-front-tools-15: 124 files, 556065 bytes
 #   portfolio-front-tools-16: 108 files, 544531 bytes
@@ -599,6 +599,7 @@ configMapGenerator:
       - actions-transitive-pin-check__classify.mjs.gz=actions-transitive-pin-check__classify.mjs.gz
       - actions-transitive-pin-check__index.html.gz=actions-transitive-pin-check__index.html.gz
       - actions-transitive-pin-check__usage.mjs.gz=actions-transitive-pin-check__usage.mjs.gz
+      - actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz=actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz
       - actions-transitive-pin-check__what-is-a-transitive-github-actions-dependency.html.gz=actions-transitive-pin-check__what-is-a-transitive-github-actions-dependency.html.gz
       - ada-title-ii-evidence__calc.mjs.gz=ada-title-ii-evidence__calc.mjs.gz
       - ada-title-ii-evidence__deadline.html.gz=ada-title-ii-evidence__deadline.html.gz
@@ -608,13 +609,13 @@ configMapGenerator:
       - ada-title-ii-evidence__vs-accessibe.html.gz=ada-title-ii-evidence__vs-accessibe.html.gz
       - affiliate-disclosure-checker__cli.mjs.gz=affiliate-disclosure-checker__cli.mjs.gz
       - affiliate-disclosure-checker__engine.mjs.gz=affiliate-disclosure-checker__engine.mjs.gz
-      - affiliate-disclosure-checker__index.html.gz=affiliate-disclosure-checker__index.html.gz
-      - affiliate-disclosure-checker__usage.mjs.gz=affiliate-disclosure-checker__usage.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - affiliate-disclosure-checker__index.html.gz=affiliate-disclosure-checker__index.html.gz
+      - affiliate-disclosure-checker__usage.mjs.gz=affiliate-disclosure-checker__usage.mjs.gz
       - affiliate-disclosure-checker__vs-post-affiliate-pro.html.gz=affiliate-disclosure-checker__vs-post-affiliate-pro.html.gz
       - affiliate-disclosure-checker__what-disclosure-does-amazon-associates-and-the-ftc-require.html.gz=affiliate-disclosure-checker__what-disclosure-does-amazon-associates-and-the-ftc-require.html.gz
       - agent-instructions-drift-check__cli.mjs.gz=agent-instructions-drift-check__cli.mjs.gz

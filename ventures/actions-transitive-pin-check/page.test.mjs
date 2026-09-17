@@ -3,7 +3,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { readdirSync } from "node:fs";
 
+import { decodeEntities } from "../../platform/pages/entities.mjs";
+
 const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
+const versus = await readFile(
+  new URL("./vs-manually-checking-nested-references.html", import.meta.url),
+  "utf8",
+);
 
 test("the entry page is a working tool, not a landing page", () => {
   assert.match(index, /<textarea/);
@@ -91,4 +97,62 @@ test("index links one hop to the actions-injection-check sibling", () => {
 
 test("index links one hop to the actions-permissions-check sibling", () => {
   assert.match(index, /href="\.\.\/actions-permissions-check\/"/);
+});
+
+// The generic-method comparison page (surface-budget.mjs: this venture had
+// room for one, and it names no competitor, so it is listed in
+// clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT rather than carrying a
+// not-affiliated sentence about a party that does not exist).
+test("index links to the vs-manually-checking-nested-references comparison page", () => {
+  assert.match(index, /href="vs-manually-checking-nested-references\.html"/);
+});
+
+test("the comparison page links back to the tool and carries the no-warranty clause", () => {
+  assert.match(versus, /href="\.\/index\.html"/, "the comparison page must link back to the tool");
+  assert.match(versus, /No warranty\.<\/strong>/);
+  assert.match(versus, /not a security audit/);
+  assert.match(versus, /Names no specific product or company/, "must state it names no competitor");
+});
+
+test("the comparison page declares a title, description, canonical and Open Graph tags", () => {
+  const title = versus.match(/<title>([^<]+)<\/title>/);
+  assert.ok(title, "vs-manually-checking-nested-references.html has no title");
+  assert.ok(title[1].length > 20 && title[1].length < 110, `title length ${title[1].length}`);
+  const description = versus.match(/<meta name="description" content="([^"]+)"/);
+  assert.ok(description, "vs-manually-checking-nested-references.html has no meta description");
+  assert.ok(description[1].length > 80, "meta description is too short to be useful");
+  assert.match(versus, /<link rel="canonical"/);
+  assert.match(versus, /property="og:title"/);
+  assert.match(versus, /property="og:description"/);
+  assert.match(versus, /<html lang="en">/);
+});
+
+test("the comparison page reaches no network and takes no remote dependency", () => {
+  assert.doesNotMatch(versus, /\bfetch\s*\(/);
+  assert.doesNotMatch(versus, /XMLHttpRequest|navigator\.sendBeacon|new WebSocket|EventSource/);
+  assert.doesNotMatch(versus, /<script[^>]+src=/);
+  assert.doesNotMatch(versus, /<link[^>]+href="https?:/);
+});
+
+test("the comparison page's FAQPage JSON-LD parses, is non-trivial and matches its visible Q&A exactly", () => {
+  const blocks = [...versus.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(
+    (m) => JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq, "vs-manually-checking-nested-references.html has no FAQPage block");
+  const names = faq.mainEntity.map((q) => q.name);
+  assert.equal(names.length, new Set(names).size, "a question is repeated");
+  const text = versus.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
+  const squash = (s) => decodeEntities(s).replace(/\s+/g, " ").trim();
+  const visible = squash(text);
+  for (const entry of faq.mainEntity) {
+    assert.equal(entry["@type"], "Question");
+    assert.equal(entry.acceptedAnswer["@type"], "Answer");
+    assert.ok(entry.acceptedAnswer.text.length > 120, `"${entry.name}" is answered too thinly to be worth indexing`);
+    assert.ok(visible.includes(squash(entry.name)), `question not visible: ${entry.name}`);
+    assert.ok(
+      visible.includes(squash(entry.acceptedAnswer.text)),
+      `answer not visible verbatim for: ${entry.name}`,
+    );
+  }
 });
