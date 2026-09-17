@@ -45,8 +45,8 @@
 #   portfolio-front-tools-9: 113 files, 542698 bytes
 #   portfolio-front-tools-10: 116 files, 556715 bytes
 #   portfolio-front-tools-11: 125 files, 548105 bytes
-#   portfolio-front-tools-12: 132 files, 549675 bytes
-#   portfolio-front-tools-13: 100 files, 553268 bytes
+#   portfolio-front-tools-12: 133 files, 554719 bytes
+#   portfolio-front-tools-13: 98 files, 543531 bytes
 #   portfolio-front-tools-14: 111 files, 548144 bytes
 #   portfolio-front-tools-15: 103 files, 491511 bytes
 #   portfolio-front-tools-16: 50 files, 262878 bytes
@@ -1748,7 +1748,6 @@ configMapGenerator:
       - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
       - sbom-diff-check__index.html.gz=sbom-diff-check__index.html.gz
       - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
-      - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
       - sbom-diff-check__vs-diffing-the-raw-json-files.html.gz=sbom-diff-check__vs-diffing-the-raw-json-files.html.gz
       - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
       - screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz=screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz
@@ -1777,13 +1776,13 @@ configMapGenerator:
       - security-txt-check__check.mjs.gz=security-txt-check__check.mjs.gz
       - security-txt-check__engine.mjs.gz=security-txt-check__engine.mjs.gz
       - security-txt-check__fetch-url.mjs.gz=security-txt-check__fetch-url.mjs.gz
+      - security-txt-check__index.html.gz=security-txt-check__index.html.gz
+      - security-txt-check__usage.mjs.gz=security-txt-check__usage.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - security-txt-check__index.html.gz=security-txt-check__index.html.gz
-      - security-txt-check__usage.mjs.gz=security-txt-check__usage.mjs.gz
       - security-txt-check__vs-securitytxt-org-generator.html.gz=security-txt-check__vs-securitytxt-org-generator.html.gz
       - security-txt-check__why-security-txt-expires.html.gz=security-txt-check__why-security-txt-expires.html.gz
       - self-storage-rate-increase-calculator__calc.mjs.gz=self-storage-rate-increase-calculator__calc.mjs.gz
