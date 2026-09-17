@@ -69,6 +69,57 @@ test("number inputs are constrained so a typo is caught by the browser", () => {
   }
 });
 
+// Added after #4975, which found the form unsubmittable in its default state:
+// `firstArticleHours` shipped `value="1.2"` against `step="0.25"`, and a number
+// input whose value is not a whole number of steps above `min` fails HTML5
+// validation — so `requestSubmit` did nothing and the button appeared dead.
+// Nothing here caught it: the tests asserted that `min` and `step` exist,
+// never that the shipped value satisfies them. This checks every field, and
+// checks the example preset too, because "Load the worked example" writes
+// values into the same inputs and the identical mismatch would break it while
+// the default state stayed fine.
+test("every input's default value is a whole number of steps above its min", () => {
+  for (const tag of INDEX.match(/<input[^>]*>/g)) {
+    const id = tag.match(/\bid="([^"]+)"/)?.[1];
+    const step = tag.match(/\bstep="([^"]+)"/)?.[1];
+    const value = tag.match(/\bvalue="([^"]+)"/)?.[1];
+    if (!id || !step || value === undefined) continue;
+    const min = Number(tag.match(/\bmin="([^"]+)"/)?.[1] ?? 0);
+    assert.ok(
+      isWholeSteps(Number(value) - min, Number(step)),
+      `${id}: value ${value} is not a whole number of ${step} steps above min ${min}, so the form will not submit`,
+    );
+  }
+});
+
+test("the worked example's values also satisfy their inputs' steps", () => {
+  const block = INDEX.match(/const EXAMPLE = \{([\s\S]*?)\};/);
+  assert.ok(block, "the script must declare an EXAMPLE preset");
+  const example = Object.fromEntries(
+    [...block[1].matchAll(/(\w+):\s*(-?[\d.]+)/g)].map((m) => [m[1], Number(m[2])]),
+  );
+  assert.ok(Object.keys(example).length > 20, "the example should fill the form");
+  for (const [id, value] of Object.entries(example)) {
+    const tag = INDEX.match(new RegExp(`<input[^>]*\\bid="${id}"[^>]*>`))?.[0];
+    if (!tag) continue; // stockForm is a select, not an input
+    const step = Number(tag.match(/\bstep="([^"]+)"/)[1]);
+    const min = Number(tag.match(/\bmin="([^"]+)"/)?.[1] ?? 0);
+    assert.ok(
+      isWholeSteps(value - min, step),
+      `EXAMPLE.${id} = ${value} is not a whole number of ${step} steps above min ${min}`,
+    );
+  }
+});
+
+/** Whether `offset` is a whole multiple of `step`, compared in integer units to
+ *  keep binary floating point out of it — 1.2 / 0.1 is 11.999999999999998, and
+ *  a naive modulo would report a valid value invalid. */
+function isWholeSteps(offset, step) {
+  if (!(step > 0)) return true;
+  const scale = 10 ** 6;
+  return Math.round(offset * scale) % Math.round(step * scale) === 0;
+}
+
 test("the margin field cannot be set to a value the arithmetic rejects", () => {
   // A 100% margin is a division by zero. The shared shop-rate carry uses the
   // same ceiling, so a restored value can never prefill a field the tool rejects.

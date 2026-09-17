@@ -299,7 +299,21 @@ const RELATIVE_SELF = relative(
 // branch was open before `deploy-concurrency-check` landed, so it only
 // ever knew 291 until this merge -- both branches independently wrote
 // "292" for what the merged tree made 293.
-const SWITCHES_IN_THE_CATALOGUE = 294;
+// 293 -> 294 on 2026-09-17, when `actions-transitive-pin-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch, the same
+// `usage.mjs` shape as its sibling `pinned-actions-check`. Verified the
+// way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/actions-transitive-pin-check/usage.mjs`) and no
+// deletions, so this is a graduation and not a switch that stopped being
+// one. This branch was open before `actions-secret-leak-check` and
+// `deploy-concurrency-check` landed, so it only ever knew 292 until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list.
+//
+// 294 -> 295 after merging `cnc-machining-quote-calculator` (#4957), which
+// landed on `main` with its own opt-out switch while this branch was
+// still mid-merge -- the same collision shape one more time.
+const SWITCHES_IN_THE_CATALOGUE = 295;
 
 let counter = 0;
 function fixture(source) {

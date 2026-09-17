@@ -1924,7 +1924,35 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `deploy-concurrency-check` landed, so it only ever knew 308 until this
     # merge -- both branches independently wrote "308" for what the merged
     # tree made 309.
-    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
+    # 310 since 2026-09-17, when `actions-transitive-pin-check` graduated --
+    # a CLI + browser tool that, for every top-level `uses:` reference
+    # already pinned to a commit SHA, fetches that exact file from
+    # `raw.githubusercontent.com` and classifies its own `uses:` lines the
+    # same way, flagging a reference that is pinned at the call site but
+    # loads something unpinned underneath -- a gap `pinned-actions-check`'s
+    # own "no network calls" design cannot see into. Cross-linked with
+    # `pinned-actions-check` from the first commit. This branch was open
+    # before `actions-secret-leak-check` and `deploy-concurrency-check`
+    # landed, so it only ever knew 308 until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    #
+    # `cnc-machining-quote-calculator` (#4957) also landed on `main` while
+    # this branch was still mid-merge -- the same collision shape one more
+    # time, this time against a venture with no relation to the actions-*
+    # checker family at all. Guessed 311 for that merge by hand and got it
+    # wrong; `sync_tree_counts.py`, run fresh against the actual merged
+    # `main` after this PR landed, measured 310 -- one lower than the
+    # arithmetic suggested, most likely because one of the two ventures
+    # this branch thought was still unmerged was already reflected in the
+    # baseline it started counting from. Recorded from the tool's own
+    # measurement rather than corrected by hand a second time.
+    # 311 since 2026-09-17: `actions-transitive-pin-check` (#4959) shipped
+    # without registering itself in the front-door mirror, so the count fix
+    # above (310, made the same day) was already stale the moment the very
+    # next commit (#4969) registered it. No venture graduated between the
+    # two -- the mirror gained one entry it should have had from the start.
+    # Recorded from `sync_tree_counts.py`'s own fresh measurement.
+    total = 311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 311 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
