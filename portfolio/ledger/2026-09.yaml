@@ -32509,6 +32509,152 @@ entries:
         (`live_url_visitors: null`, not zero). All three hypotheses in
         `VENTURE.yaml` remain untested.
     mrr_end: 0
+  - venture: propane-delivery-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture (option 3 of the pipeline's three routes):
+        `session_gate.py` reported the build-now pipeline empty and no
+        already-built product lacked a public URL, so a fresh niche
+        screened against `screened-out.md` and the liability/ethical gates
+        in `pipeline/README.md` outranked parity work.
+        `duplicate_check.py` scored the closest existing venture at 0.39
+        (the atm-route-margin / fire-extinguisher-inspection-route-margin
+        / vending-machine-route-margin route-margin cluster) -- close on
+        shape, not on business: nothing else in the portfolio models a
+        per-gallon retail/wholesale spread, a fill-size-triggered
+        minimum-delivery fee, or per-customer tank rental.
+      - >-
+        Shipped `ventures/propane-delivery-route-margin/`: a free,
+        100%-client-side browser calculator for independent propane (LP
+        gas) delivery route operators. Prices one customer's annual and
+        monthly profit from annual gallons, average fill size (which
+        derives deliveries/year and decides whether a small-fill
+        minimum-delivery fee applies), the retail/wholesale price spread,
+        drive time and mileage, and fixed monthly tank-rental/hazmat
+        compliance cost, then rolls a customer list up into route profit
+        against an income goal -- same two-layer shape
+        (`calculate`/`computeRouteProfit`/`incomeGap`) as this portfolio's
+        other route-margin calculators. No price, rate, or fee is
+        hardcoded as fact; every one is a user-supplied, illustrative
+        placeholder, and the page states explicitly it is not
+        propane-supply, delivery-scheduling, or safety guidance -- it
+        never sizes a tank, forecasts usage, or judges a safe fill level.
+      - >-
+        Full file set: `calc.mjs` + `calc.test.mjs` (34 assertions,
+        including a divide-by-zero guard on average fill size, the
+        minimum-delivery-fee threshold's strict "below" boundary, and
+        null-safety on the per-gallon/hourly-rate ratios),
+        `usage.mjs`/`usage.test.mjs` (anonymous, opt-out,
+        DNT/GPC-respecting local counter), `share.mjs`/`share.test.mjs`
+        (shareable link round-tripping every field through the URL
+        fragment, never the never-saved route rows), `VENTURE.yaml`,
+        `README.md`, `LICENSE` (MIT), `robots.txt`, `sitemap.xml`, plus
+        two discoverability pages:
+        `is-a-small-propane-customer-worth-keeping.html` (a worked
+        example where a $45 minimum-delivery fee flips a losing
+        small-fill customer, -$10.54/yr, to a profitable one, +$130.89/yr
+        -- verified against `calc.mjs` directly in `page.test.mjs`) and
+        `vs-tracking-propane-delivery-margin-in-a-spreadsheet.html`
+        (generic-method comparison, no named competitor, registered in
+        `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` set).
+      - >-
+        Classified the new slug into the existing `services` category in
+        `platform/pages/build.mjs` (the independent-route-operator shape
+        shared with `atm-route-margin` and
+        `fire-extinguisher-inspection-route-margin`), confirmed by
+        `build.test.mjs`'s full 284-assertion run rather than by
+        inspection alone. Closed the crawlable-orphan gap the portfolio's
+        own sibling-link budget enforces (`orphanBudget: 0`, verified
+        `node platform/pages/siblings.mjs --check` at 0 of 302 before this
+        venture and 0 of 303 after): the new page links out to both
+        `fire-extinguisher-inspection-route-margin` and
+        `vending-machine-route-margin`, and added a two-line reciprocal
+        inbound link from `fire-extinguisher-inspection-route-margin`'s
+        own footer.
+      - >-
+        Added a scoring row in `portfolio/scoring/venture-scores.yaml`
+        (composite 6.333; `ai_leverage` floor of 1, same rationale as its
+        route-margin siblings -- deterministic arithmetic, no AI
+        anywhere); `score_ventures.py --check` passes, 310 scored,
+        matching every `VENTURE.yaml`. Recorded the new
+        `propane-delivery-route-margin-ci.yml` workflow via
+        `publish_surface.py --write` (classified `none`: one `node --test`
+        step and the clauses check, no deploy/push).
+      - >-
+        Ran `node platform/marketing/regen.mjs` (a new browser surface,
+        301 -> 302 mirrored tools) and `python3
+        platform/ci/sync_tree_counts.py` against the merged tree,
+        updating the mirrored-tool count in the four places it is
+        hand-written (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, and `total =` in
+        `gitops/tests/test_manifests.py`) and the opt-out-switch count
+        (285 -> 286) in `platform/privacy/optout-persistence.test.mjs`,
+        adding the running-comment "why" entry in both files. Also ran
+        `python3 gitops/ci/sync_readme_counts.py` to fix the `runs-on`
+        count the new workflow file moved (395/397 across 356 -> 396/398
+        across 357).
+      - >-
+        Fixed a real defect this venture's own markup tripped:
+        `platform/ci/test_check_step_grid.py`'s
+        `test_the_shipped_ventures_are_clean` caught
+        `avgGallonsPerFill`'s `min="0.1" step="5"` excluding every whole
+        number from the accepted-values lattice (0.1, 5.1, 10.1, ...);
+        changed `min` to `0` (a multiple of `step`) and re-verified both
+        the guard and the venture's own 56-assertion suite green.
+      - >-
+        Verified locally rather than by CI, which is starved
+        (`ci_starvation.py`; 0 open PRs at the time this session started):
+        the venture's own 56 assertions; `node --test
+        platform/marketing/*.test.mjs` 262/262 (after two `regen.mjs`
+        runs -- the second needed because the step-grid fix above landed
+        after the first); `node --test platform/pages/*.test.mjs`
+        1009/1009 (fixed a real defect along the way:
+        `faq-visible.test.mjs` caught the FAQPage JSON-LD using `--` where
+        the visible copy used an em dash, on both new pages -- corrected
+        the JSON-LD to match); `node --test platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs platform/proposal/*.test.mjs`
+        243/243; `python3 -m pytest gitops/tests -q` 598 passed, 1
+        skipped (environmental, needs a GitHub-hosted runner) --
+        `nginx-light`/`openssh-client` installed first per CLAUDE.md's
+        notes, clearing the 24 previously-fixable skips; all 27
+        `platform/ci` unittest modules + `agent_review` (fixed the
+        step-grid failure above along the way); `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` 446 passed;
+        `checklist_coverage.py`, `guard_state.py --require-runnable` (no
+        fixable skips after the nginx/openssh install),
+        `sync_tree_counts.py` (stable, no drift), `router/validate.py`
+        (309 valid), `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_probe_index.py`,
+        `score_sensitivity.py`, `score_ventures.py --check`,
+        `usage/validate_usage.py` (all clean);
+        `run_workflow_locally.py --for-changes` (9/14 selected workflows
+        ran and passed locally; the other 5 -- the four
+        agent-cross-review bot reviewers and the Hetzner/GitHub-Pages
+        deploy jobs -- need credentials or a hosted runner this sandbox
+        does not have, and were reported not-run rather than claimed
+        passing). Used `python3 -m pytest`/`python3 -m unittest`
+        throughout, never the bare binaries, per CLAUDE.md's shim-trap
+        notes.
+      - >-
+        Also ran the full whole-catalogue browser/accessibility sweep
+        (`npm install --no-save playwright@1.56.0 axe-core` then
+        `python3 platform/ci/browser_checks.py`), since `browser_state.py`
+        reported all 8 checks stale (the builder/front-door changed):
+        309/309 tools answered with no errors across all 8 checks
+        (sideways, presets, roundtrip, highlight, contrast, optout,
+        sweep, journey), then recorded the clean reading with `--record`
+        so the next session's `browser_state.py` reads current rather
+        than re-deriving that nothing broke.
+      - >-
+        No usage signal yet, and none is claimed: this is a brand-new
+        product with no visitor measurement at all
+        (`live_url_visitors: null`). All three hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
@@ -32563,4 +32709,95 @@ entries:
         result, correctly, and a `sideways`-only fix does not license
         writing a whole-catalogue clean reading the other checks did not
         finish producing.
+    mrr_end: 0
+  - venture: k8s-deprecated-api-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        that reads Kubernetes manifest YAML and reports every apiVersion +
+        kind pair a past or named-target Kubernetes release has removed --
+        `extensions/v1beta1 Ingress`, `batch/v1beta1 CronJob`,
+        `policy/v1beta1 PodSecurityPolicy`, and 25 more pairs across the
+        1.16/1.22/1.25/1.26 removal waves -- sourced from Kubernetes' own
+        Deprecated API Migration Guide with a fixed release number per
+        entry, never a guessed future deprecation. Chosen as a CLI/checker
+        shape per `PRODUCT_PLAYBOOK.md` §2 and `pipeline/README.md`'s
+        archetype guidance, over a 311th `<trade>-bid-calculator` (141 of
+        ~300 ventures already share that shape with zero recorded
+        visitors).
+      - >-
+        Screened with `duplicate_check.py`: closest match
+        `k8s-rollout-safety-check` at 0.37, well under the 0.45
+        near-duplicate bar and a substantively different question (rollout
+        *safety* -- readiness probes, PodDisruptionBudgets -- vs. whether
+        the manifest's `apiVersion` itself survives an upgrade at all); the
+        two cross-link each other both ways in their index pages, closing
+        the crawlable-orphan gap a new venture otherwise opens. Distribution
+        named at graduation: Kubernetes' own Deprecated API Migration Guide
+        (the canonical page every platform team reads before a
+        minor-version cluster upgrade); the exact, verbatim runtime error
+        an affected team hits and searches (`no matches for kind "Ingress"
+        in version "extensions/v1beta1"`, and the same shape for CronJob,
+        PodDisruptionBudget, HorizontalPodAutoscaler); r/kubernetes, whose
+        threads on this recur with each managed provider's (EKS/GKE/AKS)
+        release cadence rather than as a one-off; and comparison-search
+        traffic against Pluto (FairwindsOps), the established OSS tool for
+        this exact problem -- `vs-pluto.html` gives this tool's zero-install
+        version a landing page a searcher for either name can reach.
+      - >-
+        No claim goes beyond what Kubernetes' own guide documents: the
+        removal table lists only pairs with a fixed, cited release number,
+        and both the page and docs page say plainly that an in-progress or
+        future-dated deprecation is out of scope -- per `DIRECTION.md`'s
+        legal guardrails (no claim the product can't back up). It reads
+        only pasted/loaded YAML text or a local file; no kubeconfig, no API
+        server call, no network call anywhere in the codebase, so it is
+        safe to run in CI against production manifests with no cluster
+        access granted at all.
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`check_run`, `example_loaded`, `file_loaded`), a
+        matching zero-dependency CLI (`--target-version`, `--strict`,
+        `--json`), one discoverability docs page ("why a manifest that
+        applied yesterday fails after a Kubernetes upgrade") citing
+        Kubernetes' deprecation policy directly, and one named-competitor
+        comparison page (`vs-pluto.html`) with the nominative-fair-use
+        disclaimer, verified by `node platform/pages/clauses.mjs
+        k8s-deprecated-api-check`. 43 venture assertions (`engine`, `cli`,
+        `page`).
+      - >-
+        Classified into the existing `ci` category ("CI checks & developer
+        gates") in `platform/pages/build.mjs` on its first commit, beside
+        `k8s-rollout-safety-check`, rather than left for the catch-all --
+        confirmed by building the site locally and checking
+        `catalog.json`'s entry before and after the edit
+        (`More free tools` -> `CI checks & developer gates`).
+      - >-
+        Registered in `venture-scores.yaml` (composite 6.167, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `platform/ci/sync_tree_counts.py` re-run after the merge to update
+        the mirrored-tool and opt-out-switch counts it derives, with the
+        running-comment entries this graduation moved (`test_manifests.py`,
+        `optout-persistence.test.mjs`) and `gitops/ci/sync_readme_counts.py`
+        for the new workflow's `runs-on` line, per CLAUDE.md's collision
+        guidance for a constant that counts the tree.
+      - >-
+        Verified: venture suite (43/43), full `platform/pages` suite
+        (1010/1010, including `faq-visible.test.mjs` and
+        `siblings.test.mjs`, both of which caught real defects this
+        graduation introduced -- a JSON-LD/visible-text punctuation
+        mismatch and a crawlable orphan -- fixed before merge), full
+        `platform/marketing` suite (262/262), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (142/142), `gitops/tests`
+        (601 passed, 1 environmental skip), all 15 `platform/ci` unittest
+        modules (988/988) plus `agent_review` (21/21), and
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (446/446). `platform/ci/check_no_payment_code.py`,
+        `platform/router/validate.py`, `publish_surface.py --check`,
+        `score_ventures.py --check`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_probe_index.py`,
+        `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
     mrr_end: 0

@@ -508,6 +508,9 @@
     <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/vs-shop-ware.html</loc>
   </url>
   <url>
@@ -1909,6 +1912,15 @@
     <loc>https://marisstella.dev/tools/junk-removal-bid-calculator/vs-workiz.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/vs-pluto.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/why-a-manifest-fails-a-kubernetes-upgrade.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/k8s-rollout-safety-check/</loc>
   </url>
   <url>
@@ -2438,6 +2450,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/process-server-fee-calculator/vs-servemanager.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/propane-delivery-route-margin/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/propane-delivery-route-margin/is-a-small-propane-customer-worth-keeping.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/propane-delivery-route-margin/vs-tracking-propane-delivery-margin-in-a-spreadsheet.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/public-record-watch/</loc>
@@ -2999,6 +3020,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/subpath-robots-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/subpath-robots-check/vs-checking-robots-txt-by-eye.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/subpath-robots-check/why-a-subpath-site-cannot-govern-its-robots-txt.html</loc>

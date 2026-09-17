@@ -712,8 +712,19 @@ const CATEGORY_RULES = [
     // time, materials, and overhead into a price for a customer. Not a
     // trade bid and not the route-margin shape (a facility's occupancy, not
     // a rolled-up monthly route).
+    // `propane-delivery-route-margin` joined 2026-09-17 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent
+    // propane (LP gas) delivery route operator turning one customer's
+    // annual gallon volume, fill size, price spread, and fixed monthly
+    // tank-rental/hazmat cost into a per-customer profit figure, then
+    // rolling a customer list up into route profit, is the exact same shape
+    // as `fire-extinguisher-inspection-route-margin` (which it links to and
+    // which links back) — a solo or small-crew route operator turning a
+    // customer/stop list and its own cost structure into route economics.
+    // Not a trade bid (nothing priced by area or a construction job) and
+    // not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
         slug,
       ),
   },
@@ -1493,8 +1504,19 @@ const CATEGORY_RULES = [
     // sitemap they read is the governing one, which is the assumption this
     // venture tests -- closing the crawlable-orphan gap a new venture
     // otherwise opens. Listed by exact slug, same reason as its neighbors.
+    //
+    // `k8s-deprecated-api-check` joined 2026-09-17, right beside its one
+    // named sibling. Same browser-local-plus-CLI shape, run by a platform
+    // engineer against Kubernetes manifest YAML they already have, one
+    // question further back in the same pipeline `k8s-rollout-safety-check`
+    // covers: not "will this rollout drop requests" but "will the API
+    // server even accept this manifest's apiVersion on the cluster version
+    // I'm upgrading to." It cross-links `k8s-rollout-safety-check` as
+    // Related both ways, closing the crawlable-orphan gap a new venture
+    // with no existing sibling otherwise opens. Listed by exact slug, same
+    // reason as its neighbors.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check)/.test(
         slug,
       ),
   },

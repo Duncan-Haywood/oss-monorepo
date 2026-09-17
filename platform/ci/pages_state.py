@@ -837,10 +837,35 @@ def indexing_verdict(base_url):
     `portfolio/router/allocate.py` opens every venture's top task
     with "test the untested hypothesis", and every one of those needs traffic.
 
-    Two things fix it and both are the owner's, which is why this reports
+    Three things fix it and all are the owner's, which is why this reports
     rather than acts: submitting `sitemap.xml` in Google Search Console (and
-    Bing Webmaster Tools), or configuring a custom domain, after which the
-    site is at an origin root and its own `robots.txt` governs.
+    Bing Webmaster Tools); publishing a `robots.txt` at the *user* Pages site
+    root carrying this catalogue's `Sitemap:` line; or configuring a custom
+    domain, after which the site is at an origin root and its own `robots.txt`
+    governs.
+
+    **The middle one was added 2026-09-17 and is the cheapest of the three,
+    which is why it is named first in the report.** The sitemaps protocol lets
+    a `Sitemap:` directive in robots.txt reference any sitemap on the *same
+    host*; cross-host is what needs verification. Every `<loc>` this catalogue
+    publishes is on `duncan-haywood.github.io` under the one subpath, and the
+    index at `<base>sitemap.xml` names only children beneath it (verified
+    against `origin/gh-pages` on the day this was written), so a two-line file
+    in a repository named `<owner>.github.io` restores enumeration with no
+    DNS, no registrar, no certificate wait, and no per-engine console login.
+
+    It is also the only one of the three that reaches crawlers the owner has
+    no console for -- DuckDuckGo, the AI crawlers, anything that appears next
+    year -- because it is read at fetch time rather than submitted once. The
+    Search Console route is per-engine and manual; the custom domain costs
+    money and a DNS round trip.
+
+    The caveat that makes it an owner ask rather than an agent action, beyond
+    the repository simply being out of an agent session's reach: if that user
+    Pages site already exists, its `robots.txt` is the live one and must be
+    *edited* rather than created, and it must not `Disallow` the subpath.
+    Creating it also publishes under the owner's personal namespace, which is
+    the "publishing under the portfolio's public name" gate in CLAUDE.md.
 
     Crawling itself is *not* blocked by this. A missing `robots.txt` at the
     origin root reads as "allow all", so pages reached by a link are still
@@ -865,10 +890,17 @@ def indexing_verdict(base_url):
         f"that is {root}, which belongs to the owner's user Pages site. The "
         "`Sitemap:` line is therefore never seen and sitemap auto-discovery "
         "does not happen. Crawling is still allowed; only enumeration is lost. "
-        "Owner fix, either one: submit sitemap.xml in Google Search Console "
-        "and Bing Webmaster Tools, or configure a custom domain for this "
-        "repository, after which publish-branch.sh carries the CNAME forward "
-        "and the site is at an origin root where its own robots.txt governs"
+        "Owner fix, cheapest first: (1) publish a robots.txt at "
+        f"{root} -- a repository named after that host, holding two lines, "
+        f"`User-agent: *` and `Sitemap: {base_url}sitemap.xml`. Same-host, so "
+        "the sitemaps protocol needs no verification, and it reaches every "
+        "crawler at once rather than one console at a time. If that user "
+        "Pages site already exists, edit its robots.txt instead and make sure "
+        "it does not Disallow this subpath. (2) Submit sitemap.xml in Google "
+        "Search Console and Bing Webmaster Tools -- per engine, manual. "
+        "(3) Configure a custom domain for this repository, after which "
+        "publish-branch.sh carries the CNAME forward and the site is at an "
+        "origin root where its own robots.txt governs"
     )
 
 

@@ -18,8 +18,9 @@ from __future__ import annotations
 
 import re
 import sys
+from html import unescape
 from pathlib import Path
-from urllib.parse import unquote, urldefrag
+from urllib.parse import unquote, urlsplit
 
 # href/src on any element, plus the ES module specifiers the calculators use to
 # pull in `calc.mjs` and `usage.mjs`.
@@ -51,7 +52,18 @@ def check_site(site_dir: Path) -> list[str]:
             if "${" in target:
                 continue
 
-            path_part = unquote(urldefrag(target)[0])
+            # `urlsplit`, not `urldefrag`: only `#fragment` is stripped by the
+            # latter, so a link to a prefilled worked example -- `./?itemCost=
+            # 200&amp;freightCost=20&amp;…`, which is how a guide page hands the
+            # reader a filled-in calculator -- arrived here with its whole query
+            # string still attached and was resolved as a literal filename. That
+            # file cannot exist, so the link was reported broken while being
+            # perfectly correct in a browser.
+            #
+            # `unescape` because an href is HTML-escaped: `&` is written `&amp;`
+            # and a path containing one would otherwise be looked up by its
+            # entity spelling.
+            path_part = unquote(unescape(urlsplit(target).path))
             if not path_part:
                 continue
 

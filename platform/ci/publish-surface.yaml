@@ -557,6 +557,9 @@ workflows:
 - workflow: junk-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: k8s-deprecated-api-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: k8s-rollout-safety-check-ci.yml
   classification: none
   publishes: []
@@ -770,6 +773,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: process-server-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
 - workflow: proposal-module-ci.yml
