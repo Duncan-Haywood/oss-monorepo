@@ -160,3 +160,73 @@ test("the page counts only named feature events, and says which", () => {
   assert.match(prose, /example_loaded/);
   assert.match(prose, /Do Not Track and Global Privacy Control are honoured/);
 });
+
+// The comparison page is this venture's organic-discovery surface for
+// searchers who have just done the obvious manual thing (opened robots.txt
+// and read it) and either got the wrong file or wondered what they might be
+// missing. A crawler that never reaches it is a channel that does not exist.
+const VS_PAGE = "vs-checking-robots-txt-by-eye.html";
+
+test("index links to the comparison page", async () => {
+  assert.match(index, new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`));
+});
+
+test("the comparison page links back to the checker and its FAQPage JSON-LD matches the visible text", async () => {
+  const vs = await readFile(new URL(`./${VS_PAGE}`, import.meta.url), "utf8");
+  assert.match(vs, /href="\.\/"/);
+  const blocks = [...vs.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the comparison page");
+  assert.ok(faq.mainEntity.length >= 3);
+  const visible = vs.replace(/&mdash;/g, "—").replace(/&amp;/g, "&");
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(visible.includes(name), `question not found verbatim: ${name}`);
+    assert.ok(visible.includes(acceptedAnswer.text), `answer not found verbatim for: ${name}`);
+  }
+});
+
+test("the comparison page carries the disclaimers and is listed in the venture sitemap", async () => {
+  const vs = await readFile(new URL(`./${VS_PAGE}`, import.meta.url), "utf8");
+  assert.match(vs, /No warranty/);
+  assert.match(vs, /Nothing leaves your browser/);
+  assert.match(vs, /names no specific product/i);
+  const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
+  assert.match(sitemap, new RegExp(VS_PAGE.replace(/\./g, "\\.")));
+});
+
+test("the comparison page does not repeat a question the index page already answers", async () => {
+  const faqOf = async (name) => {
+    const html = await readFile(new URL(`./${name}`, import.meta.url), "utf8");
+    const block = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => JSON.parse(m[1]))
+      .find((b) => b["@type"] === "FAQPage");
+    return new Set(block.mainEntity.map((q) => q.name));
+  };
+  const vsQuestions = await faqOf(VS_PAGE);
+  const indexQuestions = await faqOf("index.html");
+  const overlap = [...vsQuestions].filter((q) => indexQuestions.has(q));
+  assert.deepEqual(overlap, [], `duplicated FAQ question(s): ${overlap.join(", ")}`);
+});
+
+// The comparison table claims this checker applies RFC 9309's longest-match
+// rule where eyeballing tends to get it backwards. Prove it against the real
+// engine: a longer, more specific Allow beats a shorter Disallow that also
+// matches, even though the Disallow could look more prominent to a reader.
+test("the comparison page's longest-match claim holds against the real engine", async () => {
+  const governing = [
+    "User-agent: *",
+    "Disallow: /repo/",
+    "Allow: /repo/public/",
+  ].join("\n");
+  const report = assess({
+    siteUrl: "https://example.github.io/repo/public/",
+    governingRobots: governing,
+  });
+  assert.equal(report.ok, true);
+  assert.ok(
+    report.findings.some((f) => f.id === "allowed-by-origin-root"),
+    "expected the longer, more specific Allow rule to win over the shorter Disallow",
+  );
+});

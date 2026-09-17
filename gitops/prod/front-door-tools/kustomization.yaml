@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 123 files, 541600 bytes
 #   portfolio-front-tools-12: 131 files, 554995 bytes
 #   portfolio-front-tools-13: 101 files, 551769 bytes
-#   portfolio-front-tools-14: 111 files, 543147 bytes
+#   portfolio-front-tools-14: 112 files, 546694 bytes
 #   portfolio-front-tools-15: 110 files, 528080 bytes
 #   portfolio-front-tools-16: 50 files, 262849 bytes
 #
@@ -1966,6 +1966,7 @@ configMapGenerator:
       - subpath-robots-check__cli.mjs.gz=subpath-robots-check__cli.mjs.gz
       - subpath-robots-check__index.html.gz=subpath-robots-check__index.html.gz
       - subpath-robots-check__usage.mjs.gz=subpath-robots-check__usage.mjs.gz
+      - subpath-robots-check__vs-checking-robots-txt-by-eye.html.gz=subpath-robots-check__vs-checking-robots-txt-by-eye.html.gz
       - subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz=subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz
       - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
       - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
