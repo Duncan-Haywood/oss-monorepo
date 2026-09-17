@@ -33020,6 +33020,102 @@ entries:
         Actions starved fleet-wide all day (ci_starvation.py: runner_id 0, no
         step ran, on every run). Every red check was classified rather than
         assumed; no re-run spent, since a re-run cannot conjure a runner.
+  - venture: branch-protection-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        that compares a repository's actual GitHub branch-protection
+        settings (pasted from `gh api repos/:owner/:repo/branches/:branch
+        /protection`) against a declared policy, flagging every rule that
+        has drifted weaker than intended -- a review requirement disabled
+        for one hotfix and never re-enabled, force pushes quietly turned
+        back on, admin enforcement silently off, or a policy-declared
+        required status check missing from the live settings. Chosen as a
+        CLI/checker shape per `PRODUCT_PLAYBOOK.md` and
+        `pipeline/README.md`'s archetype guidance, over another
+        `<trade>-bid-calculator` (roughly half of ~300 ventures already
+        share that shape with zero recorded visitors, per the fleet's own
+        `usage_state.py` reading).
+      - >-
+        Screened with `duplicate_check.py`: closest match
+        `required-checks-drift-check` at 0.13, well under the 0.45
+        near-duplicate bar. Read directly rather than trusted: that
+        venture's own README explicitly scopes out "a full review of your
+        branch-protection configuration" as out of scope, which is
+        precisely this venture's subject -- it answers whether a required
+        check *name* still matches a reporting job, this one whether the
+        surrounding *policy* (review counts, admin enforcement,
+        force-push/deletion rules, which checks are required at all)
+        still matches what was declared. The two cross-link each other in
+        their index pages, closing the crawlable-orphan gap a new venture
+        otherwise opens (`siblings.mjs --check`: 0 orphans of 304 tools
+        both before and after).
+      - >-
+        No claim goes beyond the pasted inputs: a rule the declared policy
+        does not mention is reported "not policed", never silently scored
+        as a pass or a fail, and a setting stricter than the policy
+        requires is reported "stronger than policy", never as drift. It
+        makes no network call of its own anywhere in the code (`engine.mjs`,
+        `cli.mjs`) -- it never calls the GitHub API on the user's behalf,
+        never opens a pull request, and never changes a repository
+        setting; the user fetches and pastes both inputs themselves.
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`check_run`, `example_loaded`), a matching
+        zero-dependency CLI (`--format json`, `--fail-on-drift`), one
+        discoverability docs page ("why branch protection drifts
+        silently"), and reciprocal Related links with
+        `required-checks-drift-check`. 50 venture assertions (19 engine,
+        19 CLI including an end-to-end child-process exit-code test, 12
+        page).
+      - >-
+        Classified into the existing `ci` category ("CI checks & developer
+        gates") in `platform/pages/build.mjs` on its first commit, beside
+        `required-checks-drift-check`, rather than left for the catch-all.
+      - >-
+        Registered in `venture-scores.yaml` (composite 6.0, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `platform/ci/sync_tree_counts.py` re-run after merging main to
+        update the mirrored-tool (304) and opt-out-switch (288) counts it
+        derives, with the running-comment entries this graduation moved
+        (`test_manifests.py`, `optout-persistence.test.mjs`) and
+        `gitops/ci/sync_readme_counts.py` for the new workflow's `runs-on`
+        line, per CLAUDE.md's collision guidance for a constant that
+        counts the tree.
+      - >-
+        A real merge caught a real defect before it shipped: the first
+        draft linked its own `cli.mjs` at the external GitHub blob URL,
+        the same pattern `required-checks-drift-check` uses for its
+        Python CLI -- but unlike that CLI, `cli.mjs` is itself published
+        as a static file on this site, so `build.test.mjs`'s "no link to a
+        published venture is repaired out to the private repository" test
+        caught it and it was fixed to a same-site relative link before
+        commit.
+      - >-
+        Verified: venture suite (50/50), `platform/pages` build suite
+        (284/284), `platform/marketing` suite (262/262, after
+        `regen.mjs`), `platform/proposal` (101/101), `platform/privacy` +
+        `platform/webcheck` (142/142), `gitops/tests` (583 passed, 25
+        environmental skips), all `platform/ci` unittest modules plus
+        `agent_review` (21/21), and
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        all clean. `platform/router/validate.py`, `publish_surface.py
+        --check`, `score_ventures.py --check`, `score_sensitivity.py`,
+        `checklist_coverage.py`, and `siblings.mjs --check` all clean.
+        Scoped `browser_checks.py --only branch-protection-drift-check`
+        (installed playwright@1.56.0 + axe-core): 7/8 checks pass
+        (sideways, presets, roundtrip, contrast/WCAG AA, optout, sweep via
+        the worked example, journey); `highlight` correctly skipped
+        (this venture makes no highlight promise). The whole-catalogue
+        8-check sweep was already independently stale before this branch
+        (invalidated by a concurrent `where-to-sell-calculator` merge
+        touching `clauses.mjs`) and remains a standing task for whichever
+        session next runs the full 20-30 minute record, not something
+        this venture's own scoped run could or should re-baseline.
+    mrr_end: 0
 
   - venture: stockx-seller-payout-calculator
     agent_spend_usd: null

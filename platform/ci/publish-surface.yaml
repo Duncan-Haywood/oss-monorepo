@@ -176,6 +176,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: branch-protection-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: brand-deal-rate-calculator-ci.yml
   classification: none
   publishes: []

@@ -9710,6 +9710,59 @@ ventures:
       required check name match a job that would report on a pull request
       today -- not a full audit of branch protection or CI configuration.
 
+  - slug: branch-protection-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic field comparison between a pasted branch-protection API
+      response and a pasted declared policy. There is nothing to infer: a
+      boolean either matches, a count is either at least the declared
+      minimum, and a required-check name is either present in the actual
+      list or it is named as missing.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page beside
+      required-checks-drift-check, not another <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing venture
+      (required-checks-drift-check itself) at 0.13 against the final
+      description, well under the 0.45 flag bar; that venture's own
+      README explicitly scopes out "a full review of your
+      branch-protection configuration", which is exactly this venture's
+      subject. Autonomous ops 10 / gross margin 10: nothing to host -- the
+      browser page compares pasted text client-side and the CLI runs on
+      the user's own machine against a file already on disk, so serving
+      one more user costs a static file and needs no human review of any
+      output. Distribution 5: real but less pointed than
+      required-checks-drift-check's verbatim search string -- "branch
+      protection audit" and "did branch protection get disabled" are
+      genuine but less concentrated queries than an exact GitHub error
+      message. Time to revenue 6, defensibility 4: donations-only; a
+      transparent field comparison over a well-documented API response is
+      easy to reimplement, so defensibility rests on the specific
+      declared-policy framing and this portfolio's disclaimer/usage
+      conventions, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only comparator over a branch-protection API response
+      and a declared policy the user already has or pastes in -- no
+      network call of its own, no GitHub API credential, no data leaving
+      the browser or the user's own machine, and no repository or
+      branch-protection setting is ever changed on the user's behalf. The
+      page's footer and FAQ state plainly that a clean result answers only
+      the rules the user's own policy declares, not a full audit or
+      compliance attestation.
+
   - slug: oidc-trust-policy-check
     scores:
       ai_leverage: 1

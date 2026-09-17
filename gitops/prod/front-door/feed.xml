@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 306 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 307 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for biohazard and trauma-scene remediation technicians: price a job from crew labor, PPE decon cycles, and regulated-waste disposal billed per container (not per pound), then check whether a quote you&#39;re already giving clears cost.</summary>
+  </entry>
+  <entry>
+    <title>Branch Protection Drift Check — Does Your Repo Still Match Its Own Policy?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/branch-protection-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/branch-protection-drift-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a repo&#39;s actual GitHub branch protection settings (gh api branches/:branch/protection) and your declared policy to find every rule that has drifted weaker than intended — a temporarily disabled review requirement, force pushes turned back on, admin enforcement quietly off. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Call Recording Consent Check — One-Party or All-Party by State</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and see projected monthly billable minutes and dollar cost before the allowance runs out. Names the expensive patterns: the macOS 10x multiplier, per-job rounding on wide matrices, missing timeout-minutes, PR commits built twice, over-frequent cron. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>AI Coding Plan Cost Calculator — Subscription vs. API</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ai-coding-plan-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ai-coding-plan-cost-calculator</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
