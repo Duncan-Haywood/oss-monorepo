@@ -38,18 +38,18 @@
 #   portfolio-front-tools-2: 149 files, 544369 bytes
 #   portfolio-front-tools-3: 135 files, 552669 bytes
 #   portfolio-front-tools-4: 134 files, 555286 bytes
-#   portfolio-front-tools-5: 127 files, 554440 bytes
-#   portfolio-front-tools-6: 128 files, 555447 bytes
-#   portfolio-front-tools-7: 133 files, 555608 bytes
+#   portfolio-front-tools-5: 127 files, 554354 bytes
+#   portfolio-front-tools-6: 128 files, 555332 bytes
+#   portfolio-front-tools-7: 133 files, 555566 bytes
 #   portfolio-front-tools-8: 123 files, 555682 bytes
-#   portfolio-front-tools-9: 116 files, 556330 bytes
-#   portfolio-front-tools-10: 116 files, 552897 bytes
-#   portfolio-front-tools-11: 122 files, 556884 bytes
-#   portfolio-front-tools-12: 128 files, 556209 bytes
-#   portfolio-front-tools-13: 125 files, 555173 bytes
-#   portfolio-front-tools-14: 101 files, 556347 bytes
-#   portfolio-front-tools-15: 122 files, 556794 bytes
-#   portfolio-front-tools-16: 75 files, 357787 bytes
+#   portfolio-front-tools-9: 116 files, 556208 bytes
+#   portfolio-front-tools-10: 117 files, 556989 bytes
+#   portfolio-front-tools-11: 122 files, 556752 bytes
+#   portfolio-front-tools-12: 129 files, 556073 bytes
+#   portfolio-front-tools-13: 123 files, 551066 bytes
+#   portfolio-front-tools-14: 101 files, 556233 bytes
+#   portfolio-front-tools-15: 122 files, 556660 bytes
+#   portfolio-front-tools-16: 75 files, 357733 bytes
 #   portfolio-front-tools-17: 49 files, 264682 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1521,12 +1521,12 @@ configMapGenerator:
       - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
       - locksmith-bid-calculator__vs-housecall-pro.html.gz=locksmith-bid-calculator__vs-housecall-pro.html.gz
       - locksmith-bid-calculator__vs-jobber.html.gz=locksmith-bid-calculator__vs-jobber.html.gz
+      - locksmith-bid-calculator__vs-workiz.html.gz=locksmith-bid-calculator__vs-workiz.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - locksmith-bid-calculator__vs-workiz.html.gz=locksmith-bid-calculator__vs-workiz.html.gz
       - marketplace-fee-compare__calc.mjs.gz=marketplace-fee-compare__calc.mjs.gz
       - marketplace-fee-compare__handoff.mjs.gz=marketplace-fee-compare__handoff.mjs.gz
       - marketplace-fee-compare__index.html.gz=marketplace-fee-compare__index.html.gz
@@ -1648,12 +1648,12 @@ configMapGenerator:
       - patio-door-bid-calculator__index.html.gz=patio-door-bid-calculator__index.html.gz
       - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
       - patio-door-bid-calculator__vs-jobber.html.gz=patio-door-bid-calculator__vs-jobber.html.gz
+      - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
       - paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz=paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
       - paver-patio-bid-calculator__share.mjs.gz=paver-patio-bid-calculator__share.mjs.gz
@@ -1781,13 +1781,13 @@ configMapGenerator:
       - pwa-installability-check__vs-lighthouse.html.gz=pwa-installability-check__vs-lighthouse.html.gz
       - qbi-deduction-calculator__calc.mjs.gz=qbi-deduction-calculator__calc.mjs.gz
       - qbi-deduction-calculator__index.html.gz=qbi-deduction-calculator__index.html.gz
+      - qbi-deduction-calculator__usage.mjs.gz=qbi-deduction-calculator__usage.mjs.gz
+      - qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz=qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - qbi-deduction-calculator__usage.mjs.gz=qbi-deduction-calculator__usage.mjs.gz
-      - qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz=qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz
       - quarterly-estimated-tax-calendar__calc.mjs.gz=quarterly-estimated-tax-calendar__calc.mjs.gz
       - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
       - quarterly-estimated-tax-calendar__usage.mjs.gz=quarterly-estimated-tax-calendar__usage.mjs.gz
