@@ -198,6 +198,18 @@ export const SHOP_RATE_ALIASES = {
     hourlyWage: 'crewHourlyRatePerPerson',
     targetMargin: 'targetMarginPercentPct',
   },
+  // "Labor rate ($/hr)" is documented in `calc.mjs` as a loaded hourly rate
+  // for one technician's time -- the same raw, per-person wage as
+  // `hourlyWage`, spelled `laborRatePerHour`. "Target margin (%)" is the
+  // same net-margin-on-cost concept as `targetMargin`, spelled
+  // `targetMarginPercent`. It has no separate payroll-burden field and no
+  // overhead-on-direct-cost percentage -- PPE, supplies, equipment and
+  // disposal are priced as their own line items, not a percentage markup --
+  // so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'biohazard-cleanup-bid-calculator': {
+    hourlyWage: 'laborRatePerHour',
+    targetMargin: 'targetMarginPercent',
+  },
 };
 
 /**
@@ -251,6 +263,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
     'This tool prices labour as one rate per crew member that already covers burden, so your saved wage and burden are left alone here.',
   'land-survey-bid-calculator':
     'This tool has no separate payroll-burden field and prices office research and drafting time as their own hourly rates rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
+  'biohazard-cleanup-bid-calculator':
+    'This tool has no separate payroll-burden field and prices PPE, supplies, equipment and disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
 };
 
 /**

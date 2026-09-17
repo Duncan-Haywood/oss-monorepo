@@ -1711,7 +1711,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commission schedule and fees to an estimated estate-sale gross, with
     # an optional minimum-guarantee floor and a two-quote comparison, same
     # shape as the rest of this running count.
-    total = 287  # `infra/OWNER_CHECKLIST.md`'s own "N of the 287 tools" wording.
+    # 288 since 2026-09-17, when `biohazard-cleanup-bid-calculator` graduated
+    # -- a browser-local calculator pricing a biohazard/trauma-scene cleanup
+    # job from crew labor, PPE decon-cycle sets, and regulated-waste disposal
+    # rounded up to whole containers, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    total = 288  # `infra/OWNER_CHECKLIST.md`'s own "N of the 288 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

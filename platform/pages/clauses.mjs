@@ -186,6 +186,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the other generic-method
   // pages above (e.g. attic-insulation-bid-calculator's flat-rate page).
   'land-survey-bid-calculator/vs-a-flat-per-acre-quote.html',
+  // Compares against "a flat day rate plus a per-pound hazmat estimate" --
+  // a generic pricing method every biohazard/trauma-scene technician
+  // already has access to, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // regulated-waste hauler, estimating software, or franchise"). Same
+  // reasoning as the other generic-method pages above.
+  'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

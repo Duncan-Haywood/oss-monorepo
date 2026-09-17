@@ -12759,6 +12759,69 @@ ventures:
       collected server-side, and no incentive to over- or under-report a
       device's status since the tool never makes that determination at all.
 
+  - slug: biohazard-cleanup-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over a technician's own rates: crew labor,
+      PPE decon-cycle sets, regulated-waste disposal rounded up to whole
+      containers, supplies, equipment, travel, a target margin, and a
+      minimum job fee. There is no inference step -- the two corrections
+      over a naive estimate (container rounding, decon-cycle PPE) are both
+      fixed arithmetic rules, not judgment calls.
+    basis: >-
+      Graduated 2026-09-17 as a free calculator for biohazard/trauma-scene
+      remediation technicians pricing a job: crew labor, PPE that scales with
+      decontamination re-entry cycles rather than headcount, and
+      regulated-waste disposal billed per container (not per pound, with a
+      partly-full container costing a whole one), plus a target margin with a
+      minimum-job floor. A new niche adjacent to mold-remediation-bid-
+      calculator and radon-mitigation-bid-calculator (hazmat-adjacent
+      remediation) but a distinct trade -- trauma/crime-scene/biohazard
+      cleanup rather than mold or radon. `duplicate_check.py` scored nothing
+      >= 0.16 against any existing venture, pipeline candidate, or
+      screened-out row.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity once you know the two corrections -- what is not
+      commodity is that most hand-built estimates linearize disposal by the
+      pound and count PPE by headcount, both of which understate the real
+      hauler invoice and the real decon burden.
+      Distribution 5: biohazard/trauma-scene remediation is a real, narrow
+      trade population (state-licensed technicians, often cross-licensed
+      for mold or water-damage restoration) with a frequent, painful pricing
+      problem and an established national trade association (ABRA) as a
+      discussion venue -- scored level with the portfolio's other
+      hazmat-adjacent remediation calculators for the same reach.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only totals the rates, hours, and waste estimate the
+      technician configures -- it does not determine hauler pricing, does
+      not verify OSHA bloodborne-pathogen decon requirements, and does not
+      adjudicate an insurance claim. Being wrong costs one party a
+      miscalculated quote to double-check, not a filing or a third party's
+      safety; the page states in the calculator's own findings, the FAQ,
+      and the footer (not only the footer) that it does not know the
+      hauler's actual contract or the local decon protocol. Ethically:
+      deterministic arithmetic, no dark patterns, no data collected
+      server-side, and no incentive to over- or under-report a job's scope
+      since the tool never makes that determination at all.
+
   - slug: land-survey-bid-calculator
     scores:
       ai_leverage: 1

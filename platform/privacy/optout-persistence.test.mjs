@@ -127,7 +127,11 @@ const RELATIVE_SELF = relative(
 // graduated with its own `readOptOut`/`writeOptOut` switch (the same
 // `recordUsage` pattern `poshmark-fee-calculator` uses), same discovery
 // method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 272;
+// 272 -> 273 on 2026-09-17, when `biohazard-cleanup-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 273;
 
 let counter = 0;
 function fixture(source) {
