@@ -42,6 +42,19 @@ test('index links to the related no-show fee calculator', () => {
   );
 });
 
+// bridal-hair-makeup-pricing-calculator ships with an outbound link to this
+// venture (its own trial-fee deposit is the same shape this calculator
+// prices), but that is a one-way link until this side names it back —
+// otherwise a crawler can reach it only by walking up to a category index.
+// Same orphan class as the no-show-fee-calculator pairing above.
+test('index links to the related bridal hair & makeup pricing calculator', () => {
+  assert.match(
+    page,
+    /href="\.\.\/bridal-hair-makeup-pricing-calculator\/"/,
+    'index must link ../bridal-hair-makeup-pricing-calculator/ so crawlers can reach the wedding-booking tool',
+  );
+});
+
 const docsPage = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 
 test('the deposit-percentage page answers the search question with a worked table', () => {

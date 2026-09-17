@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Cron Jobs Break Across Daylight Saving</title>
+  <meta name="description" content="Why a cron schedule can skip a run, fire twice, or silently drift an hour twice a year, what cron-dst-drift-check checks and deliberately doesn't, and how to wire the free CLI into CI before a scheduled job ships.">
+  <link rel="canonical" href="./why-cron-jobs-break-across-dst.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't this just what crontab.guru or a cron parser library already does?","acceptedAnswer":{"@type":"Answer","text":"A cron expression parser (crontab.guru, node-cron, croniter) tells you which minutes and hours a schedule matches. None of the popular ones surface whether a specific upcoming occurrence's local wall-clock time actually exists that day, or whether a fixed-UTC-only scheduler needs a different UTC time in summer than in winter to hit the same local hour — both are timezone-arithmetic questions the field-matching layer doesn't ask."}},{"@type":"Question","name":"Why only numeric cron fields, not JAN or MON?","acceptedAnswer":{"@type":"Answer","text":"Scope control for v0: named months and weekdays are a straightforward addition (a lookup table before the same numeric parser), but every example this tool needs to prove correctness on is expressible numerically, and adding names without adding their tests would be exactly the kind of change this portfolio's own guidance warns against — shipping surface nobody has verified."}},{"@type":"Question","name":"Can this tell me what my scheduler will actually do at a DST transition?","acceptedAnswer":{"@type":"Answer","text":"No, and this is a named limitation rather than a hidden one. Different cron daemons, systemd timers, and language schedulers genuinely disagree on spring-forward and fall-back behavior — some skip, some fire once, some fire twice. This tool computes the timezone fact that is true regardless of implementation (does the local time exist, not exist, or exist twice) and leaves the scheduler-specific behavior to that scheduler's own documentation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Cron DST Drift Check</a></p>
+  <h1>Why cron jobs break across daylight saving</h1>
+
+  <p>A cron schedule that names a wall-clock time — <code>30 2 * * *</code>,
+  "run at 02:30" — is only unambiguous in a timezone that never changes its
+  UTC offset. Most timezones people actually live in do change it, twice a
+  year, and a cron expression has no way to say so. That gap produces two
+  separate, genuinely different failure modes, and both are invisible from
+  reading the expression itself.</p>
+
+  <h2>Failure mode 1: the local time doesn't exist, or exists twice</h2>
+  <p>When clocks spring forward, the clock jumps directly from 01:59:59 to
+  03:00:00 — 02:00 through 02:59 never happen that day in that timezone. A
+  job scheduled for 02:30 has nothing to run <em>at</em>. When clocks fall
+  back, 01:00 through 01:59 happen twice — a job scheduled for 01:30 has two
+  real, equally valid instants that both match. Neither case is a bug in the
+  cron expression; both are genuine facts about the calendar that most
+  scheduling tools never surface, because most cron parsers only ever
+  reason about which <em>fields</em> match, never about whether the
+  resulting wall-clock time is real.</p>
+
+  <h2>Failure mode 2: a fixed-UTC scheduler silently drifts</h2>
+  <p>Plenty of schedulers sidestep timezone ambiguity by not having a
+  timezone at all — they always run in UTC. GitHub Actions' own
+  <code>schedule:</code> cron is exactly this, by its own documentation. That
+  is not itself a bug; the bug is assuming a UTC-only schedule keeps hitting
+  the same <em>local</em> time year-round. It does not: 09:00
+  <code>America/New_York</code> is 14:00 UTC in January (EST, UTC-5) and
+  13:00 UTC in July (EDT, UTC-4). A workflow scheduled at a single fixed UTC
+  hour is exactly right for one DST segment of the year and an hour off for
+  the other — a defect nobody notices until someone asks "why did this run
+  an hour late" in March or November.</p>
+
+  <h2>What this tool checks, and what it deliberately doesn't</h2>
+  <table>
+    <thead><tr><th>Check</th><th>Source</th><th>Out of scope for v0</th></tr></thead>
+    <tbody>
+      <tr><td>Spring-forward skip / fall-back overlap</td><td>Resolving a cron occurrence's local wall-clock time against the real IANA timezone database (via <code>Intl</code>) and checking whether it names zero, one, or two real UTC instants</td><td>What your specific scheduler actually does with a skipped or ambiguous occurrence — that varies by implementation and is out of this tool's reach</td></tr>
+      <tr><td>Fixed-UTC-cron drift</td><td>Converting a target local time to UTC once per DST segment of a year and comparing the results</td><td>Timezones with sub-hour or unusual DST offsets are computed correctly (the underlying arithmetic is general), but the report's language assumes the common one-hour case</td></tr>
+      <tr><td>Cron field parsing</td><td>Standard 5-field numeric cron (minute hour dom month dow), with the standard OR rule when both day-of-month and day-of-week are restricted</td><td>Named months/weekdays (<code>JAN</code>, <code>MON</code>), seconds fields, and non-standard extensions (<code>@daily</code>, <code>L</code>, <code>W</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Wiring it into CI before a scheduled job ships</h2>
+  <p>Check a new or changed schedule before it merges:</p>
+  <pre>- name: Check the deploy cron for DST risk
+  run: node ventures/cron-dst-drift-check/cli.mjs next "30 2 * * *" --tz America/New_York
+
+- name: Check the GitHub Actions schedule for UTC drift
+  run: node ventures/cron-dst-drift-check/cli.mjs drift 09:00 --tz America/New_York</pre>
+  <p>Both subcommands exit non-zero when they find DST risk, so a schedule
+  that would skip, double-fire, or drift is caught in the same review that
+  introduces it, rather than in an incident channel six months later.</p>
+
+  <h2>Common questions</h2>
+  <h3>Isn't this just what crontab.guru or a cron parser library already does?</h3>
+  <p>A cron expression parser (crontab.guru, node-cron, croniter) tells you which minutes and hours a schedule matches. None of the popular ones surface whether a specific upcoming occurrence's local wall-clock time actually exists that day, or whether a fixed-UTC-only scheduler needs a different UTC time in summer than in winter to hit the same local hour — both are timezone-arithmetic questions the field-matching layer doesn't ask.</p>
+  <h3>Why only numeric cron fields, not JAN or MON?</h3>
+  <p>Scope control for v0: named months and weekdays are a straightforward addition (a lookup table before the same numeric parser), but every example this tool needs to prove correctness on is expressible numerically, and adding names without adding their tests would be exactly the kind of change this portfolio's own guidance warns against — shipping surface nobody has verified.</p>
+  <h3>Can this tell me what my scheduler will actually do at a DST transition?</h3>
+  <p>No, and this is a named limitation rather than a hidden one. Different cron daemons, systemd timers, and language schedulers genuinely disagree on spring-forward and fall-back behavior — some skip, some fire once, some fire twice. This tool computes the timezone fact that is true regardless of implementation (does the local time exist, not exist, or exist twice) and leaves the scheduler-specific behavior to that scheduler's own documentation.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report whether a named local time exists, doesn't exist, or exists twice, and what UTC time a fixed-UTC schedule needs per DST segment — nothing more. It is not engineering advice and does not know what your specific scheduler does with a skipped or ambiguous occurrence. Verify against your own scheduler's real behavior before relying on it.
+    <a href="./">Back to the tool</a>.</p>
+  </footer>
+</body>
+</html>

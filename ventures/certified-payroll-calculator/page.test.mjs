@@ -130,3 +130,15 @@ test("index links one hop to the contractor-bid-readiness sibling", () => {
   );
   assert.match(html, /contractor bid readiness checker/i);
 });
+
+// Reciprocal of the link in overtime-pay-calculator's footer: closing a
+// second crawlable-orphan pair the same way (platform/pages/siblings.mjs
+// --check).
+test("index links one hop to the overtime-pay-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/overtime-pay-calculator\/"/,
+    'index must link ../overtime-pay-calculator/ so crawlers reach the overtime pay calculator in one hop',
+  );
+  assert.match(html, /overtime pay calculator/i);
+});

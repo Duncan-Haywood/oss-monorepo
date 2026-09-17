@@ -181,7 +181,17 @@ jobs:
           # *local* ref by name (`git show gh-pages:...`). Fetch it as a local
           # branch so they see the real serving snapshot rather than reporting
           # `assumed-default`.
-          if ! git fetch --depth=1 origin gh-pages:gh-pages; then
+          # `--depth=1` only when the clone is already shallow. A `--depth`
+          # fetch writes `.git/shallow` and truncates the whole repository, not
+          # just `gh-pages` -- free on a runner (checkout is depth 1 anyway),
+          # destructive on a full clone. Same guard as
+          # `portfolio-validate.yml`'s base-ref fetch.
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            fetch_gh_pages() { git fetch --depth=1 origin gh-pages:gh-pages; }
+          else
+            fetch_gh_pages() { git fetch origin gh-pages:gh-pages; }
+          fi
+          if ! fetch_gh_pages; then
             echo "::notice::gh-pages is not published yet; nothing to announce."
             exit 0
           fi

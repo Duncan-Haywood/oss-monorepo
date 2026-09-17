@@ -1651,7 +1651,139 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the first year a special assessment is likely and solving for the
     # contribution that avoids it, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 278  # `infra/OWNER_CHECKLIST.md`'s own "N of the 278 tools" wording.
+    # 279 since 2026-09-16, when `overtime-pay-calculator` graduated — a free
+    # browser calculator for standard single-rate overtime pay plus the FLSA
+    # weighted-average (blended rate) method for a workweek worked at two or
+    # more different pay rates, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 280 since 2026-09-16, when `cron-dst-drift-check` graduated — a
+    # zero-dependency CLI + browser tool computing a cron expression's
+    # upcoming run times against a real IANA timezone, flagging
+    # spring-forward-gap and fall-back-overlap occurrences, plus a
+    # fixed-UTC-cron (GitHub Actions `schedule:` style) drift calculator,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    # 281 since 2026-09-16, when `bridal-hair-makeup-pricing-calculator`
+    # graduated — a browser-local calculator pricing a mobile bridal hair
+    # and makeup booking (bride, bridal party, hair-only, makeup-only, kids)
+    # plus an early-start fee, mileage, a service-minimum top-up, and a
+    # schedule-capacity check for whether the artists booked can finish the
+    # group on time, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 282 since 2026-09-16, when `sql-migration-lock-check` graduated — a
+    # zero-dependency CLI + browser tool reading a PostgreSQL schema
+    # migration and reporting every statement that can take a blocking lock
+    # or rewrite a table, including four relational checks a per-statement
+    # linter cannot make (a missing `lock_timeout` above an exclusive-lock
+    # statement, `NOT VALID` and `VALIDATE CONSTRAINT` sharing a
+    # transaction, `CREATE INDEX CONCURRENTLY` inside a transaction block,
+    # and `SET NOT NULL` judged against a validated `CHECK` earlier in the
+    # file), with a static `index.html` from its first commit, same shape as
+    # the rest of this running count.
+    # 283 since 2026-09-16, when `sbom-diff-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool comparing two CycloneDX
+    # or SPDX SBOM documents and reporting added, removed, and
+    # version-changed packages between two builds, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    # 284 since 2026-09-16, when `commissary-kitchen-cost-split-calculator`
+    # graduated — a browser-local calculator splitting a shared commissary
+    # kitchen's pooled monthly costs across multiple food-truck tenants by
+    # hours booked and/or storage used (a largest-remainder allocation so
+    # every tenant's total sums exactly to the pool total, to the cent),
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    # 285 since 2026-09-16, when `backflow-test-fee-calculator` graduated —
+    # a browser-local calculator pricing a multi-device backflow-preventer
+    # test visit (per-device fee, a multi-device discount for devices after
+    # the first, a per-device report-filing fee, travel, and a retest fee
+    # for failures), with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 286 since 2026-09-16, when `land-survey-bid-calculator` graduated — a
+    # browser-local bid calculator pricing a boundary/topographic/ALTA survey
+    # job from corners located vs. set, terrain, record research, crew and
+    # drafting time, then comparing the result to a flat per-acre quote, with
+    # a static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    # 287 since 2026-09-17, when `estate-sale-net-proceeds-calculator`
+    # graduated -- a browser-local calculator applying a company's tiered
+    # commission schedule and fees to an estimated estate-sale gross, with
+    # an optional minimum-guarantee floor and a two-quote comparison, same
+    # shape as the rest of this running count.
+    # 288 since 2026-09-16, when `wedding-florist-proposal-calculator`
+    # graduated — a no-upload browser calculator pricing a wedding florist's
+    # proposal from the stem recipe up, rounding each line to whole wholesale
+    # bunches rather than loose stems, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    # 289 since 2026-09-17, when `world-clock-widget` gained a browser surface
+    # -- a world clock showing local time, sunrise, sunset, daylight length and
+    # a waking-hours band for several cities at once, computed in the browser
+    # from the USNO almanac algorithm. Unlike every other entry in this running
+    # count it is not a new venture: the venture already existed as a Swift app
+    # that needs an Apple account to reach anyone, and `site/` is a second
+    # surface over the same tested core. So this is the first line here added
+    # by *deploying* a product that was already finished rather than by
+    # graduating a new one -- worth keeping distinct when reading the count
+    # back as a rate of new ventures, which it no longer purely is.
+    # 290 since 2026-09-17, when `openapi-breaking-change-check` graduated —
+    # a zero-dependency CLI + no-upload browser tool diffing two OpenAPI
+    # 3.0/3.1 documents and classifying each difference as a breaking change
+    # (removed operation, newly-required parameter, narrowed type, removed
+    # enum value, request body now required) or non-breaking, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    # 291 since 2026-09-17, when `asbestos-abatement-bid-calculator`
+    # graduated -- a browser-local bid calculator pricing an asbestos
+    # removal job from OSHA/EPA containment class (Class I/II/III), square
+    # footage, containment areas, crew and supervisor rates, air
+    # monitoring, and waste disposal, then comparing the result to a flat
+    # rate per square foot, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 292 since 2026-09-17, when `tutor-package-pricing-calculator`
+    # graduated -- a no-upload browser calculator comparing a discounted
+    # prepaid session package to pay-per-session pricing on both revenue and
+    # effective hourly pay, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 293 since 2026-09-17, when `biohazard-cleanup-bid-calculator` graduated
+    # -- a browser-local calculator pricing a biohazard/trauma-scene cleanup
+    # job from crew labor, PPE decon-cycle sets, and regulated-waste disposal
+    # rounded up to whole containers, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before `tutor-package-pricing-calculator` landed, so
+    # it only ever knew its own predecessor's number (292) until this merge
+    # -- the same ordinary collision shape recorded throughout this list.
+    # 294 since 2026-09-17, when `storage-auction-max-bid-calculator`
+    # graduated — a no-upload browser calculator pricing the maximum
+    # profitable hammer bid for a storage-unit lien-auction lot from a
+    # realistic resale recovery rate, resale-channel fees, the buyer's
+    # premium, and the cleanout/dump/holding cost stack, then comparing it to
+    # the flat percent-of-value rule of thumb most auction forums repeat, with
+    # a static `index.html` from its first commit, same shape as the rest of
+    # this running count. Landed the same afternoon as
+    # `asbestos-abatement-bid-calculator`, `tutor-package-pricing-calculator`
+    # and `biohazard-cleanup-bid-calculator`, so the resolved total is 294
+    # rather than any one branch's own count.
+    # 295 since 2026-09-17, when `vector-db-cost-calculator` graduated --
+    # a browser-local calculator estimating a vector embedding index's
+    # storage footprint (vector count, dimension, metadata, a user-set
+    # index-overhead multiplier) and comparing monthly cost across up to
+    # three vector database providers using rates the visitor types in,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch was open before
+    # `tutor-package-pricing-calculator`, `biohazard-cleanup-bid-calculator`
+    # and `storage-auction-max-bid-calculator` landed, so it only ever knew
+    # its own predecessor's number (291) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    # 296 since 2026-09-17, when `required-checks-drift-check` graduated -- a
+    # browser-local/CLI checker comparing a repository's branch-protection
+    # required status check names against the job names its GitHub Actions
+    # workflows would currently report, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before `storage-auction-max-bid-calculator` and
+    # `vector-db-cost-calculator` landed, so it only ever knew its own
+    # predecessor's number (294, then 295) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 296  # `infra/OWNER_CHECKLIST.md`'s own "N of the 296 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

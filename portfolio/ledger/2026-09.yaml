@@ -31613,3 +31613,438 @@ entries:
         `platform/ci` unittest modules OK, `agent_review` OK. `regen.mjs`
         re-run and its rewrites committed.
     mrr_end: 0
+  - venture: overtime-pay-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture per `session_gate.py`'s PROCEED
+        verdict and `portfolio/DIRECTION.md`'s 2026-09-06 owner direction
+        (new ventures rank first when no in-progress venture work exists and
+        the build-now pipeline is empty). Free browser calculator for hourly
+        overtime pay: standard single-rate time-and-a-half, plus the FLSA
+        weighted-average ("blended rate") method (29 CFR 778.115) for a
+        workweek worked at two or more different pay rates -- the case
+        payroll admins most often get wrong by hand, because the overtime
+        premium is half the blended rate, not the full rate.
+        `duplicate_check.py` scored nothing >= 0.16 against any existing
+        venture, pipeline candidate, or screened-out row; not in
+        `screened-out.md`. Entirely client-side, zero marginal cost, no
+        key/account required. Closed a crawlable-orphan pair with
+        `certified-payroll-calculator` (reciprocal footer links, both sides
+        tested) -- this venture graduated with no sibling linking to it, and
+        the orphan budget in `platform/pages/siblings-budget.json` is 0.
+      - >-
+        Concurrency note: 2 other sessions each merged a new venture to
+        `main` while this one was in progress (`agent-instructions-drift-check`,
+        `hoa-reserve-fund-calculator`), each independently bumping the same
+        generated/tracked totals this venture also touches (mirrored-tool
+        count in 4 places, the `platform/privacy` opt-out-switch pin,
+        `gitops/ci/README.md`'s runs-on count, `venture-scores.yaml`,
+        `usage.yaml`). Re-fetched `origin/main`, merged, and resolved by
+        taking the generated `gitops/prod/front-door*` mirror wholesale from
+        `origin/main` and re-running `regen.mjs` on top rather than hand
+        merging binary/generated diffs, and by hand for the prose/data
+        conflicts (appending this venture's entry after the concurrent
+        sessions' entries in each running-count comment and each YAML file,
+        landing on 279 total mirrored tools).
+      - >-
+        Verified locally: venture's own suite 74/74 (with
+        certified-payroll-calculator's new sibling-link tests); full
+        `platform/marketing` + `platform/pages` suite 1260/1260 (post-merge
+        rerun, clean); `platform/privacy` + `platform/webcheck` 142/142;
+        `platform/proposal` 243/243; `gitops/tests` 581 passed/1 skipped;
+        `platform/ci`'s 25-module unittest sweep + `agent_review` 21/21;
+        `portfolio/{ledger,scoring,router,usage,pipeline}` + `infra/tests`
+        446 passed; all 8 `portfolio-validate.yml` validators
+        (`router/validate.py`, `front-door-tools.mjs --headroom`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `score_ventures.py --check`, `validate_usage.py`) individually
+        clean on the finished (post-merge) tree; scoped browser checks
+        (`sweep`, `contrast`, `sideways`) against both touched ventures all
+        pass, after fixing a WCAG-adjacent sideways-scroll defect the check
+        itself caught (a 4-column rate-input row too wide at 360px, fixed
+        with a mobile grid-area stack) and a `money()` formatter signing a
+        negative inside the currency symbol (`platform/ci`'s
+        `check_money_sign` guard). `node platform/marketing/regen.mjs` run
+        (twice, once before and once after the `origin/main` merge) and its
+        rewrites committed.
+    mrr_end: 0
+  - venture: cron-dst-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, per the task brief and `session_gate.py`'s BUILD/PROCEED
+        verdict ("build-now" pipeline empty, so graduate a fresh niche).
+        Screened against `portfolio/pipeline/screened-out.md` and the
+        liability/ethical gates in `portfolio/pipeline/README.md` (composite
+        6.625, floor 1 `ai_leverage`, `liability_containment` 9,
+        `ethical_robustness` 9 -- both clear the 5 gate by a wide margin).
+        `duplicate_check.py` scored every existing venture, screened-out row,
+        and pipeline candidate at or below 0.12 against the final
+        description; a hand grep of every `VENTURE.yaml` and
+        `screened-out.md` for "cron"/"timezone"/"DST"/"daylight saving" found
+        nothing -- no prior venture or candidate reasons about cron
+        expressions or timezone offsets at all. Deliberately not another
+        `<trade>-bid-calculator` and not another generic misconfiguration
+        checker (`portfolio/pipeline/README.md` flags both shapes as needing
+        a new angle): this checks a new object entirely, a cron schedule
+        against the real IANA DST calendar, and the `drift` subcommand is a
+        generator (the two UTC clock times a fixed schedule actually needs)
+        as much as a checker.
+      - >-
+        Shipped a zero-dependency Node CLI (`cli.mjs`, `next`/`drift`
+        subcommands) and a browser page (`index.html`, computing entirely
+        from the visitor's own typed cron expression and timezone name using
+        the `Intl` timezone database already in their browser), sharing one
+        engine (`engine.mjs`): standard 5-field cron parsing with the
+        canonical day-of-month/day-of-week OR rule, local-wall-clock-to-UTC
+        resolution that correctly distinguishes a normal occurrence from a
+        DST-skipped (spring-forward gap) or DST-ambiguous (fall-back overlap)
+        one, and the fixed-UTC-cron drift computation (what GitHub Actions'
+        own UTC-only `schedule:` cron would need per DST segment of a year).
+      - >-
+        A real implementation bug found and fixed during development, not
+        just at the edges: the first `resolveLocalTime` used a two-step
+        fixed-point offset guess, which correctly finds the single instant
+        for a normal or skipped local time but silently converges to only
+        one of the two valid offsets for an *ambiguous* fall-back time,
+        missing the second occurrence entirely. Caught by a test that derives
+        the real transition date from the engine itself
+        (`findOffsetSegments`) rather than assuming one, so it stays correct
+        if a future tzdata update ever moves the rule. Fixed by sampling the
+        real offset a day before and a day after the target instead of
+        iterating from a single naive guess.
+      - >-
+        Two more real defects found by the checklist itself, not invented for
+        the write-up: the browser page's FAQPage JSON-LD text differed from
+        the visible copy beneath it by dash style (`--` vs an em dash) and,
+        in one answer, by wording -- caught by `faq-visible.test.mjs`'s
+        whole-catalogue sweep, not by this venture's own suite, and fixed by
+        making the JSON-LD byte-identical to the visible paragraph. And a
+        `VENTURE.yaml` hypothesis contained an unquoted "schedule: cron"
+        inside a plain YAML scalar, which is invalid YAML (a bare `: ` inside
+        an unquoted scalar reads as a new mapping key) -- caught by
+        `portfolio/router/test_allocate.py`'s real-tree load test, not by any
+        schema check run in isolation, and fixed by rewording rather than
+        quoting.
+      - >-
+        Registered everywhere a new venture needs to be:
+        `portfolio/scoring/venture-scores.yaml`,
+        `portfolio/usage/usage.yaml` baseline row,
+        `portfolio/pipeline/candidates.yaml` + a new write-up +
+        `README.md`'s ranked table (inserted by composite, every following
+        row renumbered -- not appended out of rank order), the mirrored-tool
+        count (278 -> 279) in `infra/OWNER_CHECKLIST.md` (all three
+        sentences), `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` (both comments), and
+        `gitops/tests/test_manifests.py`'s own running-count comment. Ran
+        `platform/pages/launched.mjs --write` (279 tools, 1 added) and
+        `platform/marketing/regen.mjs`.
+      - >-
+        High concurrent-session churn, handled rather than raced: `main`
+        moved twice while this session worked (`agent-instructions-drift-check`'s
+        own missing CI workflow and opt-out-count bump landed elsewhere;
+        then `hoa-reserve-fund-calculator` graduated, moving the
+        mirrored-tool baseline; then a FAQ-JSON-LD test fix landed). Rather
+        than fight three sets of conflicting registration edits, stashed this
+        session's work, fast-forwarded to each new `origin/main`, and
+        re-derived every count (mirrored-tool total, `SWITCHES_IN_THE_CATALOGUE`)
+        from the merged tree instead of carrying forward a number computed
+        against a stale one -- including dropping this session's own
+        now-redundant `agent-instructions-drift-check-ci.yml` once another
+        session's PR (#4751) had already added it. Also bumped
+        `SWITCHES_IN_THE_CATALOGUE` 263 -> 264 for this venture's own
+        `usageOptedOut`/`setUsageOptOut` switch and ran
+        `gitops/ci/sync_readme_counts.py` after adding the new CI workflow
+        file (it rewrote `gitops/ci/README.md`'s stale `runs-on` count
+        sentence, caught by `test_ci_runner.py`).
+      - >-
+        Verified against the final, merged tree: `ci_starvation.py --run
+        35135624851` and `--run 35133335388` both confirmed starvation
+        (`runner_id: 0`, 3-4s, no steps) before trusting any local result
+        over a red GitHub check. Venture's own suite 56/56 (`node --test
+        engine.test.mjs cli.test.mjs page.test.mjs`), including a dogfood
+        test proving both worked examples demonstrate genuine DST risk
+        rather than merely looking plausible.
+        `platform/marketing`+`platform/pages` 1260/1260;
+        `platform/privacy`+`platform/webcheck`+`platform/proposal` 243/243;
+        `gitops/tests` 581 passed/1 skipped via `python3 -m pytest` (the
+        spelling CLAUDE.md pins); `platform/ci`'s full unittest sweep (16
+        modules incl. `agent_review`) all OK after the workflow-coverage and
+        publish-surface fixes; `portfolio/{ledger,scoring,router,usage,
+        pipeline}`+`infra/tests` 446 passed. `checklist_coverage.py`,
+        `check_no_payment_code.py`, `clauses.mjs cron-dst-drift-check`,
+        `front-door-tools.mjs --headroom`, `pipeline/score_sensitivity.py`,
+        `probes/validate_probe_index.py`, `router/validate.py`,
+        `scoring/score_ventures.py --check`, `usage/validate_usage.py`, and
+        `pipeline/validate_doc_consistency.py` all clean. Browser checks
+        (`PLAYWRIGHT=... browser_checks.py --only cron-dst-drift-check`,
+        Playwright 1.56.0 + axe-core installed together in one command): 7
+        of 8 ran and passed (sideways, presets, roundtrip, contrast, optout,
+        sweep, journey); `highlight` skipped as not applicable (this tool
+        prints no highlight-promise sentence). No payment code introduced.
+    mrr_end: 0
+  - venture: bridal-hair-makeup-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First work of the run: the only open PR (#4761, "hoa-reserve-fund-
+        calculator: add a comparison page vs. a spreadsheet") was reviewed
+        and locally verified while `ci_starvation.py --run 35144974836`
+        confirmed its one red check was starvation (`runner_id: 0`, 5s, no
+        steps), not a real failure -- but it and a follow-up (#4762, its
+        WCAG AA contrast fix) were both merged by a concurrent session
+        seconds into this session's own review, before this session's own
+        merge action landed. The open-PR queue was 0 both before and after,
+        so the three-PR quota's "process all of them" branch applied
+        vacuously; no PR in this session's own merge history to cite.
+      - >-
+        New venture, per the task brief and `portfolio/DIRECTION.md`'s
+        "Pipeline and new ventures" option 3 (`session_gate.py`'s
+        build-now pipeline was empty, and the router validators, gitops
+        tests, and marketing/pages suite were all otherwise green). Screened
+        for overlap by grepping every `VENTURE.yaml` and `screened-out.md`
+        for "bridal"/"makeup"/"hair"/"beauty"/"wedding" (aside from the
+        unrelated `moving-bid-calculator`) and found nothing -- no prior
+        venture or screened idea for a mobile beauty-services business.
+        Composite 5.667, floor 1 `ai_leverage` (no AI, deliberately
+        deterministic arithmetic), both gates (`liability_containment`,
+        `ethical_robustness`) pass -- see `portfolio/scoring/venture-
+        scores.yaml`.
+      - >-
+        Shipped a browser-local calculator (`calc.mjs`/`index.html`) for
+        mobile bridal hair and makeup artists pricing one wedding-day
+        booking: per-person service tiers (bride, bridal party, hair-only,
+        makeup-only, kids), an early-start fee, mileage, a top-up to a
+        service minimum, and a trial-fee credit that the calculator
+        surfaces as the real discount it is rather than a neutral timing
+        change (crediting the trial fee lowers the combined total collected
+        by up to the trial fee itself -- easy to miss, quantified rather
+        than asserted). The differentiated feature is a schedule-capacity
+        check: whether the artists already booked can finish the whole
+        group between arrival and the must-be-ready deadline, and if not,
+        exactly how many additional artists the booking needs, what billing
+        them costs the client, and what paying them out costs the artist --
+        a question no flat day-rate or per-service price sheet answers.
+      - >-
+        A real design error caught by the calculator's own test suite before
+        it shipped: the first draft asserted that crediting the trial fee
+        toward the wedding day changes only the balance due, never the
+        total contract value. Running the arithmetic against that assertion
+        failed it (`1090` vs `1215`) -- crediting *is* a real discount on
+        the combined total, up to the trial fee, not a neutral timing
+        shift. Fixed by correcting the claim (both the code's header
+        comment and the test) rather than the arithmetic, which was already
+        right.
+      - >-
+        Registered everywhere a new venture needs to be: `portfolio/scoring/
+        venture-scores.yaml`, `portfolio/usage/usage.yaml` baseline row, the
+        mirrored-tool count (280 -> 281) in `infra/OWNER_CHECKLIST.md` (all
+        three sentences), `gitops/prod/usage/aggregate.py`, `gitops/prod/
+        front-door/default.conf` (both comments), and `gitops/tests/
+        test_manifests.py`'s own running-count comment. Added a category
+        rule in `platform/pages/build.mjs` (filed under `services`, not the
+        catch-all, which `build.test.mjs`'s catch-all-size bound would
+        otherwise have failed at 6). Added `vs-flat-day-rate.html` to
+        `COMPARISON_DISCLAIMER_EXEMPT` in `platform/pages/clauses.mjs` (a
+        generic pricing method, not a named competitor). Closed the venture
+        as a crawlable orphan on its first commit rather than leaving it for
+        `siblings-budget.json`'s zero-orphan ratchet to catch later: added a
+        reciprocal inbound link from `appointment-deposit-calculator`
+        (its trial/booking deposit is the same shape this calculator
+        prices), with a `page.test.mjs` assertion on the href in both
+        ventures. Ran `platform/pages/launched.mjs --write` (281 tools, 1
+        added) and `platform/marketing/regen.mjs`.
+      - >-
+        Verified against the working tree: venture's own suite 67/67
+        (`node --test ventures/bridal-hair-makeup-pricing-calculator/
+        *.test.mjs`); `appointment-deposit-calculator`'s own suite 69/69
+        after the reciprocal-link addition; `platform/marketing`+
+        `platform/pages` 1260/1260 (including the fleet-wide zero-crawlable-
+        orphan and catch-all-size assertions); `gitops/tests` 581
+        passed/1 skipped via `python3 -m pytest` (the spelling CLAUDE.md
+        pins) -- one real failure caught and fixed on the first pass
+        (`test_mirrored_tool_count_matches_what_the_docs_claim`, the exact
+        four-place trap CLAUDE.md's "168 became 169" paragraph and the
+        "gitops/tests condition was widened" paragraph both warn about).
+        `checklist_coverage.py`, `check_no_payment_code.py`, `clauses.mjs
+        bridal-hair-makeup-pricing-calculator appointment-deposit-
+        calculator`, `router/validate.py`, `scoring/score_ventures.py
+        --check`, `usage/validate_usage.py`, `pipeline/
+        validate_doc_consistency.py`, and `pipeline/validate_candidates.py`
+        all clean. Browser/Playwright checks and `ci_starvation.py` against
+        this venture's own (nonexistent) CI were not run: no workflow file
+        was added for it (a static, test-only venture with no CI-publishable
+        surface), and the whole-catalogue browser suite
+        (`browser_state.py`) was already reporting every check stale from
+        an unrelated front-door change before this session started, which a
+        single new static comparison page with no form inputs does not
+        newly implicate. No payment code introduced.
+    mrr_end: 0
+  - venture: repository-branch-hygiene
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First real pilot run: scanned this portfolio's own remote, 568
+        branches, zero open PRs at the time. Found a real bug via the scale
+        no synthetic test had exercised — `--repo` mode derived the
+        "default branch" to protect from `git symbolic-ref HEAD` (whatever
+        happens to be checked out), not the repository's actual default.
+        Every existing test ran from the default branch itself, so this
+        never showed up locally. On this checkout (an agent session working
+        from its own feature branch, exactly this product's target
+        customer) `main` came back classified `uncertain` /
+        `investigate-missing-pr-record` — indistinguishable in the report
+        from stale bot work — while the throwaway session branch running the
+        scan was the one marked `protected` / `do-not-delete`.
+      - >-
+        Fixed in `src/branch_hygiene.py`: prefer `refs/remotes/origin/HEAD`
+        (survives a non-default checkout) over current `HEAD`, with a new
+        `--default-branch` override for a checkout with no `origin` or a
+        non-`main`/`master` default. Verified against this repo:
+        `origin/HEAD` was itself unset locally (a plain `git fetch` never
+        sets it, and neither does a shallow CI checkout) — rather than
+        silently guessing again in that case, it now falls back to current
+        HEAD but prints a named warning to stderr so the ambiguity is
+        visible instead of hidden. `--default-branch main` removes the
+        guess entirely and correctly protects `main`.
+      - >-
+        Added two regression tests reproducing both states (`origin/HEAD`
+        set via a real clone/push/set-head sequence; `origin/HEAD` absent)
+        plus one for the override — `test_branch_hygiene.py` 23/23,
+        `node --test *.test.mjs` 30/30 (the browser port only implements
+        `scan()` over a supplied snapshot, not git detection, so it was not
+        affected). Updated `README.md`'s local-mode section to document the
+        new flag and the origin/HEAD caveat.
+      - >-
+        No usable signal on the actual hypotheses yet (still zero pilot
+        teams) — this was a dogfood run against our own repo, not a
+        customer, and is recorded as a product fix, not evidence toward
+        either `VENTURE.yaml` hypothesis.
+    mrr_end: 0
+  - venture: attic-insulation-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fleshed out this already-live, thin prototype (0 ledger entries, 0
+        portfolio mentions per `router/allocate.py`) rather than starting a
+        new venture: `node platform/pages/surface-budget.mjs --for
+        attic-insulation-bid-calculator` showed 1 guide and 1 named-product
+        comparison but room for the one generic-method comparison page every
+        other budgeted venture carries. Added
+        `vs-a-flat-price-per-square-foot.html`, comparing the calculator
+        against the flat per-square-foot postcard rate the venture's own
+        README already names as the failure mode it exists to fix (an R-30-
+        to-R-38 attic priced the same as an R-13-to-R-49 one of the same
+        square footage). Linked from `index.html` and `README.md` in both
+        directions, listed in `sitemap.xml`, and added to
+        `COMPARISON_DISCLAIMER_EXEMPT` in `platform/pages/clauses.mjs`
+        (generic method, not a named competitor). Also corrected a stale
+        README line claiming the venture was "not yet deployed" — confirmed
+        it has been live at
+        https://duncan-haywood.github.io/monorepo-projects/attic-insulation-bid-calculator/
+        since #1331, via `git ls-tree origin/gh-pages` and the mirror alias
+        in `gitops/prod/front-door/00-mirror-alias.conf`.
+      - >-
+        Picked this over the day's other active work (sql-migration-lock-
+        check, the overtime-pay-calculator comparison pages, bridal-hair-
+        makeup-pricing-calculator, hoa-reserve-fund-calculator accessibility)
+        specifically to avoid duplicating it — checked `git log --oneline
+        -20` on `origin/main` and the surface-budget tool for this slug
+        before starting. `browser_state.py` showed every whole-catalogue
+        check STALE from same-day churn rather than any known failure, so
+        there was no live accessibility regression to chase; this was the
+        next rung down the priority order (flesh out a thin, already-shipped
+        venture).
+      - >-
+        Concurrency note: `origin/main` advanced twice while this was in
+        progress (through `agent-instructions-drift-check`'s own comparison
+        page, among others), which made a first
+        `check_venture_regression.py` run falsely report
+        `sbom-diff-check` as a removed venture -- the tool's own documented
+        false-positive shape for a tree older than its base, not a real
+        regression. Resolved per its own instructions:
+        `git fetch origin main`, stashed the working changes, reset to
+        `origin/main`, reapplied, kept `origin/main`'s copy of every
+        generated `gitops/prod/front-door*` file and re-ran `regen.mjs`
+        rather than hand-merging binary/generated diffs, and merged the one
+        real conflict (`COMPARISON_DISCLAIMER_EXEMPT` in `clauses.mjs`,
+        additive with the concurrent session's own new entry) by hand.
+        Re-ran `check_venture_regression.py --base origin/main` clean
+        afterward.
+      - >-
+        Verified locally: venture's own suite 117/117; `platform/marketing`
+        + `platform/pages` 1271/1271 (both before and after the
+        `origin/main` merge); `clauses.mjs attic-insulation-bid-calculator`
+        and `surface-budget.mjs --check` clean (1 generic-method page, at
+        budget); `checklist_coverage.py`, `router/validate.py`,
+        `usage/validate_usage.py`, `score_ventures.py --check` all clean;
+        `gitops/tests` 557 passed/25 skipped via `python3 -m pytest` (the
+        skips are the documented nginx/SSH-key environmental ones, unrelated
+        to this change); `platform/ci`'s 15-module unittest sweep + 21/21
+        `agent_review`; `portfolio/{ledger,scoring,router,usage,pipeline}` +
+        `infra/tests` 446 passed; `run_workflow_locally.py --for-changes`
+        clean on every workflow it could evaluate locally (the one
+        conditional-step cascade failure it reported, `pages.yml`'s hub-link
+        check needing a `_site` directory a skipped prior step never built,
+        is a known local-runner limitation unrelated to this diff --
+        `portfolio-pages.yml`'s own full build-and-check of the real site
+        passed end to end). `node platform/marketing/regen.mjs` run (twice,
+        once before and once after the `origin/main` merge) and its
+        rewrites committed.
+    mrr_end: 0
+  - venture: wedding-florist-proposal-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, built and shipped in one session. Wedding and event
+        florists price proposals from a "recipe" — a per-piece stem list —
+        and nearly every studio multiplies that stem count by a per-stem
+        price in a spreadsheet. Wholesalers sell bunches, so the studio pays
+        for whole bunches whether the design uses them or not, and a markup
+        applied to the stem count is applied to a cost that was never paid.
+        The calculator converts the recipe into a purchase: shrink is added
+        to the stem count first, each of six lines is rounded up to whole
+        bunches, and the markup lands on what is actually bought. On the
+        page's own worked example that is $804 of flowers against a $669
+        per-stem basis — a $135 cost gap and, at a 3.5x markup, $472.50 of
+        quoted price the spreadsheet method leaves behind.
+      - >-
+        Second finding in the same tool: labour priced by the hour against
+        the trade's "labour is about a third of flowers" rule of thumb. The
+        rule holds where hours track stems and fails on installs, so the
+        page reports both and names the gap ($252.60 on the worked example,
+        an install-heavy wedding). The rule never enters the total — a test
+        asserts setting it to zero leaves the proposal unchanged.
+      - >-
+        Verified locally rather than by CI, which has been starved since
+        2026-09-04 (`ci_starvation.py`; see `infra_state.yaml`). 56
+        venture assertions (`calc`, `page`, `content-pages`, `usage`,
+        including a source scan asserting no module can reach the network);
+        1271 across `platform/marketing` + `platform/pages`; 101
+        `platform/proposal`; 142 `platform/privacy` + `platform/webcheck`;
+        581 `gitops/tests`; 446 across the portfolio Python suites; all 25
+        `platform/ci` unittest modules plus `agent_review`. Pages snapshot
+        republished so the live site carries it.
+      - >-
+        Five repo-level counters moved with the venture rather than being
+        left to drift, each one a guard that fires on exactly this: the
+        privacy opt-out switch count (268 -> 269), the mirrored-tool count
+        typed in four places, `gitops/ci/README.md`'s runs-on sentence, the
+        `publish-surface.yaml` classification for the new workflow, and a
+        reciprocal sibling link with `bridal-hair-makeup-pricing-calculator`
+        that kept the venture from landing as a crawlable orphan.
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for any product in this portfolio
+        (`live_url_visitors: null`, not zero), and sitemap auto-discovery
+        cannot happen from the project-Pages subpath. Both hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0

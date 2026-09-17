@@ -83,7 +83,109 @@ const RELATIVE_SELF = relative(
 // 262 -> 263 on 2026-09-16, when `hoa-reserve-fund-calculator` graduated
 // with its own `toggleUsage`/`usageAllowed` opt-out switch, same discovery
 // method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 263;
+// 263 -> 264 on 2026-09-16, when `overtime-pay-calculator` graduated with a
+// `usage.mjs` opt-out following the same `readOptOut`/`writeOptOut` pattern
+// as its siblings.
+// 264 -> 265 on 2026-09-16, when `cron-dst-drift-check` graduated with its
+// own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `schedule_checked`/`drift_checked`/`example_loaded` counters), same
+// discovery method as the rest of this running count.
+// 265 -> 266 on 2026-09-16, when `bridal-hair-makeup-pricing-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` uses), same discovery method as the rest of
+// this running count. Recorded a run late: #4766 and #4758 were open at the
+// same time and each raised the constant by one against a base where the
+// other had not landed, so the pair of graduations only moved it once. The
+// count is a property of the tree, not of either diff -- which is why this
+// check reads the catalogue and does not trust the number, and why the fix
+// is one line here rather than anything in either venture.
+// 266 -> 267 on 2026-09-16, when `sql-migration-lock-check` graduated with a
+// `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count.
+// 267 -> 268 on 2026-09-16, when `sbom-diff-check` graduated with its own
+// `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `diff_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count.
+// 268 -> 269 on 2026-09-16, when `commissary-kitchen-cost-split-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count.
+// 269 -> 270 on 2026-09-16, when `backflow-test-fee-calculator` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same
+// `record`/`readUsage` pattern `overtime-pay-calculator` uses), same
+// discovery method as the rest of this running count.
+// 270 -> 271 on 2026-09-16, when `land-survey-bid-calculator` graduated with
+// its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count.
+// 271 -> 272 on 2026-09-17, when `estate-sale-net-proceeds-calculator`
+// graduated with its own `readOptOut`/`writeOptOut` switch (the same
+// `recordUsage` pattern `poshmark-fee-calculator` uses), same discovery
+// method as the rest of this running count.
+// 272 -> 273 on 2026-09-16, when `wedding-florist-proposal-calculator`
+// graduated with a `toggleUsage`/`usageAllowed` switch (opts out of the
+// `proposal-priced`/`rounding-gap-shown`/`link_copied` counters), same
+// discovery method as the rest of this running count.
+// 273 -> 274 on 2026-09-17, when `world-clock-widget` gained a browser surface
+// with its own `setUsageOptOut`/`usageOptedOut` switch in
+// `ventures/world-clock-widget/site/usage.mjs` (the same `record`/`readUsage`
+// pattern `cron-dst-drift-check` uses), same discovery method as the rest of
+// this running count. Note this one is NOT a venture graduating, which every
+// other line above is: the venture already existed as a Swift app, and the
+// addition is a second surface over the same core. The distinction matters
+// only for reading this list back -- the switch is a switch either way.
+//
+// The 271 -> 272 pair above is worth reading together: two branches were open
+// at once and each raised the constant by one against a base where the other
+// had not landed, exactly the collision the 265 -> 266 entry records. Both
+// additions are real and both survive here, which is why the resolved number
+// is 274 rather than either branch's 273.
+// 274 -> 275 on 2026-09-17, when `openapi-breaking-change-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same
+// `record`/`readUsage` pattern `sbom-diff-check` and
+// `sql-migration-lock-check` use), same discovery method as the rest of
+// this running count.
+// 275 -> 276 on 2026-09-17, when `asbestos-abatement-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `land-survey-bid-calculator` use), same
+// discovery method as the rest of this running count.
+// 276 -> 277 on 2026-09-17, when `tutor-package-pricing-calculator`
+// graduated with a `usage.mjs` opt-out following the same
+// `setUsageOptOut`/`usageOptedOut` pattern as
+// `overtime-pay-calculator`'s switch, same discovery method as the rest of
+// this running count.
+// 277 -> 278 on 2026-09-17, when `biohazard-cleanup-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count. This is
+// the same shape as the 271 -> 272 collision above: this branch was open
+// before `tutor-package-pricing-calculator` landed, so it only ever knew
+// its own predecessor's number (277) until this merge.
+// 278 -> 279 on 2026-09-17, when `storage-auction-max-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (opts out of
+// the `bid-calculated`/`overbid-warning-shown`/`link_copied` counters, the
+// same pattern `wedding-florist-proposal-calculator` uses), same discovery
+// method as the rest of this running count. Landed the same afternoon as
+// `asbestos-abatement-bid-calculator`, `tutor-package-pricing-calculator`
+// and `biohazard-cleanup-bid-calculator`, so the resolved number is 279
+// rather than any one branch's own count.
+// 279 -> 280 on 2026-09-17, when `vector-db-cost-calculator` graduated with
+// its own `setUsageEnabled`/`usageAllowed` switch (the same
+// `countUsage`/`usageAllowed` pair `cloud-egress-calculator` uses), same
+// discovery method as the rest of this running count. This branch was open
+// before `tutor-package-pricing-calculator`, `biohazard-cleanup-bid-calculator`
+// and `storage-auction-max-bid-calculator` landed, so it only ever knew its
+// own predecessor's number (276) until this merge.
+// 280 -> 281 on 2026-09-17, when `required-checks-drift-check` graduated
+// with a `usage.mjs` opt-out following the same
+// `setUsageOptOut`/`usageOptedOut` pattern as `pinned-actions-check`'s
+// switch (copied from it directly), same discovery method as the rest of
+// this running count. This branch was open before
+// `storage-auction-max-bid-calculator` and `vector-db-cost-calculator`
+// landed, so it only ever knew its own predecessor's number (279, then
+// 280) until this merge.
+const SWITCHES_IN_THE_CATALOGUE = 281;
 
 let counter = 0;
 function fixture(source) {

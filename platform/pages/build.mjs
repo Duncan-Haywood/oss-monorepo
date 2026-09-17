@@ -365,7 +365,15 @@ const CATEGORY_RULES = [
     // one storefront — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a marketplace
     // keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark)/.test(slug),
+    // `storage-auction-max-bid-calculator` is `whatnot-seller-payout`'s buy
+    // side rather than its sell side: a hammer bid plus a buyer's premium
+    // (the auction-house equivalent of processing on checkout), for contents
+    // the winner then resells through the same marketplaces this section
+    // already covers. Its slug ends in `bid-calculator`, which would
+    // otherwise sweep it into the trades section as a contractor job bid —
+    // it prices a resale purchase, not a construction trade, so it is
+    // matched here first.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction)/.test(slug),
   },
   {
     id: 'trades',
@@ -487,10 +495,22 @@ const CATEGORY_RULES = [
     // enough niche that it should grow rather than sit at three. If it has not
     // gained a fourth member in a few months, fold it back into `services`
     // rather than defending it.
+    // `commissary-kitchen-cost-split-calculator` added 2026-09-16, the fourth
+    // member the comment above says to watch for. Its customer is the
+    // commissary operator (or a lead tenant) billing several food trucks for
+    // shared kitchen space, not a truck pricing its own food -- but the
+    // reader is the same food-truck-operator audience `food-truck-event-
+    // margin-calculator` already serves, one hop away as a declared sibling,
+    // and no section above fits better: it is not a trade bidding a job at a
+    // customer's property (`trades`), not a route/booking/licence
+    // (`services`), not someone else's storefront (`marketplace`), and not
+    // one person's own labour (`solo-earner`). It belongs beside the tool a
+    // reader of this hub is most likely to also want.
     test: (slug) => [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
+      'commissary-kitchen-cost-split-calculator',
     ].includes(slug),
   },
   {
@@ -640,8 +660,50 @@ const CATEGORY_RULES = [
     // calculator` (both of which it links to) — a solo photography
     // professional turning their own time and cost into a customer-facing
     // price, not a trade bid and not a marketplace fee.
+    //
+    // `bridal-hair-makeup-pricing-calculator` joined 2026-09-16, filed here
+    // on its first commit rather than left for a catch-all spell (what
+    // `build.test.mjs`'s catch-all bound is for): a mobile bridal hair and
+    // makeup artist pricing one wedding-day booking from per-person service
+    // tiers, an early-start fee, and mileage, then checking the booking
+    // against a service minimum and the artists' own schedule capacity, is
+    // the same job as `notary-trip-quote` and `photo-booth-event-quote` — a
+    // solo (or small-team) service professional turning time, travel, and a
+    // booking policy into a customer-facing price, not a trade bid and not a
+    // marketplace fee. It shipped with a reciprocal inbound sibling link
+    // from `appointment-deposit-calculator`'s first commit rather than
+    // landing as a crawlable orphan to close later.
+    //
+    // `backflow-test-fee-calculator` joined 2026-09-16, filed here on its
+    // first commit rather than left for a catch-all spell: a certified
+    // backflow-preventer tester pricing a multi-device property visit from a
+    // per-device test fee, a multi-device discount, a per-device filing fee,
+    // travel, and a retest fee for failures is the exact same shape as
+    // `fire-extinguisher-inspection-route-margin` above — a solo or small-crew
+    // recurring-compliance-test business turning a device/stop list and its
+    // own fee schedule into a customer-facing price. Not a trade bid (nothing
+    // priced by area or a construction job) and not a marketplace fee.
+    // `estate-sale-net-proceeds-calculator` joined 2026-09-17, filed here
+    // rather than left for a catch-all spell: an estate-sale company applying
+    // its own tiered commission schedule and fees to an estimated gross is
+    // the same job as `booth-rent-vs-commission` and `staffing-markup` —
+    // turning the business's own cost/fee structure into a customer-facing
+    // number — and not a trade bid, a marketplace fee, or a back-office
+    // reconciliation.
+    // `wedding-florist-proposal-calculator` joined 2026-09-16 on its first
+    // commit, filed here rather than left for a spell in the catch-all —
+    // which is what `build.test.mjs`'s catch-all bound is for. A floral
+    // studio pricing one event booking from flowers, hard goods, design and
+    // on-site labour, and delivery is the same job as `photo-booth-event-
+    // quote`, `bounce-house-rental-calculator` and `bridal-hair-makeup-
+    // pricing-calculator`, which it cross-links to: a small operator turning
+    // materials, labour and travel into a price for one booking. Not a trade
+    // bid (nothing is priced by area or a site visit) and not a marketplace
+    // fee. The near miss was `solo-earner`, which groups on a person
+    // monetising their own output; a studio quoting a couple's wedding is a
+    // business pricing work for a customer, the axis this section uses.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal)/.test(
         slug,
       ),
   },
@@ -669,7 +731,19 @@ const CATEGORY_RULES = [
     // four times a year — same desk, same audience, and the three tools link
     // to each other. Named explicitly rather than folded into a wider pattern
     // because the slug starts with an acronym no other rule here would guess.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier)/.test(slug),
+    //
+    // `vector-db-` joined 2026-09-17, found by enumerating the catch-all
+    // rather than judging the arrival that tripped `build.test.mjs`'s
+    // bound alone (that arrival was `tutor-package-pricing-calculator`,
+    // which belongs nowhere near this section — see `solo-earner` below).
+    // `vector-db-cost-calculator` sizes a storage/query cost decision
+    // before committing to a vendor, the same "size a transfer window
+    // before you sign for it" shape this section's own blurb already
+    // names — it is `cloud-egress-calculator`'s direct sibling (both are
+    // bring-your-own-rates infrastructure cost estimators, and the two
+    // pages already cross-link each other as Related), just for a
+    // different resource (a vector index instead of object storage).
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db)/.test(slug),
   },
   {
     id: 'evidence',
@@ -1328,8 +1402,54 @@ const CATEGORY_RULES = [
     // it is a CI gate a maintainer wires into their own pipeline. Landing it
     // here rather than the catch-all is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
+    //
+    // `cron-dst-drift-check` and `agent-instructions-drift-check` joined
+    // 2026-09-17, and they were found the way that guard asks for — by
+    // enumerating the catch-all rather than judging the one arrival that
+    // tripped it. The arrival was `world-clock-widget`'s new browser surface,
+    // which is not a developer tool at all; these two were already sitting
+    // there, and both are this category exactly. `cron-dst-drift-check` ships
+    // a CLI whose own page says "want this in CI before a deploy?" and whose
+    // "Both subcommands exit 1 when they find DST risk, so either works as a
+    // one-line CI check before a new scheduled job ships" is the category's
+    // whole shape in one sentence. `agent-instructions-drift-check` reads an
+    // AGENTS.md/CLAUDE.md against the repo it describes and reports the paths
+    // that no longer resolve; its own scored hypothesis is that a maintainer
+    // "will wire it into CI so the same PR that renames a script also has to
+    // fix the instruction file that pointed at it". Both are browser-local
+    // plus a matching zero-dependency CLI, run against files the developer
+    // already has, reporting mechanical drift rather than a determination.
+    // They sat in the catch-all only because neither slug matches a prefix
+    // above — the same reason `license-drift-check` did.
+    //
+    // `openapi-breaking-change-check` joined 2026-09-17. Same shape as
+    // `sbom-diff-check` and `sql-migration-lock-check` right above it -- a
+    // browser-local checker plus a matching zero-dependency CLI, run by a
+    // developer against files they already have (two OpenAPI 3.x documents
+    // instead of two SBOMs or a SQL migration), classifying a structural
+    // difference (a breaking API contract change) rather than making a
+    // determination. It cross-links both siblings as Related, and
+    // `sbom-diff-check` links back, closing the crawlable-orphan gap a new
+    // venture with no existing sibling otherwise opens
+    // (`platform/pages/siblings.test.mjs`). Listed by exact slug rather
+    // than a new prefix, the same way `sbom-diff-check` is: one tool does
+    // not earn a whole family pattern, and landing it here rather than the
+    // catch-all is also what keeps that catch-all inside the bound
+    // `build.test.mjs` puts on it.
+    //
+    // `required-checks-drift-check` joined 2026-09-17. Same shape as the
+    // rest of this family -- a browser-local checker plus a matching
+    // zero-dependency CLI, run by a maintainer against a required-checks
+    // list and workflow YAML they already have, reporting exactly which
+    // required status check name no job can ever report again -- just for
+    // branch-protection drift instead of an npm/Actions/iOS/OpenAPI
+    // artifact. It cross-links `pinned-actions-check` as Related (both are
+    // free, browser-only GitHub Actions/branch-protection checkers), and
+    // that link is reciprocal, closing the same crawlable-orphan gap a new
+    // venture with no existing sibling otherwise opens. Listed by exact
+    // slug rather than a new prefix, for the same reason as its neighbors.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check)/.test(
         slug,
       ),
   },
@@ -1423,6 +1543,15 @@ const CATEGORY_RULES = [
     // first commits rather than landing in the catch-all, which is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on
     // it.
+    //
+    // `tutor-package-pricing-calculator` joined 2026-09-17, found by
+    // enumerating the catch-all after a merge pushed it to 6 rather than by
+    // judging either arrival alone: an independent tutor or coach deciding
+    // whether a discounted prepaid session package still pays as well per
+    // hour as billing per session is the same move as
+    // `gig-driver-net-pay-calculator`'s gig driver and
+    // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
+    // own labour, not a business quoting a customer.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1436,6 +1565,7 @@ const CATEGORY_RULES = [
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
+        'tutor-package-pricing-calculator',
       ].includes(slug),
   },
 ];
@@ -2166,12 +2296,24 @@ const SUBCATEGORY_RULES = {
       // same reason `custom-farm-rate` does: it is not a takeoff for an
       // installed product, it is a rate measured against the operator's own
       // payroll and overhead — which is what this group is.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
+      // `land-survey-bid-calculator` joined 2026-09-16, for the same reason
+      // `custom-farm-rate` did: it is not a takeoff for an installed
+      // product — nothing is built, poured, or replaced — it prices a crew's
+      // own field, office-research, and drafting hours against a target
+      // margin, the same job-costing shape as `job-margin` and
+      // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
+      // work instead of a construction trade.
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|land-survey)/.test(slug),
     },
     {
       id: 'trades-cleaning',
       title: 'Cleaning, restoration & insulation',
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion)/.test(slug),
+      // `biohazard-cleanup` and `asbestos-abatement` join this group beside
+      // `mold-remediation` and `radon-mitigation`: all price a licensed
+      // hazard-removal or remediation job (containment, protective
+      // procedures, testing/monitoring, special disposal) rather than an
+      // installed product or a takeoff.
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
     },
     {
       id: 'trades-roof',

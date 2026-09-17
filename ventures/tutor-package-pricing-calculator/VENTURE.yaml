@@ -1,0 +1,99 @@
+name: tutor-package-pricing-calculator
+description: >-
+  Free browser calculator for independent tutors, test-prep coaches, and
+  similar 1:1 instructors: compares a discounted prepaid session package
+  against pay-per-session pricing on both revenue and effective hourly pay.
+  A package guarantees revenue against no-shows, but when a missed session
+  earns a free makeup rather than being forfeited, the instructor still
+  works every hour eventually -- so a package discount deeper than the
+  no-show rate can pay a worse effective hourly rate than plain
+  pay-per-session, even though its revenue looks safer. Copies the
+  comparison as a plain-text record.
+
+stage: prototype
+owner: duncan
+
+# Screened as a new niche during a 2026-09-17 PROCEED-verdict session
+# (session_gate.py: build-now queue empty, new-venture-first per
+# DIRECTION.md's 2026-09-06 owner direction). duplicate_check.py scored
+# every existing venture, screened-out row, and pipeline candidate at 0.18
+# or below for "independent tutor package pricing vs. per-session pricing,
+# accounting for no-show and makeup policy" -- far under the 0.45 review
+# bar. The closest venture by mechanism, music-lesson-break-even, solves a
+# different problem (the minimum per-lesson price that clears a target
+# annual income after cancellations/travel/prep) and does not compare a
+# package to per-session pricing at all; the two are cross-linked in each
+# other's footer rather than merged, since a music-lesson-break-even user
+# who has already fixed a per-session price is exactly this calculator's
+# next question. No tutoring, coaching, or session-package row exists in
+# portfolio/pipeline/screened-out.md.
+#
+# Not an advice-of-record product: deterministic arithmetic over numbers
+# the instructor supplies (a price, a session count, a no-show rate, a
+# makeup policy), the same shape as music-lesson-break-even and
+# no-show-fee-calculator -- it does not set pricing policy or predict any
+# specific student's behavior.
+#
+# Distribution channel: "should I offer a lesson package" / "tutoring
+# package pricing" / "session package vs. per-session pricing" are
+# plausible search phrases for an independent instructor who has been
+# offered, or is considering selling, a discounted block of sessions --
+# the same audience shape as music-lesson-break-even and
+# no-show-fee-calculator, arriving with a specific pricing decision rather
+# than browsing.
+
+hypotheses:
+  - claim: >-
+      An independent tutor or coach deciding whether to sell a discounted
+      session package will use this calculator to check the package
+      against per-session pricing before offering it, because the
+      hourly-pay consequence of a makeup policy is not the intuitive
+      answer (a package "protects against no-shows" reads as strictly
+      better, not sometimes worse per hour).
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Most visitors who run the comparison have a makeup policy already in
+      mind (checked, not unchecked) and are checking whether their
+      existing discount is sized correctly against their own no-show rate,
+      rather than deciding whether to offer a package at all -- measurable
+      once usage data exists by how often the makeup checkbox is toggled
+      from its default before Compare is clicked.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      Being shown the effective-hourly comparison alongside the revenue
+      comparison (not revenue alone) changes how a visitor prices a
+      package, compared to a calculator that only totals revenue --
+      measured by whether the copy-comparison rate or repeat use differs
+      from calculators that show revenue only, once usage data exists.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all arithmetic runs in the visitor's own
+  # browser against numbers they type in. Serving one more user costs a
+  # static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, return usage, or unsolicited feedback after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's
+    "fair run" definition).
+  - A materially better free tool covering the same package-vs-per-session
+    arithmetic at the same zero-install, zero-signup bar becomes the
+    obvious default, such that this tool's differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tutor-package-pricing-calculator/
+  analytics: null

@@ -503,8 +503,42 @@ published snapshot** (added 2026-09-05):
 python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
 CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
 python3 platform/ci/pages_state.py --require-current   # and 0 once you have
+python3 platform/ci/pages_state.py --record            # then commit the row it rewrites
 python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
 ```
+
+**`--record` was added 2026-09-16, and the defect it closes had already been
+fixed once by hand and come back.** `decision_queue.py` ages any reading older
+than `STALE_AFTER_DAYS` (3) out to `unknown`, and `serving_origins()` then
+drops `github-pages-branch-route` — which flips the queue's header from
+"PARTIAL OUTAGE ... the rows below are NOT all waiting on this" to **"OUTAGE:
+the public surface is down. hetzner-ssh-key-is-a-public-key comes first; every
+other row here is downstream of a host answering at all."** That sentence is
+false whenever Pages is serving, and it is the most expensive sentence in the
+repository: it is addressed to the owner, it tells them to stop reading, and it
+sends the one session they have at the Hetzner SSH route while
+`pages-custom-domain` — the row that would actually put the catalogue in front
+of a search engine, and that is downstream of no host at all — sits below the
+fold.
+
+Measured 2026-09-16: the row was last measured 2026-09-10, so it had aged out,
+and the queue printed the OUTAGE banner while GitHub's managed builder had
+deployed `gh-pages` twenty minutes earlier (run 35156548733, snapshot current
+at the tip of `main`). That is the *second* time — it happened on 2026-09-10
+too, and the fix then was to retake the reading by hand and write "if the
+banner regresses again, retake it" into the row. Six days later it regressed.
+
+The ageing rule is correct and **must not be widened to silence the banner**:
+an un-re-measured origin must never keep suppressing it on the strength of a
+reading nobody retook. What was wrong is that the retake was addressed to
+whoever happened to look, for a reading this repo can take on demand with no
+runner, no cluster and no credential. `--record` is that reminder turned into a
+command, the same move `--require-current` is against a stale snapshot and
+`guard_state.py --require-runnable` is against a fixable skip. It writes only
+`verdict`, `measured` and `run`, by line, so the file's prose survives — a
+`yaml.safe_load`/`yaml.dump` round-trip would round-trip the data perfectly and
+delete every dated lesson in it. It refuses to record a `deployed: unknown`
+rather than overwriting a real reading with a non-reading.
 
 **That last line was added 2026-09-11, and the answer it returned on the day
 it was written was `never` — for all 964 published pages.** The publish script
@@ -880,6 +914,39 @@ A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 Scheduled sessions often overlap. Before opening a PR, check open PRs and
 recent commits. Extend or consolidate instead of duplicating. If the backlog
 is large, merge the strongest and close the rest with a pointer.
+
+**Before you add a marketing surface to a venture, ask the tree what it
+already has** (added 2026-09-16):
+
+```
+node platform/pages/surface-budget.mjs --for <slug>
+```
+
+It prints every comparison and guide page the venture publishes and the angle
+each one takes, so "is this angle already covered?" is one command instead of
+a judgement. Run it *in addition to* checking open PRs, not instead — the two
+answer different questions, and the gap between them is where this went wrong.
+
+Measured that day: three sessions built a comparison page for
+`overtime-pay-calculator` on the afternoon it shipped — #4768 ("vs. doing it
+by hand"), #4771 ("vs. a spreadsheet") three hours later, and a third that
+reached a pushed branch and an open PR before noticing. **Every one of those
+sessions ran the overlap check this section prescribes, and every one ran it
+honestly and got a clean answer**, because the collisions landed in the window
+between reading open PRs and pushing. A check against *pull requests* cannot
+see a sibling page that merged ten minutes ago. The tree can, and it is not
+racing anything.
+
+`--check` is the same reading as a gate, wired into `portfolio-validate.yml`:
+it budgets the generic-method page ("vs. a spreadsheet", "vs. doing it by
+hand") at one per venture, because there is one real "you could do this
+yourself" angle per tool. Comparisons against *distinct named products* are
+unbudgeted — `locksmith-bid-calculator` carries three, against Jobber, Workiz
+and Housecall Pro, and a reader comparing against one is not served by a page
+about another. A naive count of comparison pages per venture flags exactly the
+two ventures that are fine and misses the one that is not, which is why the
+budget reads `clauses.mjs`'s own exemption set rather than guessing from
+filenames.
 
 **A close that names a survivor must verify the survivor is still open —
 immediately before closing, and again after.** Two sessions can each close

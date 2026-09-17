@@ -342,6 +342,20 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_guard_state
 
+      # And the reader for the three standalone host-mode routes. Same
+      # argument as the two above, at the point where it is most expensive to
+      # be wrong: this one is read while the owner is holding the private key,
+      # during the single session the recovery gets, and it is the thing that
+      # says which of the three drivers is worth that session. Its own
+      # refusals are the behaviour under test -- it must parse the box and
+      # installer out of the drivers rather than restating them (a restated
+      # constant is how this repo has twice shipped a claim that went quietly
+      # wrong), and it must never imply it measured whether a box answers,
+      # which no session can do.
+      - name: Host-route reader unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_host_routes_state
+
       # `test_publish_pages_branch.py` pins the invariants of
       # `publish-pages-branch.yml` itself -- the workflow that keeps the
       # `gh-pages` branch snapshot from silently lagging `main` (see that
@@ -460,8 +474,40 @@ jobs:
       # non-fast-forward and the step exits 1. That is every local run and the
       # `push: branches: [main]` event. A private ref namespace cannot collide
       # with anything, so the step means the same thing everywhere it runs.
+      #
+      # `--depth=1` only when the clone is ALREADY shallow, and this is not a
+      # micro-optimisation (measured 2026-09-17). A `--depth` fetch does not
+      # just limit what it downloads -- it writes `.git/shallow` and truncates
+      # the WHOLE repository. On a runner that is free, because
+      # `actions/checkout@v4` already checked out depth 1. On a full clone it
+      # is destructive: a 7,289-commit checkout of `main` becomes one commit,
+      # `git rev-parse --is-shallow-repository` flips to `true`, and every
+      # history-shaped question in the session starts lying -- `merge-base`
+      # returns nothing, `git merge origin/main` refuses with "unrelated
+      # histories", and `git rev-list --count origin/main..<branch>` reports a
+      # branch's entire history for every branch. CLAUDE.md's "Duplicate PRs"
+      # section documents that state at length as a clone artifact to recover
+      # from; what it did not know is that this step CREATES it.
+      #
+      # The self-inflicted part is the expensive part. `check_venture_regression.py`
+      # on the very next line needs `merge-base --is-ancestor` to tell "a
+      # venture was deleted" from "your tree is simply behind the base", and
+      # a shallow clone cannot answer that -- so it exits 1 by design rather
+      # than pass an unproven removal. Run `run_workflow_locally.py --tree` on
+      # a full clone and the sweep shallows the repo at this step and then
+      # reports `main` RED at the next one, for a deletion that never
+      # happened. That sweep is the one command CLAUDE.md prescribes for "is
+      # `main` green right now?" during a starvation window -- i.e. precisely
+      # when no runner is checking and a false red has nothing to contradict
+      # it. It cost this session a diagnosis before the reproduction landed on
+      # the step rather than on the tree.
       - name: Fetch the base branch for the venture-regression check
-        run: git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main
+        run: |
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main
+          else
+            git fetch --no-tags origin +refs/heads/main:refs/ci/base-main
+          fi
 
       - name: Check no live venture disappears from the served catalogue
         run: python3 platform/ci/check_venture_regression.py --base refs/ci/base-main
@@ -503,6 +549,22 @@ jobs:
 
       - name: Clause-checker unit tests
         run: node --test platform/pages/clauses.test.mjs
+
+      # Sibling of the check above, budgeting the class of page that check
+      # exempts. Three sessions built a comparison page for
+      # `overtime-pay-calculator` on 2026-09-16, the afternoon it shipped, each
+      # after an honest overlap check that was clean when it ran -- the
+      # collisions landed in the window between reading open PRs and pushing.
+      # This reads the tree instead, so it cannot be raced, and it budgets only
+      # the generic-method page ("vs. a spreadsheet", "vs. doing it by hand"),
+      # of which there is one real angle per tool. Comparisons against distinct
+      # named products are unbudgeted; see the module header for why a naive
+      # per-venture count gets that backwards.
+      - name: No venture accumulates duplicate generic-method comparison pages
+        run: node platform/pages/surface-budget.mjs --check
+
+      - name: Surface-budget unit tests
+        run: node --test platform/pages/surface-budget.test.mjs
 
       # The FAQ backlog was drained by six concurrent sessions on 2026-08-30,
       # each appending a "Common questions" section to whichever ventures its

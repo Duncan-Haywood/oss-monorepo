@@ -9561,6 +9561,63 @@ ventures:
       -- digest pinning -- not a security audit, a compliance attestation,
       or a claim that the build is safe from supply-chain attacks.
 
+  - slug: required-checks-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic line/indentation scan over pasted workflow YAML and a
+      pasted required-checks list already on disk or in the clipboard. There
+      is nothing to infer: a job's check name is its `name:` field or its
+      job id, computed the same way GitHub computes it, and either it
+      matches a required check name or it does not.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as pinned-actions-check and docker-base-image-pin-check, not a
+      295th <trade>-bid-calculator. duplicate_check.py scored the closest
+      existing venture (agent-instructions-drift-check, a different drift
+      entirely -- that venture diffs an agent-instructions file against a
+      committed baseline, never a branch-protection setting) at 0.20 against
+      the final description, well under the 0.45 flag bar; no existing
+      venture reads branch-protection required-check names.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the browser
+      page classifies pasted text client-side and the CLI runs on the
+      user's own machine against files already on disk, so serving one more
+      user costs a static file and needs no human review of any output.
+      Distribution 6, above docker-base-image-pin-check's 5: the failure
+      mode has a specific, verbatim, high-signal search string ("Expected —
+      Waiting for status to be reported") that years of unresolved GitHub
+      Community and Stack Overflow threads already use, rather than a
+      general audience inferred from a role ("any developer maintaining a
+      Dockerfile"). That is a stronger organic-search hook than most of this
+      family, though still unmeasured against this portfolio's own traffic.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      name-comparison over a well-documented naming convention is easy to
+      reimplement, so defensibility rests on the specific failure-mode
+      framing and this portfolio's disclaimer/usage conventions, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only comparator over workflow YAML and a required-checks
+      list the user already has or pastes in -- no network call of its own,
+      no GitHub API credential, no data leaving the browser or the user's
+      own machine, and no repository or branch-protection setting is ever
+      changed on the user's behalf. Both pages' footers and FAQs state
+      plainly that a clean result answers one narrow question -- does this
+      required check name match a job that would report on a pull request
+      today -- not a full audit of branch protection or CI configuration.
+
   - slug: oidc-trust-policy-check
     scores:
       ai_leverage: 1
@@ -12340,3 +12397,973 @@ ventures:
       known false-positive shape (a context-dependent shorthand
       reference) is disclosed on the docs page rather than hidden or
       "fixed" with guesswork that could introduce a false negative.
+
+  - slug: overtime-pay-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the user already has: an hourly
+      rate, hours worked, or a set of hours-and-rate rows for the blended
+      case. There is no inference step, and applying 29 CFR 778.115's
+      weighted-average formula is an exact calculation against a published
+      federal rule, not a judgment call.
+    basis: >-
+      Graduated 2026-09-16 as a free calculator for hourly overtime pay:
+      standard single-rate time-and-a-half, and the FLSA weighted-average
+      ("blended rate") method for a workweek worked at two or more
+      different pay rates -- the case payroll admins most often get wrong
+      by hand, because the overtime premium is half the blended rate, not
+      the full rate. A new vertical (hourly wage/payroll arithmetic) rather
+      than the portfolio's trade-bid, marketplace-fee, or landlord-tenant
+      archetypes. `duplicate_check.py` scored nothing >= 0.16 against any
+      existing venture, pipeline candidate, or screened-out row; the
+      nearest venture by name, `certified-payroll-calculator`, is
+      Davis-Bacon certified-payroll reporting, a different problem.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity once you know the formula -- what is not
+      commodity is that most people do not know the weighted-average
+      formula and get the "half the blended rate" step backwards, which is
+      exactly what a small, correct, single-purpose calculator fixes.
+      Distribution 6: "how to calculate overtime with two different pay
+      rates" / "blended overtime rate calculator" / "weighted average
+      overtime" are recurring searches among small-business payroll admins
+      and HR generalists, and r/humanresources, r/payroll, and small-business
+      forums see this exact question whenever an hourly employee splits
+      shifts across roles or rates in one week -- a predictable, recurring
+      payroll-cycle moment rather than a one-off search.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only applies a configurable, published federal formula
+      to numbers the user already has -- it does not assert what is legally
+      owed under a specific state's law, generate a pay stub, or file
+      anything. Being wrong costs one party a miscalculated total to
+      double-check, not a filing or a third party's money; the page states
+      in the calculator results, the FAQ, and the footer (not only the
+      footer) that only federal FLSA rules are applied and that several
+      states require more (daily overtime, double-time, bonus inclusion).
+      Ethically: deterministic arithmetic, no dark patterns, no data
+      collected server-side, symmetric for whichever side (employer or
+      employee) is checking the math -- nothing is scraped or inferred
+      about a third party.
+  - slug: cron-dst-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a cron occurrence's local
+      wall-clock time exists, doesn't exist, or exists twice, and what UTC
+      time a fixed-UTC schedule needs per DST segment, is decided entirely by
+      Intl/Date timezone arithmetic -- not a model judgment, and it never
+      claims to know what a specific scheduler does with a skipped or
+      ambiguous occurrence.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a drift checker for a new object entirely -- a cron
+      schedule against the real IANA DST calendar -- rather than another
+      instance of an existing misconfiguration check. duplicate_check.py
+      scored every existing venture, screened-out row, and pipeline
+      candidate against the final description at or below 0.12, well under
+      the 0.45 flag bar; a hand grep of every VENTURE.yaml and
+      screened-out.md for "cron"/"timezone"/"DST"/"daylight saving" found no
+      prior venture, candidate, or screened idea touching cron or timezone
+      arithmetic at all.
+      Autonomous ops 10 / gross margin 10: the browser page computes
+      everything from the visitor's own typed cron expression and timezone
+      name using the Intl timezone database already in their browser
+      (nothing uploaded, nothing fetched), and the CLI is pure Intl/Date
+      arithmetic with no network call, so serving one more user costs a
+      static file.
+      Distribution 6: cron+DST breakage is a long-documented, recurring
+      developer pain point rather than a one-off incident (Stack Overflow
+      carries hundreds of questions on cron+DST variants; r/devops and
+      r/sysadmin see the same "why did my job run an hour off" thread every
+      spring and fall), and GitHub Actions' own documentation states
+      directly that its schedule-trigger cron always runs in UTC with no
+      timezone option -- exactly the failure mode the drift subcommand
+      targets. Scored one point above agent-instructions-drift-check's
+      internal-only evidence because this channel is externally observable
+      without relying on this portfolio's own incident history, though no
+      search-volume tool was queried to confirm magnitude.
+      Time to revenue 5, defensibility 3: donations-only; cron parsing and
+      timezone-offset arithmetic are both well-trodden general techniques,
+      so defensibility rests on the specific combination (DST-gap/overlap
+      detection plus the named fixed-UTC-cron drift computation) rather than
+      on being hard to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads only a cron expression and timezone name the user
+      supplies, computes purely from the public IANA timezone database, and
+      never touches a third party or claims to know what a specific
+      scheduler does with a skipped or ambiguous occurrence -- it states
+      that limitation explicitly. Ethically: donations-only with no per-use
+      fee, so there is no direction in which the tool profits from over- or
+      under-reporting DST risk, and it gets strictly more useful the more of
+      a user's own schedules they check.
+  - slug: bridal-hair-makeup-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. Every figure -- service revenue, the early-start
+      and travel fees, the service-minimum top-up, the schedule-capacity
+      check, and the trial-fee credit -- is deterministic arithmetic over
+      numbers the artist types in, never a model judgment about a booking.
+    basis: >-
+      Built directly as a new niche per portfolio/DIRECTION.md's "Pipeline
+      and new ventures" option 3 (the build-now pipeline was empty), rather
+      than graduated from a pipeline candidate write-up. A grep of every
+      VENTURE.yaml and screened-out.md for "bridal"/"makeup"/"hair"/"beauty"/
+      "wedding" (aside from the unrelated moving-bid-calculator) found no
+      prior venture or screened idea for a mobile beauty-services business,
+      so this is a genuinely new category rather than a variant of an
+      existing one.
+      Autonomous ops 10 / gross margin 10: the calculator runs entirely in
+      the visitor's own browser from typed inputs, nothing uploaded, nothing
+      fetched, so serving one more user costs a static file -- same shape as
+      every other browser-local calculator in this portfolio.
+      Distribution 5: bridal hair/makeup pricing is a recurring pain point
+      in wedding-vendor communities (r/weddingstylist, MUA/hairstylist
+      Facebook groups, "how to price bridal hair and makeup" is a common
+      blog-post title in the industry), giving it plausible organic search
+      and community-referral reach similar to this portfolio's other
+      solo-service-business calculators (`photo-booth-event-quote`,
+      `craft-fair-booth-calculator`). Scored on par with them rather than
+      higher, since no search-volume tool was queried to confirm magnitude
+      and the audience is narrower than a developer-tooling checker.
+      Time to revenue 5, defensibility 3: donations-only; per-person tiered
+      pricing and a capacity check are both straightforward arithmetic once
+      named, so defensibility rests on the specific combination (the
+      trial-fee-credit accounting plus the schedule-capacity check) rather
+      than on being hard to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads only prices, headcounts, and timing figures the
+      artist supplies, computes purely client-side, and never files, signs,
+      or determines anything on the artist's or client's behalf -- it states
+      a planning estimate, not a contract. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to over- or under-report the
+      schedule-capacity finding, and it gets strictly more useful to an
+      artist the more bookings they check against it.
+
+  - slug: sql-migration-lock-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a default is VOLATILE or
+      STABLE, whether a `SET lock_timeout` appears above an exclusive-lock
+      statement, whether `NOT VALID` and `VALIDATE CONSTRAINT` share a
+      transaction block, whether `CREATE INDEX` carries `CONCURRENTLY`, and
+      whether a validated `CHECK` earlier in the file gives `SET NOT NULL`
+      its PostgreSQL 12+ fast path are all decided by exact reading of the
+      SQL text against documented PostgreSQL behaviour. Each is a factual,
+      deterministic reading, not a model judgment -- and the one fact the
+      tool genuinely cannot read, a column's *current* type when judging
+      `ALTER COLUMN TYPE`, makes it say so rather than guess.
+    basis: >-
+      Autonomous ops 10, gross margin 10: the CLI reads files on the user's
+      own disk and the browser tool parses only pasted text, so there is no
+      server of ours in the loop and no network call anywhere in the
+      codebase to add one accidentally -- `usage.test.mjs` asserts that, and
+      serving one more user costs a static file. Distribution 6, one above
+      its sibling k8s-rollout-safety-check: the findings map onto literal
+      PostgreSQL error text and post-mortem phrasing that practitioners
+      paste into a search box verbatim ("CREATE INDEX CONCURRENTLY cannot
+      run inside a transaction block", "alter table blocked all queries"),
+      which is the strongest organic channel available to a tool like this,
+      and the audience is any backend team running PostgreSQL rather than
+      the narrower platform/SRE population. Still capped at 6 rather than
+      higher: it is a developer tool, not a consumer or seller tool, and it
+      was not reachable for a live search-demand check at screening time.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      rule-based checker over documented behaviour is easy to reimplement
+      once the rules are known, same as this portfolio's other deterministic
+      checkers, so defensibility rests only on the four relational checks
+      (lock_timeout presence ahead of an exclusive-lock statement, NOT VALID
+      and VALIDATE sharing a transaction, CONCURRENTLY inside a transaction,
+      SET NOT NULL against a validated CHECK) that per-statement linters do
+      not make, the CI-usable CLI, and this portfolio's disclaimer/usage
+      conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network request of any kind and holds no
+      credential -- it reads SQL text from the user's own disk or from a
+      textarea, so it cannot reach a database, a connection pool or a
+      migration runner even in principle, which is what makes it safe to run
+      against a migration destined for production. It judges only the
+      statement patterns it names, lists the whole check set on the page and
+      behind `--list-checks`, and suppresses findings that would be wrong in
+      the common case (a table created in the same file, a constant or
+      STABLE default, `VALIDATE CONSTRAINT` alone) rather than inflating the
+      count. Every page states plainly that a clean result means these named
+      checks found nothing -- not a database review, and not a guarantee
+      that a migration will not cause downtime or data loss.
+
+  - slug: sbom-diff-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 3
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic structural comparison of two already-parsed package
+      lists (name + version). There is nothing to infer: a package is
+      present in one document, the other, or both at a different version.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as docker-base-image-pin-check and license-drift-check, not a
+      292nd <trade>-bid-calculator. duplicate_check.py scored the closest
+      existing venture (license-drift-check, which diffs a raw npm/pip/
+      cargo/go dependency tree's declared licenses between two snapshots)
+      at 0.16 against a draft description that included a license-change
+      feature; that feature was dropped from scope entirely to keep the two
+      unambiguously separate, re-scoring at 0.11. Top score overall 0.16,
+      well under the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses two
+      pasted SBOM documents and diffs them entirely client-side (nothing
+      uploaded, nothing fetched), and the CLI reads only local files it is
+      pointed at, so serving one more user costs a static file and needs no
+      human review of any output.
+      Distribution 3, below docker-base-image-pin-check's 5: the audience is
+      narrower than "any developer with a Dockerfile" -- it is teams that
+      already generate an SBOM (container scanning, SLSA/supply-chain
+      compliance evidence), a smaller and more specialized population than
+      every Dockerfile maintainer, with no search-volume tool queried to
+      confirm magnitude.
+      Time to revenue 6, defensibility 3: donations-only; a structural diff
+      over two already-standardized document formats is easy to reimplement
+      in an afternoon, so defensibility rests on the specific
+      metadata-noise framing (why a raw diff fails here) and this
+      portfolio's disclaimer/usage conventions, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only structural comparison of two SBOM documents the
+      user already has or pastes in -- no network call of its own, no
+      vulnerability database query, no data leaving the browser. It makes
+      no claim about whether any package or version is safe, vulnerable, or
+      appropriately licensed; both pages' footers and FAQs state this
+      plainly. Ethically: donations-only with no per-use fee, so the tool
+      has no incentive to over- or under-report a change, and it gets
+      strictly more useful the more builds a team compares against it.
+
+  - slug: openapi-breaking-change-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic structural comparison of two already-parsed operation
+      maps (paths, parameters, request-body requiredness). Whether an
+      operation was removed, a parameter became required, a type narrowed,
+      or an enum value disappeared is decided by exact reading of the two
+      documents against the OpenAPI 3.x spec, not a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as sbom-diff-check and sql-migration-lock-check, not a further
+      <trade>-bid-calculator or a further "-check" scanner of a kind already
+      tried repeatedly. duplicate_check.py scored every existing venture,
+      screened-out row, ai-first-markets idea and pipeline candidate at 0.12
+      or below against this idea's description, well under the 0.45 flag
+      bar -- closest were obsidian/wordpress-plugin-review-check (0.10,
+      review a plugin submission against a marketplace's rules, not an API
+      contract) and sbom-diff-check (0.08, same "diff two versioned
+      artifacts" instinct, different artifact). No venture in the tree
+      parses an OpenAPI/Swagger document.
+      Autonomous ops 10 / gross margin 10: the browser page parses two
+      pasted OpenAPI documents and diffs them entirely client-side (nothing
+      uploaded, nothing fetched, no external $ref resolved), and the CLI
+      reads only local files it is pointed at, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 6, above sbom-diff-check's 3: an established market of
+      paid incumbents (Optic, Bump.sh) and open-source CLIs (oasdiff,
+      openapi-diff) already sell exactly this comparison, which is evidence
+      the underlying problem is real and recurring across a broad
+      population (anyone versioning a REST API) rather than the narrower
+      "already generates an SBOM" audience -- the same shape of evidence
+      that put sql-migration-lock-check at 6. None of those incumbents is a
+      free, zero-install, paste-and-go browser tool for the same one-shot
+      question, which is the wedge, not proof of an empty market.
+      Time to revenue 6, defensibility 3: donations-only; a structural diff
+      over an already-standardized document format is not hard to
+      reimplement, so defensibility rests on the specific
+      breaking-vs-non-breaking classification (not just "everything that
+      changed") and this portfolio's disclaimer/usage conventions, not on
+      any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only structural comparison of two OpenAPI documents the
+      user already has or pastes in -- no network call of its own, no
+      external $ref fetched, no data leaving the browser. It makes no claim
+      about full request/response body schema compatibility or that a
+      change is actually safe to ship for a specific client; both pages'
+      footers and FAQs state this plainly. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to over- or under-report a
+      change, and it gets strictly more useful the more API versions a team
+      compares against it.
+
+  - slug: commissary-kitchen-cost-split-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 3
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The cost split -- itemized or
+      manual pool total, per-tenant hours/storage, a largest-remainder
+      allocation to the cent -- is decided entirely by the numbers the
+      operator types in, not a model judgment.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's scoring
+      process; full write-up at
+      portfolio/pipeline/candidates/commissary-kitchen-cost-split-calculator.md.
+      Distinct from food-truck-event-margin-calculator (prices one booking
+      from a single truck's own cost side; this splits a shared kitchen's
+      recurring pooled overhead across several tenants from the commissary
+      operator's side) -- confirmed against the full ventures/ list,
+      screened-out.md, and duplicate_check.py (top overlap 0.12 against
+      food-truck-event-margin-calculator before this venture existed),
+      none of which names this job.
+      Defensibility 3, distribution 3: scored deliberately modest rather
+      than inflated to match the liability/ethics gates below. This is a
+      small, easily-copied arithmetic tool -- the largest-remainder split
+      is not hard to reimplement -- and unlike hoa-reserve-fund-calculator's
+      post-Surfside reserve-study mandate, there is no comparable regulatory
+      driver creating current search volume for this niche. The channel to
+      reach commissary operators specifically is unproven.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool performs arithmetic on the pool costs, tenant hours,
+      and tenant storage figures the operator supplies, and never drafts,
+      reviews, or enforces a shared-kitchen or tenant agreement -- the
+      footer and FAQ say so explicitly. Ethically: no fee, no PII beyond a
+      free-text tenant label entered and read only in the browser, and the
+      tool gets strictly more useful to an operator the more accurately
+      they enter tenant usage, with no incentive on either side to
+      misreport.
+
+  - slug: backflow-test-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over a fee schedule the tester already
+      charges: a per-device fee, a multi-device discount for devices after
+      the first, a per-device filing fee, a travel fee, and a retest fee.
+      There is no inference step and no judgment about whether a device
+      passed or failed -- that stays the tester's own call.
+    basis: >-
+      Graduated 2026-09-16 as a free calculator for backflow-preventer
+      testers quoting a multi-device property visit (RPZ, double-check,
+      PVB): a per-device test fee, a multi-device discount applied to every
+      device after the first on the same visit, a per-device municipal
+      report-filing fee, a one-time travel fee, and a retest fee for devices
+      that fail. A new vertical (recurring cross-connection-control testing)
+      rather than the portfolio's ~140 <trade>-bid-calculator one-time
+      installation quotes, closer in shape to
+      fire-extinguisher-inspection-route-margin and
+      home-inspection-fee-calculator (a recurring inspection/testing fee).
+      `duplicate_check.py` scored nothing >= 0.12 against any existing
+      venture, pipeline candidate, or screened-out row.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity once you know the fee structure -- what is not
+      commodity is that most hand-built fee sheets drop the filing fee on a
+      discounted or failed device, or apply the multi-device discount to
+      the first device by mistake.
+      Distribution 5: annual (or biennial, by water utility) backflow
+      testing is legally required almost everywhere in the US for
+      commercial, multi-unit, and irrigation water services, performed by
+      testers certified through state or ASSE/ABPA programs who quote
+      multi-device commercial jobs routinely -- a real, narrower population
+      than the portfolio's payroll or trade-bid audiences, with the ABPA and
+      state cross-connection-control associations as the trade's own
+      discussion venues. Scored a point below overtime-pay-calculator's 6
+      for that narrower reach, not for a weaker problem fit.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only totals the fee schedule and discount the tester
+      configures against the devices they enter -- it does not test
+      anything, does not determine whether a device passed or failed, and
+      does not know any specific water utility's required report form,
+      filing deadline, or device-type requirements. Being wrong costs one
+      party a miscalculated invoice total to double-check, not a filing or a
+      third party's safety; the page states in the calculator's own
+      findings, the FAQ, and the footer (not only the footer) that it does
+      not know the utility's requirements and does not determine pass/fail.
+      Ethically: deterministic arithmetic, no dark patterns, no data
+      collected server-side, and no incentive to over- or under-report a
+      device's status since the tool never makes that determination at all.
+
+  - slug: biohazard-cleanup-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over a technician's own rates: crew labor,
+      PPE decon-cycle sets, regulated-waste disposal rounded up to whole
+      containers, supplies, equipment, travel, a target margin, and a
+      minimum job fee. There is no inference step -- the two corrections
+      over a naive estimate (container rounding, decon-cycle PPE) are both
+      fixed arithmetic rules, not judgment calls.
+    basis: >-
+      Graduated 2026-09-17 as a free calculator for biohazard/trauma-scene
+      remediation technicians pricing a job: crew labor, PPE that scales with
+      decontamination re-entry cycles rather than headcount, and
+      regulated-waste disposal billed per container (not per pound, with a
+      partly-full container costing a whole one), plus a target margin with a
+      minimum-job floor. A new niche adjacent to mold-remediation-bid-
+      calculator and radon-mitigation-bid-calculator (hazmat-adjacent
+      remediation) but a distinct trade -- trauma/crime-scene/biohazard
+      cleanup rather than mold or radon. `duplicate_check.py` scored nothing
+      >= 0.16 against any existing venture, pipeline candidate, or
+      screened-out row.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity once you know the two corrections -- what is not
+      commodity is that most hand-built estimates linearize disposal by the
+      pound and count PPE by headcount, both of which understate the real
+      hauler invoice and the real decon burden.
+      Distribution 5: biohazard/trauma-scene remediation is a real, narrow
+      trade population (state-licensed technicians, often cross-licensed
+      for mold or water-damage restoration) with a frequent, painful pricing
+      problem and an established national trade association (ABRA) as a
+      discussion venue -- scored level with the portfolio's other
+      hazmat-adjacent remediation calculators for the same reach.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only totals the rates, hours, and waste estimate the
+      technician configures -- it does not determine hauler pricing, does
+      not verify OSHA bloodborne-pathogen decon requirements, and does not
+      adjudicate an insurance claim. Being wrong costs one party a
+      miscalculated quote to double-check, not a filing or a third party's
+      safety; the page states in the calculator's own findings, the FAQ,
+      and the footer (not only the footer) that it does not know the
+      hauler's actual contract or the local decon protocol. Ethically:
+      deterministic arithmetic, no dark patterns, no data collected
+      server-side, and no incentive to over- or under-report a job's scope
+      since the tool never makes that determination at all.
+
+  - slug: land-survey-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The corner-and-research-driven
+      cost breakdown, the terrain multiplier, and the per-acre comparison
+      are all decided entirely by the numbers the surveyor types in, not a
+      model judgment -- the same reasoning this portfolio applies to every
+      other deterministic bid calculator (e.g. hoa-reserve-fund-calculator,
+      drone-mapping-job-calculator).
+    basis: >-
+      Screened 2026-09-16, same session, per
+      portfolio/pipeline/README.md's scoring process. Distinct from
+      drone-mapping-job-calculator (Part 107 drone pilots quoting aerial
+      photogrammetry/mapping flights -- airtime, overlap settings, GSD --
+      not licensed land surveyors doing boundary/ALTA retracement work with
+      corner monuments and deed research) and from every other venture and
+      screened-out.md row, none of which names "land survey", "boundary
+      survey", "ALTA", "corner", or "monument" -- confirmed with
+      `python3 portfolio/pipeline/duplicate_check.py` (top match 0.13,
+      well below the read-this-first threshold) and a full read of
+      screened-out.md.
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 5: real, narrow community channels exist (state
+      surveyor-society boards, r/Surveying, "land surveyors united"-style
+      Facebook groups, and "how to price a boundary survey" as a recurring
+      trade-forum question), but the licensed-surveyor audience is smaller
+      and more professionally gatekept than a general home-services trade,
+      so scored below this portfolio's typical bid-calculator distribution
+      (6-7) rather than at par with it -- no search-volume tool was queried
+      to confirm magnitude.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the
+      portfolio's typical bid-calculator floor), so the edge is being
+      first and specific to this niche's actual cost drivers rather than a
+      moat in the code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no legal boundary determination, checks no state's minimum technical
+      standards, and does not replace the licensed surveyor's own
+      professional judgment, liability position, or E&O coverage on a
+      given job; the surveyor remains the one who signs and stamps the
+      plat. Ethically: donations-only with no per-quote fee, so the tool
+      has no incentive to steer a bid up or down, and the per-acre
+      comparison is disclosed methodology (FAQ: "why not just quote per
+      acre") rather than a black-box number.
+
+  - slug: estate-sale-net-proceeds-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain
+      model -- applying a company's own tiered commission schedule and
+      flat fees to an estimated gross sale, and an optional minimum
+      guarantee floor -- which is arithmetic, and inference would only
+      make the result less checkable.
+    basis: >-
+      Graduated 2026-09-17 as a browser-local calculator for families
+      comparing estate sale company commission quotes. `duplicate_check.py`
+      top match against an existing venture, screened-out row, or pipeline
+      candidate was 0.39 (atm-route-margin, an unrelated field), well
+      below the 0.45 flag threshold.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no
+      server component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 4: the tiered-commission-plus-fee-stack arithmetic
+      applied to two quotes side by side, showing that a lower headline
+      rate does not always net more, is not published anywhere else
+      found in a search of the category -- most estate-sale pricing
+      guidance states a single average commission percentage rather than
+      modelling a schedule.
+      Distribution 5: r/EstateSale, r/AgingParents, and r/eldercare are
+      real but smaller communities than a trade-bid audience, and "estate
+      sale company commission rates" / "how much do estate sale companies
+      charge" are plausible, demonstrable search phrases for a family
+      about to hire one -- but no channel measurement exists yet.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only applies the commission tiers, fees, and
+      optional minimum guarantee the visitor types in to an estimated
+      sale total -- it performs no legal or tax determination, does not
+      look up or verify any real company's pricing, and states plainly
+      that the company's own written contract governs the sale. Being
+      wrong costs the family a settlement estimate to double-check
+      against the contract, not a filing or a third party's safety.
+      Ethically: deterministic arithmetic, no data collected
+      server-side, and no incentive to steer the comparison toward
+      either company since the tool never recommends one.
+  - slug: wedding-florist-proposal-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the florist types. Rounding a
+      stem count up to whole bunches and multiplying by a markup is
+      exactly computable; there is nothing to infer and nothing a model
+      would do better than a ceiling division.
+    basis: >-
+      Screened 2026-09-16. duplicate_check.py against the venture
+      description scored the closest existing venture at 0.09
+      (forestry-mulching-bid-calculator and staffing-markup-calculator tie,
+      both on the generic "calculator / margin / pricing" vocabulary rather
+      than on the job), with bridal-hair-makeup-pricing-calculator -- the
+      nearest neighbour by buyer, not by mechanism -- at 0.08. Well under
+      the 0.45 flag bar, and the mechanism is genuinely distinct: that
+      venture prices per-person services against a schedule, this one
+      converts a stem recipe into a wholesale purchase. No florist or
+      floral-pricing row exists in screened-out.md.
+      Autonomous ops 10 / gross margin 10: a static page that computes in
+      the visitor's browser with nothing uploaded and nothing fetched, so
+      serving one more user costs a static file and needs no human review
+      of any output.
+      Distribution 5, above sbom-diff-check's 3: the audience is every
+      studio and solo florist pricing weddings, which is a larger and more
+      search-active population than teams generating SBOMs, and the query
+      shape ("how much to charge for wedding flowers", "floral recipe
+      cost") is a question people type. Not higher, because no search-volume
+      tool was queried to confirm magnitude and the portfolio has no
+      measured traffic of its own to extrapolate from.
+      Time to revenue 6, defensibility 3: donations-only; ceiling division
+      over a recipe is easy to reimplement, so defensibility rests on the
+      specific framing (that a markup applied to a stem count is applied to
+      a cost never paid, and that a cost-percentage shrink allowance is
+      wrong in both directions) and this portfolio's disclaimer/usage
+      conventions, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: planning arithmetic over figures the florist supplies, run
+      entirely in their own browser, with no network call, no stored data
+      and nothing leaving the device. It quotes no wholesale prices of its
+      own and makes no claim about what any flower costs or what any
+      wedding should be priced at -- both pages' footers say so plainly,
+      and note that wholesale availability and price move week to week so a
+      quote is the user's to verify. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to push a price up or down,
+      and it helps a small business charge for costs it is already paying.
+  - slug: asbestos-abatement-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The containment-class-driven
+      cost breakdown, the per-area setup cost, and the flat-rate
+      comparison are all decided entirely by the numbers the contractor
+      types in, not a model judgment -- the same reasoning this portfolio
+      applies to every other deterministic bid calculator (e.g.
+      land-survey-bid-calculator, drone-mapping-job-calculator).
+    basis: >-
+      Screened 2026-09-17, same session, per
+      portfolio/pipeline/README.md's scoring process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.11
+      (vehicle-wrap-bid-calculator), well below the read-this-first
+      threshold. Distinct from popcorn-ceiling-bid-calculator (a
+      residential drywall/painting contractor scraping acoustic ceiling
+      texture, for whom "asbestos test" is one $ line item among many and
+      abatement itself is explicitly out of scope) -- the two ventures
+      cross-link as siblings rather than overlapping. No screened-out.md
+      row names "asbestos", "abatement", or "hazmat".
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 4: a real but narrower channel than a general
+      home-services trade -- licensed abatement contractors are a smaller,
+      more specialized, more regulator-facing audience than roofers or
+      painters, and no contractor-forum or subreddit search-volume signal
+      was checked to confirm a "asbestos removal cost calculator" query
+      pattern exists at meaningful volume, so scored below this
+      portfolio's typical bid-calculator distribution (6-7) rather than at
+      par with it.
+      Time to revenue 4, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the
+      portfolio's typical bid-calculator floor), and the audience's
+      professional gatekeeping (state licensing, EPA/OSHA certification)
+      slows organic discovery relative to an unlicensed trade.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no asbestos inspection, bulk-sample identification, or air-quality
+      analysis, checks no federal/state/local regulatory requirement, and
+      does not replace the contractor's own certification,
+      competent-person determination, or professional judgment on a given
+      job; the contractor remains solely responsible for regulatory
+      compliance. Ethically: donations-only with no per-quote fee, so the
+      tool has no incentive to steer a bid toward a cheaper containment
+      class than the job actually requires, and the flat-rate comparison
+      is disclosed methodology (FAQ: "why not just quote a flat rate per
+      square foot") rather than a black-box number.
+  - slug: tutor-package-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the instructor supplies: a
+      price, a session count, a no-show rate, and a makeup policy. Both
+      pricing models' revenue and effective hourly pay are exact
+      calculations against those inputs, not a judgment call -- the same
+      reasoning this portfolio applies to overtime-pay-calculator and
+      music-lesson-break-even.
+    basis: >-
+      Screened 2026-09-17 during a PROCEED-verdict session with an empty
+      build-now queue. `duplicate_check.py` top match 0.18
+      (craft-fair-booth-calculator), well under the 0.45 flag bar; the
+      nearest venture by buyer, music-lesson-break-even, solves a
+      different problem (the minimum per-lesson price that clears a
+      target annual income) and does not compare a package to
+      per-session pricing at all -- the two cross-link as siblings
+      rather than overlapping. No tutoring, coaching, or session-package
+      row exists in screened-out.md.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no
+      server component, zero marginal cost per visitor.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is trivially cloneable, so defensibility rests on the
+      specific framing (a package discount deeper than the no-show rate,
+      with makeup owed, can pay worse per hour despite safer revenue)
+      and this portfolio's disclaimer/usage conventions, not on any
+      moat.
+      Distribution 5: independent tutors, test-prep coaches, and similar
+      1:1 instructors are a real and search-active audience ("tutoring
+      package pricing", "should I offer a lesson package"), comparable
+      to music-lesson-break-even's audience -- not scored higher because
+      no search-volume tool was queried to confirm magnitude and the
+      portfolio has no measured traffic of its own to extrapolate from.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: arithmetic over figures the instructor supplies, run entirely
+      in their own browser, with no network call, no stored data, and
+      nothing leaving the device. It does not track any specific
+      student's attendance or makeup obligation, schedule anything, or
+      determine what policy to run -- both pages' footers say so
+      plainly. Ethically: donations-only with no per-use fee, so the
+      tool has no incentive to push a visitor toward either pricing
+      model, and it helps an instructor see a tradeoff their own
+      package discount already creates.
+  - slug: storage-auction-max-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the bidder types: a recovery
+      rate and fee percentage applied to an estimate, a cost stack summed,
+      and one linear equation solved for the bid that leaves a target
+      margin. Exactly computable; there is nothing to infer and nothing a
+      model would do better than the arithmetic already does.
+    basis: >-
+      Screened 2026-09-17. duplicate_check.py against the venture
+      description scored the closest existing venture at 0.08
+      (ebay-fee-calculator and amazon-fba-calculator tie, both on the
+      generic resale/fee vocabulary rather than on the mechanism), with
+      dumpster-rental-margin-calculator next at 0.07. Well under the 0.45
+      flag bar, and the mechanism is genuinely distinct: those tools price
+      a listing or a rental for an item already in hand, this one prices a
+      sight-mostly-unseen bid for a stranger's entire unit at a lien
+      auction, including the buyer's premium charged on top of the hammer
+      price and the cleanout-window deposit risk. No storage-auction row
+      exists in screened-out.md.
+      Autonomous ops 10 / gross margin 10: a static page that computes in
+      the visitor's browser with nothing uploaded and nothing fetched, so
+      serving one more user costs a static file and needs no human review
+      of any output.
+      Distribution 5: r/StorageWars, r/Flipping and dedicated storage-
+      auction forums (e.g. storageauctions.com's own boards) discuss bid
+      sizing by rule of thumb routinely, and "storage auction bid
+      calculator" / "how much should I bid on a storage unit" are search
+      phrases the niche actually types. Not higher, because no
+      search-volume tool was queried to confirm magnitude and the
+      portfolio has no measured traffic of its own to extrapolate from.
+      Time to revenue 5, defensibility 2: donations-only; the arithmetic
+      itself (premium on top, recovery-rate-then-fees, a linear
+      break-even/target-margin solve) is easy to reimplement once seen, so
+      defensibility rests on the specific framing -- that the naive
+      percent-of-value rule ignores the premium and the fixed cost stack --
+      and this portfolio's disclaimer/usage conventions, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: planning arithmetic over figures the bidder supplies, run
+      entirely in their own browser, with no network call, no stored data
+      and nothing leaving the device. It makes no claim about what any
+      specific unit's contents are actually worth, does not place a bid,
+      and does not track any facility's lien-sale law or removal-window
+      terms -- the footer says so plainly and tells the bidder to verify
+      those directly. Storage-unit lien auctions are a lawful, common and
+      publicly advertised sale of abandoned property to recover unpaid
+      rent (the "storage wars" hobby), not a circumvention or advice-of-
+      record category, and donations-only pricing gives the tool no
+      incentive to push a bid up or down.
+
+  - slug: vector-db-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The storage-sizing arithmetic
+      (vectorCount * dimension * 4 bytes plus metadata, times a
+      user-supplied overhead multiplier) and the per-provider cost
+      comparison are both decided entirely by numbers the visitor types
+      in -- the calculator does not fetch or assert any vendor's price,
+      the same bring-your-own-rates discipline cloud-egress-calculator
+      already uses for cloud storage pricing.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.26
+      (terraform-plan-blast-radius-check, an existing venture with an
+      unrelated domain -- infra-as-code plans, not vector databases),
+      well under the 0.45 read-this-first bar. Distinct from every
+      existing "-check" scanner and bid calculator: no venture in the
+      tree prices vector database storage or query cost, and this is not
+      a further instance of the saturated <trade>-bid-calculator or
+      GitHub Actions security-scanner archetypes.
+      Autonomous ops 10 / gross margin 10: the page computes everything
+      client-side from typed inputs, nothing uploaded, no network call,
+      so serving one more user costs a static file -- same shape as every
+      other browser-local calculator in this portfolio.
+      Distribution 4: a real and current engineering decision (choosing a
+      vector database for a RAG or agent-memory workload) with plausible
+      channels named in VENTURE.yaml (r/vectordatabase, r/MachineLearning,
+      r/LangChain threads already asking this exact "which vector DB is
+      cheapest" question, Hacker News Show HN, and search terms like
+      "pinecone vs qdrant pricing"), but scored below this portfolio's
+      strongest distribution rows because no search-volume or existing
+      thread was actually confirmed this session -- egress from this
+      sandbox cannot reach Reddit, Hacker News, or a search engine to
+      verify the channel claim, so it is asserted from general knowledge
+      of the RAG/agent-tooling niche, not measured.
+      Time to revenue 6, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable), but the
+      bring-your-own-rates design plus the index-overhead explainer page
+      is a small, specific wedge over a generic two-column cost
+      calculator, matching openapi-breaking-change-check's reasoning for
+      the same pair of scores.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never fetches or asserts a vendor's current price --
+      every rate is typed in by the visitor -- and the footer/FAQ state
+      plainly that the output is an estimate from entered rates, not a
+      live quote, to be verified against each provider's own pricing
+      before committing spend. The index-overhead multiplier is
+      explicitly user-set rather than a number this tool claims to know
+      about any vendor's internals, so a stale or wrong vendor-specific
+      figure is never presented as fact. Ethically: donations-only with no
+      per-comparison fee, so the tool has no incentive to bias the ranking
+      toward any provider, and it gets more useful the more providers a
+      visitor adds rather than steering toward fewer.

@@ -123,6 +123,18 @@ toward *running in public* ranks with feature work here, not below it:
       python3 platform/ci/pages_state.py --require-current   # exits 1 if stale
       CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
       python3 platform/ci/pages_state.py --require-current   # must exit 0 now
+      python3 platform/ci/pages_state.py --record            # commit the row it rewrites
+
+  `--record` writes the reading into `infra_state.yaml`'s
+  `github-pages-branch-route` row. Run it even on a run that published
+  nothing: the row ages out after three days, and when it does,
+  `decision_queue.py` tells the account owner "OUTAGE: the public surface is
+  down ... every other row here is downstream of a host answering at all" about
+  a catalogue GitHub is measurably serving. That banner is addressed to the
+  owner and tells them to stop reading, so a stale row here costs more than any
+  code defect you are likely to ship in the same run. It is a read-only
+  measurement -- no runner, no cluster, no credential beyond the repository
+  read you already have.
 
   The flag exists because the prose version of this instruction did not hold:
   CLAUDE.md had carried it for a day when a session that had read it still left

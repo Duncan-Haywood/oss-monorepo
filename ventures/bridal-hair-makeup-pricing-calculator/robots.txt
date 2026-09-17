@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://example.invalid/bridal-hair-makeup-pricing-calculator/sitemap.xml

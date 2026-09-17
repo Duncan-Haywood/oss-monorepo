@@ -1,0 +1,82 @@
+name: sbom-diff-check
+description: Free, offline tool that compares two SBOM (Software Bill of Materials) documents -- CycloneDX or SPDX JSON, from syft, docker sbom, trivy, or cdxgen -- and reports exactly which packages were added, removed, or changed version between two builds. Zero network calls; a matching zero-dependency Python CLI usable as a CI gate.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row, and ai-first-markets idea.
+# First pass, worded with a "license changed" feature included, scored 0.16
+# against `license-drift-check` -- close enough to read by eye rather than
+# trust the score alone. `license-drift-check` diffs a raw npm/pip/cargo/go
+# dependency tree's *declared licenses* between two point-in-time snapshots,
+# for a CI license-change gate. This tool diffs a *standardized SBOM
+# document's* package list (added/removed/version-changed) -- a different
+# input format (the artifact syft/trivy/docker sbom already produce, not a
+# package-manager listing) and a different output (what changed in the
+# inventory, not a license-specific alert). To keep the two unambiguously
+# separate, the license-change feature from the first draft was dropped
+# entirely from this tool's scope rather than risk the overlap; re-scored
+# without it at 0.11 against the same sibling. Also distinct from
+# `docker-base-image-pin-check` (a single Dockerfile's FROM-line pinning, not
+# a full dependency inventory diff) and `vendor-change-evidence`/
+# `dns-configuration-evidence` (customer-selected third-party pages and DNS
+# answers, not a user-supplied build artifact). Top score overall 0.16, well
+# below the 0.45 read-this-first bar.
+#
+# Shape rationale: same archetype as `docker-base-image-pin-check`,
+# `license-drift-check`, `actions-runner-starvation-check`, and
+# `ai-crawler-access-check` -- a developer/CI checker (CLI + browser port +
+# SEO landing page + comparison page), the shape
+# `portfolio/pipeline/README.md`'s "archetype itself" section recommends
+# over a further `<trade>-bid-calculator` clone given how many of those
+# already exist with zero measured visitors.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high. This is a mechanical, read-only structural diff with no
+# vulnerability, license, or compliance claim of any kind -- both the CLI
+# and the browser page make zero network calls (sbom_diff.py, diff.mjs), no
+# data leaves the user's device in the browser version, and the tool never
+# scrapes or resolves anything on the user's behalf. Comparable to
+# `docker-base-image-pin-check` and `license-drift-check`, both already
+# graduated and live on this exact reasoning.
+hypotheses:
+  - claim: >-
+      A developer or platform engineer who already generates SBOMs as part
+      of a container build (for SLSA/supply-chain compliance evidence, or
+      simply because their scanner emits one) will search the exact
+      question ("diff two sboms", "compare cyclonedx json", "what changed
+      between two syft sboms") after noticing a build grew unexpectedly, and
+      will find this tool because no existing free tool does a package-only
+      structural diff that ignores SBOM metadata noise and stays entirely
+      local, with no upload and no account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `sbom_diff.py --fail-on-change` into their own CI to
+      gate a build whose dependency set should not silently drift (a vendored
+      or air-gapped build, or a security-sensitive base image), the same way
+      `docker-base-image-pin-check`'s CLI convention is meant to be used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using sbom_diff.py or diff.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sbom-diff-check/
+  analytics: null

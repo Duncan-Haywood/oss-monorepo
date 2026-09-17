@@ -186,6 +186,42 @@ export const SHOP_RATE_ALIASES = {
     hourlyWage: 'wagePerHour',
     targetMargin: 'targetMarginPct',
   },
+  // "Crew rate ($/hr per person)" is the same raw, un-burdened per-person wage
+  // as `hourlyWage`, spelled `crewHourlyRatePerPerson`. "Target margin on
+  // price (%)" is the same net-margin-on-price concept as `targetMargin`,
+  // spelled `targetMarginPercentPct` (the `Pct` suffix matches this page's own
+  // convention for a 0-100 UI field backing a 0-1 fraction in calc.mjs). It has
+  // no separate payroll-burden field, and office research and drafting time
+  // are priced as their own hourly rates rather than an overhead percentage of
+  // direct cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'land-survey-bid-calculator': {
+    hourlyWage: 'crewHourlyRatePerPerson',
+    targetMargin: 'targetMarginPercentPct',
+  },
+  // "Crew rate ($/hr per worker)" is the same raw, un-burdened per-worker wage
+  // as `hourlyWage`, spelled `crewHourlyRatePerWorker`. "Target margin on
+  // price (%)" is the same net-margin-on-price concept as `targetMargin`,
+  // spelled `targetMarginPercentPct` (same convention as `land-survey-bid-
+  // calculator` above). It has no separate payroll-burden field, and
+  // containment setup, air monitoring, and waste disposal are priced as their
+  // own line items rather than an overhead percentage of direct cost, so it
+  // carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'asbestos-abatement-bid-calculator': {
+    hourlyWage: 'crewHourlyRatePerWorker',
+    targetMargin: 'targetMarginPercentPct',
+  },
+  // "Labor rate ($/hr)" is documented in `calc.mjs` as a loaded hourly rate
+  // for one technician's time -- the same raw, per-person wage as
+  // `hourlyWage`, spelled `laborRatePerHour`. "Target margin (%)" is the
+  // same net-margin-on-cost concept as `targetMargin`, spelled
+  // `targetMarginPercent`. It has no separate payroll-burden field and no
+  // overhead-on-direct-cost percentage -- PPE, supplies, equipment and
+  // disposal are priced as their own line items, not a percentage markup --
+  // so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'biohazard-cleanup-bid-calculator': {
+    hourlyWage: 'laborRatePerHour',
+    targetMargin: 'targetMarginPercent',
+  },
 };
 
 /**
@@ -237,6 +273,12 @@ export const PARTIAL_SHOP_RATE_PAGES = {
   // `appliance-repair-quote-calculator` case, and not a `hourlyWage`.
   'bounce-house-rental-calculator':
     'This tool prices labour as one rate per crew member that already covers burden, so your saved wage and burden are left alone here.',
+  'land-survey-bid-calculator':
+    'This tool has no separate payroll-burden field and prices office research and drafting time as their own hourly rates rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
+  'asbestos-abatement-bid-calculator':
+    'This tool has no separate payroll-burden field and prices containment setup, air monitoring, and waste disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
+  'biohazard-cleanup-bid-calculator':
+    'This tool has no separate payroll-burden field and prices PPE, supplies, equipment and disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
 };
 
 /**
@@ -349,6 +391,15 @@ export const REVIEWED_NOT_CARRIED = {
   'amazon-fba-calculator': 'the hourly figure is per-task seller time, not a crew wage',
   'walmart-marketplace-calculator':
     'the hourly figures are per-task seller time, not a crew wage',
+  // Slug ends in `bid-calculator`, which reaches this population, but the bid
+  // is for a stranger's storage-unit contents at a lien auction, not a
+  // contractor's job. `laborRatePerHour` prices cleanout hours only (sorting,
+  // hauling, dumping), not a crew wage the business pays across every job, and
+  // there is no payroll burden or overhead-on-direct-cost field here at all —
+  // `targetMarginPercent` is margin on realized resale revenue after channel
+  // fees, a different base from the spec's margin on a priced job.
+  'storage-auction-max-bid-calculator':
+    'laborRatePerHour prices cleanout hours on one unit, not a crew wage, and there is no burden or overhead-on-direct-cost field',
 };
 
 /**
