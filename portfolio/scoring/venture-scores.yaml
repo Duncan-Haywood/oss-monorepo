@@ -14685,3 +14685,52 @@ ventures:
       seller happy -- unlike the incumbent lead-generation calculators
       this venture's own distribution note names, which are built to
       route the seller into a paid exchange-intermediary consultation.
+  - slug: qbi-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic Section 199A statutory arithmetic (a taxable-income
+      threshold comparison, a proportional phase-in blend, a greater-of
+      wage/UBIA test) over numbers the user types in. There is no
+      inference step anywhere in the tool.
+    basis: >-
+      Graduated 2026-09-17 as a free browser calculator for the Section
+      199A qualified business income (QBI) deduction, for one qualified
+      trade or business, tax years 2025 and 2026 (including the OBBBA
+      2026 range widening and new $400 minimum deduction). The QBI
+      deduction has applied since 2018 and several CPA-firm-branded
+      lead-generation calculators already exist for the same search
+      phrases ("QBI deduction calculator", "199A deduction calculator") --
+      evidence of real, current search volume, sharpened by the widely
+      covered OBBBA changes taking effect for tax year 2026. This
+      differentiates the same way this portfolio's other tax calculators
+      do: free, no-signup, client-side, with no lead-generation funnel
+      behind it. Distribution scored the same as no-tax-on-tips-overtime-
+      calculator's: real but unmeasured search demand, no paid
+      acquisition. No account, network, payment, or paid API dependency.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The tool never files anything and never determines SSTB status or
+      UBIA on the user's behalf -- both are explicitly self-reported with
+      an inline caveat, not verified against the statute or Treas. Reg.
+      1.199A-5, and every output is framed as an estimate to verify
+      before filing, not a return. Being wrong costs a filer an
+      inaccurate estimate they can still correct against IRS guidance
+      before filing, not a lawsuit -- the same risk envelope as this
+      portfolio's other tax-adjacent evidence tools. It carries no
+      adverse incentive in either direction (no upsell that profits from
+      over- or under-reporting, donations-only), and the tool explicitly
+      declines to model multi-business netting rather than approximating
+      it silently -- the "What this does not cover" section and a page
+      test both say so.
