@@ -1946,7 +1946,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this branch thought was still unmerged was already reflected in the
     # baseline it started counting from. Recorded from the tool's own
     # measurement rather than corrected by hand a second time.
-    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
+    total = 312  # `infra/OWNER_CHECKLIST.md`'s own "N of the 312 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

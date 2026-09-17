@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NY LLC Transparency Act Tracker — Deadline &amp; Filing Organizer</title>
+  <meta name="description" content="Free browser tool for New York LLCs: check whether your LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under the NY LLC Transparency Act, see your filing deadline counted down, and organize the beneficial-owner details you'll need before you email NYDOS yourself. Nothing you type is uploaded.">
+  <meta property="og:title" content="NY LLC Transparency Act Tracker">
+  <meta property="og:description" content="Check your likely filing category, count down to your deadline, and organize beneficial-owner details for the NY LLC Transparency Act — free, runs entirely in your browser, not legal advice.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"NY LLC Transparency Act Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks a New York LLC's likely filing category (Reporting Company vs. Exempt Company) under the NY LLC Transparency Act from the filer's own answers, computes the applicable initial filing deadline, and organizes beneficial-owner information into a downloadable draft the filer reviews and files themselves. Reference tool only, not a legal determination. Runs entirely in the browser; nothing is uploaded."}
+  </script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .field-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .field-row > div { flex: 1 1 220px; }
+    select, input[type=text], input[type=date] { box-sizing: border-box; width: 100%; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui, sans-serif; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.danger { background: #7f1d1d; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .pill.reporting { background: #fde8e8; color: #7f1d1d; }
+    .pill.exempt { background: #fff4d6; color: #6b4a00; }
+    .pill.outside { background: #e6f4ea; color: #14532d; }
+    pre.output { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .85rem; line-height: 1.5; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .missing { color: #9a3412; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .disclaimer-banner { background: #fff4d6; border: 1px solid #e0c060; border-radius: 10px; padding: 14px 16px; margin: 0 0 18px; font-size: .92rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NY LLC TRANSPARENCY ACT TRACKER · RUNS IN YOUR BROWSER</p>
+    <h1>Does your NY LLC owe a filing — and when?</h1>
+    <p>Answer four questions to see your likely category and deadline under New York's LLC Transparency Act, then organize the beneficial-owner details you'll need before you file. <strong>This is not legal advice and not a determination of your actual filing status</strong> — see the disclaimer below before you rely on it.</p>
+  </header>
+
+  <div class="disclaimer-banner">
+    <strong>Evidence and organizing only — you remain the filer.</strong> This tool applies your own answers to New York Department of State (NYDOS) guidance confirmed as of December 31, 2025. It never files anything, never contacts New York State, and never determines your LLC's actual legal status. Confirm your category and deadline directly with NYDOS or your own attorney before you rely on them.
+  </div>
+
+  <section class="card">
+    <h2>1. Your likely category and deadline</h2>
+    <div class="field-row">
+      <div>
+        <label for="formed-in-ny">Was this LLC formed under New York law (a domestic NY LLC)?</label>
+        <select id="formed-in-ny">
+          <option value="no" selected>No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
+      <div>
+        <label for="authorized-in-ny">Is it authorized/registered to transact business in New York (a foreign LLC doing business here)?</label>
+        <select id="authorized-in-ny">
+          <option value="no" selected>No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
+      <div>
+        <label for="formed-outside-us">Was this LLC formed under the law of a country outside the United States?</label>
+        <select id="formed-outside-us">
+          <option value="no" selected>No</option>
+          <option value="yes">Yes</option>
+        </select>
+      </div>
+      <div>
+        <label for="nexus-date">Date it was formed in NY, or authorized/registered to transact business in NY</label>
+        <input type="date" id="nexus-date" value="2025-06-01">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check-category">Check my category and deadline</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (foreign LLC registered 2026-03-01)</button>
+    </p>
+    <div id="category-report" hidden aria-live="polite">
+      <p id="category-summary"></p>
+      <p id="category-note" class="note"></p>
+      <table>
+        <tbody>
+          <tr><th>Applicable initial deadline</th><td id="deadline-value"></td></tr>
+          <tr><th>Days remaining</th><td id="deadline-countdown"></td></tr>
+        </tbody>
+      </table>
+      <p class="note" id="annual-note">Every LLC subject to the Act, reporting or exempt, also owes a recurring annual statement in later years confirming or updating its beneficial ownership information (or exempt status) — confirm your own annual due date directly with NYDOS.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Beneficial owner worksheet</h2>
+    <p class="note">Needed if your category looks like a Reporting Company. Nothing here is uploaded or sent anywhere — see the privacy note in the footer, including how the "keep this in my browser" option below works.</p>
+    <div class="field-row">
+      <div>
+        <label for="entity-name">Entity name</label>
+        <input type="text" id="entity-name" placeholder="Acme Imports LLC">
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Full legal name</th><th>Address</th><th>Date of birth</th><th>ID type</th><th>ID number</th><th>Issuing state/country</th><th></th></tr>
+      </thead>
+      <tbody id="owner-rows"></tbody>
+    </table>
+    <p><button type="button" class="secondary" id="add-owner">Add a beneficial owner</button></p>
+    <p>
+      <label><input type="checkbox" id="persist-toggle"> Keep this worksheet in my browser (localStorage) so it survives a reload — off by default, and nothing is ever sent anywhere either way.</label>
+    </p>
+    <p class="note" id="persist-status" aria-live="polite">Not saved. Reloading this page clears the worksheet unless you check the box above.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Download your organizer</h2>
+    <p class="note">This produces a draft document only. It does not file anything or contact New York State — review it, then email your own completed filing to NYDOS yourself.</p>
+    <p>
+      <button type="button" id="preview-organizer">Preview organizer</button>
+      <button type="button" class="secondary" id="download-organizer">Download as .txt</button>
+      <button type="button" class="secondary" id="download-csv">Download owners as .csv</button>
+    </p>
+    <pre class="output" id="organizer-preview" hidden></pre>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Who actually has to file under the NY LLC Transparency Act?</h3>
+    <p>Per NYDOS guidance confirmed December 31, 2025, the reporting obligation (a full Beneficial Ownership Disclosure) applies only to an LLC formed outside the United States that is also formed in New York or authorized to transact business in New York. Every other LLC with a New York nexus — including an LLC formed in New York itself — is instead an "Exempt Company" that still must file an Attestation of Exemption. An LLC with no New York nexus at all is outside the Act's scope.</p>
+    <h3>When is the deadline?</h3>
+    <p>An LLC that already had a New York nexus before January 1, 2026 must file its initial disclosure or attestation by December 31, 2026. An LLC formed in New York, or authorized/registered to transact business in New York, on or after January 1, 2026 must file within 30 days of that formation or registration date. Every LLC subject to the Act also owes a recurring annual statement in later years.</p>
+    <h3>How do I actually file?</h3>
+    <p>As of this tool's last check, NYDOS had not yet launched an online filing portal — completed disclosures and exemption attestations, with the statutory filing fee, are submitted by email to <code>doscorpboi@dos.ny.gov</code> (case-insensitive). Confirm the current filing process directly with NYDOS before you send anything, since this can change once a portal launches.</p>
+    <h3>Is this legal advice, or does it file anything for me?</h3>
+    <p>No, to both. This tool applies the rule above to the answers you type and shows you the result — it does not know the full facts of your LLC's formation, does not model every exemption category NYDOS recognizes, and the statute and guidance can be amended. It never contacts New York State and never submits anything on your behalf; the organizer it produces is a draft for you to review and file yourself.</p>
+    <h3>Is anything I type uploaded anywhere?</h3>
+    <p>No. Every answer, and the entire beneficial-owner worksheet, is processed and rendered entirely in your browser from a fixed set of rules shipped with this page. Nothing is sent to a server. The worksheet is kept only in this browser's page memory unless you explicitly check "keep this in my browser" — see the privacy note in the footer.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified attorney licensed in New York. It applies your own answers to a fixed reading of the NY LLC Transparency Act and NYDOS's confirmed guidance — nothing more — and does not model every exemption category, amendment, or fact pattern. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any filing obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record for a beneficial-owner worksheet — download your organizer and keep your own copy.</p>
+    <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, tracking cookies, or analytics vendors. The beneficial-owner worksheet lives only in this page's memory and is lost on reload <em>unless</em> you check "keep this in my browser" above, which stores it in this device's local storage and nowhere else. Anonymous feature events (<code>category_checked</code>, <code>owner_added</code>, <code>organizer_downloaded</code>, <code>csv_downloaded</code>, <code>example_loaded</code>) are counted only in local storage and never include what you typed. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Further reading: <a href="when-is-the-ny-llc-transparency-act-deadline.html">when is the NY LLC Transparency Act deadline, and how is it different from the federal Corporate Transparency Act?</a></p>
+    <p class="support">Free and open source. If this saved you a filing headache, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      classify, initialDeadline, daysUntil, emptyOwnerRow, ownerRowIssues,
+      loadOwners, removeOwner, buildOrganizerText, ownerRowsToCsv,
+    } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+    function todayISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    const PERSIST_KEY = "ny-llc-transparency-act-tracker-draft";
+    const PERSIST_FLAG = "ny-llc-transparency-act-tracker-persist";
+
+    let owners = [emptyOwnerRow()];
+    let lastCategory = null;
+    let lastDeadline = null;
+
+    function persistEnabled() {
+      try { return localStorage.getItem(PERSIST_FLAG) === "1"; } catch { return false; }
+    }
+
+    function saveDraftIfEnabled() {
+      if (!persistEnabled()) return;
+      try {
+        localStorage.setItem(PERSIST_KEY, JSON.stringify({ entityName: $("#entity-name").value, owners }));
+      } catch { /* storage is optional */ }
+    }
+
+    function renderOwnerRows() {
+      $("#owner-rows").innerHTML = owners.map((owner, i) => {
+        const issues = ownerRowIssues(owner);
+        const cell = (key, placeholder) =>
+          `<input type="text" data-field="${key}" data-row="${i}" value="${escapeHtml(owner[key] || "")}" placeholder="${placeholder}">`;
+        return `<tr>
+          <td>${cell("name", "Full legal name")}</td>
+          <td>${cell("address", "Street address")}</td>
+          <td>${cell("dob", "YYYY-MM-DD")}</td>
+          <td>${cell("idType", "Passport, license…")}</td>
+          <td>${cell("idNumber", "ID number")}</td>
+          <td>${cell("idJurisdiction", "State/country")}</td>
+          <td><button type="button" class="secondary" data-remove="${i}">Remove</button>${issues.length ? `<div class="missing note">Missing: ${escapeHtml(issues.join(", "))}</div>` : ""}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    renderOwnerRows();
+
+    $("#owner-rows").addEventListener("input", (event) => {
+      const field = event.target.dataset.field;
+      const row = Number(event.target.dataset.row);
+      if (!field || Number.isNaN(row) || !owners[row]) return;
+      owners[row] = { ...owners[row], [field]: event.target.value };
+      saveDraftIfEnabled();
+    });
+
+    $("#owner-rows").addEventListener("click", (event) => {
+      const idx = event.target.dataset.remove;
+      if (idx === undefined) return;
+      owners = removeOwner(owners, Number(idx));
+      if (owners.length === 0) owners = [emptyOwnerRow()];
+      renderOwnerRows();
+      saveDraftIfEnabled();
+      record("owner_removed");
+    });
+
+    $("#add-owner").addEventListener("click", () => {
+      owners = [...owners, emptyOwnerRow()];
+      renderOwnerRows();
+      saveDraftIfEnabled();
+      record("owner_added");
+    });
+
+    $("#entity-name").addEventListener("input", saveDraftIfEnabled);
+
+    $("#persist-toggle").addEventListener("change", (event) => {
+      const status = $("#persist-status");
+      if (event.target.checked) {
+        try { localStorage.setItem(PERSIST_FLAG, "1"); } catch { /* optional */ }
+        saveDraftIfEnabled();
+        status.textContent = "Saved in this browser. Uncheck the box to stop and clear it.";
+        record("persist_enabled");
+      } else {
+        try {
+          localStorage.removeItem(PERSIST_FLAG);
+          localStorage.removeItem(PERSIST_KEY);
+        } catch { /* optional */ }
+        status.textContent = "Not saved. Reloading this page clears the worksheet unless you check the box above.";
+        record("persist_disabled");
+      }
+    });
+
+    (function restoreDraft() {
+      if (!persistEnabled()) return;
+      try {
+        const raw = localStorage.getItem(PERSIST_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (draft && typeof draft === "object") {
+          if (typeof draft.entityName === "string") $("#entity-name").value = draft.entityName;
+          const restored = loadOwners(JSON.stringify(draft.owners || []));
+          if (restored.length) owners = restored;
+          $("#persist-toggle").checked = true;
+          $("#persist-status").textContent = "Saved in this browser. Uncheck the box to stop and clear it.";
+          renderOwnerRows();
+        }
+      } catch { /* a corrupt draft must never break the page */ }
+    })();
+
+    function renderCategory() {
+      const formedInNY = $("#formed-in-ny").value === "yes";
+      const authorizedInNY = $("#authorized-in-ny").value === "yes";
+      const formedOutsideUS = $("#formed-outside-us").value === "yes";
+      const nexusDate = $("#nexus-date").value;
+
+      const category = classify({ formedInNY, authorizedInNY, formedOutsideUS });
+      lastCategory = category;
+
+      const labels = {
+        "outside-scope": { text: "Likely outside the Act's scope", pill: "outside" },
+        "likely-reporting": { text: "Likely a Reporting Company — expect to file a Beneficial Ownership Disclosure", pill: "reporting" },
+        "likely-exempt": { text: "Likely an Exempt Company — expect to file an Attestation of Exemption", pill: "exempt" },
+      };
+      const label = labels[category];
+      $("#category-summary").innerHTML = `<span class="pill ${label.pill}">${label.text}</span>`;
+      $("#category-note").textContent = "Based on your answers only — not a determination of your actual filing status. Confirm with NYDOS or your own attorney.";
+
+      if (category === "outside-scope") {
+        $("#deadline-value").textContent = "Not applicable";
+        $("#deadline-countdown").textContent = "—";
+        lastDeadline = null;
+      } else {
+        const deadline = initialDeadline(nexusDate);
+        lastDeadline = deadline;
+        if (!deadline) {
+          $("#deadline-value").innerHTML = `<span class="error">Enter a valid formation/registration date above.</span>`;
+          $("#deadline-countdown").textContent = "—";
+        } else {
+          $("#deadline-value").textContent = deadline;
+          const remaining = daysUntil(deadline, todayISO());
+          $("#deadline-countdown").textContent = remaining >= 0
+            ? `${remaining} day(s) from today`
+            : `${Math.abs(remaining)} day(s) past — file as soon as possible`;
+        }
+      }
+      $("#category-report").hidden = false;
+      record("category_checked");
+    }
+
+    $("#check-category").addEventListener("click", renderCategory);
+
+    $("#load-example").addEventListener("click", () => {
+      $("#formed-in-ny").value = "no";
+      $("#authorized-in-ny").value = "yes";
+      $("#formed-outside-us").value = "yes";
+      $("#nexus-date").value = "2026-03-01";
+      renderCategory();
+      record("example_loaded");
+    });
+
+    function organizerText() {
+      return buildOrganizerText({
+        entityName: $("#entity-name").value,
+        classification: lastCategory || "likely-exempt",
+        formationOrRegistrationDate: $("#nexus-date").value,
+        deadline: lastDeadline,
+        todayISO: todayISO(),
+        owners,
+      });
+    }
+
+    function download(filename, text, mime) {
+      const blob = new Blob([text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    $("#preview-organizer").addEventListener("click", () => {
+      const pre = $("#organizer-preview");
+      pre.textContent = organizerText();
+      pre.hidden = false;
+    });
+
+    $("#download-organizer").addEventListener("click", () => {
+      const pre = $("#organizer-preview");
+      pre.textContent = organizerText();
+      pre.hidden = false;
+      download("ny-llc-transparency-act-organizer.txt", organizerText(), "text/plain");
+      record("organizer_downloaded");
+    });
+
+    $("#download-csv").addEventListener("click", () => {
+      download("ny-llc-transparency-act-owners.csv", ownerRowsToCsv(owners), "text/csv");
+      record("csv_downloaded");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
