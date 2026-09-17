@@ -276,7 +276,9 @@
       <button type="button" class="secondary" id="example">Load the worked example</button>
       <button type="button" class="secondary" id="save">Save my numbers</button>
       <button type="button" class="secondary" id="forget">Forget my numbers</button>
+      <button type="button" class="secondary" id="copyLink">Copy shareable link</button>
       <p class="note" id="save-status" role="status"></p>
+      <p class="note" id="link-status" role="status"></p>
       <p class="error" id="form-error" role="alert"></p>
     </form>
   </section>
@@ -439,7 +441,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, engineering, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>This calculator produces arithmetic observations from numbers you supply. It does not determine what your work is worth in your market, does not read your supplier invoices, does not verify that a cycle time or a tool life is achievable on your machine, and does not assess whether any tolerance, material certification, inspection standard, export control, or wage rule applies to the job. Nothing here is an opinion on whether a part can be made to its drawing.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Everything runs in your browser. Your shop rates, material prices and part dimensions are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. Anonymous feature events (<code>quote</code>, <code>example_loaded</code>, <code>inputs_saved</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
+    <p>Everything runs in your browser. Your shop rates, material prices and part dimensions are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. <em>Copy shareable link</em> puts the same numbers in the URL fragment (after the <code>#</code>) rather than uploading them — a fragment is never sent to a server, so the link only carries your numbers if you send it yourself. Anonymous feature events (<code>quote</code>, <code>example_loaded</code>, <code>inputs_saved</code>, <code>link_copied</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button> <span id="optout-status" class="note"></span></p>
     <p>Working out the hourly rate those wage and overhead figures should be? The <a href="../shop-rate-calculator/">shop rate calculator</a> derives a burdened rate from your payroll and overhead. Nesting blanks out of sheet goods? <a href="../cut-list-optimizer/">Cut list optimizer</a> does the real layout this page only estimates. Quoting decorated garments out of the same shop? The <a href="../apparel-decoration-price-calculator/">apparel decoration price calculator</a> is the same flat-setup-plus-machine-time arithmetic for a screen-print, embroidery or DTF run.</p>
     <p>Free and open source. If this helped you price the next job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
@@ -448,6 +450,7 @@
   <script type="module">
     import { computeMachiningJob, partsPerStockUnit } from "./calculator.mjs";
     import { readUsage, recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { encodeInputs, decodeInputs, formValues } from "./share.mjs";
 
     const DRAFT_KEY = "cnc-machining-quote-inputs";
     const $ = (sel) => document.querySelector(sel);
@@ -707,6 +710,19 @@
       $("#save-status").textContent = "Forgotten.";
     });
 
+    $("#copyLink").addEventListener("click", async () => {
+      const query = encodeInputs(readInputs());
+      const url = `${location.pathname}${location.search}${query ? `#${query}` : ""}`;
+      history.replaceState(null, "", url);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        $("#link-status").textContent = "Link copied. Nothing was uploaded — the numbers are in the link itself.";
+      } catch {
+        $("#link-status").textContent = "Copy was blocked — the link is now in your address bar.";
+      }
+      recordUsage("link_copied");
+    });
+
     function refreshOptOut() {
       const off = usageOptedOut();
       $("#optout").textContent = off ? "Turn usage counting back on" : "Turn usage counting off";
@@ -736,6 +752,17 @@
       }
     } catch {
       /* a corrupt draft is not worth mentioning to the visitor */
+    }
+
+    // A shared link wins over a local draft so the recipient always sees the
+    // sender's numbers. `formValues` -- not a plain object spread -- is what
+    // makes that true: it writes every field, so one the link omitted is
+    // cleared rather than left showing the recipient's own saved draft.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length) {
+      writeInputs(formValues(fromLink));
+      $("#link-status").textContent = "Opened a shared quote. Review the numbers before you use them.";
+      quote();
     }
 
     showStockFields();

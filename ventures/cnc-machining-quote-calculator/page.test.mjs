@@ -178,6 +178,24 @@ test("the page imports only its own local modules", () => {
   }
   assert.ok(imports.includes("./calculator.mjs"));
   assert.ok(imports.includes("./usage.mjs"));
+  assert.ok(imports.includes("./share.mjs"));
+});
+
+test("a shareable link and the save/forget draft can coexist without one clobbering the other", () => {
+  // The exact defect check_shared_link_clears.py exists to catch: a decoded
+  // link handed straight to the writer, or merged into an object literal
+  // alongside the saved draft, leaves a field the link omitted showing the
+  // *recipient's* saved value instead of being cleared. formValues(fromLink)
+  // is the wrapped-call shape that is safe.
+  assert.match(INDEX, /const fromLink = decodeInputs\(/);
+  assert.match(INDEX, /writeInputs\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(INDEX, /\.\.\.\s*\w+\s*,\s*\.\.\.\s*fromLink\b/);
+});
+
+test("copying a link records an event and says nothing was uploaded", () => {
+  assert.match(INDEX, /id="copyLink"/);
+  assert.match(INDEX, /id="link-status"/);
+  assert.match(INDEX, /recordUsage\("link_copied"\)/);
 });
 
 test("nothing on any page reaches the network", () => {
@@ -222,7 +240,10 @@ test("the tool page states the privacy position and offers the off switch", () =
   const recorded = new Set(
     [...INDEX.matchAll(/recordUsage\("([a-z_]+)"\)/g)].map((m) => m[1]),
   );
-  assert.deepEqual([...recorded].sort(), ["example_loaded", "inputs_saved", "quote"]);
+  assert.deepEqual(
+    [...recorded].sort(),
+    ["example_loaded", "inputs_saved", "link_copied", "quote"],
+  );
   for (const event of recorded) {
     assert.match(
       INDEX,
