@@ -119,11 +119,15 @@ const RELATIVE_SELF = relative(
 // its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
 // use), same discovery method as the rest of this running count.
-// 271 -> 272 on 2026-09-16, when `wedding-florist-proposal-calculator`
+// 271 -> 272 on 2026-09-17, when `estate-sale-net-proceeds-calculator`
+// graduated with its own `readOptOut`/`writeOptOut` switch (the same
+// `recordUsage` pattern `poshmark-fee-calculator` uses), same discovery
+// method as the rest of this running count.
+// 272 -> 273 on 2026-09-16, when `wedding-florist-proposal-calculator`
 // graduated with a `toggleUsage`/`usageAllowed` switch (opts out of the
 // `proposal-priced`/`rounding-gap-shown`/`link_copied` counters), same
 // discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 272;
+const SWITCHES_IN_THE_CATALOGUE = 273;
 
 let counter = 0;
 function fixture(source) {
