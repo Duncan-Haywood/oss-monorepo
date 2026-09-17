@@ -14503,7 +14503,6 @@ ventures:
       incentive to bias the classification in either direction, and the
       tool gets strictly more useful to a filer the more accurately they
       answer the four questions.
-
   - slug: 1099-k-threshold-checker
     scores:
       ai_leverage: 1
@@ -14605,3 +14604,84 @@ ventures:
       zero-crossing points) was cross-checked against multiple independent
       published sources during graduation, with the derivation and sources
       recorded in calc.mjs's header comment.
+  - slug: depreciation-recapture-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI anywhere in the product. It applies IRC Section 1250's
+      recapture cap, Section 1411's NIIT rate, and Section 1031's
+      boot-recognition order to numbers the seller already has from their
+      own purchase/sale settlement statements and depreciation schedule.
+      Every dollar figure is independently re-derivable by the seller from
+      those same published rules -- inference would make the result less
+      checkable without making it more correct, and every simplification
+      the arithmetic makes (the NIIT full-inclusion approximation, the
+      flat 25% cap default, no state tax) is surfaced as a disclosed
+      finding rather than silently assumed.
+    basis: >-
+      Graduated 2026-09-17: a rules-engine tax-arithmetic tool for
+      real-estate investors and landlords selling a rental property -- a
+      persona this portfolio had not yet served (its existing tax-adjacent
+      tools target freelancers, marketplace sellers, and commercial
+      carriers, none of whom sell depreciated real property). Same
+      mechanism family as quarterly-estimated-tax-calendar and
+      ifta-quarterly-fuel-tax-calculator (a published-formula rules
+      engine), not the saturated <trade>-bid-calculator or -check/-checker
+      archetypes portfolio/pipeline/README.md flags. duplicate_check.py
+      scored nothing >= 0.45 against the final description; the closest
+      match (shopify-fee-calculator, 0.08) is an unrelated e-commerce fee
+      tool matching only on generic calculator vocabulary.
+      Defensibility 3: Section 1250/1031 arithmetic is public federal tax
+      law and trivial to restate -- lower than
+      quarterly-estimated-tax-calendar's 4 because there is no
+      holiday-adjusted-date engine or comparable non-obvious computation
+      here, just the recapture/capital-gains split and the boot
+      comparison.
+      Distribution 6: "depreciation recapture calculator", "1031 exchange
+      calculator", and "capital gains on rental property sale calculator"
+      are established, recurring high-intent searches -- web search
+      (2026-09-17) surfaced a cluster of existing calculators from 1031
+      exchange qualified-intermediary companies (1031ex.com, ipx1031.com,
+      apiexchange.com, seracapital.com, perchwealth.com, 1031.us,
+      goodlifemgmt.com), confirming real, sustained demand. Scored below
+      quarterly-estimated-tax-calendar's 7 because every one of those
+      incumbents is a lead-generation funnel for a paid exchange service
+      rather than a neutral free tool, so this venture is entering an
+      already-served (if not neutrally served) search intent rather than
+      an underserved one; r/realestateinvesting, r/RealEstate, r/tax, and
+      r/personalfinance regularly see this question, but less frequently
+      than the quarterly (four-times-a-year) freelancer tax question.
+      Time to revenue 4: free by design in this phase (donations-only);
+      a one-time-per-sale event rather than a recurring quarterly need,
+      so scored like asbestos-abatement-bid-calculator's 4 rather than
+      quarterly-estimated-tax-calendar's 6.
+      Autonomous ops 10 / gross margin 10: a static page with no build
+      step, no dependencies, and no network requests -- one more visitor
+      costs nothing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Every output is framed as a planning estimate to verify with a
+      CPA or qualified intermediary, never a filed amount or a
+      determination that a specific 1031 exchange qualifies -- the same
+      evidence/drafting positioning as this portfolio's other tax-adjacent
+      tools. Every simplification the arithmetic makes fires as a
+      disclosed finding on the page itself (NIIT's MAGI-threshold
+      approximation, the 25%-cap default, a sale at a loss, depreciation
+      exceeding the gain, no state tax) rather than being silently
+      assumed. Ethically: donations-only with no per-use fee, no
+      transaction, and no take rate tied to the number shown, so there is
+      no incentive to bias the estimate toward a lower tax bill to keep a
+      seller happy -- unlike the incumbent lead-generation calculators
+      this venture's own distribution note names, which are built to
+      route the seller into a paid exchange-intermediary consultation.
