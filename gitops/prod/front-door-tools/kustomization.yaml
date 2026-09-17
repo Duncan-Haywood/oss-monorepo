@@ -33,23 +33,23 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555829 bytes
-#   portfolio-front-tools-1: 106 files, 554414 bytes
-#   portfolio-front-tools-2: 147 files, 552999 bytes
-#   portfolio-front-tools-3: 140 files, 553730 bytes
-#   portfolio-front-tools-4: 124 files, 553918 bytes
-#   portfolio-front-tools-5: 136 files, 556369 bytes
-#   portfolio-front-tools-6: 124 files, 552484 bytes
-#   portfolio-front-tools-7: 135 files, 554105 bytes
-#   portfolio-front-tools-8: 113 files, 555316 bytes
-#   portfolio-front-tools-9: 111 files, 556834 bytes
-#   portfolio-front-tools-10: 120 files, 555792 bytes
-#   portfolio-front-tools-11: 124 files, 555401 bytes
-#   portfolio-front-tools-12: 132 files, 553055 bytes
-#   portfolio-front-tools-13: 98 files, 553471 bytes
-#   portfolio-front-tools-14: 114 files, 556271 bytes
-#   portfolio-front-tools-15: 85 files, 401524 bytes
-#   portfolio-front-tools-16: 50 files, 262990 bytes
+#   portfolio-front-tools-0: 133 files, 555793 bytes
+#   portfolio-front-tools-1: 106 files, 554365 bytes
+#   portfolio-front-tools-2: 147 files, 552952 bytes
+#   portfolio-front-tools-3: 140 files, 553691 bytes
+#   portfolio-front-tools-4: 124 files, 553883 bytes
+#   portfolio-front-tools-5: 136 files, 556397 bytes
+#   portfolio-front-tools-6: 124 files, 552387 bytes
+#   portfolio-front-tools-7: 135 files, 554069 bytes
+#   portfolio-front-tools-8: 113 files, 555275 bytes
+#   portfolio-front-tools-9: 111 files, 556804 bytes
+#   portfolio-front-tools-10: 120 files, 555765 bytes
+#   portfolio-front-tools-11: 124 files, 555445 bytes
+#   portfolio-front-tools-12: 132 files, 553060 bytes
+#   portfolio-front-tools-13: 98 files, 553482 bytes
+#   portfolio-front-tools-14: 112 files, 555600 bytes
+#   portfolio-front-tools-15: 92 files, 425778 bytes
+#   portfolio-front-tools-16: 50 files, 262952 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1942,6 +1942,11 @@ configMapGenerator:
       - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
       - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
+      - subpath-robots-check__analyze.mjs.gz=subpath-robots-check__analyze.mjs.gz
+      - subpath-robots-check__cli.mjs.gz=subpath-robots-check__cli.mjs.gz
+      - subpath-robots-check__index.html.gz=subpath-robots-check__index.html.gz
+      - subpath-robots-check__usage.mjs.gz=subpath-robots-check__usage.mjs.gz
+      - subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz=subpath-robots-check__why-a-subpath-site-cannot-govern-its-robots-txt.html.gz
       - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
       - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
       - sump-pump-bid-calculator__index.html.gz=sump-pump-bid-calculator__index.html.gz
@@ -1992,6 +1997,11 @@ configMapGenerator:
       - tutor-package-pricing-calculator__calc.mjs.gz=tutor-package-pricing-calculator__calc.mjs.gz
       - tutor-package-pricing-calculator__index.html.gz=tutor-package-pricing-calculator__index.html.gz
       - tutor-package-pricing-calculator__usage.mjs.gz=tutor-package-pricing-calculator__usage.mjs.gz
+  - name: portfolio-front-tools-15
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz=tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz
       - vector-db-cost-calculator__calc.mjs.gz=vector-db-cost-calculator__calc.mjs.gz
       - vector-db-cost-calculator__index.html.gz=vector-db-cost-calculator__index.html.gz
@@ -1999,11 +2009,6 @@ configMapGenerator:
       - vector-db-cost-calculator__vs-pinecone.html.gz=vector-db-cost-calculator__vs-pinecone.html.gz
       - vector-db-cost-calculator__what-is-vector-index-overhead.html.gz=vector-db-cost-calculator__what-is-vector-index-overhead.html.gz
       - vehicle-wrap-bid-calculator__calc.mjs.gz=vehicle-wrap-bid-calculator__calc.mjs.gz
-  - name: portfolio-front-tools-15
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz=vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz
       - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
       - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz

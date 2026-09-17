@@ -1,0 +1,98 @@
+name: subpath-robots-check
+description: >-
+  Free, local checker that answers whether a site published at a URL subpath
+  -- a GitHub Pages project site at user.github.io/repo/, a GitLab Pages
+  project, a CDN or S3 subdirectory -- can govern its own robots.txt, and
+  reports the sitemap auto-discovery gap that follows when it cannot. The
+  Sitemap line it publishes is never read, so its pages are never enumerated,
+  while link-following keeps working and nothing anywhere returns an error.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row and ai-first-markets idea --
+# top score 0.15 (`security-txt-check`, unrelated; shares only the vocabulary
+# of "a file at a well-known path"). The three lexically closest crawler/SEO
+# ventures were each read rather than dismissed on score alone, and none
+# covers this:
+#   - `ai-crawler-access-check` asks which named AI crawlers a robots.txt
+#     allows. It assumes the robots.txt in question is the governing one --
+#     the assumption this venture exists to test.
+#   - `sitemap-lastmod-freshness-check` reads <lastmod> dates inside a
+#     sitemap that has been found. This is about a sitemap never being found.
+#   - `canonical-tag-check` is about <link rel=canonical> resolution, a
+#     different mechanism entirely.
+# Direct graduation of an already-obvious, low-risk dev-tool idea following
+# `pinned-actions-check`'s and `required-checks-drift-check`'s precedent,
+# rather than a pipeline-candidate write-up.
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# found the fleet has tried 141+ near-identical <trade>-bid-calculator clones
+# with zero measured visitors, and told sessions to weigh a CLI/checker shape
+# over another calculator absent an unusually strong named channel. This is
+# that shape, and the channel is unusually strong for this portfolio: "github
+# pages sitemap not indexed", "robots.txt github pages project site" and
+# "sitemap not being read" are live, recurring questions on Stack Overflow and
+# the GitHub community forum, and the answers there are scattered and often
+# wrong in a specific way -- they tell the asker to fix the file at the
+# subpath, which cannot work.
+#
+# Dogfooding, which is the part worth stating plainly: this portfolio's own
+# published catalogue has exactly this defect. `platform/ci/pages_state.py`
+# has reported `indexing: subpath-robots` on every run since the Pages route
+# came up, and the several hundred tools it serves have `live_url_visitors:
+# null` -- never measured, not measured at zero. This venture does not claim
+# that link is causal; it claims the defect is real, current, and was found
+# here first.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high. It is a mechanical, read-only structural check with no advice-of-
+# record, no compliance claim, and no data leaving the device. The browser
+# page makes no network calls at all; the CLI makes exactly one, only under an
+# explicit `--fetch`, and only to the origin-root robots.txt -- a request any
+# stranger could make. A wrong answer costs a wasted afternoon, never money or
+# legal exposure, and the page states in visible prose that crawling by
+# link-following is unaffected, which is the one misreading that could lead
+# someone to tear out a working setup.
+hypotheses:
+  - claim: >-
+      A developer whose GitHub Pages site is not being fully indexed will
+      search "github pages sitemap not read", "robots.txt github pages
+      project site", or the equivalent, and find this tool -- because the
+      existing answers are scattered across forum threads and several of them
+      recommend editing the file at the subpath, which is the one thing that
+      cannot work. Landing from Stack Overflow, the GitHub community forum, or
+      a static-site-generator's issue tracker.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team publishing docs to a subpath will wire `cli.mjs check <url>
+      --fail-on-critical` into their deploy pipeline, so a site that moves to
+      a path prefix (or a custom domain that is removed) fails the build
+      rather than silently losing enumeration -- the same way
+      `pinned-actions-check`'s `--fail-on-risk` convention is meant to be
+      used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/subpath-robots-check/
+  analytics: null
