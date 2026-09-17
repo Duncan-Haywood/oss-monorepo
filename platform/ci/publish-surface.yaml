@@ -332,6 +332,9 @@ workflows:
 - workflow: docker-base-image-pin-check-ci.yml
   classification: none
   publishes: []
+- workflow: dog-boarding-daycare-pricing-ci.yml
+  classification: none
+  publishes: []
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
