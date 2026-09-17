@@ -163,6 +163,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
   'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "dividing labor sales by labor hours off your own DMS
+  // reports" -- the one line of arithmetic every shop owner can already run
+  // against reports they have, not a company or product this could be
+  // mistaken for. The page names no management system at all (the venture's
+  // two named-product comparisons, vs-tekmetric and vs-shop-ware, carry their
+  // own trademark disclaimers) and its copy opens by telling the reader to do
+  // the division themselves. Same reasoning as the other generic-method pages
+  // above.
+  'auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
@@ -305,6 +314,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company"). Same reasoning as the other vs-spreadsheet / by-hand pages
   // above (e.g. import-landed-cost-calculator's).
   'propane-delivery-route-margin/vs-tracking-propane-delivery-margin-in-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every landlord or
+  // tenant already has access to, not a company or product this could be
+  // mistaken for. The page names no specific spreadsheet product. Same
+  // reasoning as the other vs-spreadsheet / by-hand pages above.
+  'security-deposit-return-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

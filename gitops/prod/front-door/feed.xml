@@ -62,6 +62,15 @@
     <summary type="text">Free landed cost calculator for small e-commerce importers: enter your item cost, freight, duty rate, and Section 301/supplemental tariff rate to see total landed cost, cost per unit, and your real tariff burden as a percent of the invoice price — with Merchandise Processing Fee and Harbor Maintenance Fee priced from CBP&#39;s published schedule.</summary>
   </entry>
   <entry>
+    <title>Kubernetes Deprecated API Check — Find Manifests a Cluster Upgrade Will Reject</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-deprecated-api-check/"/>
+    <id>tag:marisstella.dev,2026:tool/k8s-deprecated-api-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste or load Kubernetes manifest YAML and get a deterministic report of every apiVersion + kind pair a past or future Kubernetes release has removed or will remove -- extensions/v1beta1 Ingress, batch/v1beta1 CronJob, policy/v1beta1 PodSecurityPolicy, and more -- so a platform team catches the manifest before a rolling upgrade fails on it, not during it. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>OpenAPI Breaking Change Check — Did This API Version Break Existing Clients?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/openapi-breaking-change-check/"/>
     <id>tag:marisstella.dev,2026:tool/openapi-breaking-change-check</id>

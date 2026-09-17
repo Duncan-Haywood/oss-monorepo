@@ -72,7 +72,10 @@ More, including wiring this into CI and this tool's own named limitations:
 | Fall-back overlap | A cron occurrence's local wall-clock time occurs twice on that calendar date; both real UTC instants are reported |
 | Fixed-UTC-cron drift | A target local time converted to UTC once per DST segment of the year; more than one distinct UTC clock time means a single fixed-UTC schedule cannot hold the local time steady |
 
-Numeric cron fields only in v0 (no `JAN`/`MON` names). Day-of-month and
+Month and day-of-week accept the standard 3-letter names (`JAN`-`DEC`,
+`SUN`-`SAT`), case-insensitive, anywhere a number is allowed — singly, in a
+list, or as a range (`MON-FRI`). Minute, hour, and day-of-month stay
+numeric, matching every real cron implementation. Day-of-month and
 day-of-week follow the standard cron OR rule when both are restricted,
 matching real cron daemon behavior rather than the more commonly assumed AND.
 

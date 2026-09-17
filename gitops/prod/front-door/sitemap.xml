@@ -508,6 +508,9 @@
     <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/auto-repair-effective-labor-rate/vs-shop-ware.html</loc>
   </url>
   <url>
@@ -1909,6 +1912,15 @@
     <loc>https://marisstella.dev/tools/junk-removal-bid-calculator/vs-workiz.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/vs-pluto.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/k8s-deprecated-api-check/why-a-manifest-fails-a-kubernetes-upgrade.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/k8s-rollout-safety-check/</loc>
   </url>
   <url>
@@ -2614,6 +2626,9 @@
     <loc>https://marisstella.dev/tools/sbom-diff-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/sbom-diff-check/vs-cyclonedx-cli-diff.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/sbom-diff-check/vs-diffing-the-raw-json-files.html</loc>
   </url>
   <url>
@@ -2639,6 +2654,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/security-deposit-return-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-deposit-return-calculator/vs-a-spreadsheet.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/security-deposit-return-calculator/vs-turbotenant.html</loc>

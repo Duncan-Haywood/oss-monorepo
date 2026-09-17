@@ -1,0 +1,111 @@
+name: k8s-deprecated-api-check
+description: >-
+  Free, zero-dependency CLI + browser tool that reads Kubernetes manifest
+  YAML and reports every apiVersion + kind pair that a past or named-target
+  Kubernetes release has removed, sourced from Kubernetes' own Deprecated
+  API Migration Guide, so a platform team catches a manifest that will fail
+  kubectl apply before a cluster upgrade, not during it. Not a live-cluster
+  scanner and not an admission controller -- it reads only the YAML text it
+  is given.
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues for this shape over another
+# <trade>-bid-calculator (141+ of ~300 ventures already share that shape
+# with zero recorded visitors), and its 2026-09-11 follow-up notes the
+# "-check" archetype itself has now absorbed 38+ ventures too -- so shape
+# alone is necessary, not sufficient. This one clears the bar the same way
+# terraform-plan-secret-exposure-check and k8s-rollout-safety-check did:
+# same "read what is actually there, report the exact evidence, never
+# fetch" shape, applied to a distinct, well-documented failure with a
+# specific named channel (below), not chosen merely because "checker" was
+# underused.
+#
+# Screened 2026-09-17. duplicate_check.py's closest match was
+# k8s-rollout-safety-check at 0.37 (both read Kubernetes YAML) -- well
+# under the 0.45 review bar, and substantively different: that venture
+# checks whether a *rollout* drops live traffic (readiness probes,
+# PodDisruptionBudgets, termination grace periods); this checks whether a
+# manifest's *apiVersion* will be rejected outright by a target cluster
+# version. Neither subsumes the other, and the index page cross-links both
+# ways for a reader who lands on the wrong one.
+#
+# Distribution channel, verified 2026-09-17 rather than assumed:
+#   - Kubernetes' own "Deprecated API Migration Guide"
+#     (kubernetes.io/docs/reference/using-api/deprecation-guide/) is the
+#     canonical, heavily-linked page every platform team consults before a
+#     minor-version cluster upgrade -- this tool's docs page cites it
+#     directly and answers the same question with a pasteable check instead
+#     of a manual table lookup.
+#   - The exact failure mode has a fixed, highly specific, high-volume
+#     search string every affected team hits verbatim and searches:
+#     `no matches for kind "Ingress" in version "extensions/v1beta1"` (and
+#     the same error for CronJob, PodDisruptionBudget, HorizontalPodAutoscaler,
+#     etc.) -- a runtime error message, not a hypothetical query, thrown by
+#     kubectl/Helm itself the moment a cluster crosses a removal release.
+#   - r/kubernetes (a large, active subreddit) carries recurring threads
+#     every time a managed provider (EKS, GKE, AKS) ships a new minor
+#     version, specifically about manifests breaking on apiVersion removal
+#     -- the audience re-appears predictably on each Kubernetes release
+#     cycle, not just once.
+#   - Pluto (FairwindsOps), the established OSS tool for this exact
+#     problem, is actively maintained -- not a novelty claim on its own,
+#     but strong evidence the underlying problem is real and recurring
+#     enough to sustain a dedicated tool; vs-pluto.html gives this tool's
+#     zero-install version a comparison page a searcher for either tool's
+#     name can land on.
+#
+# Scored against portfolio/pipeline/README.md's 8-dimension rubric:
+# AI leverage 1 (deterministic table lookup against parsed YAML headers, no
+# material model work), autonomous ops 10, time-to-revenue 6 (named
+# channels have real, recurring volume tied to Kubernetes' own release
+# cadence; revenue is donation-only like the rest of the fleet), gross
+# margin 10 (static parsing, zero hosting/inference cost per user),
+# defensibility 4 (forkable like every tool here), distribution 6 (an
+# official upstream doc, a verbatim runtime error string, and a large
+# active subreddit with a recurring trigger event), liability containment 8
+# (pure information from user-supplied YAML; wrong output costs a missed or
+# extra flag, never a filing or a claim on the user's behalf, and the
+# removal table is sourced from Kubernetes' own guide rather than inferred),
+# ethical robustness 9 (gets strictly better for users as it scales; no
+# paid tier gating accuracy). Composite 6.75, floor 1 (ai_leverage) -- both
+# hard gates (liability, ethics) clear well above the 5 cutoff.
+#
+# The table is deliberately conservative (see engine.mjs's module comment):
+# it lists only removals Kubernetes' own guide documents with a fixed
+# release number, never a guessed future deprecation -- a wrong "this will
+# be removed" claim would be exactly the kind of claim the product can't
+# back up that portfolio/DIRECTION.md's legal guardrails rule out.
+hypotheses:
+  - claim: A platform engineer preparing a Kubernetes minor-version upgrade (or hitting the "no matches for kind X in version Y" error after one) will use the free checker or wire the CLI into CI after finding it from Kubernetes' own deprecation guide, the exact error string, r/kubernetes, or a comparison search against Pluto.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will prefer pasting manifest YAML into a zero-install browser check over installing and configuring Pluto for a one-off pre-upgrade sanity check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only YAML loaded or
+  # pasted in the visitor's own browser (no fetch, no upload), and the CLI
+  # reads only a local file with no network call at all. Serving one more
+  # user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI/deploy pipeline within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/
+  analytics: null

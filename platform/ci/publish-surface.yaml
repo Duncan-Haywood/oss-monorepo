@@ -557,6 +557,9 @@ workflows:
 - workflow: junk-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: k8s-deprecated-api-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: k8s-rollout-safety-check-ci.yml
   classification: none
   publishes: []

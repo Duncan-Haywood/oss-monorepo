@@ -235,7 +235,15 @@ const RELATIVE_SELF = relative(
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/propane-delivery-route-margin/usage.mjs`) and no deletions, so
 // this is a graduation and not a switch that stopped being one.
-const SWITCHES_IN_THE_CATALOGUE = 286;
+// 286 -> 287 on 2026-09-17, when `k8s-deprecated-api-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded`/`file_loaded` counters), same discovery
+// method as the rest of this running count. This branch was open before
+// `propane-delivery-route-margin` landed, so it only ever knew its own
+// predecessor's number (285) until this merge -- same collision shape as
+// the entry immediately above: both branches independently wrote "286" for
+// what the merged tree made 287.
+const SWITCHES_IN_THE_CATALOGUE = 287;
 
 let counter = 0;
 function fixture(source) {

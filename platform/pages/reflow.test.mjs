@@ -156,6 +156,27 @@ test('headings may break a long word, and only where one would overflow', () => 
   );
 });
 
+test('inline code may break a long unbreakable flag or hostname, in body copy too', () => {
+  // Cause (4) again: openapi-breaking-change-check/vs-oasdiff.html was 364px
+  // inside a 360px window, the whole 4px coming from an inline
+  // <code>--fail-on-breaking</code> in a <p>, not a heading and not a table.
+  assert.match(REFLOW_CSS, /:where\(code\)\{overflow-wrap:break-word\}/);
+
+  // Zero specificity, same reasoning as the heading rule: a venture that set
+  // its own wrapping on a <code> element keeps it.
+  const rule = REFLOW_CSS.split('\n').find((line) => /^\s*[^\s/*].*code.*overflow-wrap:break-word/.test(line));
+  assert.match(rule.trim(), /^:where\(/);
+
+  // Not inside the narrow-viewport query, for the same reason as headings: an
+  // unbreakable token is too long at any width.
+  const narrow = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media (max-width:640px)'));
+  const narrowBlockEnd = narrow.indexOf('\n}');
+  assert.ok(
+    !narrow.slice(0, narrowBlockEnd).includes('code'),
+    'code wrapping must apply at every viewport, not only on a phone',
+  );
+});
+
 test('the runtime wrap skips a table that is already boxed', () => {
   // It is spliced into a function body in the built chrome script, so it has to
   // be ES5 statements and it has to test the class before wrapping — otherwise

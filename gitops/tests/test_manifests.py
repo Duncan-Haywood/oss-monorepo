@@ -1843,7 +1843,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commit, same shape as the rest of this running count. This branch was
     # open before nothing else in flight landed, so it only ever knew its
     # own predecessor's number (301) until this merge.
-    total = 302  # `infra/OWNER_CHECKLIST.md`'s own "N of the 302 tools" wording.
+    # 303 since 2026-09-17, when `k8s-deprecated-api-check` graduated -- a
+    # zero-dependency CLI + browser tool reading Kubernetes manifest YAML for
+    # apiVersion+kind pairs a past or named-target Kubernetes release has
+    # removed, sourced from Kubernetes' own Deprecated API Migration Guide,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch was open before
+    # `propane-delivery-route-margin` landed, so it only ever knew its own
+    # predecessor's number (301, then 302) until this merge -- the same
+    # ordinary collision shape recorded throughout this list: both branches
+    # independently wrote "302" for what the merged tree made 303.
+    total = 303  # `infra/OWNER_CHECKLIST.md`'s own "N of the 303 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
