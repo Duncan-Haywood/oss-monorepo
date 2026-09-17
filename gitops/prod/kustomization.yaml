@@ -257,6 +257,7 @@ configMapGenerator:
       - vs__screaming-frog-seo-spider.html.gz=front-door/vs__screaming-frog-seo-spider.html.gz
       - vs__cookiebot.html.gz=front-door/vs__cookiebot.html.gz
       - vs__spreadsheet.html.gz=front-door/vs__spreadsheet.html.gz
+      - vs__honeybook.html.gz=front-door/vs__honeybook.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
