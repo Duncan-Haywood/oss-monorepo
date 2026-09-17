@@ -239,6 +239,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // regulated-waste hauler, estimating software, or franchise"). Same
   // reasoning as the other generic-method pages above.
   'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
+  // Compares against "a flat rate per square foot" -- a generic pricing
+  // method every paving contractor already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above (e.g. asbestos-abatement-bid-calculator's
+  // flat-rate page).
+  'asphalt-driveway-pave-bid-calculator/vs-a-flat-rate-per-square-foot.html',
   // Compares against "a flat nightly rate copied from local competitors" --
   // a generic pricing habit every independent dog boarding/daycare operator
   // already has access to, not a company or product this could be mistaken
