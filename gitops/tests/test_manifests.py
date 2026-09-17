@@ -1705,7 +1705,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # drafting time, then comparing the result to a flat per-acre quote, with
     # a static `index.html` from its first commit, same shape as the rest of
     # this running count.
-    total = 286  # `infra/OWNER_CHECKLIST.md`'s own "N of the 286 tools" wording.
+    # 287 since 2026-09-17, when `world-clock-widget` gained a browser surface —
+    # a world clock showing local time, sunrise, sunset, daylight length and a
+    # waking-hours band for several cities at once, computed in the browser from
+    # the USNO almanac algorithm. Unlike the rest of this running count it is not
+    # a new venture: the venture already existed as a Swift app that needs an
+    # Apple account to reach anyone, and `site/` is a second surface over the
+    # same tested core, so this is the first entry here added by *deploying* an
+    # existing product rather than by graduating a new one.
+    total = 287  # `infra/OWNER_CHECKLIST.md`'s own "N of the 287 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

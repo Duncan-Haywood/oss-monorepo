@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 286 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 287 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -13,7 +13,7 @@
     <id>tag:marisstella.dev,2026:tool/agent-instructions-drift-check</id>
     <published>2026-09-16T00:00:00Z</published>
     <updated>2026-09-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn&#39;t defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -49,7 +49,7 @@
     <id>tag:marisstella.dev,2026:tool/cron-dst-drift-check</id>
     <published>2026-09-16T00:00:00Z</published>
     <updated>2026-09-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a cron expression and an IANA timezone and see every upcoming run that falls in a spring-forward gap (never happens) or a fall-back overlap (happens twice), plus a separate check for how a fixed-UTC-only scheduler (GitHub Actions&#39; schedule: cron included) drifts an hour twice a year against your intended local time. Free, deterministic, runs entirely in your browser.</summary>
   </entry>
   <entry>
@@ -123,6 +123,15 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.</summary>
+  </entry>
+  <entry>
+    <title>World Clock &amp; Daylight — Time, Sunrise, Sunset and Who&#39;s Awake</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/world-clock-widget/"/>
+    <id>tag:marisstella.dev,2026:tool/world-clock-widget</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">A free world clock that shows current local time, sunrise, sunset, daylight length and whether each city is awake — for as many cities as you like, side by side. Sunrise and sunset are computed in your browser from the US Naval Observatory almanac algorithm. No account, no upload, no API key.</summary>
   </entry>
   <entry>
     <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste or load a Terraform structured plan (terraform show -json) and see its blast radius before you apply: every destroy and replace called out individually with the attribute that forced it, a loud flag when a replace hits a database, disk, bucket, DNS record, load balancer or secret, and a true-deletion list. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Terraform Plan Secret Exposure Check — Find Secrets the `sensitive` Flag Missed</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/terraform-plan-secret-exposure-check/"/>
-    <id>tag:marisstella.dev,2026:tool/terraform-plan-secret-exposure-check</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

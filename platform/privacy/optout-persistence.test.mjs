@@ -119,7 +119,15 @@ const RELATIVE_SELF = relative(
 // its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
 // use), same discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 271;
+// 271 -> 272 on 2026-09-17, when `world-clock-widget` gained a browser surface
+// with its own `setUsageOptOut`/`usageOptedOut` switch in
+// `ventures/world-clock-widget/site/usage.mjs` (the same `record`/`readUsage`
+// pattern `cron-dst-drift-check` uses), same discovery method as the rest of
+// this running count. Note this one is NOT a venture graduating, which every
+// other line above is: the venture already existed as a Swift app, and the
+// addition is a second surface over the same core. The distinction matters
+// only for reading this list back — the switch is a switch either way.
+const SWITCHES_IN_THE_CATALOGUE = 272;
 
 let counter = 0;
 function fixture(source) {
