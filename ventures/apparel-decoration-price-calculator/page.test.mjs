@@ -91,6 +91,18 @@ test("index links one hop to the 3d-print-price-calculator sibling", () => {
   );
 });
 
+// Added 2026-09-17 when cnc-machining-quote-calculator shipped. This page is
+// its nearest sibling by shape (platform/pages/siblings.mjs says so), and that
+// tool was the catalogue's only crawlable orphan until this link existed. The
+// reciprocal assertion lives in that venture's own page.test.mjs, so breaking
+// the pair fails on whichever side removed its half.
+test("index links one hop to the cnc-machining-quote-calculator sibling", () => {
+  assert.ok(
+    html.includes('href="../cnc-machining-quote-calculator/"'),
+    "index must link ../cnc-machining-quote-calculator/ so a crawler reaches that tool in one hop",
+  );
+});
+
 test("every field the calculator reads has a labelled input on the page", () => {
   const fields = [
     "quantity", "pricePerPiece", "setupFeeCharged", "locations", "targetMarginPct",

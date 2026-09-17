@@ -309,7 +309,11 @@ const RELATIVE_SELF = relative(
 // `deploy-concurrency-check` landed, so it only ever knew 292 until this
 // merge -- the same ordinary collision shape recorded throughout this
 // list.
-const SWITCHES_IN_THE_CATALOGUE = 294;
+//
+// 294 -> 295 after merging `cnc-machining-quote-calculator` (#4957), which
+// landed on `main` with its own opt-out switch while this branch was
+// still mid-merge -- the same collision shape one more time.
+const SWITCHES_IN_THE_CATALOGUE = 295;
 
 let counter = 0;
 function fixture(source) {
