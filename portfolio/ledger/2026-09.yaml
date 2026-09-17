@@ -32048,3 +32048,59 @@ entries:
         cannot happen from the project-Pages subpath. Both hypotheses in
         `VENTURE.yaml` remain untested.
     mrr_end: 0
+  - venture: basement-waterproofing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-a-flat-rate-per-lineal-foot.html` (PR #4821), a
+        generic-method comparison page: a flat "$/lf of perimeter" quote
+        cannot see window wells, a new sump pit vs. an existing one, crack
+        injection, a backup pump, or freeze-proof discharge, none of which
+        scale with perimeter length. Follows the same shape as
+        asbestos-abatement-bid-calculator's vs-a-flat-rate-per-square-foot.html
+        (#4816): added to clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names
+        no product), linked from index.html and README.md, listed in
+        sitemap.xml, regen.mjs run and its output committed.
+      - >-
+        The worked example is computed, not estimated: an 80 lf brochure
+        job's own flat rate per lineal foot ($151.97/lf, from the
+        calculator's own verified test fixtures) applied to a 55 lf seepage
+        house (4 window wells, new sump pit, battery backup, freeze-proof
+        discharge, 2 wall + 12 lf floor crack injection) undercharges that
+        job by about 81%, even though it has 25 fewer lineal feet than the
+        brochure job. Both jobs are the calc.mjs docstring's own named
+        example scenario; the dollar figures were derived by importing
+        calc.mjs and running its exact test fixtures, not hand-computed.
+      - >-
+        Verified locally rather than by CI, which has been starved since
+        2026-09-04 (`ci_starvation.py`; open PR #4815 shows zero checks).
+        115 venture assertions; 1271 across `platform/marketing` +
+        `platform/pages`; 243 across `platform/proposal` +
+        `platform/privacy` + `platform/webcheck`; 581 `gitops/tests`; 446
+        across the portfolio Python suites; 973 across all `platform/ci`
+        unittest modules plus `agent_review`. `checklist_coverage.py` and
+        `surface-budget.mjs --check` clean.
+      - >-
+        `run_workflow_locally.py --for-changes` first flagged this branch as
+        stale against `origin/main` (three PRs had merged mid-session,
+        including a new venture) with an `UNSTABLE CHECKOUT` warning because
+        the sweep's own tree changed while it ran (my own commit landed
+        mid-sweep) -- both readings were correctly discarded rather than
+        reported. Merged `origin/main`, re-ran `regen.mjs`, re-verified, and
+        re-ran the sweep on a checkout nothing else was writing to: clean
+        (10/12 selected workflows passed; the 2 unrun are held
+        secret/write-permission workflows). Its one persistent FAIL
+        (`pages.yml`'s link-check step) is a harness limitation --
+        `run_workflow_locally.py` cannot evaluate that step's `${{ }}`
+        base-url expression, so it skips the preceding build step and the
+        link checker finds no `_site` -- confirmed by running
+        `build_pages_site.py --check`, `--base-url <url>`, then
+        `check_pages_links.py _site` directly: 291 products / 3375 files,
+        every link resolves.
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for any product in this portfolio
+        (`live_url_visitors: null`, not zero), and sitemap auto-discovery
+        cannot happen from the project-Pages subpath.
+    mrr_end: 0
