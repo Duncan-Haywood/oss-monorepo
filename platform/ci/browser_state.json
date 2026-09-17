@@ -3,50 +3,6 @@
     {
       "checks": [
         "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "dea0054648ec6f52bca6c6a8038d393c9202695f",
-      "measured": "2026-09-12",
-      "pages": 1024,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
-        "platform/pages": "024fa56cfcc60bd190d0084f2c2d8e597cac2c01",
-        "ventures": "d4251afa5ea45baaad38c3dd94884f46f067a48d"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "9f783a72494be988ca2c643ccfa19ac244665ccb",
-      "measured": "2026-09-13",
-      "pages": 1029,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
-        "platform/pages": "bde61b132e6444cdca9beccccd09e8b798de7c7a",
-        "ventures": "b89b757707a0e98ffbfbbaac4980277314fd791c"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
         "optout",
         "presets",
         "roundtrip",
@@ -462,6 +418,28 @@
         "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
         "platform/pages": "f7be312682094789aabf322edc42f1f704bd3f74",
         "ventures": "bca37afecaf749952dd7afc1d40905707683ad74"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "7ac7a4da25e81df97a2dfc704adc5eef87bda1f6",
+      "measured": "2026-09-17",
+      "pages": 1142,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "11a5705ecd3d55e38c1a1a185e928c5655f9f08c",
+        "ventures": "bf8a59e1f31b6a6316f9d8d6a5137cac348009c4"
       }
     }
   ]

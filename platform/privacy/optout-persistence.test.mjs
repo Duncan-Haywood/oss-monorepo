@@ -228,7 +228,14 @@ const RELATIVE_SELF = relative(
 // graduation and not a switch that stopped being a switch. This branch was
 // open before `podcast-sponsorship-rate-calculator` landed, so it only ever
 // knew its own predecessor's number (283) until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 285;
+// 285 -> 286 on 2026-09-17, when `propane-delivery-route-margin` graduated
+// with its own `recordEvent`/`toggleUsage`/`usageAllowed` switch, the same
+// pattern as its `atm-route-margin` and `fire-extinguisher-inspection-
+// route-margin` siblings. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/propane-delivery-route-margin/usage.mjs`) and no deletions, so
+// this is a graduation and not a switch that stopped being one.
+const SWITCHES_IN_THE_CATALOGUE = 286;
 
 let counter = 0;
 function fixture(source) {

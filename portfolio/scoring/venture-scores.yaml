@@ -13646,3 +13646,63 @@ ventures:
       CBP MPF/HMF fee-schedule figures are, each captioned to confirm
       before relying on it. Ethically: donations-only with no per-use fee,
       so nothing biases the arithmetic toward a higher or lower result.
+  - slug: propane-delivery-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- a retail/
+      wholesale price spread, a small-fill minimum-delivery-fee threshold,
+      and fixed monthly tank-rental/hazmat compliance cost netted against
+      fuel margin revenue per customer -- and it is arithmetic an operator
+      has to be able to re-derive when deciding to keep, re-price, or drop
+      a customer.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section and `python3 portfolio/pipeline/duplicate_check.py`:
+      the closest existing venture scored 0.39 (the atm-route-margin /
+      fire-extinguisher-inspection-route-margin / medical-courier-route-
+      margin / vending-machine-route-margin cluster), under the 0.45
+      near-duplicate flag bar -- close because it is the same route-margin
+      *shape*, not because any existing venture prices fuel delivery. No
+      other venture in the portfolio models a per-gallon retail/wholesale
+      spread, a fill-size-triggered minimum-delivery fee, or per-customer
+      tank rental. Same shape as this portfolio's other independent-
+      operator route-pricing calculators (`atm-route-margin`,
+      `fire-extinguisher-inspection-route-margin`, `vending-machine-route-
+      margin`), scored the same way. Defensibility 5: the minimum-delivery-
+      fee-threshold and fixed-monthly-cost arithmetic is specific to this
+      buyer and not modeled by a generic profit calculator or spreadsheet
+      formula, and it is the case (a small, infrequent-fill account) where
+      an operator most often keeps a customer that is quietly losing money.
+      Distribution 6: "propane delivery profit calculator" and "propane
+      route margin" are narrow, low-volume search terms with no incumbent
+      free tool built around this exact arithmetic, but volume is
+      unmeasured against this portfolio's own traffic, which has never
+      recorded a visitor reading for any product.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page, guide page, and README state, near the
+      top and explicitly, that this is not propane-supply, delivery-
+      scheduling, or safety guidance of any kind -- it never sizes a tank,
+      forecasts degree-day usage, or judges a safe fill level, and it does
+      not replace the user's own licensed propane supplier's judgment on
+      any of that. No price, rate, or fee is hardcoded as fact; every one
+      (retail price, wholesale cost, minimum-delivery threshold and fee,
+      mileage rate, tank rental, hazmat cost) is a user-supplied,
+      illustrative placeholder. The output is arithmetic on the operator's
+      own figures, never a recommended price or a claim about what a route
+      will earn. Nothing entered leaves the browser. Ethically: donations-
+      only with no per-use fee, so nothing biases the arithmetic toward a
+      higher or lower result, and the tool never touches a live delivery,
+      tank safety determination, or hazmat compliance filing.

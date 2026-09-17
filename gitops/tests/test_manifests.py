@@ -1832,7 +1832,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # landed, so it only ever knew its own predecessor's number (299, then
     # 300) until this merge -- the same ordinary collision shape recorded
     # throughout this list.
-    total = 301  # `infra/OWNER_CHECKLIST.md`'s own "N of the 301 tools" wording.
+    # 302 since 2026-09-17, when `propane-delivery-route-margin` graduated --
+    # a browser-local calculator pricing an independent propane (LP gas)
+    # delivery route customer from annual gallons, fill size, the retail/
+    # wholesale price spread, a small-fill minimum-delivery fee, drive time
+    # and mileage, and fixed monthly tank-rental/hazmat compliance cost,
+    # then rolling a customer list up into route profit -- the same
+    # route-margin shape as `atm-route-margin` and `fire-extinguisher-
+    # inspection-route-margin`, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count. This branch was
+    # open before nothing else in flight landed, so it only ever knew its
+    # own predecessor's number (301) until this merge.
+    total = 302  # `infra/OWNER_CHECKLIST.md`'s own "N of the 302 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
