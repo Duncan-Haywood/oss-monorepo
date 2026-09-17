@@ -428,6 +428,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // gets stuck, not a company or product this could be mistaken for. The
   // page names no specific reviewer, team, or tool at all.
   'required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html',
+  // Compares against "manually checking nested references" -- clicking
+  // through to a pinned reusable workflow or composite action on GitHub and
+  // reading its own uses: lines by eye, a habit every maintainer already has,
+  // not a company or product this could be mistaken for. The page names no
+  // specific reviewer, team, or tool at all.
+  'actions-transitive-pin-check/vs-manually-checking-nested-references.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

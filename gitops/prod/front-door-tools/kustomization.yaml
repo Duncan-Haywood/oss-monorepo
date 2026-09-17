@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 133 files, 554668 bytes
 #   portfolio-front-tools-1: 104 files, 556035 bytes
 #   portfolio-front-tools-2: 149 files, 544205 bytes
-#   portfolio-front-tools-3: 137 files, 550354 bytes
+#   portfolio-front-tools-3: 138 files, 553493 bytes
 #   portfolio-front-tools-4: 131 files, 554787 bytes
 #   portfolio-front-tools-5: 130 files, 553545 bytes
 #   portfolio-front-tools-6: 126 files, 554132 bytes
@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 115 files, 553825 bytes
 #   portfolio-front-tools-11: 125 files, 555122 bytes
 #   portfolio-front-tools-12: 130 files, 548223 bytes
-#   portfolio-front-tools-13: 109 files, 554685 bytes
+#   portfolio-front-tools-13: 109 files, 554705 bytes
 #   portfolio-front-tools-14: 104 files, 544497 bytes
 #   portfolio-front-tools-15: 124 files, 556116 bytes
 #   portfolio-front-tools-16: 108 files, 544474 bytes
@@ -595,6 +595,7 @@ configMapGenerator:
       - actions-transitive-pin-check__classify.mjs.gz=actions-transitive-pin-check__classify.mjs.gz
       - actions-transitive-pin-check__index.html.gz=actions-transitive-pin-check__index.html.gz
       - actions-transitive-pin-check__usage.mjs.gz=actions-transitive-pin-check__usage.mjs.gz
+      - actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz=actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz
       - actions-transitive-pin-check__what-is-a-transitive-github-actions-dependency.html.gz=actions-transitive-pin-check__what-is-a-transitive-github-actions-dependency.html.gz
       - ada-title-ii-evidence__calc.mjs.gz=ada-title-ii-evidence__calc.mjs.gz
       - ada-title-ii-evidence__deadline.html.gz=ada-title-ii-evidence__deadline.html.gz
