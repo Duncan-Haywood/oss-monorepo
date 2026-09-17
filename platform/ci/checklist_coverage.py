@@ -62,6 +62,39 @@ itself a checklist gap. Two Python trees work the same way and are covered the
 same way, by a placeholder line rather than one line per directory:
 `portfolio/research/*` and `portfolio/pipeline/probes/*`.
 
+## The venture half, added 2026-09-17 -- the placeholder that did not reach
+
+Crediting `ventures/` to that placeholder checks that a *line exists*. It never
+checked that the line's **glob shape** reaches the files, and for 21 of 299
+ventures it does not: they keep their suites in a `test/` subdirectory, which
+`ventures/<slug>/*.test.mjs` cannot match. Measured 2026-09-17: 95 test files,
+1055 assertions, invisible to the list a session follows during a starvation
+window.
+
+What that looks like to a session is the worst available shape, because it is
+not an error:
+
+    $ node --test ventures/commercial-photo-license-calculator/*.test.mjs
+    # tests 0
+    # pass 0
+    # fail 0
+    $ echo $?
+    0
+
+A green run that ran nothing, in a file whose own rule is that "a skip is a
+green that means nothing ran ... and it is worse, because nobody investigates a
+pass". CI does reach these (a venture workflow's bare `node --test` discovers
+`test/` on its own), which is exactly why it stayed invisible -- and exactly
+why it matters now, since while runners are starved CI running them is the
+same as nothing running them.
+
+So this half does not check for a line. It reads the placeholder's glob shape
+out of the checklist, turns it into a matcher, and asks whether that matcher
+reaches each venture test file actually on disk. That is deliberate and is the
+same import-don't-restate rule the rest of this file follows: fix the line to
+`ventures/<slug>/**/*.test.mjs` and this check goes quiet on its own, because
+it is reading the fixed line rather than a copy of what the line ought to say.
+
 This is not a courtesy exclusion -- it is forced, and measurably so. Those
 trees cannot be run by one command from the repo root:
 
@@ -265,6 +298,99 @@ def actual_test_py_dirs(repo_root):
     return found
 
 
+def glob_token_to_regex(token):
+    """Compile a checklist path token into a matcher for repo-relative paths.
+
+    Segment-wise so the three wildcard shapes keep their ordinary glob
+    meanings and cannot leak across a `/`:
+
+        <placeholder>  one whole segment       -> [^/]+
+        *              within a segment        -> [^/]*
+        **             zero or more segments   -> (?:[^/]+/)*
+
+    `**` spanning *zero* segments is the case worth stating, because getting it
+    wrong would silently re-break the flat majority this check exists to keep
+    passing: `ventures/<slug>/**/*.test.mjs` has to match
+    `ventures/foo/calc.test.mjs` as well as `ventures/foo/test/calc.test.mjs`.
+    """
+    compiled = []
+    for segment in token.split("/"):
+        if segment == "**":
+            compiled.append("(?:[^/]+/)*")
+            continue
+        out = ""
+        i = 0
+        while i < len(segment):
+            char = segment[i]
+            if char == "<":
+                close = segment.find(">", i)
+                if close == -1:
+                    out += re.escape(char)
+                    i += 1
+                    continue
+                out += "[^/]+"
+                i = close + 1
+            elif char == "*":
+                out += "[^/]*"
+                i += 1
+            else:
+                out += re.escape(char)
+                i += 1
+        compiled.append(out + "/")
+    pattern = "".join(compiled)
+    if pattern.endswith("/"):
+        pattern = pattern[:-1]
+    return re.compile("^" + pattern + "$")
+
+
+def actual_venture_test_mjs_files(repo_root):
+    """Every `*.test.mjs` under ventures/, as repo-root-relative POSIX paths."""
+    found = set()
+    is_nested = nested_checkout_filter(repo_root)
+    ventures_root = repo_root / "ventures"
+    if not ventures_root.is_dir():
+        return found
+    for path in ventures_root.rglob("*.test.mjs"):
+        rel = path.relative_to(repo_root)
+        if any(p.startswith(".") or p in IGNORED_PARTS for p in rel.parts):
+            continue
+        if is_nested(rel):
+            continue
+        found.add(rel.as_posix())
+    return found
+
+
+def find_venture_glob_gaps(claude_md_text, repo_root):
+    """Return (gaps, tokens) for venture tests the checklist's glob cannot reach.
+
+    `gaps` maps a venture slug to the sorted test files under it that no
+    `ventures/...` token in the checklist block matches. A venture appears only
+    when at least one of its files is unreachable, so a venture that keeps some
+    suites flat and some in `test/` is still reported rather than credited to
+    the half that matches.
+    """
+    block = read_checklist_block(claude_md_text)
+    if block is None:
+        raise ValueError(
+            "could not find the merge-checklist code block in CLAUDE.md "
+            f"(looked for a fenced block containing {BLOCK_START_MARKER!r})"
+        )
+    tokens = sorted(
+        {
+            m.group(0)
+            for m in CHECKLIST_PATH_RE.finditer(block)
+            if m.group(0).startswith("ventures/") and m.group(0).endswith(".test.mjs")
+        }
+    )
+    matchers = [glob_token_to_regex(t) for t in tokens]
+    gaps = {}
+    for rel in sorted(actual_venture_test_mjs_files(repo_root)):
+        if any(m.match(rel) for m in matchers):
+            continue
+        gaps.setdefault(rel.split("/")[1], []).append(rel)
+    return gaps, tokens
+
+
 ROOT_IGNORE_RE = re.compile(r"--ignore=(\S+?)(?=[\s\"']|$)")
 
 
@@ -379,9 +505,38 @@ def main(argv=None):
     try:
         gaps, checklist_dirs, disk_dirs = find_gaps(claude_md_text, repo_root)
         py_gaps, py_prefixes, py_dirs = find_py_gaps(claude_md_text, repo_root)
+        venture_gaps, venture_tokens = find_venture_glob_gaps(
+            claude_md_text, repo_root
+        )
     except ValueError as exc:
         print(f"checklist_coverage: {exc}", file=sys.stderr)
         return 2
+
+    if venture_gaps:
+        unreachable = sum(len(v) for v in venture_gaps.values())
+        print(
+            "checklist_coverage: the checklist's venture line cannot reach "
+            f"{unreachable} test file(s) in {len(venture_gaps)} venture(s). "
+            "`node --test` on a glob that matches nothing exits 0 printing "
+            "'# pass 0', so following the checklist on one of these reports a "
+            "clean run having executed nothing:\n"
+        )
+        for slug in sorted(venture_gaps):
+            files = venture_gaps[slug]
+            print(f"  {slug}  ({len(files)} file(s), e.g. {files[0]})")
+        print(
+            "\nThe checklist currently names: "
+            + (", ".join(venture_tokens) or "(no ventures/ test glob at all)")
+        )
+        print(
+            "Widen it to reach a venture's subdirectories -- "
+            "`node --test 'ventures/<slug>/**/*.test.mjs'` (quoted, so node "
+            "expands the `**` rather than the shell) -- in CLAUDE.md's \"Ship "
+            "without review ceremony\" section. Quoting matters: bash without "
+            "`globstar` leaves `**` meaning a single segment, which silently "
+            "reintroduces the gap."
+        )
+        return 1
 
     if py_gaps:
         if len(py_gaps) == 1:
@@ -432,6 +587,11 @@ def main(argv=None):
         f"checklist_coverage: {len(py_dirs)} Python test "
         f"director{'y' if len(py_dirs) == 1 else 'ies'}, all covered by "
         f"{len(py_prefixes)} path(s) the checklist names."
+    )
+    venture_files = actual_venture_test_mjs_files(repo_root)
+    print(
+        f"checklist_coverage: {len(venture_files)} venture test file(s), all "
+        f"reachable by the checklist's venture glob ({', '.join(venture_tokens)})."
     )
     return 0
 

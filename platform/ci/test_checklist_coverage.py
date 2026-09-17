@@ -462,5 +462,145 @@ class NestedCheckout(unittest.TestCase):
         )
 
 
+WIDENED_TEMPLATE = CHECKLIST_TEMPLATE.replace(
+    "node --test ventures/<slug>/*.test.mjs",
+    "node --test 'ventures/<slug>/**/*.test.mjs'",
+)
+
+
+def make_venture(root, rel_paths):
+    """Create tmp_path/<rel> for each venture-relative test file path."""
+    for rel in rel_paths:
+        p = root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("// placeholder\n")
+    return root
+
+
+class GlobTokenToRegex(unittest.TestCase):
+    """The matcher has to keep glob semantics exactly, because both directions
+    are expensive: too narrow and the 21 subdirectory ventures stay invisible,
+    too wide and the check credits a line that does not run anything."""
+
+    def test_placeholder_and_star_stay_inside_one_segment(self):
+        m = cc.glob_token_to_regex("ventures/<slug>/*.test.mjs")
+        self.assertTrue(m.match("ventures/foo/calc.test.mjs"))
+        self.assertFalse(m.match("ventures/foo/test/calc.test.mjs"))
+        self.assertFalse(m.match("ventures/foo/bar/baz/calc.test.mjs"))
+
+    def test_doublestar_spans_zero_segments(self):
+        # The flat majority must keep matching, or widening the line would
+        # trade one silent gap for another.
+        m = cc.glob_token_to_regex("ventures/<slug>/**/*.test.mjs")
+        self.assertTrue(m.match("ventures/foo/calc.test.mjs"))
+
+    def test_doublestar_spans_one_or_more_segments(self):
+        m = cc.glob_token_to_regex("ventures/<slug>/**/*.test.mjs")
+        self.assertTrue(m.match("ventures/foo/test/calc.test.mjs"))
+        self.assertTrue(m.match("ventures/foo/site/deep/calc.test.mjs"))
+
+    def test_dot_is_literal_not_any_character(self):
+        m = cc.glob_token_to_regex("ventures/<slug>/*.test.mjs")
+        self.assertFalse(m.match("ventures/foo/calcXtest.mjs"))
+
+
+class VentureGlobGaps(unittest.TestCase):
+    def test_subdirectory_suite_is_a_gap_under_the_narrow_glob(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = make_venture(
+                Path(td), ["ventures/photo-licence/test/app.test.mjs"]
+            )
+            gaps, tokens = cc.find_venture_glob_gaps(CHECKLIST_TEMPLATE, root)
+        self.assertEqual(list(gaps), ["photo-licence"])
+        self.assertEqual(tokens, ["ventures/<slug>/*.test.mjs"])
+
+    def test_widening_the_line_closes_the_gap(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = make_venture(
+                Path(td), ["ventures/photo-licence/test/app.test.mjs"]
+            )
+            gaps, _ = cc.find_venture_glob_gaps(WIDENED_TEMPLATE, root)
+        self.assertEqual(gaps, {})
+
+    def test_flat_suite_is_never_a_gap_either_way(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = make_venture(Path(td), ["ventures/podcast/calc.test.mjs"])
+            narrow, _ = cc.find_venture_glob_gaps(CHECKLIST_TEMPLATE, root)
+            wide, _ = cc.find_venture_glob_gaps(WIDENED_TEMPLATE, root)
+        self.assertEqual(narrow, {})
+        self.assertEqual(wide, {})
+
+    def test_a_venture_with_both_layouts_is_still_reported(self):
+        # Half-covered must not read as covered: the flat file matching is
+        # exactly what would hide the subdirectory one.
+        with tempfile.TemporaryDirectory() as td:
+            root = make_venture(
+                Path(td),
+                [
+                    "ventures/mixed/calc.test.mjs",
+                    "ventures/mixed/site/page.test.mjs",
+                ],
+            )
+            gaps, _ = cc.find_venture_glob_gaps(CHECKLIST_TEMPLATE, root)
+        self.assertEqual(
+            gaps, {"mixed": ["ventures/mixed/site/page.test.mjs"]}
+        )
+
+    def test_node_modules_inside_a_venture_is_not_scanned(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = make_venture(
+                Path(td),
+                ["ventures/foo/node_modules/dep/thing.test.mjs"],
+            )
+            gaps, _ = cc.find_venture_glob_gaps(CHECKLIST_TEMPLATE, root)
+        self.assertEqual(gaps, {})
+
+    def test_missing_checklist_block_raises(self):
+        with tempfile.TemporaryDirectory() as td:
+            with self.assertRaises(ValueError):
+                cc.find_venture_glob_gaps("no fenced block here", Path(td))
+
+    def test_main_exits_one_and_names_the_venture(self):
+        import contextlib
+        import io
+
+        with tempfile.TemporaryDirectory() as td:
+            root = cc_make(Path(td))
+            make_venture(root, ["ventures/photo-licence/test/app.test.mjs"])
+            claude_md = root / "CLAUDE.md"
+            claude_md.write_text(CHECKLIST_TEMPLATE)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                code = cc.main(
+                    ["--claude-md", str(claude_md), "--repo-root", str(root)]
+                )
+        self.assertEqual(code, 1)
+        self.assertIn("photo-licence", buf.getvalue())
+        self.assertIn("# pass 0", buf.getvalue())
+
+
+class LiveVentureCoverage(unittest.TestCase):
+    """As with the two suites above: today's CLAUDE.md must already reach
+    today's venture tests, or this guard fails on its own introduction."""
+
+    def test_current_repo_has_no_venture_glob_gap(self):
+        gaps, tokens = cc.find_venture_glob_gaps(
+            (cc.REPO_ROOT / "CLAUDE.md").read_text(), cc.REPO_ROOT
+        )
+        self.assertEqual(
+            gaps,
+            {},
+            "CLAUDE.md's venture line cannot reach these ventures' tests; "
+            "running the checklist on one of them would print '# pass 0' and "
+            f"exit 0: {sorted(gaps)}",
+        )
+        self.assertTrue(tokens, "the checklist names no ventures/ test glob")
+        # Sanity: the scan must actually be finding venture tests, not
+        # passing because it looked at nothing.
+        self.assertGreater(
+            len(cc.actual_venture_test_mjs_files(cc.REPO_ROOT)), 100
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
