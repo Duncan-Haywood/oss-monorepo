@@ -1853,14 +1853,23 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (301, then 302) until this merge -- the same
     # ordinary collision shape recorded throughout this list: both branches
     # independently wrote "302" for what the merged tree made 303.
-    # 304 since 2026-09-17, when `android-data-safety-check` graduated -- a
+    # 304 since 2026-09-17, when `stockx-seller-payout-calculator` graduated
+    # -- a browser-local calculator pricing a StockX sneaker/streetwear/card
+    # sale's net payout and net profit from the sale price, a Seller-Level
+    # transaction fee, a Fast Shipping discount, a flat payment processing
+    # fee, and outbound shipping cost, then rolling a month of sales up
+    # against a profit goal -- the same single-channel marketplace-fee shape
+    # as `whatnot-seller-payout` and `poshmark-fee-calculator`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    # 305 since 2026-09-17, when `android-data-safety-check` graduated -- a
     # browser-local and CLI checker cross-checking an Android project's
     # AndroidManifest.xml permissions and Gradle SDK dependencies against
     # the Google Play Data safety categories the developer says they've
     # already declared, the direct Android-side counterpart to
     # `ios-privacy-manifest-check`, with a static `index.html` from its
     # first commit, same shape as the rest of this running count.
-    total = 304  # `infra/OWNER_CHECKLIST.md`'s own "N of the 304 tools" wording.
+    total = 305  # `infra/OWNER_CHECKLIST.md`'s own "N of the 305 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
