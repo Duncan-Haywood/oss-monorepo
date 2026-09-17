@@ -34288,6 +34288,54 @@ entries:
         (`sync_tree_counts.py`'s post-merge count fix), #4992 (the Pages
         publish record). All three squash-merged directly, no human review,
         per CLAUDE.md's "Ship without review ceremony."
+  - venture: wedding-florist-proposal-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Marketing/discoverability session, per the owner's standing priority
+        to build and deploy comparison/FAQ/guide surfaces for already-shipped
+        products rather than new product features. Surveyed ventures with
+        `platform/pages/surface-budget.mjs` for one fully shipped (tests, real
+        index.html, disclaimers, a `launched.json` entry) but thin on
+        marketing surfaces: `wedding-florist-proposal-calculator` had one
+        generic-method comparison page already at its budget and zero guide
+        pages, zero named-product comparisons. Checked open PRs (only #4998,
+        unrelated, a separate agent's `1099-vendor-tracker` work) and
+        `git log` on the venture (untouched since its single 2026-09
+        graduation commit) before writing anything.
+      - >-
+        Added `how-many-wholesale-bunches-do-you-need-for-a-wedding.html`, a
+        substantive guide page answering a real, distinct search question the
+        existing vs-page does not cover: how the calculator's two-step
+        rounding (shrink allowance added to the stem count before, not after,
+        the bunch rounding) plays out across a full five-line recipe, and what
+        to do with the leftover stems. Every worked figure in the page (the
+        per-line shrink-adjusted count, bunches ordered, stems purchased and
+        leftover, plus the recipe totals) is asserted against `calc.mjs`'s own
+        output in a new `content-pages.test.mjs` test, so the numbers cannot
+        drift silently -- the same pattern the venture's existing comparison
+        page already uses. FAQPage JSON-LD with matching visible text,
+        no-warranty and privacy disclaimers, canonical link, and a link back
+        to the calculator match the venture's existing conventions.
+        Cross-linked from `index.html` and added to `sitemap.xml`. Ran
+        `platform/marketing/regen.mjs` and committed what it rewrote (front-
+        door mirror shard, kustomization list, catalog, sitemap).
+      - >-
+        Verified locally (Actions is starved -- `ci_starvation.py` shows
+        `runner_id: 0` on recent runs): `checklist_coverage.py` clean; the
+        venture's own suite 71/71; `platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1271/1272, with the one failure
+        (`faq-visible.test.mjs`, naming `actions-secret-leak-check` and
+        `required-checks-drift-check`) confirmed pre-existing on `main` via
+        `git diff --stat origin/main` on both ventures (no diff) -- neither
+        touched by this branch, so out of scope here and left for a separate
+        fix; `platform/proposal` 101/101; `platform/privacy` +
+        `platform/webcheck` 142/142; `gitops/tests` 607 passed / 1 skipped
+        (environmental); all 15 `platform/ci` unittest modules pass;
+        `guard_state.py --require-runnable` exits 0 with no fixable skips.
+        Shipped as #5001, self-merged per CLAUDE.md's "Ship without review
+        ceremony" once local verification was clean.
   - venture: actions-transitive-pin-check
     agent_spend_usd: null
     human_hours: 0
