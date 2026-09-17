@@ -147,7 +147,16 @@ jobs:
 
       - name: Fetch latest main (for fresh router allocation)
         run: |
-          git fetch origin main --depth=50
+          # This job checks out with `fetch-depth: 0` (a full clone), and a
+          # `--depth` fetch writes `.git/shallow` and truncates the WHOLE
+          # repository -- so the unconditional `--depth=50` here threw away
+          # the complete history the checkout had just asked for, on a runner
+          # as well as locally. Deepen only what is already shallow.
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch origin main --depth=50
+          else
+            git fetch origin main
+          fi
 
       - name: Prepare prompt
         id: prompt
