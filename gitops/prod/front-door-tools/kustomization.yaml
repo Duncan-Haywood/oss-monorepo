@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 112 files, 544617 bytes
 #   portfolio-front-tools-9: 113 files, 554783 bytes
 #   portfolio-front-tools-10: 118 files, 556219 bytes
-#   portfolio-front-tools-11: 125 files, 545954 bytes
+#   portfolio-front-tools-11: 126 files, 550368 bytes
 #   portfolio-front-tools-12: 131 files, 553830 bytes
 #   portfolio-front-tools-13: 102 files, 547826 bytes
 #   portfolio-front-tools-14: 113 files, 553702 bytes
@@ -1608,6 +1608,7 @@ configMapGenerator:
       - pet-grooming-bid-calculator__index.html.gz=pet-grooming-bid-calculator__index.html.gz
       - pet-grooming-bid-calculator__share.mjs.gz=pet-grooming-bid-calculator__share.mjs.gz
       - pet-grooming-bid-calculator__usage.mjs.gz=pet-grooming-bid-calculator__usage.mjs.gz
+      - pet-grooming-bid-calculator__vs-a-flat-per-breed-price.html.gz=pet-grooming-bid-calculator__vs-a-flat-per-breed-price.html.gz
       - pet-grooming-bid-calculator__vs-moego.html.gz=pet-grooming-bid-calculator__vs-moego.html.gz
       - photo-addon-pricing-calculator__calc.mjs.gz=photo-addon-pricing-calculator__calc.mjs.gz
       - photo-addon-pricing-calculator__index.html.gz=photo-addon-pricing-calculator__index.html.gz
