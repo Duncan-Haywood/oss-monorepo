@@ -28,7 +28,9 @@ version ships.
   - A parameter that did not exist, or was optional, becomes required.
   - An existing parameter's declared type changes (e.g. string -> integer).
   - An enum value a client might still send is removed from a parameter's
-    schema.
+    schema, including the case where the parameter had no enum at all
+    before (a client could send any value, and now most of them are
+    rejected).
   - A request body becomes required where it was previously optional or
     absent.
 
@@ -223,6 +225,18 @@ def _param_changes(operation_key, old_params, new_params):
                 breaking.append({"operation": operation_key, "parameter": key, "type": "removed-enum-value", "values": lost})
             if gained:
                 non_breaking.append({"operation": operation_key, "parameter": key, "type": "added-enum-value", "values": gained})
+        elif not before["enum"] and after["enum"]:
+            # A parameter that previously accepted any value of its type now
+            # accepts only the listed ones -- every value outside the new
+            # enum is a value a client could have been sending that the API
+            # now rejects, the same shape as removed-enum-value with an
+            # unbounded "before".
+            breaking.append({"operation": operation_key, "parameter": key, "type": "enum-added", "values": after["enum"]})
+        elif before["enum"] and not after["enum"]:
+            # The reverse: the enum constraint is gone, so anything a client
+            # sent before is still accepted, plus more. Widening, not
+            # narrowing.
+            non_breaking.append({"operation": operation_key, "parameter": key, "type": "enum-removed", "values": before["enum"]})
     return breaking, non_breaking
 
 
@@ -299,6 +313,10 @@ def _describe(change):
         return f"{op}: parameter {change['parameter']} lost enum value(s) {change['values']}"
     if t == "added-enum-value":
         return f"{op}: parameter {change['parameter']} gained enum value(s) {change['values']}"
+    if t == "enum-added":
+        return f"{op}: parameter {change['parameter']} is now restricted to enum value(s) {change['values']} (previously unrestricted)"
+    if t == "enum-removed":
+        return f"{op}: parameter {change['parameter']} is no longer restricted to enum value(s) {change['values']}"
     if t == "request-body-now-required":
         return f"{op}: request body is now required"
     if t == "request-body-no-longer-required":
