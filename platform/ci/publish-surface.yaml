@@ -65,6 +65,9 @@ workflows:
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-secret-leak-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
@@ -333,6 +336,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dependency-confusion-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
 - workflow: dns-configuration-evidence-ci.yml

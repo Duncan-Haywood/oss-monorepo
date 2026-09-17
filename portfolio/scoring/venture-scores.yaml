@@ -14070,3 +14070,126 @@ ventures:
       requests; that is disclosed plainly in the privacy section of both
       README.md and index.html rather than inheriting a "no network calls"
       claim that would now be false.
+  - slug: actions-secret-leak-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over workflow YAML already on disk or
+      pasted into the browser: a step-scoped scan for a secret piped into a
+      known transform utility, or written to $GITHUB_ENV/$GITHUB_OUTPUT/
+      $GITHUB_STATE without ::add-mask::. There is nothing to infer.
+    basis: >-
+      Graduated 2026-09-17 as a free dev-tool CLI/browser check that flags
+      the two documented ways a secret reaches a GitHub Actions log, or a
+      later step, unmasked despite GitHub's own log masking: transforming a
+      secret-derived value before it can be printed, and exporting one to
+      $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without registering it with
+      ::add-mask::. Same shape as actions-injection-check and
+      pinned-actions-check: a standard-library-only classifier over data the
+      user already has, scored on this file's six-dimension rubric to keep
+      coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies YAML the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the two classification rules are a handful of
+      documented regex/step-scoped checks any developer could write; what is
+      not trivially copied is the paired CLI/browser port with a shared
+      classifier module, a parity test, and the already-written explanation
+      of exactly why GitHub's own log masking doesn't survive a
+      transformation or an unregistered export. Unmeasured beyond that,
+      hence not scored higher.
+      Distribution 5: "github actions secret masking" and "github actions
+      leaked secret" are real, narrow developer search terms tied to a
+      well-documented gap in a widely-used CI platform's own protection,
+      with no dedicated stay-entirely-local free tool answering them today,
+      but this portfolio has no existing developer-tool distribution
+      channel and volume is unmeasured. `duplicate_check.py` scored every
+      other venture, screened-out row, and pipeline candidate at or below
+      0.11 against the final description; the closest,
+      actions-artifact-poisoning-check, shares only the "actions-* security
+      checker" family, not the finding shape or detection code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies workflow YAML already on the user's
+      disk or pasted into the browser, asks for no token, and never fetches
+      or resolves anything on the user's behalf. It makes no security or
+      compliance claim: a clean scan means these two specific, documented
+      patterns are absent, not that the workflow's secrets are safe overall.
+  - slug: deploy-concurrency-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.000
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately, and this is the dimension where
+      that is most clearly right. Whether a concurrency group varies per run
+      is decided by whether its expression contains one of seven named
+      contexts; whether two jobs share a group is a string comparison. Every
+      one of the five findings is a decidable property of the YAML, so a
+      model judgment would add nothing but a way to be wrong -- and this
+      tool's whole value rests on a reader trusting that a clean report
+      means the scan found nothing, not that a model thought it looked fine.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's scoring
+      process. `duplicate_check.py` scored every existing venture, pipeline
+      candidate, screened-out row and ai-first-markets idea at or below 0.16
+      (`sql-migration-lock-check`), far under the 0.45 near-duplicate bar,
+      and the eight existing `actions-*` checkers were then read individually
+      rather than trusted to the score: none reads `concurrency:` and none is
+      about deployment ordering. Defensibility 3: the five patterns are
+      easy to reproduce once someone thinks to, and the moat is only that
+      nobody has -- scored modestly on purpose. Distribution 7, the highest
+      of the recent checkers, on a specific argument rather than optimism:
+      the symptom this tool explains ("my fix isn't live but the check is
+      green") is searched in the exact words people use for it, the failure
+      is widely discussed and poorly named, and the cross-file finding gives
+      a team that already reviewed their workflows by hand a reason to run
+      it anyway. No search-volume tool was queried to confirm magnitude,
+      matching this pipeline's standing caveat for every checker at
+      graduation. Time to revenue 5, same as the rest of the family: free,
+      donations-only, no path to a charge.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: read-only and mechanical. It opens the files the user
+      names and prints; it makes no network call anywhere in either
+      implementation, never touches the GitHub API, never reads a token,
+      never edits a workflow, and never opens a pull request. Nothing pasted
+      into the page leaves the device. The one claim that could do real harm
+      if a reader over-read it is "clean report means safe pipeline", so
+      every page states in its own body -- not a footnote -- that this is
+      evidence rather than a determination and that a clean report means the
+      five patterns were not found, never that the pipeline is safe. The
+      checker is also deliberately built to stay quiet: roughly half its 35
+      assertions pin cases where it must NOT fire, because a scanner that
+      flags a correct file trains its reader to ignore findings, which is
+      the specific way a tool like this causes harm. Ethically: donations-
+      only with no per-use fee, so nothing biases it toward reporting more
+      findings than it has, and it gets strictly less useful to a team the
+      more it over-reports.
