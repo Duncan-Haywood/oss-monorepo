@@ -33,23 +33,23 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 554665 bytes
-#   portfolio-front-tools-1: 104 files, 556026 bytes
-#   portfolio-front-tools-2: 149 files, 544186 bytes
-#   portfolio-front-tools-3: 137 files, 556891 bytes
-#   portfolio-front-tools-4: 127 files, 554302 bytes
-#   portfolio-front-tools-5: 132 files, 554447 bytes
-#   portfolio-front-tools-6: 127 files, 556163 bytes
-#   portfolio-front-tools-7: 138 files, 554408 bytes
-#   portfolio-front-tools-8: 113 files, 554861 bytes
-#   portfolio-front-tools-9: 113 files, 539398 bytes
-#   portfolio-front-tools-10: 113 files, 544547 bytes
-#   portfolio-front-tools-11: 125 files, 540618 bytes
-#   portfolio-front-tools-12: 131 files, 556305 bytes
-#   portfolio-front-tools-13: 103 files, 556309 bytes
-#   portfolio-front-tools-14: 113 files, 555163 bytes
-#   portfolio-front-tools-15: 116 files, 556173 bytes
-#   portfolio-front-tools-16: 69 files, 346012 bytes
+#   portfolio-front-tools-0: 133 files, 554669 bytes
+#   portfolio-front-tools-1: 104 files, 556032 bytes
+#   portfolio-front-tools-2: 149 files, 544187 bytes
+#   portfolio-front-tools-3: 137 files, 556826 bytes
+#   portfolio-front-tools-4: 127 files, 554296 bytes
+#   portfolio-front-tools-5: 132 files, 554405 bytes
+#   portfolio-front-tools-6: 127 files, 556182 bytes
+#   portfolio-front-tools-7: 138 files, 554434 bytes
+#   portfolio-front-tools-8: 113 files, 554868 bytes
+#   portfolio-front-tools-9: 119 files, 551995 bytes
+#   portfolio-front-tools-10: 114 files, 555693 bytes
+#   portfolio-front-tools-11: 125 files, 540538 bytes
+#   portfolio-front-tools-12: 131 files, 556254 bytes
+#   portfolio-front-tools-13: 103 files, 556338 bytes
+#   portfolio-front-tools-14: 113 files, 555232 bytes
+#   portfolio-front-tools-15: 116 files, 556257 bytes
+#   portfolio-front-tools-16: 69 files, 346041 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1290,6 +1290,13 @@ configMapGenerator:
       - hardwood-refinishing-bid-calculator__share.mjs.gz=hardwood-refinishing-bid-calculator__share.mjs.gz
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
       - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
+      - helm-values-schema-check__cli.mjs.gz=helm-values-schema-check__cli.mjs.gz
+      - helm-values-schema-check__engine.mjs.gz=helm-values-schema-check__engine.mjs.gz
+      - helm-values-schema-check__index.html.gz=helm-values-schema-check__index.html.gz
+      - helm-values-schema-check__usage.mjs.gz=helm-values-schema-check__usage.mjs.gz
+      - helm-values-schema-check__vs-helm-lint.html.gz=helm-values-schema-check__vs-helm-lint.html.gz
+      - helm-values-schema-check__why-helm-silently-accepts-a-typo-in-values-yaml.html.gz=helm-values-schema-check__why-helm-silently-accepts-a-typo-in-values-yaml.html.gz
+      - helm-values-schema-check__yaml.mjs.gz=helm-values-schema-check__yaml.mjs.gz
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
@@ -1389,12 +1396,12 @@ configMapGenerator:
       - irrigation-winterization-bid-calculator__vs-jobber.html.gz=irrigation-winterization-bid-calculator__vs-jobber.html.gz
       - janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz=janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz
       - janitorial-bid-calculator__area-name.mjs.gz=janitorial-bid-calculator__area-name.mjs.gz
-      - janitorial-bid-calculator__calc.mjs.gz=janitorial-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - janitorial-bid-calculator__calc.mjs.gz=janitorial-bid-calculator__calc.mjs.gz
       - janitorial-bid-calculator__index.html.gz=janitorial-bid-calculator__index.html.gz
       - janitorial-bid-calculator__second-site.html.gz=janitorial-bid-calculator__second-site.html.gz
       - janitorial-bid-calculator__second-site.mjs.gz=janitorial-bid-calculator__second-site.mjs.gz
