@@ -142,11 +142,11 @@
     on overtime hours — not your full overtime pay. If you already know the
     figure (for example, tax year 2025+ W-2s show it in Box 14 as "FLSA OT
     Prem"), enter it directly. Otherwise compute it from your hours below.</p>
-    <div class="tabs">
-      <button type="button" id="tab-known" class="tab active">I know the total</button>
-      <button type="button" id="tab-compute" class="tab">Compute it from hours</button>
+    <div class="tabs" role="tablist" aria-label="How do you know your overtime premium?">
+      <button type="button" role="tab" id="tab-known" aria-controls="known-panel" aria-selected="true" class="tab active">I know the total</button>
+      <button type="button" role="tab" id="tab-compute" aria-controls="compute-panel" aria-selected="false" class="tab">Compute it from hours</button>
     </div>
-    <div id="known-panel">
+    <div id="known-panel" role="tabpanel" aria-labelledby="tab-known">
       <div class="grid">
         <div>
           <label for="ot-known">Qualified overtime premium this year ($)</label>
@@ -154,7 +154,7 @@
         </div>
       </div>
     </div>
-    <div id="compute-panel" hidden>
+    <div id="compute-panel" role="tabpanel" aria-labelledby="tab-compute" hidden>
       <p class="note">Add a row per hourly rate you were paid overtime at
       this year: rate, overtime hours in a typical week at that rate, and
       how many weeks. Premium = rate &times; 0.5 &times; overtime hours
@@ -271,6 +271,8 @@
       otMode = mode;
       els.tabKnown.classList.toggle("active", mode === "known");
       els.tabCompute.classList.toggle("active", mode === "compute");
+      els.tabKnown.setAttribute("aria-selected", String(mode === "known"));
+      els.tabCompute.setAttribute("aria-selected", String(mode === "compute"));
       els.knownPanel.hidden = mode !== "known";
       els.computePanel.hidden = mode !== "compute";
     }

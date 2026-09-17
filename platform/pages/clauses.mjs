@@ -447,6 +447,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // not a company or product this could be mistaken for. The page names no
   // specific reviewer, team, or tool at all.
   'actions-transitive-pin-check/vs-manually-checking-nested-references.html',
+  // Compares against "computing depreciation recapture by hand or in a
+  // spreadsheet" -- a generic method every landlord/seller already has, not
+  // a company or product this could be mistaken for. Same reasoning as the
+  // other vs-spreadsheet / by-hand pages above.
+  'depreciation-recapture-calculator/vs-doing-it-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
