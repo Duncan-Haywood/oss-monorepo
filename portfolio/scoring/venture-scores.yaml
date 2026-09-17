@@ -14556,6 +14556,54 @@ ventures:
       learn about -- the checker is a planning estimate, not the form
       itself. No adverse incentive in either direction (donations-only, no
       upsell that profits from a false "likely" or "unlikely" reading).
+  - slug: no-tax-on-tips-overtime-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic statutory-cap and phase-out arithmetic over numbers the
+      user types in, plus a fixed FLSA half-time-premium formula. There is
+      no inference step anywhere in the tool.
+    basis: >-
+      Graduated 2026-09-17 as a free browser calculator for the "no tax on
+      tips" and "no tax on overtime" federal deductions (One Big Beautiful
+      Bill Act, tax years 2025-2028). Both are new for the 2025 tax year and
+      being actively searched as 2025 W-2s land with the new Box 12 "TP" /
+      Box 14b TTOC / Box 14 "FLSA OT Prem" codes; several finance-blog
+      calculators already exist for the same phrases (evidence of real
+      search volume), and this differentiates by combining both deductions
+      in one MAGI phase-out pass, computing the overtime premium from raw
+      hours/rate rather than requiring a known figure, and applying the
+      self-employed net-profit cap those simpler tools omit. Distribution
+      scored the same as 1099-vendor-tracker's: real but unmeasured search
+      demand, no paid acquisition. No account, network, payment, or paid
+      API dependency.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The tool never files anything and never determines eligibility on the
+      user's behalf -- occupation eligibility for tips is explicitly
+      self-reported with an inline caveat, not verified against Treasury's
+      list, and every output is framed as an estimate to verify before
+      filing, not a return. Being wrong costs a filer an inaccurate estimate
+      they can still correct against IRS guidance before filing, not a
+      lawsuit -- the same risk envelope as this portfolio's other
+      tax-adjacent evidence tools (1099-vendor-tracker, overtime-pay-
+      calculator). It carries no adverse incentive in either direction (no
+      upsell that profits from over- or under-reporting, donations-only)
+      and every numeric constant (caps, phase-out thresholds and rate,
+      zero-crossing points) was cross-checked against multiple independent
+      published sources during graduation, with the derivation and sources
+      recorded in calc.mjs's header comment.
   - slug: depreciation-recapture-calculator
     scores:
       ai_leverage: 1

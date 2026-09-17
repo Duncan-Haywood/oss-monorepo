@@ -2001,7 +2001,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `sync_tree_counts.py`'s own fresh measurement against the tree, not a
     # hand sum.
     #
-    # 317 since 2026-09-17, when `depreciation-recapture-calculator`
+    # 317 since 2026-09-17, when `no-tax-on-tips-overtime-calculator`
+    # graduated -- a browser-local calculator estimating the federal "no tax
+    # on tips" ($25,000 cap) and "no tax on overtime" ($12,500/$25,000 cap)
+    # deductions (One Big Beautiful Bill Act, tax years 2025-2028), combining
+    # both in one shared-MAGI phase-out pass and applying the overtime
+    # deduction's easy-to-miss half-time-premium-only rule. This branch was
+    # open before `1099-k-threshold-checker` and the other same-day
+    # graduations landed, so it only ever knew 316 until this merge.
+    # Recorded from `sync_tree_counts.py`'s own fresh measurement against the
+    # merged tree, not a hand sum.
+    #
+    # 318 since 2026-09-17, when `depreciation-recapture-calculator`
     # graduated concurrently -- a browser-local calculator splitting the
     # gain on a rental property sale into unrecaptured Section 1250
     # depreciation recapture (ordinary rate, capped at 25%) and the
@@ -2010,10 +2021,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `backoffice` (the same after-the-fact tax-arithmetic axis as
     # `quarterly-estimated-tax-calendar`, which it cross-links
     # reciprocally). This branch was open before `1099-k-threshold-checker`
-    # landed, so it only ever knew 316 until this merge. Recorded from
-    # `sync_tree_counts.py`'s own fresh measurement against the merged tree,
-    # not a hand sum.
-    total = 317  # `infra/OWNER_CHECKLIST.md`'s own "N of the 317 tools" wording.
+    # and `no-tax-on-tips-overtime-calculator` landed, so it only ever knew
+    # 316 until this merge. Recorded from `sync_tree_counts.py`'s own fresh
+    # measurement against the merged tree, not a hand sum.
+    total = 318  # `infra/OWNER_CHECKLIST.md`'s own "N of the 318 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
