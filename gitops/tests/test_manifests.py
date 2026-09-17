@@ -1899,7 +1899,32 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # earlier predecessor's number until this merge -- the same ordinary
     # collision shape recorded throughout this list: both branches
     # independently wrote "306" for what the merged tree made 307.
-    total = 307  # `infra/OWNER_CHECKLIST.md`'s own "N of the 307 tools" wording.
+    # 308 since 2026-09-17, when `deploy-concurrency-check` graduated -- a
+    # browser-local and CLI checker reading GitHub Actions workflow YAML for
+    # the five ways a deploying workflow is permitted to apply an older
+    # revision over a newer one (no concurrency group, a group keyed on
+    # something that changes every run, cancel-in-progress on a deploy, two
+    # jobs or workflows writing one environment under different group names,
+    # and a deploying job checking out a moving branch), with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch was open before
+    # `branch-protection-drift-check` and `helm-values-schema-check` landed,
+    # so it only ever knew 306 until this merge -- the same ordinary
+    # collision shape recorded throughout this list, three deep this time.
+    # 309 since 2026-09-17, when `actions-secret-leak-check` graduated
+    # concurrently with `deploy-concurrency-check` above -- a
+    # zero-dependency CLI + browser tool flagging the two documented ways a
+    # secret reaches a GitHub Actions log, or a later step, unmasked despite
+    # GitHub's own log masking: a step that transforms a secret-derived
+    # value before it can be printed, and one that exports a secret-derived
+    # value to $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without
+    # `::add-mask::`. Direct sibling of `actions-injection-check`,
+    # `actions-permissions-check` and `pinned-actions-check`, cross-linked
+    # from all three. This branch was open before
+    # `deploy-concurrency-check` landed, so it only ever knew 308 until this
+    # merge -- both branches independently wrote "308" for what the merged
+    # tree made 309.
+    total = 309  # `infra/OWNER_CHECKLIST.md`'s own "N of the 309 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
