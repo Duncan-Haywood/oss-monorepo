@@ -1924,29 +1924,47 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `deploy-concurrency-check` landed, so it only ever knew 308 until this
     # merge -- both branches independently wrote "308" for what the merged
     # tree made 309.
-    # 310 since 2026-09-17, when `actions-transitive-pin-check` graduated --
-    # a CLI + browser tool that, for every top-level `uses:` reference
-    # already pinned to a commit SHA, fetches that exact file from
+    # 310 since 2026-09-17, when `twitch-payout-calculator` graduated
+    # concurrently with `actions-secret-leak-check` above -- a browser-local
+    # calculator turning a streamer's Tier 1/2/3 sub counts and Bits into
+    # real monthly take-home after their revenue split, correcting the
+    # belief that a mobile-purchased subscription pays less. This branch was
+    # open before `actions-secret-leak-check` landed, so it only ever knew
+    # 309 until this merge -- both branches independently wrote "309" for
+    # what the merged tree made 310.
+    # 311 since 2026-09-17, when `cnc-machining-quote-calculator` graduated
+    # concurrently with `twitch-payout-calculator` above -- a CNC job shop
+    # part-quoting calculator. This branch was open before
+    # `cnc-machining-quote-calculator` landed, so it only ever knew 310
+    # until this merge -- both branches independently wrote "310" for what
+    # the merged tree made 311.
+    # `actions-transitive-pin-check` also graduated concurrently -- a CLI +
+    # browser tool that, for every top-level `uses:` reference already
+    # pinned to a commit SHA, fetches that exact file from
     # `raw.githubusercontent.com` and classifies its own `uses:` lines the
     # same way, flagging a reference that is pinned at the call site but
     # loads something unpinned underneath -- a gap `pinned-actions-check`'s
     # own "no network calls" design cannot see into. Cross-linked with
-    # `pinned-actions-check` from the first commit. This branch was open
-    # before `actions-secret-leak-check` and `deploy-concurrency-check`
-    # landed, so it only ever knew 308 until this merge -- the same
-    # ordinary collision shape recorded throughout this list.
+    # `pinned-actions-check` from the first commit. A prior merge of several
+    # concurrent branches guessed 311 by hand and got it wrong (measured 310
+    # fresh against the actual tree at the time, most likely because one
+    # branch's venture was already reflected in the baseline the arithmetic
+    # started from) -- recorded here as the reminder not to repeat that.
     #
-    # `cnc-machining-quote-calculator` (#4957) also landed on `main` while
-    # this branch was still mid-merge -- the same collision shape one more
-    # time, this time against a venture with no relation to the actions-*
-    # checker family at all. Guessed 311 for that merge by hand and got it
-    # wrong; `sync_tree_counts.py`, run fresh against the actual merged
-    # `main` after this PR landed, measured 310 -- one lower than the
-    # arithmetic suggested, most likely because one of the two ventures
-    # this branch thought was still unmerged was already reflected in the
-    # baseline it started counting from. Recorded from the tool's own
-    # measurement rather than corrected by hand a second time.
-    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
+    # 311 since 2026-09-17: `actions-transitive-pin-check` (#4959) itself
+    # shipped without registering in the front-door mirror, so that 310
+    # figure was already stale the moment the very next commit (#4969)
+    # registered it -- no venture graduated between the two, the mirror
+    # just gained the entry it should have had from the start.
+    #
+    # 312 since 2026-09-17, when `twitch-payout-calculator` graduated
+    # concurrently with all of the above -- a browser-local calculator
+    # turning a streamer's Tier 1/2/3 sub counts and Bits into real monthly
+    # take-home after their revenue split, correcting the belief that a
+    # mobile-purchased subscription pays less. The number below is
+    # `sync_tree_counts.py`'s own fresh measurement against this merge's
+    # tree, not a hand sum of any of the above.
+    total = 312  # `infra/OWNER_CHECKLIST.md`'s own "N of the 312 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

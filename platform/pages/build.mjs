@@ -379,7 +379,16 @@ const CATEGORY_RULES = [
     // and would otherwise sit in the catch-all for the same reason those two
     // did: the slug names the storefront, not a marketplace keyword this
     // rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx)/.test(slug),
+    // `twitch-payout-calculator` is the same platform-revenue-split shape as
+    // `stockx` and `whatnot` above, one further step removed from a sale
+    // price: Twitch keeps a fixed percentage of subscription revenue (the
+    // platform's own "fee schedule") rather than a seller listing an item,
+    // but the arithmetic a creator needs — apply the platform's cut, then
+    // decide whether the program (Partner Plus) is worth it — is the same
+    // question this section already answers for a resale seller. It sat in
+    // the catch-all because its slug names a streaming platform, not a
+    // storefront keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch)/.test(slug),
   },
   {
     id: 'trades',

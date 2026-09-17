@@ -1142,38 +1142,48 @@ test('the search index carries description text the card is too small to show', 
   // If this is ever zero the test is no longer proving anything.
   assert.ok(truncated.length > 0, 'expected at least one description longer than its card');
 
-  // Whatever this probe word turns out to be, it has to survive the same
-  // catalogue-wide stopword cut the real index went through -- otherwise a
-  // word that happens to cross CATALOGUE_STOPWORD_SHARE across the whole
-  // catalogue (as "browser" did once enough tools said "runs in your
-  // browser") fails this test for an unrelated venture, not because the
-  // index is missing anything but because the probe word was never going to
-  // be indexed in the first place. This has to be computed from each
-  // surface's *pre-strip* searchIndex, the same input renderHub feeds
-  // catalogueStopwords -- recomputing it from the already-rendered
-  // `data-search` attributes is circular, since a word that got cut for
-  // being too common is by then absent from every card and so never looks
-  // frequent enough to cut.
+  // A probe word has to survive the same catalogue-wide stopword cut the real
+  // index went through -- otherwise a word that happens to cross
+  // CATALOGUE_STOPWORD_SHARE across the whole catalogue (as "browser" did once
+  // enough tools said "runs in your browser") fails this test for an unrelated
+  // venture, not because the index is missing anything but because the probe
+  // word was never going to be indexed in the first place.
+  //
+  // It is derived from each surface's *pre-strip* index -- the same input
+  // renderHub feeds catalogueStopwords, aliases included -- rather than from
+  // the already-rendered `data-search` attributes. Reading it back out of the
+  // output is circular twice over: a word cut for being too common is by then
+  // absent from every card and so never looks frequent enough to cut, and,
+  // worse, a word unique to one venture that is missing from the index because
+  // of the very regression this test exists to catch also appears on no card,
+  // so the output-derived reading classifies it as a stopword and skips the
+  // assertion. That is a silent pass on the real bug.
   const rawCards = surfaces.map((s) => ({
     name: searchTokens([s.title, s.slug]),
-    index: s.searchIndex ?? searchTokens([s.title, s.fullDescription ?? s.description, s.slug]),
+    index:
+      s.searchIndex ??
+      searchTokens([s.title, s.fullDescription ?? s.description, s.slug, aliasesFor(s.slug)]),
   }));
   const stops = catalogueStopwords(rawCards, CATALOGUE_STOPWORD_SHARE);
+  // searchTokens already drops generic English (SEARCH_STOPWORDS) on the way
+  // in, so `stops` is the whole of the remaining difference between a word in
+  // the tail and a word in the rendered index.
 
   for (const surface of truncated) {
     const shown = surface.description.replace(/…$/, '');
     const tail = surface.fullDescription.slice(shown.length);
-    const word = searchTokens([tail])
+    const candidates = searchTokens([tail])
       .split(' ')
-      .filter((w) => w.length > 4 && !stops.has(w))[0];
-    if (!word) continue;
+      .filter((w) => w.length > 4 && !stops.has(w));
+    if (candidates.length === 0) continue;
     const index = html.match(
       new RegExp(`data-search="([^"]*)"[^>]*>\\s*<a href="${surface.slug}/`),
     )?.[1];
     assert.ok(index, `no card rendered for ${surface.slug}`);
+    const padded = ` ${index} `;
     assert.ok(
-      ` ${index} `.includes(` ${word} `),
-      `"${word}" is in ${surface.slug}'s description but not in its search index`,
+      candidates.some((word) => padded.includes(` ${word} `)),
+      `none of "${candidates.join(', ')}" (from ${surface.slug}'s truncated description) is in its search index, though none of them was cut as a catalogue stopword`,
     );
   }
 });

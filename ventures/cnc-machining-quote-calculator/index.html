@@ -239,7 +239,7 @@
           <div>
             <label for="firstArticleHours">First-article inspection hours
               <span class="hint">Layout, report, and any FAI paperwork.</span></label>
-            <input type="number" id="firstArticleHours" min="0" step="0.25" value="1.2">
+            <input type="number" id="firstArticleHours" min="0" step="0.25" value="1.25">
           </div>
         </div>
       </fieldset>
@@ -358,6 +358,14 @@
     5-piece run. The minimum, not the rate, is what prices a short run, and the
     tool charges it on the parts you send out rather than the parts you ship —
     a plater does not refund the ones you scrap afterwards.</p>
+    <h3>Already quoting out of a spreadsheet?</h3>
+    <p>Most job shops are, and it is a reasonable thing to do — a sheet holds
+    the history, the customers and the estimates you built over years, and this
+    page holds none of that. What a sheet makes easy is the four costing errors
+    above, all of which move the cost the same way on short runs.
+    <a href="./vs-quoting-in-a-spreadsheet.html">This calculator vs. quoting in
+    a spreadsheet</a> sets out what each tool is for, and shows the same $38
+    part price earning 57.4% margin at 50 pieces and losing 19.3% at 10.</p>
     <h3>What it does not do</h3>
     <p>It does not know what your market pays, what your material is worth today,
     what a reasonable cycle time is for your machine, or what your competitor
@@ -468,7 +476,7 @@
       cycleMinutesPerPart: 4.2, handlingMinutesPerPart: 0.8, machineBurdenPerHour: 22,
       hourlyWage: 28, burdenRate: 26, overheadRate: 18, targetMargin: 35,
       setupHours: 2.5, programmingHours: 3, amortiseProgrammingOverParts: 25,
-      firstArticleHours: 1.2,
+      firstArticleHours: 1.25,
       toolCostPerCuttingEdge: 9.4, partsPerCuttingEdge: 60, inspectionMinutesPerPart: 0.6,
       outsideCostPerPart: 2.1, outsideLotMinimum: 75,
     };

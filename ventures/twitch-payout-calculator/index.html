@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twitch Payout Calculator — Real Take-Home From Subs and Bits</title>
+<meta name="description" content="Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% standard or 70% Partner Plus split) and Bits, see whether a mobile subscription really pays less (it doesn't), and check how many more subs close a monthly income gap.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Twitch Payout Calculator">
+<meta property="og:description" content="The dashboard number is not your payout. Find real monthly take-home from subs and Bits after your revenue split, then see how many more subs close an income gap.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Twitch Payout Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds a Twitch streamer's real monthly take-home from Tier 1/2/3 subscriptions and Bits after the revenue split, and compares it to a monthly income target."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a subscription bought on mobile pay me less because of Apple or Google's cut?","acceptedAnswer":{"@type":"Answer","text":"No, as of Twitch's October 2024 pricing change. Twitch charges more for a mobile subscription specifically to cover the app store's in-app-purchase fee, so your payout per sub is the same whether the viewer bought it on desktop or in the iOS/Android app. Enter your web tier price here either way — see the worked explainer."}},{"@type":"Question","name":"Why is the revenue split 50% for some streamers and 70% for others?","acceptedAnswer":{"@type":"Answer","text":"Standard Affiliates and most Partners keep 50% of subscription revenue. Partners who qualify for Twitch's Partner Plus program keep 70% on recurring subs. This is the one number that actually changes your payout per sub — read your own current split off your Twitch dashboard rather than assuming one."}},{"@type":"Question","name":"Why don't Bits follow the same split as subs?","acceptedAnswer":{"@type":"Answer","text":"A cheered Bit is worth a flat $0.01 to the streamer no matter what the viewer paid for the Bits bundle or what the streamer's subscription split is — Twitch's own cut is already built into what a viewer pays for Bits before the streamer ever sees the cheer. So Bits income is not reduced by a 50% or 70% split the way sub revenue is."}},{"@type":"Question","name":"Does this tool estimate ad revenue?","acceptedAnswer":{"@type":"Answer","text":"No. Twitch publishes no standard ad CPM a static calculator could model honestly, and ad payouts vary by campaign and channel. Enter any ad revenue, sponsorship, or other income as the single \"other monthly income\" figure instead — this tool only computes the parts with documented, deterministic mechanics: subs and Bits."}},{"@type":"Question","name":"Does anything about my numbers get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server and there is no account. Your inputs and target are saved locally on this device so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#1d1233;background:#f3edfb}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #d9c8f5;border-radius:16px;padding:20px;box-shadow:0 8px 24px #4b1d9a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #e4d6f9;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#6441a5}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #c4a9ec;border-radius:8px;font:inherit;background:#fbf9ff}.result{background:#4b1d9a;color:#fff;border-color:#4b1d9a;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#5b4b78}.result .note{color:#ddc9f7}.err{color:#ffd9a6;font-weight:700}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #c4a9ec;background:#fff;cursor:pointer;color:#1d1233}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR TWITCH STREAMERS</p><h1>The dashboard number isn't your payout. Take-home is.</h1><p class="lede">"$414 in sub revenue this month" is not what lands in your bank account — your revenue split (50% standard, 70% for Partner Plus) cuts subs, Bits pay a flat $0.01 each, and mobile subs pay exactly the same as desktop ones despite what the app store fee headlines suggest. This free calculator finds your real monthly take-home and checks it against an income goal.</p><p class="lede">Think buying on mobile pays you less? See <a href="does-a-mobile-subscription-pay-me-less.html">does a mobile subscription pay me less?</a> for the worked answer. Tracking this in a spreadsheet today instead? See <a href="vs-tracking-payouts-in-a-spreadsheet.html">this calculator vs. a spreadsheet</a>.</p></header>
+
+<main class="layout">
+<section><h2>Your month</h2>
+<fieldset><legend>Subs by tier</legend><div class="fields">
+<label>Tier 1 subs<input id="tier1Subs" type="number" min="0" step="1" value="40"></label>
+<label>Tier 1 price ($)<input id="tier1Price" type="number" min="0" step="0.01" value="5.99"></label>
+<label>Tier 2 subs<input id="tier2Subs" type="number" min="0" step="1" value="10"></label>
+<label>Tier 2 price ($)<input id="tier2Price" type="number" min="0" step="0.01" value="9.99"></label>
+<label>Tier 3 subs<input id="tier3Subs" type="number" min="0" step="1" value="3"></label>
+<label>Tier 3 price ($)<input id="tier3Price" type="number" min="0" step="0.01" value="24.99"></label>
+</div>
+<p class="note">Include gifted subs in the tier they were gifted at — the giver pays, but your payout works the same as any other sub. Include mobile-purchased subs in the same counts too: your payout per sub is the same regardless of platform (see the linked explainer above).</p>
+</fieldset>
+<fieldset><legend>Split &amp; other income</legend><div class="fields">
+<label>Your revenue split (%)<input id="splitPct" type="number" min="0" max="100" step="1" value="50"></label>
+<label>Bits cheered<input id="bitsCheered" type="number" min="0" step="1" value="8000"></label>
+<label>Other monthly income ($)<input id="otherMonthlyIncome" type="number" min="0" step="1" value="0"></label>
+</div>
+<p class="note">50% is the standard Affiliate/Partner split; 70% is Partner Plus. Read yours off your own Twitch dashboard. "Other monthly income" is ads, sponsorships, or donations elsewhere — a figure you supply, since Twitch publishes no ad rate this tool could model honestly.</p>
+</fieldset>
+<p id="draftStatus" class="note" role="status">Your numbers above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>This month's take-home</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="payout" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross sub revenue</dt><dd id="grossOut"></dd>
+<dt>Your split of subs</dt><dd id="subPayoutOut"></dd>
+<dt>Bits payout</dt><dd id="bitsOut"></dd>
+<dt>Other income</dt><dd id="otherOut"></dd>
+<dt>Total payout</dt><dd id="totalOut"></dd>
+</dl>
+<h3 style="margin-top:14px">Against your goal</h3>
+<div class="fields">
+<label>Target monthly payout ($)<input id="targetMonthlyPayout" type="number" min="0" step="10" value="1500"></label>
+</div>
+<dl style="margin-top:10px">
+<dt>Gap to goal</dt><dd id="gapOut"></dd>
+<dt>Additional Tier 1 subs to close it</dt><dd id="extraOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not your actual payout statement. It does not model ad revenue, currency conversion, or any promotional rate — fold those into "other monthly income" yourself. It never reads your Twitch account or replaces your own payout dashboard.</p>
+</section>
+</main>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your sub counts, prices, split, Bits, other income, and target payout are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. There is no account. We count only anonymous local feature events (<code>month-priced</code>, <code>gap-checked</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no sub counts, Bits totals, or income figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Does a subscription bought on mobile pay me less because of Apple or Google's cut?</h3><p>No, as of Twitch's October 2024 pricing change. Twitch charges more for a mobile subscription specifically to cover the app store's in-app-purchase fee, so your payout per sub is the same whether the viewer bought it on desktop or in the iOS/Android app. Enter your web tier price here either way &mdash; see <a href="does-a-mobile-subscription-pay-me-less.html">the worked explainer</a>.</p>
+<h3>Why is the revenue split 50% for some streamers and 70% for others?</h3><p>Standard Affiliates and most Partners keep 50% of subscription revenue. Partners who qualify for Twitch's Partner Plus program keep 70% on recurring subs. This is the one number that actually changes your payout per sub &mdash; read your own current split off your Twitch dashboard rather than assuming one.</p>
+<h3>Why don't Bits follow the same split as subs?</h3><p>A cheered Bit is worth a flat $0.01 to the streamer no matter what the viewer paid for the Bits bundle or what the streamer's subscription split is &mdash; Twitch's own cut is already built into what a viewer pays for Bits before the streamer ever sees the cheer. So Bits income is not reduced by a 50% or 70% split the way sub revenue is.</p>
+<h3>Does this tool estimate ad revenue?</h3><p>No. Twitch publishes no standard ad CPM a static calculator could model honestly, and ad payouts vary by campaign and channel. Enter any ad revenue, sponsorship, or other income as the single "other monthly income" figure instead &mdash; this tool only computes the parts with documented, deterministic mechanics: subs and Bits.</p>
+<h3>Does anything about my numbers get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server and there is no account. Your inputs and target are saved locally on this device so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not an ad-revenue estimator, a payout tracker, or a substitute for your own Twitch dashboard and payout statements. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your payout history, confirm a deposit amount, or replace your own accountant. Twitch is a trademark of Twitch Interactive, Inc., named here only to describe what this tool calculates — this tool is not affiliated with, endorsed by, or sponsored by Twitch, and its subscription prices, split terms, and Bits pricing change over time; verify every figure against your own current Twitch dashboard before relying on the result.</p><p>Also pricing sponsorships on a podcast? The <a href="../podcast-sponsorship-rate-calculator/">podcast sponsorship rate calculator</a> turns downloads per episode into an ad-slot price range. Pricing a single sponsored social post instead? The <a href="../brand-deal-rate-calculator/">brand deal rate calculator</a> prices that from your follower count and engagement rate.</p><p>MIT licensed. If it helped you see your real take-home, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, payoutGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'twitch-payout-calculator-draft';
+let counted = false;
+let gapCounted = false;
+
+function monthInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_INPUTS = monthInputs();
+
+function applyInputs(values) {
+  for (const id of FIELD_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persist() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(monthInputs())));
+}
+
+function update(count = false) {
+  try {
+    const r = calculate(monthInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('payout').hidden = false;
+    el('payout').textContent = money(r.totalPayout);
+    el('rateLine').textContent = r.effectiveSubTakeRatePct === null
+      ? 'enter a sub count to see your effective take rate'
+      : `you keep ${r.effectiveSubTakeRatePct.toFixed(0)}% of sub revenue, plus Bits and other income`;
+    el('grossOut').textContent = money(r.grossSubRevenue);
+    el('subPayoutOut').textContent = money(r.subPayout);
+    el('bitsOut').textContent = money(r.bitsPayout);
+    el('otherOut').textContent = money(Number(el('otherMonthlyIncome').value) || 0);
+    el('totalOut').textContent = money(r.totalPayout);
+
+    const targetMonthlyPayout = parseFloat(el('targetMonthlyPayout').value) || 0;
+    const gap = payoutGap(targetMonthlyPayout, r.totalPayout, r.tier1PayoutPerSub);
+    el('gapOut').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('extraOut').textContent = gap.meetsTarget ? '0' : (gap.additionalTier1SubsNeeded === null ? 'add a positive Tier 1 price' : String(gap.additionalTier1SubsNeeded));
+
+    if (count && !counted) { recordEvent('month-priced'); counted = true; }
+    if (count && !gapCounted) { recordEvent('gap-checked'); gapCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('payout').hidden = true;
+    for (const id of ['rateLine', 'grossOut', 'subPayoutOut', 'bitsOut', 'otherOut', 'totalOut', 'gapOut', 'extraOut']) el(id).textContent = '';
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { update(true); persist(); }));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(monthInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyInputs(DEFAULT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  update(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared month. Review the numbers before you use it.'
+      : 'Restored your last month from this browser.';
+  }
+})();
+
+update(false);
+</script>
+</body></html>
