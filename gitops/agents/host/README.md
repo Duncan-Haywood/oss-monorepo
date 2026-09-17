@@ -194,6 +194,38 @@ whatever session you are already in:
 or `CODEX_ENABLED=1` on the install (and on `restore-cluster.sh`, which passes
 it straight through) to do it in the same run as everything else.
 
+### From the GitHub dispatch route, without a laptop
+
+`hetzner-gitops-ci.yml`'s `restore` job reaches all of this too — tick
+`with_codex_host`, and `codex_enabled` if you want it spending on the first
+tick. **This only became true on 2026-09-17**, and what was wrong before is
+worth stating because it was invisible: the job forwarded `WITH_CODEX_HOST=1`
+and none of the credentials that flag needs, so ticking the box installed a
+worker with no `auth.json` and a timer that woke every five minutes to do
+nothing. `restore-cluster.sh` deliberately cannot let an extra fail the
+restore, so that outcome and a working one were the same green log — and the
+only way to finish the job was a second SSH session, behind the very key the
+host-mode extras exist to stop needing twice.
+
+The job now reads three optional Actions secrets, each empty unless its own
+box is ticked:
+
+| Actions secret | What it does | Unset |
+|---|---|---|
+| `CODEX_AUTH_JSON` | the whole `~/.codex/auth.json` from `codex login`; the worker runs on the ChatGPT plan's **included** quota, so a tick costs nothing extra | installs uncredentialed and holds |
+| `CODEX_GH_TOKEN` | the worker's own PAT (Contents + Pull requests: RW) for opening PRs | the worker cannot push; `worker.sh` exits 1 |
+| `RUNNER_TOKEN` | registers the self-hosted Actions runner (`gitops/ci/host/`) — unmetered CI | installs and retries every 5 min |
+
+`CODEX_GH_TOKEN` has to be set explicitly on this route: `restore-cluster.sh`
+falls back to `GH_TOKEN` only when *off* a runner, precisely so a dispatch
+cannot ship the workflow's own token to the box.
+
+`OPENAI_API_KEY` is deliberately **not** forwarded here. It is the metered
+fallback, the worker ticks indefinitely once enabled, and CLAUDE.md's
+"Automation" rule reserves unattended paid-API spend to the owner. Set it from
+the laptop route if you genuinely have no plan to draw on, with a project
+spend limit in front of you.
+
 **Both edit the policy copy on the box, never the one in git** — that is the
 whole point of them (changed 2026-09-10). The only previous route to this flip
 was: run `enable-codex-governor.sh` in a checkout, commit, and *re-run the
