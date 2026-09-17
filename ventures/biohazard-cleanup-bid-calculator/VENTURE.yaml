@@ -1,0 +1,32 @@
+name: biohazard-cleanup-bid-calculator
+description: Free browser calculator for biohazard and trauma-scene remediation technicians to price a job from crew labor, PPE that scales with decon re-entry cycles rather than headcount, and regulated-waste disposal billed per container (not per pound) so a partly-full container still costs a whole one, then apply a target margin with a minimum-job floor and check a price they're already quoting against the real direct cost.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Biohazard/trauma-scene remediation technicians who price a job as a flat day rate plus a per-pound hazmat fee underquote because that undercounts PPE decon cycles and rounds disposal to a linear per-pound rate instead of whole containers, and will use a calculator that prices from both directly instead.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The decon-cycle PPE adjustment and the container-rounded disposal line are the features that change a technician's quote, not just the arithmetic they already do for labor and travel, because both costs are easy to underestimate from a scene walk-through alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Technicians will use the "check a price you're actually quoting" panel to test a number picked to match another company's quote, since the real profit after decon-cycle PPE and container-rounded disposal is invisible until it's computed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Technicians report that separating decon-cycle PPE and container-rounded disposal from a flat day-rate-plus-hazmat-fee guess is more work than it is worth, without changing the price they would have quoted.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/biohazard-cleanup-bid-calculator/
+  analytics: null

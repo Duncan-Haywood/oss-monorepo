@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555778 bytes
-#   portfolio-front-tools-1: 106 files, 554530 bytes
-#   portfolio-front-tools-2: 148 files, 556451 bytes
-#   portfolio-front-tools-3: 140 files, 556924 bytes
-#   portfolio-front-tools-4: 121 files, 541914 bytes
-#   portfolio-front-tools-5: 137 files, 551920 bytes
-#   portfolio-front-tools-6: 117 files, 553939 bytes
-#   portfolio-front-tools-7: 136 files, 544430 bytes
-#   portfolio-front-tools-8: 108 files, 543959 bytes
-#   portfolio-front-tools-9: 112 files, 547836 bytes
-#   portfolio-front-tools-10: 119 files, 550989 bytes
-#   portfolio-front-tools-11: 121 files, 553892 bytes
-#   portfolio-front-tools-12: 129 files, 551796 bytes
-#   portfolio-front-tools-13: 98 files, 553338 bytes
-#   portfolio-front-tools-14: 115 files, 555370 bytes
-#   portfolio-front-tools-15: 104 files, 526590 bytes
+#   portfolio-front-tools-0: 133 files, 555795 bytes
+#   portfolio-front-tools-1: 106 files, 554540 bytes
+#   portfolio-front-tools-2: 148 files, 556459 bytes
+#   portfolio-front-tools-3: 140 files, 556937 bytes
+#   portfolio-front-tools-4: 124 files, 547578 bytes
+#   portfolio-front-tools-5: 136 files, 552630 bytes
+#   portfolio-front-tools-6: 117 files, 546964 bytes
+#   portfolio-front-tools-7: 137 files, 554419 bytes
+#   portfolio-front-tools-8: 110 files, 553176 bytes
+#   portfolio-front-tools-9: 112 files, 547924 bytes
+#   portfolio-front-tools-10: 119 files, 551088 bytes
+#   portfolio-front-tools-11: 121 files, 554037 bytes
+#   portfolio-front-tools-12: 129 files, 551748 bytes
+#   portfolio-front-tools-13: 98 files, 553398 bytes
+#   portfolio-front-tools-14: 115 files, 555448 bytes
+#   portfolio-front-tools-15: 104 files, 526648 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -737,13 +737,18 @@ configMapGenerator:
       - basement-waterproofing-bid-calculator__share.mjs.gz=basement-waterproofing-bid-calculator__share.mjs.gz
       - basement-waterproofing-bid-calculator__usage.mjs.gz=basement-waterproofing-bid-calculator__usage.mjs.gz
       - basement-waterproofing-bid-calculator__vs-oblyss.html.gz=basement-waterproofing-bid-calculator__vs-oblyss.html.gz
-      - boiler-replacement-bid-calculator__calc.mjs.gz=boiler-replacement-bid-calculator__calc.mjs.gz
-      - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
+      - biohazard-cleanup-bid-calculator__calc.mjs.gz=biohazard-cleanup-bid-calculator__calc.mjs.gz
+      - biohazard-cleanup-bid-calculator__index.html.gz=biohazard-cleanup-bid-calculator__index.html.gz
+      - biohazard-cleanup-bid-calculator__share.mjs.gz=biohazard-cleanup-bid-calculator__share.mjs.gz
+      - biohazard-cleanup-bid-calculator__usage.mjs.gz=biohazard-cleanup-bid-calculator__usage.mjs.gz
+      - biohazard-cleanup-bid-calculator__vs-a-flat-rate-per-pound-quote.html.gz=biohazard-cleanup-bid-calculator__vs-a-flat-rate-per-pound-quote.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - boiler-replacement-bid-calculator__calc.mjs.gz=boiler-replacement-bid-calculator__calc.mjs.gz
+      - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
       - boiler-replacement-bid-calculator__index.html.gz=boiler-replacement-bid-calculator__index.html.gz
       - boiler-replacement-bid-calculator__should-i-install-a-customer-supplied-boiler.html.gz=boiler-replacement-bid-calculator__should-i-install-a-customer-supplied-boiler.html.gz
       - boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz=boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz
@@ -878,14 +883,14 @@ configMapGenerator:
       - cors-misconfig-check__probe.mjs.gz=cors-misconfig-check__probe.mjs.gz
       - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
       - cors-misconfig-check__usage.mjs.gz=cors-misconfig-check__usage.mjs.gz
-      - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
-      - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
-      - countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz=countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
+      - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
+      - countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz=countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz
       - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
       - countertop-bid-calculator__share.mjs.gz=countertop-bid-calculator__share.mjs.gz
       - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
@@ -1000,14 +1005,14 @@ configMapGenerator:
       - dryer-vent-bid-calculator__vs-wepro.html.gz=dryer-vent-bid-calculator__vs-wepro.html.gz
       - drywall-bid-calculator__calc.mjs.gz=drywall-bid-calculator__calc.mjs.gz
       - drywall-bid-calculator__how-much-to-charge.html.gz=drywall-bid-calculator__how-much-to-charge.html.gz
-      - drywall-bid-calculator__index.html.gz=drywall-bid-calculator__index.html.gz
-      - drywall-bid-calculator__share.mjs.gz=drywall-bid-calculator__share.mjs.gz
-      - drywall-bid-calculator__usage.mjs.gz=drywall-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - drywall-bid-calculator__index.html.gz=drywall-bid-calculator__index.html.gz
+      - drywall-bid-calculator__share.mjs.gz=drywall-bid-calculator__share.mjs.gz
+      - drywall-bid-calculator__usage.mjs.gz=drywall-bid-calculator__usage.mjs.gz
       - drywall-bid-calculator__vs-buildxact.html.gz=drywall-bid-calculator__vs-buildxact.html.gz
       - duct-cleaning-bid-calculator__calc.mjs.gz=duct-cleaning-bid-calculator__calc.mjs.gz
       - duct-cleaning-bid-calculator__how-much-to-charge-for-duct-cleaning.html.gz=duct-cleaning-bid-calculator__how-much-to-charge-for-duct-cleaning.html.gz
@@ -1142,13 +1147,13 @@ configMapGenerator:
       - flaky-test-finder__usage.mjs.gz=flaky-test-finder__usage.mjs.gz
       - flaky-test-finder__vs-buildpulse.html.gz=flaky-test-finder__vs-buildpulse.html.gz
       - flaky-test-finder__why-are-my-tests-flaky-in-ci.html.gz=flaky-test-finder__why-are-my-tests-flaky-in-ci.html.gz
-      - flat-roof-bid-calculator__calc.mjs.gz=flat-roof-bid-calculator__calc.mjs.gz
-      - flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz=flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - flat-roof-bid-calculator__calc.mjs.gz=flat-roof-bid-calculator__calc.mjs.gz
+      - flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz=flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz
       - flat-roof-bid-calculator__index.html.gz=flat-roof-bid-calculator__index.html.gz
       - flat-roof-bid-calculator__usage.mjs.gz=flat-roof-bid-calculator__usage.mjs.gz
       - flat-roof-bid-calculator__vs-acculynx.html.gz=flat-roof-bid-calculator__vs-acculynx.html.gz

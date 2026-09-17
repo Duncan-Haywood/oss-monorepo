@@ -2266,11 +2266,12 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-cleaning',
       title: 'Cleaning, restoration & insulation',
-      // `asbestos-abatement` joins this group beside `mold-remediation` and
-      // `radon-mitigation`: all three price a licensed hazard-removal job
-      // (containment, protective procedures, testing/monitoring, special
-      // disposal) rather than an installed product or a takeoff.
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion)/.test(slug),
+      // `biohazard-cleanup` and `asbestos-abatement` join this group beside
+      // `mold-remediation` and `radon-mitigation`: all price a licensed
+      // hazard-removal or remediation job (containment, protective
+      // procedures, testing/monitoring, special disposal) rather than an
+      // installed product or a takeoff.
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
     },
     {
       id: 'trades-roof',
