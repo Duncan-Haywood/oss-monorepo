@@ -26,21 +26,49 @@
 # shipped to the box over ssh's stdin, never in argv, so neither lands in
 # shell history or `ps` on either end.
 #
+# ENABLING, AND WHY IT IS OPT-IN RATHER THAN ABSENT
+#
+# By default this does not enable the governor: `policy.json` ships
+# "enabled": false, so the timer installs, ticks, and holds. Turning on
+# unattended spend is an owner decision taken per box, and it stays one.
+#
+# `--enable` is how you take that decision here, in this run. Until 2026-09-17
+# there was no way to, and the cost of that was specific rather than
+# theoretical: the only route was `enable-codex-governor.sh --host-only`, then
+# a commit and push, then *a second run of this script* to copy the changed
+# policy up -- and the SSH that second run needs is `HETZNERSSHKEY`, the one
+# owner action every route in this repository is blocked on. So the standalone
+# route installed the worker, credentialed it against the ChatGPT plan's
+# included quota, and then left it switched off behind the very key the owner
+# had just spent their one session on.
+#
+# `install-codex-host.sh` had already fixed exactly this for itself
+# (`--enable`, and `CODEX_ENABLED=1` on an install run), and
+# `restore-cluster.sh` carries it through for the full-recovery route. This
+# script was the one path that still asked for the second trip.
+#
+# It runs AFTER the credential hand-off, deliberately: the installer refuses to
+# enable an uncredentialed governor -- one with nothing to authenticate against
+# wakes every five minutes, fails, and sits on a six-hour auth cooldown, which
+# from the outside is indistinguishable from a governor that is working. So
+# `--enable` with `--no-creds`, or with no credential supplied at the prompt,
+# is refused here with that reason rather than silently doing nothing.
+#
+# Neither this flag nor the installer touches the repository's committed
+# `policy.json`. The default stays `false` so that no merge switches anyone on.
+#
 # WHAT IT DOES NOT DO
 #
-# It does not enable the governor -- `policy.json` ships "enabled": false, so
-# the timer installs, ticks, and holds until you run
-# `enable-codex-governor.sh --host-only` (no k3s, no SealedSecret needed) or
-# the full `enable-codex-governor.sh` once the cluster and its seal are back.
 # It does not touch k3s, Argo, or anything serving the public site -- see
 # `bootstrap/restore-cluster.sh WITH_CODEX_HOST=1` for installing this as part
 # of a full cluster restore instead of standalone.
 #
 # USAGE
 #
-#   ./bootstrap/scripts/setup-codex-host-from-laptop.sh              # full run
+#   ./bootstrap/scripts/setup-codex-host-from-laptop.sh              # full run, holds
 #   ./bootstrap/scripts/setup-codex-host-from-laptop.sh --check      # report only
 #   ./bootstrap/scripts/setup-codex-host-from-laptop.sh --no-creds   # skip the credential hand-off
+#   ./bootstrap/scripts/setup-codex-host-from-laptop.sh --enable     # and start spending the plan's quota
 #
 # Environment:
 #   BOX_IP      box to install on (default 157.180.80.188, the 4 GB agent box
@@ -58,14 +86,31 @@ TARGET="$BOX_USER@$BOX_IP"
 
 CHECK_ONLY=0
 WANT_CREDS=1
+# `CODEX_ENABLED=1` in the environment is accepted as well as `--enable`, so a
+# caller that already drives `install-codex-host.sh` or `restore-cluster.sh`
+# from a script spells this the one way it spells it everywhere else.
+WANT_ENABLE=0
+[ "${CODEX_ENABLED:-0}" = "1" ] && WANT_ENABLE=1
 for arg in "$@"; do
   case "$arg" in
     --check)    CHECK_ONLY=1 ;;
     --no-creds) WANT_CREDS=0 ;;
-    -h|--help)  sed -n '2,44p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --enable)   WANT_ENABLE=1 ;;
+    -h|--help)  sed -n '2,72p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *)          printf 'setup-codex-host: unknown argument: %s\n' "$arg" >&2; exit 2 ;;
   esac
 done
+
+# Refuse the contradiction up front rather than at the end of a long install.
+# `--enable --no-creds` asks for a governor that is switched on with nothing to
+# authenticate against: it would wake every five minutes, fail, and sit on a
+# six-hour auth cooldown, which looks from the outside exactly like a worker
+# that is running.
+if [ "$WANT_ENABLE" -eq 1 ] && [ "$WANT_CREDS" -eq 0 ]; then
+  printf 'setup-codex-host: --enable needs credentials; --no-creds skips them.\n' >&2
+  printf '  An enabled governor with no credential loops on a six-hour auth cooldown.\n' >&2
+  exit 2
+fi
 
 step() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 say()  { printf '    %s\n' "$*"; }
@@ -228,6 +273,10 @@ remote "cd $REMOTE_DIR && CONFIRM=install-codex-host ./bootstrap/scripts/install
   | sed 's/^/    /'
 
 # ------------------------------------------------------------- credentials
+# Whether a credential actually reached the box, as opposed to whether one was
+# asked for. `--enable` reads this, and the two differ whenever the operator
+# declined at the prompt.
+creds_written=0
 if [ "$WANT_CREDS" -eq 1 ]; then
   step "Worker credentials"
 
@@ -265,11 +314,34 @@ CODEX_AUTH_JSON=$codex_auth_json
 GH_TOKEN=$gh_token
 EOF
     unset codex_auth_json gh_token
+    creds_written=1
     say "written to /etc/codex-agents/credentials.env (mode 0600)"
   else
     say "skipped -- the timer will tick and hold on the auth cooldown until"
     say "credentials exist. Re-run this script later to supply them, or run"
     say "  ssh root@$BOX_IP 'cd $REMOTE_DIR && ./bootstrap/scripts/install-codex-host.sh --credentials' < codex.env"
+  fi
+fi
+
+# --------------------------------------------------------------- enable
+# After the credential hand-off, never before: the installer refuses to enable
+# an uncredentialed governor, and doing it in the wrong order would turn this
+# flag into a no-op that still printed success.
+if [ "$WANT_ENABLE" -eq 1 ]; then
+  step "Enabling the governor"
+  if [ "$creds_written" -eq 1 ]; then
+    remote "cd $REMOTE_DIR && ./bootstrap/scripts/install-codex-host.sh --enable" \
+      | sed 's/^/    /'
+    say "the timer will start a worker on its next tick, against the plan's"
+    say "included quota. Turn it back off at any time with:"
+    say "  ssh root@$BOX_IP 'cd $REMOTE_DIR && ./bootstrap/scripts/install-codex-host.sh --disable'"
+  else
+    # Asked for, and genuinely not done. Saying so is the whole point: the
+    # failure this flag exists to prevent is a worker that looks enabled.
+    say "NOT enabled -- no credential reached the box, so an enabled governor"
+    say "would only loop on the six-hour auth cooldown. Supply credentials and"
+    say "re-run with --enable, or once they are in place:"
+    say "  ssh root@$BOX_IP 'cd $REMOTE_DIR && ./bootstrap/scripts/install-codex-host.sh --enable'"
   fi
 fi
 
@@ -280,16 +352,34 @@ remote "cd $REMOTE_DIR && ./bootstrap/scripts/install-codex-host.sh --check" \
 
 # -------------------------------------------------------------------- next
 step "What is left, and only you can do it"
+if [ "$WANT_ENABLE" -eq 1 ] && [ "$creds_written" -eq 1 ]; then
+cat <<NEXT
+    1. Nothing, for the box itself -- the governor is enabled and credentialed.
+
+    2. Watch it:
+         ssh root@$BOX_IP 'systemctl list-timers codex-governor.timer'
+         ssh root@$BOX_IP 'journalctl -u codex-governor.service -f'
+
+    Once the cluster and a real seal are back, run
+    enable-codex-governor.sh with no flags instead to also turn on the k3s
+    CronJob path -- see gitops/agents/host/README.md for how the two relate.
+NEXT
+else
 cat <<NEXT
     1. The governor is still disabled ("enabled": false in policy.json) so
-       nothing spends quota yet. Turn on host mode alone -- no k3s, no
-       SealedSecret needed:
+       nothing spends quota yet. The one-run way is to re-run this script
+       with --enable, which needs no commit and no second key:
+         ./bootstrap/scripts/setup-codex-host-from-laptop.sh --enable
+
+       The repository-wide switch, if you want the committed default moved
+       instead -- no k3s, no SealedSecret needed:
          ./bootstrap/scripts/enable-codex-governor.sh --host-only
 
-    2. Commit and push the resulting gitops/agents/governor/policy.json
-       change, then re-run this script (or install-codex-host.sh on the box)
-       to copy the updated policy over -- the systemd timer reads the copy
-       under /opt/codex-agents, not the repo on your laptop.
+    2. If you took the second route, commit and push the resulting
+       gitops/agents/governor/policy.json change, then re-run this script
+       (or install-codex-host.sh on the box) to copy the updated policy
+       over -- the systemd timer reads the copy under /opt/codex-agents,
+       not the repo on your laptop.
 
     3. Watch it:
          ssh root@$BOX_IP 'systemctl list-timers codex-governor.timer'
@@ -299,3 +389,4 @@ cat <<NEXT
     enable-codex-governor.sh with no flags instead to also turn on the k3s
     CronJob path -- see gitops/agents/host/README.md for how the two relate.
 NEXT
+fi
