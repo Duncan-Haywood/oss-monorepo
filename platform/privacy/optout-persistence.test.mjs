@@ -193,7 +193,26 @@ const RELATIVE_SELF = relative(
 // `vector-db-cost-calculator` and `required-checks-drift-check` landed, so
 // it only ever knew its own predecessor's number (280, then 281) until
 // this merge.
-const SWITCHES_IN_THE_CATALOGUE = 282;
+// 282 -> 283 on 2026-09-17, when `call-recording-consent-check` (#4853)
+// graduated with its own `usage.mjs` opt-out, discovered behaviourally like
+// the rest. Its branch was open before `dog-boarding-daycare-pricing`
+// (#4859) landed, so each of the two raised this constant by one against a
+// base where the other had not, and the pair of graduations only moved it
+// once -- leaving `main` red by one from #4853's merge until this commit.
+// Same shape as the bridal-hair-makeup/#4766 entry above, and it happened
+// again the same day in `gitops/tests/test_manifests.py`'s mirrored-tool
+// total, where both branches independently wrote "297" for what the merged
+// tree made 298.
+//
+// Worth stating once rather than a third time: this is not carelessness by
+// either author, and it is not fixable in either venture's diff. With
+// several sessions merging inside one 15-minute window, any constant that
+// counts the *tree* will be written by two branches at once, and both will
+// be right about the base they could see. The check reads the catalogue and
+// refuses to trust the number, which is what makes the collision a one-line
+// fix here instead of a silent wrong count -- and the reason it must be
+// found by running the guard, since CI is starved and cannot find it.
+const SWITCHES_IN_THE_CATALOGUE = 283;
 
 let counter = 0;
 function fixture(source) {
