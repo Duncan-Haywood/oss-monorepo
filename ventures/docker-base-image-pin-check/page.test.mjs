@@ -141,3 +141,17 @@ test('index links one hop to the sbom-diff-check sibling', () => {
     'index must link ../sbom-diff-check/ so the new tool is not a crawlable orphan',
   );
 });
+
+// docker-build-secrets-check graduated with an outbound link here from its
+// first commit (siblings-budget.json is held at an orphan budget of 0); this
+// is the reciprocal half, added in the same change. Same Dockerfile, a
+// different question -- this tool asks whether the FROM line is pinned to a
+// digest, that one asks whether an ENV/ARG/COPY bakes a secret into the
+// image.
+test('index links one hop to the docker-build-secrets-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/docker-build-secrets-check\/"/,
+    'index must link ../docker-build-secrets-check/ so the pair is reciprocal and neither is an orphan',
+  );
+});

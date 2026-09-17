@@ -36,6 +36,9 @@ built-in protection by construction:
 Full mechanism and worked examples: [why GitHub Actions secret masking
 fails on a transformed value](why-github-actions-secret-masking-fails.html).
 
+Why code review usually misses both: [this checker vs. reading the workflow
+by eye](vs-reading-the-workflow-by-eye.html).
+
 ## What it does not do
 
 A static, step-scoped line scanner over `.github/workflows/*.yml` and

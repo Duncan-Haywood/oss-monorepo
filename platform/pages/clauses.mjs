@@ -119,6 +119,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the cat-adjuster page
   // above.
   '1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html',
+  // Compares against "quoting in a spreadsheet" -- the method essentially
+  // every small job shop already uses, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // footer says so explicitly. Same reasoning as the cat-adjuster page above.
+  'cnc-machining-quote-calculator/vs-quoting-in-a-spreadsheet.html',
   // Compares against "checking pricing pages and doing the arithmetic by
   // hand" -- a generic method every user of the calculator already has
   // access to, not a company or product this could be mistaken for.
@@ -413,6 +418,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly ("Names no specific product or company"). Same reasoning as
   // the other vs-spreadsheet / by-hand pages above.
   'twitch-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
+  // Compares against "reading the workflow diff by eye" -- the ordinary code
+  // review habit every GitHub Actions maintainer already has, not a company
+  // or product this could be mistaken for. The page names no specific
+  // reviewer, team, or code-review tool at all.
+  'actions-secret-leak-check/vs-reading-the-workflow-by-eye.html',
+  // Compares against "reading every workflow file by hand" -- the ordinary
+  // manual-tracing habit every maintainer already has when a required check
+  // gets stuck, not a company or product this could be mistaken for. The
+  // page names no specific reviewer, team, or tool at all.
+  'required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

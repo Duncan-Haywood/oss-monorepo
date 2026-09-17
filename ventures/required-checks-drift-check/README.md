@@ -40,6 +40,9 @@ A **dynamic matrix** (`matrix: ${{ fromJson(...) }}`, or one using
 convention this tool doesn't compute. Both are reported as `unverifiable`
 rather than silently matched or silently flagged stale.
 
+Why tracing this by hand doesn't scale: [this checker vs. reading every
+workflow file by hand](vs-reading-every-workflow-file-by-hand.html).
+
 ## Try it without installing anything
 
 [`index.html`](index.html) reads the same comparison logic in a browser
