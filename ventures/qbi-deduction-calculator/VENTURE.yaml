@@ -1,0 +1,93 @@
+name: qbi-deduction-calculator
+description: >-
+  Free browser calculator for the Section 199A qualified business income
+  (QBI) deduction. Applies the 20% deduction, the taxable-income phase-in
+  threshold and range for 2025 and 2026 (including the OBBBA-widened 2026
+  range and new $400 minimum deduction), the specified-service-business
+  (SSTB) phase-out, and the W-2 wage / UBIA of qualified property
+  limitation, for a single qualified trade or business. Entirely
+  client-side; nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-17. duplicate_check.py against the final description
+# scored every venture, screened-out row, and pipeline candidate at or
+# below 0.15 -- the closest matches were the sibling
+# no-tax-on-tips-overtime-calculator (a different federal deduction, same
+# "downstream deduction on income already earned" shape) and
+# depreciation-recapture-calculator (also a genuinely different mechanism:
+# that one taxes a gain already realized on a property sale, this one
+# shelters ongoing business income). A hand grep for "qbi", "199a",
+# "qualified business income" across ventures/ and portfolio/pipeline/
+# found nothing.
+#
+# Evergreen rather than timely: the QBI deduction has applied since 2018
+# and was made permanent by the One Big Beautiful Bill Act (OBBBA) for tax
+# years 2026 on, which also widened the phase-in range from $50k/$100k to
+# $75k/$150k and added a new $400 minimum deduction. WebSearch on
+# 2026-09-17 found several existing "QBI deduction calculator" /
+# "199A deduction calculator" tools (ustax.tools, nationaltaxtools.com,
+# sdocpa.com among others) -- real, validated search demand for this exact
+# phrase -- but each found is a CPA-firm lead-generation tool wrapped
+# around the calculator, not a free, no-signup, client-side, privacy-first
+# tool of the kind this portfolio already ships repeatedly and
+# successfully (1099-k-threshold-checker, no-tax-on-tips-overtime-
+# calculator, depreciation-recapture-calculator). That gap -- the same
+# calculator, without the lead-gen wrapper -- is the wedge here.
+#
+# Distribution evidence: the existing "QBI deduction calculator" /
+# "Section 199A calculator" category (several competitors found via
+# WebSearch, all CPA-firm-branded) demonstrates real, current search
+# volume for this exact phrase, motivated by the widely-covered OBBBA
+# changes taking effect for tax year 2026.
+
+hypotheses:
+  - claim: >-
+      Self-employed filers, S-corp owners, and small-business owners will
+      search plain-language phrases ("QBI deduction calculator", "199A
+      deduction calculator", "how much is my QBI deduction") ahead of the
+      2027 filing season for 2026 income, and return to a free, no-signup
+      calculator rather than a CPA-firm lead-generation tool that asks for
+      contact details.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A filer whose income sits inside the phase-in range, or who owns a
+      specified service business, will return specifically because the
+      SSTB-scaling and wage/UBIA-limit arithmetic is the part they cannot
+      easily verify by hand, unlike the simple below-threshold 20% case.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A filer planning 2026 income around the OBBBA-widened range or the
+      new $400 minimum deduction will search for the 2026-specific figures
+      before the return is due, and will find a tool naming both tax years
+      explicitly more useful than a single-current-year figure.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 90 days
+    of the 2027 January filing season (the first season a visitor checking
+    2026 income against the OBBBA-widened figures would file under).
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of the 2027 filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/qbi-deduction-calculator/
+  analytics: null

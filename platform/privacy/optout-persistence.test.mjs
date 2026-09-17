@@ -358,7 +358,7 @@ const RELATIVE_SELF = relative(
 // deletions, so this is a graduation and not a switch that stopped being
 // one. This branch was open before `no-tax-on-tips-overtime-calculator`
 // landed, so it only ever knew 299 until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 300;
+const SWITCHES_IN_THE_CATALOGUE = 301;
 
 let counter = 0;
 function fixture(source) {
