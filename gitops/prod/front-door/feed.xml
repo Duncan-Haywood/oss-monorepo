@@ -22,7 +22,7 @@
     <id>tag:marisstella.dev,2026:tool/agent-instructions-drift-check</id>
     <published>2026-09-16T00:00:00Z</published>
     <updated>2026-09-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn&#39;t defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -58,7 +58,7 @@
     <id>tag:marisstella.dev,2026:tool/cron-dst-drift-check</id>
     <published>2026-09-16T00:00:00Z</published>
     <updated>2026-09-16T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a cron expression and an IANA timezone and see every upcoming run that falls in a spring-forward gap (never happens) or a fall-back overlap (happens twice), plus a separate check for how a fixed-UTC-only scheduler (GitHub Actions&#39; schedule: cron included) drifts an hour twice a year against your intended local time. Free, deterministic, runs entirely in your browser.</summary>
   </entry>
   <entry>
