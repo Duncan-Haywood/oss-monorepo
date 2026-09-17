@@ -141,11 +141,16 @@ const RELATIVE_SELF = relative(
 // had not landed, exactly the collision the 265 -> 266 entry records. Both
 // additions are real and both survive here, which is why the resolved number
 // is 274 rather than either branch's 273.
-// 274 -> 275 on 2026-09-17, when `asbestos-abatement-bid-calculator`
+// 274 -> 275 on 2026-09-17, when `openapi-breaking-change-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same
+// `record`/`readUsage` pattern `sbom-diff-check` and
+// `sql-migration-lock-check` use), same discovery method as the rest of
+// this running count.
+// 275 -> 276 on 2026-09-17, when `asbestos-abatement-bid-calculator`
 // graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `land-survey-bid-calculator` use), same
 // discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 275;
+const SWITCHES_IN_THE_CATALOGUE = 276;
 
 let counter = 0;
 function fixture(source) {

@@ -12644,6 +12644,71 @@ ventures:
       has no incentive to over- or under-report a change, and it gets
       strictly more useful the more builds a team compares against it.
 
+  - slug: openapi-breaking-change-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic structural comparison of two already-parsed operation
+      maps (paths, parameters, request-body requiredness). Whether an
+      operation was removed, a parameter became required, a type narrowed,
+      or an enum value disappeared is decided by exact reading of the two
+      documents against the OpenAPI 3.x spec, not a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as sbom-diff-check and sql-migration-lock-check, not a further
+      <trade>-bid-calculator or a further "-check" scanner of a kind already
+      tried repeatedly. duplicate_check.py scored every existing venture,
+      screened-out row, ai-first-markets idea and pipeline candidate at 0.12
+      or below against this idea's description, well under the 0.45 flag
+      bar -- closest were obsidian/wordpress-plugin-review-check (0.10,
+      review a plugin submission against a marketplace's rules, not an API
+      contract) and sbom-diff-check (0.08, same "diff two versioned
+      artifacts" instinct, different artifact). No venture in the tree
+      parses an OpenAPI/Swagger document.
+      Autonomous ops 10 / gross margin 10: the browser page parses two
+      pasted OpenAPI documents and diffs them entirely client-side (nothing
+      uploaded, nothing fetched, no external $ref resolved), and the CLI
+      reads only local files it is pointed at, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 6, above sbom-diff-check's 3: an established market of
+      paid incumbents (Optic, Bump.sh) and open-source CLIs (oasdiff,
+      openapi-diff) already sell exactly this comparison, which is evidence
+      the underlying problem is real and recurring across a broad
+      population (anyone versioning a REST API) rather than the narrower
+      "already generates an SBOM" audience -- the same shape of evidence
+      that put sql-migration-lock-check at 6. None of those incumbents is a
+      free, zero-install, paste-and-go browser tool for the same one-shot
+      question, which is the wedge, not proof of an empty market.
+      Time to revenue 6, defensibility 3: donations-only; a structural diff
+      over an already-standardized document format is not hard to
+      reimplement, so defensibility rests on the specific
+      breaking-vs-non-breaking classification (not just "everything that
+      changed") and this portfolio's disclaimer/usage conventions, not on
+      any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only structural comparison of two OpenAPI documents the
+      user already has or pastes in -- no network call of its own, no
+      external $ref fetched, no data leaving the browser. It makes no claim
+      about full request/response body schema compatibility or that a
+      change is actually safe to ship for a specific client; both pages'
+      footers and FAQs state this plainly. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to over- or under-report a
+      change, and it gets strictly more useful the more API versions a team
+      compares against it.
+
   - slug: commissary-kitchen-cost-split-calculator
     scores:
       ai_leverage: 1

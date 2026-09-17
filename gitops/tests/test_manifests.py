@@ -1725,14 +1725,21 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # by *deploying* a product that was already finished rather than by
     # graduating a new one -- worth keeping distinct when reading the count
     # back as a rate of new ventures, which it no longer purely is.
-    # 290 since 2026-09-17, when `asbestos-abatement-bid-calculator`
+    # 290 since 2026-09-17, when `openapi-breaking-change-check` graduated —
+    # a zero-dependency CLI + no-upload browser tool diffing two OpenAPI
+    # 3.0/3.1 documents and classifying each difference as a breaking change
+    # (removed operation, newly-required parameter, narrowed type, removed
+    # enum value, request body now required) or non-breaking, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    # 291 since 2026-09-17, when `asbestos-abatement-bid-calculator`
     # graduated -- a browser-local bid calculator pricing an asbestos
     # removal job from OSHA/EPA containment class (Class I/II/III), square
     # footage, containment areas, crew and supervisor rates, air
     # monitoring, and waste disposal, then comparing the result to a flat
     # rate per square foot, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 290  # `infra/OWNER_CHECKLIST.md`'s own "N of the 290 tools" wording.
+    total = 291  # `infra/OWNER_CHECKLIST.md`'s own "N of the 291 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
