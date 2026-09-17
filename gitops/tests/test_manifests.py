@@ -2000,7 +2000,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # states' own stricter $600 threshold. Recorded from
     # `sync_tree_counts.py`'s own fresh measurement against the tree, not a
     # hand sum.
-    total = 316  # `infra/OWNER_CHECKLIST.md`'s own "N of the 316 tools" wording.
+    #
+    # 317 since 2026-09-17, when `no-tax-on-tips-overtime-calculator`
+    # graduated -- a browser-local calculator estimating the federal "no tax
+    # on tips" ($25,000 cap) and "no tax on overtime" ($12,500/$25,000 cap)
+    # deductions (One Big Beautiful Bill Act, tax years 2025-2028), combining
+    # both in one shared-MAGI phase-out pass and applying the overtime
+    # deduction's easy-to-miss half-time-premium-only rule. This branch was
+    # open before `1099-k-threshold-checker` and the other same-day
+    # graduations landed, so it only ever knew 316 until this merge.
+    # Recorded from `sync_tree_counts.py`'s own fresh measurement against the
+    # merged tree, not a hand sum.
+    total = 317  # `infra/OWNER_CHECKLIST.md`'s own "N of the 317 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

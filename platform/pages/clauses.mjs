@@ -180,6 +180,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "estimating the tips/overtime deduction by hand" -- a
+  // generic method every filer already has, not a company or product this
+  // could be mistaken for. The page names no specific tax-prep company or
+  // competing calculator at all.
+  'no-tax-on-tips-overtime-calculator/vs-estimating-the-deduction-by-hand.html',
   // Compares against "a spreadsheet" -- a generic method every tutor already
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.

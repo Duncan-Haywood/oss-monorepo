@@ -1524,3 +1524,26 @@ candidates:
     mitigation: Keep the arithmetic deterministic and the two adjacent categories (gross proceeds paid to an attorney, medical/health-care payments) flagged "Check separately (not calculated)" rather than computed, since this build could not corroborate their thresholds and deadlines to the same standard as the general nonemployee-compensation threshold from this environment's blocked egress to irs.gov; never phrase a row as a filing or an IRS TIN match, and expose a threshold override so a later year's inflation-adjusted figure does not require a code change to apply.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: no-tax-on-tips-overtime-calculator
+    name: No tax on tips & overtime calculator
+    doc: candidates/no-tax-on-tips-overtime-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-17
+    initiated_path: ventures/no-tax-on-tips-overtime-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.25
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep tip-occupation eligibility an explicit self-reported checkbox with an inline caveat rather than the tool making the determination against Treasury's published occupation list; keep MAGI a user-estimated input rather than derived from a full return; keep the overtime-premium-only rule (half the rate, not the full 1.5x) and the phase-out's round-up-to-the-next-$1,000 rule both stated more than once in visible copy, not only in the footer; and measure repeat use and organic referral traffic before adding state-conformity modeling or a fuller tax-return integration this v0 deliberately does not attempt.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
