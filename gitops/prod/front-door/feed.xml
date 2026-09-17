@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 292 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 293 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Tutor Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutor-package-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tutor-package-pricing-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Kubernetes Deployment YAML and find every reason a rolling update can drop live requests: no readinessProbe, no preStop hook, a grace period shorter than the drain, maxUnavailable covering every replica, a PodDisruptionBudget that blocks a node drain. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>llms.txt Generator — Build a Spec-Compliant llms.txt File Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llms-txt-generator/"/>
-    <id>tag:marisstella.dev,2026:tool/llms-txt-generator</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your site&#39;s page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.</summary>
   </entry>
 </feed>

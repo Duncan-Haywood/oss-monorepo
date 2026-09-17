@@ -992,6 +992,9 @@ workflows:
 - workflow: tuckpointing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tutor-package-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
