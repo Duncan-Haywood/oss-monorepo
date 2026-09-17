@@ -34810,3 +34810,59 @@ entries:
         446 passed; `guard_state.py --require-runnable` exit 0, no fixable
         skips remaining; `score_ventures.py --check`, `validate_candidates.py`,
         `validate_doc_consistency.py`, and `router/validate.py` all clean.
+  - venture: crown-molding-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #5040: a vs-a-flat-rate-crown-molding-special.html
+        comparison page, filling the one open generic-method budget slot
+        surface-budget.mjs reported for this venture. Session started with 0
+        open PRs (three-PR merge quota trivially met) and a background
+        triage of ~650 branches without PRs found no unique unmerged work
+        (~75-80% match known auto-generated scratch-session name patterns;
+        every sampled real-named branch's work was already on main under an
+        equivalent merged title). Picked venture depth over a new
+        speculative niche because every top-ranked router candidate was
+        already at or over its marketing-surface budget, usage_state.py
+        confirmed visitor counts remain unmeasurable (null, not zero)
+        fleet-wide so no "fair run, still zero" retirement signal exists
+        anywhere, and this portfolio's own recorded history is that
+        near-duplicate ventures/pages add negligible marginal value without
+        a genuinely new distribution channel.
+      - >-
+        Every worked figure on the new page is derived directly from
+        calc.mjs run against the venture's own shipped JOB_PRESETS and form
+        defaults, pinned by a test, reusing the walk-away-price terminology
+        and $8/ft anchor the venture's existing should-i-charge-8-a-foot
+        guide already established -- consistent facts, not a second
+        invented set.
+      - >-
+        Discovered a real, pre-existing (unrelated to this change) race in
+        `node --test "platform/marketing/*.test.mjs"`: regen.test.mjs's
+        real-tree snapshot/restore of gitops/prod/ (via `regen.mjs
+        --verify`) can collide with front-door.test.mjs's direct reads of
+        the same files when Node's test runner parallelizes files across
+        the wildcard glob, producing 1-10 flaky ENOENT/stale-mirror
+        failures per run. Confirmed via `--test-concurrency=1` (clean both
+        times) versus default concurrency (flaky both times) before and
+        after merging main. Another concurrent session landed a fix for
+        exactly this on main mid-session (#5039, "stop the new test racing
+        its own sibling suites"), which this branch merged in and verified
+        clean (267/267) afterward.
+      - >-
+        Verified, Actions starved (ci_starvation.py: runner_id 0, 3s, no
+        steps, confirmed on main's tip before starting): venture's own
+        suite 140/140; node --test "platform/marketing/*.test.mjs" 267/267
+        (post-merge, --test-concurrency=1); node --test
+        "platform/pages/*.test.mjs" clean; clauses.test.mjs 21/21;
+        siblings.mjs --check 0 orphans; surface-budget.mjs --check within
+        budget fleet-wide; checklist_coverage.py clean; sync_tree_counts.py
+        --check clean; python3 -m pytest gitops/tests -q, 597 passed / 25
+        skipped (environmental); all platform/ci unittest modules clean;
+        check_ledger_only.py / check_direction_only.py both no-ops.
+        Fixed a gitops/ci/README.md runs-on count drift the main-merge
+        introduced (gitops/ci/sync_readme_counts.py). Merged, then
+        published (CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh) and recorded pages_state.py's
+        github-pages-branch-route reading current at the merge commit.
