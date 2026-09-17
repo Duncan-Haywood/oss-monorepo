@@ -41,6 +41,8 @@ defines no scheduling logic of its own.
 Running it
 ----------
     host_governor.py --check     # report what it would do, run nothing
+    host_governor.py --check --require-runnable   # ...and fail if the queue is dead
+    host_governor.py --queue     # just the queue: parsed, enabled, dropped
     host_governor.py --once      # one tick (what the systemd timer calls)
 
 Exit codes: 0 tick completed (whether it started a worker or held), 1 a real
@@ -371,6 +373,87 @@ def describe(decision: Any, state: Any, policy: Any) -> str:
     return "\n".join(lines)
 
 
+def queue_report(g: Any, directory: Path) -> tuple[list[str], int]:
+    """Report the queue the way the governor loads it, and say what it dropped.
+
+    Added 2026-09-17, because `--check` could not see a queue that will never
+    run. `_load_queue_dir` swallows `ValueError` per file and moves on
+    (`except ValueError: continue`), so an item with a typo in `modelClass`, a
+    missing `prompt`, or an unrecognised `delivery` vanishes without a word.
+    Measured that day against the six real items, with one capitalised
+    `modelClass: Deep`:
+
+        files on disk                 6
+        what the governor loads       4
+        silently dropped              2
+
+    and the two dropped were `deploy-cicd-readiness` and
+    `marketing-distribution`, the highest-priority items in the queue. The
+    installer's `--check` counted the files -- reporting a green
+    `6 item(s) an install would copy` -- and `host_governor.py --check`
+    returned before it looked at the queue at all whenever the policy was off,
+    which is every pre-install rehearsal by definition. So the operator's one
+    read-only preview, run during the one SSH session this recovery gets,
+    could not distinguish a box that will work from a box that will hold on
+    every tick forever.
+
+    Every item being `enabled: false` is the same outcome by a different
+    route, and it is the one a merge can cause: `decide` filters on `enabled`,
+    so six parsed-but-disabled items produce `hold -- queue empty` while the
+    file count stays six. Hence `runnable` counts parse *and* enabled, which
+    is the only number that answers "will the next tick do work?".
+
+    Selection and parsing both come from `governor.py` -- `_minimal_yaml_mapping`
+    and `queue_item_from_dict`, the functions `_load_queue_dir` itself calls --
+    so this cannot disagree with what the timer will actually read. What it
+    adds is the per-file `try`, which is the whole point: the loader's silence
+    is correct for a scheduler and wrong for a report.
+    """
+    lines: list[str] = []
+    if not directory.exists():
+        return [f"queue: nothing at {directory}"], 0
+
+    files = [f for f in sorted(directory.iterdir()) if f.suffix in {".yaml", ".yml", ".json"}]
+    if not files:
+        return [f"queue: {directory} is empty — every tick will hold"], 0
+
+    enabled: list[Any] = []
+    disabled: list[str] = []
+    dropped: list[str] = []
+
+    for file in files:
+        try:
+            text = file.read_text()
+            raw = json.loads(text) if file.suffix == ".json" else g._minimal_yaml_mapping(text)
+            if not isinstance(raw, dict):
+                raise ValueError("not a mapping")
+            item = g.queue_item_from_dict(raw)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            dropped.append(f"{file.name}: {exc}")
+            continue
+        (enabled if item.enabled else disabled).append(item if item.enabled else item.id)
+
+    lines.append(
+        "queue: %d file(s), %d runnable, %d disabled, %d unreadable"
+        % (len(files), len(enabled), len(disabled), len(dropped))
+    )
+    for item in sorted(enabled, key=lambda i: (-i.priority, i.id)):
+        lines.append(f"  + {item.id} (priority {item.priority}, {item.model_class})")
+    if disabled:
+        lines.append(f"  - disabled: {', '.join(sorted(disabled))}")
+    for reason in dropped:
+        # Named, not counted. A dropped item is the failure this report exists
+        # for, and an operator cannot fix what the report will not name.
+        lines.append(f"  ! dropped by the governor — {reason}")
+    if not enabled:
+        lines.append(
+            "  NOTHING WOULD RUN: the timer will report `hold — queue empty` on "
+            "every tick and exit 0. Fix the items above before spending a "
+            "session on the switch."
+        )
+    return lines, len(enabled)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="host_governor.py",
@@ -385,7 +468,26 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument(
         "--check",
         action="store_true",
-        help="report the decision and the budget; start nothing, write nothing",
+        help="report the decision, the budget and the queue; start nothing, write nothing",
+    )
+    mode.add_argument(
+        "--queue",
+        action="store_true",
+        help=(
+            "report only the queue: what parses, what is enabled, what the "
+            "governor drops. Reads no policy and no state, so it answers on a "
+            "box that has neither yet — which is what install-codex-host.sh "
+            "--check calls it for."
+        ),
+    )
+    parser.add_argument(
+        "--require-runnable",
+        action="store_true",
+        help=(
+            "with --check, exit 1 while no queue item would ever run. A "
+            "reminder competes with everything else in a long report; an exit "
+            "code does not (same reason as pages_state.py --require-current)."
+        ),
     )
     args = parser.parse_args(argv)
     dry_run = bool(args.check)
@@ -393,13 +495,35 @@ def main(argv: list[str] | None = None) -> int:
     g = _load_governor()
     now = time.time()
 
+    if args.queue:
+        lines, runnable = queue_report(g, queue_dir())
+        print("\n".join(lines))
+        return 1 if (args.require_runnable and runnable == 0) else 0
+
     if dry_run:
         policy, state, queue = load_inputs(g, now)
         decision, _ = g.tick(policy, state, [], queue, now)
         print(describe(decision, state, policy))
+
+        # Unconditionally, and before the enable hint. `decide` returns as soon
+        # as the policy is off, so on every box that has not been enabled yet
+        # -- which is every box an operator is rehearsing -- the decision line
+        # says only "governor disabled" and says nothing about whether there is
+        # work behind the switch. That is exactly backwards: the switch is the
+        # thing the operator is about to flip, and the queue is the thing they
+        # cannot check afterwards without a second session.
+        lines, runnable = queue_report(g, queue_dir())
+        print("\n" + "\n".join(lines))
+
         if not policy.enabled:
             print("\n" + enable_hint(policy_file()))
+        if args.require_runnable and runnable == 0:
+            return 1
         return 0
+
+    if args.require_runnable:
+        print("--require-runnable applies to --check and --queue", file=sys.stderr)
+        return 2
 
     try:
         with TickLock(lock_file()):

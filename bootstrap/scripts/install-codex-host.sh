@@ -178,6 +178,16 @@ PREREQS=(
   "git|clones the repository the worker edits"
   "curl|downloads the pinned gh release"
   "tar|unpacks it"
+  # Added 2026-09-17. Every entry above is something *worker.sh* needs, and
+  # the list was complete about the worker and silent about the governor --
+  # `codex-governor.service` has run `python3 host_governor.py --once` since
+  # host mode existed. So a box without it installed clean, reported every
+  # prerequisite present, started the timer, and failed 203/EXEC on every
+  # tick, where the only trace is `systemctl status`. Ubuntu 24.04 ships
+  # python3, so this was latent rather than breaking; it is in the list
+  # because a prerequisite check that omits the interpreter of the thing it
+  # is installing is right only by luck.
+  "python3|runs the governor tick the systemd timer calls"
 )
 
 # Binary name -> Debian/Ubuntu package that provides it, where they differ.
@@ -216,6 +226,12 @@ PREREQ_ABSENT=()
 # Changes nothing, so both --check and the install can call it.
 host_prereqs() {
   local absent=() entry tool reason major
+  # A prerequisite that is broken rather than missing. It must still stop an
+  # install, but it must not reach the apt list -- `apt-get install python3`
+  # cannot fix an interpreter that is installed at a path the unit does not
+  # name, and an install that "fixed" it and carried on would be worse than
+  # one that refuses.
+  local blocked=0
   PREREQ_ABSENT=()
   for entry in "${PREREQS[@]}"; do
     tool="${entry%%|*}"
@@ -239,7 +255,57 @@ host_prereqs() {
     fi
   fi
 
-  [[ "${#absent[@]}" == "0" ]] && return 0
+  # `command -v python3` is not the question the unit asks. `ExecStart=` names
+  # an absolute interpreter, systemd resolves no PATH, and a box whose python3
+  # lives somewhere else fails 203/EXEC with the timer still reporting active
+  # -- which is the same "green, and nothing ran" costume the rest of this
+  # script is built against. Stated as what was measured rather than as a
+  # prediction: no box checked on 2026-09-17 was in that state (the web
+  # sandbox has python3 at both /usr/bin and /usr/local/bin, resolving to the
+  # same 3.11.15), so this is a latent gap and not a live break. It is worth
+  # asking anyway because `command -v python3` succeeding is not evidence
+  # that `ExecStart=` will, and because the divergence is real in this
+  # repository already: CLAUDE.md records a whole section on `pytest` and
+  # `mypy` resolving to a uv shim on PATH while `python3 -m` resolved
+  # elsewhere, in this very sandbox, minutes apart.
+  #
+  # The path is read out of the unit rather than typed here, so the check
+  # cannot drift from what systemd will actually exec -- the same
+  # import-don't-restate rule the PAYLOAD and queue_items() lists follow, and
+  # the one CLAUDE.md records against the front-door mirror three times.
+  local unit_python=""
+  if [[ -f "$SRC_HOST/codex-governor.service" ]]; then
+    # First ExecStart line, first token. `sed`'s own `q` rather than `| head`:
+    # the installer's tool footprint is pinned by test_install_codex_host.py's
+    # _INSTALLER_TOOLS and it runs under a PATH restricted to exactly that set,
+    # so reaching for another coreutil here breaks the install rather than the
+    # check.
+    unit_python="$(sed -n '/^ExecStart=/{s|^ExecStart=\([^ ]*\).*|\1|p;q;}' \
+      "$SRC_HOST/codex-governor.service")"
+  fi
+  if [[ -n "$unit_python" ]]; then
+    if [[ -x "$unit_python" ]]; then
+      ok "$unit_python — the interpreter codex-governor.service execs"
+    else
+      warn "codex-governor.service execs $unit_python, which is not executable here"
+      if command -v python3 >/dev/null 2>&1; then
+        # Installed, just not where the unit looks. Naming both paths is the
+        # whole fix, and apt would not have applied it -- so this blocks the
+        # install without joining the apt list.
+        say "    python3 on PATH is $(command -v python3) — every tick would fail 203/EXEC."
+        say "    Symlink it, or change ExecStart in gitops/agents/host/codex-governor.service."
+        blocked=1
+      else
+        # Genuinely absent, so apt can fix this one.
+        absent+=("python3")
+      fi
+    fi
+  fi
+
+  if [[ "${#absent[@]}" == "0" ]]; then
+    (( blocked )) && return 1
+    return 0
+  fi
 
   PREREQ_ABSENT=("${absent[@]}")
   say ""
@@ -323,6 +389,36 @@ queue_items() {
     [[ "$(basename "$item")" == "example.item.yaml" ]] && continue
     printf '%s\n' "$item"
   done
+}
+
+# What the governor would actually load from a queue directory, as opposed to
+# how many files are in it. Delegates to `host_governor.py --queue` rather than
+# re-deriving it in bash: the answer depends on `queue_item_from_dict`'s
+# validation and on `enabled`, and a bash re-implementation of either is a
+# second copy that can disagree with the timer while both look right.
+#
+# Added 2026-09-17, because the file count is not the question. Measured that
+# day on the six real items, with one capitalised `modelClass: Deep`, the
+# governor loaded four and dropped two silently -- and the two it dropped were
+# `deploy-cicd-readiness` and `marketing-distribution`, the highest-priority
+# items in the queue. All six `enabled: false` is the same outcome by a route a
+# merge can cause. In both cases the count stayed six and this report said so
+# with a green tick.
+#
+# Never fails the check on its own: a box that cannot parse the queue has an
+# unanswered question, not a proven fault, and printing `UNRUN` rather than a
+# pass is the discrimination `run_workflow_locally.py` already makes.
+queue_parse_report() {
+  local qdir="$1" hg="$2"
+  if ! command -v python3 >/dev/null 2>&1; then
+    say "    (queue not parsed: no python3 on PATH — unanswered, not a pass)"
+    return 0
+  fi
+  if [[ ! -f "$hg" ]]; then
+    say "    (queue not parsed: $hg is not here — unanswered, not a pass)"
+    return 0
+  fi
+  CODEX_HOST_QUEUE="$qdir" python3 "$hg" --queue 2>&1 | sed 's/^/    /' || true
 }
 
 # ------------------------------------------------------------------ reporting
@@ -417,6 +513,23 @@ report() {
     warn "no queue items in the checkout ($SRC_AGENTS/queue) — an install would leave the governor with nothing to do"
   else
     ok "${#src_items[@]} item(s) an install would copy: ${src_items[*]}"
+    # Parse the set an install would copy, not the directory. They differ by
+    # `example.item.yaml`, which documents the schema and which `queue_items`
+    # excludes -- so reading the directory directly would report a disabled
+    # item the box will never receive, next to a line that had just said six.
+    # A staging dir of the selected files keeps one selection rule for both.
+    local staged
+    if staged="$(mktemp -d 2>/dev/null)"; then
+      while IFS= read -r item; do
+        if [[ -n "$item" ]]; then
+          cp "$item" "$staged/" 2>/dev/null || true
+        fi
+      done < <(queue_items)
+      queue_parse_report "$staged" "$SRC_HOST/host_governor.py"
+      rm -rf "$staged"
+    else
+      queue_parse_report "$SRC_AGENTS/queue" "$SRC_HOST/host_governor.py"
+    fi
   fi
 
   # What is on the box now, which is what the timer actually reads. Allowed to
@@ -433,6 +546,9 @@ report() {
       warn "$PREFIX/queue is installed but empty — an enabled governor here would hold on every tick with nothing to do"
     else
       ok "${#box_items[@]} item(s) installed on this box: ${box_items[*]}"
+      # The box's own copies, read with the box's own governor -- this is what
+      # the timer will load, and it can differ from the checkout above.
+      queue_parse_report "$PREFIX/queue" "$PREFIX/host/host_governor.py"
     fi
   else
     say "  - nothing installed at $PREFIX/queue"
