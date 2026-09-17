@@ -62,6 +62,15 @@
     <summary type="text">Pick the caller&#39;s and recipient&#39;s US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening. Free, deterministic, runs entirely in your browser — not legal advice.</summary>
   </entry>
   <entry>
+    <title>Deploy Concurrency Check — find the race that ships an older commit</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/deploy-concurrency-check/"/>
+    <id>tag:marisstella.dev,2026:tool/deploy-concurrency-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a GitHub Actions workflow and see every way it is allowed to apply an older revision over a newer one: no concurrency group, a group that changes every run, cancel-in-progress on a deploy, split groups on one environment, and a checkout of a moving branch. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Dog Boarding &amp; Daycare Pricing Calculator — Price a Stay, Check Occupancy</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-boarding-daycare-pricing/"/>
     <id>tag:marisstella.dev,2026:tool/dog-boarding-daycare-pricing</id>

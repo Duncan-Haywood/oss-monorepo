@@ -88,6 +88,10 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "eyeballing Settings -> Branches" -- a manual habit
+  // every repository admin already has, not a company or product this
+  // could be mistaken for.
+  'branch-protection-drift-check/vs-manually-checking-settings.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -204,6 +208,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pages above, and as ai-coding-plan-cost-calculator's
   // vs-checking-pricing-pages-yourself.html, which names vendors the same way.
   'where-to-sell-calculator/vs-each-marketplaces-own-calculator.html',
+  // Compares against "opening each marketplace's own fee calculator
+  // separately and reconciling the numbers by hand" -- a generic method
+  // every multi-channel seller already has access to, not a company or
+  // product this could be mistaken for. It still names the six real
+  // marketplaces it ranks, so it carries the nominative disclaimer anyway
+  // rather than relying on this exemption to excuse its absence. Same
+  // reasoning as the where-to-sell-calculator sibling entry above.
+  'marketplace-fee-compare/vs-checking-each-marketplace-separately.html',
   // Compares against "adding up the month's bills and dividing by the miles
   // you ran" -- the one line of arithmetic every owner-operator already runs
   // against their own settlement statements, not a company or product this
@@ -214,6 +226,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // data than anything typed into a form. Same reasoning as
   // auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html.
   'owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html',
+  // Compares against "reading your own workflow files" -- the manual habit a
+  // maintainer already has, not a company or product this could be mistaken
+  // for. It does name GitHub, unavoidably, because GitHub Actions workflow
+  // YAML is the artifact the tool reads and there is no generic way to say
+  // so; but it compares against *reading the files yourself*, never against
+  // any GitHub product. It therefore carries the affiliation disclaimer
+  // anyway rather than leaning on this exemption, and a test asserts it.
+  // Same reasoning as where-to-sell-calculator/vs-each-marketplaces-own-
+  // calculator.html and ai-coding-plan-cost-calculator/vs-checking-pricing-
+  // pages-yourself.html, which name vendors the same way.
+  'deploy-concurrency-check/vs-reading-your-workflows-yourself.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
