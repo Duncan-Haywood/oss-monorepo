@@ -12644,6 +12644,71 @@ ventures:
       has no incentive to over- or under-report a change, and it gets
       strictly more useful the more builds a team compares against it.
 
+  - slug: openapi-breaking-change-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic structural comparison of two already-parsed operation
+      maps (paths, parameters, request-body requiredness). Whether an
+      operation was removed, a parameter became required, a type narrowed,
+      or an enum value disappeared is decided by exact reading of the two
+      documents against the OpenAPI 3.x spec, not a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as sbom-diff-check and sql-migration-lock-check, not a further
+      <trade>-bid-calculator or a further "-check" scanner of a kind already
+      tried repeatedly. duplicate_check.py scored every existing venture,
+      screened-out row, ai-first-markets idea and pipeline candidate at 0.12
+      or below against this idea's description, well under the 0.45 flag
+      bar -- closest were obsidian/wordpress-plugin-review-check (0.10,
+      review a plugin submission against a marketplace's rules, not an API
+      contract) and sbom-diff-check (0.08, same "diff two versioned
+      artifacts" instinct, different artifact). No venture in the tree
+      parses an OpenAPI/Swagger document.
+      Autonomous ops 10 / gross margin 10: the browser page parses two
+      pasted OpenAPI documents and diffs them entirely client-side (nothing
+      uploaded, nothing fetched, no external $ref resolved), and the CLI
+      reads only local files it is pointed at, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 6, above sbom-diff-check's 3: an established market of
+      paid incumbents (Optic, Bump.sh) and open-source CLIs (oasdiff,
+      openapi-diff) already sell exactly this comparison, which is evidence
+      the underlying problem is real and recurring across a broad
+      population (anyone versioning a REST API) rather than the narrower
+      "already generates an SBOM" audience -- the same shape of evidence
+      that put sql-migration-lock-check at 6. None of those incumbents is a
+      free, zero-install, paste-and-go browser tool for the same one-shot
+      question, which is the wedge, not proof of an empty market.
+      Time to revenue 6, defensibility 3: donations-only; a structural diff
+      over an already-standardized document format is not hard to
+      reimplement, so defensibility rests on the specific
+      breaking-vs-non-breaking classification (not just "everything that
+      changed") and this portfolio's disclaimer/usage conventions, not on
+      any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only structural comparison of two OpenAPI documents the
+      user already has or pastes in -- no network call of its own, no
+      external $ref fetched, no data leaving the browser. It makes no claim
+      about full request/response body schema compatibility or that a
+      change is actually safe to ship for a specific client; both pages'
+      footers and FAQs state this plainly. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to over- or under-report a
+      change, and it gets strictly more useful the more API versions a team
+      compares against it.
+
   - slug: commissary-kitchen-cost-split-calculator
     scores:
       ai_leverage: 1
@@ -12939,3 +13004,124 @@ ventures:
       Ethically: deterministic arithmetic, no data collected
       server-side, and no incentive to steer the comparison toward
       either company since the tool never recommends one.
+  - slug: wedding-florist-proposal-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the florist types. Rounding a
+      stem count up to whole bunches and multiplying by a markup is
+      exactly computable; there is nothing to infer and nothing a model
+      would do better than a ceiling division.
+    basis: >-
+      Screened 2026-09-16. duplicate_check.py against the venture
+      description scored the closest existing venture at 0.09
+      (forestry-mulching-bid-calculator and staffing-markup-calculator tie,
+      both on the generic "calculator / margin / pricing" vocabulary rather
+      than on the job), with bridal-hair-makeup-pricing-calculator -- the
+      nearest neighbour by buyer, not by mechanism -- at 0.08. Well under
+      the 0.45 flag bar, and the mechanism is genuinely distinct: that
+      venture prices per-person services against a schedule, this one
+      converts a stem recipe into a wholesale purchase. No florist or
+      floral-pricing row exists in screened-out.md.
+      Autonomous ops 10 / gross margin 10: a static page that computes in
+      the visitor's browser with nothing uploaded and nothing fetched, so
+      serving one more user costs a static file and needs no human review
+      of any output.
+      Distribution 5, above sbom-diff-check's 3: the audience is every
+      studio and solo florist pricing weddings, which is a larger and more
+      search-active population than teams generating SBOMs, and the query
+      shape ("how much to charge for wedding flowers", "floral recipe
+      cost") is a question people type. Not higher, because no search-volume
+      tool was queried to confirm magnitude and the portfolio has no
+      measured traffic of its own to extrapolate from.
+      Time to revenue 6, defensibility 3: donations-only; ceiling division
+      over a recipe is easy to reimplement, so defensibility rests on the
+      specific framing (that a markup applied to a stem count is applied to
+      a cost never paid, and that a cost-percentage shrink allowance is
+      wrong in both directions) and this portfolio's disclaimer/usage
+      conventions, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: planning arithmetic over figures the florist supplies, run
+      entirely in their own browser, with no network call, no stored data
+      and nothing leaving the device. It quotes no wholesale prices of its
+      own and makes no claim about what any flower costs or what any
+      wedding should be priced at -- both pages' footers say so plainly,
+      and note that wholesale availability and price move week to week so a
+      quote is the user's to verify. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to push a price up or down,
+      and it helps a small business charge for costs it is already paying.
+  - slug: asbestos-abatement-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The containment-class-driven
+      cost breakdown, the per-area setup cost, and the flat-rate
+      comparison are all decided entirely by the numbers the contractor
+      types in, not a model judgment -- the same reasoning this portfolio
+      applies to every other deterministic bid calculator (e.g.
+      land-survey-bid-calculator, drone-mapping-job-calculator).
+    basis: >-
+      Screened 2026-09-17, same session, per
+      portfolio/pipeline/README.md's scoring process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.11
+      (vehicle-wrap-bid-calculator), well below the read-this-first
+      threshold. Distinct from popcorn-ceiling-bid-calculator (a
+      residential drywall/painting contractor scraping acoustic ceiling
+      texture, for whom "asbestos test" is one $ line item among many and
+      abatement itself is explicitly out of scope) -- the two ventures
+      cross-link as siblings rather than overlapping. No screened-out.md
+      row names "asbestos", "abatement", or "hazmat".
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 4: a real but narrower channel than a general
+      home-services trade -- licensed abatement contractors are a smaller,
+      more specialized, more regulator-facing audience than roofers or
+      painters, and no contractor-forum or subreddit search-volume signal
+      was checked to confirm a "asbestos removal cost calculator" query
+      pattern exists at meaningful volume, so scored below this
+      portfolio's typical bid-calculator distribution (6-7) rather than at
+      par with it.
+      Time to revenue 4, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the
+      portfolio's typical bid-calculator floor), and the audience's
+      professional gatekeeping (state licensing, EPA/OSHA certification)
+      slows organic discovery relative to an unlicensed trade.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no asbestos inspection, bulk-sample identification, or air-quality
+      analysis, checks no federal/state/local regulatory requirement, and
+      does not replace the contractor's own certification,
+      competent-person determination, or professional judgment on a given
+      job; the contractor remains solely responsible for regulatory
+      compliance. Ethically: donations-only with no per-quote fee, so the
+      tool has no incentive to steer a bid toward a cheaper containment
+      class than the job actually requires, and the flat-rate comparison
+      is disclosed methodology (FAQ: "why not just quote a flat rate per
+      square foot") rather than a black-box number.

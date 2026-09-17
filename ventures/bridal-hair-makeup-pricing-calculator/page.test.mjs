@@ -180,3 +180,10 @@ test('every visible FAQ heading appears in the FAQPage structured data', () => {
   }
   assert.equal(questions.length, headings.length, 'the JSON-LD and the visible FAQ list different questions');
 });
+
+test('index links the wedding-florist-proposal-calculator sibling', () => {
+  // Half of a reciprocal pair: the florist calculator links back here. Both
+  // hrefs are asserted, in both ventures, because a one-way link is what
+  // `platform/pages/siblings.mjs` counts as a crawlable orphan.
+  assert.match(html, /href="\.\.\/wedding-florist-proposal-calculator\/"/);
+});

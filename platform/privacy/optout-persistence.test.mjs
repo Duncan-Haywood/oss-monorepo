@@ -115,23 +115,49 @@ const RELATIVE_SELF = relative(
 // with its own `setUsageOptOut`/`usageOptedOut` switch (the same
 // `record`/`readUsage` pattern `overtime-pay-calculator` uses), same
 // discovery method as the rest of this running count.
-// 270 -> 271 on 2026-09-16 (missed at the time), when
-// `land-survey-bid-calculator` (#4786) graduated with its own
-// `readOptOut`/`writeOptOut` switch. Its own PR touched
-// venture-scores.yaml, publish-surface.yaml, and the front-door mirror but
-// not this file, so `main` stayed red here by one -- same shape as the
-// `obsidian-plugin-review-check` and `process-server-fee-calculator` misses
-// recorded above. Found while merging `main` into a sibling venture's
-// branch and re-running the checklist, not by CI, which is starved.
+// 270 -> 271 on 2026-09-16, when `land-survey-bid-calculator` graduated with
+// its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count.
 // 271 -> 272 on 2026-09-17, when `estate-sale-net-proceeds-calculator`
 // graduated with its own `readOptOut`/`writeOptOut` switch (the same
 // `recordUsage` pattern `poshmark-fee-calculator` uses), same discovery
 // method as the rest of this running count.
-// 272 -> 273 on 2026-09-17, when `biohazard-cleanup-bid-calculator`
+// 272 -> 273 on 2026-09-16, when `wedding-florist-proposal-calculator`
+// graduated with a `toggleUsage`/`usageAllowed` switch (opts out of the
+// `proposal-priced`/`rounding-gap-shown`/`link_copied` counters), same
+// discovery method as the rest of this running count.
+// 273 -> 274 on 2026-09-17, when `world-clock-widget` gained a browser surface
+// with its own `setUsageOptOut`/`usageOptedOut` switch in
+// `ventures/world-clock-widget/site/usage.mjs` (the same `record`/`readUsage`
+// pattern `cron-dst-drift-check` uses), same discovery method as the rest of
+// this running count. Note this one is NOT a venture graduating, which every
+// other line above is: the venture already existed as a Swift app, and the
+// addition is a second surface over the same core. The distinction matters
+// only for reading this list back -- the switch is a switch either way.
+//
+// The 271 -> 272 pair above is worth reading together: two branches were open
+// at once and each raised the constant by one against a base where the other
+// had not landed, exactly the collision the 265 -> 266 entry records. Both
+// additions are real and both survive here, which is why the resolved number
+// is 274 rather than either branch's 273.
+// 274 -> 275 on 2026-09-17, when `openapi-breaking-change-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same
+// `record`/`readUsage` pattern `sbom-diff-check` and
+// `sql-migration-lock-check` use), same discovery method as the rest of
+// this running count.
+// 275 -> 276 on 2026-09-17, when `asbestos-abatement-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `land-survey-bid-calculator` use), same
+// discovery method as the rest of this running count.
+// 276 -> 277 on 2026-09-17, when `biohazard-cleanup-bid-calculator`
 // graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
-// use), same discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 273;
+// use), same discovery method as the rest of this running count. This is
+// the same shape as the 271 -> 272 collision above: this branch was open
+// before the four entries immediately above it landed on `main`, so it only
+// ever knew its own predecessor's number (273) until this merge.
+const SWITCHES_IN_THE_CATALOGUE = 277;
 
 let counter = 0;
 function fixture(source) {

@@ -22,6 +22,7 @@
     "appliance-repair-quote-calculator": "2026-08-26",
     "appointment-deposit-calculator": "2026-08-27",
     "artificial-turf-bid-calculator": "2026-08-26",
+    "asbestos-abatement-bid-calculator": "2026-09-17",
     "asphalt-driveway-pave-bid-calculator": "2026-08-26",
     "asphalt-sealcoat-bid-calculator": "2026-08-26",
     "atm-route-margin": "2026-09-06",
@@ -179,6 +180,7 @@
     "npm-lifecycle-script-check": "2026-09-07",
     "obsidian-plugin-review-check": "2026-09-13",
     "oidc-trust-policy-check": "2026-09-10",
+    "openapi-breaking-change-check": "2026-09-17",
     "overtime-pay-calculator": "2026-09-16",
     "owner-operator-cpm-calculator": "2026-08-26",
     "package-exports-drift-check": "2026-09-09",
@@ -279,6 +281,7 @@
     "wash-and-fold-price-calculator": "2026-09-10",
     "water-heater-bid-calculator": "2026-08-26",
     "water-softener-bid-calculator": "2026-08-26",
+    "wedding-florist-proposal-calculator": "2026-09-16",
     "well-pump-bid-calculator": "2026-08-26",
     "whatnot-seller-payout": "2026-09-07",
     "wheelchair-ramp-bid-calculator": "2026-08-26",
@@ -287,6 +290,7 @@
     "wildlife-exclusion-bid-calculator": "2026-09-10",
     "window-cleaning-bid-calculator": "2026-08-26",
     "window-replacement-bid-calculator": "2026-08-26",
-    "wordpress-plugin-review-check": "2026-09-09"
+    "wordpress-plugin-review-check": "2026-09-09",
+    "world-clock-widget": "2026-09-16"
   }
 }

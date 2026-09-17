@@ -186,6 +186,23 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the other generic-method
   // pages above (e.g. attic-insulation-bid-calculator's flat-rate page).
   'land-survey-bid-calculator/vs-a-flat-per-acre-quote.html',
+  // Compares against "a flat rate per square foot" -- a generic pricing
+  // method every abatement contractor already has access to, not a company
+  // or product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above.
+  'asbestos-abatement-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a recipe markup spreadsheet" -- the sheet nearly every
+  // floral studio builds for itself, which is a working method rather than
+  // any one company's product this could be mistaken for. The page's own
+  // footer says so explicitly ("names no specific product, company, or
+  // software"). Same reasoning as the vs-spreadsheet / by-hand pages above.
+  'wedding-florist-proposal-calculator/vs-a-recipe-markup-spreadsheet.html',
+  // Compares against "manually reading the spec diff" -- a generic method
+  // every API developer already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // manual-method pages above.
+  'openapi-breaking-change-check/vs-manually-reading-the-spec-diff.html',
   // Compares against "a flat day rate plus a per-pound hazmat estimate" --
   // a generic pricing method every biohazard/trauma-scene technician
   // already has access to, not a company or product this could be mistaken

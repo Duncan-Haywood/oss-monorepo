@@ -213,3 +213,16 @@ test('index links one hop to the drywall-bid-calculator sibling', () => {
   );
   assert.match(html, /drywall bid calculator/i);
 });
+
+// The asbestos test checkbox on this page explicitly says a positive result
+// means abatement is a separately licensed activity this calculator does not
+// price -- so the reciprocal link is the one-hop path a crawler (or a
+// contractor) needs to reach the tool that actually prices that job.
+test('index links one hop to the asbestos-abatement-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/asbestos-abatement-bid-calculator\/"/,
+    'index must link ../asbestos-abatement-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(html, /asbestos abatement bid calculator/i);
+});

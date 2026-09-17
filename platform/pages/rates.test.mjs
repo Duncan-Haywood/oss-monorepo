@@ -118,6 +118,13 @@ const NO_SHARED_SHOP_RATES = {
     'aliased too. It has no separate payroll-burden field, and it prices office research and drafting ' +
     'time as their own hourly rates rather than an overhead percentage of direct cost, so it carries ' +
     'two of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'asbestos-abatement-bid-calculator':
+    'its per-worker wage is spelled `crewHourlyRatePerWorker` rather than `hourlyWage`, but means the ' +
+    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
+    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
+    'aliased too. It has no separate payroll-burden field, and it prices containment setup, air ' +
+    'monitoring, and waste disposal as their own line items rather than an overhead percentage of ' +
+    'direct cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
   'biohazard-cleanup-bid-calculator':
     'its per-tech rate is spelled `laborRatePerHour` rather than `hourlyWage`, but means the same ' +
     'raw, loaded hourly rate for one technician\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
