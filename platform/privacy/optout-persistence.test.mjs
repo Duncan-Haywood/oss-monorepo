@@ -243,7 +243,11 @@ const RELATIVE_SELF = relative(
 // predecessor's number (285) until this merge -- same collision shape as
 // the entry immediately above: both branches independently wrote "286" for
 // what the merged tree made 287.
-const SWITCHES_IN_THE_CATALOGUE = 287;
+// 287 -> 288 on 2026-09-17, when `stockx-seller-payout-calculator` graduated
+// with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 288;
 
 let counter = 0;
 function fixture(source) {
