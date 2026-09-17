@@ -6666,3 +6666,31 @@ products:
           `source_added` is the signal worth watching first, since it is
           the one act every visitor with a real question can complete
           regardless of the answer they get.
+
+  - slug: depreciation-recapture-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          sale_analyzed: 0
+          example_loaded: 0
+          link_copied: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a free, no-signup calculator for
+          landlords and real-estate investors selling a rental property that
+          splits the gain into unrecaptured Section 1250 depreciation
+          recapture (ordinary rate, capped at 25%) and the remainder at the
+          seller's capital-gains rate, with an optional NIIT add-on and a
+          1031 exchange boot/deferral comparison. `live_url_visitors` is
+          null and not zero, deliberately -- GitHub Pages exposes no
+          server-side analytics, and the local counters are opt-in and off
+          by default, so nobody has measured yet, which is a different claim
+          from having measured nothing. `sale_analyzed` is the signal worth
+          watching first -- a visitor who reaches it got the tax split;
+          `link_copied` is the stronger signal of a seller actually taking
+          the estimate to a CPA or co-owner rather than reading it alone.
+          Search terms this is built to meet are "depreciation recapture
+          calculator", "1031 exchange calculator", and "capital gains on
+          rental property sale calculator".

@@ -980,17 +980,26 @@ const CATEGORY_RULES = [
       // "after the fact" axis as `card-processing-fee-audit` (splitting a
       // processor's bill after the sale) and `cam-reconciliation-check` (a
       // landlord's own statement), just for a move-out deposit instead.
-      // `no-tax-on-tips-overtime-calculator` joined 2026-09-17, filed here on
-      // its first commit rather than after a spell in the catch-all -- what
-      // `build.test.mjs`'s catch-all bound is for. It estimates a federal
-      // deduction on tips and overtime pay already earned -- the same
-      // "downstream obligation on income already earned" axis as
-      // `quarterly-estimated-tax-calendar` right above it in this same rule,
-      // just a deduction owed to the filer instead of a payment owed to the
-      // IRS. Not `solo-earner`: that section groups people pricing their own
-      // labour or audience before a sale; this runs after the pay period,
-      // on a W-2 or 1099 figure already received.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|no-tax-on-tips-overtime-calculator)/.test(slug),
+      // `depreciation-recapture-calculator` joined 2026-09-17, filed here on
+      // its first commit for the same reason as `quarterly-estimated-tax`
+      // above rather than after a spell in the catch-all: it is a downstream
+      // tax obligation on a gain already realized -- the same "after the job
+      // is won" axis as `security-deposit-return` right above (arithmetic
+      // that happens once a transaction already closed), just triggered by
+      // a property sale instead of a lease ending, and it cross-links
+      // `quarterly-estimated-tax-calendar` as a sibling: one is the ongoing
+      // filing, the other is the one-time sale.
+      // `no-tax-on-tips-overtime-calculator` joined 2026-09-17 concurrently,
+      // filed here on its first commit rather than after a spell in the
+      // catch-all -- what `build.test.mjs`'s catch-all bound is for. It
+      // estimates a federal deduction on tips and overtime pay already
+      // earned -- the same "downstream obligation on income already earned"
+      // axis as `quarterly-estimated-tax-calendar` right above it in this
+      // same rule, just a deduction owed to the filer instead of a payment
+      // owed to the IRS. Not `solo-earner`: that section groups people
+      // pricing their own labour or audience before a sale; this runs after
+      // the pay period, on a W-2 or 1099 figure already received.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator)/.test(slug),
   },
   {
     id: 'ci',
