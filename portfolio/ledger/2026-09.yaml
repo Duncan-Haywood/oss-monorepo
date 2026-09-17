@@ -32509,6 +32509,152 @@ entries:
         (`live_url_visitors: null`, not zero). All three hypotheses in
         `VENTURE.yaml` remain untested.
     mrr_end: 0
+  - venture: propane-delivery-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture (option 3 of the pipeline's three routes):
+        `session_gate.py` reported the build-now pipeline empty and no
+        already-built product lacked a public URL, so a fresh niche
+        screened against `screened-out.md` and the liability/ethical gates
+        in `pipeline/README.md` outranked parity work.
+        `duplicate_check.py` scored the closest existing venture at 0.39
+        (the atm-route-margin / fire-extinguisher-inspection-route-margin
+        / vending-machine-route-margin route-margin cluster) -- close on
+        shape, not on business: nothing else in the portfolio models a
+        per-gallon retail/wholesale spread, a fill-size-triggered
+        minimum-delivery fee, or per-customer tank rental.
+      - >-
+        Shipped `ventures/propane-delivery-route-margin/`: a free,
+        100%-client-side browser calculator for independent propane (LP
+        gas) delivery route operators. Prices one customer's annual and
+        monthly profit from annual gallons, average fill size (which
+        derives deliveries/year and decides whether a small-fill
+        minimum-delivery fee applies), the retail/wholesale price spread,
+        drive time and mileage, and fixed monthly tank-rental/hazmat
+        compliance cost, then rolls a customer list up into route profit
+        against an income goal -- same two-layer shape
+        (`calculate`/`computeRouteProfit`/`incomeGap`) as this portfolio's
+        other route-margin calculators. No price, rate, or fee is
+        hardcoded as fact; every one is a user-supplied, illustrative
+        placeholder, and the page states explicitly it is not
+        propane-supply, delivery-scheduling, or safety guidance -- it
+        never sizes a tank, forecasts usage, or judges a safe fill level.
+      - >-
+        Full file set: `calc.mjs` + `calc.test.mjs` (34 assertions,
+        including a divide-by-zero guard on average fill size, the
+        minimum-delivery-fee threshold's strict "below" boundary, and
+        null-safety on the per-gallon/hourly-rate ratios),
+        `usage.mjs`/`usage.test.mjs` (anonymous, opt-out,
+        DNT/GPC-respecting local counter), `share.mjs`/`share.test.mjs`
+        (shareable link round-tripping every field through the URL
+        fragment, never the never-saved route rows), `VENTURE.yaml`,
+        `README.md`, `LICENSE` (MIT), `robots.txt`, `sitemap.xml`, plus
+        two discoverability pages:
+        `is-a-small-propane-customer-worth-keeping.html` (a worked
+        example where a $45 minimum-delivery fee flips a losing
+        small-fill customer, -$10.54/yr, to a profitable one, +$130.89/yr
+        -- verified against `calc.mjs` directly in `page.test.mjs`) and
+        `vs-tracking-propane-delivery-margin-in-a-spreadsheet.html`
+        (generic-method comparison, no named competitor, registered in
+        `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` set).
+      - >-
+        Classified the new slug into the existing `services` category in
+        `platform/pages/build.mjs` (the independent-route-operator shape
+        shared with `atm-route-margin` and
+        `fire-extinguisher-inspection-route-margin`), confirmed by
+        `build.test.mjs`'s full 284-assertion run rather than by
+        inspection alone. Closed the crawlable-orphan gap the portfolio's
+        own sibling-link budget enforces (`orphanBudget: 0`, verified
+        `node platform/pages/siblings.mjs --check` at 0 of 302 before this
+        venture and 0 of 303 after): the new page links out to both
+        `fire-extinguisher-inspection-route-margin` and
+        `vending-machine-route-margin`, and added a two-line reciprocal
+        inbound link from `fire-extinguisher-inspection-route-margin`'s
+        own footer.
+      - >-
+        Added a scoring row in `portfolio/scoring/venture-scores.yaml`
+        (composite 6.333; `ai_leverage` floor of 1, same rationale as its
+        route-margin siblings -- deterministic arithmetic, no AI
+        anywhere); `score_ventures.py --check` passes, 310 scored,
+        matching every `VENTURE.yaml`. Recorded the new
+        `propane-delivery-route-margin-ci.yml` workflow via
+        `publish_surface.py --write` (classified `none`: one `node --test`
+        step and the clauses check, no deploy/push).
+      - >-
+        Ran `node platform/marketing/regen.mjs` (a new browser surface,
+        301 -> 302 mirrored tools) and `python3
+        platform/ci/sync_tree_counts.py` against the merged tree,
+        updating the mirrored-tool count in the four places it is
+        hand-written (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, and `total =` in
+        `gitops/tests/test_manifests.py`) and the opt-out-switch count
+        (285 -> 286) in `platform/privacy/optout-persistence.test.mjs`,
+        adding the running-comment "why" entry in both files. Also ran
+        `python3 gitops/ci/sync_readme_counts.py` to fix the `runs-on`
+        count the new workflow file moved (395/397 across 356 -> 396/398
+        across 357).
+      - >-
+        Fixed a real defect this venture's own markup tripped:
+        `platform/ci/test_check_step_grid.py`'s
+        `test_the_shipped_ventures_are_clean` caught
+        `avgGallonsPerFill`'s `min="0.1" step="5"` excluding every whole
+        number from the accepted-values lattice (0.1, 5.1, 10.1, ...);
+        changed `min` to `0` (a multiple of `step`) and re-verified both
+        the guard and the venture's own 56-assertion suite green.
+      - >-
+        Verified locally rather than by CI, which is starved
+        (`ci_starvation.py`; 0 open PRs at the time this session started):
+        the venture's own 56 assertions; `node --test
+        platform/marketing/*.test.mjs` 262/262 (after two `regen.mjs`
+        runs -- the second needed because the step-grid fix above landed
+        after the first); `node --test platform/pages/*.test.mjs`
+        1009/1009 (fixed a real defect along the way:
+        `faq-visible.test.mjs` caught the FAQPage JSON-LD using `--` where
+        the visible copy used an em dash, on both new pages -- corrected
+        the JSON-LD to match); `node --test platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs platform/proposal/*.test.mjs`
+        243/243; `python3 -m pytest gitops/tests -q` 598 passed, 1
+        skipped (environmental, needs a GitHub-hosted runner) --
+        `nginx-light`/`openssh-client` installed first per CLAUDE.md's
+        notes, clearing the 24 previously-fixable skips; all 27
+        `platform/ci` unittest modules + `agent_review` (fixed the
+        step-grid failure above along the way); `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` 446 passed;
+        `checklist_coverage.py`, `guard_state.py --require-runnable` (no
+        fixable skips after the nginx/openssh install),
+        `sync_tree_counts.py` (stable, no drift), `router/validate.py`
+        (309 valid), `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_probe_index.py`,
+        `score_sensitivity.py`, `score_ventures.py --check`,
+        `usage/validate_usage.py` (all clean);
+        `run_workflow_locally.py --for-changes` (9/14 selected workflows
+        ran and passed locally; the other 5 -- the four
+        agent-cross-review bot reviewers and the Hetzner/GitHub-Pages
+        deploy jobs -- need credentials or a hosted runner this sandbox
+        does not have, and were reported not-run rather than claimed
+        passing). Used `python3 -m pytest`/`python3 -m unittest`
+        throughout, never the bare binaries, per CLAUDE.md's shim-trap
+        notes.
+      - >-
+        Also ran the full whole-catalogue browser/accessibility sweep
+        (`npm install --no-save playwright@1.56.0 axe-core` then
+        `python3 platform/ci/browser_checks.py`), since `browser_state.py`
+        reported all 8 checks stale (the builder/front-door changed):
+        309/309 tools answered with no errors across all 8 checks
+        (sideways, presets, roundtrip, highlight, contrast, optout,
+        sweep, journey), then recorded the clean reading with `--record`
+        so the next session's `browser_state.py` reads current rather
+        than re-deriving that nothing broke.
+      - >-
+        No usage signal yet, and none is claimed: this is a brand-new
+        product with no visitor measurement at all
+        (`live_url_visitors: null`). All three hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
@@ -32654,4 +32800,44 @@ entries:
         `score_ventures.py --check`, `validate_doc_consistency.py`,
         `validate_candidates.py`, `validate_probe_index.py`,
         `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
+    mrr_end: 0
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page, `vs-spreadsheet.html`,
+        against `surface-budget.mjs`'s reported room for 1 (the venture
+        already carried a QuickBooks-vs-product page and 4 guides but no
+        generic-method angle). Registered the page in
+        `COMPARISON_DISCLAIMER_EXEMPT` (`platform/pages/clauses.mjs`) so the
+        budget tool classifies it correctly -- confirmed before and after
+        (`vs/name` misclassification, then `vs/gen` at budget 1/1, portfolio
+        still 0 ventures over budget).
+      - >-
+        Same session first confirmed the open-PR queue is empty (0 open PRs)
+        and spot-checked 4 stale branches for unique work
+        (`agent/deploy-cicd-ledger-2868`, `claude/codex-governor-ask-and-
+        queue-drain-report`, `agent/marketing-distribution-gutter-guard-vs-
+        jobnimbus`, `agent/owner-operator-cpm-vs-dat-rateview2`); all four
+        were already superseded (their content already on `main`), consistent
+        with the prior exhaustive 232-branch drain recorded in
+        `infra_state.yaml`.
+      - >-
+        Verified: venture suite (109/109, including the new
+        `vs-spreadsheet.test.mjs`), `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` after `platform/marketing/regen.mjs`
+        (1272/1272 -- the committed mirror/catalog/sitemap/llms.txt/
+        kustomization diffs it wrote are the expected regen output for one
+        new page), and `gitops/tests` (583 passed, 25 skipped -- the standard
+        missing-binary skips this file's checklist already documents).
+      - >-
+        Also re-confirmed (without re-dispatching, since it was already
+        measured minutes earlier this same day): `github-actions-runners`
+        starved, `github-pages-branch-route` up and current (built from the
+        exact `main` tip), and the Hetzner/Codex dev-worker route fully
+        built and tested but blocked solely on the owner rotating
+        `HETZNERSSHKEY` from their own machine -- reported to the owner
+        directly rather than re-added to `decision_queue.py`, which already
+        carries this ask.
     mrr_end: 0

@@ -394,13 +394,23 @@ def render(report: dict) -> str:
         lines.append(
             "    Nothing is overclaimed. The visitor signal is still unmeasurable on this"
         )
+        # Point at the row that owns this list rather than keeping a second
+        # copy of it. This block named two owner fixes and went stale on
+        # 2026-09-17, the day `pages_state.py` gained a third and cheaper one
+        # (a robots.txt at the user Pages site root) -- the same
+        # import-don't-restate failure CLAUDE.md records three times over,
+        # and the reason a session reading only this tool would have been
+        # told to wait for a domain it does not need.
         lines.append(
-            "    origin: the owner fixes are `pages-custom-domain` (queued) and a Search"
+            "    origin. `python3 platform/ci/pages_state.py` owns that list and prints"
         )
         lines.append(
-            "    Console submission. Until one lands, do not read these rows as evidence"
+            "    it cheapest-first under `indexing` -- read it there rather than from a"
         )
-        lines.append("    about any product's worth.")
+        lines.append(
+            "    second copy here. Until one of them lands, do not read these rows as"
+        )
+        lines.append("    evidence about any product's worth.")
     else:
         lines.append("    A real reading exists — rank it per DIRECTION.md.")
     return "\n".join(lines)
