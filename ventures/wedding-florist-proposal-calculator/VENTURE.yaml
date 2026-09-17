@@ -1,0 +1,32 @@
+name: wedding-florist-proposal-calculator
+description: Free browser calculator for wedding and event florists that prices one proposal from the stem recipe up — buying whole wholesale bunches rather than loose stems, adding the shrink allowance to the stem count before the bunch rounding, marking up what is actually purchased rather than what the recipe calls for, pricing design and on-site labour by the hour while reporting the percentage-of-flowers rule of thumb beside it for comparison, adding hard goods and delivery, topping up to a studio event minimum, and reporting gross profit and margin against the cash that actually leaves the studio.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Wedding and event florists will use a proposal calculator that buys each recipe line in whole wholesale bunches, because the gap between a recipe's stem count and the wholesale invoice is invisible in the markup-times-stems spreadsheet nearly every studio prices from, and a markup applied to a cost that was never paid under-quotes the proposal by that gap times the multiple.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Florists will return to the labour comparison specifically, because it answers a question a percentage rule cannot — whether an install-heavy event is priced for the hours it actually takes — and getting that wrong is discovered during a late strike rather than at the proposal stage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Florists who add a shrink allowance as a percentage of flower cost do not realize it buys a fraction of a bunch, and so is wrong in both directions depending on where each line's stem count falls against its bunch size, and will use a tool that applies the allowance to the stem count before the rounding instead.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Florists report that the bunch-rounding figure never changes a price they had already decided on, because their spreadsheet already encodes bunch sizes.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/wedding-florist-proposal-calculator/
+  analytics: null
