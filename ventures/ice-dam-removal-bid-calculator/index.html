@@ -248,6 +248,10 @@ async function copyShare() {
   const hash = encodeShare({
     ...readInput(),
     ...Object.fromEntries(PROPOSAL_TERM_IDS.map(id => [id, el(id).value])),
+    // Included even when blank is fine -- decodeShare drops undefined/blank
+    // values and readInput/restore never treat an absent key as "clear this
+    // field", so this only ever adds the actual-hours figure, never erases it.
+    actualHours: el('actualHours').value,
   });
   const url = `${location.origin}${location.pathname}#${hash}`;
   await writeClipboard(url);
@@ -352,6 +356,7 @@ if (shared) {
   for (const id of PROPOSAL_TERM_IDS) {
     if (shared[id] !== undefined) el(id).value = shared[id];
   }
+  if (shared.actualHours !== undefined) el('actualHours').value = shared.actualHours;
 }
 updateQuote(false);
 updateActual(false);
