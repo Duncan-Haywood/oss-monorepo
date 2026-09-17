@@ -1862,7 +1862,20 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # of this running count. This branch was open before nothing else in
     # flight landed, so it only ever knew its own predecessor's number
     # (303) until this merge.
-    total = 304  # `infra/OWNER_CHECKLIST.md`'s own "N of the 304 tools" wording.
+    # 305 since 2026-09-17, when `stockx-seller-payout-calculator` graduated
+    # -- a browser-local calculator pricing a StockX sneaker/streetwear/card
+    # sale's net payout and net profit from the sale price, a Seller-Level
+    # transaction fee, a Fast Shipping discount, a flat payment processing
+    # fee, and outbound shipping cost, then rolling a month of sales up
+    # against a profit goal -- the same single-channel marketplace-fee shape
+    # as `whatnot-seller-payout` and `poshmark-fee-calculator`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch was open before
+    # `branch-protection-drift-check` landed, so it only ever knew its own
+    # predecessor's number (303) until this merge -- the same ordinary
+    # collision shape recorded throughout this list: both branches
+    # independently wrote "304" for what the merged tree made 305.
+    total = 305  # `infra/OWNER_CHECKLIST.md`'s own "N of the 305 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

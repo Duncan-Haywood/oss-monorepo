@@ -249,7 +249,15 @@ const RELATIVE_SELF = relative(
 // rest of this running count. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/branch-protection-drift-check/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 288;
+// 288 -> 289 on 2026-09-17, when `stockx-seller-payout-calculator` graduated
+// with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count. This
+// branch was open before `branch-protection-drift-check` landed, so it
+// only ever knew its own predecessor's number (287) until this merge --
+// same collision shape as the entry immediately above: both branches
+// independently wrote "288" for what the merged tree made 289.
+const SWITCHES_IN_THE_CATALOGUE = 289;
 
 let counter = 0;
 function fixture(source) {

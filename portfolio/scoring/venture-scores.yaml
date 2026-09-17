@@ -13823,3 +13823,64 @@ ventures:
       only with no per-use fee, so nothing biases the arithmetic toward a
       higher or lower result, and the tool never touches a live delivery,
       tank safety determination, or hazmat compliance filing.
+
+  - slug: stockx-seller-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- a Seller-Level
+      fee tier, a Fast Shipping discount that stacks on top of it, a flat
+      payment-processing percentage, and a flat outbound shipping cost that
+      matters proportionally more on a cheap item than an expensive one --
+      and it is arithmetic a reseller has to be able to re-derive whenever
+      their own seller level or shipping enrollment changes.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section and `python3 portfolio/pipeline/duplicate_check.py`:
+      the closest existing venture scored 0.19 (1099k-reconciliation-
+      worksheet), well under the 0.45 near-duplicate flag bar -- no
+      existing marketplace-fee venture (`ebay-fee-calculator`,
+      `whatnot-seller-payout`, `poshmark-fee-calculator`,
+      `faire-wholesale-calculator`) models a seller-level fee tier or a
+      Fast Shipping discount, because none of those storefronts price that
+      way. Same single-channel fee-schedule shape as `whatnot-seller-
+      payout` and `poshmark-fee-calculator`, scored the same way.
+      Defensibility 5: the seller-level-tier-plus-Fast-Shipping-discount
+      arithmetic is specific to this buyer and not modeled by a generic
+      resale-fee calculator, and it is the case (a seller whose level or
+      shipping enrollment just changed) where a stale spreadsheet formula
+      most often misprices a sale. Distribution 7: "how much does stockx
+      take" and "stockx fee calculator" are established, high-intent
+      seller queries with named communities (r/Sneakers, r/FlippingSneakers,
+      r/Sneakerheads) and no incumbent free tool modeling the seller-level
+      tier and Fast Shipping discount together, but volume is unmeasured
+      against this portfolio's own traffic, which has never recorded a
+      visitor reading for any product.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page, guide page, and README state, near the
+      top and explicitly, that this is not an authentication, inventory,
+      or sourcing tool of any kind -- it never verifies an item, tracks
+      stock, or replaces the user's own StockX seller dashboard and payout
+      statements. No price, rate, or fee is hardcoded as fact; every one
+      (sale price, cost basis, seller fee, Fast Shipping discount, payment
+      processing, shipping cost) is a user-supplied, illustrative
+      placeholder, and the footer states plainly that StockX's rates
+      change over time and to verify against the user's own current
+      dashboard. The output is arithmetic on the seller's own figures,
+      never a recommended price or a claim about StockX's live fee
+      schedule. Nothing entered leaves the browser. Ethically: donations-
+      only with no per-use fee, so nothing biases the arithmetic toward a
+      higher or lower result, and the tool never touches authentication,
+      shipping, or payout processing itself.

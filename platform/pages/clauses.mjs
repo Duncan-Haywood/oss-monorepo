@@ -138,6 +138,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "multiplying filament cost by three" -- a pricing
+  // habit passed around among makers, not a company or product this could
+  // be mistaken for. The page names no vendor at all.
+  '3d-print-price-calculator/vs-the-3x-filament-rule.html',
   // Compares against "a flat day rate" -- a generic pricing method every
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
@@ -200,6 +204,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pages above, and as ai-coding-plan-cost-calculator's
   // vs-checking-pricing-pages-yourself.html, which names vendors the same way.
   'where-to-sell-calculator/vs-each-marketplaces-own-calculator.html',
+  // Compares against "adding up the month's bills and dividing by the miles
+  // you ran" -- the one line of arithmetic every owner-operator already runs
+  // against their own settlement statements, not a company or product this
+  // could be mistaken for. The page names no bookkeeping service or rate
+  // tool at all (the venture's two named-product comparisons, vs-atbs and
+  // vs-dat-rateview, carry their own trademark disclaimers) and its copy
+  // opens by agreeing the division is correct arithmetic and better cost
+  // data than anything typed into a form. Same reasoning as
+  // auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html.
+  'owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
@@ -358,6 +372,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. Same reasoning as the other manual-method
   // pages above.
   'subpath-robots-check/vs-checking-robots-txt-by-eye.html',
+  // Compares against "sorting an AP export by vendor in a spreadsheet and
+  // scanning for repeats" -- a generic method every small business or
+  // bookkeeper already has access to, not a company or product this could
+  // be mistaken for. The page names no specific spreadsheet product. Same
+  // reasoning as the other vs-spreadsheet / by-hand pages above.
+  'duplicate-payment-audit/vs-a-spreadsheet.html',
+  // Compares against "tracking StockX payouts in a spreadsheet" -- a
+  // generic method every reseller already has access to, not a company or
+  // product this could be mistaken for. The page's own copy says so
+  // explicitly ("Names no specific product or company"). Same reasoning as
+  // the other vs-spreadsheet / by-hand pages above.
+  'stockx-seller-payout-calculator/vs-tracking-stockx-payouts-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

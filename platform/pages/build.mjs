@@ -373,7 +373,13 @@ const CATEGORY_RULES = [
     // otherwise sweep it into the trades section as a contractor job bid —
     // it prices a resale purchase, not a construction trade, so it is
     // matched here first.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction)/.test(slug),
+    // `stockx-seller-payout-calculator` is the same single-channel
+    // fee-schedule shape as `whatnot` and `poshmark` above — a seller-level
+    // fee tier plus a flat processing fee on one storefront's sale price —
+    // and would otherwise sit in the catch-all for the same reason those two
+    // did: the slug names the storefront, not a marketplace keyword this
+    // rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx)/.test(slug),
   },
   {
     id: 'trades',
