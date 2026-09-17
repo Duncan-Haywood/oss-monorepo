@@ -392,6 +392,24 @@ readings:
       is evidence the owner has not yet run `bootstrap/restore-cluster.sh`
       with the flags above from a machine that holds the five credentials.
       That action is still the entire remaining gap.
+      Re-measured again 2026-09-17, on the same owner ask repeated verbatim a
+      fourth time (Hetzner CI/CD, marketing-material deployment on the boxes,
+      and this exact Codex dev-worker route running a product-first prompt).
+      Still clean: `python3 -m pytest gitops/tests/test_host_governor.py
+      gitops/tests/test_install_codex_host.py` -> 64/64 (grew by 8 since
+      2026-09-16), `systemd-analyze verify` on both units prints nothing on
+      both. `agent-session-egress` re-checked from inside this session: a
+      probe to a non-allowlisted host (`api.1password.com`) still comes back
+      `CONNECT tunnel failed, response 403`. `gitops/agents/workers/
+      mandate.md` still carries the product-first mandate in sync -- checked
+      again rather than assumed, since the ask keeps naming the prompt
+      specifically. Not re-adding the queue row: `decision_queue.py`'s #1
+      row (`hetzner-ssh-key-is-a-public-key`) already spells out the same
+      one-shot recovery with the `WITH_CODEX_HOST=1` flag, unchanged since
+      2026-09-10. The repeated ask is not new evidence -- it is the fourth
+      confirmation that the one blocking action (rotating HETZNERSSHKEY and
+      running `bootstrap/restore-cluster.sh` from a machine holding the five
+      credentials) has not yet been taken.
     note: >-
       Added 2026-09-05. The Codex worker's dev capacity had exactly two
       schedulers and both are down: the k3s CronJob (`k3s-cluster` below) and,
