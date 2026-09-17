@@ -32115,3 +32115,85 @@ entries:
         cannot happen from the project-Pages subpath. All three hypotheses
         in `VENTURE.yaml` remain untested.
     mrr_end: 0
+  - venture: import-landed-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free browser calculator for small
+        e-commerce importers (Amazon/Etsy/Shopify sellers, dropshippers) to
+        price total landed cost on a shipment -- item cost, freight,
+        insurance, duty, a supplemental/Section 301 tariff, the
+        Merchandise Processing Fee (formal-entry floor/ceiling or a flat
+        informal fee), the Harbor Maintenance Fee (ocean shipments only),
+        and a customs broker fee -- and see total landed cost, cost per
+        unit, and effective tariff burden as a percent of item cost.
+        Screened with `duplicate_check.py` against the existing portfolio
+        (top similarity score 0.2, well under the 0.45 near-duplicate
+        threshold) -- nothing else in the portfolio covers customs, duty,
+        or tariff arithmetic. Distribution named at graduation: r/
+        FulfillmentByAmazon, r/dropship, r/AmazonSeller, r/ecommerce, r/
+        Alibaba, and organic search on "landed cost calculator", "customs
+        duty calculator", "china tariff calculator", "de minimis
+        calculator" -- sharpened by the 2025 narrowing of the $800 de
+        minimis exemption, a large, current, well-documented disruption to
+        exactly this audience.
+      - >-
+        No duty or tariff rate is hardcoded as a fact for any product
+        category -- both are user-supplied fields with illustrative
+        placeholders only, with a note pointing at hts.usitc.gov and the
+        user's own broker. Only the Merchandise Processing Fee (0.3464%,
+        $32.71 floor, $634.62 ceiling on formal entries; ~$2.62 flat on
+        informal) and Harbor Maintenance Fee (0.125%, ocean only) are
+        hardcoded, each captioned "published CBP fee schedule -- confirm
+        current figures before relying on this." The page states
+        explicitly, near the top and in the README, that this is not a
+        customs broker, freight forwarder, or licensed customs
+        classification service and does not determine an HTS code, a duty
+        rate, or a compliance obligation -- arithmetic only, once the user
+        supplies the rates, per `DIRECTION.md`'s legal guardrails (no
+        advice-of-record, no compliance warranty).
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`landed_cost_calculated`, `link_copied`,
+        `entry_type_toggled`), a save-and-share link (URL fragment,
+        round-tripping numeric, entry-type and ocean-checkbox fields
+        through `share.mjs`), one discoverability FAQ page ("does the de
+        minimis exemption still apply") with a worked example asserted
+        against `calc.mjs`'s own output, and one generic-method comparison
+        page ("vs. tracking landed cost in a spreadsheet") naming no
+        competitor -- added to `COMPARISON_DISCLAIMER_EXEMPT` in
+        `platform/pages/clauses.mjs` with why, matching the precedent set
+        by `reverb-fee-calculator`'s own spreadsheet page. 39 venture
+        assertions (`calc`, `share`, `usage`).
+      - >-
+        Classified into the existing `logistics` category
+        (`platform/pages/build.mjs`'s "Normalise a quote, audit a bill, or
+        size a transfer window before you sign for it") on its first
+        commit rather than left for the catch-all, since the slug matches
+        none of that rule's existing prefixes -- confirmed by building the
+        site locally and checking `c/logistics/index.html` carries it and
+        `c/more/index.html` does not. `build.test.mjs`'s 284 assertions
+        pass unchanged, including the catch-all-size bound.
+      - >-
+        Verified locally: 39 venture assertions (`node --test`); `node
+        platform/pages/clauses.mjs import-landed-cost-calculator` (3
+        published pages, no-warranty clause present, comparison page
+        exempted); `python3 portfolio/router/validate.py` (307 valid);
+        `python3 platform/ci/publish_surface.py --write` then `--check`
+        (new CI workflow classified `none`, matches the snapshot); `node
+        platform/pages/launched.mjs --write` (added to the Atom feed);
+        `node --test platform/pages/build.test.mjs` (284 passed, unchanged
+        by the category-rule and clauses-exemption additions); a full
+        local `node platform/pages/build.mjs` site build, hand-checked
+        against the $5,000 item / $800 freight / 500 units / 4.5% duty /
+        25% supplemental / formal ocean-entry worked example ($7,675.96
+        total, $15.35/unit, 35.02% tariff burden -- matches the page's
+        static markup and `calc.mjs`'s own output exactly).
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for any product in this portfolio
+        (`live_url_visitors: null`, not zero). All three hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0
