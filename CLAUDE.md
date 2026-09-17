@@ -1378,6 +1378,39 @@ Exit 0 means every job ran on a real runner, so a failure there is a real
 result and yours to fix — which, since 2026-09-01, is the expected answer.
 Exit 1 means at least one job never got one.
 
+**Exit 2 means the run you handed it cannot answer the question, and one way
+that happens is worth knowing before you hit it (added 2026-09-17).** Pick
+"the most recent run" out of `/actions/runs` to see whether runners are back
+and you will often get `pages build and deployment` — GitHub's **managed**
+Pages builder. It is not a workflow in `.github/`, it does not draw on the
+metered Actions pool, and it therefore runs at full speed straight through a
+starvation window. Measured that day, by a session doing exactly this: run
+35203941076 came back on runner ids in the `1000088xxx` range and the tool
+said
+
+```
+All 3 job(s) that ran got a real runner. Any failure here is a real result.
+```
+
+while `Portfolio validate` (35203712731) and `Conflict markers` (35203848989)
+one minute earlier were both `runner_id: 0`, and all 60 completed runs of
+`publish-pages-branch.yml` were starved. The session reported "runners are
+back" on the strength of it.
+
+A false **green** here is the most expensive answer this tool can give —
+worse than a false red — because it is the one that sends the next session to
+"fix" green code, or to trust a red check that means nothing, and it sounds
+maximally confident doing it. `infra_state.yaml`'s `github-actions-runners`
+row had warned about this confusion in prose since 2026-09-06; the prose was
+correct and the tool contradicted it, which is this file's recurring shape:
+a guard right about what it was handed and wrong about the question asked.
+
+So the tool now withholds the verdict and exits 2 on such a run, detected
+from the job payload's own `workflow_name` (present on every route into it,
+`--from-json` included). **Classify a run of an actual `.github/` workflow** —
+`Portfolio validate`, or any check on an open PR — and do not read a managed
+Pages build, in either direction, as evidence about Actions.
+
 **It no longer needs the `gh` CLI** (changed 2026-08-31). It did until then,
 which meant it exited 2 with "the gh CLI is not installed" in the web sessions
 that run these routines — the one environment where a session is most likely to
