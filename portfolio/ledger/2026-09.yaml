@@ -33370,6 +33370,71 @@ entries:
         venture and its sibling (clean after the label fix). Actions was
         starved (`ci_starvation.py`, `runner_id: 0`) on the PR's own check,
         confirmed before merging on local verification alone.
+  - venture: marketplace-fee-compare
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `vs-checking-each-marketplace-separately.html`, a
+        generic-method comparison page ("this tool vs. opening each
+        marketplace's own fee calculator and reconciling by hand") that
+        directly tests the venture's own first, still-untested hypothesis in
+        `VENTURE.yaml` ("sellers will use a one-item cross-channel
+        comparison before opening any single-channel calculator ... no tool
+        in the portfolio answers it"). The venture had zero generic-method
+        pages before this (`surface-budget.mjs --for marketplace-fee-compare`
+        showed 0/1 budget used, against a 1/1 named-product page and a
+        guide) -- the top two router candidates
+        (`reverb-fee-calculator`, `where-to-sell-calculator`) were already
+        at or over their generic-method budget, so this filled a real gap
+        rather than adding a second angle. Three concrete differences the
+        page names, all derived from `calc.mjs`'s own model rather than
+        invented: category-driven referral rates diverge between channels
+        for the same item, a monthly subscription only becomes comparable
+        to a per-order fee once amortised over volume, and the percentage
+        applies to the whole order (item + buyer-paid shipping), not the
+        item price alone. Carries the nominative-fair-use disclaimer even
+        though it compares a method rather than a single competitor (same
+        reasoning as the `where-to-sell-calculator` sibling page), added to
+        `COMPARISON_DISCLAIMER_EXEMPT` in `clauses.mjs` with its rationale.
+        Linked from `index.html` (both directions) and listed in
+        `sitemap.xml`. `regen.mjs` run to keep the front-door mirror
+        current.
+      - >-
+        Verified: venture's own suite 133/133 (was 132/133 on the first
+        pass -- `platform/pages/faq-visible.test.mjs` caught a `--` vs. em
+        dash divergence between this page's JSON-LD FAQ text and its visible
+        copy; fixed, then re-ran `regen.mjs` since the fix landed after the
+        first mirror build, and confirmed `front-door-tools.test.mjs`
+        101/101 clean on the second build). `node platform/pages/clauses.mjs`
+        (fleet-wide, 1125 pages / 307 surfaces) and
+        `node platform/pages/surface-budget.mjs --for marketplace-fee-compare`
+        (now 1/1 generic-method, within budget) both clean.
+        `node platform/pages/build.mjs` + `check.mjs` against the built
+        artifact: 307 products, no dead links. Full
+        `platform/marketing`+`platform/pages` suite 1272/1272.
+        `checklist_coverage.py`, `sync_tree_counts.py --check`,
+        `check_no_payment_code.py`, `publish_surface.py --check`,
+        `validate_doc_consistency.py`, `score_ventures.py --check`,
+        `validate_usage.py`, `validate_candidates.py` all clean (no venture
+        or count changed by this PR). `python3 -m pytest gitops/tests`
+        (607 passed, 1 environmental skip, after `apt-get install
+        nginx-light openssh-client`), all `platform/ci` unittest modules
+        (1003/1004 via `unittest discover` -- the one error is the
+        documented `agent_review` working-directory trap; verified 21/21
+        separately with the correct cwd) + `agent_review` 21/21, and
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+
+        `infra/tests` via `python3 -m pytest` (446/446) all green. Actions
+        was starved (`ci_starvation.py` on the latest `main` push:
+        `runner_id: 0`) so this was verified locally per CLAUDE.md's
+        starvation-window guidance; `run_workflow_locally.py --for-changes`
+        was also dispatched and every step it reached (including the
+        apex-mirror staleness check, after the `regen.mjs` re-run) passed,
+        though the sweep itself is slow enough in this shared sandbox
+        (router's own test suite alone runs several minutes against 315
+        ventures) that it was still completing in the background at merge
+        time -- not a substitute for the direct verification above, which
+        covers everything the sweep's remaining steps would check.
   - venture: deploy-concurrency-check
     agent_spend_usd: null
     human_hours: 0
