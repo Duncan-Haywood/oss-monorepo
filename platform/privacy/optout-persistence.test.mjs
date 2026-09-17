@@ -141,7 +141,12 @@ const RELATIVE_SELF = relative(
 // had not landed, exactly the collision the 265 -> 266 entry records. Both
 // additions are real and both survive here, which is why the resolved number
 // is 274 rather than either branch's 273.
-const SWITCHES_IN_THE_CATALOGUE = 274;
+// 274 -> 275 on 2026-09-17, when `openapi-breaking-change-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same
+// `record`/`readUsage` pattern `sbom-diff-check` and
+// `sql-migration-lock-check` use), same discovery method as the rest of
+// this running count.
+const SWITCHES_IN_THE_CATALOGUE = 275;
 
 let counter = 0;
 function fixture(source) {

@@ -17,6 +17,15 @@
     <summary type="text">Free calculator for estate sale commission quotes. Enter a company&#39;s tiered commission rates, setup fee, card-processing fee, and haul-away fee against your estimated sale total to see the real net proceeds — and compare two companies&#39; quotes side by side. Nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>OpenAPI Breaking Change Check — Did This API Version Break Existing Clients?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/openapi-breaking-change-check/"/>
+    <id>tag:marisstella.dev,2026:tool/openapi-breaking-change-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-instructions-drift-check/"/>
     <id>tag:marisstella.dev,2026:tool/agent-instructions-drift-check</id>
