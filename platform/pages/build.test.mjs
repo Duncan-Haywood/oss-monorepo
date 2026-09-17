@@ -1142,10 +1142,30 @@ test('the search index carries description text the card is too small to show', 
   // If this is ever zero the test is no longer proving anything.
   assert.ok(truncated.length > 0, 'expected at least one description longer than its card');
 
+  // Whatever this probe word turns out to be, it has to survive the same
+  // catalogue-wide stopword cut the real index went through -- otherwise a
+  // word that happens to cross CATALOGUE_STOPWORD_SHARE across the whole
+  // catalogue (as "browser" did once enough tools said "runs in your
+  // browser") fails this test for an unrelated venture, not because the
+  // index is missing anything but because the probe word was never going to
+  // be indexed in the first place. This has to be computed from each
+  // surface's *pre-strip* searchIndex, the same input renderHub feeds
+  // catalogueStopwords -- recomputing it from the already-rendered
+  // `data-search` attributes is circular, since a word that got cut for
+  // being too common is by then absent from every card and so never looks
+  // frequent enough to cut.
+  const rawCards = surfaces.map((s) => ({
+    name: searchTokens([s.title, s.slug]),
+    index: s.searchIndex ?? searchTokens([s.title, s.fullDescription ?? s.description, s.slug]),
+  }));
+  const stops = catalogueStopwords(rawCards, CATALOGUE_STOPWORD_SHARE);
+
   for (const surface of truncated) {
     const shown = surface.description.replace(/…$/, '');
     const tail = surface.fullDescription.slice(shown.length);
-    const word = searchTokens([tail]).split(' ').filter((w) => w.length > 4)[0];
+    const word = searchTokens([tail])
+      .split(' ')
+      .filter((w) => w.length > 4 && !stops.has(w))[0];
     if (!word) continue;
     const index = html.match(
       new RegExp(`data-search="([^"]*)"[^>]*>\\s*<a href="${surface.slug}/`),
