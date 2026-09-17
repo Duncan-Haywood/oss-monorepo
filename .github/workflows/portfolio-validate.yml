@@ -342,6 +342,20 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_guard_state
 
+      # And the reader for the three standalone host-mode routes. Same
+      # argument as the two above, at the point where it is most expensive to
+      # be wrong: this one is read while the owner is holding the private key,
+      # during the single session the recovery gets, and it is the thing that
+      # says which of the three drivers is worth that session. Its own
+      # refusals are the behaviour under test -- it must parse the box and
+      # installer out of the drivers rather than restating them (a restated
+      # constant is how this repo has twice shipped a claim that went quietly
+      # wrong), and it must never imply it measured whether a box answers,
+      # which no session can do.
+      - name: Host-route reader unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_host_routes_state
+
       # `test_publish_pages_branch.py` pins the invariants of
       # `publish-pages-branch.yml` itself -- the workflow that keeps the
       # `gh-pages` branch snapshot from silently lagging `main` (see that

@@ -285,3 +285,15 @@ test('index links one hop to the str-host-payout-calculator sibling', () => {
     'index must link ../str-host-payout-calculator/ so crawlers reach the STR host payout calculator in one hop',
   );
 });
+
+// Half of a reciprocal pair: the storage auction calculator links back here
+// too, so a crawler entering on either page reaches the other in one hop --
+// buying the lot at auction and reselling it on Whatnot are the two ends of
+// the same flip.
+test('index links one hop to the storage-auction-max-bid-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/storage-auction-max-bid-calculator\/"/,
+    'index must link ../storage-auction-max-bid-calculator/ so crawlers reach the storage auction bid calculator in one hop',
+  );
+});
