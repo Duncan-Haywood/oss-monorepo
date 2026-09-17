@@ -175,6 +175,31 @@ test("a removed enum value is reported as breaking", () => {
   assert.deepEqual(diff.breaking[0].values, ["b"]);
 });
 
+// Regression: a parameter with no enum at all previously accepted any value
+// of its type. Restricting it to a short list is at least as breaking as
+// removing one value from an existing enum, and was previously invisible
+// entirely -- neither breaking nor non-breaking -- because the old check
+// required both sides to already carry an enum.
+test("a parameter newly restricted to an enum is reported as breaking", () => {
+  const oldOps = new Map([["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: "string", enum: null }]]), requestBodyRequired: null }]]);
+  const newOps = new Map([["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: "string", enum: ["a", "b"] }]]), requestBodyRequired: null }]]);
+  const diff = diffOperations(oldOps, newOps);
+  assert.equal(diff.breaking.length, 1);
+  assert.equal(diff.breaking[0].type, "enum-added");
+  assert.deepEqual(diff.breaking[0].values, ["a", "b"]);
+  assert.equal(diff.nonBreaking.length, 0);
+});
+
+test("an enum constraint removed entirely is non-breaking", () => {
+  const oldOps = new Map([["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: "string", enum: ["a", "b"] }]]), requestBodyRequired: null }]]);
+  const newOps = new Map([["GET /x", { parameters: new Map([["query:s", { name: "s", in: "query", required: false, type: "string", enum: null }]]), requestBodyRequired: null }]]);
+  const diff = diffOperations(oldOps, newOps);
+  assert.equal(diff.breaking.length, 0);
+  assert.equal(diff.nonBreaking.length, 1);
+  assert.equal(diff.nonBreaking[0].type, "enum-removed");
+  assert.deepEqual(diff.nonBreaking[0].values, ["a", "b"]);
+});
+
 test("request body becoming required is breaking", () => {
   const diff = diffFixtures();
   const match = diff.breaking.filter((c) => c.type === "request-body-now-required");
