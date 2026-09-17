@@ -63,10 +63,44 @@ export function parseCronField(raw, min, max) {
   return values;
 }
 
+// Standard crontab names (case-insensitive), per the traditional Vixie-cron
+// convention: three-letter month and weekday abbreviations only -- no full
+// names ("January"), which no mainstream cron implementation accepts either.
+const MONTH_NAMES = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+const DOW_NAMES = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+
+/**
+ * Replaces every letter run in a cron field with its numeric value from
+ * `names` (case-insensitive), leaving digits, `*`, `,`, `-`, and `/`
+ * untouched -- so "JAN-MAR" becomes "1-3" and "MON,WED,FRI" becomes
+ * "1,3,5" before the shared numeric parser ever sees them. An unrecognized
+ * name throws immediately, naming the bad token rather than the whole field,
+ * so "JAX" doesn't silently fall through to `parseCronField`'s generic
+ * "unparseable" error with nothing pointing at which word was wrong.
+ */
+function substituteCronNames(raw, names) {
+  return raw.replace(/[A-Za-z]+/g, (token) => {
+    const value = names[token.toLowerCase()];
+    if (value === undefined) {
+      const allowed = Object.keys(names).map((n) => n.toUpperCase()).join(", ");
+      throw new Error(`unrecognized name "${token}" in cron field "${raw}" (expected one of ${allowed})`);
+    }
+    return String(value);
+  });
+}
+
 /**
  * Parses a standard 5-field cron expression ("minute hour dom month dow").
- * Named months/weekdays (JAN, MON) are not supported in v0 -- numeric only,
- * disclosed on the page and in --help.
+ * The month and day-of-week fields accept the standard three-letter names
+ * (JAN-DEC, SUN-SAT), case-insensitively, anywhere a number is allowed --
+ * singly, in a list, or as a range endpoint ("MON-FRI", "JAN,JUL") -- by
+ * substituting each name for its number before the shared numeric field
+ * parser runs, so every existing numeric rule (lists, ranges, steps, the
+ * dom/dow OR rule) applies identically to named and numeric input. Minute,
+ * hour, and day-of-month remain numeric only, matching every real cron
+ * implementation. Step-with-named-range ("JAN-DEC/2") and dow 7-as-Sunday
+ * work the same as their numeric equivalents; a name spelled outside the
+ * three-letter set (a typo, a full month name) throws naming the bad token.
  */
 export function parseCronExpression(expr) {
   const fields = String(expr).trim().split(/\s+/);
@@ -75,7 +109,10 @@ export function parseCronExpression(expr) {
   }
   const parsed = {};
   CRON_FIELD_BOUNDS.forEach(([name, min, max], i) => {
-    parsed[name] = parseCronField(fields[i], min, max);
+    let field = fields[i];
+    if (name === "month") field = substituteCronNames(field, MONTH_NAMES);
+    else if (name === "dow") field = substituteCronNames(field, DOW_NAMES);
+    parsed[name] = parseCronField(field, min, max);
     parsed[`${name}IsWildcard`] = fields[i].trim() === "*";
   });
   // Normalize dow 7 -> 0 (both mean Sunday) so downstream matching only checks one value.

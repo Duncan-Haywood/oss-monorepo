@@ -60,6 +60,58 @@ test("parseCronExpression: tracks which fields are wildcards", () => {
   assert.equal(fields.domIsWildcard, true);
 });
 
+// --- named months/weekdays -----------------------------------------------
+
+test("parseCronExpression: single named month equals its number", () => {
+  assert.deepEqual(parseCronExpression("0 0 1 JAN *").month, parseCronExpression("0 0 1 1 *").month);
+  assert.deepEqual(parseCronExpression("0 0 1 dec *").month, parseCronExpression("0 0 1 12 *").month);
+});
+
+test("parseCronExpression: named month/weekday is case-insensitive", () => {
+  assert.deepEqual(parseCronExpression("0 0 * Jan *").month, new Set([1]));
+  assert.deepEqual(parseCronExpression("0 0 * * mOn").dow, new Set([1]));
+});
+
+test("parseCronExpression: named weekday list and range", () => {
+  assert.deepEqual([...parseCronExpression("0 0 * * MON,WED,FRI").dow].sort(), [1, 3, 5]);
+  assert.deepEqual([...parseCronExpression("0 0 * * MON-FRI").dow].sort(), [1, 2, 3, 4, 5]);
+});
+
+test("parseCronExpression: named month range and list", () => {
+  assert.deepEqual([...parseCronExpression("0 0 1 JAN-MAR *").month].sort((a, b) => a - b), [1, 2, 3]);
+  assert.deepEqual([...parseCronExpression("0 0 1 JAN,JUL *").month].sort((a, b) => a - b), [1, 7]);
+});
+
+test("parseCronExpression: SUN names Sunday the same as numeric 0 and 7", () => {
+  assert.deepEqual(parseCronExpression("0 0 * * SUN").dow, parseCronExpression("0 0 * * 0").dow);
+  assert.deepEqual(parseCronExpression("0 0 * * sun").dow, parseCronExpression("0 0 * * 7").dow);
+});
+
+test("parseCronExpression: named range with a step behaves like its numeric equivalent", () => {
+  assert.deepEqual([...parseCronExpression("0 0 1 JAN-DEC/3 *").month].sort((a, b) => a - b), [...parseCronExpression("0 0 1 1-12/3 *").month].sort((a, b) => a - b));
+});
+
+test("parseCronExpression: an unrecognized month/weekday name throws naming the token", () => {
+  assert.throws(() => parseCronExpression("0 0 1 JAX *"), /unrecognized name "JAX"/);
+  assert.throws(() => parseCronExpression("0 0 * * Someday"), /unrecognized name "Someday"/);
+});
+
+test("parseCronExpression: a full month name (not the 3-letter abbreviation) still throws", () => {
+  assert.throws(() => parseCronExpression("0 0 1 January *"), /unrecognized name "January"/);
+});
+
+test("parseCronExpression: minute/hour/dom fields stay numeric-only (names are not substituted there)", () => {
+  assert.throws(() => parseCronExpression("MON 0 * * *"), /unparseable/);
+});
+
+test("nextRuns: a fully-named expression computes the same occurrences as its numeric equivalent", () => {
+  const from = new Date(Date.UTC(2027, 0, 1));
+  const named = nextRuns("30 2 * DEC MON", "America/New_York", { from, count: 3 });
+  const numeric = nextRuns("30 2 * 12 1", "America/New_York", { from, count: 3 });
+  assert.deepEqual(named.occurrences, numeric.occurrences);
+  assert.ok(named.occurrences.length > 0);
+});
+
 // --- timezone offset primitives ------------------------------------------
 
 test("tzOffsetMinutesAt: UTC is always zero", () => {
