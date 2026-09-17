@@ -212,7 +212,14 @@ const RELATIVE_SELF = relative(
 // refuses to trust the number, which is what makes the collision a one-line
 // fix here instead of a silent wrong count -- and the reason it must be
 // found by running the guard, since CI is starved and cannot find it.
-const SWITCHES_IN_THE_CATALOGUE = 283;
+// 283 -> 284 on 2026-09-17, when `podcast-sponsorship-rate-calculator`
+// graduated with its own `record`/`setUsageOptOut`/`usageOptedOut` switch,
+// the same pattern as its `newsletter-sponsorship-rate-calculator` and
+// `brand-deal-rate-calculator` siblings. This branch was open before
+// `call-recording-consent-check` (#4853) landed, so it only ever knew its
+// own predecessor's number (282) until this merge -- same collision shape
+// as the entry immediately above.
+const SWITCHES_IN_THE_CATALOGUE = 284;
 
 let counter = 0;
 function fixture(source) {

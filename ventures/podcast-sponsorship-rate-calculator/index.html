@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Podcast Sponsorship Rate Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free podcast sponsorship rate calculator. Enter your average downloads per episode, niche, and read type to get a price range for a pre-roll, mid-roll, and post-roll ad spot — based on commonly cited podcast-ad-market CPM benchmarks. No sign-up, nothing uploaded.">
+  <meta property="og:title" content="Podcast Sponsorship Rate Calculator — free, no sign-up">
+  <meta property="og:description" content="Turn your average downloads per episode, niche, and read type into a defensible sponsorship price range for a pre-roll, mid-roll, and post-roll ad spot. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Podcast Sponsorship Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a sponsorship price range for three common podcast ad placements (pre-roll, mid-roll, post-roll) from a show's own average downloads per episode, niche, and read type (host-read or produced), using commonly cited podcast-ad-market CPM-per-1000-downloads benchmarks. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a podcast ad?","acceptedAnswer":{"@type":"Answer","text":"It depends on your average downloads per episode, niche, which ad placement you're selling, and whether it's host-read or produced. This calculator applies commonly cited market CPM-per-1000-downloads ranges to your own numbers to give a starting price range for a pre-roll, mid-roll, or post-roll spot."}},{"@type":"Question","name":"Why does this calculate price from downloads instead of subscriber or listener count?","acceptedAnswer":{"@type":"Answer","text":"Sponsors are paying for a spot that actually got served. Podcast ad marketplaces and network rate cards routinely price against downloads in the first 7 days of an episode (the industry-standard IAB/Podtrac window), not a lifetime subscriber count that includes people who stopped listening long ago."}},{"@type":"Question","name":"Is this price a guarantee of what a sponsor will pay?","acceptedAnswer":{"@type":"Answer","text":"No. It is a starting point for negotiation based on general market ranges, not a quote, valuation, or offer performed on your behalf. Actual rates vary by audience quality, host endorsement strength, niche demand, and how much a specific sponsor wants your specific audience this quarter."}},{"@type":"Question","name":"What is the difference between a host-read and a produced ad?","acceptedAnswer":{"@type":"Answer","text":"A host-read ad is read live by the host in their own voice and words, usually woven into the episode — it commands a premium because listeners trust the host's personal endorsement. A produced ad is a pre-recorded, studio-produced spot dropped into the episode, similar to traditional radio or streaming audio ads, and typically prices lower."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PODCAST SPONSORSHIP RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for a podcast ad?</h1>
+    <p>Enter your average downloads per episode, niche, and read type below.
+    This turns those numbers into a price range for each common ad
+    placement — a pre-roll, a mid-roll, and a post-roll spot — using the
+    same cost-per-1000-downloads logic podcast ad marketplaces and network
+    rate cards use, applied to your own show instead of a marketplace's
+    cut-taking listing.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Also selling ads on a newsletter alongside the show? See
+    the <a href="../newsletter-sponsorship-rate-calculator/">newsletter
+    sponsorship rate calculator</a>. Also monetizing a social following? See
+    the <a href="../brand-deal-rate-calculator/">brand deal rate
+    calculator</a> for pricing that channel too.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your show's numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="downloads">Average downloads per episode (first 7 days)</label>
+        <input type="number" id="downloads" min="0" step="1" placeholder="e.g. 8000">
+      </div>
+      <div>
+        <label for="niche">Niche</label>
+        <select id="niche">
+          <option value="general">General interest / lifestyle / comedy</option>
+          <option value="business">Business / finance / entrepreneurship</option>
+          <option value="tech">Tech / startups / science</option>
+          <option value="true-crime">True crime / narrative / drama</option>
+        </select>
+      </div>
+      <div>
+        <label for="read-type">Read type</label>
+        <select id="read-type">
+          <option value="host-read">Host-read (the host reads it live)</option>
+          <option value="produced">Produced (pre-recorded spot)</option>
+        </select>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate my rates</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="copy-link">Copy shareable link</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter your numbers above and click Calculate my rates.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Suggested price range by placement</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Placement</th><th>Suggested range (per spot)</th></tr></thead>
+      <tbody id="rates-body"></tbody>
+    </table>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies commonly cited podcast-ad-market CPM-per-1000-downloads
+    benchmark ranges — wide ranges, by design — to the downloads, niche, and
+    read type you enter. It does <strong>not</strong> know your specific
+    niche's current market, your show's engagement or conversion history, or
+    what a specific sponsor is willing to pay this quarter. Treat the output
+    as a starting point for a negotiation, not a quote.</p>
+    <p>Already listed on <a href="vs-podcorn.html">Podcorn</a>'s marketplace,
+    or thinking about it? See <a href="vs-podcorn.html">how this free
+    calculator differs</a> from a marketplace listing and its commission.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a podcast ad?</h3>
+    <p>It depends on your average downloads per episode, niche, which ad placement you're selling, and whether it's host-read or produced. This calculator applies commonly cited market CPM-per-1000-downloads ranges to your own numbers to give a starting price range for a pre-roll, mid-roll, or post-roll spot.</p>
+    <h3>Why does this calculate price from downloads instead of subscriber or listener count?</h3>
+    <p>Sponsors are paying for a spot that actually got served. Podcast ad marketplaces and network rate cards routinely price against downloads in the first 7 days of an episode (the industry-standard IAB/Podtrac window), not a lifetime subscriber count that includes people who stopped listening long ago.</p>
+    <h3>Is this price a guarantee of what a sponsor will pay?</h3>
+    <p>No. It is a starting point for negotiation based on general market ranges, not a quote, valuation, or offer performed on your behalf. Actual rates vary by audience quality, host endorsement strength, niche demand, and how much a specific sponsor wants your specific audience this quarter.</p>
+    <h3>What is the difference between a host-read and a produced ad?</h3>
+    <p>A host-read ad is read live by the host in their own voice and words, usually woven into the episode — it commands a premium because listeners trust the host's personal endorsement. A produced ad is a pre-recorded, studio-produced spot dropped into the episode, similar to traditional radio or streaming audio ads, and typically prices lower.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own sponsorship terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. The shareable link is the one thing that travels, and only when you press the button for it: it carries your downloads, niche, and read type inside the URL itself rather than sending them to a server, so send it to the sponsor you are quoting rather than posting it publicly. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>, <code>link_copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeRates, PLACEMENTS, PLACEMENT_LABELS } from "./calculator.mjs";
+    import { SHARE_FIELDS, encodeInputs, decodeInputs, formValues } from "./share.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      downloads: $("#downloads"), niche: $("#niche"), readType: $("#read-type"),
+      status: $("#status"), reportCard: $("#report-card"),
+      stats: $("#stats"), ratesBody: $("#rates-body"), findings: $("#findings"),
+    };
+
+    function money(n) {
+      const format = (n) => `$${n.toLocaleString()}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = "";
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    // `scroll` is false when the rates are drawn from a shared link on load:
+    // the visitor did not press anything, and yanking the viewport on arrival
+    // is motion nobody asked for. The card is rendered either way.
+    function runCalculate({ scroll = true } = {}) {
+      const downloads = Number(els.downloads.value);
+      const niche = els.niche.value;
+      const readType = els.readType.value;
+
+      const result = computeRates({ downloads, niche, readType });
+
+      els.stats.textContent = `${downloads.toLocaleString()} downloads per episode, at the numbers entered above.`;
+      els.ratesBody.innerHTML = PLACEMENTS.map((placement) => {
+        const r = result.rates[placement];
+        return `<tr><td>${PLACEMENT_LABELS[placement]}</td><td class="price">${money(r.low)} – ${money(r.high)}</td></tr>`;
+      }).join("");
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      if (scroll) els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => {
+      if (!els.downloads.value) {
+        els.status.innerHTML = `<span class="error">Enter your average downloads per episode above first.</span>`;
+        return;
+      }
+      runCalculate();
+      record("calculate_run");
+    });
+
+    // "Copy shareable link" (below) reads these three fields directly off the
+    // form, not off whatever was last rendered -- so without this, editing a
+    // field after pressing "Calculate my rates" left the on-screen ranges
+    // showing the *old* numbers while a link copied a moment later carried
+    // the *new* ones. See platform/pages/roundtrip.mjs and
+    // bounce-house-rental-calculator's #4606/#4616 for the live-recompute
+    // fix this mirrors: repricing on every keystroke must not itself call
+    // record("calculate_run"), which stays tied to the explicit button click.
+    function syncFromInputs() {
+      if (els.downloads.value) {
+        runCalculate({ scroll: false });
+      } else {
+        els.reportCard.hidden = true;
+      }
+    }
+    for (const el of [els.downloads, els.niche, els.readType]) {
+      el.addEventListener("input", syncFromInputs);
+      el.addEventListener("change", syncFromInputs);
+    }
+
+    $("#load-example").addEventListener("click", () => {
+      els.downloads.value = "8000";
+      els.niche.value = "business";
+      els.readType.value = "host-read";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: an 8,000-download/episode business show, host-read.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.downloads.value = "";
+      els.niche.value = "general";
+      els.readType.value = "host-read";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter your numbers above and click Calculate my rates.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // A rate card exists to be sent to a sponsor. Until now the operator had
+    // to screenshot the table or retype three price ranges into an email,
+    // and the sponsor had no way to see which downloads, niche, and read
+    // type the ranges were built from -- which is the first thing they push
+    // back on. The link carries the three inputs in the URL; nothing is
+    // uploaded.
+    const FIELD_ELEMENTS = { downloads: els.downloads, niche: els.niche, readType: els.readType };
+
+    $("#copy-link").addEventListener("click", async () => {
+      const values = Object.fromEntries(SHARE_FIELDS.map(id => [id, FIELD_ELEMENTS[id].value]));
+      const url = `${location.origin}${location.pathname}#${encodeInputs(values)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        els.status.textContent = "Link copied. Whoever opens it sees these same numbers and ranges.";
+      } catch {
+        // Clipboard access can be refused (insecure origin, declined
+        // permission). Showing the URL still lets them copy it by hand.
+        els.status.textContent = url;
+      }
+      record("link_copied");
+    });
+
+    // Applied through formValues so every field is written: a box the sender
+    // cleared arrives cleared rather than keeping this page's placeholder
+    // state. See platform/ci/check_shared_link_clears.py.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length > 0) {
+      const values = formValues(fromLink, { niche: els.niche.value, readType: els.readType.value });
+      for (const id of SHARE_FIELDS) FIELD_ELEMENTS[id].value = values[id];
+      if (els.downloads.value) {
+        runCalculate({ scroll: false });
+        els.status.textContent = "These numbers came in from a shared link. Change anything to price your own show.";
+      }
+    }
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the button came back saying "turn counting off" would otherwise tell
+    // the visitor their click did not take, which is a control that appears
+    // not to have worked, and gets clicked again or stops being believed.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

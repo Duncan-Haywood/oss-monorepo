@@ -36,6 +36,18 @@ test("index links one hop to the newsletter-sponsorship-rate-calculator sibling"
   assert.match(html, /newsletter sponsorship rate calculator/i);
 });
 
+// Same shape as the newsletter sibling above: a podcast is a third channel
+// for the same underlying creator, priced by its own CPM logic.
+test("index links one hop to the podcast-sponsorship-rate-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/podcast-sponsorship-rate-calculator\/"/,
+    "index must link ../podcast-sponsorship-rate-calculator/ so crawlers reach it in one hop",
+  );
+  assert.match(html, /podcast sponsorship rate calculator/i);
+});
+
 // Adjacent step in the same workflow: this tool answers "what should I
 // charge", influencer-media-kit-generator answers "how do I present it" --
 // a creator with a rate in hand still needs the one-pager to send it in.
