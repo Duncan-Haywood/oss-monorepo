@@ -1936,11 +1936,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # landed, so it only ever knew 308 until this merge -- the same
     # ordinary collision shape recorded throughout this list.
     #
-    # 311 after merging `cnc-machining-quote-calculator` (#4957), which
-    # landed on `main` while this branch was still mid-merge -- the same
-    # collision shape one more time, this time against a venture with no
-    # relation to the actions-* checker family at all.
-    total = 311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 311 tools" wording.
+    # `cnc-machining-quote-calculator` (#4957) also landed on `main` while
+    # this branch was still mid-merge -- the same collision shape one more
+    # time, this time against a venture with no relation to the actions-*
+    # checker family at all. Guessed 311 for that merge by hand and got it
+    # wrong; `sync_tree_counts.py`, run fresh against the actual merged
+    # `main` after this PR landed, measured 310 -- one lower than the
+    # arithmetic suggested, most likely because one of the two ventures
+    # this branch thought was still unmerged was already reflected in the
+    # baseline it started counting from. Recorded from the tool's own
+    # measurement rather than corrected by hand a second time.
+    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
