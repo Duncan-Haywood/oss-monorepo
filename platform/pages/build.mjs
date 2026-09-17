@@ -712,8 +712,19 @@ const CATEGORY_RULES = [
     // time, materials, and overhead into a price for a customer. Not a
     // trade bid and not the route-margin shape (a facility's occupancy, not
     // a rolled-up monthly route).
+    // `propane-delivery-route-margin` joined 2026-09-17 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent
+    // propane (LP gas) delivery route operator turning one customer's
+    // annual gallon volume, fill size, price spread, and fixed monthly
+    // tank-rental/hazmat cost into a per-customer profit figure, then
+    // rolling a customer list up into route profit, is the exact same shape
+    // as `fire-extinguisher-inspection-route-margin` (which it links to and
+    // which links back) — a solo or small-crew route operator turning a
+    // customer/stop list and its own cost structure into route economics.
+    // Not a trade bid (nothing priced by area or a construction job) and
+    // not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
         slug,
       ),
   },

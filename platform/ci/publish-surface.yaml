@@ -775,6 +775,9 @@ workflows:
 - workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: propane-delivery-route-margin-ci.yml
+  classification: none
+  publishes: []
 - workflow: proposal-module-ci.yml
   classification: none
   publishes: []
