@@ -257,12 +257,25 @@ remote "systemctl is-active github-runner.service || true" | sed 's/^/    servic
 
 # -------------------------------------------------------------------- next
 step "What is left, and only you can do it"
-cat <<'NEXT'
+
+# Read the switch count from gitops/ci/README.md rather than restate it here.
+# That sentence is kept current by gitops/ci/sync_readme_counts.py and pinned
+# by test_readme_runs_on_count_matches_reality, so importing it is the only
+# way this line cannot go stale the way a hand-typed number already did once
+# (it said "226" while the tree had grown to 353 workflows -- the same
+# restate-instead-of-import defect CLAUDE.md records against the front-door
+# mirror, one script further out). A missing or reworded sentence degrades to
+# a vaguer line rather than breaking the script.
+switch_sentence="$(grep -oE '[0-9]+ of the [0-9]+ \`runs-on\` lines across [0-9]+ workflows' \
+  "$repo_root/gitops/ci/README.md" 2>/dev/null | head -1 || true)"
+switch_note="${switch_sentence:-most workflows already read the switch}"
+
+cat <<NEXT
     1. Confirm the runner registered:
          https://github.com/Duncan-Haywood/monorepo-projects/settings/actions/runners
        Expect one named hetzner-<hostname>, labels: self-hosted, linux, x64, hetzner
 
-    2. Flip every workflow to it (all 226 already read the switch):
+    2. Flip every workflow to it ($switch_note):
          Settings -> Secrets and variables -> Actions -> Variables
          New repository variable:  CI_RUNNER = self-hosted
 
