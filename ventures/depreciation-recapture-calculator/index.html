@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Depreciation Recapture Calculator — Rental Property Sale Tax Estimate</title>
+  <meta name="description" content="Free calculator for landlords selling a rental or investment property: estimates depreciation recapture (Section 1250, capped at 25%), remaining capital-gains tax, and Net Investment Income Tax, then shows how much a 1031 exchange would defer. Nothing uploaded.">
+  <meta property="og:title" content="Depreciation Recapture Calculator — free, no sign-up">
+  <meta property="og:description" content="Selling a rental property? See the depreciation-recapture tax, the capital-gains tax on the rest, and what a 1031 exchange would defer — from your own purchase and sale numbers. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Depreciation Recapture Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the tax on selling a rental or investment property: splits the gain into unrecaptured Section 1250 depreciation recapture (taxed at ordinary rates, capped at 25%) and the remaining long-term capital gain, optionally adds the 3.8% Net Investment Income Tax, and compares the result against a partial or full 1031 like-kind exchange. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is depreciation recapture?","acceptedAnswer":{"@type":"Answer","text":"Every dollar of depreciation you claimed while renting the property lowers its cost basis, which raises your taxable gain by the same amount when you sell. IRC Section 1250 taxes that portion of the gain — called unrecaptured Section 1250 gain — at your ordinary income tax rate, capped at 25%, instead of your usual (often lower) long-term capital-gains rate."}},{"@type":"Question","name":"How is the recapture tax different from capital-gains tax?","acceptedAnswer":{"@type":"Answer","text":"Your total gain is split into two pieces. The first, equal to the depreciation you actually claimed (or the total gain, if smaller), is taxed at your ordinary rate up to a 25% cap. Only the remaining gain, above that amount, is taxed at your regular long-term capital-gains rate (0%, 15%, or 20%, depending on your income)."}},{"@type":"Question","name":"Does a 1031 exchange avoid this tax completely?","acceptedAnswer":{"@type":"Answer","text":"A fully qualifying like-kind exchange — reinvesting all the proceeds into a replacement property of equal or greater value through a qualified intermediary, within the 45-day identification and 180-day closing windows — defers the entire gain, recapture included. Any cash or net debt relief you actually receive out of the exchange, known as boot, is still taxed immediately, in the same recapture-then-capital-gains order as an outright sale."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It applies the published Section 1250 recapture rule and standard capital-gains brackets to numbers you already have from your own purchase and sale settlement statements and depreciation schedule, as a planning estimate — not a filed amount, not a determination that a specific 1031 exchange qualifies, and not a substitute for a CPA or a qualified intermediary."}},{"@type":"Question","name":"What isn't included in this estimate?","acceptedAnswer":{"@type":"Answer","text":"State income tax (most states tax this gain too, often without a capital-gains discount), the Net Investment Income Tax's exact MAGI-threshold test (this tool offers a simplified full-inclusion version), and Section 1231 loss treatment if the sale is actually at a loss. Each is flagged in the results when it applies to your numbers."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f4f1; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.06; margin: 0 0 14px; color: #1f5c35; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f5c35; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a58; }
+    .card { background: #fff; border: 1px solid #d9e0d6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f5c3510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b7c4b3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; }
+    .checkbox-row input { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5c35; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e5ede2; color: #1f5c35; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eef2ec; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a58; }
+    .amount { font-weight: 800; font-size: 1.02rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #eef2ec; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e5ede2; color: #1f5c35; }
+    .stats { font-size: .9rem; color: #333; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d9e0d6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DEPRECIATION RECAPTURE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will selling this rental property actually cost you in tax?</h1>
+    <p>Enter what you paid, what you claimed in depreciation, and what you're
+    selling for. This splits your gain into the part taxed as
+    <strong>depreciation recapture</strong> (ordinary rates, capped at 25%)
+    and the part taxed at your regular long-term capital-gains rate, then
+    shows how much a 1031 exchange would defer instead.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Keeping the property and just need this year's
+    quarterly filing instead? The
+    <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax
+    calendar</a> is for the ongoing rental income — this page is for the
+    one-time tax on selling it.</p>
+    <p class="note">Doing this by hand or in a spreadsheet? See
+    <a href="./vs-doing-it-by-hand.html">where that usually goes wrong</a>.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <div class="grid">
+      <div><label for="purchase-price">Original purchase price ($)</label><input type="number" id="purchase-price" min="0" step="1" placeholder="e.g. 300000"></div>
+      <div><label for="land-value">Land value at purchase ($)</label><input type="number" id="land-value" min="0" step="1" placeholder="Non-depreciable portion"></div>
+      <div><label for="improvements">Capital improvements since purchase ($)</label><input type="number" id="improvements" min="0" step="1" placeholder="Added to your basis"></div>
+      <div><label for="depreciation-taken">Total depreciation claimed ($)</label><input type="number" id="depreciation-taken" min="0" step="1" placeholder="From Form 4562 / Schedule E"></div>
+      <div><label for="selling-price">Selling price ($)</label><input type="number" id="selling-price" min="0" step="1" placeholder="e.g. 420000"></div>
+      <div><label for="selling-costs">Selling costs ($)</label><input type="number" id="selling-costs" min="0" step="1" placeholder="Commission, closing costs"></div>
+      <div><label for="mortgage-payoff">Remaining mortgage payoff ($, optional)</label><input type="number" id="mortgage-payoff" min="0" step="1" placeholder="Reduces cash in pocket, not tax"></div>
+      <div>
+        <label for="ltcg-rate">Your long-term capital-gains rate</label>
+        <select id="ltcg-rate">
+          <option value="0">0%</option>
+          <option value="0.15" selected>15%</option>
+          <option value="0.2">20%</option>
+        </select>
+      </div>
+      <div><label for="ordinary-rate-cap">Your ordinary marginal tax rate ($, optional)</label><input type="number" id="ordinary-rate-cap" min="0" max="100" step="0.1" placeholder="Leave blank to use the 25% cap"></div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="include-niit">
+      <label for="include-niit" style="margin:0;">Add the 3.8% Net Investment Income Tax (high-income filers)</label>
+    </div>
+    <h3>Considering a 1031 exchange instead?</h3>
+    <div class="grid">
+      <div><label for="exchange-boot">Cash or debt relief you'd actually receive ($, "boot")</label><input type="number" id="exchange-boot" min="0" step="1" value="0" placeholder="0 if fully reinvested"></div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate my tax</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="copy-link">Copy a shareable link</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter your purchase price, depreciation claimed, and selling price above, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Your estimate</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Component</th><th>Amount</th></tr></thead>
+      <tbody id="breakdown-body"></tbody>
+    </table>
+    <h3>If you did a 1031 exchange instead</h3>
+    <p class="stats" id="exchange-stats"></p>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies IRC Section 1250's recapture rule (ordinary rate, capped
+    at 25%) to the depreciation you actually claimed, taxes the remaining
+    gain at the long-term capital-gains rate you select, and optionally adds
+    a simplified Net Investment Income Tax. It does <strong>not</strong>
+    include state tax, does <strong>not</strong> apply the NIIT's exact
+    MAGI-threshold test, and does <strong>not</strong> determine whether a
+    specific 1031 exchange qualifies. Treat every number here as a planning
+    estimate to verify with a CPA or qualified intermediary before you sell,
+    never as a filed amount or a determination made on your behalf.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is depreciation recapture?</h3>
+    <p>Every dollar of depreciation you claimed while renting the property lowers its cost basis, which raises your taxable gain by the same amount when you sell. IRC Section 1250 taxes that portion of the gain — called unrecaptured Section 1250 gain — at your ordinary income tax rate, capped at 25%, instead of your usual (often lower) long-term capital-gains rate.</p>
+    <h3>How is the recapture tax different from capital-gains tax?</h3>
+    <p>Your total gain is split into two pieces. The first, equal to the depreciation you actually claimed (or the total gain, if smaller), is taxed at your ordinary rate up to a 25% cap. Only the remaining gain, above that amount, is taxed at your regular long-term capital-gains rate (0%, 15%, or 20%, depending on your income).</p>
+    <h3>Does a 1031 exchange avoid this tax completely?</h3>
+    <p>A fully qualifying like-kind exchange — reinvesting all the proceeds into a replacement property of equal or greater value through a qualified intermediary, within the 45-day identification and 180-day closing windows — defers the entire gain, recapture included. Any cash or net debt relief you actually receive out of the exchange, known as boot, is still taxed immediately, in the same recapture-then-capital-gains order as an outright sale.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It applies the published Section 1250 recapture rule and standard capital-gains brackets to numbers you already have from your own purchase and sale settlement statements and depreciation schedule, as a planning estimate — not a filed amount, not a determination that a specific 1031 exchange qualifies, and not a substitute for a CPA or a qualified intermediary.</p>
+    <h3>What isn't included in this estimate?</h3>
+    <p>State income tax (most states tax this gain too, often without a capital-gains discount), the Net Investment Income Tax's exact MAGI-threshold test (this tool offers a simplified full-inclusion version), and Section 1231 loss treatment if the sale is actually at a loss. Each is flagged in the results when it applies to your numbers.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional or a qualified intermediary. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting your actual filing and payment obligations. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool except in your own browser's local storage.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>sale_analyzed</code>, <code>example_loaded</code>, <code>link_copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" id="sponsorLink">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyzeSale, DEFAULTS } from "./calc.mjs";
+    import { encodeInputs, decodeInputs, formValues } from "./share.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      purchasePrice: $("#purchase-price"), landValue: $("#land-value"), improvements: $("#improvements"),
+      depreciationTaken: $("#depreciation-taken"), sellingPrice: $("#selling-price"), sellingCosts: $("#selling-costs"),
+      mortgagePayoff: $("#mortgage-payoff"), ltcgRate: $("#ltcg-rate"), ordinaryRateCap: $("#ordinary-rate-cap"),
+      includeNiit: $("#include-niit"), exchangeBoot: $("#exchange-boot"),
+      status: $("#status"), reportCard: $("#report-card"), stats: $("#stats"),
+      breakdownBody: $("#breakdown-body"), exchangeStats: $("#exchange-stats"), findings: $("#findings"),
+    };
+
+    function money(n) {
+      if (n == null || Number.isNaN(n)) return "—";
+      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function readInput() {
+      return {
+        purchasePrice: els.purchasePrice.value, landValue: els.landValue.value, improvements: els.improvements.value,
+        depreciationTaken: els.depreciationTaken.value, sellingPrice: els.sellingPrice.value, sellingCosts: els.sellingCosts.value,
+        mortgagePayoff: els.mortgagePayoff.value, ltcgRate: els.ltcgRate.value,
+        ordinaryRateCap: els.ordinaryRateCap.value === "" ? "" : Number(els.ordinaryRateCap.value) / 100,
+        includeNiit: els.includeNiit.checked, exchangeBoot: els.exchangeBoot.value,
+      };
+    }
+
+    function applyValues(values) {
+      els.purchasePrice.value = values.purchasePrice ?? ""; els.landValue.value = values.landValue ?? "";
+      els.improvements.value = values.improvements ?? ""; els.depreciationTaken.value = values.depreciationTaken ?? "";
+      els.sellingPrice.value = values.sellingPrice ?? ""; els.sellingCosts.value = values.sellingCosts ?? "";
+      els.mortgagePayoff.value = values.mortgagePayoff ?? "";
+      els.ltcgRate.value = values.ltcgRate === "" || values.ltcgRate == null ? "0.15" : String(values.ltcgRate);
+      els.ordinaryRateCap.value = values.ordinaryRateCap === "" || values.ordinaryRateCap == null
+        ? "" : String(Number(values.ordinaryRateCap) * 100);
+      els.includeNiit.checked = Boolean(values.includeNiit);
+      els.exchangeBoot.value = values.exchangeBoot ?? "0";
+    }
+
+    function renderFindings(findings) {
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = analyzeSale(readInput());
+
+      els.stats.textContent = `Adjusted basis ${money(result.adjustedBasis)}, amount realized ${money(result.amountRealized)}, total gain ${money(result.totalGain)}.`;
+
+      els.breakdownBody.innerHTML = [
+        ["Unrecaptured Section 1250 gain (depreciation recapture)", money(result.unrecapturedSection1250Gain)],
+        [`Recapture tax (${(result.appliedRecaptureRate * 100).toFixed(1)}%)`, money(result.recaptureTax)],
+        ["Remaining gain at your capital-gains rate", money(result.remainingGain)],
+        ["Capital-gains tax", money(result.ltcgTax)],
+        ["Net Investment Income Tax", money(result.niitTax)],
+        ["Total estimated federal tax", money(result.totalTax)],
+        ["Net proceeds after tax", money(result.netProceeds)],
+        ["Net proceeds after tax and mortgage payoff", money(result.netProceedsAfterMortgage)],
+      ].map(([label, value]) => `<tr><td>${label}</td><td class="amount">${value}</td></tr>`).join("");
+
+      els.exchangeStats.textContent = result.exchange.recognizedGain > 0
+        ? `Recognized gain from the boot: ${money(result.exchange.recognizedGain)}. Tax due now: ${money(result.exchange.taxDue)}. Tax deferred by the exchange: ${money(result.exchange.taxDeferred)} on ${money(result.exchange.deferredGain)} of deferred gain.`
+        : `With no boot received, the entire ${money(result.totalGain)} gain — and the full ${money(result.totalTax)} tax bill — would be deferred by a fully qualifying exchange.`;
+
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("sale_analyzed");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      applyValues({ ...DEFAULTS, ordinaryRateCap: "" });
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a $300,000 rental with $60,000 land value, $20,000 in improvements, and $87,000 of depreciation claimed, sold for $420,000.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      applyValues({});
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter your purchase price, depreciation claimed, and selling price above, then click Calculate.";
+    });
+
+    $("#copy-link").addEventListener("click", async () => {
+      const encoded = encodeInputs(readInput());
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        els.status.textContent = "Shareable link copied — nothing was sent anywhere; the numbers travel inside the link itself.";
+      } catch {
+        els.status.textContent = `Copy this link: ${url}`;
+      }
+      record("link_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+
+    if (location.hash.length > 1) {
+      applyValues(formValues(decodeInputs(location.hash)));
+      runCalculate();
+      els.status.textContent = "Loaded from a shared link.";
+    }
+  </script>
+</body>
+</html>

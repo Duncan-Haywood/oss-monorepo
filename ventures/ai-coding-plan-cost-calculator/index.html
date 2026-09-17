@@ -11,7 +11,7 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"AI Coding Plan Cost Calculator","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares the monthly cost of a flat-rate AI coding assistant subscription (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT Plus) against paying per token through the vendor's API, using editable usage and rate inputs, and reports the break-even usage level. Runs entirely in the browser."}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Claude Max actually worth it over the API?","acceptedAnswer":{"@type":"Answer","text":"It depends entirely on how much you use it and how much of that usage is cache reads, which are billed far below fresh input on providers that support prompt caching. This calculator takes your own token estimates (or a light/typical/heavy starting point you edit) and the plan's price, and reports which is cheaper this month and at what usage level the other one would catch up."}},{"@type":"Question","name":"Why does this ask for cache read and cache write tokens separately?","acceptedAnswer":{"@type":"Answer","text":"Agentic coding tools resend most of the conversation and file context on nearly every turn. Providers that support prompt caching bill a repeated, unchanged prefix at a small fraction of the fresh-input rate, and publicly reported usage breakdowns for heavy coding-agent use put cache reads above 90% of total tokens. A calculator that only multiplies input and output tokens by a blended rate significantly overstates the API-equivalent cost for exactly the heavy users asking this question."}},{"@type":"Question","name":"Where do the default prices and rates come from?","acceptedAnswer":{"@type":"Answer","text":"They are list prices and published API rates as of the date shown on the page, recorded here because this tool makes no network call. Vendors change pricing without notice and this calculator cannot know when that happens — every field is a plain number you can edit, and the result is only as current as what you put in. Check the vendor's own pricing page before deciding."}},{"@type":"Question","name":"Is anything I type here uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. All arithmetic happens in your own browser. There is no account, no server call, and no analytics vendor."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Claude Max actually worth it over the API?","acceptedAnswer":{"@type":"Answer","text":"It depends entirely on how much you use it and how much of that usage is cache reads, which are billed far below fresh input on providers that support prompt caching. This calculator takes your own token estimates (or a light/typical/heavy starting point you edit) and the plan's price, and reports which is cheaper this month and at what usage level the other one would catch up."}},{"@type":"Question","name":"Why does this ask for cache read and cache write tokens separately?","acceptedAnswer":{"@type":"Answer","text":"Agentic coding tools resend most of the conversation and file context on nearly every turn. Providers that support prompt caching bill a repeated, unchanged prefix at a small fraction of the fresh-input rate, and publicly reported usage breakdowns for heavy coding-agent use put cache reads above 90% of total tokens. A calculator that only multiplies input and output tokens by a blended rate significantly overstates the API-equivalent cost for exactly the heavy users asking this question."}},{"@type":"Question","name":"Where do the default prices and rates come from?","acceptedAnswer":{"@type":"Answer","text":"They are list prices and published API rates as of the date shown on the page, recorded here because this tool makes no network call. Vendors change pricing without notice and this calculator cannot know when that happens — every field is a plain number you can edit, and the result is only as current as what you put in. Check the vendor's own pricing page before deciding."}},{"@type":"Question","name":"What if my plan has a usage limit?","acceptedAnswer":{"@type":"Answer","text":"Put your own estimate of the monthly token allowance in the optional field and the comparison stops assuming the plan is unlimited: usage past the allowance is priced at the same API rates as the other column, the result names the active day you run out on, and an all-in row adds the overflow to the flat fee. There is deliberately no default, because vendors publish coding-plan limits in messages, premium requests, or rolling five-hour windows rather than in tokens, so any figure pre-filled here would be invented rather than sourced. Leave it blank and the plan is treated as unlimited, which is the right shape only if yours never cuts you off."}},{"@type":"Question","name":"Is anything I type here uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. All arithmetic happens in your own browser. There is no account, no server call, and no analytics vendor."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -63,7 +63,12 @@
         <label for="seats">Seats</label>
         <input type="number" id="seats" min="1" step="1" value="1">
       </div>
+      <div>
+        <label for="included-tokens">Included tokens / month <span class="note">(optional)</span></label>
+        <input type="number" id="included-tokens" min="0" step="1000000" placeholder="blank = no limit">
+      </div>
     </div>
+    <p class="note">Leave the allowance blank and this compares a flat fee against the API, which is the right shape only if your plan never cuts you off. If yours does, put your own estimate of the monthly token allowance in — usage past it is priced at the same API rates as the other column, and the result will tell you which day of the month you run out. There is no default here on purpose: vendors publish these limits in messages, &ldquo;premium requests&rdquo;, or rolling five-hour windows, never in tokens, so any figure we pre-filled would be invented rather than sourced.</p>
 
     <fieldset>
       <legend>2. Your usage (per active day)</legend>
@@ -142,11 +147,14 @@
         <thead><tr><th></th><th class="num">Monthly cost</th></tr></thead>
         <tbody>
           <tr><td>Your subscription</td><td class="num" id="row-sub"></td></tr>
+          <tr id="row-overflow-tr" hidden><td>Usage past your allowance, at API rates</td><td class="num" id="row-overflow"></td></tr>
+          <tr id="row-plan-total-tr" hidden><td><strong>Plan, all in</strong></td><td class="num" id="row-plan-total"></td></tr>
           <tr><td>Same usage, paid per token</td><td class="num" id="row-api"></td></tr>
           <tr><td>Difference</td><td class="num" id="row-delta"></td></tr>
         </tbody>
       </table>
     </div>
+    <p class="note" id="quota" hidden></p>
     <p class="note" id="breakeven"></p>
   </section>
 
@@ -168,6 +176,9 @@
 
     <h3>Where do the default prices and rates come from?</h3>
     <p>They are list prices and published API rates as of the date shown on the page, recorded here because this tool makes no network call. Vendors change pricing without notice and this calculator cannot know when that happens — every field is a plain number you can edit, and the result is only as current as what you put in. Check the vendor's own pricing page before deciding.</p>
+
+    <h3>What if my plan has a usage limit?</h3>
+    <p>Put your own estimate of the monthly token allowance in the optional field and the comparison stops assuming the plan is unlimited: usage past the allowance is priced at the same API rates as the other column, the result names the active day you run out on, and an all-in row adds the overflow to the flat fee. There is deliberately no default, because vendors publish coding-plan limits in messages, premium requests, or rolling five-hour windows rather than in tokens, so any figure pre-filled here would be invented rather than sourced. Leave it blank and the plan is treated as unlimited, which is the right shape only if yours never cuts you off.</p>
 
     <h3>Is anything I type here uploaded?</h3>
     <p>No. All arithmetic happens in your own browser. There is no account, no server call, and no analytics vendor.</p>
@@ -273,6 +284,14 @@
             cacheWrite: Number($('#rate-cache-write').value) || 0,
             cacheRead: Number($('#rate-cache-read').value) || 0,
           },
+          // An empty field means "no allowance to model", which is not the
+          // same as an allowance of zero -- `Number('')` is 0, so reading it
+          // the usual way would silently tell every visitor who left it
+          // blank that their plan covers nothing.
+          includedTokensPerMonth:
+            $('#included-tokens').value.trim() === ''
+              ? null
+              : Number($('#included-tokens').value),
         });
       } catch (error) {
         return showError(error.message);
@@ -282,21 +301,67 @@
       $('#headline').className = 'headline ' + (result.cheaper === 'api' ? 'api-cheaper' : result.cheaper === 'subscription' ? 'sub-cheaper' : '');
       $('#headline').textContent =
         result.cheaper === 'tie'
-          ? `Dead even at ${formatUsd(result.subscriptionMonthlyUsd)}/mo either way.`
+          ? `Dead even at ${formatUsd(result.planTotalMonthlyUsd)}/mo either way.`
           : `${cheaperLabel} is cheaper, by ${formatUsd(Math.abs(result.deltaUsd))}/mo.`;
 
       $('#row-sub').textContent = `${formatUsd(result.subscriptionMonthlyUsd)}/mo`;
       $('#row-api').textContent = `${formatUsd(result.apiMonthlyUsd)}/mo`;
-      $('#row-delta').textContent = `${result.deltaUsd >= 0 ? '+' : ''}${formatUsd(result.deltaUsd)}/mo (API minus subscription)`;
 
-      if (result.breakEvenUsageScale === null) {
+      // The overflow rows only appear when an allowance was entered. With
+      // no cap they would be a $0 row and an "all in" total identical to
+      // the fee above it -- two rows of noise restating the one above.
+      const hasOverflow = result.includedTokensPerMonth !== null;
+      $('#row-overflow-tr').hidden = !hasOverflow;
+      $('#row-plan-total-tr').hidden = !hasOverflow;
+      if (hasOverflow) {
+        $('#row-overflow').textContent = `${formatUsd(result.overflowMonthlyUsd)}/mo`;
+        $('#row-plan-total').textContent = `${formatUsd(result.planTotalMonthlyUsd)}/mo`;
+      }
+
+      const quotaNote = $('#quota');
+      if (!hasOverflow) {
+        quotaNote.hidden = true;
+      } else {
+        quotaNote.hidden = false;
+        const pctCovered = (result.quotaCoveredFraction * 100).toFixed(0);
+        if (result.quotaExhaustedOnDay === null) {
+          quotaNote.textContent =
+            `Your allowance covers the whole month at this usage — ${pctCovered}% of your tokens, with room to spare. ` +
+            `Nothing overflows, so the plan costs its flat fee.`;
+        } else {
+          quotaNote.textContent =
+            `Your allowance covers about ${pctCovered}% of the month's tokens and runs out on active day ` +
+            `${result.quotaExhaustedOnDay} of ${Number($('#active-days').value) || 21}. ` +
+            `The remaining ${Math.round(result.overflowTokens / 1e6).toLocaleString('en-US')}M tokens are priced at the API rates above — ` +
+            `that is the "${formatUsd(result.overflowMonthlyUsd)}/mo" row. If your plan throttles instead of billing overflow, ` +
+            `read that row as the cost of the work you would not get done.`;
+        }
+      }
+
+      // Past the allowance both columns grow by the same amount, so the gap
+      // stops moving and settles at "allowance valued at these rates, minus
+      // the fee". That fact is worth saying whenever a cap was entered --
+      // including when a crossing also exists below the cap, where both are
+      // true of the same result and the second does not replace the first.
+      const beyondCap =
+        hasOverflow && result.beyondQuotaAdvantageUsd !== null
+          ? ` Past the allowance, growing your usage stops changing the answer: every extra token is billed the same on either side, so the gap settles at a flat ${formatUsd(Math.abs(result.beyondQuotaAdvantageUsd))}/mo in favour of ${result.beyondQuotaAdvantageUsd >= 0 ? 'the plan' : 'the API'} — your allowance valued at these rates, against the fee you pay for it. Beyond that point the variables are the rates and the allowance, not how much you use.`
+          : '';
+
+      if (result.breakEvenUsageScale === null && beyondCap) {
+        // No crossing to report: the uncapped one lies above the cap, where
+        // the curves are parallel. Saying "usage would need to grow N%"
+        // would name a crossing that does not exist.
+        $('#breakeven').textContent =
+          `Your allowance runs out before the two ever cross, so there is no usage level that flips this.${beyondCap}`;
+      } else if (result.breakEvenUsageScale === null) {
         $('#breakeven').textContent = 'At zero API cost there is no break-even to report — the subscription is the only cost either way.';
       } else if (result.breakEvenUsageScale >= 1) {
         const pct = ((result.breakEvenUsageScale - 1) * 100).toFixed(0);
-        $('#breakeven').textContent = `Your usage would need to grow about ${pct}% for the API to stop being cheaper than the subscription.`;
+        $('#breakeven').textContent = `Your usage would need to grow about ${pct}% for the API to stop being cheaper than the subscription.${beyondCap}`;
       } else {
         const pct = ((1 - result.breakEvenUsageScale) * 100).toFixed(0);
-        $('#breakeven').textContent = `Your usage would need to drop about ${pct}% before the API would beat the subscription.`;
+        $('#breakeven').textContent = `Your usage would need to drop about ${pct}% before the API would beat the subscription.${beyondCap}`;
       }
 
       $('#results').hidden = false;

@@ -1,0 +1,117 @@
+name: depreciation-recapture-calculator
+description: Free browser calculator for a landlord or real-estate investor selling a rental or investment property. Splits the gain into unrecaptured Section 1250 depreciation recapture (taxed at the seller's ordinary rate, capped at 25%) and the remainder at the seller's long-term capital-gains rate, optionally adds the 3.8% Net Investment Income Tax, and estimates the tax on a partial or full 1031 like-kind exchange's boot -- so the deferred amount is not a guess. Entirely client-side.
+
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a
+# deterministic tax-arithmetic tool for real-estate investors and
+# landlords -- a persona this portfolio has not yet served (its existing
+# tax-adjacent tools target freelancers/1099 contractors
+# (quarterly-estimated-tax-calendar), marketplace sellers
+# (1099k-reconciliation-worksheet), and commercial carriers
+# (ifta-quarterly-fuel-tax-calculator), none of whom sell depreciated real
+# property). Same mechanism family as those three: a rules engine applying
+# a published federal formula (IRC Section 1250, Section 1411 NIIT, Section
+# 1031) to numbers the filer already has, not the <trade>-bid-calculator or
+# -check/-checker archetypes portfolio/pipeline/README.md flags as
+# saturated (141 and 38 tries respectively, zero visitors on either shape).
+#
+# duplicate_check.py against "Depreciation recapture and capital gains
+# calculator for a landlord selling a rental or investment property: splits
+# the gain into unrecaptured Section 1250 depreciation recapture (ordinary
+# rate, capped at 25%) and the remainder at the seller's long-term
+# capital-gains rate, optionally adds the 3.8% Net Investment Income Tax,
+# and estimates the tax on a partial or full 1031 like-kind exchange's
+# boot" scored nothing >= 0.45 -- top match was 0.08 (shopify-fee-calculator,
+# an unrelated e-commerce fee tool matching only on generic
+# calculator/percentage vocabulary). No venture directory or
+# screened-out.md row mentions "depreciation recapture", "Section 1250",
+# "1031 exchange", or "capital gains on rental property".
+#
+# Also checked directly against the ethics/liability standing constraints
+# in portfolio/DIRECTION.md's "Legal guardrails" section: this is not
+# advice-of-record. It applies published IRC formulas (Section 1250's 25%
+# recapture cap, Section 1411's 3.8% NIIT, Section 1031's boot-recognition
+# order) to numbers the seller already has from their own purchase/sale
+# settlement statements and depreciation schedule (Form 4562 / Schedule E).
+# Every output is framed as a planning estimate to verify with a CPA or
+# qualified intermediary before closing, never a filed amount or a
+# determination that a specific 1031 exchange qualifies -- the same
+# evidence/drafting positioning as quarterly-estimated-tax-calendar and
+# ifta-quarterly-fuel-tax-calculator. Every simplification (the NIIT
+# full-inclusion approximation, the 25%-cap default, the "no state tax"
+# scope limit, the loss/Section-1231 carve-out) fires as an unconditional
+# or conditional finding on the page itself rather than being silently
+# assumed -- nothing here is a black-box estimate.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 6 -- being wrong here costs the seller a
+#     miscalculated planning estimate they catch before closing (this tool
+#     explicitly tells them to verify with a CPA/QI first) or an
+#     under-informed decision about whether to 1031 exchange, not a lawsuit,
+#     a contract obligation, or a third party's money. What keeps this from
+#     scoring higher: the NIIT MAGI-threshold simplification and the flat
+#     25%-cap default both fire as disclosed findings rather than silently
+#     defaulting to a number that could read as more precise than it is,
+#     and the 1031 section explicitly states it is not a qualification
+#     determination. Every dollar amount is independently re-derivable by
+#     the seller from their own settlement statements and the published
+#     Section 1250/1411 rules -- nothing is scraped or inferred about the
+#     property or a third party.
+#   ethical_robustness: 8 -- deterministic arithmetic over published federal
+#     tax formulas, no dark patterns, no data collected server-side (nothing
+#     is uploaded, ever -- localStorage only, opt-out honored, Do Not Track
+#     and Global Privacy Control both respected). Does not get worse for
+#     users as traffic grows. Every input is a number the seller already has
+#     from their own transaction; nothing is scraped or inferred about a
+#     third party. No transaction, no take rate, and no revenue model tied
+#     to the number shown -- only an optional, unrelated donation link -- so
+#     the direction this business would be tempted to bias in (showing a
+#     lower tax bill to keep the seller happy) doesn't exist as an incentive.
+#
+# Distribution: "depreciation recapture calculator", "1031 exchange
+# calculator", and "capital gains on rental property sale calculator" are
+# established, recurring high-intent search phrases -- web search
+# (2026-09-17) surfaced a cluster of existing calculators from 1031
+# exchange qualified-intermediary companies (1031ex.com, ipx1031.com,
+# apiexchange.com, seracapital.com, perchwealth.com, 1031.us,
+# goodlifemgmt.com), which confirms real, sustained search demand for
+# exactly this computation. Every one of those is a lead-generation tool
+# for that company's own paid exchange-intermediary service -- the search
+# results describe them as tools to "estimate your potential tax savings"
+# ahead of a sales consultation, not neutral calculators -- which is the
+# gap this free, no-signup, entirely client-side tool fills: nothing to
+# sign up for, no intermediary being pitched, no data leaving the browser.
+# r/realestateinvesting, r/RealEstate, r/tax, and r/personalfinance
+# regularly see "how much tax will I owe when I sell this rental" and
+# "is a 1031 exchange worth it" threads from landlords planning a sale.
+hypotheses:
+  - claim: A landlord or investor who lands here from a "depreciation recapture calculator" or "1031 exchange calculator" search will use the split-out estimate (recapture vs. capital gains vs. NIIT) to budget for the actual tax bill instead of underestimating it from the sale price and cost basis alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The 1031 exchange comparison (recognized gain from boot vs. fully deferred) helps a seller who is undecided about exchanging see the actual dollar amount at stake, rather than treating "1031 exchange" as an all-or-nothing decision made on someone else's numbers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/depreciation-recapture-calculator/
+  analytics: null
