@@ -631,6 +631,12 @@
     <loc>https://marisstella.dev/tools/bounce-house-rental-calculator/vs-inflatableoffice.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/branch-protection-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/branch-protection-drift-check/why-branch-protection-drifts.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/brand-deal-rate-calculator/</loc>
   </url>
   <url>
@@ -1079,6 +1085,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dependency-confusion-check/what-is-dependency-confusion.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/how-a-deploy-ships-an-older-commit.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/vs-reading-your-workflows-yourself.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/</loc>
@@ -1703,6 +1718,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/hardwood-refinishing-bid-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/helm-values-schema-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/helm-values-schema-check/vs-helm-lint.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/helm-values-schema-check/why-helm-silently-accepts-a-typo-in-values-yaml.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/hoa-reserve-fund-calculator/</loc>

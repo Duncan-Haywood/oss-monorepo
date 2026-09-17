@@ -243,19 +243,52 @@ const RELATIVE_SELF = relative(
 // predecessor's number (285) until this merge -- same collision shape as
 // the entry immediately above: both branches independently wrote "286" for
 // what the merged tree made 287.
-// 287 -> 288 on 2026-09-17, when `stockx-seller-payout-calculator` graduated
+// 287 -> 288 on 2026-09-17, when `branch-protection-drift-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded` counters), same discovery method as the
+// rest of this running count. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/branch-protection-drift-check/usage.mjs`) and no deletions.
+// 288 -> 289 on 2026-09-17, when `stockx-seller-payout-calculator` graduated
 // with its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
-// use), same discovery method as the rest of this running count.
-// 288 -> 289 on 2026-09-17, when `android-data-safety-check` graduated with
+// use), same discovery method as the rest of this running count. This
+// branch was open before `branch-protection-drift-check` landed, so it
+// only ever knew its own predecessor's number (287) until this merge --
+// same collision shape as the entry immediately above: both branches
+// independently wrote "288" for what the merged tree made 289.
+// 289 -> 290 on 2026-09-17, when `android-data-safety-check` graduated with
 // its own `recordUsage`/`readOptOut`/`writeOptOut` switch (opts out of the
 // `scan_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count. This branch was open before
+// `branch-protection-drift-check` landed, so it only ever knew an earlier
+// predecessor's number until this merge -- the same ordinary collision
+// shape recorded throughout this list.
+// 290 -> 291 on 2026-09-17, when `helm-values-schema-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded`/`file_loaded` counters), the same
+// `usage.mjs` shape as its sibling `k8s-deprecated-api-check`. Verified the
+// way this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/helm-values-schema-check/usage.mjs`) and no deletions, so this
+// is a graduation and not a switch that stopped being one. This branch was
+// open before `stockx-seller-payout-calculator`,
+// `android-data-safety-check`, and `branch-protection-drift-check` landed,
+// so it only ever knew an earlier predecessor's number until this merge --
+// the same ordinary collision shape recorded throughout this list: both
+// branches independently wrote "290" for what the merged tree made 291.
+// 291 -> 292 on 2026-09-17, when `deploy-concurrency-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `scan_run`/`example_loaded` counters), same discovery method as the rest
 // of this running count. Verified the way this file's error message
-// prescribes rather than by assuming: `git status --porcelain=v1 -uall`
-// shows exactly one added `usage.mjs` (`ventures/android-data-safety-check/
-// usage.mjs`) and no deletions, so this is a graduation and not a switch
-// that stopped being one.
-// 289 -> 290 on 2026-09-17, when `cnc-machining-quote-calculator` graduated
+// prescribes rather than by assuming: exactly one added `usage.mjs`
+// (`ventures/deploy-concurrency-check/usage.mjs`) against `origin/main` and
+// no deletions, so this is a graduation and not a switch that stopped being
+// one. This branch was open before `branch-protection-drift-check` and
+// `helm-values-schema-check` landed, so it only ever knew 290 until this
+// merge -- three graduations in one afternoon, which is exactly the case
+// `sync_tree_counts.py` exists to settle after the merge rather than on any
+// one of the three branches.
+// 292 -> 293 on 2026-09-17, when `cnc-machining-quote-calculator` graduated
 // with its own `setUsageOptOut`/`usageOptedOut` switch (the same pair
 // `apparel-decoration-price-calculator` uses, opting out of the
 // `quote`/`example_loaded`/`inputs_saved` counters), same discovery method as
@@ -263,8 +296,10 @@ const RELATIVE_SELF = relative(
 // prescribes rather than by assuming: `git status --porcelain=v1 -uall` shows
 // exactly one added `usage.mjs` (`ventures/cnc-machining-quote-calculator/
 // usage.mjs`) and no deletions, so this is a graduation and not a switch that
-// stopped being one.
-const SWITCHES_IN_THE_CATALOGUE = 290;
+// stopped being one. This branch was open before the three graduations named
+// directly above landed, so it only ever knew 290 until this merge -- the
+// count is a property of the merged tree rather than of any one diff.
+const SWITCHES_IN_THE_CATALOGUE = 293;
 
 let counter = 0;
 function fixture(source) {

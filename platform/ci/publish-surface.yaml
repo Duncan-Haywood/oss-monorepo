@@ -176,6 +176,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: branch-protection-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: brand-deal-rate-calculator-ci.yml
   classification: none
   publishes: []
@@ -330,6 +333,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dependency-confusion-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
 - workflow: dns-configuration-evidence-ci.yml
@@ -495,6 +501,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: hardwood-refinishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: helm-values-schema-check-ci.yml
   classification: none
   publishes: []
 - workflow: hetzner-gitops-ci.yml
