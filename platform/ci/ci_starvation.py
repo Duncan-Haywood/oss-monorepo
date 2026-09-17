@@ -67,10 +67,11 @@ free from the local git remote. `--repo owner/name`, `GITHUB_REPOSITORY`, and
 that same git remote are tried in order.
 
 Exit status: 0 if every job examined ran on a real runner, 1 if any was
-starved, 2 if there is no answer to give — a usage or API error, or a run whose
-jobs have not finished. So `if ci_starvation.py --run $ID; then` reads as
-"these results are worth believing", and only ever succeeds when there are
-results.
+starved, 2 if there is no answer to give — a usage or API error, a run whose
+jobs have not finished, or a run of GitHub's *managed* Pages builder, which is
+not an Actions workflow and is never starved whatever the allowance is doing.
+So `if ci_starvation.py --run $ID; then` reads as "these results are worth
+believing", and only ever succeeds when there are results.
 """
 
 import argparse
@@ -99,6 +100,41 @@ REPO_PLACEHOLDER = "{owner}/{repo}"
 # some job shapes (very old runs), which is not the same as zero, so a missing
 # value is treated as unknown rather than quietly as starvation.
 UNASSIGNED_RUNNER_ID = 0
+
+# GitHub's *managed* Pages builder. It is not a workflow in `.github/`, its
+# runners are not the metered Actions pool, and it keeps working at full speed
+# through a starvation window -- which is exactly why it is the wrong run to
+# ask this question of.
+#
+# Measured 2026-09-17, by making the mistake. A session picked "the most recent
+# run" from `/actions/runs` to check whether runners had come back, got run
+# 35203941076, and this tool answered `All 3 job(s) that ran got a real runner.
+# Any failure here is a real result.` on real runner ids in the 1000088xxx
+# range. Every word of that was true about the run it was handed and entirely
+# wrong as an answer about Actions: `Portfolio validate` and `Conflict markers`
+# one minute earlier on the same repository were both `runner_id: 0`, and all
+# 60 completed runs of `publish-pages-branch.yml` were starved.
+#
+# `infra_state.yaml`'s `github-actions-runners` row has warned in prose since
+# 2026-09-06 that "it is not an Actions runner and is not metered against this
+# allowance" -- and nothing stopped the tool CLAUDE.md names as *the* way to
+# tell starvation from a real failure from reporting recovery during an outage.
+# A green here is the single most expensive wrong answer this tool can give:
+# it is the one that sends the next session to "fix" green code, or to trust a
+# red check that means nothing.
+MANAGED_PAGES_WORKFLOW = "pages build and deployment"
+
+
+def is_managed_pages(job):
+    """Is this job from GitHub's managed Pages builder rather than Actions?
+
+    Read from the job payload's own `workflow_name`, which the jobs API has
+    carried for years and which every route into this tool already has -- a
+    bare job id, `--run`, and `--from-json` alike. Fetching the run to learn
+    its `path` would work for `--run` only, and would make the credential-free
+    `--from-json` route the one place the check could not fire.
+    """
+    return (job.get("workflow_name") or "").strip().lower() == MANAGED_PAGES_WORKFLOW
 
 
 def classify(job):
@@ -173,6 +209,8 @@ def report(jobs):
             {
                 "id": job.get("id"),
                 "name": job.get("name"),
+                "workflow": job.get("workflow_name"),
+                "managed_pages": is_managed_pages(job),
                 "conclusion": job.get("conclusion"),
                 "verdict": verdict,
                 "reason": reason,
@@ -180,6 +218,16 @@ def report(jobs):
             }
         )
     return rows
+
+
+def all_managed_pages(rows):
+    """Is every job here from the managed Pages builder?
+
+    All, not any: a mixed payload can only come from `--from-json` stitching
+    two runs together, and there the Actions jobs are the ones with something
+    to say, so the ordinary verdict should still be reached.
+    """
+    return bool(rows) and all(r.get("managed_pages") for r in rows)
 
 
 def render(rows):
@@ -199,6 +247,23 @@ def render(rows):
     starved = [r for r in rows if r["verdict"] == STARVED]
     pending = [r for r in rows if r["verdict"] == PENDING]
     lines.append("")
+
+    # Before any verdict: a run that is not an Actions workflow cannot answer
+    # the question this tool exists for, and its answer would be reassuring.
+    # Said here rather than folded into the branches below because it replaces
+    # the verdict instead of qualifying it.
+    if all_managed_pages(rows):
+        lines.append(
+            f"NO VERDICT: this is GitHub's managed Pages builder "
+            f"({MANAGED_PAGES_WORKFLOW}), not\na workflow in .github/. Its runners are "
+            "not the metered Actions pool, so it\nruns at full speed straight through a "
+            "starvation window and says nothing\nabout whether Actions is starved — in "
+            "either direction.\n\nClassify a run of an actual workflow instead "
+            "(Portfolio validate, or any\ncheck on an open PR):\n"
+            "    python3 platform/ci/ci_starvation.py --run <id of a .github/ workflow run>"
+        )
+        return "\n".join(lines)
+
     if starved:
         lines.append(
             f"{len(starved)} of {len(rows)} job(s) never got a runner. These red "
@@ -412,6 +477,14 @@ def main(argv=None, api=None):
         return 2
 
     print(json.dumps(rows, indent=2) if args.json else render(rows))
+
+    # A run that is not an Actions workflow has no answer to give about
+    # Actions, and 0 here would tell `if ci_starvation.py --run $ID` that
+    # runners are fine in the middle of an outage. Checked before starvation
+    # because the managed builder is never starved, so every other branch
+    # below would return 0 for it.
+    if all_managed_pages(rows):
+        return 2
 
     # A decided starvation outranks an unfinished job: it is already true and
     # will not become less true when the rest settle. Otherwise an unfinished
