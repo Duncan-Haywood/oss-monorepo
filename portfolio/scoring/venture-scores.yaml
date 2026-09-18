@@ -9717,6 +9717,67 @@ ventures:
       it cannot verify a flagged name actually holds a secret, and a clean
       scan is not a security or compliance claim about the build.
 
+  - slug: docker-cache-order-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic text-order classification of instructions already
+      present in the Dockerfile on disk. There is nothing to infer: a
+      dependency manifest either was or was not copied and installed before
+      a whole-build-context `COPY . .` in the same stage, and an `apt-get
+      update` either is or is not combined with `install`/`upgrade` in the
+      same RUN instruction.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as docker-base-image-pin-check and docker-build-secrets-check,
+      not a 202nd <trade>-bid-calculator or a 40th generic misconfiguration
+      checker. duplicate_check.py scored every existing venture,
+      screened-out row, and pipeline candidate at or below 0.13 against the
+      final description (closest: sql-migration-lock-check, generic
+      "ordering/drift" vocabulary only), well under the 0.45 flag bar; the
+      two existing Dockerfile checkers each check one instruction against a
+      rule (base-image tag, leaked secret) rather than the relative order of
+      instructions across the whole file. Autonomous ops 10 / gross margin
+      10: nothing to host -- the browser page and CLI both run pure
+      text/regex analysis against Dockerfile content already on the user's
+      disk or pasted in, so serving one more user costs a static file.
+      Distribution 6, above the two siblings' 5: Docker's own official
+      "Leverage build cache" and "apt-get" Dockerfile best-practices
+      documentation state both ordering rules directly by name, and r/docker
+      plus the Stack Overflow [docker] tag carry recurring, long-running
+      threads on the exact symptom ("docker build always reinstalling npm
+      packages", "docker is caching my apt-get update, causing subsequent
+      installs to fail" -- the latter itself a canonical, highly-upvoted
+      Stack Overflow question by title) -- a more directly-named source than
+      either sibling had at screening time, though no external
+      search-volume tool was queried to confirm magnitude. Time to revenue
+      6, defensibility 4: donations-only; a transparent text-order
+      classifier is easy to reimplement, so defensibility rests on the
+      instruction-order framing (neither sibling checks this) and this
+      portfolio's disclaimer/usage conventions, not on any moat or
+      first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only static-text scanner over Dockerfile content the user
+      already has on disk or pastes in -- no network call of its own
+      (`cli.mjs` never runs `docker build`, pulls an image, or contacts a
+      registry), no data leaving the browser or the user's own machine. The
+      page and CLI both state plainly that a clean result is evidence about
+      instruction ordering only, not a build-cache-hit-rate measurement, a
+      security audit, or a claim that a flagged pattern was unintentional.
+
   - slug: required-checks-drift-check
     scores:
       ai_leverage: 1
