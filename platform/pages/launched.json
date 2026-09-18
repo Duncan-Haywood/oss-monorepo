@@ -114,6 +114,7 @@
     "env-example-drift-check": "2026-09-09",
     "epk-generator": "2026-09-11",
     "epoxy-garage-floor-bid-calculator": "2026-08-26",
+    "equipment-auction-buyer-premium-calculator": "2026-09-17",
     "equipment-lease-buyout-calculator": "2026-09-06",
     "equipment-rental-break-even": "2026-08-26",
     "estate-sale-net-proceeds-calculator": "2026-09-17",

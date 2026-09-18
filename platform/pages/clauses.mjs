@@ -473,6 +473,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific linter, CI product, or
   // company at all. Same reasoning as the other manual-method pages above.
   'docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html',
+  // Compares against "guessing your payroll burden and overhead from
+  // memory" -- the 20%/10% rule of thumb every trade contractor already
+  // reaches for, not a company or product this could be mistaken for. The
+  // page names no vendor, competing calculator, or field-service platform
+  // at all.
+  'shop-rate-calculator/vs-guessing-your-burden-and-overhead.html',
+  // Compares against "mentally adding a flat percentage" -- a rough mental
+  // habit every auction bidder already does, not a company or product this
+  // could be mistaken for. The page names no specific auction house or
+  // competing calculator at all.
+  'equipment-auction-buyer-premium-calculator/vs-a-flat-percent-rule.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

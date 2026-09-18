@@ -2025,19 +2025,33 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 316 until this merge. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
     #
-    # 320 since 2026-09-17, when `docker-cache-order-check` graduated
-    # concurrently with `no-tax-on-tips-overtime-calculator` and
-    # `depreciation-recapture-calculator` above -- a zero-dependency CLI +
-    # browser checker reading a Dockerfile's instruction order for
-    # build-cache-invalidation mistakes (a dependency manifest
-    # copied/installed after a whole-context `COPY . .`, or an
-    # `apt-get update` split from `install` across layers). A different
+    # 319 since 2026-09-17, when `qbi-deduction-calculator` graduated
+    # concurrently (a federal Section 199A qualified-business-income
+    # deduction estimator).
+    #
+    # 320 since 2026-09-17, when `equipment-auction-buyer-premium-calculator`
+    # graduated concurrently -- a browser-local calculator turning a farm or
+    # heavy-equipment auction hammer price into its true out-the-door total
+    # (a capped buyer's premium, an online-bidding premium, a card
+    # surcharge, sales tax, and a doc/title fee), with a closed-form reverse
+    # solve for the highest hammer price a target budget supports. Filed
+    # under `logistics` (the same "normalise a quote ... before you sign
+    # for it" axis as `import-landed-cost-calculator`, just for an auction
+    # lot instead of a customs entry). Recorded from `sync_tree_counts.py`'s
+    # own fresh measurement against the merged tree, not a hand sum.
+    #
+    # 321 since 2026-09-17, when `docker-cache-order-check` graduated
+    # concurrently -- a zero-dependency CLI + browser checker reading a
+    # Dockerfile's instruction order for build-cache-invalidation mistakes (a
+    # dependency manifest copied/installed after a whole-context `COPY . .`,
+    # or an `apt-get update` split from `install` across layers). A different
     # object from this portfolio's other two Dockerfile checkers, which each
     # check one instruction against a rule rather than instruction order.
-    # This branch was open before the other two landed, so it only ever
-    # knew 319 until this merge. Recorded from `sync_tree_counts.py`'s own
-    # fresh measurement against the merged tree, not a hand sum.
-    total = 320  # `infra/OWNER_CHECKLIST.md`'s own "N of the 320 tools" wording.
+    # This branch was open before the other ventures above landed, so it
+    # only ever knew 319 until this merge. Recorded from
+    # `sync_tree_counts.py`'s own fresh measurement against the merged tree,
+    # not a hand sum.
+    total = 321  # `infra/OWNER_CHECKLIST.md`'s own "N of the 321 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

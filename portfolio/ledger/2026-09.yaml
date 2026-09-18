@@ -35008,3 +35008,71 @@ entries:
         `check_ledger_only.py` exit 0. `sync_tree_counts.py` run after the
         merge and its rewrite (320 mirrored tools, 302 opt-out switches)
         matches the numbers hand-written into the resolved conflicts above.
+  - venture: shop-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #5056: a vs-guessing-your-burden-and-overhead
+        comparison page, filling the one open generic-method budget slot
+        surface-budget.mjs reported for this venture. Session started with 0
+        open PRs; ran supersede_check.py against all 268 branches carrying
+        unique commits beyond main (not sampled) before starting new work,
+        and found no genuinely unmerged work -- every "NOT SUPERSEDED"
+        verdict, on inspection, was stale generated-mirror noise, an old
+        CLAUDE.md snapshot, or a feature already shipped under an
+        equivalently-named implementation. This matches a same-day ledger
+        entry from another session (crown-molding-bid-calculator, above)
+        that reached the identical conclusion independently. Picked this
+        venture over a new niche for the same reasons that entry gives:
+        every top router candidate is a mature, fully-built prototype now
+        waiting on unmeasurable usage data rather than needing new
+        implementation, and surface-budget.mjs --check showed 256 ventures
+        still holding an unfilled generic-method slot, so venture depth
+        outranked a speculative new product.
+      - >-
+        Every worked figure on the new page ($42.00 naive rate, $74.07 real
+        target rate, $32.07/hour gap, 92% burden, 21.3% overhead) is derived
+        by running calc.mjs's calculateShopRate against the venture's own
+        shipped index.html defaults, pinned by a test that imports the
+        function directly rather than hard-coding a second set of numbers.
+        Added to clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT since the page
+        names no company, only the 20%/10% rule-of-thumb every trade
+        contractor already reaches for.
+      - >-
+        While preparing to merge, found platform/ci/browser_state.json's
+        whole-catalogue browser/accessibility sweep had gone stale (other
+        sessions' builder-file changes invalidated it). Ran the full 8-check
+        sweep after installing playwright@1.56.0 and axe-core: all passed --
+        1205 pages x 2 viewports with zero WCAG A/AA violations (contrast),
+        215/215 share links round-trip, 106/106 rejected-input highlights
+        correct, 0 page/console errors on the end-to-end journey check. No
+        regression of the 48-violation incident this repo recorded on
+        2026-09-06. Recorded the clean reading.
+      - >-
+        Verified, Actions starved (ci_starvation.py against the PR's own
+        check runs: runner_id 0 on all 21, 3-4s each, no steps): venture's
+        own suite 94/94; node --test --test-concurrency=1
+        "platform/marketing/*.test.mjs" "platform/pages/*.test.mjs" 1277/1277
+        (an intermediate run at the same concurrency surfaced 7 real
+        front-door-mirror staleness failures from the new page, fixed with
+        regen.mjs, then reran clean -- concurrency=1 ruled out the
+        documented sibling-suite race as the cause); clauses.mjs and
+        surface-budget.mjs clean for the venture; sync_tree_counts.py --check
+        clean; checklist_coverage.py clean; check_ledger_only.py /
+        check_direction_only.py both no-ops; gitops/tests 637 passed / 1
+        skipped (environmental); platform/ci 15-module unittest sweep and
+        agent_review's test_review clean; portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests 446
+        passed; router/validate.py, score_ventures.py --check,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py, usage_state.py
+        --require-honest, and usage/validate_usage.py all clean. One
+        concurrent main merge landed mid-session
+        (equipment-auction-buyer-premium-calculator, #5051) with one
+        additive conflict in clauses.mjs's exemption set, resolved by
+        keeping both new entries; regen.mjs rerun and reverified after.
+        Merged, then published (CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh) and recorded pages_state.py's
+        github-pages-branch-route reading current at the merge commit
+        (#5057).
