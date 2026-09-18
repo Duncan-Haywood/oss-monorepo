@@ -2024,13 +2024,33 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # and `no-tax-on-tips-overtime-calculator` landed, so it only ever knew
     # 316 until this merge. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
-    # 320 since 2026-09-18, when `parcel-dim-weight-calculator` graduated -- a
+    #
+    # 319 since 2026-09-17, when `qbi-deduction-calculator` graduated
+    # concurrently (a federal Section 199A qualified-business-income
+    # deduction estimator).
+    #
+    # 320 since 2026-09-17, when `equipment-auction-buyer-premium-calculator`
+    # graduated concurrently -- a browser-local calculator turning a farm or
+    # heavy-equipment auction hammer price into its true out-the-door total
+    # (a capped buyer's premium, an online-bidding premium, a card
+    # surcharge, sales tax, and a doc/title fee), with a closed-form reverse
+    # solve for the highest hammer price a target budget supports. Filed
+    # under `logistics` (the same "normalise a quote ... before you sign
+    # for it" axis as `import-landed-cost-calculator`, just for an auction
+    # lot instead of a customs entry). Recorded from `sync_tree_counts.py`'s
+    # own fresh measurement against the merged tree, not a hand sum.
+    #
+    # 321 since 2026-09-18, when `parcel-dim-weight-calculator` graduated -- a
     # browser-local calculator turning a carton's dimensions, actual weight and
     # DIM divisor into the billable weight a parcel carrier charges, plus the
     # break-even cube that ends the dimensional penalty, with a static
     # `index.html` from its first commit, same shape as the rest of this
-    # running count.
-    total = 320  # `infra/OWNER_CHECKLIST.md`'s own "N of the 320 tools" wording.
+    # running count. This branch was open before
+    # `equipment-auction-buyer-premium-calculator` landed, so it only ever knew
+    # its own predecessor's number (320) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, and re-derived here by
+    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    total = 321  # `infra/OWNER_CHECKLIST.md`'s own "N of the 321 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

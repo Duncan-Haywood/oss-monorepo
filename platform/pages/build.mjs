@@ -815,6 +815,15 @@ const CATEGORY_RULES = [
     // section's own blurb already names, just for a customs entry instead
     // of a freight quote or a cloud bill.
     //
+    // `equipment-auction-buyer-premium-calculator` joined 2026-09-17, filed
+    // here on its first commit for the same reason as `import-landed-cost`
+    // right above it rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. It normalises a hammer
+    // price into its true total cost (buyer's premium, online-bidding
+    // premium, card surcharge, sales tax, doc fee) before a bidder commits
+    // to a bid, the same "normalise a quote ... before you sign for it"
+    // shape, just for an auction lot instead of a customs entry, a freight
+    // quote, or a cloud bill.
     // `parcel-dim-weight` is filed here on its first commit rather than after a
     // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is for.
     // It is `ltl-`'s direct counterpart one tier down: the same shipper asking
@@ -825,7 +834,9 @@ const CATEGORY_RULES = [
     // the crawlable-orphan gap a new venture otherwise opens. Named by exact
     // slug prefix rather than folded into a wider pattern, for the same reason
     // as its neighbours here.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|parcel-dim-weight)/.test(slug),
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight)/.test(
+      slug,
+    ),
   },
   {
     id: 'evidence',

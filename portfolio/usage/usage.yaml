@@ -6715,6 +6715,30 @@ products:
           Search terms this is built to meet are "depreciation recapture
           calculator", "1031 exchange calculator", and "capital gains on
           rental property sale calculator".
+  - slug: equipment-auction-buyer-premium-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          auction_analyzed: 0
+          example_loaded: 0
+          link_copied: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a free, no-signup calculator for farm
+          and heavy-equipment auction bidders that stacks a capped buyer's
+          premium, an online-bidding premium, a card surcharge, and sales tax
+          onto a hammer price, plus a reverse max-bid-for-a-budget solve.
+          `live_url_visitors` is null and not zero, deliberately -- GitHub
+          Pages exposes no server-side analytics, and the local counters are
+          opt-in and off by default, so nobody has measured yet, which is a
+          different claim from having measured nothing. `auction_analyzed` is
+          the signal worth watching first -- a visitor who reaches it got a
+          real out-the-door total; `link_copied` is the stronger signal of a
+          bidder actually taking the estimate to a partner rather than reading
+          it alone. Search terms this is built to meet are "buyer's premium
+          calculator" and "auction cost calculator".
   - slug: parcel-dim-weight-calculator
     surface: github-pages
     readings:
