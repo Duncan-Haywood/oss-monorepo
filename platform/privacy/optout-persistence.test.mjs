@@ -358,7 +358,16 @@ const RELATIVE_SELF = relative(
 // deletions, so this is a graduation and not a switch that stopped being
 // one. This branch was open before `no-tax-on-tips-overtime-calculator`
 // landed, so it only ever knew 299 until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 301;
+// 301 -> 302 on 2026-09-18, when `parcel-dim-weight-calculator` graduated
+// with its own `usage.mjs` opt-out (it gates the
+// `weight_calculated`/`result_copied`/`box_target_copied` counters behind the
+// same `usageAllowed` read that `clearUsage` writes), keyed under its own
+// storage name and following the same working pattern as its sibling
+// ventures. Verified the way this file's error message prescribes rather
+// than by assuming: exactly one added `usage.mjs`
+// (`ventures/parcel-dim-weight-calculator/usage.mjs`) and no deletions, so
+// this is a graduation and not a switch that stopped being a switch.
+const SWITCHES_IN_THE_CATALOGUE = 302;
 
 let counter = 0;
 function fixture(source) {

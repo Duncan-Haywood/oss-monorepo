@@ -1,0 +1,27 @@
+name: parcel-dim-weight-calculator
+description: A browser-local calculator that turns a carton's dimensions, weight and DIM divisor into the billable weight a parcel carrier charges — and the box size at which the dimensional penalty stops.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Online sellers will return to a DIM weight calculator whenever they pick a carton for a new SKU, because the divisor and the rounding rule are easy to get wrong and the cost lands on every shipment of that product.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Naming the pounds of air and the break-even cube changes a packaging decision in a way that a dimensional-weight figure alone does not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three sellers use the calculator twice within 90 days.
+  - Users report the break-even cube does not change which carton they buy.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/parcel-dim-weight-calculator/
+  analytics: null

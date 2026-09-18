@@ -34866,3 +34866,54 @@ entries:
         published (CONFIRM=publish-pages-branch PUSH=1
         ./platform/pages/publish-branch.sh) and recorded pages_state.py's
         github-pages-branch-route reading current at the merge commit.
+  - date: 2026-09-18
+    session: claude/happy-wozniak-jrceop
+    shipped: >-
+      parcel-dim-weight-calculator: new venture. A browser-local calculator
+      that turns a carton's dimensions, actual weight and DIM divisor into the
+      billable weight a parcel carrier charges -- the greater of actual and
+      dimensional, rounded up per package -- plus the break-even cube at which
+      the dimensional penalty stops, girth and surcharge banding, and carrier
+      dimension rounding applied before the multiplication rather than after.
+      52 assertions in the venture's own suite. Secondary explainer page with
+      JSON-LD generated from the same strings as its visible copy, cross-linked
+      both ways with ltl-freight-class-estimator.
+    notes:
+      - >-
+        Chosen because the PR queue was empty and the build-now pipeline is
+        exhausted, which is the case session_gate.py and DIRECTION.md's
+        2026-09-06 owner direction both rank a fresh niche first for.
+        "Dimensional weight" appeared nowhere in the 328 existing ventures and
+        nowhere in screened-out.md; duplicate_check.py put the nearest other
+        venture (freight-accessorial-auditor) at 0.13, well under the 0.45
+        flag bar.
+      - >-
+        The differentiator is the lever rather than the number. Carrier
+        calculators and blog tools return a dimensional weight and stop; this
+        names the pounds of air being paid for and the cube ceiling that ends
+        it, and -- the case a naive implementation gets wrong -- says "no
+        height on this footprint reaches it, use a smaller box" instead of
+        telling someone to pack a mug flat. levers.test.mjs pins all three
+        branches.
+      - >-
+        The divisor and the surcharge thresholds are inputs, not constants,
+        because they are carrier contract terms that differ by account and
+        change over time. No dollar figure is quoted anywhere: a rate card
+        embedded here would go stale and a stale number reads as a promise.
+      - >-
+        Two things the tree corrected mid-session, both worth recording.
+        launched.json is generated (`launched.mjs --write`), not hand-edited --
+        a hand-inserted row is byte-for-byte wrong and launched.test.mjs caught
+        it. And sync_tree_counts.py rewrote the mirrored-tool count (319 -> 320)
+        and SWITCHES_IN_THE_CATALOGUE (301 -> 302); the running-comment entries
+        saying why each moved are in this commit, since the script deliberately
+        will not write those.
+      - >-
+        Verified locally, Actions starved (ci_starvation.py on run 35208575297:
+        runner_id 0, 3s, no steps). On main's tip before starting: 1520 node
+        assertions, 1083 pytest, all 27 platform/ci unittest modules, 9/9
+        workflows under run_workflow_locally.py --tree, regen.mjs --verify
+        current, guard_state.py --require-runnable clean (1 environmental skip).
+        Re-run on the branch after the change -- see the PR body for the
+        post-change figures.
+

@@ -32,3 +32,16 @@ test('index links one hop to the freight-accessorial-auditor sibling', () => {
     'index must link ../freight-accessorial-auditor/ so crawlers reach the accessorial auditor in one hop',
   );
 });
+
+// The same shipper one tier down: a parcel prices on a DIM divisor rather than
+// a density band, and someone arriving here with a carton rather than a pallet
+// is on the wrong page. The link is reciprocal -- the parcel calculator links
+// back -- which is what keeps the newer venture off the crawlable-orphan list.
+test('index links one hop to the parcel-dim-weight-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/parcel-dim-weight-calculator\/"/,
+    'index must link ../parcel-dim-weight-calculator/ so crawlers reach the parcel calculator in one hop',
+  );
+});

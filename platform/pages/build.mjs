@@ -814,7 +814,18 @@ const CATEGORY_RULES = [
     // the same "normalise a quote ... before you sign for it" shape this
     // section's own blurb already names, just for a customs entry instead
     // of a freight quote or a cloud bill.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost)/.test(slug),
+    //
+    // `parcel-dim-weight` is filed here on its first commit rather than after a
+    // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is for.
+    // It is `ltl-`'s direct counterpart one tier down: the same shipper asking
+    // the same question ("what will this actually be billed at, and can the
+    // packaging move it?") about a parcel instead of a pallet, answered with a
+    // DIM divisor instead of a density band. The two pages cross-link each
+    // other as the place to go when a shipment crosses that line, which closes
+    // the crawlable-orphan gap a new venture otherwise opens. Named by exact
+    // slug prefix rather than folded into a wider pattern, for the same reason
+    // as its neighbours here.
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|parcel-dim-weight)/.test(slug),
   },
   {
     id: 'evidence',

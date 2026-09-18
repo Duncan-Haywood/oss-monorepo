@@ -2024,7 +2024,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # and `no-tax-on-tips-overtime-calculator` landed, so it only ever knew
     # 316 until this merge. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
-    total = 319  # `infra/OWNER_CHECKLIST.md`'s own "N of the 319 tools" wording.
+    # 320 since 2026-09-18, when `parcel-dim-weight-calculator` graduated -- a
+    # browser-local calculator turning a carton's dimensions, actual weight and
+    # DIM divisor into the billable weight a parcel carrier charges, plus the
+    # break-even cube that ends the dimensional penalty, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    total = 320  # `infra/OWNER_CHECKLIST.md`'s own "N of the 320 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
