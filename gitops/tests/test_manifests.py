@@ -2024,7 +2024,22 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # and `no-tax-on-tips-overtime-calculator` landed, so it only ever knew
     # 316 until this merge. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
-    total = 319  # `infra/OWNER_CHECKLIST.md`'s own "N of the 319 tools" wording.
+    #
+    # 319 since 2026-09-17, when `qbi-deduction-calculator` graduated
+    # concurrently (a federal Section 199A qualified-business-income
+    # deduction estimator).
+    #
+    # 320 since 2026-09-17, when `equipment-auction-buyer-premium-calculator`
+    # graduated concurrently -- a browser-local calculator turning a farm or
+    # heavy-equipment auction hammer price into its true out-the-door total
+    # (a capped buyer's premium, an online-bidding premium, a card
+    # surcharge, sales tax, and a doc/title fee), with a closed-form reverse
+    # solve for the highest hammer price a target budget supports. Filed
+    # under `logistics` (the same "normalise a quote ... before you sign
+    # for it" axis as `import-landed-cost-calculator`, just for an auction
+    # lot instead of a customs entry). Recorded from `sync_tree_counts.py`'s
+    # own fresh measurement against the merged tree, not a hand sum.
+    total = 320  # `infra/OWNER_CHECKLIST.md`'s own "N of the 320 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

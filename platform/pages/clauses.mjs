@@ -468,6 +468,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. The page names no
   // specific tax-prep company or competing checker at all.
   '1099-k-threshold-checker/vs-checking-the-threshold-yourself.html',
+  // Compares against "mentally adding a flat percentage" -- a rough mental
+  // habit every auction bidder already does, not a company or product this
+  // could be mistaken for. The page names no specific auction house or
+  // competing calculator at all.
+  'equipment-auction-buyer-premium-calculator/vs-a-flat-percent-rule.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
