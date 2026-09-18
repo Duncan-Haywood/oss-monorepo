@@ -468,6 +468,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. The page names no
   // specific tax-prep company or competing checker at all.
   '1099-k-threshold-checker/vs-checking-the-threshold-yourself.html',
+  // Compares against "guessing your payroll burden and overhead from
+  // memory" -- the 20%/10% rule of thumb every trade contractor already
+  // reaches for, not a company or product this could be mistaken for. The
+  // page names no vendor, competing calculator, or field-service platform
+  // at all.
+  'shop-rate-calculator/vs-guessing-your-burden-and-overhead.html',
   // Compares against "mentally adding a flat percentage" -- a rough mental
   // habit every auction bidder already does, not a company or product this
   // could be mistaken for. The page names no specific auction house or
