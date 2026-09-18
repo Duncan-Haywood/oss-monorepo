@@ -474,6 +474,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page names no vendor, competing calculator, or field-service platform
   // at all.
   'shop-rate-calculator/vs-guessing-your-burden-and-overhead.html',
+  // Compares against "mentally adding a flat percentage" -- a rough mental
+  // habit every auction bidder already does, not a company or product this
+  // could be mistaken for. The page names no specific auction house or
+  // competing calculator at all.
+  'equipment-auction-buyer-premium-calculator/vs-a-flat-percent-rule.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

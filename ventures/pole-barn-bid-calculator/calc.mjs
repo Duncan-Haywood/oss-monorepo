@@ -450,14 +450,7 @@ export function calculateBid(input) {
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);
   const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);
-  const extraCost = extraHardware
-    + hoursFloor * loadedWage
-    + hoursDoors * loadedWage
-    + hoursLeanTo * loadedWage
-    + hoursWainscot * loadedWage
-    + hoursInsulation * loadedWage
-    + hoursElectrical * loadedWage
-    + hoursFrame * loadedWage * (1 - 1 / eaveFactor);
+  const extraCost = extraHardware;
 
   return {
     floor,

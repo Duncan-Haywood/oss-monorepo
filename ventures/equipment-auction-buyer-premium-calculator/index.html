@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Equipment Auction Buyer's Premium Calculator — True Out-the-Door Cost</title>
+  <meta name="description" content="Free calculator for farm and heavy-equipment auction bidders: turns a hammer price into the true out-the-door total, including a capped buyer's premium, online-bidding premium, card surcharge, and sales tax — then works backward to a max bid for your budget. Nothing uploaded.">
+  <meta property="og:title" content="Equipment Auction Buyer's Premium Calculator — free, no sign-up">
+  <meta property="og:description" content="Bidding on a tractor, excavator, or truck at auction? See the real out-the-door cost — capped buyer's premium, online-bid fee, card surcharge, tax — before you raise your paddle. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Equipment Auction Buyer's Premium Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Turns a farm or heavy-equipment auction hammer price into the true out-the-door total: a buyer's premium (with its per-lot cap), an online-bidding premium, a card surcharge, sales tax, and a flat doc/title fee — and can solve backward from a target budget to a max hammer-price bid. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a buyer's premium?","acceptedAnswer":{"@type":"Answer","text":"A fee the auction house adds on top of your winning (hammer) bid, usually a percentage of it — commonly 10% at farm and heavy-equipment auctions. It is part of what you owe, not included in the hammer price you won at."}},{"@type":"Question","name":"Does the buyer's premium cap apply per lot?","acceptedAnswer":{"@type":"Answer","text":"Usually yes at equipment auctions — a cap like \"$2,500 per lot\" limits the premium on each item you win separately, so winning three lots can mean three separate caps, not one shared cap for the whole sale. Always confirm this in the specific auction's own printed terms, since a per-sale or per-day cap works very differently."}},{"@type":"Question","name":"Why does bidding online cost more than bidding in person?","acceptedAnswer":{"@type":"Answer","text":"Many auctioneers running a live online-bidding platform charge a separate internet or online-bidding premium — commonly 2-3% — for anyone who bids through it, on top of the standard buyer's premium. Bidding from the floor in person usually avoids this extra fee entirely."}},{"@type":"Question","name":"Is sales tax charged on the buyer's premium too, or just the hammer price?","acceptedAnswer":{"@type":"Answer","text":"Under most published auction terms, sales tax is charged on the full purchase price — the hammer price plus the buyer's premium and any online-bidding premium — not the hammer price alone. Some states or auctioneers only tax the hammer price, and many states exempt qualifying farm equipment entirely, so check the specific auction's terms and your state's rules."}},{"@type":"Question","name":"Is this legal, tax, or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It applies the buyer's premium, fee, and tax terms you enter to a hammer price or budget you supply, as a planning estimate — not a determination of what a specific auction, state, or lender will actually charge. Always confirm the exact terms with the auction house before you bid."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c1f16; background: #f4f3ee; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.06; margin: 0 0 14px; color: #5c4412; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5c4412; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55503f; }
+    .card { background: #fff; border: 1px solid #e2ddc9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5c441210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #c9c0a2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; }
+    .checkbox-row input { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5c4412; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe9d6; color: #5c4412; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #f0ecdd; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #55503f; }
+    .amount { font-weight: 800; font-size: 1.02rem; color: #5c4412; }
+    .finding { border-bottom: 1px solid #f0ecdd; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #efe9d6; color: #5c4412; }
+    .stats { font-size: .9rem; color: #333; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #e2ddc9; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EQUIPMENT AUCTION BUYER'S PREMIUM CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will winning this lot actually cost you, out the door?</h1>
+    <p>Enter the hammer price and the auction's own published terms. This
+    stacks the <strong>buyer's premium</strong> (capped per lot if the
+    auction caps it), the <strong>online-bidding premium</strong> if you're
+    bidding through their platform, a <strong>card surcharge</strong> if
+    you're paying by card, <strong>sales tax</strong>, and a flat doc/title
+    fee — then, if you give it a budget, works backward to the highest
+    hammer price you can bid and stay inside it.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Just bought the lot to flip it, not to run it? See the
+    <a href="../storage-auction-max-bid-calculator/">storage-auction max-bid
+    calculator</a> for pricing a resale purchase instead.</p>
+    <p class="note">Mentally adding a flat percentage instead? See
+    <a href="./vs-a-flat-percent-rule.html">where that usually goes
+    wrong</a>.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <div class="grid">
+      <div><label for="hammer-price">Hammer price ($)</label><input type="number" id="hammer-price" min="0" step="1" placeholder="e.g. 45000"></div>
+      <div><label for="buyer-premium-percent">Buyer's premium (%)</label><input type="number" id="buyer-premium-percent" min="0" step="0.1" placeholder="e.g. 10"></div>
+      <div><label for="buyer-premium-cap">Buyer's premium cap ($, per lot, 0 = none)</label><input type="number" id="buyer-premium-cap" min="0" step="1" placeholder="e.g. 2500"></div>
+      <div><label for="online-premium-percent">Online-bidding premium (%, if applicable)</label><input type="number" id="online-premium-percent" min="0" step="0.1" placeholder="e.g. 2.5"></div>
+      <div><label for="card-surcharge-percent">Card surcharge (%, if applicable)</label><input type="number" id="card-surcharge-percent" min="0" step="0.1" placeholder="e.g. 3"></div>
+      <div><label for="tax-rate">Sales tax rate (%)</label><input type="number" id="tax-rate" min="0" step="0.01" placeholder="e.g. 6"></div>
+      <div><label for="doc-fee">Doc / title fee ($)</label><input type="number" id="doc-fee" min="0" step="1" placeholder="e.g. 25"></div>
+      <div><label for="max-budget">Your max all-in budget ($, optional)</label><input type="number" id="max-budget" min="0" step="1" placeholder="Leave blank to skip"></div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="bidding-online">
+      <label for="bidding-online" style="margin:0;">I'm bidding through the auction's online platform, not from the floor</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="paying-by-card">
+      <label for="paying-by-card" style="margin:0;">I'm paying by credit card</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="tax-exempt">
+      <label for="tax-exempt" style="margin:0;">This purchase is sales-tax exempt (e.g. qualifying farm equipment)</label>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate my total cost</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="copy-link">Copy a shareable link</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter the hammer price and the auction's premium and fee terms above, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Your estimate</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Component</th><th>Amount</th></tr></thead>
+      <tbody id="breakdown-body"></tbody>
+    </table>
+    <div id="max-bid-section" hidden>
+      <h3>Max bid for your budget</h3>
+      <p class="stats" id="max-bid-stats"></p>
+    </div>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This stacks the buyer's premium (capped per lot if you enter a cap),
+    an online-bidding premium if you check that box, sales tax on the full
+    purchase price unless you mark the purchase exempt, a card surcharge on
+    the whole invoice if you're paying by card, and a flat doc/title fee. It
+    does <strong>not</strong> know any specific auction house's or state's
+    actual terms — you supply them — and it is <strong>not</strong> a
+    determination that a specific exemption, cap, or fee applies to your
+    purchase. Treat every number here as a planning estimate to confirm
+    against the auction's own printed terms before you bid.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a buyer's premium?</h3>
+    <p>A fee the auction house adds on top of your winning (hammer) bid, usually a percentage of it — commonly 10% at farm and heavy-equipment auctions. It is part of what you owe, not included in the hammer price you won at.</p>
+    <h3>Does the buyer's premium cap apply per lot?</h3>
+    <p>Usually yes at equipment auctions — a cap like "$2,500 per lot" limits the premium on each item you win separately, so winning three lots can mean three separate caps, not one shared cap for the whole sale. Always confirm this in the specific auction's own printed terms, since a per-sale or per-day cap works very differently.</p>
+    <h3>Why does bidding online cost more than bidding in person?</h3>
+    <p>Many auctioneers running a live online-bidding platform charge a separate internet or online-bidding premium — commonly 2-3% — for anyone who bids through it, on top of the standard buyer's premium. Bidding from the floor in person usually avoids this extra fee entirely.</p>
+    <h3>Is sales tax charged on the buyer's premium too, or just the hammer price?</h3>
+    <p>Under most published auction terms, sales tax is charged on the full purchase price — the hammer price plus the buyer's premium and any online-bidding premium — not the hammer price alone. Some states or auctioneers only tax the hammer price, and many states exempt qualifying farm equipment entirely, so check the specific auction's terms and your state's rules.</p>
+    <h3>Is this legal, tax, or financial advice?</h3>
+    <p>No. It applies the buyer's premium, fee, and tax terms you enter to a hammer price or budget you supply, as a planning estimate — not a determination of what a specific auction, state, or lender will actually charge. Always confirm the exact terms with the auction house before you bid.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace confirming the exact terms with the auction house or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming the actual fees, caps, and taxes that apply to your purchase. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool except in your own browser's local storage.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>auction_analyzed</code>, <code>example_loaded</code>, <code>link_copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener" id="sponsorLink">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyzeAuction, DEFAULTS } from "./calc.mjs";
+    import { encodeInputs, decodeInputs, formValues } from "./share.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      hammerPrice: $("#hammer-price"), buyerPremiumPercent: $("#buyer-premium-percent"),
+      buyerPremiumCap: $("#buyer-premium-cap"), biddingOnline: $("#bidding-online"),
+      onlinePremiumPercent: $("#online-premium-percent"), payingByCard: $("#paying-by-card"),
+      cardSurchargePercent: $("#card-surcharge-percent"), taxExempt: $("#tax-exempt"),
+      taxRate: $("#tax-rate"), docFee: $("#doc-fee"), maxBudget: $("#max-budget"),
+      status: $("#status"), reportCard: $("#report-card"), stats: $("#stats"),
+      breakdownBody: $("#breakdown-body"), maxBidSection: $("#max-bid-section"),
+      maxBidStats: $("#max-bid-stats"), findings: $("#findings"),
+    };
+
+    function money(n) {
+      if (n == null || Number.isNaN(n)) return "—";
+      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function readInput() {
+      return {
+        hammerPrice: els.hammerPrice.value, buyerPremiumPercent: els.buyerPremiumPercent.value,
+        buyerPremiumCap: els.buyerPremiumCap.value, biddingOnline: els.biddingOnline.checked,
+        onlinePremiumPercent: els.onlinePremiumPercent.value, payingByCard: els.payingByCard.checked,
+        cardSurchargePercent: els.cardSurchargePercent.value, taxExempt: els.taxExempt.checked,
+        taxRate: els.taxRate.value, docFee: els.docFee.value, maxBudget: els.maxBudget.value,
+      };
+    }
+
+    function applyValues(values) {
+      els.hammerPrice.value = values.hammerPrice ?? ""; els.buyerPremiumPercent.value = values.buyerPremiumPercent ?? "";
+      els.buyerPremiumCap.value = values.buyerPremiumCap ?? ""; els.biddingOnline.checked = Boolean(values.biddingOnline);
+      els.onlinePremiumPercent.value = values.onlinePremiumPercent ?? ""; els.payingByCard.checked = Boolean(values.payingByCard);
+      els.cardSurchargePercent.value = values.cardSurchargePercent ?? ""; els.taxExempt.checked = Boolean(values.taxExempt);
+      els.taxRate.value = values.taxRate ?? ""; els.docFee.value = values.docFee ?? ""; els.maxBudget.value = values.maxBudget ?? "";
+    }
+
+    function renderFindings(findings) {
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const result = analyzeAuction(readInput());
+
+      els.stats.textContent = `Hammer price ${money(result.hammerPrice)}, purchase price (before tax) ${money(result.purchasePrice)}.`;
+
+      const rows = [
+        ["Hammer price", money(result.hammerPrice)],
+        [result.capApplies ? `Buyer's premium (capped)` : `Buyer's premium`, money(result.buyerPremium)],
+      ];
+      if (result.onlinePremium > 0) rows.push(["Online-bidding premium", money(result.onlinePremium)]);
+      rows.push(["Sales tax", money(result.salesTax)]);
+      rows.push(["Doc / title fee", money(result.docFee)]);
+      if (result.cardSurcharge > 0) rows.push(["Card surcharge", money(result.cardSurcharge)]);
+      rows.push(["Total out-the-door cost", money(result.total)]);
+      rows.push(["Cost added over the hammer price", `${result.effectiveCostPercent.toFixed(2)}%`]);
+      els.breakdownBody.innerHTML = rows.map(([label, value]) => `<tr><td>${label}</td><td class="amount">${value}</td></tr>`).join("");
+
+      if (result.maxBid) {
+        els.maxBidSection.hidden = false;
+        els.maxBidStats.textContent = result.maxBid.unreachable
+          ? `Your $${result.maxBid.maxBudget.toLocaleString()} budget doesn't cover the fixed costs before you bid a dollar on the hammer price — see the finding below.`
+          : `To stay within ${money(result.maxBid.maxBudget)} all-in, bid no more than ${money(result.maxBid.hammerPrice)} on the hammer price (total out-the-door cost at that bid: ${money(result.maxBid.total)}).`;
+      } else {
+        els.maxBidSection.hidden = true;
+      }
+
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("auction_analyzed");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      applyValues(DEFAULTS);
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a $45,000 hammer price, 10% buyer's premium capped at $2,500, 6% sales tax, $25 doc fee, bidding from the floor and paying by check.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      applyValues({});
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter the hammer price and the auction's premium and fee terms above, then click Calculate.";
+    });
+
+    $("#copy-link").addEventListener("click", async () => {
+      const encoded = encodeInputs(readInput());
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        els.status.textContent = "Shareable link copied — nothing was sent anywhere; the numbers travel inside the link itself.";
+      } catch {
+        els.status.textContent = `Copy this link: ${url}`;
+      }
+      record("link_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+
+    if (location.hash.length > 1) {
+      applyValues(formValues(decodeInputs(location.hash)));
+      runCalculate();
+      els.status.textContent = "Loaded from a shared link.";
+    }
+  </script>
+</body>
+</html>
