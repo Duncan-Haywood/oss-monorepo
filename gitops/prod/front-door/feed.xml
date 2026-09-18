@@ -284,7 +284,7 @@
     <published>2026-09-17T00:00:00Z</published>
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% standard or 70% Partner Plus split) and Bits, see whether a mobile subscription really pays less (it doesn&#39;t), and check how many more subs close a monthly income gap.</summary>
+    <summary type="text">Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% default, or 60%/70% under the Plus Program) and Bits, see whether a mobile subscription really pays less (it doesn&#39;t), and check how many more subs close a monthly income gap.</summary>
   </entry>
   <entry>
     <title>Vector Database Cost Calculator (Pinecone, Weaviate, Qdrant, pgvector)</title>

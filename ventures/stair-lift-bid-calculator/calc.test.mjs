@@ -417,3 +417,13 @@ test('flag helpers accept common form values', () => {
   assert.ok(on.hoursFold > 0);
   assert.equal(off.hoursFold, 0);
 });
+
+test('extraCost never double-counts extras labor already inside laborCost', () => {
+  // Regression: extraCost used to add the loaded-wage cost of every extras
+  // hour on top of extraHardware, but those hours are already inside
+  // laborCost/totalHours -- so any job with real extras charged that labor
+  // twice in the displayed cost breakdown. extraCost must equal exactly
+  // extraHardware: the extras' material/invoice spend, no labor re-added.
+  const result = calculateBid(special());
+  assert.ok(Math.abs(result.extraCost - result.extraHardware) < 1e-9);
+});
