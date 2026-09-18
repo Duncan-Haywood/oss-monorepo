@@ -14875,3 +14875,69 @@ ventures:
       declines to model multi-business netting rather than approximating
       it silently -- the "What this does not cover" section and a page
       test both say so.
+
+  - slug: parcel-dim-weight-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 8
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Four arithmetic operations and a comparison. Billable weight is
+      max(actual, cube / divisor) rounded up, girth is one sum, and the
+      break-even cube is a multiplication. There is nothing to infer and
+      nothing a model would do better; the only judgement in the whole
+      venture is which surcharge thresholds are worth naming as defaults,
+      and those are exposed as inputs precisely because they are contract
+      terms rather than facts.
+    basis: >-
+      Screened 2026-09-18 per portfolio/pipeline/README.md. duplicate_check.py
+      scored the nearest other venture (freight-accessorial-auditor) at 0.13
+      against the final description, well under the 0.45 flag bar; the 0.80 row
+      was this venture's own directory, already on disk when the check ran. The
+      three nearest by subject were read rather than dismissed on score:
+      ltl-freight-class-estimator prices a pallet by density band where this
+      prices a parcel by contract divisor, freight-accessorial-auditor reviews
+      an invoice that already exists where this decides the carton before one
+      does, and import-landed-cost-calculator totals a customs entry.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the page runs the
+      real engine client-side, so serving one more user costs a static file and
+      needs no account, no key and no per-use spend.
+      Distribution 8 rather than the 7 its CI-tool neighbours carry: the search
+      intent is durable, commercial and continuously renewed ("dimensional
+      weight calculator", "DIM divisor 139", "why is my shipping weight higher
+      than the package weight"), and it is asked by someone with a live money
+      problem rather than by someone auditing a config file. It also has a
+      genuine sibling to be linked from, which a first-of-its-kind venture does
+      not.
+      Defensibility 3 rather than 4: the arithmetic is public and a competitor
+      could copy it in an afternoon. What is not trivially copied is the lever
+      -- the break-even cube, the achievable packed height, and the honest
+      "no height on this footprint reaches it, use a smaller box" case -- which
+      is the part that changes a purchasing decision rather than reporting a
+      number. That is a content and judgement advantage, not a moat.
+      time_to_revenue 6 on the portfolio's standard reading: free now, with a
+      plausible later paid surface (saved carton libraries, a bulk SKU pass)
+      that needs no payment rail to be built today.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The output is a planning estimate of a carrier's own arithmetic, not a
+      quote, a rate, or shipping advice, and both pages say so. The three
+      inputs that could mislead if asserted as facts -- the DIM divisor, the
+      dimension-rounding rule, and the surcharge thresholds -- are exposed as
+      user-editable inputs with documented defaults, and the page states
+      plainly that they are contract terms differing by carrier, service and
+      account. No dollar figure is quoted anywhere, precisely because a rate
+      card would go stale here and a stale number reads as a promise. Nothing
+      about a shipment leaves the device, there is no account, the shareable
+      link travels in a URL fragment a browser never sends to a server, and
+      the usage counter tallies feature names rather than dimensions or
+      weights and can be switched off from the footer.

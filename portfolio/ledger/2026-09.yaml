@@ -35076,3 +35076,68 @@ entries:
         ./platform/pages/publish-branch.sh) and recorded pages_state.py's
         github-pages-branch-route reading current at the merge commit
         (#5057).
+  - venture: parcel-dim-weight-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #5055: parcel-dim-weight-calculator, a new venture. A
+        browser-local calculator turning a carton's dimensions, actual weight
+        and DIM divisor into the billable weight a parcel carrier charges --
+        the greater of actual and dimensional, rounded up per package -- plus
+        the break-even cube at which the dimensional penalty stops, girth and
+        surcharge banding, and carrier dimension rounding applied before the
+        multiplication rather than after. 52 assertions in the venture's own
+        suite, plus a secondary explainer page whose JSON-LD is generated from
+        the same strings as its visible copy. Cross-linked both ways with
+        ltl-freight-class-estimator, each direction pinned by a test.
+      - >-
+        Session started with 0 open PRs (confirmed by both list_pull_requests
+        and a search_pull_requests sweep), so the three-PR merge quota was
+        moot rather than skipped. session_gate.py returned PROCEED and
+        reported the build-now pipeline exhausted -- the case it and
+        DIRECTION.md's 2026-09-06 owner direction both rank a fresh niche
+        first for. "Dimensional weight" appeared nowhere in the 328 existing
+        ventures and nowhere in screened-out.md; duplicate_check.py put the
+        nearest other venture (freight-accessorial-auditor) at 0.13, well
+        under the 0.45 flag bar.
+      - >-
+        The differentiator is the lever rather than the number. Carrier
+        calculators need an account and blog tools return a dimensional
+        weight and stop; this names the pounds of air being paid for and the
+        cube ceiling that ends it, and -- the case a naive implementation
+        gets wrong -- says "no height on this footprint reaches it, use a
+        smaller box" rather than telling someone to pack a mug flat.
+        levers.test.mjs pins all three branches, and content-pages.test.mjs
+        pins every worked figure in the prose (1,920 in3, 13.81 lb, 14 lb,
+        10 lb of air, 556 in3, 2.9 in) to actual engine output.
+      - >-
+        The divisor and the surcharge thresholds are inputs, not constants,
+        because they are carrier contract terms that differ by account and
+        change over time. No dollar figure is quoted anywhere in the venture:
+        a rate card embedded here would go stale, and a stale number reads as
+        a promise.
+      - >-
+        Two things the tree corrected mid-session, both worth recording.
+        launched.json is generated (launched.mjs --write), not hand-edited --
+        a hand-inserted row is byte-for-byte wrong and launched.test.mjs
+        caught exactly that. And check_venture_regression.py caught that the
+        branch was older than its parent after a concurrent session merged
+        equipment-auction-buyer-premium-calculator (#5051); merging main
+        produced the ordinary additive collisions this file keeps recording
+        -- build.mjs's logistics category rule, test_manifests.py's mirrored
+        count, SWITCHES_IN_THE_CATALOGUE, usage.yaml and this ledger -- all
+        resolved by keeping both sides, with sync_tree_counts.py re-deriving
+        the two counts against the merged tree rather than by hand.
+      - >-
+        Verified locally, Actions starved (ci_starvation.py --run
+        35208575297: runner_id 0, 3s, no steps). On main's tip before
+        starting: 1520 node assertions, 1083 pytest, all 27 platform/ci
+        unittest modules, 9/9 workflows under run_workflow_locally.py --tree,
+        regen.mjs --verify current, guard_state.py --require-runnable clean
+        (1 environmental skip). Post-change figures are in the PR body.
+        Not run: the full browser/accessibility sweep -- another session
+        recorded a clean whole-catalogue reading the same day (#5056) and
+        the 20-30 minute rerun was not spent again here; page.test.mjs
+        asserts the label-per-input property the axe sweep exists to catch,
+        which is a source assertion rather than a rendered one.

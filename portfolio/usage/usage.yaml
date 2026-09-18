@@ -6739,3 +6739,28 @@ products:
           bidder actually taking the estimate to a partner rather than reading
           it alone. Search terms this is built to meet are "buyer's premium
           calculator" and "auction cost calculator".
+  - slug: parcel-dim-weight-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-18
+        signals:
+          live_url_visitors: null
+          weight_calculated: 0
+          result_copied: 0
+          box_target_copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit rather than
+          retroactively. The visitor signal is null rather than zero: GitHub
+          Pages exposes no server-side analytics, this portfolio adds no
+          third-party one, and the local counters are opt-out and never leave
+          the device -- nobody has measured, which is not the same as having
+          measured nothing. The four event counts are genuine zeros for a
+          venture published minutes ago.
+          `box_target_copied` is the one worth watching, and it is separated
+          from `result_copied` deliberately. Copying the result means the
+          visitor read an answer; copying the box target means they intend to
+          send a carton spec to a packer or a supplier, which is the only
+          signal in this venture that anyone acted on the lever rather than
+          looking at it. If the two ever diverge sharply, the lever copy is
+          what to change.

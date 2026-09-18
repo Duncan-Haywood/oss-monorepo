@@ -381,7 +381,21 @@ const RELATIVE_SELF = relative(
 // open before the concurrent graduations above landed, so it only ever
 // knew 301 until this merge. The number below is `sync_tree_counts.py`'s
 // own fresh measurement against the merged tree, not a hand sum.
-const SWITCHES_IN_THE_CATALOGUE = 303;
+//
+// 303 -> 304 on 2026-09-18, when `parcel-dim-weight-calculator` graduated
+// with its own `usage.mjs` opt-out (it gates the
+// `weight_calculated`/`result_copied`/`box_target_copied` counters behind the
+// same `usageAllowed` read that `clearUsage` writes), keyed under its own
+// storage name and following the same working pattern as its sibling
+// ventures. Verified the way this file's error message prescribes rather
+// than by assuming: exactly one added `usage.mjs`
+// (`ventures/parcel-dim-weight-calculator/usage.mjs`) and no deletions, so
+// this is a graduation and not a switch that stopped being a switch. This
+// branch was open before `equipment-auction-buyer-premium-calculator` and
+// `docker-cache-order-check` landed, so it only ever knew its own
+// predecessor's number (301) until this merge -- same collision shape as
+// the entries above it.
+const SWITCHES_IN_THE_CATALOGUE = 304;
 
 let counter = 0;
 function fixture(source) {

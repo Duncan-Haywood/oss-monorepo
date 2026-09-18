@@ -731,6 +731,9 @@ workflows:
 - workflow: painting-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: parcel-dim-weight-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: parking-lot-striping-bid-calculator-ci.yml
   classification: none
   publishes: []
