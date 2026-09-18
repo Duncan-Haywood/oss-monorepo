@@ -134,6 +134,15 @@
     <summary type="text">Paste your Dockerfile and find every ENV or ARG instruction whose name looks like a secret, and every COPY/ADD of a credential file like .env or id_rsa into the build. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Docker Cache Order Check — Is Your Dockerfile Busting Its Own Build Cache?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/docker-cache-order-check/"/>
+    <id>tag:marisstella.dev,2026:tool/docker-cache-order-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a Dockerfile and see whether its instruction order defeats Docker&#39;s own layer cache: a dependency manifest copied and installed after the whole build context, an install command with no isolated manifest COPY at all, and an apt-get update run without install in the same layer. Free, deterministic, runs entirely in your browser.</summary>
+  </entry>
+  <entry>
     <title>Dog Boarding &amp; Daycare Pricing Calculator — Price a Stay, Check Occupancy</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-boarding-daycare-pricing/"/>
     <id>tag:marisstella.dev,2026:tool/dog-boarding-daycare-pricing</id>

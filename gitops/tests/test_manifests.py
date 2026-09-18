@@ -2040,17 +2040,30 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # lot instead of a customs entry). Recorded from `sync_tree_counts.py`'s
     # own fresh measurement against the merged tree, not a hand sum.
     #
-    # 321 since 2026-09-18, when `parcel-dim-weight-calculator` graduated -- a
+    # 321 since 2026-09-17, when `docker-cache-order-check` graduated
+    # concurrently -- a zero-dependency CLI + browser checker reading a
+    # Dockerfile's instruction order for build-cache-invalidation mistakes (a
+    # dependency manifest copied/installed after a whole-context `COPY . .`,
+    # or an `apt-get update` split from `install` across layers). A different
+    # object from this portfolio's other two Dockerfile checkers, which each
+    # check one instruction against a rule rather than instruction order.
+    # This branch was open before the other ventures above landed, so it
+    # only ever knew 319 until this merge. Recorded from
+    # `sync_tree_counts.py`'s own fresh measurement against the merged tree,
+    # not a hand sum.
+    #
+    # 322 since 2026-09-18, when `parcel-dim-weight-calculator` graduated -- a
     # browser-local calculator turning a carton's dimensions, actual weight and
     # DIM divisor into the billable weight a parcel carrier charges, plus the
     # break-even cube that ends the dimensional penalty, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count. This branch was open before
-    # `equipment-auction-buyer-premium-calculator` landed, so it only ever knew
-    # its own predecessor's number (320) until this merge -- the same ordinary
-    # collision shape recorded throughout this list, and re-derived here by
-    # `sync_tree_counts.py` against the merged tree rather than by hand.
-    total = 321  # `infra/OWNER_CHECKLIST.md`'s own "N of the 321 tools" wording.
+    # `equipment-auction-buyer-premium-calculator` and `docker-cache-order-check`
+    # landed, so it only ever knew its own predecessor's number (320) until
+    # this merge -- the same ordinary collision shape recorded throughout this
+    # list, and re-derived here by `sync_tree_counts.py` against the merged
+    # tree rather than by hand.
+    total = 322  # `infra/OWNER_CHECKLIST.md`'s own "N of the 322 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
