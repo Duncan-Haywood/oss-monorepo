@@ -381,6 +381,7 @@ const RELATIVE_SELF = relative(
 // open before the concurrent graduations above landed, so it only ever
 // knew 301 until this merge. The number below is `sync_tree_counts.py`'s
 // own fresh measurement against the merged tree, not a hand sum.
+//
 // 303 -> 304 on 2026-09-18, when `parcel-dim-weight-calculator` graduated
 // with its own `usage.mjs` opt-out (it gates the
 // `weight_calculated`/`result_copied`/`box_target_copied` counters behind the
@@ -390,10 +391,10 @@ const RELATIVE_SELF = relative(
 // than by assuming: exactly one added `usage.mjs`
 // (`ventures/parcel-dim-weight-calculator/usage.mjs`) and no deletions, so
 // this is a graduation and not a switch that stopped being a switch. This
-// branch was open before `equipment-auction-buyer-premium-calculator` landed,
-// so it only ever knew its own predecessor's number (301, then 302, then 303)
-// until this merge --
-// same collision shape as the entries above it.
+// branch was open before `equipment-auction-buyer-premium-calculator` and
+// `docker-cache-order-check` landed, so it only ever knew its own
+// predecessor's number (301) until this merge -- same collision shape as
+// the entries above it.
 const SWITCHES_IN_THE_CATALOGUE = 304;
 
 let counter = 0;
