@@ -358,7 +358,20 @@ const RELATIVE_SELF = relative(
 // deletions, so this is a graduation and not a switch that stopped being
 // one. This branch was open before `no-tax-on-tips-overtime-calculator`
 // landed, so it only ever knew 299 until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 301;
+//
+// 300 -> 301 on 2026-09-17, when `qbi-deduction-calculator` graduated
+// concurrently with its own opt-out switch (a federal Section 199A
+// qualified-business-income deduction estimator).
+//
+// 301 -> 302 on 2026-09-17, when `equipment-auction-buyer-premium-calculator`
+// graduated concurrently with its own `record`/`setUsageOptOut`/
+// `usageOptedOut` switch, the same `usage.mjs` shape as
+// `storage-auction-max-bid-calculator`. Verified the way this file's error
+// message prescribes: exactly one added `usage.mjs`
+// (`ventures/equipment-auction-buyer-premium-calculator/usage.mjs`) and no
+// deletions, so this is a graduation and not a switch that stopped being
+// one.
+const SWITCHES_IN_THE_CATALOGUE = 302;
 
 let counter = 0;
 function fixture(source) {

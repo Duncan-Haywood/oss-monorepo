@@ -14685,6 +14685,86 @@ ventures:
       seller happy -- unlike the incumbent lead-generation calculators
       this venture's own distribution note names, which are built to
       route the seller into a paid exchange-intermediary consultation.
+  - slug: equipment-auction-buyer-premium-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over auction terms the bidder types: a
+      buyer's premium percentage capped at a per-lot dollar amount, an
+      online-bidding premium, a card surcharge, and sales tax on the
+      resulting purchase price, plus one closed-form solve for the
+      hammer price that hits a target all-in budget. Exactly computable
+      from published terms; there is nothing to infer and nothing a model
+      would do better than the arithmetic already does.
+    basis: >-
+      Graduated 2026-09-17. duplicate_check.py against "free calculator
+      for farm equipment and collector car auction buyers that turns a
+      hammer price into an out-the-door total including buyer's premium,
+      sales tax, and doc/title fees, and compares an online-bidding
+      platform's extra buyer's premium surcharge against an in-person
+      paddle bid" scored the closest existing venture at 0.19
+      (storage-auction-max-bid-calculator, sharing only the buyer's-
+      premium-on-a-hammer-price vocabulary). Well under the 0.45 flag
+      bar, and the mechanism is genuinely distinct: that tool prices a
+      resale-margin bid on a sight-unseen storage unit's contents, this
+      one prices a known lot's total cost for a buyer keeping the
+      equipment, including a per-lot premium cap, a separate
+      online-bidding premium, and a card surcharge none of the
+      marketplace sell-side tools (whatnot-seller-payout,
+      ebay-fee-calculator) model either. No screened-out.md row mentions
+      "buyer's premium", "equipment auction", or "hammer price".
+      Defensibility 2: the buyer's-premium-plus-cap arithmetic is simple
+      once seen and easy to reimplement -- scored below
+      storage-auction-max-bid-calculator's 2 is not possible on this
+      0-10 scale, so scored equal to it; the specific framing (stacking
+      the cap, the online premium, the card surcharge, and the tax-base
+      question together, with the reverse max-bid solve) is what
+      differentiates it from the generic flat-percentage calculators
+      distribution below names, not any structural moat.
+      Distribution 5: "buyer's premium calculator" and "auction cost
+      calculator" are established search phrases -- web search
+      (2026-09-17) surfaced a cluster of existing generic calculators
+      (calculator.academy, calculatorzilo.com, momaa.org,
+      kishorparmar.com), all built for fine-art auctions and modeling a
+      flat percentage only, with no per-lot cap, no online-bidding
+      premium, and no tax-base handling. Farm and heavy-equipment auction
+      listings and forum threads (HiBid catalogue listings,
+      yesterdaystractors.com) confirm real published terms with exactly
+      the stacking structure this tool models. Not higher, because no
+      search-volume tool was queried to confirm magnitude and the
+      portfolio has no measured traffic of its own to extrapolate from.
+      Time to revenue 5, matching storage-auction-max-bid-calculator:
+      donations-only, and the specific framing is easy to reimplement
+      once seen.
+      Autonomous ops 10 / gross margin 10: a static page that computes in
+      the visitor's browser with nothing uploaded and nothing fetched, so
+      serving one more user costs a static file and needs no human
+      review of any output.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Every output is framed as a planning estimate to confirm
+      against the specific auction's own printed terms before bidding,
+      never a determination of what a particular auction house, state,
+      or lender actually charges -- the bidder remains responsible for
+      reading the terms. Every simplification the arithmetic makes fires
+      as a disclosed finding on the page itself (the cap binding, the
+      online-bidding and card fees applying, which base sales tax is
+      charged on, an unverified tax exemption) rather than being silently
+      assumed. Ethically: donations-only with no per-use fee, no
+      transaction, and no take rate tied to the number shown, so there is
+      no incentive to bias the estimate toward a lower total to keep a
+      bidder happy.
   - slug: qbi-deduction-calculator
     scores:
       ai_leverage: 1

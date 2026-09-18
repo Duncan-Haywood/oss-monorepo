@@ -1,0 +1,95 @@
+name: equipment-auction-buyer-premium-calculator
+description: Free browser calculator for a farm, construction, or heavy-equipment auction bidder. Turns a hammer price into the true out-the-door total -- a buyer's premium (capped per lot if the auction caps it), an online-bidding premium, a card surcharge, sales tax on the full purchase price (or an exemption), and a flat doc/title fee -- and can solve backward from a target all-in budget to the highest hammer price that stays inside it. Entirely client-side.
+
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a
+# deterministic auction-cost tool for farm and heavy-equipment bidders --
+# the buy side of an auction, for a buyer keeping the equipment to use, not
+# to resell. Distinct from `storage-auction-max-bid-calculator` (buy side
+# too, but sight-unseen contents priced for resale margin) and from the
+# marketplace sell-side tools (whatnot-seller-payout, ebay-fee-calculator):
+# none of those model a per-lot premium cap, a separate online-bidding
+# premium, or tax charged on the premium itself, which is the actual
+# arithmetic this persona gets wrong.
+#
+# duplicate_check.py against "free calculator for farm equipment and
+# collector car auction buyers that turns a hammer price into an
+# out-the-door total including buyer's premium, sales tax, and doc/title
+# fees, and compares an online-bidding platform's extra buyer's premium
+# surcharge against an in-person paddle bid" scored nothing >= 0.45 -- top
+# match was 0.19 (storage-auction-max-bid-calculator, sharing only the
+# buyer's-premium-on-a-hammer-price vocabulary, not the mechanism: that tool
+# prices a resale-margin bid on unseen contents, this one prices a known
+# lot's total cost for a buyer who is keeping it). No venture directory or
+# screened-out.md row mentions "buyer's premium", "equipment auction", or
+# "hammer price".
+#
+# Also checked against portfolio/DIRECTION.md's ethics/liability standing
+# constraints: not advice-of-record. It applies the buyer's premium, fee,
+# and tax terms the bidder types (read off the auction's own printed terms)
+# to a hammer price or budget they supply -- nothing is scraped or looked up
+# about a specific auction, state, or lender. Every simplification (which
+# base sales tax applies to, whether the cap is per-lot) fires as a
+# disclosed finding on the page itself.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 7 -- being wrong here costs the bidder a
+#     miscalculated planning estimate they can check against the auction's
+#     own printed terms before they bid, or a bid placed on a wrong mental
+#     total -- not a filed obligation, a contract breach, or a third
+#     party's money. Every dollar amount is independently re-derivable by
+#     the bidder from the same printed terms and their own budget; nothing
+#     is scraped or inferred about a specific auction house, lender, or
+#     state's rules. The tax-exemption checkbox explicitly disclaims that
+#     it is not a verified determination.
+#   ethical_robustness: 8 -- deterministic arithmetic over user-supplied
+#     terms, no dark patterns, no data collected server-side (localStorage
+#     only, opt-out honored, Do Not Track and Global Privacy Control both
+#     respected). Does not get worse for users as traffic grows. No
+#     transaction, no take rate, and no revenue model tied to the number
+#     shown -- only an optional, unrelated donation link -- so there is no
+#     incentive to show a bidder a lower total than the real one.
+#
+# Distribution: "buyer's premium calculator" and "auction cost calculator"
+# are established search phrases -- web search (2026-09-17) surfaced a
+# cluster of existing generic calculators (calculator.academy,
+# calculatorzilo.com, momaa.org, kishorparmar.com), all built for fine-art
+# auctions and modeling a flat percentage only, with no per-lot cap, no
+# online-bidding premium, and no tax-base handling. Farm and heavy-equipment
+# auction listings and forum threads (HiBid catalogue listings,
+# yesterdaystractors.com) confirm real published terms with exactly the
+# stacking structure this tool models: "10% Buyer's Premium... capped at
+# $350/$2,500 per item", a separate 2-3% online/internet-bidding fee for
+# platform bidders, and a further 2-3% card-processing surcharge -- none of
+# which the generic art-auction calculators represent at all.
+hypotheses:
+  - claim: A bidder who lands here from a "buyer's premium calculator" or "auction cost calculator" search, or who found it through a farm-equipment or heavy-equipment auction forum, will use the capped-premium/online-premium/tax stack to get a true out-the-door total instead of a flat-percentage guess before bidding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The reverse max-bid-for-a-budget calculation helps a bidder set a paddle or online max-bid number before the auction starts, rather than doing the arithmetic live while the price is moving.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or forum-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/equipment-auction-buyer-premium-calculator/
+  analytics: null

@@ -224,3 +224,14 @@ test('index links one hop to the whatnot-seller-payout sibling', () => {
     'index must link ../whatnot-seller-payout/ so crawlers reach the Whatnot seller payout calculator in one hop',
   );
 });
+
+// Reciprocal half of the link added to equipment-auction-buyer-premium-calculator
+// the same session: both price a buyer's premium on top of a hammer price,
+// one for resale (this page) and one for the buyer's own use (that page).
+test('index links one hop to the equipment-auction-buyer-premium-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/equipment-auction-buyer-premium-calculator\/"/,
+    'index must link ../equipment-auction-buyer-premium-calculator/ so crawlers reach it in one hop',
+  );
+});
