@@ -1180,6 +1180,15 @@
     <loc>https://marisstella.dev/tools/docker-build-secrets-check/vs-gitleaks.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/docker-cache-order-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-cache-order-check/why-docker-build-cache-gets-busted.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/dog-boarding-daycare-pricing/</loc>
   </url>
   <url>

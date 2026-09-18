@@ -1,0 +1,91 @@
+name: docker-cache-order-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that parses a Dockerfile''s instruction order and flags three documented Docker build-cache-invalidation mistakes: a dependency manifest (package.json, requirements.txt, go.mod, Gemfile, composer.json, Cargo.toml) copied and installed after a whole-build-context `COPY . .` already ran in the same build stage, an install command with no isolated manifest copy at all (so there is no dependency layer to cache regardless of order), and an `apt-get update`/`apt update` run without `install`/`upgrade` in the same RUN instruction -- the exact split Docker''s own Dockerfile best practices documentation names as a cause of a stale, separately-cached package index. Not a Dockerfile linter checking one instruction against a rule (this portfolio already has two of those: docker-base-image-pin-check for FROM pinning, docker-build-secrets-check for leaked secrets) -- this reasons about the relative order of instructions across the whole file, and never runs docker build, pulls an image, or contacts a registry.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype chosen deliberately, per portfolio/pipeline/README.md's
+# 2026-09-07 (widened 2026-09-11) archetype-fatigue note: neither a 202nd
+# <trade>-bid-calculator nor a 40th generic misconfiguration checker counts as
+# novelty evidence on its own. This checks a genuinely different object than
+# this portfolio's existing Dockerfile checkers (build-cache *ordering*, not
+# base-image pinning or build-secret leakage) and a genuinely different
+# object than any existing venture -- see the duplicate_check.py run below.
+#
+# duplicate_check.py (run 2026-09-17) scored every existing venture,
+# screened-out row, and pipeline candidate against this idea's final
+# description at or below 0.12 -- nowhere near the 0.45 read-this-first bar.
+# Closest by eye: agent-instructions-drift-check, wordpress-plugin-review-check
+# and security-txt-check (0.12, share only generic "checker/drift" vocabulary),
+# docker-build-secrets-check and package-exports-drift-check (0.10, share only
+# "Dockerfile"/"manifest" vocabulary -- both check a single instruction or a
+# single file's existence, not instruction ordering). No existing venture,
+# screened-out row, or candidate reads a Dockerfile's instruction *order* at
+# all.
+#
+# Distribution channel, named and checkable without guessing: Docker's own
+# official documentation ("Leverage build cache" under the Dockerfile
+# reference/best-practices docs) states the exact ordering rule this tool
+# checks -- copy the manifest and install before copying the rest of the
+# source -- and separately, in its "apt-get" guidance, states directly that
+# apt-get update and apt-get install must be combined in one RUN or the
+# cached update layer goes stale. r/docker (400k+ members) and the [docker]
+# tag on Stack Overflow carry recurring, long-running threads on this exact
+# symptom ("docker build always reinstalling npm packages even though
+# package.json didn't change", "docker is caching my apt-get update, causing
+# subsequent installs to fail" -- the latter is itself a canonical,
+# highly-upvoted Stack Overflow question by title). This is scored as a real,
+# searchable, recurring developer pain point with an authoritative source
+# naming the exact fix, rather than a one-off incident report -- though, per
+# this portfolio's standing caveat on other recent checkers, no external
+# search-volume tool was queried to confirm magnitude.
+hypotheses:
+  - claim: A developer who has just watched `docker build` reinstall dependencies on a source-only change (or who is reading Docker's own "Leverage build cache" documentation) will search for a way to check a Dockerfile's instruction order before merging it, find this tool via GitHub/web search, and run either the CLI or the browser page at least once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire cli.mjs --fail-on-risk into CI as a merge gate on Dockerfile changes, the same way this portfolio's other CLI checkers (docker-base-image-pin-check, cron-dst-drift-check) are designed to be wired in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser page computes everything from the
+  # Dockerfile text the visitor pastes in, using pure regex/text analysis
+  # with no library and no network call, and the CLI is the same logic
+  # reading files already on the visitor's own disk. Serving one more user
+  # costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs --fail-on-risk into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/docker-cache-order-check/
+  analytics: null
+
+# Scored against portfolio/pipeline/README.md's eight dimensions, 2026-09-17.
+# liability_containment and ethical_robustness are the two hard gates (reject
+# below 5); both score well above it, since this is a pure static text
+# analysis with no advice-of-record, no compliance claim, and no data
+# collection -- the worst case of being wrong is a suggested reorder that
+# does not actually help a given build, not a legal or financial exposure.
+scoring:
+  ai_leverage: 3            # deterministic rule-based text/regex analysis, not model work -- consistent with this portfolio's other checkers
+  autonomous_ops: 10        # static file + CLI, no queue, nothing needs a human to drain
+  time_to_revenue: 1        # donation-only, no direct-revenue plan -- the honest floor for every free tool in this portfolio
+  gross_margin: 10          # zero marginal cost per user, no server, no paid API
+  defensibility: 3          # easily copied ruleset; the moat, if any, is being first and best-documented
+  distribution: 6           # named channel above: Docker's own official docs state the exact rule, plus recurring r/docker and Stack Overflow [docker] thread volume on the exact symptom
+  liability_containment: 9  # gate; pure static text analysis, no filing/advice-of-record, worst case is a suboptimal suggestion
+  ethical_robustness: 9     # gate; gets better for users as it scales (more Dockerfiles checked, no negative externality), fully transparent about what it does and doesn't check
+  composite: 6.375          # mean of the eight above
+  floor: 1                  # time_to_revenue, same as most of this portfolio's free-tool graduations

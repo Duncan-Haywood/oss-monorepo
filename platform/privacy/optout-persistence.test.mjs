@@ -372,7 +372,16 @@ const RELATIVE_SELF = relative(
 // deletions, so this is a graduation and not a switch that stopped being
 // one.
 //
-// 302 -> 303 on 2026-09-18, when `parcel-dim-weight-calculator` graduated
+// 302 -> 303 on 2026-09-17, when `docker-cache-order-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch, the same `usage.mjs`
+// shape as its sibling Dockerfile checkers. Verified the way this file's
+// error message prescribes: exactly one added `usage.mjs`
+// (`ventures/docker-cache-order-check/usage.mjs`) and no deletions, so this
+// is a graduation and not a switch that stopped being one. This branch was
+// open before the concurrent graduations above landed, so it only ever
+// knew 301 until this merge. The number below is `sync_tree_counts.py`'s
+// own fresh measurement against the merged tree, not a hand sum.
+// 303 -> 304 on 2026-09-18, when `parcel-dim-weight-calculator` graduated
 // with its own `usage.mjs` opt-out (it gates the
 // `weight_calculated`/`result_copied`/`box_target_copied` counters behind the
 // same `usageAllowed` read that `clearUsage` writes), keyed under its own
@@ -382,9 +391,10 @@ const RELATIVE_SELF = relative(
 // (`ventures/parcel-dim-weight-calculator/usage.mjs`) and no deletions, so
 // this is a graduation and not a switch that stopped being a switch. This
 // branch was open before `equipment-auction-buyer-premium-calculator` landed,
-// so it only ever knew its own predecessor's number (301) until this merge --
+// so it only ever knew its own predecessor's number (301, then 302, then 303)
+// until this merge --
 // same collision shape as the entries above it.
-const SWITCHES_IN_THE_CATALOGUE = 303;
+const SWITCHES_IN_THE_CATALOGUE = 304;
 
 let counter = 0;
 function fixture(source) {
