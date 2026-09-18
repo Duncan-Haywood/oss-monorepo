@@ -85,6 +85,25 @@
  * is `node platform/marketing/regen.mjs`, committed — never a hand edit, for
  * the reason `resolve-mirror-merge.sh` documents at length.
  *
+ * ## The one hazard, and it has already fired once
+ *
+ * "Puts the tree back" is not the same as "never touched it". For about seven
+ * seconds `--verify` deletes and rewrites `gitops/prod/`, so **anything else
+ * reading that directory at the same time reads a half-written tree.**
+ *
+ * That is not hypothetical. #5032 shipped an end-to-end test that ran this
+ * mode as a subprocess, `node --test` runs the files in this directory in
+ * parallel, and `front-door.test.mjs` and `front-door-tools.test.mjs` spend
+ * their whole run reading committed artifacts out of `gitops/prod/`. `main`
+ * went red within the hour: 3 of 266, then 4 of 266, on an unchanged commit,
+ * while each file passed 111/111 and 101/101 on its own. #5032's own
+ * verification run passed 266/266 and was simply lucky with the interleaving.
+ *
+ * So: run `--verify` on its own. Do not background it beside a test run, and
+ * do not call it from a test — `regen.test.mjs` covers the restore against a
+ * temp directory through `withSnapshot` for exactly that reason. The
+ * checklist's ordering (verify, then the suites) is sequential and safe.
+ *
  * Order does not matter: the two generators touch disjoint outputs apart from
  * `front-door/00-mirror-alias.conf` (written only by `front-door-tools.mjs`),
  * and running them in either order reaches the same tree. `regen.test.mjs`
@@ -241,6 +260,32 @@ const outsideRoot = (paths, rootRel) =>
   [...(paths ?? [])].filter((p) => !p.startsWith(`${rootRel}/`)).sort();
 
 /**
+ * Run `body`, then put `dir` back exactly as it was found.
+ *
+ * Extracted from `verifyCurrent` so the risky half — the restore — is testable
+ * against a temp directory rather than only against the real artifact root.
+ * `regen.test.mjs` exercises it with a body that changes, deletes and adds
+ * files, which is the shape a generator run takes (`writeMirror` starts with
+ * `fs.rm(outputDir, { recursive: true })`).
+ *
+ * The restore is in a `finally`, deliberately: `--verify` promising a
+ * byte-identical tree and then leaving 2,184 rewritten files behind on an
+ * error would be worse than not offering the mode.
+ */
+export async function withSnapshot(dir, body) {
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'regen-snapshot-'));
+  const saved = path.join(scratch, 'snapshot');
+  await fs.cp(dir, saved, { recursive: true });
+  try {
+    return await body();
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+    await fs.cp(saved, dir, { recursive: true });
+    await fs.rm(scratch, { recursive: true, force: true });
+  }
+}
+
+/**
  * Run every generator and report whether the committed artifacts already match
  * what they produce, leaving the tree exactly as it was found.
  *
@@ -252,39 +297,29 @@ const outsideRoot = (paths, rootRel) =>
 export async function verifyCurrent({ generators, repoRoot, log = () => {} } = {}) {
   const rootRel = path.relative(repoRoot, ARTIFACT_ROOT).split(path.sep).join('/');
   const dirtyBefore = dirtyPaths(repoRoot);
-  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'regen-verify-'));
-  const saved = path.join(scratch, 'artifact-root');
 
   try {
-    log(`snapshotting ${rootRel}/ …`);
-    await fs.cp(ARTIFACT_ROOT, saved, { recursive: true });
-    const before = await hashTree(ARTIFACT_ROOT);
+    return await withSnapshot(ARTIFACT_ROOT, async () => {
+      log(`snapshotted ${rootRel}/ — running the generators`);
+      const before = await hashTree(ARTIFACT_ROOT);
 
-    for (const name of generators) {
-      log(`  ${commandFor(name)}`);
-      const result = spawnSync(process.execPath, [path.join(HERE, name), '--write'], {
-        cwd: repoRoot,
-        encoding: 'utf8',
-      });
-      if (result.status !== 0) {
-        throw new Error(
-          `${name} exited ${result.status ?? 'on a signal'} during --verify. ` +
-            `That is a broken generator, not a stale commit:\n${result.stderr || result.stdout}`,
-        );
+      for (const name of generators) {
+        log(`  ${commandFor(name)}`);
+        const result = spawnSync(process.execPath, [path.join(HERE, name), '--write'], {
+          cwd: repoRoot,
+          encoding: 'utf8',
+        });
+        if (result.status !== 0) {
+          throw new Error(
+            `${name} exited ${result.status ?? 'on a signal'} during --verify. ` +
+              `That is a broken generator, not a stale commit:\n${result.stderr || result.stdout}`,
+          );
+        }
       }
-    }
 
-    const after = await hashTree(ARTIFACT_ROOT);
-    return compareTrees(before, after);
+      return compareTrees(before, await hashTree(ARTIFACT_ROOT));
+    });
   } finally {
-    // Restore before anything else can observe the regenerated tree, including
-    // a failure path: `--verify` promising a byte-identical tree and then
-    // leaving 2,184 rewritten files behind on an error would be worse than not
-    // offering the mode.
-    await fs.rm(ARTIFACT_ROOT, { recursive: true, force: true });
-    await fs.cp(saved, ARTIFACT_ROOT, { recursive: true });
-    await fs.rm(scratch, { recursive: true, force: true });
-
     const dirtyAfter = dirtyPaths(repoRoot);
     if (dirtyBefore && dirtyAfter) {
       const leaked = outsideRoot(dirtyAfter, rootRel).filter(

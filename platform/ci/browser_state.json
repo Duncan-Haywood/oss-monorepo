@@ -11,28 +11,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "10501a1f4e44d9466ac9a7334269e7b7a0d9f706",
-      "measured": "2026-09-17",
-      "pages": 1081,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "9a4ed55f34b29c668cd54737317900936c211348",
-        "ventures": "36107e9924e16eb205f66785916fb8d0dffeabad"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "2e8856e1a5da8780c1e2bcc157f34332b9b3abe0",
       "measured": "2026-09-17",
       "pages": 1091,
@@ -438,6 +416,28 @@
         "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
         "platform/pages": "8aef87c3db29583a6a21f7c7cbe038c3e06fc84c",
         "ventures": "d7733e53fec45a14c6029c15b1121b0f998b0014"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "b64e9921b658569062a77f74d1cc282c55127d9d",
+      "measured": "2026-09-17",
+      "pages": 1204,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "41baf5124ab456214f845f68b749cf2b8595a175",
+        "platform/pages": "87a1907c789e782c39f870dfb24ad85110e7fbfa",
+        "ventures": "76706df63b6d29da6363f0096149f172fa2e311a"
       }
     }
   ]

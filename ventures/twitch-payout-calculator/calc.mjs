@@ -11,10 +11,16 @@
 // in sub revenue this month") is not what lands in their bank account, and
 // two common beliefs about why get the mechanics backwards:
 //
-//   - **The revenue split is real and does move payout.** Standard
-//     Affiliates and most Partners keep 50% of subscription revenue;
-//     Partners in Twitch's Partner Plus program keep 70% once they qualify.
-//     That is the one lever that actually changes take-home per sub.
+//   - **The revenue split is real and does move payout.** Everyone starts at
+//     50% of subscription revenue. Affiliates and Partners who sustain 100
+//     Plus Points for three consecutive months move to 60%, and those who
+//     reach 300 Plus Points move to 70%, under Twitch's Plus Program (a
+//     2024 overhaul that also opened the program to Affiliates, not just
+//     Partners, and removed the earlier $100k annual cap on the 70% tier).
+//     Plus Points come from paid recurring subs only — 1 point per Tier 1,
+//     2 per Tier 2, 6 per Tier 3; gifted and Prime subs earn none. That is
+//     the one lever that actually changes take-home per sub, and it is a
+//     three-way choice, not a binary one.
 //   - **Purchase platform (web vs. the iOS/Android app) does not.** Twitch
 //     charges a higher price for a mobile subscription specifically to
 //     absorb Apple's and Google's in-app-purchase cut, so a streamer's
@@ -76,9 +82,10 @@ function number(value, label, { min = 0, max = null, exclusiveMax = false } = {}
  *   your payout per sub is the same on mobile — see the module note above).
  * @param {number} input.tier2Price What a Tier 2 sub costs.
  * @param {number} input.tier3Price What a Tier 3 sub costs.
- * @param {number} input.splitPct Your share of subscription revenue: 50 for
- *   standard Affiliate/Partner, 70 for Partner Plus. Read it off your own
- *   Twitch dashboard — it is not a fixed published number for every channel.
+ * @param {number} input.splitPct Your share of subscription revenue: 50 by
+ *   default, or 60/70 under Twitch's Plus Program once you sustain 100/300
+ *   Plus Points. Read it off your own Twitch dashboard — it is not a fixed
+ *   published number for every channel.
  * @param {number} input.bitsCheered Total Bits cheered to you this month.
  *   Always worth $0.01 each to you, regardless of your subscription split.
  * @param {number} input.otherMonthlyIncome Ad revenue, sponsorships, or

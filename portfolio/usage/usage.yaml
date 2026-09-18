@@ -6667,6 +6667,27 @@ products:
           the one act every visitor with a real question can complete
           regardless of the answer they get.
 
+  - slug: qbi-deduction-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          deduction_calculated: 0
+          example_loaded: 0
+        note: >-
+          Baseline at graduation. A browser-local calculator for the
+          Section 199A qualified business income (QBI) deduction, one
+          qualified trade or business, tax years 2025 and 2026.
+          `live_url_visitors` is null, not zero -- nobody has measured
+          yet. Named channel to watch: several CPA-firm-branded "QBI
+          deduction calculator" tools already exist, evidence of real
+          search volume for the exact phrase, sharpened by the OBBBA
+          changes taking effect for tax year 2026; `deduction_calculated`
+          is the signal worth watching first, since it is the one act
+          every visitor with a real question completes regardless of the
+          answer they get.
+
   - slug: depreciation-recapture-calculator
     surface: github-pages
     readings:

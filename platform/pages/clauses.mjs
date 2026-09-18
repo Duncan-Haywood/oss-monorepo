@@ -185,6 +185,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific tax-prep company or
   // competing calculator at all.
   'no-tax-on-tips-overtime-calculator/vs-estimating-the-deduction-by-hand.html',
+  // Compares against "the Form 8995-A worksheet by hand" -- the IRS's own
+  // published worksheet, a generic method every filer already has, not a
+  // company or product this could be mistaken for. The page names no
+  // specific tax-prep company or competing calculator at all.
+  'qbi-deduction-calculator/vs-doing-the-worksheet-by-hand.html',
   // Compares against "a spreadsheet" -- a generic method every tutor already
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
@@ -377,6 +382,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page's own footer says so explicitly ("common, honest shortcut"). Same
   // reasoning as the other generic-method pages above.
   'egress-window-bid-calculator/vs-a-flat-rate-egress-window-special.html',
+  // Compares against "a flat $8-a-foot" crown molding special -- a generic
+  // pricing method every finish carpenter already has access to, not a
+  // company or product this could be mistaken for. The page's own footer
+  // says so explicitly ("common, honest shortcut"). Same reasoning as the
+  // other generic-method pages above.
+  'crown-molding-bid-calculator/vs-a-flat-rate-crown-molding-special.html',
   // Compares against "tracking payouts in a spreadsheet" -- a generic method
   // every Whatnot seller already has access to, not a company or product
   // this could be mistaken for. The page's own footer says so explicitly

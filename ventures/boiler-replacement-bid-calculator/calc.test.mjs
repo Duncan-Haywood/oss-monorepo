@@ -229,6 +229,43 @@ test('every shipped job preset calculates without throwing', () => {
   }
 });
 
+test('the displayed cost breakdown sums to the total cost shown beside it', () => {
+  // Regression: extraCost used to add the loaded-wage cost of the
+  // vent/condensate/conversion/zones/size/indirect/liner/oil-to-gas/
+  // primary-secondary/travel hours on top of extraHardware -- but every one
+  // of those hours is already inside laborCost (totalHours * loadedWage).
+  // The result panel shows "Loaded labor", "Plant", "Extra work",
+  // "Travel & other", and "Overhead" as a breakdown of "Total cost" right
+  // below them, so on any job with real extras those hours were charged
+  // twice and the five displayed lines overshot the printed total, with
+  // "Extra work" reading far bigger than its real share.
+  for (const preset of JOB_PRESETS) {
+    const kit = {
+      ...suggestedScopeKit(preset.scope),
+      ...suggestedSystemKit(preset.system),
+      ...suggestedFuelKit(preset.fuel),
+      ...suggestedExtraKit(),
+    };
+    const result = calculateBid({
+      ...preset,
+      hourlyWage: 48,
+      burdenRate: 32,
+      overheadRate: 15,
+      targetMargin: 20,
+      travelAndEquipment: 95,
+      otherCost: 0,
+      ...kit,
+    });
+    const sumOfParts = result.laborCost + result.plantMaterial + result.extraCost
+      + result.softCost + result.overhead;
+    assert.ok(Math.abs(sumOfParts - result.totalCost) < 1e-9, preset.label);
+    const shareSum = result.shares.labor + result.shares.plant + result.shares.extra
+      + result.shares.soft + result.shares.overhead;
+    assert.ok(Math.abs(shareSum - 100) < 1e-6, preset.label);
+    assert.ok(Math.abs(result.extraCost - result.extraHardware) < 1e-9, preset.label);
+  }
+});
+
 test('a $280 circulator special loses on this visit under starting repair rates', () => {
   const kit = suggestedRepairKit();
   const comparison = compareRepairVsReplace(special(), { patchPrice: kit.patchPrice });

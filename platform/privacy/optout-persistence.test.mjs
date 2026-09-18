@@ -359,15 +359,16 @@ const RELATIVE_SELF = relative(
 // one. This branch was open before `no-tax-on-tips-overtime-calculator`
 // landed, so it only ever knew 299 until this merge.
 //
-// 300 -> 301 on 2026-09-17, when `docker-cache-order-check` graduated with
+// 301 -> 302 on 2026-09-17, when `docker-cache-order-check` graduated with
 // its own `setUsageOptOut`/`usageOptedOut` switch, the same `usage.mjs`
 // shape as its sibling Dockerfile checkers. Verified the way this file's
 // error message prescribes: exactly one added `usage.mjs`
 // (`ventures/docker-cache-order-check/usage.mjs`) and no deletions, so this
-// is a graduation and not a switch that stopped being one. The number below
-// is `sync_tree_counts.py`'s own fresh measurement against this branch, not
-// a hand sum.
-const SWITCHES_IN_THE_CATALOGUE = 301;
+// is a graduation and not a switch that stopped being one. This branch was
+// open before the concurrent graduations above landed, so it only ever
+// knew 301 until this merge. The number below is `sync_tree_counts.py`'s
+// own fresh measurement against the merged tree, not a hand sum.
+const SWITCHES_IN_THE_CATALOGUE = 302;
 
 let counter = 0;
 function fixture(source) {

@@ -322,17 +322,19 @@ export function calculateBid(input) {
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);
   const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);
-  const extraCost = extraHardware
-    + hoursVent * loadedWage
-    + hoursCondensate * loadedWage
-    + hoursConversion * loadedWage
-    + hoursZones * loadedWage
-    + hoursSize * loadedWage
-    + hoursIndirectApplied * loadedWage
-    + hoursLinerApplied * loadedWage
-    + hoursOilToGasApplied * loadedWage
-    + hoursPrimaryApplied * loadedWage
-    + hoursTravel * loadedWage;
+  // The result panel shows five line items -- Loaded labor, Plant, Extra
+  // work, Travel/other, Overhead -- as a breakdown of the Total cost
+  // printed right below them. extraCost used to add the loaded-wage cost
+  // of the vent/condensate/conversion/zones/size/indirect/liner/oil-to-gas/
+  // primary-secondary/travel hours on top of extraHardware -- but every one
+  // of those hours is already inside laborCost (totalHours * loadedWage,
+  // where totalHours = hoursTravel + hoursPlant + extraWorkHours +
+  // siteHours). So a job with real extras charged that labor twice: once
+  // under "Loaded labor" and again under "Extra work", and the five
+  // displayed lines summed to more than the total cost shown beneath them.
+  // extraCost is now just extraHardware -- the extras' material/invoice
+  // spend, with all labor staying in laborCost where it is counted once.
+  const extraCost = extraHardware;
 
   return {
     scope,

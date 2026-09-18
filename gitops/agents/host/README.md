@@ -260,9 +260,35 @@ Three properties make this safe, and each has a test:
 ```bash
 ./bootstrap/scripts/install-codex-host.sh --check   # what is installed, what is missing
 /opt/codex-agents/host/host_governor.py --check     # what it would do right now, and the budget
+/opt/codex-agents/host/host_governor.py --queue     # just the queue: parsed, enabled, dropped
 systemctl list-timers codex-governor.timer          # when it next fires
 journalctl -u codex-governor.service -f             # what it did
 ```
+
+**The queue report was added 2026-09-17, and it answers the half of "is this
+box working?" that every green signal was silent about.** `decide` returns as
+soon as the policy is off, so on an un-enabled box — which is every box being
+rehearsed — the decision line said "governor disabled" and nothing about
+whether there was work behind the switch. Meanwhile the installer's `--check`
+counted queue *files*. Neither is the question. Measured that day against the
+six real items:
+
+| what was changed | files | what the governor loads | what a tick runs |
+| --- | --- | --- | --- |
+| nothing | 6 | 6 | `deploy-cicd-readiness` |
+| every item `enabled: false` | 6 | 6 | **nothing, forever** |
+| one `modelClass: Deep` | 6 | **4** | `marketing-distribution` |
+
+The middle row is reachable by an ordinary merge and the bottom row by a
+one-character typo — and in the bottom row the two items dropped were
+`deploy-cicd-readiness` and `marketing-distribution`, the highest priorities in
+the queue. `_load_queue_dir` swallows the per-file `ValueError` and moves on,
+which is right for a scheduler and wrong for a report, so `queue_report` does
+the same parse with the `try` visible and names what it drops and why.
+
+Both reports print it now, and `--require-runnable` exits 1 while nothing would
+run, for the same reason `pages_state.py --require-current` does: a reminder
+competes with everything else in a long report, and an exit code does not.
 
 `--check` on either script starts nothing and writes nothing. Its "governor
 policy" line reports the policy **this box** holds, not the one in your
