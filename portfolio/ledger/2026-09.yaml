@@ -35141,3 +35141,89 @@ entries:
         the 20-30 minute rerun was not spent again here; page.test.mjs
         asserts the label-per-input property the axe sweep exists to catch,
         which is a source assertion rather than a rendered one.
+  - venture: docker-cache-order-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Reviewed and merged #5052 (opened concurrently by another session
+        while this one was mid-shop-rate-calculator-session), which itself
+        merged the docker-cache-order-check graduation branch that had been
+        sitting without a PR. By the time this session got to it, `main` had
+        moved to include #5056/#5057/#5058 and #5052's own merge conflict
+        resolution against an older `main` tip; re-resolved the same three
+        conflict categories (generated gitops/prod/ mirror,
+        mirrored-tool/opt-out running-comment counts, ledger) against the
+        current tip, plus a fourth that had appeared since --
+        platform/pages/clauses.mjs's comparison-page exemption set now had a
+        three-way collision (this venture, shop-rate-calculator,
+        equipment-auction-buyer-premium-calculator); kept all three entries.
+      - >-
+        Running the local checklist surfaced a real gap #5052's own tests
+        did not reach: docker-cache-order-check had a scoring block in its
+        own VENTURE.yaml but no row in portfolio/scoring/venture-scores.yaml,
+        so score_ventures.py --check and
+        portfolio/router/test_allocate.py::test_real_scores_file_covers_every_real_venture
+        both failed. Added the missing row, scored against the same
+        six-dimension rubric as its two Dockerfile-checker siblings
+        (docker-base-image-pin-check, docker-build-secrets-check), matching
+        their ai_leverage/autonomous_ops/time_to_revenue/gross_margin/
+        defensibility and scoring distribution one point higher (6 vs. 5)
+        given the more directly-named Docker-docs + Stack Overflow evidence
+        already in this venture's own VENTURE.yaml.
+      - >-
+        Also ran sync_tree_counts.py (321 mirrored tools, 303 opt-out
+        switches), gitops/ci/sync_readme_counts.py (415 of 417 across 376),
+        and publish_surface.py --write for the new CI workflow. Verified:
+        venture's own suite 40/40; node --test --test-concurrency=1
+        "platform/marketing/*.test.mjs" "platform/pages/*.test.mjs"
+        1277/1277; gitops/tests 637 passed / 1 skipped (environmental);
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests 446 passed (0 failed, after the score
+        fix -- 3 failed before it); all platform/ci unittest modules clean;
+        router/validate.py, validate_doc_consistency.py,
+        validate_candidates.py, validate_probe_index.py, usage_state.py
+        --require-honest, usage/validate_usage.py all clean; regen.mjs
+        --verify current. Merged, published
+        (CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh), and recorded pages_state.py's
+        github-pages-branch-route reading current at the merge commit
+        (#5059).
+  - venture: parcel-dim-weight-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Reviewed and merged #5055, a new venture opened concurrently by
+        another session while this one was mid-shop-rate-calculator-session.
+        A separate concurrent session had already pushed a merge of the same
+        branch against the same main tip while this review was in progress;
+        diffed the two resolutions (excluding the generated gitops/prod/
+        mirror, which both regenerate identically) and found mine additionally
+        caught a stale gitops/ci/README.md runs-on sentence (415/417/376 left
+        unrefreshed after the new CI workflow) that the other resolution had
+        missed, so force-pushed the more complete one rather than picking
+        arbitrarily.
+      - >-
+        Verified against the current tip of main (which had moved through
+        #5056/#5057/#5058/#5052/#5059 since this PR opened): venture's own
+        suite 52/52; node --test --test-concurrency=1
+        "platform/marketing/*.test.mjs" "platform/pages/*.test.mjs"
+        1277/1277; gitops/tests 637 passed / 1 skipped (environmental);
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests 446 passed; score_ventures.py --check
+        and router/validate.py both already clean (unlike
+        docker-cache-order-check above, this venture's own PR had scored it
+        correctly the first time); all platform/ci unittest modules clean;
+        checklist_coverage.py, check_no_payment_code.py, check_ledger_only.py
+        all clean; regen.mjs --verify current; sync_tree_counts.py --check
+        clean at 322 mirrored tools / 304 opt-out switches. Merged, published,
+        and recorded pages_state.py's github-pages-branch-route reading
+        current at the merge commit.
+      - >-
+        Session total: reviewed and merged 2 concurrently-opened PRs
+        (#5052, #5055) after the day's own 0-open-PR-queue product work
+        (#5056), each requiring a fresh merge-conflict resolution against a
+        main tip that had moved since the PR was opened -- consistent with
+        this repository's documented 4-distinct-sessions-per-15-minutes
+        collision rate. Left 0 open PRs at session end.
