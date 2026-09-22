@@ -35227,6 +35227,58 @@ entries:
         main tip that had moved since the PR was opened -- consistent with
         this repository's documented 4-distinct-sessions-per-15-minutes
         collision rate. Left 0 open PRs at session end.
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran platform/pages/surface-budget.mjs --for on the top router
+        candidates (reverb-fee-calculator, where-to-sell-calculator,
+        owner-operator-cpm-calculator, shop-rate-calculator,
+        marketplace-fee-compare, amazon-fba-calculator). All but
+        amazon-fba-calculator were already at the 1-per-venture
+        generic-method comparison budget; amazon-fba-calculator carried 20
+        guide pages and one named-product comparison (Amazon's own Revenue
+        Calculator) but zero generic-method pages, so it had genuine room
+        for the one "you could do this yourself" angle every other
+        high-merit candidate already had.
+      - >-
+        Shipped vs-tracking-it-in-a-spreadsheet.html: a comparison page
+        against building a spreadsheet to track the venture's ~20
+        interlinked same-SKU decisions (FBA vs FBM, a coupon, Subscribe &
+        Save, a supplier MOQ, prep, inbound placement, Individual vs
+        Professional, Low-Price FBA, aged inventory, AWD, Remote
+        Fulfillment, SFP) by hand. Followed the pattern of
+        reverb-fee-calculator/vs-tracking-offers-in-a-spreadsheet.html and
+        shop-rate-calculator/vs-guessing-your-burden-and-overhead.html: an
+        FAQPage JSON-LD block, the worked FBA ($10.99) vs FBM ($11.64)
+        profit example locked against calc.mjs's own calculateListing via a
+        new page.test.mjs test, the no-warranty/no-SLA/sponsor-link
+        footer, and an added entry in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (it names no competing product).
+        Linked the new page from index.html's "What this checks" section
+        and added it to sitemap.xml; index.html links to it and
+        page.test.mjs asserts the link. surface-budget.mjs --for now
+        reports the venture at 1/1 generic-method pages (in budget) and
+        --check reports the whole fleet still in budget (255 with 0, 66
+        with 1, 1 with 2 -- the recorded overtime-pay-calculator override).
+      - >-
+        Verified: venture's own suite (page.test.mjs plus siblings) 319/319;
+        platform/pages/clauses.mjs amazon-fba-calculator clean (23 published
+        pages carry required clauses); node --test
+        "platform/marketing/*.test.mjs" "platform/pages/*.test.mjs"
+        1277/1277; regen.mjs --verify caught the stale front-door mirror
+        this change produced and regen.mjs (no flag) fixed it, verified
+        current again after; gitops/tests 637 passed/1 skipped;
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests 446 passed; all 27 of
+        platform/ci's test_*.py unittest modules clean, plus
+        platform/ci/agent_review's test_review (21 tests);
+        checklist_coverage.py clean (no new test.mjs directory outside the
+        checklist's list). No public-URL deploy of a fresh venture was
+        involved (amazon-fba-calculator is already served); refreshed the
+        GitHub Pages branch snapshot after merge per the standing job if
+        pages_state.py reported it stale.
   - venture: where-to-sell-calculator
     agent_spend_usd: null
     human_hours: 0
