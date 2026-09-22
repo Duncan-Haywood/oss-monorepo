@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
-import { compareBulkBuy, compareCoupons, compareInboundPlacement, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave } from "./calc.mjs";
+import { calculateListing, compareBulkBuy, compareCoupons, compareInboundPlacement, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const couponSeo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
@@ -53,6 +53,10 @@ const narfSeo = readFileSync(
 );
 const acosSeo = readFileSync(new URL("./break-even-acos.html", import.meta.url), "utf8");
 const vsAmazonSeo = readFileSync(new URL("./vs-amazon-revenue-calculator.html", import.meta.url), "utf8");
+const vsSpreadsheetSeo = readFileSync(
+  new URL("./vs-tracking-it-in-a-spreadsheet.html", import.meta.url),
+  "utf8",
+);
 const fbaVsFbmSeo = readFileSync(new URL("./fba-vs-fbm.html", import.meta.url), "utf8");
 
 function parse(source) {
@@ -646,6 +650,50 @@ test("the incumbent-comparison page links back, names the incumbent honestly, an
   assert.doesNotMatch(vsAmazonSeo, /Amazon('s)? (charges|fee is|costs?) \$/i);
   assert.match(vsAmazonSeo, /not affiliated with, endorsed by, or sponsored by Amazon/i);
   assert.match(vsAmazonSeo, /trademarks of Amazon\.com/i);
+});
+
+test("the generic-method spreadsheet page links back, names no product, and matches the FBA vs FBM worked example", () => {
+  assert.match(vsSpreadsheetSeo, /<a href="\.\/">/);
+  assert.match(vsSpreadsheetSeo, /names no specific product/i);
+  assert.match(vsSpreadsheetSeo, /No warranty/);
+  assert.match(vsSpreadsheetSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsSpreadsheetSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+
+  const base = {
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 1,
+    storageRate: 0.87,
+    fbmShippingCost: 4.75,
+    fbmHandlingCost: 0,
+    packagingCost: 0.6,
+    otherCost: 0,
+    adsPerUnit: 0,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    targetMargin: 30,
+  };
+  const fba = calculateListing({ ...base, fulfillmentMethod: "fba" }).selected;
+  const fbm = calculateListing({ ...base, fulfillmentMethod: "fbm" }).selected;
+  assert.match(vsSpreadsheetSeo, /\$10\.99/);
+  assert.match(vsSpreadsheetSeo, /\$11\.64/);
+  assert.match(vsSpreadsheetSeo, /\$0\.65/);
+  nearEnough(fba.profit, 10.99);
+  nearEnough(fbm.profit, 11.64);
+  nearEnough(fbm.profit - fba.profit, 0.65);
+});
+
+// index.html links to the spreadsheet comparison in the same "What this
+// checks" section that links every other follow-on page, so a visitor who
+// lands on the calculator first has a crawlable path to it too.
+test("index links to the spreadsheet comparison page", () => {
+  assert.match(html, /href="vs-tracking-it-in-a-spreadsheet\.html"/);
 });
 
 test("max buy cost display says so when the listing already loses money at $0 cost", () => {

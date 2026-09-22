@@ -489,6 +489,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. The page names no vendor
   // or competing calculator at all.
   'freelance-retainer-calculator/vs-pricing-from-income-goal-alone.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // every FBA seller running more than one same-SKU decision already
+  // reaches for, not a company or product this could be mistaken for. The
+  // page names no spreadsheet application and its own footer says so
+  // explicitly. Same reasoning as the reverb-fee-calculator spreadsheet
+  // page above.
+  'amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
