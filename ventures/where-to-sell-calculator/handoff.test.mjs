@@ -27,6 +27,7 @@ import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs
 import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
 import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
 import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mjs';
+import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/share.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -37,6 +38,7 @@ const TARGET_FIELDS = {
   'tiktok-shop-fee-calculator': TIKTOK_FIELDS,
   'whatnot-seller-payout': WHATNOT_FIELDS,
   'poshmark-fee-calculator': POSHMARK_FIELDS,
+  'stockx-seller-payout-calculator': STOCKX_FIELDS,
 };
 
 const SHARED = {
@@ -115,6 +117,23 @@ test('Reverb receives packaging folded into its general other-cost field', () =>
   assert.equal(params.get('shippingCharged'), '6');
   assert.equal(params.get('shippingCost'), '5.2');
   assert.equal(params.get('itemCost'), '12');
+});
+
+test('StockX receives packaging folded in, and no shipping revenue invented', () => {
+  // StockX is a bid/ask marketplace: the buyer pays StockX for delivery, so
+  // no postage a buyer pays ever reaches the seller and the dedicated
+  // calculator has no field for it. Mapping `shippingCharged` anywhere would
+  // credit the seller with revenue they never see. What the seller DOES pay,
+  // the label to a verification centre, is a real cost and travels.
+  const params = paramsOf(handoffUrl('stockx', SHARED));
+  assert.equal(params.get('salePrice'), '40'); // price, renamed
+  assert.equal(params.get('itemCostBasis'), '12'); // itemCost, renamed
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('shippingCharged'), null);
+  // Packaging has no field of its own there; dropping it would overstate
+  // profit on arrival, which is the failure this module exists to prevent.
+  assert.equal(params.get('otherCost'), String(SHARED.otherCost + SHARED.packagingCost));
+  assert.equal(params.get('packagingCost'), null);
 });
 
 test('a blank input is left out so the target keeps its own default', () => {

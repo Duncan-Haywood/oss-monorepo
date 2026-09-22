@@ -292,9 +292,56 @@ export const CHANNEL_PRESETS = [
     enabled: false,
   },
   {
+    id: "stockx",
+    label: "StockX (sneakers & streetwear)",
+    note: "Off by default because it only applies to sneakers, streetwear and graded cards. StockX is a bid/ask marketplace, not a storefront: the buyer pays StockX for delivery, so no postage the buyer pays ever reaches you and shipping charged is pinned to zero here — what you do pay is the label to a verification centre, which is the shared \"shipping you pay\" figure. The seller fee falls as your Seller Level rises and Fast Shipping takes more off it again, so replace the rate with the one on your own dashboard. Sell-through and days to sell are illustrative starting points, not a claim about StockX velocity.",
+    // Matches ventures/stockx-seller-payout-calculator's own DEFAULTS (9%
+    // seller fee before any Fast Shipping discount, 3% payment processing, no
+    // fixed per-order charge, as of September 2026). `channel-parity.test.mjs`
+    // imports those defaults directly rather than restating them, for the same
+    // reason as the Reverb, TikTok Shop, Whatnot and Poshmark rows above.
+    commissionRate: 9,
+    // The seller fee is charged on the sale price. With shipping charged
+    // pinned to zero below, "item" and "order" would agree today — it is
+    // stated anyway so that a seller who overrides shipping charged on this
+    // row (a private sale arranged off-platform, say) does not silently start
+    // paying StockX's fee on postage StockX never billed.
+    commissionBase: "item",
+    paymentRate: 3,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // The buyer pays StockX for delivery at checkout; none of it is seller
+    // revenue, so this starts at zero rather than inheriting the shared
+    // figure — the same rule the Poshmark row above follows, for the same
+    // reason. What the seller pays to get the item to a verification centre
+    // IS a seller cost, so `shippingCost` is inherited rather than zeroed.
+    shippingCharged: 0,
+    // Illustrative return assumptions, and a different event from every other
+    // channel here: StockX has no buyer's-remorse return, so what comes back
+    // is an item that failed verification. The seller pays return postage on
+    // it and the fee is not charged on a sale that did not complete, but the
+    // pair itself is usually fine to relist.
+    returnRate: 3,
+    returnShippingCost: 15,
+    resellableRate: 95,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: an ask does not expire and is never
+    // charged again, but an unpopular size or colourway can sit at a price
+    // nobody bids.
+    sellThroughPct: 40,
+    daysToSell: 30,
+    listingRenewalDays: 0,
+    // Off until the seller says this is sneakers or streetwear: enabled by
+    // default it would add a channel most sellers cannot list on to every
+    // comparison, the same reason Reverb, Whatnot and Poshmark start off.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Mercari, Depop, a craft fair, a wholesale account. Poshmark has its own row above.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Mercari, Depop, GOAT, a craft fair, a wholesale account. Poshmark and StockX have their own rows above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,

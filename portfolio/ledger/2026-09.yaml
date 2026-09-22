@@ -35279,6 +35279,78 @@ entries:
         involved (amazon-fba-calculator is already served); refreshed the
         GitHub Pages branch snapshot after merge per the standing job if
         pages_state.py reported it stale.
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped StockX as the ninth channel in the cross-channel comparison,
+        with the item carrying both ways. This is a direct test of this
+        venture's own first untested hypothesis, which router/allocate.py
+        ranked second of 322 dispatchable ventures: "the handoff, not the
+        depth of the second tool, is what decides whether the portfolio's
+        deeper scenarios ever get used." Eight channels already had that
+        round trip; stockx-seller-payout-calculator was the one
+        single-channel marketplace calculator in the portfolio that was not
+        a channel here at all, so a sneaker reseller landing on either page
+        had no route to the other in either direction without retyping the
+        item.
+      - >-
+        Three pieces, one feature. (1) A StockX preset in calc.mjs whose fee
+        shape is imported from stockx-seller-payout-calculator's own
+        DEFAULTS, not restated -- channel-parity.test.mjs now asserts the
+        seller fee, processing rate and fixed fee agree, and that net profit
+        on a shared worked example is the same number on both pages.
+        (2) A handoff.mjs entry carrying the item into that calculator.
+        (3) to-where-to-sell.mjs in that venture carrying it back, decoded
+        through where-to-sell-calculator's own decodeComparison in its test
+        rather than against a hand-copied payload shape.
+      - >-
+        The one substantive product decision: StockX pins shippingCharged to
+        zero rather than inheriting the shared figure, because it is a
+        bid/ask marketplace where the buyer pays StockX for delivery and no
+        postage a buyer pays ever reaches the seller. Inheriting it would
+        have credited the channel with revenue it never pays out and floated
+        it up a ranking the reader then acts on. Asserted both ways --
+        rate parity alone would not have caught it, the same discipline the
+        Reverb and Whatnot rows already carry.
+      - >-
+        Closing the round trip also required a real fix in
+        stockx-seller-payout-calculator: it had no per-sale other-cost
+        bucket, alone among its siblings, so packaging and other per-unit
+        cash had nowhere to land on arrival and following the link printed a
+        HIGHER profit than the comparison the seller had just read -- the
+        silent-wrong-number class CLAUDE.md records against share.mjs.
+        Added otherCost (default 0, so no saved draft, shared link or worked
+        example moves), wired it through the page and the result panel, and
+        pinned the round trip with a test asserting the two pages' net
+        profit is equal. Rejected the cheaper fix of folding packaging into
+        the field labelled "shipping to verification": it preserves the
+        total and prints a line the seller knows to be false.
+      - >-
+        Verified locally, because ci_starvation.py --run 35298302213
+        reported 1 of 1 job with runner_id 0 (no step ran) -- Actions is
+        starved, so the red checks on main are not results. Ran CLAUDE.md's
+        starvation checklist: both venture suites 270/270; node --test
+        --test-concurrency=1 platform/marketing + platform/pages 1277/1277
+        (3 failed before regen.mjs and 0 after, exactly the mirror-staleness
+        defect that block exists to catch -- regen --verify named all 7
+        artifacts including the new to-where-to-sell.mjs shard);
+        platform/proposal + platform/privacy + platform/webcheck 241 passed
+        / 2 skipped (shallow clone, the documented history-pinned pair);
+        gitops/tests 637 passed / 1 skipped (environmental); portfolio
+        ledger/scoring/router/usage/pipeline + infra/tests 446 passed; all
+        27 platform/ci unittest modules OK; agent_review 21 OK;
+        checklist_coverage.py clean; guard_state.py --require-runnable exit
+        0 with no fixable skips. pytest came from apt (python3-pytest
+        7.4.4), run as python3 -m pytest throughout.
+      - >-
+        Measured nothing about users, and this entry does not claim
+        otherwise: usage.yaml still carries live_url_visitors null for every
+        product, which is "never measured", not zero. What ships here is the
+        mechanism the hypothesis is about, plus the handoff_stockx and
+        handoff_where_to_sell local events that would be the first signal
+        either way.
   - venture: freelance-retainer-calculator
     agent_spend_usd: null
     human_hours: 0
