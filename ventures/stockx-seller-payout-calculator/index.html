@@ -26,16 +26,18 @@
 <label>Seller fee (%, your level)<input id="sellerFeePct" type="number" min="0" max="100" step="0.1" value="9"></label>
 <label>Fast Shipping discount (pts)<input id="fastShippingDiscountPct" type="number" min="0" max="100" step="0.1" value="0"></label>
 </div></fieldset>
-<fieldset><legend>Processing &amp; shipping</legend><div class="fields">
+<fieldset><legend>Processing, shipping &amp; supplies</legend><div class="fields">
 <label>Payment processing (%)<input id="paymentProcessingFeePct" type="number" min="0" max="100" step="0.1" value="3"></label>
 <label>Shipping to verification ($)<input id="shippingCost" type="number" min="0" step="0.5" value="6"></label>
-</div></fieldset>
+<label>Other per-sale costs ($)<input id="otherCost" type="number" min="0" step="0.5" value="0"></label>
+</div><p class="note">Other per-sale costs is the box, tape, a replacement lace bag, label stock, the drive to the drop-off — anything flat that this one sale costs you in cash. It behaves the way shipping does: it eats a far bigger share of a $40 sale than a $400 one.</p></fieldset>
 <p id="draftStatus" class="note" role="status">Your sale inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your month list below is never saved.</p>
 <div class="actions">
 <button type="button" id="copyLink">Copy shareable link</button>
 <button type="button" id="reset">Reset to defaults</button>
 <span id="linkStatus" class="note" role="status"></span>
 </div>
+<p class="note">Wondering whether this pair would net more somewhere else? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks StockX against eBay, Poshmark, Etsy, a direct sale and your own store on the same item — it opens with the price, cost and shipping above already filled in and StockX switched on, so there is nothing to retype. It hands numbers back the other way too.</p>
 </section>
 
 <section class="result" aria-live="polite"><h2>Profit for this sale</h2><p id="errors" class="err" role="alert" hidden></p>
@@ -44,7 +46,8 @@
 <dt>Effective seller fee</dt><dd id="effFeeOut"></dd>
 <dt>Seller fee ($)</dt><dd id="sellerFeeOut"></dd>
 <dt>Payment processing ($)</dt><dd id="processingOut"></dd>
-<dt>Total fees</dt><dd id="totalFeesOut"></dd>
+<dt>Other per-sale costs</dt><dd id="otherCostOut"></dd>
+<dt>Total fees &amp; costs</dt><dd id="totalFeesOut"></dd>
 <dt>Net payout</dt><dd id="payoutOut"></dd>
 <dt>Net profit</dt><dd id="profitOut"></dd>
 <dt>Profit margin</dt><dd id="marginOut"></dd>
@@ -77,7 +80,7 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your sale inputs (sale price, cost basis, seller fee, Fast Shipping discount, payment processing, shipping cost) and your target monthly profit are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your sale rows in the month table are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>sale-priced</code>, <code>month-check</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no sale prices, items, or profit figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your sale inputs (sale price, cost basis, seller fee, Fast Shipping discount, payment processing, shipping cost, other per-sale costs) and your target monthly profit are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your sale rows in the month table are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>sale-priced</code>, <code>month-check</code>, <code>link-copied</code>, <code>reset</code>, <code>handoff_where_to_sell</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no sale prices, items, or profit figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why isn't the seller fee just one fixed percentage?</h3><p>Because StockX's seller (transaction) fee percentage drops as your own Seller Level rises &mdash; more completed sales and a clean history earn a lower rate &mdash; and Fast Shipping enrollment knocks a further percentage off on top of that. Two sellers moving the identical item at the identical price can keep different amounts. This calculator treats both as numbers you supply from your own seller dashboard, not a fixed published rate.</p>
@@ -92,6 +95,7 @@
 import { calculate, computeMonthProfit, incomeGap, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
 import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+import { whereToSellUrl } from './to-where-to-sell.mjs';
 const el = id => document.getElementById(id);
 const safe = fn => { try { return fn(); } catch { return undefined; } };
 const money = (n) => {
@@ -123,16 +127,22 @@ function persistSale() {
 }
 
 function updateSale(count = false) {
+  // Rebuilt on every keystroke, valid input or not: a seller who mistypes one
+  // field and then follows the link must not carry the numbers from before
+  // the mistake into the comparison. `whereToSellUrl` drops anything that is
+  // not a usable number rather than sending it.
+  el('whereToSellLink').href = whereToSellUrl(saleInputs());
   try {
     const r = calculate(saleInputs());
     el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
     el('profit').textContent = money(r.netProfit);
     el('rateLine').textContent = r.effectiveFeeRatePct === null
       ? 'enter a sale price to see the effective fee rate'
-      : `about ${r.effectiveFeeRatePct.toFixed(1)}% of the sale price goes to fees`;
+      : `about ${r.effectiveFeeRatePct.toFixed(1)}% of the sale price goes to fees, shipping and supplies`;
     el('effFeeOut').textContent = `${r.effectiveSellerFeePct.toFixed(2)}%`;
     el('sellerFeeOut').textContent = money(r.sellerFeeAmount);
     el('processingOut').textContent = money(r.paymentProcessingFeeAmount);
+    el('otherCostOut').textContent = money(r.otherCost);
     el('totalFeesOut').textContent = money(r.totalFees);
     el('payoutOut').textContent = money(r.netPayout);
     el('profitOut').textContent = money(r.netProfit);
@@ -141,7 +151,7 @@ function updateSale(count = false) {
     if (count && !counted) { recordEvent('sale-priced'); counted = true; }
   } catch (e) {
     el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
-    for (const id of ['rateLine', 'effFeeOut', 'sellerFeeOut', 'processingOut', 'totalFeesOut', 'payoutOut', 'profitOut', 'marginOut', 'roiOut']) el(id).textContent = '';
+    for (const id of ['rateLine', 'effFeeOut', 'sellerFeeOut', 'processingOut', 'otherCostOut', 'totalFeesOut', 'payoutOut', 'profitOut', 'marginOut', 'roiOut']) el(id).textContent = '';
   }
 }
 
@@ -174,6 +184,9 @@ SALE_IDS.forEach(id => el(id).addEventListener('input', () => { updateSale(true)
 document.querySelectorAll('.saleProfit').forEach(input => input.addEventListener('input', () => updateMonth(true)));
 el('targetMonthlyProfit').addEventListener('input', () => updateMonth(true));
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+// Records only that the handoff happened, never the item — this is the one
+// signal that will say whether the cross-channel link is worth keeping.
+el('whereToSellLink').addEventListener('click', () => recordEvent('handoff_where_to_sell'));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
 

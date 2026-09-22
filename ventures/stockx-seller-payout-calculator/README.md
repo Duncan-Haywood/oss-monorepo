@@ -12,6 +12,13 @@ A pair that "sold for $150" can land a lot less in your account once the real de
 - **Fast Shipping discount** knocks a further percentage off the seller-level rate for sellers shipping from pre-verified local inventory — it stacks with the level rate rather than replacing it.
 - **Payment processing fee** is a flat percentage of the sale price, charged the same regardless of seller level.
 - **Shipping to the verification center** is closer to a flat dollar cost than a percentage, so it eats a much bigger share of a cheap item's payout than an expensive one's.
+- **Other per-sale costs** — the box, tape, a replacement lace bag, label stock, the drive to the drop-off — behave exactly the same way, and this calculator had no field for any of them until 2026-09-22. Every sibling in this portfolio has carried such a bucket since it shipped. It defaults to `0`, so nothing about a saved draft, an existing shared link, or the worked example on the guide page moves.
+
+## Comparing this pair against another channel
+
+A seller who arrives here from a search for "how much does StockX take from sellers" usually has a second question: would the same pair net more on eBay, or in a local sale? Until now the only route to that answer was retyping the item into another tool, and most people do not — so the link under the buttons carries the price, cost basis, shipping and other costs straight into [`../where-to-sell-calculator/`](../where-to-sell-calculator/) with StockX already switched on, and that page hands numbers back the other way. Nothing is uploaded: the values ride in the URL fragment, which browsers never send to a server.
+
+`to-where-to-sell.test.mjs` decodes every link through that page's *own* decoder and asserts the net profit it computes for the StockX row is the same number this page prints. That assertion is the reason the other-cost field above exists: before it did, packaging and supplies had nowhere to land here, and the two ends of the link disagreed on profit for the same item with nothing going red.
 
 The month section then answers the question one sale's profit can't: given your actual sales this month, does it hit your profit goal, and if not, how many more sales at the same average profit close the gap?
 
@@ -19,7 +26,7 @@ This tool deliberately does not verify authenticity, track inventory, or read St
 
 ## Privacy and usage
 
-Everything runs in your browser. Your sale figures and month list are never uploaded, there is no account, and nothing is saved when you close the tab — the month table clears on refresh by design. We count anonymous local feature events only (`sale-priced`, `month-check`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No sale prices, items, or profit figures are recorded. The counter is not sent to the maintainers.
+Everything runs in your browser. Your sale figures and month list are never uploaded and there is no account. The sale inputs and the target monthly profit are saved on this device only, so you do not retype them — "Reset to defaults" clears them. The month table is a different promise: it is never saved anywhere and clears on refresh by design. We count anonymous local feature events only (`sale-priced`, `month-check`, `link-copied`, `reset`, `handoff_where_to_sell`, `sponsor_link_clicked`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No sale prices, items, or profit figures are recorded. The counter is not sent to the maintainers.
 
 ## Disclaimer
 

@@ -19,6 +19,44 @@ test('calculate() matches hand-computed arithmetic on the default inputs', () =>
   close(r.roiPct, 26);
 });
 
+test('other per-sale costs come straight off net profit, like shipping and unlike a fee', () => {
+  const base = calculate(DEFAULTS);
+  const withSupplies = calculate({ ...DEFAULTS, otherCost: 2.5 });
+  close(withSupplies.otherCost, 2.5);
+  close(withSupplies.sellerFeeAmount, base.sellerFeeAmount, 0.0001);
+  close(withSupplies.paymentProcessingFeeAmount, base.paymentProcessingFeeAmount, 0.0001);
+  close(withSupplies.totalFees, base.totalFees + 2.5);
+  close(withSupplies.netPayout, base.netPayout - 2.5);
+  close(withSupplies.netProfit, base.netProfit - 2.5);
+});
+
+test('an input that predates the other-cost field prices exactly as it did before', () => {
+  // The field defaults to 0 and is optional on the way in, so a saved draft
+  // or a shared link written before it existed must not arrive as NaN.
+  const { otherCost, ...older } = DEFAULTS;
+  const r = calculate(older);
+  assert.equal(Number.isFinite(r.netProfit), true);
+  close(r.netProfit, calculate(DEFAULTS).netProfit);
+  close(r.otherCost, 0);
+});
+
+test('a negative other-cost is refused rather than paying the seller to ship', () => {
+  assert.throws(() => calculate({ ...DEFAULTS, otherCost: -1 }), /Other per-sale costs/);
+});
+
+test('other per-sale costs eat a bigger share of a cheap sale than a dear one', () => {
+  // The same arithmetic the page already makes about shipping, and the reason
+  // the bucket is a dollar figure rather than a percentage.
+  const cheap = calculate({ ...DEFAULTS, salePrice: 40, itemCostBasis: 20, otherCost: 3 });
+  const dear = calculate({ ...DEFAULTS, salePrice: 400, itemCostBasis: 200, otherCost: 3 });
+  const cheapNoSupplies = calculate({ ...DEFAULTS, salePrice: 40, itemCostBasis: 20, otherCost: 0 });
+  const dearNoSupplies = calculate({ ...DEFAULTS, salePrice: 400, itemCostBasis: 200, otherCost: 0 });
+  assert.ok(
+    cheap.effectiveFeeRatePct - cheapNoSupplies.effectiveFeeRatePct
+      > dear.effectiveFeeRatePct - dearNoSupplies.effectiveFeeRatePct,
+  );
+});
+
 test('a Fast Shipping discount reduces the effective seller fee and raises net profit', () => {
   const withoutDiscount = calculate(DEFAULTS);
   const withDiscount = calculate({ ...DEFAULTS, sellerFeePct: 4, fastShippingDiscountPct: 1 });

@@ -172,6 +172,27 @@ test('index links one hop to the whatnot-seller-payout sibling', () => {
   assert.match(html, /Whatnot seller payout calculator/i);
 });
 
+test('the other-per-sale-cost field is on the page, wired, and disclosed as saved', () => {
+  assert.match(html, /id="otherCost" type="number"/, 'the other-cost input is missing from the page');
+  assert.match(html, /id="otherCostOut"/, 'the other-cost figure is never shown in the result panel');
+  assert.match(html, /other per-sale costs\) and your target monthly profit are saved locally/i,
+    'the privacy note must name the new field among what is stored');
+});
+
+test('index carries a prefilled handoff into the where-to-sell comparison', () => {
+  // The reverse of where-to-sell-calculator/handoff.mjs. Its own VENTURE.yaml
+  // names the untested hypothesis this closes: the handoff, not the depth of
+  // the second tool, decides whether the comparison ever gets opened.
+  assert.match(html, /import \{ whereToSellUrl \} from '\.\/to-where-to-sell\.mjs'/);
+  assert.match(html, /id="whereToSellLink" href="\.\.\/where-to-sell-calculator\/"/,
+    'the link must resolve without JavaScript too, then be rewritten with the item');
+  assert.match(html, /el\('whereToSellLink'\)\.href = whereToSellUrl\(saleInputs\(\)\)/,
+    'the link must carry what is on screen, not a stale snapshot');
+  assert.match(html, /recordEvent\('handoff_where_to_sell'\)/);
+  assert.match(html, /<code>handoff_where_to_sell<\/code>/,
+    'an event the page records must be disclosed in the privacy note');
+});
+
 test('index links one hop to the marketplace-fee-compare sibling', () => {
   assert.match(
     html,

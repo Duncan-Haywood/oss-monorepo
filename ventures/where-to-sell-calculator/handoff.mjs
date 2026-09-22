@@ -202,6 +202,36 @@ export const HANDOFFS = [
     },
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
+  {
+    channel: 'stockx',
+    slug: 'stockx-seller-payout-calculator',
+    label: 'StockX seller payout calculator',
+    // What it adds: the two things this page prices as one flat rate and
+    // cannot split — the seller-level fee band (two sellers moving the
+    // identical pair at the identical price keep different amounts) and what
+    // enrolling in Fast Shipping is worth against it — plus a month of flips
+    // rolled up against a profit goal.
+    //
+    // `shippingCharged` is deliberately not mapped, and this is the one
+    // channel where that is a fact about the marketplace rather than a
+    // missing input: StockX is a bid/ask marketplace where the buyer pays
+    // StockX for delivery, so no postage a buyer pays ever reaches the
+    // seller. This page's own StockX preset pins the field to zero for the
+    // same reason, so a comparison built here has nothing to lose on the
+    // trip.
+    fields: {
+      price: 'salePrice',
+      itemCost: 'itemCostBasis',
+      shippingCost: 'shippingCost',
+    },
+    // Packaging is a real StockX cost (box, tape, a replacement lace bag) and
+    // had nowhere to land until that calculator gained an `otherCost` bucket
+    // alongside this handoff. Before it did, following this link would have
+    // printed a *higher* profit than the comparison the seller had just read,
+    // which is the silent-wrong-number failure this whole module exists to
+    // prevent.
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);

@@ -50,11 +50,16 @@ import {
 } from '../poshmark-fee-calculator/calc.mjs';
 import { CATEGORY_PRESETS as AMAZON_CATEGORIES, SELLER_PLAN_DEFAULTS } from '../amazon-fba-calculator/calc.mjs';
 import { PLAN_PRESETS } from '../shopify-fee-calculator/calc.mjs';
+import {
+  DEFAULTS as STOCKX_DEFAULTS,
+  calculate as calculateStockxSale,
+} from '../stockx-seller-payout-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
 const whatnot = CHANNEL_PRESETS.find((preset) => preset.id === 'whatnot');
 const poshmark = CHANNEL_PRESETS.find((preset) => preset.id === 'poshmark');
+const stockx = CHANNEL_PRESETS.find((preset) => preset.id === 'stockx');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -432,12 +437,93 @@ test('the own-store fee assumptions match the Shopify calculator\'s Basic plan',
   assert.equal(store.commissionRate, 0, 'an own store takes no marketplace commission');
 });
 
+test('this page still has a StockX channel to compare', () => {
+  assert.ok(stockx, 'no channel with id "stockx" in CHANNEL_PRESETS');
+});
+
+test('the StockX fee assumptions match the dedicated calculator exactly', () => {
+  // Imported from stockx-seller-payout-calculator's own DEFAULTS rather than
+  // typed here, for the reason CLAUDE.md records twice against a copied
+  // constant going stale: if that calculator changes its starting rates, this
+  // fails rather than the two pages quietly drifting apart.
+  assert.equal(
+    stockx.commissionRate,
+    STOCKX_DEFAULTS.sellerFeePct,
+    'seller fee disagrees with stockx-seller-payout-calculator',
+  );
+  assert.equal(
+    stockx.paymentRate,
+    STOCKX_DEFAULTS.paymentProcessingFeePct,
+    'payment processing rate disagrees with stockx-seller-payout-calculator',
+  );
+  assert.equal(
+    stockx.paymentFixed,
+    0,
+    'StockX charges no fixed per-order payment fee in stockx-seller-payout-calculator',
+  );
+  assert.equal(
+    stockx.commissionBase,
+    'item',
+    'the StockX seller fee is charged on the sale price, not on postage the buyer paid StockX',
+  );
+});
+
+test('StockX credits the seller with no shipping revenue, whatever the shared figure says', () => {
+  // Not a style point. StockX is a bid/ask marketplace: the buyer pays StockX
+  // for delivery, so postage a seller charges on eBay has no counterpart here
+  // and inheriting the shared figure would hand this channel revenue it never
+  // receives -- which, since the ranking is what the reader acts on, would put
+  // StockX above channels that genuinely pay more.
+  assert.equal(stockx.shippingCharged, 0, 'StockX must not inherit the shared shipping-charged figure');
+  const withPostage = calculateChannel({ ...stockx, enabled: true }, {
+    price: 180, shippingCharged: 12, shippingCost: 6, itemCost: 100, monthlyOrders: 1,
+  });
+  const withoutPostage = calculateChannel({ ...stockx, enabled: true }, {
+    price: 180, shippingCharged: 0, shippingCost: 6, itemCost: 100, monthlyOrders: 1,
+  });
+  assert.equal(withPostage.profit, withoutPostage.profit, 'shared shipping charged must not reach StockX');
+});
+
+test('StockX net profit matches the dedicated calculator on the shared worked example', () => {
+  // Same discipline as the Reverb and Whatnot checks above: rate equality
+  // alone would not catch a base mismatch, so this asserts the number a
+  // seller actually reads on both pages, either side of the handoff.
+  const shared = {
+    price: 180,
+    shippingCharged: 0,
+    shippingCost: 6,
+    itemCost: 100,
+    packagingCost: 1.5,
+    otherCost: 2,
+    monthlyOrders: 1,
+  };
+  const here = calculateChannel({ ...stockx, enabled: true }, shared);
+  const there = calculateStockxSale({
+    salePrice: shared.price,
+    itemCostBasis: shared.itemCost,
+    sellerFeePct: stockx.commissionRate,
+    fastShippingDiscountPct: 0,
+    paymentProcessingFeePct: stockx.paymentRate,
+    shippingCost: shared.shippingCost,
+    // The handoff folds packaging into that page's other-cost bucket, which
+    // is the only home it has there; this asserts the fold is what keeps the
+    // two profits equal rather than a coincidence of the numbers chosen.
+    otherCost: shared.otherCost + shared.packagingCost,
+  });
+  assert.equal(here.fees.commission, there.sellerFeeAmount, 'seller fee on the same sale price');
+  assert.equal(here.profit, there.netProfit, 'net profit must not jump across the handoff');
+});
+
+test('StockX is off until the seller turns it on', () => {
+  assert.equal(stockx.enabled, false);
+});
+
 test('every channel with a handoff has a parity assertion in this file', () => {
   // The check that stops this file going stale the way it just did. A new
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,

@@ -24,6 +24,18 @@
 //     StockX verification center — a flat dollar cost that does not scale
 //     with the sale price the way the two fees above do, so it matters far
 //     more on a cheap item than an expensive one.
+//   - **Other per-sale costs**: the box, tape, tissue, a replacement lace
+//     bag, printer labels, the drive to the drop-off. Another flat dollar
+//     cost that behaves exactly like shipping does above, and one this
+//     calculator left out until 2026-09-22 — every sibling in this portfolio
+//     (`ebay-fee-calculator`, `whatnot-seller-payout`, `poshmark-fee-
+//     calculator`) has carried such a bucket since it shipped. Its absence
+//     also made the cross-channel handoff below lossy: `where-to-sell-
+//     calculator` compares an item carrying packaging and other per-unit
+//     cash, and with nowhere here to put either, following the link into
+//     this page printed a *higher* profit than the comparison the seller had
+//     just read. Defaults to 0, so nothing about an existing saved draft,
+//     shared link, or worked example moves.
 //
 // No rate below is StockX's published, current fee schedule — seller-level
 // bands and the processing rate both change over time and by seller, region,
@@ -37,8 +49,8 @@
 //                                 the sale price, what the seller paid for
 //                                 the item, the seller-fee percentage, the
 //                                 Fast Shipping discount, the payment
-//                                 processing percentage, and the outbound
-//                                 shipping cost.
+//                                 processing percentage, the outbound
+//                                 shipping cost, and any other per-sale cash.
 //   computeMonthProfit(sales)  — roll a list of sales' net profit up into
 //                                 total profit for the month.
 //   incomeGap(...)             — compare that monthly profit to a target and
@@ -52,6 +64,7 @@ export const DEFAULTS = {
   fastShippingDiscountPct: 0,
   paymentProcessingFeePct: 3,
   shippingCost: 6,
+  otherCost: 0,
   targetMonthlyProfit: 1000,
 };
 
@@ -88,6 +101,10 @@ function number(value, label, { min = 0, max = null, exclusiveMax = false } = {}
  * @param {number} input.shippingCost What you pay, in dollars, to ship the
  *   item to a StockX verification center. 0 if StockX provides a prepaid
  *   label you don't pay for directly.
+ * @param {number} [input.otherCost] Anything else this one sale costs you in
+ *   cash — box, tape, poly mailer, a replacement lace bag, label stock, the
+ *   drive to the drop-off. Optional and 0 by default, so an older saved
+ *   draft or shared link that predates the field prices exactly as before.
  */
 export function calculate(input) {
   const salePrice = number(input.salePrice, 'Sale price');
@@ -96,13 +113,19 @@ export function calculate(input) {
   const fastShippingDiscountPct = number(input.fastShippingDiscountPct, 'Fast Shipping discount percentage', { max: 100 });
   const paymentProcessingFeePct = number(input.paymentProcessingFeePct, 'Payment processing fee percentage', { max: 100 });
   const shippingCost = number(input.shippingCost, 'Shipping cost');
+  // Absent means zero, not an error: a link or saved draft written before
+  // this field existed must still price, and `Number(undefined)` is NaN.
+  const otherCost = number(input.otherCost ?? 0, 'Other per-sale costs');
 
   // Fast Shipping only ever reduces the seller fee, and never below zero —
   // a discount larger than the base rate does not hand the seller a rebate.
   const effectiveSellerFeePct = Math.max(0, sellerFeePct - fastShippingDiscountPct);
   const sellerFeeAmount = salePrice * (effectiveSellerFeePct / 100);
   const paymentProcessingFeeAmount = salePrice * (paymentProcessingFeePct / 100);
-  const totalFees = sellerFeeAmount + paymentProcessingFeeAmount + shippingCost;
+  // `totalFees` has always carried the flat shipping cost alongside the two
+  // percentage fees — it is what comes off the sale before the cost basis,
+  // not a fees-only subtotal — so the other-cost bucket belongs here too.
+  const totalFees = sellerFeeAmount + paymentProcessingFeeAmount + shippingCost + otherCost;
 
   const netPayout = salePrice - totalFees;
   const netProfit = netPayout - itemCostBasis;
@@ -112,7 +135,7 @@ export function calculate(input) {
   const roiPct = itemCostBasis > 0 ? (netProfit / itemCostBasis) * 100 : null;
 
   return {
-    effectiveSellerFeePct, sellerFeeAmount, paymentProcessingFeeAmount, totalFees,
+    effectiveSellerFeePct, sellerFeeAmount, paymentProcessingFeeAmount, otherCost, totalFees,
     netPayout, netProfit, effectiveFeeRatePct, profitMarginPct, roiPct,
   };
 }
