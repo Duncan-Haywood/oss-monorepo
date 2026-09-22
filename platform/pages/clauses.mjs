@@ -484,6 +484,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific auction house or
   // competing calculator at all.
   'equipment-auction-buyer-premium-calculator/vs-a-flat-percent-rule.html',
+  // Compares against "dividing take-home income by billable hours" -- a
+  // pricing habit every freelancer can do without this calculator, not a
+  // company or product this could be mistaken for. The page names no vendor
+  // or competing calculator at all.
+  'freelance-retainer-calculator/vs-pricing-from-income-goal-alone.html',
   // Compares against "tracking it in a spreadsheet" -- the generic method
   // every FBA seller running more than one same-SKU decision already
   // reaches for, not a company or product this could be mistaken for. The
