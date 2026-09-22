@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 128 files, 555276 bytes
 #   portfolio-front-tools-7: 135 files, 553692 bytes
 #   portfolio-front-tools-8: 122 files, 555887 bytes
-#   portfolio-front-tools-9: 116 files, 551951 bytes
+#   portfolio-front-tools-9: 117 files, 556284 bytes
 #   portfolio-front-tools-10: 115 files, 549807 bytes
 #   portfolio-front-tools-11: 125 files, 552177 bytes
 #   portfolio-front-tools-12: 122 files, 551389 bytes
@@ -1297,6 +1297,7 @@ configMapGenerator:
       - freelance-retainer-calculator__unused-hour-rollover.html.gz=freelance-retainer-calculator__unused-hour-rollover.html.gz
       - freelance-retainer-calculator__vs-bonsai.html.gz=freelance-retainer-calculator__vs-bonsai.html.gz
       - freelance-retainer-calculator__vs-harvest.html.gz=freelance-retainer-calculator__vs-harvest.html.gz
+      - freelance-retainer-calculator__vs-pricing-from-income-goal-alone.html.gz=freelance-retainer-calculator__vs-pricing-from-income-goal-alone.html.gz
       - freelance-retainer-calculator__will-this-retainer-hit-my-income-goal.html.gz=freelance-retainer-calculator__will-this-retainer-hit-my-income-goal.html.gz
       - french-drain-bid-calculator__calc.mjs.gz=french-drain-bid-calculator__calc.mjs.gz
       - french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz=french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz

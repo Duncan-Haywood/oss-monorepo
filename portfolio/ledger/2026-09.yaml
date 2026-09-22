@@ -35279,3 +35279,51 @@ entries:
         involved (amazon-fba-calculator is already served); refreshed the
         GitHub Pages branch snapshot after merge per the standing job if
         pages_state.py reported it stale.
+  - venture: freelance-retainer-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled review session: 0 open PRs needed this agent family's
+        review (review-open-prs-first.md step 1 came back empty), and
+        session_gate.py returned PROCEED with the build-now pipeline empty,
+        so per allocate.py's untested-hypothesis ranking and
+        surface-budget.mjs --for <slug> (which showed 0 of 1 generic-method
+        comparison pages used) shipped a new comparison page,
+        vs-pricing-from-income-goal-alone.html: this calculator vs. pricing
+        a retainer by dividing take-home income alone by billable capacity,
+        with no business costs and no scope buffer added. On the venture's
+        own shipped defaults ($6,000 income, 160 hours, 65% utilization,
+        $1,800 costs, 20-hour retainer, 15% buffer) the income-only guess
+        prices the retainer at $1,153.85 against this calculator's
+        $1,725.00 -- $571.15/month, $6,853.80/year quietly treated as free.
+      - >-
+        Added the page to platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (generic pricing habit, no vendor
+        named) and to surface-budget.mjs's accounting by construction (no
+        override needed -- the venture was under budget). Ran
+        node platform/marketing/regen.mjs after confirming --verify caught
+        the newly-stale front-door mirror, then --verify again clean.
+      - >-
+        CI is starved: no portfolio-validate.yml run on any commit since
+        2026-09-18, and ci_starvation.py on the latest attempted run
+        (35298302213, 2026-09-18) confirms runner_id: 0. Verified locally
+        per CLAUDE.md's starvation checklist: venture's own suite 28/28;
+        node --test --test-concurrency=1 "platform/marketing/*.test.mjs"
+        "platform/pages/*.test.mjs" 1277/1277 (a same-machine concurrent
+        re-run briefly showed 4 failures from resource contention with
+        other checklist commands running in parallel; a clean isolated
+        re-run came back 1277/1277); platform/proposal 101/101;
+        platform/privacy + platform/webcheck 142/142; gitops/tests 637
+        passed / 1 skipped (environmental, after installing nginx-light and
+        openssh-client with `apt-get update &&` first); portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests 446 passed; all 27 platform/ci
+        unittest modules clean; platform/ci/agent_review test_review 21/21;
+        checklist_coverage.py and sync_tree_counts.py --check both clean
+        (322 mirrored tools, 304 opt-out switches, no drift); regen.mjs
+        --verify current after the regen above;
+        run_workflow_locally.py --for-changes: portfolio-validate.yml
+        71/71 run steps passed, sibling-links-ci.yml 2/2 -- the remaining
+        selected workflows need a runner or deploy credentials this
+        sandbox does not have and were not run.
