@@ -1023,6 +1023,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "doing the math yourself" -- a generic method (adding
+  // up wall-clock minutes by hand) every repository maintainer already
+  // does, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-billing-page.html, which compares against
+  // GitHub's own billing page and already carries the "not affiliated"
+  // clause for that reason.
+  'actions-minutes-estimator/vs-doing-the-math-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

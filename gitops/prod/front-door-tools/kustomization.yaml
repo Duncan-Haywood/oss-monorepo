@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 135 files, 555400 bytes
 #   portfolio-front-tools-1: 99 files, 554054 bytes
 #   portfolio-front-tools-2: 149 files, 555673 bytes
-#   portfolio-front-tools-3: 134 files, 552417 bytes
+#   portfolio-front-tools-3: 135 files, 556999 bytes
 #   portfolio-front-tools-4: 142 files, 555276 bytes
 #   portfolio-front-tools-5: 126 files, 555060 bytes
 #   portfolio-front-tools-6: 133 files, 556257 bytes
@@ -598,6 +598,7 @@ configMapGenerator:
       - actions-minutes-estimator__index.html.gz=actions-minutes-estimator__index.html.gz
       - actions-minutes-estimator__usage.mjs.gz=actions-minutes-estimator__usage.mjs.gz
       - actions-minutes-estimator__vs-billing-page.html.gz=actions-minutes-estimator__vs-billing-page.html.gz
+      - actions-minutes-estimator__vs-doing-the-math-yourself.html.gz=actions-minutes-estimator__vs-doing-the-math-yourself.html.gz
       - actions-minutes-estimator__workflow-yaml.mjs.gz=actions-minutes-estimator__workflow-yaml.mjs.gz
       - actions-permissions-check__classify.mjs.gz=actions-permissions-check__classify.mjs.gz
       - actions-permissions-check__how-to-set-least-privilege-permissions-for-github-actions.html.gz=actions-permissions-check__how-to-set-least-privilege-permissions-for-github-actions.html.gz
