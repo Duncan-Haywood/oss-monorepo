@@ -38966,3 +38966,53 @@ entries:
         (this clone was shallow at session start); checked open PRs (github
         MCP) for a colliding podcast niche and found none.
     mrr_end: 0
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate flagged the published snapshot as one merge behind
+        `main`; refreshed it first (`CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh`, `pages_state.py
+        --require-current` then exited 0, `--record` committed the new
+        reading). Checked open PRs (github MCP) before picking new work:
+        two in flight (firebase-rules-check, auto-repair-effective-labor-rate
+        comparison pages), neither touching this venture.
+      - >-
+        Added `vs-list-perfectly.html`, a second named-product comparison
+        page for `where-to-sell-calculator` (alongside the existing
+        `vs-vendoo.html`) against List Perfectly, a real multi-marketplace
+        crosslisting/inventory-management SaaS (confirmed via web search,
+        not invented). Named-product comparisons are unbudgeted in
+        `surface-budget.mjs` (this venture is already at its one-per-venture
+        generic-method budget), and the two products are genuinely
+        different jobs -- List Perfectly runs an existing multi-channel
+        inventory at volume, this page decides which single channel to list
+        a not-yet-listed item on -- so the page states that distinction
+        rather than manufacturing a rivalry. Carries the same disclaimer
+        set as the Vendoo page (not-affiliated, no invented pricing, no
+        warranty, best-effort hosting, support link) and an FAQPage schema
+        whose answers are verified verbatim against the visible copy.
+        Wired into `index.html` and `sitemap.xml`; ran `regen.mjs` to
+        refresh the served mirror.
+      - >-
+        Verified: `node --test 'ventures/where-to-sell-calculator/**/*.test.mjs'`
+        209/209. `node platform/marketing/regen.mjs --verify` clean after
+        `regen.mjs`. `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1281/1281 (7 failed before the regen, all
+        the expected "committed mirror is stale" defect this file already
+        records -- fixed by running the generator, not by editing the
+        generated files). `checklist_coverage.py`, `clauses.mjs
+        where-to-sell-calculator`, `surface-budget.mjs --check`,
+        `router/validate.py`, `score_ventures.py --check`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_usage.py`, `validate_probe_index.py`,
+        `front-door-tools.mjs --headroom`: all clean. `python3 -m pytest
+        gitops/tests -q`: 613 passed, 25 skipped (environmental, unrelated
+        to this change). `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline
+        infra/tests -q`: 446/446. All 24 `platform/ci` unittest modules and
+        `agent_review`'s `test_review`: green. `apt-get install
+        python3-pytest` first (pip timed out reaching PyPI, per this file's
+        own recorded workaround).
+    mrr_end: 0
