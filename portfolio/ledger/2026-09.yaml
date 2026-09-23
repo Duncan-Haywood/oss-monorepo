@@ -38966,3 +38966,53 @@ entries:
         (this clone was shallow at session start); checked open PRs (github
         MCP) for a colliding podcast niche and found none.
     mrr_end: 0
+  - venture: git-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first secondary page:
+        `vs-checking-with-curl-by-hand.html`, flagged by `guide-coverage.mjs
+        --check` as the one surface (of 337) with no page beside its entry
+        page. First attempted a different venture (sign-language-interpreter
+        -rate-calculator); while regenerating the mirror after a merge,
+        discovered #5316 had already shipped an almost-identical guide page
+        for that venture (same booking-minimum, team-interpreting, and
+        cancellation-fee worked examples) minutes earlier -- reset the
+        branch to `origin/main` rather than pushing a duplicate, per
+        CLAUDE.md's "Duplicate PRs" section. Re-checked `guide-coverage.mjs
+        --check` on the fresh tree and picked git-exposure-check instead.
+        Worked the tool's own core differentiator (body-content
+        classification vs. a status-only check) through concretely: a real
+        exposure and a soft-404 error page both return HTTP 200 on `curl -I
+        .git/HEAD`, so status alone cannot tell them apart, while this
+        checker's `buildReport` correctly returns `dangerCount: 0` on the
+        soft-404 case and `dangerCount: 1` on the real exposure -- pinned
+        against `analyze.mjs` in the new test file, not asserted by eye.
+        Generic-method comparison (curl by hand), so added the venture's
+        path to `clauses.mjs`'s nominative-fair-use exemption list, same
+        reasoning as sri-check's own `vs-checking-tags-by-hand.html`. Linked
+        from and back to `index.html`, added to the venture's sitemap.xml.
+        Checked open PRs first (github MCP): only #5315
+        (quarterly-estimated-tax-calendar) open, no collision.
+      - >-
+        Verification: `node --test` in the venture: 60/60 (two round-trips
+        fixing a JSON-LD/visible-text mismatch from HTML-escaped angle
+        brackets, and a "GitHub Sponsors" line-wrap that broke a regex
+        match -- both caught by the venture's own test suite before commit).
+        Regenerated the front-door mirror (`regen.mjs`) -- `--verify` clean
+        after. `guide-coverage.mjs --check`: 337/337 surfaces covered.
+        `clauses.mjs`: 1301 pages across 337 surfaces. `checklist_coverage.py`,
+        `sync_tree_counts.py` (337 mirrored tools, 319 opt-out switches,
+        both agree with the tree), `publish_surface.py --check`,
+        `check_no_payment_code.py`, `validate_candidates.py`,
+        `validate_doc_consistency.py`, `probes/validate_probe_index.py`,
+        `score_sensitivity.py`, `score_ventures.py --check` (345 scores),
+        `usage/validate_usage.py` (284 products, 470 readings),
+        `router/validate.py` (344 VENTURE.yaml valid), `agent_review`'s
+        `test_review` (21/21): all clean. Confirmed `git-exposure-check-ci.yml`
+        already runs bare `node --test` (discovered, not enumerated), so no
+        CI-glob fix was needed on this venture, unlike sri-check's #5292.
+        This page carries no inputs, so no browser/axe pass was needed per
+        CLAUDE.md's "touches markup a user types into" condition.
+    mrr_end: 0

@@ -1008,6 +1008,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
   'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
+  // Compares against "running curl by hand and reading the status code" -- a
+  // manual method every developer already has access to, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing tool at all. Same reasoning as sri-check's own
+  // vs-checking-tags-by-hand.html above.
+  'git-exposure-check/vs-checking-with-curl-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

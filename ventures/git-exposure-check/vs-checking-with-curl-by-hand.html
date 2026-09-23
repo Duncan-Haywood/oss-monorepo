@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git Exposure Checker vs. checking with curl by hand</title>
+<meta name="description" content="curl -I .git/HEAD returns 200 on both a real exposure and a soft-404 error page -- status code alone cannot tell them apart. This free checker reads the response BODY, so a soft-404 site correctly comes back clean instead of a false-positive alarm.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/git-exposure-check/vs-checking-with-curl-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Git Exposure Checker vs. checking with curl by hand">
+<meta property="og:description" content="A quick curl -I check on .git/HEAD returns the same 200 status on a real exposure and on a soft-404 error page. This checker reads the response body instead of trusting the status code, so the soft-404 site correctly comes back clean.">
+<meta property="og:url" content="https://example.invalid/git-exposure-check/vs-checking-with-curl-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't curl -I on .git/HEAD enough to check for exposure?","acceptedAnswer":{"@type":"Answer","text":"It tells you the status code, and a 200 there is genuinely worth investigating -- but status code alone cannot distinguish a real exposure from a webserver or CDN configured to answer every unknown path with a 200-status custom error page (a \"soft 404\"). Both return 200 on .git/HEAD. This checker instead reads the response body and confirms it is real git-internal content -- a \"ref: refs/heads/...\" line or a bare 40-character commit SHA -- before calling it exposed."}},{"@type":"Question","name":"What does a soft-404 site actually return on a curl -I check?","acceptedAnswer":{"@type":"Answer","text":"The same 200 status a real exposure returns. A soft-404 server is deliberately configured to answer every unmatched path with its own 200-status error page rather than a real 404, precisely so broken links render something instead of a blank browser error -- which means a status-only check flags every site behind such a server as exposed, whether or not .git is actually reachable."}},{"@type":"Question","name":"So does curl -I ever give a wrong answer on a real exposure or a genuinely protected site?","acceptedAnswer":{"@type":"Answer","text":"No -- a real 404 (genuinely protected) and a real exposure both show their true status through curl -I; the ambiguity is specific to the soft-404 pattern. That is exactly the gap this checker closes: it agrees with curl -I everywhere curl -I is already unambiguous, and adds the one case -- 200 on a soft-404 page -- that a status-only read cannot resolve on its own."}},{"@type":"Question","name":"Is this page making a live comparison against curl?","acceptedAnswer":{"@type":"Answer","text":"No. This is a static page describing a manual method every developer already has access to -- running curl by hand and reading the status code. It names no competing product or company. The checker's own CLI requests go straight from your machine to the site you name, never through this site."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .eyebrow { font-size: 0.85rem; }
+  .cta { display: inline-block; margin: 1rem 0; padding: 0.6rem 1rem; border-radius: 8px; background: #0a7c42; color: #fff; text-decoration: none; font-weight: 650; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: rgba(127,127,127,0.12); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="./">&larr; Git Exposure Checker</a></p>
+  <h1>Git Exposure Checker vs. checking with curl by hand</h1>
+  <p><code>curl -I https://example.com/.git/HEAD</code> is the quick check every developer already reaches for, and it is not wrong to run -- a 200 there is genuinely worth investigating. What it cannot do on its own is tell a real exposure apart from a webserver answering every unknown path with its own 200-status error page. Both look identical to a status-only read.</p>
+
+  <p><a class="cta" href="./">Run the checker on your own site &rarr;</a></p>
+
+  <section>
+    <div class="table-wrap">
+    <table>
+      <caption>Three sites, the same <code>curl -I .git/HEAD</code> status, three different real answers.</caption>
+      <thead>
+        <tr><th scope="col">Site</th><th scope="col"><code>curl -I</code> status</th><th scope="col">Reading status alone</th><th scope="col">This checker's body-based verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Real exposure: <code>.git/HEAD</code> serves <code>ref: refs/heads/main</code>, <code>.git/config</code> serves a real <code>[core]</code> section.</td>
+          <td>200</td>
+          <td>"Exposed" -- correct, but unverified. The 200 alone does not confirm the body is real git content.</td>
+          <td><strong>Exposed.</strong> Both bodies parse as real git-internal content -- confirmed, not assumed.</td>
+        </tr>
+        <tr>
+          <td>Soft 404: the server answers every unknown path with the same 200-status "Page Not Found" HTML error page.</td>
+          <td>200</td>
+          <td>"Exposed" -- <strong>wrong.</strong> Identical status to the real exposure above; nothing distinguishes them.</td>
+          <td><strong>Not exposed.</strong> The body is a generic error page, not a git ref or a <code>[core]</code> section -- correctly rejected.</td>
+        </tr>
+        <tr>
+          <td>Genuinely protected: <code>.git</code> is not deployed, and the server returns a real 404.</td>
+          <td>404</td>
+          <td>"Not exposed" -- correct. Status alone is already unambiguous here.</td>
+          <td><strong>Not exposed.</strong> Agrees with the status-only read -- this checker adds coverage, it doesn't contradict a case that already worked.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      The first and second rows return the exact same <code>curl -I</code> status. A status-only read cannot
+      tell them apart, which means every site behind a soft-404 server gets a false-positive "exposed"
+      verdict from status alone -- or every soft-404 site has to be manually re-checked by eye, which does
+      not scale past the one site you happen to be looking at right now. This checker reads the response
+      body against the exact shape a real <code>.git/HEAD</code> or <code>.git/config</code> file has, so
+      the soft-404 case resolves automatically instead of needing a second manual look.
+    </p>
+
+    <h2>Common questions</h2>
+    <h3>Isn't curl -I on .git/HEAD enough to check for exposure?</h3>
+    <p>It tells you the status code, and a 200 there is genuinely worth investigating -- but status code alone cannot distinguish a real exposure from a webserver or CDN configured to answer every unknown path with a 200-status custom error page (a "soft 404"). Both return 200 on .git/HEAD. This checker instead reads the response body and confirms it is real git-internal content -- a "ref: refs/heads/..." line or a bare 40-character commit SHA -- before calling it exposed.</p>
+    <h3>What does a soft-404 site actually return on a curl -I check?</h3>
+    <p>The same 200 status a real exposure returns. A soft-404 server is deliberately configured to answer every unmatched path with its own 200-status error page rather than a real 404, precisely so broken links render something instead of a blank browser error -- which means a status-only check flags every site behind such a server as exposed, whether or not .git is actually reachable.</p>
+    <h3>So does curl -I ever give a wrong answer on a real exposure or a genuinely protected site?</h3>
+    <p>No -- a real 404 (genuinely protected) and a real exposure both show their true status through curl -I; the ambiguity is specific to the soft-404 pattern. That is exactly the gap this checker closes: it agrees with curl -I everywhere curl -I is already unambiguous, and adds the one case -- 200 on a soft-404 page -- that a status-only read cannot resolve on its own.</p>
+    <h3>Is this page making a live comparison against curl?</h3>
+    <p>No. This is a static page describing a manual method every developer already has access to -- running curl by hand and reading the status code. It names no competing product or company. The checker's own CLI requests go straight from your machine to the site you name, never through this site.</p>
+    <p><a href="./">Open the Git Exposure Checker</a> and run it against your own site.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented exposure
+  class -- a publicly readable <code>.git</code> directory at the one path you give it. It does not check
+  other source-control or backup exposures, does not crawl the rest of the site, and cannot see a pattern
+  it doesn't check for. A clean report describes what these two requests found, not a guarantee the site
+  has no exposed secrets.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review or
+  penetration test. <strong>You are responsible for reviewing and verifying its output before relying on
+  it</strong>, and for having authorisation to test any system you point the CLI at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow,
+  broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page makes no live comparison against anything and
+  no network request of any kind -- it is a static page describing a manual method. The checker's own CLI
+  requests go straight from your machine to the site you name, never through this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>, and optional
+  support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> never
+  changes what the tool does.</p>
+</footer>
+</body>
+</html>
