@@ -853,6 +853,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (Etsy's own Profit Calculator) and carries its own "not affiliated"
   // clause.
   'etsy-profit-calculator/vs-a-spreadsheet.html',
+  // Compares against "the app's own earnings screen" -- a feature every
+  // gig-delivery/rideshare platform has (DoorDash, Uber, Instacart, Lyft,
+  // and others alike), not one specific company or product this could be
+  // mistaken for. The page names no platform at all -- distinct from this
+  // venture's own vs-gridwise.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'gig-driver-net-pay-calculator/vs-the-apps-earnings-screen.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
