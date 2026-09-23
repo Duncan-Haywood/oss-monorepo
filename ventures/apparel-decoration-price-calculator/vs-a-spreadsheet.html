@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screen Printing &amp; Embroidery Price Calculator vs. a spreadsheet</title>
+  <meta name="description" content="A spreadsheet can multiply a per-piece rate by a quantity fine. It won't, on its own, spread a job's screens or digitising across the quantity actually ordered, round blanks up to cover spoilage, or divide embroidery machine minutes by the head count while leaving hooping undivided. Free, no sign-up, nothing uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-a-spreadsheet.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Screen Printing &amp; Embroidery Price Calculator vs. a spreadsheet">
+  <meta property="og:description" content="A spreadsheet multiplies a per-piece rate by a quantity fine. Where it quietly goes wrong: setup spread over the wrong quantity, blanks bought without rounding up for spoilage, and embroidery machine time divided by heads when hooping should not be.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a decorated shirt's cost just a rate per piece?","acceptedAnswer":{"@type":"Answer","text":"That multiplication is trivial and a spreadsheet does it fine once the rate is known. What it does not do on its own is derive the rate itself from a job's setup -- screens burned per colour per placement, or digitising for an embroidery design -- spread over the quantity actually being quoted. A single per-piece cell has no built-in notion that the same design costs far more per shirt at 12 pieces than at 288, so a shop using one blended rate for every order quietly loses money on the small ones and overcharges the large ones."}},{"@type":"Question","name":"Why does a 12-piece order cost so much more per piece than a 144-piece order?","acceptedAnswer":{"@type":"Answer","text":"Because setup is per job, not per piece. Burning, registering and reclaiming a screen -- or digitising an embroidery design -- costs the same whether the order is 12 pieces or 288. Spread that flat cost over 12 pieces and it can be several dollars each; spread it over 288 and it rounds to cents. A spreadsheet holds this correctly only if someone builds a formula that divides setup by quantity and keeps it in sync every time either number changes -- this calculator recomputes it from the job's own setup and the quantity typed in, at six standard tiers at once."}},{"@type":"Question","name":"What does a spreadsheet miss about blanks and spoilage?","acceptedAnswer":{"@type":"Answer","text":"Blanks are bought in whole garments, and a spoilage allowance is bought the same way. A spreadsheet cell that multiplies blank cost by the order quantity assumes zero misprints, so one ruined shirt on a 24-piece run means re-ordering a single blank and setting the job up again -- a cost far larger than the shirt itself. This calculator rounds the blanks purchased up to cover whatever spoilage percentage is entered, rather than assuming a perfect run."}},{"@type":"Question","name":"Why does embroidery need heads and hooping tracked separately?","acceptedAnswer":{"@type":"Answer","text":"A multi-head embroidery machine sews several pieces in one cycle, so the machine minutes a single piece actually costs are the cycle time divided by the number of heads -- but hooping is done by hand, once per piece per placement, and is not divided by anything. A spreadsheet formula that divides the whole run time by heads, hooping included, understates labor; one that never divides overstates machine cost. This calculator applies the division only to the part of the cycle it belongs to."}},{"@type":"Question","name":"Does this replace a shop's own price list or quoting spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No. A price list or quoting spreadsheet that a shop keeps for its standard jobs and repeat customers is still the right place to record settled prices. This page answers one question at a time -- what does this specific job's cost per piece, break-even price, and margin at the quoted price actually come to, given this job's method, quantity, setup, and blanks -- and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1b23; background: #f5f3f0; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 12px; color: #5a2438; }
+    h2 { font-size: 1.15rem; margin: 30px 0 8px; color: #5a2438; }
+    h3 { font-size: 1.02rem; margin: 1.5em 0 4px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #5a2438; margin: 0 0 6px; }
+    .lede { font-size: 1.05rem; }
+    a { color: #1a4f7a; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: .92rem; }
+    th, td { border: 1px solid #e0d6d9; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f0e6e9; }
+    .cta { display: inline-block; margin: 18px 0; padding: 12px 18px; border-radius: 8px; background: #5a2438; color: #f5f3f0; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 34px; padding-top: 14px; border-top: 1px solid #e0d6d9; font-size: .82rem; color: #55505c; }
+    footer a { color: #1a4f7a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Screen printing &amp; embroidery price calculator</a></p>
+    <h1>Screen printing &amp; embroidery price calculator vs. a spreadsheet</h1>
+    <p class="lede">A spreadsheet multiplies a per-piece rate by a quantity fine. It does not, on its own, spread a job's screens or digitising across the right quantity, round blanks up to cover spoilage, or divide embroidery machine time by heads while leaving hooping undivided.</p>
+
+    <p><a class="cta" href="./">Cost a real job &rarr;</a></p>
+
+    <section>
+      <p>
+        Plenty of shops already track jobs in a spreadsheet: one column for
+        the design, one for a per-piece rate, a formula that multiplies by
+        quantity. That arithmetic is trivial and a spreadsheet does it fine
+        once the rate is known. What it does not do on its own is derive the
+        rate itself &mdash; <strong>setup spread over the quantity actually
+        being quoted</strong> (screens per colour per placement, or
+        digitising for an embroidery design), <strong>blanks bought with a
+        spoilage allowance</strong> rather than exactly the order quantity,
+        and, for embroidery, <strong>machine minutes divided by the number of
+        heads while hooping stays undivided</strong>. Each needs its own
+        formula, rebuilt correctly for every quantity, with nothing checking
+        that a small run isn't still being quoted off a big run's rate.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption>What each tool answers.</caption>
+        <thead>
+          <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>What's a known per-piece rate times a quantity?</td>
+            <td>Either one &mdash; a spreadsheet multiplies fine.</td>
+          </tr>
+          <tr>
+            <td>What does this job cost per piece once screens or digitising, blanks with spoilage, and machine time are all spread correctly across this quantity?</td>
+            <td>This calculator &mdash; it derives the rate from your screens, digitising, press or stitch time, blanks and spoilage, recomputed for the quantity you type.</td>
+          </tr>
+          <tr>
+            <td>Why does the same design cost more per shirt at 12 pieces than at 288?</td>
+            <td>This calculator's quantity-break table, which spreads the same one-off setup across every standard tier at once.</td>
+          </tr>
+          <tr>
+            <td>Are embroidery machine minutes and hooping minutes being divided by the head count correctly?</td>
+            <td>This calculator &mdash; it divides only the machine cycle by heads and leaves hooping, done once per piece by hand, undivided.</td>
+          </tr>
+          <tr>
+            <td>Is the break-even price and the margin at a price already on the table, and are blanks covering spoilage?</td>
+            <td>This calculator &mdash; both are computed automatically, with blanks rounded up to cover the spoilage percentage entered.</td>
+          </tr>
+          <tr>
+            <td>Keep a settled price list or a season-long job record?</td>
+            <td>A spreadsheet or price list &mdash; this page answers one job at a time and remembers nothing once you leave.</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <p>
+        This calculator derives the cost per piece, the break-even price, and
+        the margin at a price you're already considering directly from the
+        decoration method, quantity, setup, run time, blanks and spoilage
+        figures you type &mdash; recomputed every time, with no formula to
+        keep in sync across jobs or quantities.
+      </p>
+      <p>
+        It needs no account and nothing installed: it is a static page, the
+        arithmetic runs in your browser, and every number you enter stays on
+        this device &mdash; nothing is uploaded anywhere.
+      </p>
+
+      <h2>Common questions</h2>
+      <h3>Isn't a decorated shirt's cost just a rate per piece?</h3>
+      <p>That multiplication is trivial and a spreadsheet does it fine once the rate is known. What it does not do on its own is derive the rate itself from a job's setup -- screens burned per colour per placement, or digitising for an embroidery design -- spread over the quantity actually being quoted. A single per-piece cell has no built-in notion that the same design costs far more per shirt at 12 pieces than at 288, so a shop using one blended rate for every order quietly loses money on the small ones and overcharges the large ones.</p>
+      <h3>Why does a 12-piece order cost so much more per piece than a 144-piece order?</h3>
+      <p>Because setup is per job, not per piece. Burning, registering and reclaiming a screen -- or digitising an embroidery design -- costs the same whether the order is 12 pieces or 288. Spread that flat cost over 12 pieces and it can be several dollars each; spread it over 288 and it rounds to cents. A spreadsheet holds this correctly only if someone builds a formula that divides setup by quantity and keeps it in sync every time either number changes -- this calculator recomputes it from the job's own setup and the quantity typed in, at six standard tiers at once.</p>
+      <h3>What does a spreadsheet miss about blanks and spoilage?</h3>
+      <p>Blanks are bought in whole garments, and a spoilage allowance is bought the same way. A spreadsheet cell that multiplies blank cost by the order quantity assumes zero misprints, so one ruined shirt on a 24-piece run means re-ordering a single blank and setting the job up again -- a cost far larger than the shirt itself. This calculator rounds the blanks purchased up to cover whatever spoilage percentage is entered, rather than assuming a perfect run.</p>
+      <h3>Why does embroidery need heads and hooping tracked separately?</h3>
+      <p>A multi-head embroidery machine sews several pieces in one cycle, so the machine minutes a single piece actually costs are the cycle time divided by the number of heads -- but hooping is done by hand, once per piece per placement, and is not divided by anything. A spreadsheet formula that divides the whole run time by heads, hooping included, understates labor; one that never divides overstates machine cost. This calculator applies the division only to the part of the cycle it belongs to.</p>
+      <h3>Does this replace a shop's own price list or quoting spreadsheet?</h3>
+      <p>No. A price list or quoting spreadsheet that a shop keeps for its standard jobs and repeat customers is still the right place to record settled prices. This page answers one question at a time -- what does this specific job's cost per piece, break-even price, and margin at the quoted price actually come to, given this job's method, quantity, setup, and blanks -- and nothing it computes is saved anywhere once you leave the page.</p>
+      <p><a href="./">Open the screen printing &amp; embroidery price calculator</a> to cost your own job.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. This page makes no network request of any kind &mdash; it is a static page. Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
