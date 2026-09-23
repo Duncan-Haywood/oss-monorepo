@@ -38,9 +38,9 @@
 #   portfolio-front-tools-2: 150 files, 555027 bytes
 #   portfolio-front-tools-3: 135 files, 552696 bytes
 #   portfolio-front-tools-4: 134 files, 556034 bytes
-#   portfolio-front-tools-5: 126 files, 553836 bytes
-#   portfolio-front-tools-6: 129 files, 556357 bytes
-#   portfolio-front-tools-7: 135 files, 553544 bytes
+#   portfolio-front-tools-5: 126 files, 556810 bytes
+#   portfolio-front-tools-6: 129 files, 553979 bytes
+#   portfolio-front-tools-7: 136 files, 556940 bytes
 #   portfolio-front-tools-8: 121 files, 545639 bytes
 #   portfolio-front-tools-9: 114 files, 556011 bytes
 #   portfolio-front-tools-10: 116 files, 549930 bytes
@@ -773,6 +773,7 @@ configMapGenerator:
       - basement-finishing-bid-calculator__should-i-charge-30-a-square-foot-to-finish-a-basement.html.gz=basement-finishing-bid-calculator__should-i-charge-30-a-square-foot-to-finish-a-basement.html.gz
       - basement-finishing-bid-calculator__usage.mjs.gz=basement-finishing-bid-calculator__usage.mjs.gz
       - basement-finishing-bid-calculator__vs-buildxact.html.gz=basement-finishing-bid-calculator__vs-buildxact.html.gz
+      - basement-finishing-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=basement-finishing-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - basement-waterproofing-bid-calculator__calc.mjs.gz=basement-waterproofing-bid-calculator__calc.mjs.gz
       - basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz=basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz
       - basement-waterproofing-bid-calculator__index.html.gz=basement-waterproofing-bid-calculator__index.html.gz
@@ -879,12 +880,12 @@ configMapGenerator:
       - certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz=certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz
       - certified-payroll-calculator__index.html.gz=certified-payroll-calculator__index.html.gz
       - certified-payroll-calculator__share.mjs.gz=certified-payroll-calculator__share.mjs.gz
-      - certified-payroll-calculator__usage.mjs.gz=certified-payroll-calculator__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - certified-payroll-calculator__usage.mjs.gz=certified-payroll-calculator__usage.mjs.gz
       - certified-payroll-calculator__vs-lcptracker.html.gz=certified-payroll-calculator__vs-lcptracker.html.gz
       - childcare-tuition-calculator__calc.mjs.gz=childcare-tuition-calculator__calc.mjs.gz
       - childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz=childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz
@@ -1013,12 +1014,12 @@ configMapGenerator:
       - deck-bid-calculator__index.html.gz=deck-bid-calculator__index.html.gz
       - deck-bid-calculator__share.mjs.gz=deck-bid-calculator__share.mjs.gz
       - deck-bid-calculator__usage.mjs.gz=deck-bid-calculator__usage.mjs.gz
-      - deck-bid-calculator__vs-quoteiq.html.gz=deck-bid-calculator__vs-quoteiq.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - deck-bid-calculator__vs-quoteiq.html.gz=deck-bid-calculator__vs-quoteiq.html.gz
       - deck-staining-bid-calculator__calc.mjs.gz=deck-staining-bid-calculator__calc.mjs.gz
       - deck-staining-bid-calculator__how-much-to-charge-to-stain-a-deck.html.gz=deck-staining-bid-calculator__how-much-to-charge-to-stain-a-deck.html.gz
       - deck-staining-bid-calculator__index.html.gz=deck-staining-bid-calculator__index.html.gz
