@@ -1118,6 +1118,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
+  // Compares against "crafting and sending the introspection query yourself"
+  // -- a generic developer habit (curl or whatever GraphQL client is
+  // already open), not a company or product this could be mistaken for.
+  // The page names no specific GraphQL client or IDE. Same reasoning as
+  // git-exposure-check's and firebase-rules-check's by-hand comparisons
+  // above.
+  'graphql-introspection-exposure-check/vs-crafting-the-query-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

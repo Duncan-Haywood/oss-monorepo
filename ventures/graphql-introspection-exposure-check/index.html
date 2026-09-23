@@ -148,6 +148,7 @@
   <h3>Does a clean report mean the API has no other security issues?</h3>
   <p>No. This checks exactly one thing -- whether an unauthenticated introspection query succeeds -- from one request. It is not a full security assessment, does not test authenticated behaviour, field-level authorization, query depth/complexity limits, or batching/aliasing abuse, and a sensitive-sounding field name is a hint to review by hand, not proof of a missing access control. Treat a clean report as evidence about introspection specifically.</p>
   <p>More background: <a href="why-disable-graphql-introspection-in-production.html">why production GraphQL APIs disable introspection, and what it actually protects against</a>.</p>
+  <p>See <a href="vs-crafting-the-query-by-hand.html">how this compares to sending the query yourself</a> &mdash; the full-schema query is easy to mistype, and the mutation-surface and sensitive-name classification are easy to miss reading raw JSON by eye.</p>
 </section>
 
 <script type="module">

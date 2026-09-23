@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GraphQL Introspection Exposure Checker vs. Sending the Query by Hand</title>
+<meta name="description" content="Pasting an introspection query into curl or a GraphQL client confirms the obvious case fast. It misses the write-surface and sensitive-field-name classification, and a single copy-paste mistake in the long full-schema query reads as introspection being off when it isn't -- what a scripted, repeatable check catches instead.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/graphql-introspection-exposure-check/vs-crafting-the-query-by-hand.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does sending an introspection query by hand actually show you?","acceptedAnswer":{"@type":"Answer","text":"Pasting a short query like { __schema { queryType { name } } } into curl or a GraphQL client is a real, fast way to confirm the single obvious case — whether introspection answers at all. Anyone who knows the endpoint URL can do this in one request, with no tooling beyond curl."}},{"@type":"Question","name":"Where does the by-hand query fall short?","acceptedAnswer":{"@type":"Answer","text":"Three ways this scripted check catches and a hand-crafted query easily misses. (1) The short query that is easiest to paste by hand only proves introspection is on — it does not name the mutation surface or scan field names, so confirming the actual severity means either accepting an incomplete answer or typing out GraphQL's much longer full-schema introspection query by hand. (2) That full query is long enough, with nested fragments, that a single dropped brace or misspelled meta-field produces a GraphQL syntax error — which looks identical to introspection being disabled unless you read the error body closely enough to tell the two apart. (3) A real schema can name hundreds of fields; scanning that JSON by eye for a non-null mutationType or a sensitive-sounding name like admin, delete, or secret is slow and easy to get wrong at that size."}},{"@type":"Question","name":"Why does this matter for CI, not just a one-time check?","acceptedAnswer":{"@type":"Answer","text":"A hand-crafted request is a point-in-time, manual look at one endpoint you remembered to try. A framework upgrade, a config change, or a new environment that reintroduces the default can turn introspection back on at any point after the last time someone thought to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does — catching the regression the day it ships rather than the next time someone happens to run a query by hand."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="./">&larr; Back to the GraphQL Introspection Exposure Checker</a></p>
+<h1>GraphQL Introspection Exposure Checker vs. sending the query by hand</h1>
+<p>
+  Pasting a short introspection query into curl, or into whatever GraphQL client is already open,
+  is a real and fast way to confirm the single obvious case: does introspection answer at all.
+  Most developers who suspect a problem reach for this first, and it genuinely works for that
+  case. This page names no specific GraphQL client or IDE &mdash; the comparison is against the
+  generic habit of crafting and sending the query yourself, not any one product.
+</p>
+
+<table>
+  <thead><tr><th>Check</th><th>By hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Confirming introspection answers at all</td><td>Catches it</td><td>Catches it</td></tr>
+    <tr><td>Naming the write surface (mutations)</td><td>Only if you also type the longer full-schema query correctly</td><td>Reported automatically as a danger-severity finding</td></tr>
+    <tr><td>Flagging sensitive-sounding field names</td><td>Manual scan of the raw JSON</td><td>Scanned automatically against common sensitive-operation wording</td></tr>
+    <tr><td>A dropped brace or typo in the full query</td><td>Reads as a syntax error easy to mistake for introspection being off</td><td>Query is fixed and tested</td></tr>
+    <tr><td>Several endpoints at once</td><td>One request at a time</td><td>Same classification logic run per target</td></tr>
+    <tr><td>Repeatable in CI</td><td>Manual, point-in-time</td><td>Real exit code</td></tr>
+  </tbody>
+</table>
+
+<h2>When to still just send the query yourself</h2>
+<p>
+  If you already suspect a specific endpoint is wide open and just want to confirm it once, a
+  short hand-crafted query is fine &mdash; it's free and you already know the URL. The gap this
+  tool closes is doing that completely: the full-schema query typed correctly every time, the
+  mutation-surface and sensitive-name classification read off automatically instead of by eye,
+  and an exit code the same check can gate a deploy on next time.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does sending an introspection query by hand actually show you?</h3>
+<p>Pasting a short query like <code>{ __schema { queryType { name } } }</code> into curl or a GraphQL client is a real, fast way to confirm the single obvious case &mdash; whether introspection answers at all. Anyone who knows the endpoint URL can do this in one request, with no tooling beyond curl.</p>
+<h3>Where does the by-hand query fall short?</h3>
+<p>Three ways this scripted check catches and a hand-crafted query easily misses. (1) The short query that is easiest to paste by hand only proves introspection is on &mdash; it does not name the mutation surface or scan field names, so confirming the actual severity means either accepting an incomplete answer or typing out GraphQL's much longer full-schema introspection query by hand. (2) That full query is long enough, with nested fragments, that a single dropped brace or misspelled meta-field produces a GraphQL syntax error &mdash; which looks identical to introspection being disabled unless you read the error body closely enough to tell the two apart. (3) A real schema can name hundreds of fields; scanning that JSON by eye for a non-null <code>mutationType</code> or a sensitive-sounding name like <code>admin</code>, <code>delete</code>, or <code>secret</code> is slow and easy to get wrong at that size.</p>
+<h3>Why does this matter for CI, not just a one-time check?</h3>
+<p>A hand-crafted request is a point-in-time, manual look at one endpoint you remembered to try. A framework upgrade, a config change, or a new environment that reintroduces the default can turn introspection back on at any point after the last time someone thought to check. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does &mdash; catching the regression the day it ships rather than the next time someone happens to run a query by hand.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review
+  or penetration test. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>
