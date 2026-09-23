@@ -15736,6 +15736,72 @@ ventures:
       status) is reported as an error, never folded into either "exposed"
       or "blocked".
 
+  - slug: graphql-introspection-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an introspection query
+      returned a schema, and which field names match a fixed sensitive-word
+      list, is decided by exact structural inspection of the response --
+      not a model judgment -- and it never claims a full security
+      assessment.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool, the same
+      evidence-from-one-request shape as cors-misconfig-check,
+      security-headers-check, and supabase-rls-check, just for a
+      GraphQL endpoint's introspection exposure rather than a response
+      header or a database table. duplicate_check.py scored the closest
+      existing venture (supabase-rls-check, a different access-control
+      evidence class -- whether a table returns real rows, not a GraphQL
+      schema) at 0.17 against the final description, well under the 0.45
+      flag bar; no existing venture reads GraphQL's __schema meta-field.
+      Autonomous ops 10 / gross margin 10: the browser page runs the
+      check client-side when the target's CORS policy allows it, and the
+      CLI's request otherwise runs from the user's own machine, so
+      serving one more user costs a static file and needs no human
+      review of any output.
+      Distribution 7: OWASP's API Security guidance and every major
+      GraphQL server library's own hardening docs (Apollo Server,
+      graphql-yoga, express-graphql) name disabling introspection in
+      production as standard practice -- Apollo Server changed its own
+      default over it -- and "graphql introspection checker" / "disable
+      graphql introspection production" / "graphql schema exposure" are
+      specific, recurring developer search phrases distinct from this
+      portfolio's existing header- and database-evidence checkers.
+      Time to revenue 6, defensibility 3: donations-only; introspection
+      is trivially checkable by hand in GraphiQL or a REST client, so
+      defensibility rests only on automating the query, the CORS-aware
+      browser-first flow, and the sensitive-name heuristic, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends exactly one ordinary, read-only POST from the
+      user's own machine to an endpoint the user chooses -- GraphQL's
+      introspection meta-fields cannot mutate anything -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from a GraphQL client querying the endpoint directly. Every
+      page and the README carry an explicit "only test systems you own or
+      are authorised to test" caution, the same posture as the sibling
+      request-based security tools. A probe that fails at the network
+      level, or returns a response that isn't recognisably GraphQL, is
+      reported as incomplete rather than silently skipped or guessed at,
+      and a finding is only ever raised from a schema this tool actually
+      observed. Both pages' footers and FAQs state plainly that a clean
+      report is evidence from one request, not a full security assessment
+      or a determination that the target is secure.
+
   - slug: podcast-feed-check
     scores:
       ai_leverage: 1

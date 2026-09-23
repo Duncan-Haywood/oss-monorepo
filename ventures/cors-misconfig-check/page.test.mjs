@@ -96,6 +96,19 @@ test('index links back to sri-check, which links here', () => {
   assert.match(html, /href="\.\.\/sri-check\/"/);
 });
 
+// Closest sibling among the response/schema-evidence security checkers this
+// venture already lists: graphql-introspection-exposure-check links here
+// (a different tag-and-response evidence class) but nothing linked back,
+// which left it a crawlable orphan (platform/pages/siblings.mjs --check).
+test('index links one hop to the graphql-introspection-exposure-check sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/graphql-introspection-exposure-check\/"/,
+    'index must link ../graphql-introspection-exposure-check/ so crawlers reach it in one hop',
+  );
+  assert.match(html, /GraphQL introspection exposure checker/i);
+});
+
 test('a worked-example button exists as an alternative to running the CLI first', () => {
   assert.match(html, /id="load-example"/);
 });
