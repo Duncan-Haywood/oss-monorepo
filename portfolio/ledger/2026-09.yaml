@@ -38209,6 +38209,103 @@ entries:
         (runner_id: 0) before merging; said so in the PR body naming what
         was verified locally.
     mrr_end: 0
+  - venture: sign-language-interpreter-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser calculator pricing a single
+        freelance/contract sign language (ASL) interpreting assignment --
+        hours requested against a two-hour booking minimum, portal-to-portal
+        travel time and mileage, an after-hours/weekend/holiday differential,
+        and a team-interpreting flag for long legal/medical/mental-health
+        bookings per RID's own Standard Practice Paper guidance -- plus a
+        tiered late-cancellation fee calculator. Entirely client-side, zero
+        marginal cost. Screened per portfolio/pipeline/README.md's
+        archetype-saturation note (141+ trade-bid calculators, 38+ CI
+        checkers) for a distinct solo-professional-services pricing niche;
+        closest in shape to notary-trip-quote and
+        court-reporter-transcript-calculator (same solo-professional
+        time/travel/minimum-booking shape) but a structurally different kind
+        of work, with a team-staffing decision driven by the interpreting
+        profession's own cognitive-load guidance rather than by area, page
+        count, or word count. python3 portfolio/pipeline/duplicate_check.py
+        against the candidate description scored nothing >= 0.09 against any
+        existing venture, pipeline candidate, or screened-out row -- see the
+        evidence recorded in VENTURE.yaml's header comment. Also grepped
+        screened-out.md and ventures/ directly for "interpreter", "sign
+        language", "ASL", "Deaf", "RID" -- no prior coverage found. Checked
+        open PRs (github MCP) for a colliding interpreter-pricing niche and
+        found none.
+
+        Gates (both required >= 5): liability_containment 8, ethical_robustness
+        8 -- deterministic arithmetic over adjustable, commonly cited industry
+        conventions, output framed explicitly as a negotiation starting point
+        or invoice draft, never a quote/guarantee/valuation on the user's
+        behalf, and not legal/medical advice about the underlying assignment.
+        Full merit score recorded in portfolio/scoring/venture-scores.yaml
+        (composite 5.667, floor 1 on ai_leverage -- no AI in the product,
+        deterministic arithmetic throughout).
+
+        Shipped with a two-file crawlable-orphan pairing to
+        court-reporter-transcript-calculator (both commonly booked for the
+        same deposition/hearing) rather than landing as an orphan under the
+        siblings.mjs budget of 0 -- footer links added in both ventures'
+        index.html with a page.test.mjs assertion on each href. Filed into
+        build.mjs's `services` category (Service business pricing & quotes)
+        on first commit rather than left for a catch-all spell, per that
+        section's own convention. Added a .github/workflows/sign-language-
+        interpreter-rate-calculator-ci.yml (copied from an existing sibling
+        venture's workflow) and recorded it with `python3
+        platform/ci/publish_surface.py --write` (classified 'none' -- an
+        ordinary test-only venture CI). Ran `node platform/pages/launched.mjs
+        --write` so the tool enters the portfolio's Atom feed. Ran
+        `node platform/marketing/regen.mjs` twice (once after the initial
+        venture commit, again after fixing a JSON-LD/visible-prose FAQ text
+        mismatch platform/pages/faq-visible.test.mjs caught) so the
+        gitops/prod/ front-door mirror serves the corrected page; `--verify`
+        confirmed current after each write. Added a baseline row to
+        portfolio/usage/usage.yaml (live_url_visitors: null, all local event
+        counters at 0 -- published minutes ago, nobody has visited or opted
+        into local counting yet).
+
+        Verified locally, CI starved (ci_starvation.py: runner_id 0 on recent
+        runs, confirmed before relying on any check state): venture's own
+        suite 37/37 (calc.test.mjs 27, usage.test.mjs 6, page.test.mjs 4);
+        court-reporter-transcript-calculator's suite 53/53 after adding the
+        reciprocal sibling link and its page.test.mjs assertion; the full
+        platform/marketing + platform/pages suite 1281/1281 (first run found
+        3 failures -- a JSON-LD/visible-FAQ-prose text mismatch and a missing
+        launch date, both fixed and re-verified 0 failures, plus a
+        front-door-mirror-staleness gap closed via regen.mjs, verified with
+        --verify before and after); checklist_coverage.py,
+        portfolio/router/validate.py (338 files valid),
+        portfolio/scoring/score_ventures.py --check (338 ventures, added this
+        venture's score row), portfolio/usage/validate_usage.py (280
+        products, 466 readings), publish_surface.py --check (clean after
+        --write recorded the new CI workflow), validate_doc_consistency.py,
+        probes/validate_probe_index.py, score_sensitivity.py,
+        node platform/pages/clauses.mjs sign-language-interpreter-rate-
+        calculator, all 15 platform/ci unittest modules, agent_review's
+        test_review (21/21), and portfolio ledger+scoring+router+usage+
+        pipeline+infra pytest suites (446 passed): all clean. gitops/tests
+        (python3 -m pytest, after apt-get install python3-pytest): 612
+        passed, 25 skipped, 1 failed on
+        test_mirrored_tool_count_matches_what_the_docs_claim (claims 329,
+        actual 330 after this venture's mirror entry) -- this is the exact
+        drift CLAUDE.md's "sync_tree_counts.py" section documents as
+        unfixable on a branch (several concurrent sessions can each move this
+        count by the time of merge) and explicitly says to run
+        sync_tree_counts.py *after* merging main, not before; left as-is
+        per that guidance rather than hand-editing a number a concurrent
+        merge would immediately invalidate again. Did not run the
+        Playwright/axe browser-check suite (time budget; this is a
+        prototype-stage venture and the task brief marks that suite
+        optional) or mypy (module not installed in this environment and not
+        on this venture's own checklist). Rebased onto latest origin/main
+        immediately before push; checked open PRs for a colliding venture
+        and found none.
+    mrr_end: 0
   - venture: flooring-bid-calculator
     agent_spend_usd: null
     human_hours: 0

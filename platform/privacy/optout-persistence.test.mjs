@@ -467,9 +467,18 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
 //
-// 313 -> 314: `turo-host-payout-calculator` graduated concurrently on
-// `main`, adding one `usage.mjs` following the same opt-out pattern as its
-// siblings (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
+// 312 -> 313: `sign-language-interpreter-rate-calculator` graduated, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent`, the same shape as
+// `voiceover-project-rate-calculator`'s, which it is modeled on). Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs`
+// (`ventures/sign-language-interpreter-rate-calculator/usage.mjs`) and no
+// deletions.
+//
+// 313 -> 314: `turo-host-payout-calculator` also graduated, concurrently,
+// adding one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
 // `voiceover-project-rate-calculator`'s does). This branch only ever knew
 // its own predecessor's number (312, before `mercari-fee-calculator`
 // landed) until this merge -- the same ordinary collision shape recorded
@@ -477,8 +486,8 @@ const RELATIVE_SELF = relative(
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
 //
-// 313 -> 314: `firebase-rules-check` graduated concurrently, adding one
-// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// 314 -> 315: `firebase-rules-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
 // `supabase-rls-check`'s. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/firebase-rules-check/usage.mjs`) and no deletions. This
@@ -488,16 +497,19 @@ const RELATIVE_SELF = relative(
 // landed) until this merge -- the same ordinary collision shape recorded
 // throughout this list.
 //
-// 314 -> 315: `source-map-leak-check` graduated concurrently, adding one
-// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as its
-// checker siblings. Verified the way this file's error message prescribes:
-// exactly one added `usage.mjs` (`ventures/source-map-leak-check/usage.mjs`)
-// and no deletions. This branch only ever knew its own predecessor's number
-// (309, before `osha-trir-dart-calculator`, `supabase-rls-check`,
+// 315 -> 316: `source-map-leak-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// its checker siblings. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/source-map-leak-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309, before
+// `osha-trir-dart-calculator`, `supabase-rls-check`,
 // `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
 // `turo-host-payout-calculator` landed) until this merge -- the same
-// ordinary collision shape recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 315;
+// ordinary collision shape recorded throughout this list. Total
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 316;
 
 let counter = 0;
 function fixture(source) {
