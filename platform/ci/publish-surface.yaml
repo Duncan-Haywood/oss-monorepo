@@ -659,6 +659,9 @@ workflows:
 - workflow: menu-engineering-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mercari-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
