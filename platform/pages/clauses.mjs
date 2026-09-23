@@ -1016,6 +1016,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-keeper.html, which does name a product and carries its own "not
   // affiliated" clause.
   'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
+  // Compares against "pasting a Realtime Database URL into a browser or
+  // curl-ing the Firestore REST API by hand" -- a generic manual habit any
+  // developer with the project ID already has, not a company or product
+  // this could be mistaken for. Same reasoning as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html exemption above.
+  'firebase-rules-check/vs-requesting-the-url-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

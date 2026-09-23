@@ -42,8 +42,8 @@
 #   portfolio-front-tools-6: 133 files, 556257 bytes
 #   portfolio-front-tools-7: 122 files, 552282 bytes
 #   portfolio-front-tools-8: 138 files, 555431 bytes
-#   portfolio-front-tools-9: 123 files, 554170 bytes
-#   portfolio-front-tools-10: 117 files, 554137 bytes
+#   portfolio-front-tools-9: 123 files, 556459 bytes
+#   portfolio-front-tools-10: 118 files, 555156 bytes
 #   portfolio-front-tools-11: 115 files, 554389 bytes
 #   portfolio-front-tools-12: 126 files, 553596 bytes
 #   portfolio-front-tools-13: 128 files, 556182 bytes
@@ -1313,6 +1313,7 @@ configMapGenerator:
       - firebase-rules-check__index.html.gz=firebase-rules-check__index.html.gz
       - firebase-rules-check__probe.mjs.gz=firebase-rules-check__probe.mjs.gz
       - firebase-rules-check__usage.mjs.gz=firebase-rules-check__usage.mjs.gz
+      - firebase-rules-check__vs-requesting-the-url-by-hand.html.gz=firebase-rules-check__vs-requesting-the-url-by-hand.html.gz
       - firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz=firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz
       - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
       - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
@@ -1419,12 +1420,12 @@ configMapGenerator:
       - graphql-introspection-exposure-check__check.mjs.gz=graphql-introspection-exposure-check__check.mjs.gz
       - graphql-introspection-exposure-check__index.html.gz=graphql-introspection-exposure-check__index.html.gz
       - graphql-introspection-exposure-check__probe.mjs.gz=graphql-introspection-exposure-check__probe.mjs.gz
-      - graphql-introspection-exposure-check__usage.mjs.gz=graphql-introspection-exposure-check__usage.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - graphql-introspection-exposure-check__usage.mjs.gz=graphql-introspection-exposure-check__usage.mjs.gz
       - graphql-introspection-exposure-check__why-disable-graphql-introspection-in-production.html.gz=graphql-introspection-exposure-check__why-disable-graphql-introspection-in-production.html.gz
       - gravel-driveway-bid-calculator__calc.mjs.gz=gravel-driveway-bid-calculator__calc.mjs.gz
       - gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz=gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz
