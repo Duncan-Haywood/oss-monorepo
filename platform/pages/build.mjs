@@ -6471,6 +6471,27 @@ export function relatedTools(surfaces, slug, limit = 4) {
   return [...rotate(sameSubcategory), ...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
 }
 
+// A `<script>` body (JSON-LD in particular) or an HTML comment can legally
+// contain the literal text `<body>` or `</body>` — an FAQ answer describing a
+// soft-404 page, say, quoting `<html><body>404 Not Found</body></html>` as an
+// example. `injectChrome` used to locate the real body tags with a plain
+// `html.match(/<body[^>]*>/i)`, which finds whichever occurrence comes first
+// in the raw text — including one sitting inside a JSON string. On
+// git-exposure-check's own soft-404 guide, that fake match came before the
+// real `<body>` tag, so the navigation bar and footer were spliced into the
+// middle of the JSON-LD block instead of onto the page: the JSON-LD became
+// invalid (a raw `<nav>` block is not a legal JSON string character) and the
+// actual rendered page shipped with no way back to the rest of the site.
+const EMBEDDED_MARKUP_RE = /<script\b[^>]*>[\s\S]*?<\/script\s*>|<!--[\s\S]*?-->/gi;
+
+function findRealTag(html, globalTagRe) {
+  const blocked = [...html.matchAll(EMBEDDED_MARKUP_RE)].map((m) => [m.index, m.index + m[0].length]);
+  for (const match of html.matchAll(globalTagRe)) {
+    if (!blocked.some(([start, end]) => match.index >= start && match.index < end)) return match;
+  }
+  return null;
+}
+
 /**
  * Wrap one already-published page in the site's navigation. Returns the html
  * unchanged when there is no `<body>` to attach to, or when the page has been
@@ -6773,8 +6794,13 @@ export function faqEntries(html) {
 
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = html.match(/<body[^>]*>/i);
-  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+  const bodyOpen = findRealTag(html, /<body[^>]*>/gi);
+  const bodyClose = findRealTag(html, /<\/body>/gi);
+  if (!bodyOpen || !bodyClose) return html;
+  let bodyOpenIndex = bodyOpen.index;
+  let bodyCloseIndex = bodyClose.index;
+  const bodyOpenText = bodyOpen[0];
+  const bodyCloseText = bodyClose[0];
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6830,9 +6856,19 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     }
   }
   if (headExtras) {
-    html = /<\/head>/i.test(html)
-      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
-      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+    const headClose = findRealTag(html, /<\/head>/gi);
+    if (headClose) {
+      const insertion = `${headExtras}\n${headClose[0]}`;
+      html = html.slice(0, headClose.index) + insertion + html.slice(headClose.index + headClose[0].length);
+      const shift = insertion.length - headClose[0].length;
+      bodyOpenIndex += shift;
+      bodyCloseIndex += shift;
+    } else {
+      const insertion = `${headExtras}\n`;
+      html = html.slice(0, bodyOpenIndex) + insertion + html.slice(bodyOpenIndex);
+      bodyOpenIndex += insertion.length;
+      bodyCloseIndex += insertion.length;
+    }
   }
 
   const hub = `${toRoot}`;
@@ -6876,13 +6912,25 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // `CHROME_STYLE_FILE`.
   const styleLink =
     `<link rel="stylesheet" href="${escapeHtml(`${toRoot}${CHROME_STYLE_FILE}`)}">`;
-  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
+  const styleHeadClose = findRealTag(html, /<\/head>/gi);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
-  const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
+  let stylePrefix = '';
+  if (styleHeadClose) {
+    const insertion = `${styleLink}\n${styleHeadClose[0]}`;
+    html = html.slice(0, styleHeadClose.index) + insertion + html.slice(styleHeadClose.index + styleHeadClose[0].length);
+    const shift = insertion.length - styleHeadClose[0].length;
+    bodyOpenIndex += shift;
+    bodyCloseIndex += shift;
+  } else {
+    stylePrefix = `${styleLink}\n`;
+  }
 
-  return withStyle
-    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n</body>`);
+  const afterOpenInsertion = `${bodyOpenText}\n${stylePrefix}${topBar}`;
+  html = html.slice(0, bodyOpenIndex) + afterOpenInsertion + html.slice(bodyOpenIndex + bodyOpenText.length);
+  bodyCloseIndex += afterOpenInsertion.length - bodyOpenText.length;
+
+  const beforeCloseInsertion = `${footer}\n${bodyCloseText}`;
+  return html.slice(0, bodyCloseIndex) + beforeCloseInsertion + html.slice(bodyCloseIndex + bodyCloseText.length);
 }
 
 /**
