@@ -107,6 +107,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
+  // Compares against checking RLS in Supabase's own Table Editor and
+  // Advisor by hand -- the same platform's own built-in dashboard features,
+  // described only to explain what a manual look there does and does not
+  // tell you, not a separate company or product this could be mistaken
+  // for. Same shape as branch-protection-drift-check's exemption above.
+  'supabase-rls-check/vs-manually-checking-the-dashboard.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
