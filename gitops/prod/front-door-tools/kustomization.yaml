@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 125 files, 549557 bytes
 #   portfolio-front-tools-13: 133 files, 556160 bytes
 #   portfolio-front-tools-14: 98 files, 546795 bytes
-#   portfolio-front-tools-15: 115 files, 550345 bytes
+#   portfolio-front-tools-15: 116 files, 554981 bytes
 #   portfolio-front-tools-16: 112 files, 519610 bytes
 #   portfolio-front-tools-17: 49 files, 265801 bytes
 #
@@ -2139,6 +2139,7 @@ configMapGenerator:
       - toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz=toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz
       - toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz=toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz
       - toilet-replacement-bid-calculator__usage.mjs.gz=toilet-replacement-bid-calculator__usage.mjs.gz
+      - toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz=toilet-replacement-bid-calculator__vs-a-flat-installed-price.html.gz
       - toilet-replacement-bid-calculator__vs-servicetitan.html.gz=toilet-replacement-bid-calculator__vs-servicetitan.html.gz
       - tree-service-bid-calculator__calc.mjs.gz=tree-service-bid-calculator__calc.mjs.gz
       - tree-service-bid-calculator__how-to-bid-tree-removal.html.gz=tree-service-bid-calculator__how-to-bid-tree-removal.html.gz
