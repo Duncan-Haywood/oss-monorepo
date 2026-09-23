@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 133 files, 556257 bytes
 #   portfolio-front-tools-7: 123 files, 557020 bytes
 #   portfolio-front-tools-8: 138 files, 555431 bytes
-#   portfolio-front-tools-9: 122 files, 550078 bytes
+#   portfolio-front-tools-9: 123 files, 553386 bytes
 #   portfolio-front-tools-10: 118 files, 554451 bytes
 #   portfolio-front-tools-11: 115 files, 555458 bytes
 #   portfolio-front-tools-12: 125 files, 542616 bytes
@@ -1314,6 +1314,7 @@ configMapGenerator:
       - firebase-rules-check__index.html.gz=firebase-rules-check__index.html.gz
       - firebase-rules-check__probe.mjs.gz=firebase-rules-check__probe.mjs.gz
       - firebase-rules-check__usage.mjs.gz=firebase-rules-check__usage.mjs.gz
+      - firebase-rules-check__vs-requesting-the-url-by-hand.html.gz=firebase-rules-check__vs-requesting-the-url-by-hand.html.gz
       - firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz=firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz
       - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
       - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
