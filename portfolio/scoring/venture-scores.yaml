@@ -15279,3 +15279,65 @@ ventures:
       authorised to test" caution. A response the tool cannot classify
       (network error, unexpected status) is reported as an error, never
       folded into either "exposed" or "blocked".
+  - slug: voiceover-project-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on a
+      script's word count, a usage/licensing multiplier, and an ACX-style
+      per-finished-hour audiobook conversion — all commonly cited rate-guide
+      conventions exposed as adjustable inputs — and adding inference would
+      only make the result less checkable against the narrator's own numbers.
+    basis: >-
+      Graduated 2026-09-23 as a browser-local calculator pricing two
+      structurally different kinds of voice-over work: a script-based
+      project (commercial, e-learning, IVR, explainer, animation) priced per
+      word or per finished minute and scaled by usage/licensing term, and an
+      audiobook priced per finished hour from manuscript word count.
+      Screened against 141+ trade-bid calculators and the saturated
+      marketplace-fee-calculator and dev-tooling-checker shapes for a fourth,
+      distinct creator/freelance-economy angle, closely modeled on the
+      already-graduated brand-deal-rate-calculator and
+      newsletter-sponsorship-rate-calculator (same reasoning: a creator
+      audience the portfolio does not otherwise serve, priced from
+      commonly cited rate-guide benchmarks) but for a one-off project
+      licensed by usage term rather than a recurring sponsorship slot.
+      duplicate_check.py scored nothing >= 0.10 against any existing
+      venture, pipeline candidate, or screened-out row — the closest
+      matches (drone-mapping-job-calculator 0.09, translator-project-quote
+      0.08, commercial-photo-license-calculator 0.05) are a different
+      product shape (drone survey jobs, written translation, photo
+      licensing) rather than a near-duplicate. Defensibility 3: the
+      usage-multiplier and per-finished-hour pricing logic is publicly
+      documented by voice-over rate-guide resources (most visibly the GVAA
+      Rate Guide) themselves; what is not free elsewhere is an interactive
+      calculator that does the arithmetic against a narrator's own numbers
+      instead of a static lookup table. Distribution 6: "voice over rate
+      calculator", "how much to charge for voice over", and recurring
+      "what should I charge" threads in r/VoiceActing (~100k members) and
+      VO-focused Discord/casting-site forums are real, recurring intent —
+      a narrower buyer pool than a mass-market trade niche, same tier as
+      the brand-deal-rate-calculator and podcast-sponsorship-rate-calculator
+      peers it otherwise matches.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price *starting point* derived from commonly cited,
+      adjustable rate-guide conventions, explicitly framed as a basis for
+      negotiation, never a quote, guarantee, or valuation performed on the
+      user's behalf — being wrong costs a narrator a miscalibrated ask in
+      one negotiation, not a filing or a contract obligation. Ethically:
+      every input is a number the user already knows about their own script
+      or manuscript, nothing is scraped or inferred about a third party or
+      about the buyer on the other side of the deal, and all computation is
+      client-side.

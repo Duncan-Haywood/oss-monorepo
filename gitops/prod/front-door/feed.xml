@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 328 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 329 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -62,6 +62,15 @@
     <summary type="text">Free, in-browser tool: paste your Supabase project URL and anon key, and it sends a real read-only request to every table it can see, naming which ones return real rows to an unauthenticated request -- the CVE-2025-48757 missing-RLS exposure class. Nothing uploaded to us.</summary>
   </entry>
   <entry>
+    <title>Voice-Over Project Rate Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/voiceover-project-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/voiceover-project-rate-calculator</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute, scaled by usage/licensing term (internal, web, broadcast, buyout) — or price an audiobook per finished hour from manuscript word count. No sign-up, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Dimensional Weight Calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/parcel-dim-weight-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/parcel-dim-weight-calculator</id>
@@ -112,7 +121,7 @@
     <id>tag:marisstella.dev,2026:tool/android-data-safety-check</id>
     <published>2026-09-17T00:00:00Z</published>
     <updated>2026-09-17T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you&#39;ve already declared in Play Console -- so a missed declaration doesn&#39;t cost you a policy warning or listing removal. Nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% default, or 60%/70% under the Plus Program) and Bits, see whether a mobile subscription really pays less (it doesn&#39;t), and check how many more subs close a monthly income gap.</summary>
-  </entry>
-  <entry>
-    <title>Vector Database Cost Calculator (Pinecone, Weaviate, Qdrant, pgvector)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vector-db-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/vector-db-cost-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Estimate your embedding index&#39;s real storage footprint from vector count, dimension, and metadata, then compare monthly cost across up to three vector database providers using their own quoted rates. Free, private, no signup.</summary>
   </entry>
 </feed>

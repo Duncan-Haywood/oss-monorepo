@@ -2105,7 +2105,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # ordinary collision shape recorded throughout this list, and
     # re-derived here by `sync_tree_counts.py` against the merged tree
     # rather than by hand.
-    total = 328  # `infra/OWNER_CHECKLIST.md`'s own "N of the 328 tools" wording.
+    #
+    # 329 since this merge: `voiceover-project-rate-calculator` graduated
+    # concurrently with the pair above -- a browser-local calculator pricing
+    # freelance voice-over project work (script-based, by usage/licensing
+    # term, and audiobook, per finished hour), with a static `index.html`
+    # from its first commit, same shape as the rest of this running count.
+    # This branch only ever knew its own predecessor's number (325, before
+    # the osha-trir-dart-calculator/supabase-rls-check pair landed) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    total = 329  # `infra/OWNER_CHECKLIST.md`'s own "N of the 329 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
