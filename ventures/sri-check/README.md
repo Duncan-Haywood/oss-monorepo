@@ -101,5 +101,14 @@ cd ventures/sri-check && node --test
 Assertions across the shared hashing/classification core (`sri.test.mjs`),
 the network layer against a local loopback server so no test hits a real
 network (`probe.test.mjs`), the CLI's orchestration and argument parsing
-(`check.test.mjs`), the usage counter (`usage.test.mjs`), and both pages'
-structure and disclaimers (`page.test.mjs`).
+(`check.test.mjs`), the usage counter (`usage.test.mjs`), both pages'
+structure and disclaimers (`page.test.mjs`), and the two comparison pages
+(`vs-srihash.test.mjs`, `vs-checking-tags-by-hand.test.mjs`).
+
+## Related reading
+
+- [vs. srihash.org](vs-srihash.html) — how this compares to the well-known
+  single-purpose hash generator.
+- [vs. checking tags by hand](vs-checking-tags-by-hand.html) — why reading a
+  page's source for SRI protection misses the crossorigin pairing gap and
+  hash drift, which need a real fetch to detect.
