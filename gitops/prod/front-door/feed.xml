@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 328 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 329 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator comparing Upwork and Fiverr net payout for the same job price, after platform fees, withdrawal fees, and a tax reserve. Solve for the price to charge on either platform to hit a take-home goal.</summary>
+  </entry>
+  <entry>
+    <title>OSHA TRIR &amp; DART Rate Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/osha-trir-dart-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/osha-trir-dart-calculator</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free OSHA TRIR and DART rate calculator: turn your OSHA 300 log&#39;s recordable case count and total hours worked into the two rates GC prequalification forms and insurance renewals ask for, and see how many injury-free hours it takes to hit a target rate. Nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>Personal Trainer Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% default, or 60%/70% under the Plus Program) and Bits, see whether a mobile subscription really pays less (it doesn&#39;t), and check how many more subs close a monthly income gap.</summary>
-  </entry>
-  <entry>
-    <title>Vector Database Cost Calculator (Pinecone, Weaviate, Qdrant, pgvector)</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vector-db-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/vector-db-cost-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Estimate your embedding index&#39;s real storage footprint from vector count, dimension, and metadata, then compare monthly cost across up to three vector database providers using their own quoted rates. Free, private, no signup.</summary>
   </entry>
 </feed>

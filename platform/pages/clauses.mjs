@@ -874,6 +874,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // automatic-driveway-gate-bid-calculator's vs-a-flat-4500-special.html).
   'exterior-painting-bid-calculator/vs-a-flat-3999-house-special.html',
+  // Compares against "a flat $2,499 installed special" -- a generic
+  // postcard pricing pattern hearth/chimney shops of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no hearth shop at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'fireplace-insert-bid-calculator/vs-a-flat-2499-installed-special.html',
   // Compares against "the app's own earnings screen" -- a feature every
   // gig-delivery/rideshare platform has (DoorDash, Uber, Instacart, Lyft,
   // and others alike), not one specific company or product this could be
@@ -893,6 +900,49 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-buildxact.html, which does name a
   // product and carries its own "not affiliated" clause.
   'drywall-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat $650 per square special" -- a generic postcard
+  // pricing pattern low-slope roofing companies of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no roofing company at all. Same reasoning as the
+  // other vs-a-flat-*-special pages already in the tree (e.g.
+  // exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'flat-roof-bid-calculator/vs-a-flat-650-per-square-special.html',
+  // Compares against "a flat price per square foot" -- a generic pricing
+  // habit popcorn ceiling removal is shopped on, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  // Same reasoning as the other generic-method pages above (e.g.
+  // drywall-bid-calculator's flat-rate page).
+  'popcorn-ceiling-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat price per pier" -- the generic pricing habit
+  // the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-jobber.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'foundation-repair-bid-calculator/vs-a-flat-price-per-pier.html',
+  // Compares against "a flat $2,495 furnace special" -- a generic postcard
+  // pricing pattern HVAC companies of many different names advertise, not
+  // one specific company or product this could be mistaken for. The page
+  // names no HVAC company at all -- distinct from this venture's own
+  // vs-servicetitan.html, which does name a product and carries its own
+  // "not affiliated" clause. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'furnace-bid-calculator/vs-a-flat-2495-furnace-special.html',
+  // Compares against "a flat $8/ft leaf-filter special" -- a generic
+  // per-foot pricing habit the trade is shopped on, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html
+  // and vs-jobnimbus.html, which do name products and carry their own
+  // "not affiliated" clauses.
+  'gutter-guard-bid-calculator/vs-a-flat-8-per-foot-special.html',
+  // Compares against "a flat price per foot" -- the generic pricing habit
+  // the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-jobber.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'french-drain-bid-calculator/vs-a-flat-price-per-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
