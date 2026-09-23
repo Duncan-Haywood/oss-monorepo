@@ -127,7 +127,16 @@ const only = onlySlugs();
 // action at all. That is `cash-runway-planner`, whose one-off payment rows have
 // an "Add another row" above the Forecast button. Anchored, so a compute
 // button that merely contains the word is still pressed.
-const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|^add another\b/i;
+//
+// "Remove" is the row-adder's mirror and fails the same way from the other
+// side: it sits inside the row it deletes, which puts it ahead of the real
+// action whenever the row list is rendered before the action button, and on
+// `docker-base-image-eol-check` it is also guarded to a no-op while only one
+// row exists — so pressing it changes nothing and the sweep reported a
+// working tool NO-RESPONSE without ever reaching "Check". Not anchored,
+// because a row's own delete button is never called anything else ("Remove
+// this run", "Delete all captures"), so no compute button's label collides.
+const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|remove|delete|^add another\b/i;
 
 // Several tools open on an empty form and offer their own worked example. That
 // button is the shortest path this product has to first value, so a sweep that
