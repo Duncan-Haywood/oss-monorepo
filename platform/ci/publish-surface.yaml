@@ -377,6 +377,9 @@ workflows:
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: dotenv-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: drone-mapping-job-calculator-ci.yml
   classification: none
   publishes: []

@@ -2221,7 +2221,31 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # collision shape recorded throughout this list. Total re-derived here
     # by `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
-    total = 337  # `infra/OWNER_CHECKLIST.md`'s own "N of the 337 tools" wording.
+    #
+    # 337 since this merge: `dotenv-exposure-check` graduated (this
+    # branch) -- a zero-dependency browser tool + CLI sending real GET
+    # requests to five well-known dotenv paths (.env, .env.local,
+    # .env.production, .env.production.local, .env.development.local),
+    # verifying the response body against the real KEY=VALUE line shape
+    # rather than just an HTTP status, and never reading, storing, or
+    # rendering a variable's VALUE anywhere -- only its name. Same "read
+    # what's actually there, name the exact evidence" checker shape as
+    # `git-exposure-check` and `source-map-leak-check`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (335, before `git-exposure-check` landed) until this merge --
+    # the same ordinary collision shape recorded throughout this list, and
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    #
+    # `graphql-introspection-exposure-check` also graduated on `main`,
+    # concurrently with both of the above -- a zero-dependency CLI +
+    # browser checker for a GraphQL endpoint's introspection query being
+    # left enabled in production, same shape as the rest of this running
+    # count. Its own PR did not carry a comment entry here; re-derived
+    # (this merge) by `sync_tree_counts.py` against the fully merged tree
+    # rather than by hand.
+    total = 338  # `infra/OWNER_CHECKLIST.md`'s own "N of the 338 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
