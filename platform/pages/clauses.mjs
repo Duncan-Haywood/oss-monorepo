@@ -819,6 +819,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-buildertrend.html, which does name a product and carries its
   // own "not affiliated" clause.
   'change-order-margin-calculator/vs-a-rough-lump-sum.html',
+  // Compares against "a flat $180/sf special" -- the per-square-foot
+  // pricing habit every sunroom shop is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'sunroom-bid-calculator/vs-a-flat-180-per-square-foot-special.html',
   // Compares against "doing it in a spreadsheet" -- a generic method every
   // Shopify merchant already has, not a company or product this could be
   // mistaken for. The page names no spreadsheet application and its own
@@ -848,6 +855,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (Etsy's own Profit Calculator) and carries its own "not affiliated"
   // clause.
   'etsy-profit-calculator/vs-a-spreadsheet.html',
+  // Compares against "the app's own earnings screen" -- a feature every
+  // gig-delivery/rideshare platform has (DoorDash, Uber, Instacart, Lyft,
+  // and others alike), not one specific company or product this could be
+  // mistaken for. The page names no platform at all -- distinct from this
+  // venture's own vs-gridwise.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'gig-driver-net-pay-calculator/vs-the-apps-earnings-screen.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
