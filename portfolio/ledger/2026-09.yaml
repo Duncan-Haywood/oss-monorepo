@@ -37585,3 +37585,42 @@ entries:
         github-pages-branch-route reading per CLAUDE.md's standing job for
         any merge touching a served surface.
     mrr_end: 0
+  - venture: estate-sale-net-proceeds-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate opened PROCEED; the gh-pages snapshot was stale
+        (built from f8cfeb30, main at 41cc4b24), but a concurrent session
+        published from the same commit a few seconds into this session's
+        own publish-branch.sh run -- the push was rejected as
+        non-fast-forward, re-fetched, and pages_state.py --require-current
+        confirmed current with no further action needed. Reviewed open PRs
+        (#5216, #5221, neither a duplicate) and the owner decision queue
+        (17 items, none newly actionable) before picking work.
+      - >-
+        Added a guide page, why-estate-sale-fees-bite-harder-on-a-smaller-sale.html,
+        to the estate-sale-net-proceeds-calculator venture (surface-budget.mjs
+        showed it had a generic-method comparison page but 0 guide pages).
+        Worked example computed fresh from calc.mjs's own shipped arithmetic:
+        the same $950 flat fee stack (setup/processing/haul-away) is 7.92%
+        of a $12,000 sale and 47.50% of a $2,000 sale, and the tiered
+        commission's blended rate rises from 30.00% to 40.00% over the same
+        range -- both effects pushing total retained from 37.92% to 87.50%
+        as the sale shrinks. Linked from index.html, README.md, and the
+        sitemap; regenerated the front-door mirror (front-door-tools.mjs,
+        front-door.mjs) so the apex serves it too.
+      - >-
+        Hit the exact em-dash/FAQPage-JSON-LD divergence CLAUDE.md already
+        records against the asbestos-abatement guide page: literal "--" in
+        the JSON-LD answer text vs. &mdash; in the visible prose, caught by
+        platform/pages/faq-visible.test.mjs (not by this page's own test,
+        whose visible/JSON-LD comparison only normalized the visible side).
+        Fixed by using the em dash character directly in the JSON-LD in all
+        three places. `node --test` in the venture: 49/49 (53/53 including
+        faq-visible.test.mjs). Full `platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` suite: 1281/1281 after `regen.mjs`
+        (1275/1281 before, the 5 failures being the mirror staleness the
+        regen step exists to fix -- not a defect in main).
+        checklist_coverage.py and surface-budget.mjs --check: clean.
+    mrr_end: 0
