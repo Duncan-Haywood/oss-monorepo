@@ -37725,3 +37725,85 @@ entries:
         Published the gh-pages snapshot after merging and recorded
         github-pages-branch-route as current.
     mrr_end: 0
+  - venture: voiceover-project-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser calculator pricing freelance
+        voice-over project work two ways -- a script-based project
+        (commercial, e-learning/corporate narration, IVR/telephony,
+        explainer, animation) priced per word or per finished minute and
+        scaled by a usage/licensing-term multiplier (internal, web, regional
+        broadcast, national broadcast, full buyout), plus rush and
+        exclusivity add-ons; and an audiobook priced per finished hour (PFH)
+        from manuscript word count, using the ACX-style per-finished-hour
+        convention with editing/proofing/mastering billed separately.
+        Screened against 141+ trade-bid calculators and the saturated
+        marketplace-fee and dev-tooling-checker archetypes for a fourth,
+        distinct creator/freelance-economy angle, closely modeled on the
+        already-graduated brand-deal-rate-calculator and
+        newsletter-sponsorship-rate-calculator (same reasoning: a rate-guide
+        benchmark shape for an audience the portfolio does not otherwise
+        serve) but pricing a one-off project licensed by usage term rather
+        than a recurring sponsorship slot. duplicate_check.py scored nothing
+        >= 0.10 against any venture, pipeline candidate, or screened-out row
+        (closest: drone-mapping-job-calculator 0.09, translator-project-quote
+        0.08, commercial-photo-license-calculator 0.05). Distribution
+        channel, per DIRECTION.md's graduation condition: r/VoiceActing
+        (~100k members, with recurring "what should I charge" threads
+        whenever a new project type or usage request comes up), VO-focused
+        Discord servers and casting-site (Voice123, Bodalgo) community
+        forums, and the search phrases "voice over rate calculator", "how
+        much to charge for voice over", and "audiobook narration rate per
+        finished hour". Scored in venture-scores.yaml (composite 6.0, both
+        gates pass), registered in usage.yaml (baseline null/zero readings),
+        publish-surface.yaml, and its own CI workflow
+        (voiceover-project-rate-calculator-ci.yml).
+      - >-
+        Closed the mandatory zero-orphan sibling link both ways with
+        translator-project-quote (both price one solo language/audio
+        professional's project work by usage/rush terms) so
+        siblings.test.mjs's budget of 0 stayed at 0. Caught and fixed a
+        malformed FAQPage JSON-LD in the new venture's own index.html (a
+        missing closing brace on each Question object between FAQ entries,
+        breaking JSON.parse) via platform/proposal/discoverability.test.mjs
+        before it reached main. After fetching main, ran
+        sync_tree_counts.py (SWITCHES_IN_THE_CATALOGUE 308 -> 309 for the
+        new venture's usage.mjs opt-out switch, with the running-comment
+        entry) and gitops/ci/sync_readme_counts.py (runs-on count drift from
+        a concurrently-merged workflow, 420/422/381 -> 421/423/382).
+      - >-
+        Verified: node --test in the venture 34/34 (calc.mjs incl. both
+        pricing modes and every usage-term tier; usage.mjs opt-out/DNT/GPC;
+        page.test.mjs incl. labeled-input, disclaimer, sponsor-link, and
+        sibling-link assertions); translator-project-quote's own suite still
+        76/76 after adding the reciprocal sibling link; platform/proposal
+        suite 101/101 (after the JSON-LD fix); platform/privacy +
+        platform/webcheck 142/142 (after the SWITCHES_IN_THE_CATALOGUE
+        bump); gitops/tests 637 passed/1 skipped (environmental, after the
+        runs-on README sync); all platform/ci unittest modules and
+        agent_review's test_review green; portfolio
+        ledger+scoring+router+usage+pipeline+infra pytest suites green;
+        checklist_coverage.py, router/validate.py (334 ventures),
+        score_ventures.py --check (335 scored), usage/validate_usage.py,
+        publish_surface.py --check, validate_candidates.py,
+        validate_doc_consistency.py, sync_tree_counts.py --check,
+        front-door-tools.mjs --headroom, probes/validate_probe_index.py,
+        score_sensitivity.py, clauses.mjs voiceover-project-rate-calculator,
+        and guard_state.py --require-runnable (no fixable skips): all clean.
+        Scoped python3 platform/ci/browser_checks.py --only
+        voiceover-project-rate-calculator: 7/8 checks passed (1 skipped for
+        a missing dependency, not a failure), including "1 pages, 2
+        viewports: no WCAG A/AA violations" from axe-core. The full
+        platform/marketing + platform/pages suite showed only the standing
+        front-door-mirror-staleness failures already documented in
+        CLAUDE.md (the committed gitops/prod/ mirror was ~1300 files behind
+        main's own fast merge rate, not something this venture caused) --
+        fixed via node platform/marketing/regen.mjs immediately before
+        merging and committed in the same PR. Rebased onto latest main
+        immediately before push; checked open PRs (github MCP) for a
+        colliding voice-over niche and found none. Every check on the PR
+        confirmed starved via ci_starvation.py (runner_id: 0) before
+        merging; said so in the PR body naming what was verified locally.
+    mrr_end: 0

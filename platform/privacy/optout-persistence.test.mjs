@@ -419,7 +419,15 @@ const RELATIVE_SELF = relative(
 // the same way `actions-cache-poisoning-check`'s does). Verified the way
 // this file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/actions-secrets-inherit-check/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 308;
+//
+// 308 -> 309: `voiceover-project-rate-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
+// `locksmith-bid-calculator`'s does). Verified the way this file's error
+// message prescribes: exactly one added `usage.mjs`
+// (`ventures/voiceover-project-rate-calculator/usage.mjs`) and no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 309;
 
 let counter = 0;
 function fixture(source) {
