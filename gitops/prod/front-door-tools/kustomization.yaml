@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 133 files, 555620 bytes
 #   portfolio-front-tools-8: 124 files, 539899 bytes
 #   portfolio-front-tools-9: 113 files, 545123 bytes
-#   portfolio-front-tools-10: 115 files, 551128 bytes
+#   portfolio-front-tools-10: 116 files, 555910 bytes
 #   portfolio-front-tools-11: 121 files, 556797 bytes
 #   portfolio-front-tools-12: 125 files, 547679 bytes
 #   portfolio-front-tools-13: 135 files, 556790 bytes
@@ -1519,6 +1519,7 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz
       - kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz
       - kitchen-tile-backsplash-bid-calculator__usage.mjs.gz=kitchen-tile-backsplash-bid-calculator__usage.mjs.gz
+      - kitchen-tile-backsplash-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=kitchen-tile-backsplash-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz=kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz
       - land-survey-bid-calculator__calc.mjs.gz=land-survey-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-11
