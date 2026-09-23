@@ -36789,6 +36789,44 @@ entries:
         instead of waiting further, and squash-merged. Published the
         gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current.
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a third comparison page, vs-freshbooks.html (already carried
+        vs-quickbooks-online-invoicing.html and vs-spreadsheet.html;
+        named-product comparisons are unbudgeted per surface-budget.mjs,
+        which confirmed the venture at 0/1 generic-method pages used).
+        Followed the same nominative-fair-use discipline as the existing
+        QuickBooks page: FreshBooks' pricing page is not reachable from
+        this session (proxied egress), so no dollar figure for FreshBooks
+        appears anywhere on the page -- only well-documented, non-numeric
+        identity facts, plus the full no-warranty and "not affiliated"
+        disclaimers. `node --test` in the venture: 118/118.
+        `platform/marketing`/`platform/pages` suite: 1281/1281, then
+        1399/1399 including the venture's own suite after a second
+        regen.mjs pass (main advanced twice underneath the branch while
+        it was open -- once with a #5176-era mirror shard, once with a
+        ledger-only commit; resolved the generated-file conflicts by
+        taking either side then re-running regen.mjs rather than
+        hand-picking, per resolve-mirror-merge.sh's guidance for the
+        front-door.mjs-produced files it does not itself cover).
+        clauses.mjs, surface-budget.mjs --check, checklist_coverage.py,
+        check_ledger_only.py: all clean. Confirmed every check on the PR
+        starved via ci_starvation.py (runner_id 0, 3s, no steps across
+        all 7 jobs) before merging (#5188). Published the gh-pages
+        snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current (#5189).
+      - >-
+        Earlier in the session, also caught and attempted to fix a stale
+        front-door mirror left by #5175/#5166 (regen.mjs --verify showed
+        5 artifacts out of date); a concurrent session had already landed
+        the identical fix, so both resulting PRs (#5178, #5179) were
+        correctly closed as duplicates once verified against current
+        `main` -- no harm done, and it confirmed the repo's duplicate-PR
+        handling is working.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
