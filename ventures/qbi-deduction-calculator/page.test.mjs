@@ -20,6 +20,7 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /qbi-deduction-calculator\/<\/loc>/);
   assert.match(sitemap, /vs-doing-the-worksheet-by-hand\.html/);
+  assert.match(sitemap, /why-is-my-qbi-deduction-0\.html/);
 });
 
 test("the page reads every field computeQbiDeduction accepts", () => {
@@ -96,4 +97,25 @@ test("the comparison page names no specific tax-prep company or competing calcul
   const html = page("vs-doing-the-worksheet-by-hand.html");
   assert.doesNotMatch(html, /TurboTax|H&R Block|TaxAct|Keeper|FreeTaxUSA/i);
   assert.match(html, /No warranty/);
+});
+
+test("index links the why-is-my-qbi-deduction-0 guide", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\/why-is-my-qbi-deduction-0\.html"/);
+});
+
+test("the why-is-my-qbi-deduction-0 guide carries the disclaimer, a link back, and matching FAQ schema", () => {
+  const html = page("why-is-my-qbi-deduction-0.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /href="\.\/"/);
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD");
+  assert.ok(faq.mainEntity.length >= 4);
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(html.includes(name), `question not found verbatim: ${name}`);
+    assert.ok(html.includes(acceptedAnswer.text), `answer not found verbatim for: ${name}`);
+  }
 });

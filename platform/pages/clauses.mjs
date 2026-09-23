@@ -533,6 +533,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page names no vendor, competing calculator, or field-service platform
   // at all.
   'shop-rate-calculator/vs-guessing-your-burden-and-overhead.html',
+  // Compares against "eyeballing the commission split against the rent
+  // check" -- the chair-side napkin habit every stylist weighing a
+  // booth-rent offer already runs, not a company or product this could be
+  // mistaken for. The page names no salon-software platform or competing
+  // calculator at all -- distinct from this venture's own vs-vagaro.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'booth-rent-vs-commission/vs-guessing-which-pays-more.html',
   // Compares against "mentally adding a flat percentage" -- a rough mental
   // habit every auction bidder already does, not a company or product this
   // could be mistaken for. The page names no specific auction house or
@@ -873,6 +880,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-jobber.html, which does name a product and
   // carries its own "not affiliated" clause.
   'walk-in-shower-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "a flat price per square foot" -- the generic pricing
+  // habit the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-buildxact.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'drywall-bid-calculator/vs-a-flat-price-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

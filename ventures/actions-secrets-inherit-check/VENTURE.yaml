@@ -1,0 +1,60 @@
+name: actions-secrets-inherit-check
+description: 'Free, read-only checker that scans GitHub Actions workflow YAML for two documented secrets: inherit risks on a reusable-workflow call: secrets: inherit handed to a workflow hosted in a different repository (code outside your own review process), and secrets: inherit on a job reachable from a pull_request_target/workflow_run trigger a stranger''s fork can raise -- each finding printed with the exact fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as
+# actions-secret-leak-check, actions-cache-poisoning-check,
+# actions-injection-check, and pinned-actions-check -- a direct, obvious,
+# low-risk dev-tool idea tied to a well-documented GitHub Actions hardening
+# gap rather than a pipeline-candidate write-up.
+# Not a duplicate of any existing actions-* checker: duplicate_check.py's
+# closest other-venture match is actions-cache-poisoning-check at 0.50 --
+# lexical overlap from sharing the pull_request_target/workflow_run trigger
+# phrase, not the finding shape (cache checker's sink is actions/cache;
+# this one's is the secrets context on a reusable-workflow call -- no
+# shared detection code). pinned-actions-check already flags a mutable
+# uses: ref generically (including on a reusable-workflow call), but it
+# knows nothing about secrets: inherit; actions-permissions-check is about
+# an overbroad GITHUB_TOKEN grant, not the secrets context on a
+# reusable-workflow call; actions-secret-leak-check is about a secret
+# already in scope leaking into a log or a later step, not about which
+# workflow receives the whole set in the first place. This checker is the
+# only one in the family that reads secrets: inherit at all.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high -- a mechanical, read-only line scanner with no advice-of-
+# record, no compliance claim, no data leaving the user's device, and no
+# scraping. It makes no network calls of its own anywhere in the code
+# (check.py, classify.mjs): findings are printed with a suggested fix for
+# the user to apply themselves. This is defensive security tooling
+# (detecting a documented CI/CD supply-chain risk in the user's own
+# repository), not an offensive or dual-use capability.
+hypotheses:
+  - claim: 'A maintainer hardening CI after reading GitHub''s own "use secrets: inherit with caution" guidance will paste their workflow YAML here and find an external-workflow or fork-reachable secrets: inherit call no existing local-only tool flags for them.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.py --fail-on-risk into their own CI to block a newly-added secrets: inherit call to an external or fork-reachable job before it merges.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/
+  analytics: null
