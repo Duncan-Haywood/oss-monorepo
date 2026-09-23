@@ -36934,3 +36934,51 @@ entries:
         github-pages-branch-route as current earlier in the session, before
         this venture's own change; refreshing again after this merge below.
     mrr_end: 0
+  - venture: parcel-dim-weight-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a named-product comparison page, vs-shipstation.html: the
+        venture had 0 named-product comparisons (surface-budget.mjs) against
+        1 generic-method page and 1 guide, so this is new marketing surface,
+        not a duplicate of an existing angle. ShipStation is a paid,
+        account-based multi-carrier rate-shopping/label platform; this
+        calculator is the free, no-login step that comes earlier — deciding
+        a box size and finding the exact break-even cube/height before a
+        real shipment exists to rate-shop. Facts sourced via WebSearch (US
+        domestic DIM divisor at 139 across UPS/FedEx/USPS as of USPS's July
+        12 2026 move, matching the venture's own shipped default; ShipStation
+        priced by shipment volume with a free trial, no permanent free plan)
+        rather than assumed, since neither ups.com nor fedex.com nor
+        shipstation.com is fetchable from this sandbox (blocked/anti-bot).
+        Not-affiliated and no-warranty clauses included per PRODUCT_PLAYBOOK
+        5f/5b. Added the new page to the venture's sitemap.xml
+        (venture-sitemap-coverage.test.mjs requires it) and ran
+        `node platform/marketing/regen.mjs` to refresh the stale front-door
+        mirror `regen.mjs --verify` reported afterward (6 artifacts, incl.
+        the new page's own mirror shard) -- this is the exact
+        merge-then-stale-mirror defect CLAUDE.md records repeatedly, caught
+        by following its own checklist rather than skipping it.
+        Verified: `node --test ventures/parcel-dim-weight-calculator/*.test.mjs`
+        (52/52), `node platform/pages/clauses.mjs parcel-dim-weight-calculator`
+        (4 pages, clauses ok), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1281/1281 -- an earlier concurrent run
+        against other in-flight local test/pytest processes on this box
+        flaked 7 failures; a clean solo re-run was 0/1281 failing, consistent
+        with a resource-contention flake rather than a real regression),
+        `python3 -m pytest gitops/tests -q` (613 passed, 25 skipped, same
+        skip set CLAUDE.md already attributes to the shallow clone and
+        missing optional binaries), `checklist_coverage.py` and
+        `regen.mjs --verify` clean after the regen. Confirmed CI is starved
+        right now (`ci_starvation.py --run 35870845566`: runner_id 0, 3s, no
+        steps) before relying on local verification instead of a check run.
+        Did not run the whole-catalogue browser/axe sweep
+        (`browser_state.py` reports it stale, but for a reason that predates
+        this change -- `clauses.mjs`/`launched.json` were touched by an
+        already-merged sibling PR after the last recorded sweep -- and this
+        page ships no form inputs for the accessibility checks to exercise).
+      - Did not open a pull request this session per this session's own
+        operating instructions (create a PR only when explicitly asked);
+        committed and pushed to the session's assigned branch instead.
+    mrr_end: 0
