@@ -36054,3 +36054,58 @@ entries:
         highlight-promise sentence, which is allowed). A full
         whole-catalogue browser run was not attempted: 20-30 minutes for
         one static comparison page using an already-shipped template.
+  - venture: asbestos-abatement-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py said PROCEED with an empty build-now pipeline.
+        `node platform/pages/surface-budget.mjs` showed this venture at
+        1 generic-method comparison page (budget met) but 0 guide
+        pages -- the unbudgeted "why does this cost so much" SEO
+        surface several sibling ventures already carry. Added
+        how-much-does-asbestos-abatement-cost.html, isolating OSHA/EPA
+        containment class as the cost driver: the same 400 sq ft prices
+        at $4.99/sq ft as Class III, $6.77/sq ft as Class II, or
+        $11.87/sq ft as Class I, all computed from calc.mjs's own
+        `calculateAbatementBid`/`DEFAULTS`, plus a 1,000 sq ft / 2-area
+        Class I example at $9,828.84. Every figure is pinned in the new
+        page's own test file against calc.mjs directly, so the page
+        cannot drift from the arithmetic it describes. Linked from
+        index.html and README.md, added to sitemap.xml.
+      - >-
+        The FAQPage JSON-LD used a literal "--" while the visible prose
+        used `&mdash;` (an em dash); `platform/pages/faq-visible.test.mjs`
+        requires the two to match byte-for-byte after entity decoding,
+        so this diverged. Caught by the full
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` sweep
+        (1281 assertions, run because `ci_starvation.py` confirmed
+        `runner_id: 0` on the PR's checks), not by the venture's own
+        suite -- fixed in a follow-up commit and reran clean.
+      - >-
+        `node --test ventures/asbestos-abatement-bid-calculator/*.test.mjs`:
+        101/101. `checklist_coverage.py`, `surface-budget.mjs --check`,
+        and `regen.mjs --verify` all clean after `regen.mjs`. Opened
+        #5106, merged (squash) after confirming via `ci_starvation.py`
+        that every check on the PR was starved (`runner_id: 0`, ~3s, no
+        steps) rather than a real failure.
+  - venture: biohazard-cleanup-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session as asbestos-abatement-bid-calculator above, same
+        gap: 1 comparison page, 0 guide pages. Added
+        how-much-does-biohazard-cleanup-cost.html, worked from calc.mjs's
+        own `computeJobBid`/`DEFAULTS`: a 15 lb scene still needs one
+        whole 40-lb-capacity disposal container ($110.00 vs. $41.25 for
+        a naive per-pound estimate, because the hauler bills per
+        container, not per pound), and PPE cost doubles from $76.00 to
+        $152.00 when decon cycles per technician go from 1 to 2, because
+        used PPE cannot be re-donned. Every figure is pinned in the new
+        page's own test file against calc.mjs directly. Linked from
+        index.html and README.md, added to sitemap.xml. `node --test
+        ventures/biohazard-cleanup-bid-calculator/*.test.mjs`: 75/75.
+        Shipped in the same PR (#5106) as the asbestos-abatement guide
+        page above, after the same em-dash fix and the same full-sweep
+        and `regen.mjs --verify` verification.
