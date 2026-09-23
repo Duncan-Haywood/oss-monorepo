@@ -464,6 +464,9 @@ workflows:
 - workflow: fire-extinguisher-inspection-route-margin-ci.yml
   classification: none
   publishes: []
+- workflow: firebase-rules-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: fireplace-insert-bid-calculator-ci.yml
   classification: none
   publishes: []

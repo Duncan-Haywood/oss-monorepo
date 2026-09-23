@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 331 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 332 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Firebase Security Rules Exposure Checker — Is Your Database Public?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/firebase-rules-check/"/>
+    <id>tag:marisstella.dev,2026:tool/firebase-rules-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free, in-browser tool: enter your Firebase project ID (plus its Realtime Database URL and/or Firestore collection names) and it sends real, read-only, unauthenticated requests, naming which paths return real data with no login -- the default-open / left-in-test-mode security rules exposure documented since Appthority&#39;s 2018 Firebase mismanagement report. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Upwork vs. Fiverr Fee Calculator — What You Actually Keep</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator for storage-unit auction bidders: prices the buyer&#39;s premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.</summary>
-  </entry>
-  <entry>
-    <title>Subpath Robots Check — Is Your GitHub Pages Sitemap Ever Read?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/subpath-robots-check/"/>
-    <id>tag:marisstella.dev,2026:tool/subpath-robots-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">A site published at a URL subpath — user.github.io/repo/, gitlab.io/project/, a CDN subdirectory — cannot govern its own robots.txt, so its sitemap is never auto-discovered and its pages are never enumerated. Paste your site URL to find out. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
