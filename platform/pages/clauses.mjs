@@ -633,6 +633,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-housecall-pro.html, which does name a
   // product and carries its own "not affiliated" clause.
   'appliance-repair-quote-calculator/vs-a-flat-rate-repair-price.html',
+  // Compares against "a flat Saturday-special price" -- the flat per-unit
+  // event-day pricing habit every portable sanitation yard is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing platform at all -- distinct from this
+  // venture's own vs-servicecore.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'portable-restroom-event-quote/vs-a-flat-saturday-special-price.html',
   // Compares against "a spreadsheet" -- the flat fee-percentage tracking
   // habit every eBay seller already has, not a company or product this
   // could be mistaken for. The page names no vendor or competing
