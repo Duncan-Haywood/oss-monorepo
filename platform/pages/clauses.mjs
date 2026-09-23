@@ -626,6 +626,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-smartmoving.html, which does name a product and carries its own
   // "not affiliated" clause.
   'moving-bid-calculator/vs-a-bedroom-count-quote.html',
+  // Compares against "a spreadsheet" -- the flat fee-percentage tracking
+  // habit every eBay seller already has, not a company or product this
+  // could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own
+  // vs-ebay-fee-calculator.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'ebay-fee-calculator/vs-a-spreadsheet.html',
   // Compares against "a flat price per door" -- the per-door pricing habit
   // every cabinet painter is shopped against, not a company or product this
   // could be mistaken for. The page names no vendor or competing calculator
