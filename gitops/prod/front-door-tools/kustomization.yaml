@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 125 files, 555820 bytes
 #   portfolio-front-tools-8: 139 files, 556430 bytes
 #   portfolio-front-tools-9: 119 files, 555027 bytes
-#   portfolio-front-tools-10: 119 files, 547036 bytes
+#   portfolio-front-tools-10: 120 files, 551530 bytes
 #   portfolio-front-tools-11: 117 files, 555204 bytes
 #   portfolio-front-tools-12: 128 files, 556805 bytes
 #   portfolio-front-tools-13: 126 files, 556503 bytes
@@ -1442,6 +1442,7 @@ configMapGenerator:
       - graphql-introspection-exposure-check__index.html.gz=graphql-introspection-exposure-check__index.html.gz
       - graphql-introspection-exposure-check__probe.mjs.gz=graphql-introspection-exposure-check__probe.mjs.gz
       - graphql-introspection-exposure-check__usage.mjs.gz=graphql-introspection-exposure-check__usage.mjs.gz
+      - graphql-introspection-exposure-check__vs-checking-introspection-by-hand.html.gz=graphql-introspection-exposure-check__vs-checking-introspection-by-hand.html.gz
       - graphql-introspection-exposure-check__why-disable-graphql-introspection-in-production.html.gz=graphql-introspection-exposure-check__why-disable-graphql-introspection-in-production.html.gz
       - gravel-driveway-bid-calculator__calc.mjs.gz=gravel-driveway-bid-calculator__calc.mjs.gz
       - gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz=gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz

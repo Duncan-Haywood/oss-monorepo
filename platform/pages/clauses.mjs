@@ -1048,6 +1048,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "pasting an introspection query into GraphiQL, Postman,
+  // or curl" -- a generic manual habit every GraphQL developer already has
+  // (every server ships a playground that runs the identical query), not a
+  // company or product this could be mistaken for. Same reasoning as this
+  // file's own git-exposure-check/vs-checking-the-url-by-hand.html entry
+  // above.
+  'graphql-introspection-exposure-check/vs-checking-introspection-by-hand.html',
   // Compares against "doing the math yourself" -- a generic method (adding
   // up wall-clock minutes by hand) every repository maintainer already
   // does, not a company or product this could be mistaken for. Distinct
