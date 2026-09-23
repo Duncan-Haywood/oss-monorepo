@@ -38643,3 +38643,147 @@ entries:
         (per PRODUCT_PLAYBOOK.md's definition of done: merged-to-main is
         not deployed).
     mrr_end: 0
+
+  - venture: podcast-feed-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: podcast-feed-check. Free, zero-dependency CLI + browser
+        tool for podcasters -- parses a podcast's RSS 2.0 + iTunes/Podcast-
+        namespace feed and flags the documented spec violations that cause
+        Apple Podcasts to reject a submission, a podcast app to drop an
+        episode, or an episode to silently reappear to subscribers as "new":
+        missing required channel elements (title, description, language,
+        link, itunes:category against Apple's documented category list,
+        itunes:explicit in the current boolean format, cover artwork),
+        missing/malformed per-episode elements, a pubDate not in the RSS
+        spec's required RFC 822 format, a missing atom:link rel=self, and
+        duplicate item guids (the documented cause of an episode disappearing
+        or reappearing as unseen). CLI fetches the feed URL for real from the
+        user's own machine; browser page works from pasted feed XML (CORS
+        blocks a cross-origin fetch from most podcast hosts). Shared pure
+        engine.mjs classifies for both surfaces; feed-parser.mjs is a
+        hand-rolled, zero-dependency RSS/iTunes-namespace parser (including
+        Apple's nested-subcategory syntax).
+      - >-
+        Screened per portfolio/pipeline/README.md's "archetype itself"
+        section: a CLI/checker, not a 142nd <trade>-bid-calculator, and a
+        genuinely new sub-domain for the ~65-strong checker archetype (which
+        clusters into GitHub Actions/CI security, web/SEO headers/markup,
+        app-store manifests, and npm/dependency checks -- none about podcast
+        feeds; confirmed by reading actions-injection-check's own description
+        before considering, then rejecting, a GitHub-Actions-adjacent niche
+        as already covered). duplicate_check.py scored every existing
+        venture, screened-out row, and pipeline candidate at 0.16 or below
+        against the final description (closest: hreflang-reciprocity-check,
+        sitemap-lastmod-freshness-check); podcast-sponsorship-rate-calculator
+        is the only other venture mentioning "podcast" and prices an ad read,
+        a different job. Channel evidence named per DIRECTION.md's north-star
+        point 2: Apple builds and documents its own feed-validation step
+        inside Podcasts Connect specifically because feed-spec violations are
+        a common, recurring submission-rejection cause (direct evidence of
+        real demand, not inferred), r/podcasting is a large, established
+        independent-podcaster forum where "episode not showing up"/"feed
+        rejected" are recurring thread topics, and the established
+        general-purpose W3C Feed Validator shows adjacent-category demand
+        without covering the iTunes/Podcast-namespace requirements this tool
+        targets. None of this was verified against a live fetch this session
+        (egress to arbitrary hosts is proxy-denied here); stated at the
+        confidence it was gathered at, same as sibling checker ventures'
+        channel write-ups.
+      - >-
+        Scored honestly against both pipeline gates rather than assumed:
+        liability_containment 8 (evidence against named, documented rules,
+        never a determination on the show's behalf; a wrong finding costs a
+        podcaster minutes, not a legal/financial loss; the one source datum
+        that could itself go stale on this tool's part -- Apple's category
+        list -- says so explicitly in its own finding text rather than
+        asserting certainty), ethical_robustness 9 (static deterministic
+        checker, no revenue model that depends on which direction it errs
+        in, both severities disclosed in every finding, gets strictly more
+        useful to more podcasters as it scales). Also scored on
+        ai-first-markets' six comparable dimensions in
+        portfolio/scoring/venture-scores.yaml (composite 6.0, floor 1
+        ai_leverage -- no AI, deterministic parsing).
+      - >-
+        Shipped with the full definition-of-done checklist: LICENSE,
+        no-warranty + privacy disclaimers in the README and on all three
+        pages (index, a docs page, and a vs-w3c-feed-validator.html
+        comparison page carrying the nominative-fair-use / not-affiliated
+        clause, node platform/pages/clauses.mjs podcast-feed-check clean),
+        usage.mjs opt-out counter (check_run/example_loaded, honors DNT/GPC),
+        sponsor link, JSON-LD (SoftwareApplication + FAQPage on every page,
+        verbatim-matched to visible copy), sitemap.xml/robots.txt, a launch
+        date (platform/pages/launched.mjs --write), and its own CI workflow
+        (podcast-feed-check-ci.yml) recorded in publish-surface.yaml
+        (classified 'none', publish_surface.py --write).
+      - >-
+        Landed on top of mercari-fee-calculator merging to main concurrently
+        (#5268): resolved the generated front-door mirror conflict with
+        platform/marketing/resolve-mirror-merge.sh plus a full regen.mjs run,
+        and by hand fixed the SWITCHES_IN_THE_CATALOGUE collision -- both
+        branches independently bumped 311 -> 312 for their own venture
+        against a base where the other hadn't landed; merged total is 313,
+        recorded with the running-comment entry the guard requires. Ran
+        sync_tree_counts.py (mirrored-tool count 330 -> 331) and
+        gitops/ci/sync_readme_counts.py (runs-on count) after merging main,
+        each with its running-comment/README entry.
+      - >-
+        The full local checklist surfaced three real (non-starvation)
+        guard failures, all fixed in this branch: faq-visible.test.mjs
+        (JSON-LD FAQ answers used em dashes the visible prose spelled "--",
+        and two docs-page answers were paraphrased rather than verbatim --
+        aligned both); siblings.test.mjs (podcast-feed-check was a
+        crawlable orphan -- linked out to three siblings with no reciprocal
+        inbound link; closed by adding one from social-preview-check);
+        build.test.mjs (the venture's arrival pushed the "more" catch-all
+        category to 6 tools past its bound -- filed under solo-earner
+        instead, on the same "protects the earner's own income/reach" axis
+        affiliate-disclosure-checker already established for a
+        checker-shaped member of that section, rather than the CI category,
+        since this isn't a developer-CI-gate tool).
+      - >-
+        Verified: node --test in the venture 69/69 (feed-parser.test.mjs
+        incl. nested itunes:category subcategories and CDATA/entity
+        decoding; engine.test.mjs, every check + severity split;
+        fetch-feed.test.mjs against a local loopback server only, incl.
+        redirect-following, a byte-size cap, and a hang-proof timeout;
+        check.test.mjs; usage.test.mjs; page.test.mjs). social-preview-check's
+        own suite still 102/102 after adding the reciprocal link.
+        checklist_coverage.py, router/validate.py (338 VENTURE.yaml valid),
+        score_ventures.py --check (339 scores, consistent),
+        usage/validate_usage.py (281 products, 467 readings),
+        publish_surface.py --check, validate_candidates.py,
+        validate_doc_consistency.py, probes/validate_probe_index.py,
+        score_sensitivity.py, clauses.mjs podcast-feed-check, and
+        guard_state.py --require-runnable (no fixable skips): all clean.
+        regen.mjs --verify clean after the merge and after the build.mjs
+        category fix. node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs: 1281/1281 (was 1278/1281 before the three
+        fixes above). python3 -m pytest gitops/tests -q: 83/83 on
+        test_manifests.py, 635/637 -> fixed via sync_readme_counts.py.
+        python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q: 446/446 (was
+        443/446 before the venture-scores.yaml row). platform/ci unittest
+        sweep (15 modules) and agent_review's test_review: all green.
+        guard_state.py --require-runnable: no fixable skips (1 environmental,
+        GitHub-hosted-runner-only). Scoped
+        PLAYWRIGHT=$(npm root -g)/playwright/index.js python3
+        platform/ci/browser_checks.py --only podcast-feed-check: 7/8 checks
+        passed (highlight skipped, no such feature promised -- not a
+        failure), including "3 pages, 2 viewports: no WCAG A/AA violations"
+        from axe-core and a full sweep/journey pass. The whole-catalogue
+        browser sweep (browser_state.py) reports stale for every check
+        because platform/pages/build.mjs and launched.json moved -- this is
+        the pre-existing, always-stale condition CLAUDE.md's browser-checks
+        section describes (a row appended per venture invalidates the whole
+        reading the same as a rendering change would), not something unique
+        to this session; the scoped run is the honest substitute.
+        run_workflow_locally.py --for-changes: 19 workflows selected against
+        a 1379-file diff (mostly regen.mjs churn from the concurrent merge),
+        every runnable step green, four write/secret-reading jobs correctly
+        held rather than run. git fetch --unshallow origin main first
+        (this clone was shallow at session start); checked open PRs (github
+        MCP) for a colliding podcast niche and found none.
+    mrr_end: 0

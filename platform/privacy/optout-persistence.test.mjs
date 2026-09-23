@@ -497,11 +497,21 @@ const RELATIVE_SELF = relative(
 // landed) until this merge -- the same ordinary collision shape recorded
 // throughout this list.
 //
+// 314 -> 315: `podcast-feed-check` graduated (this branch), adding one
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// `redirect-chain-check`'s. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/podcast-feed-check/usage.mjs`) and no deletions. This branch
+// only ever knew its own predecessor's number (312, before
+// `turo-host-payout-calculator` and `firebase-rules-check` landed) until
+// this merge -- the same ordinary collision shape recorded throughout
+// this list.
+//
 // 315 -> 316: `source-map-leak-check` also graduated, concurrently, adding
 // one `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
 // its checker siblings. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
-// (`ventures/source-map-leak-check/usage.mjs`) and no deletions. This
+// (`ventures/source-map-leak-check/usage.mjs`) and no deletions. That
 // branch only ever knew its own predecessor's number (309, before
 // `osha-trir-dart-calculator`, `supabase-rls-check`,
 // `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
@@ -520,7 +530,16 @@ const RELATIVE_SELF = relative(
 // one added `usage.mjs`
 // (`ventures/graphql-introspection-exposure-check/usage.mjs`) and no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 317;
+//
+// 317 -> 318: `podcast-feed-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its checker siblings. That
+// branch's own comment read this as a no-op against its own predecessor
+// number, which was wrong once merged with this branch's own addition --
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// (and its regenerated mirror) rather than trusted from either branch's
+// arithmetic.
+const SWITCHES_IN_THE_CATALOGUE = 318;
 
 let counter = 0;
 function fixture(source) {
