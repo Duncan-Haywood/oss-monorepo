@@ -37910,3 +37910,48 @@ entries:
         publish-branch.sh and confirmed current with pages_state.py
         --require-current.
     mrr_end: 0
+  - venture: fireplace-insert-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >
+        Added vs-a-flat-2499-installed-special.html, a generic-method
+        comparison page (the venture had 0, room for 1 under
+        surface-budget.mjs's budget). The angle was already named in
+        calc.mjs's own file-header comment: a flat "$2,499 installed"
+        gas-insert special treats a small gas cassette with an existing
+        stub the same as a large wood insert needing a 30-foot liner, a
+        new hearth, and a two-story stack. Priced two of the venture's own
+        JOB_PRESETS at its shipped shop-rate defaults: the small-gas
+        preset the special is named for already walks away at $3,133.18
+        -- $634.18 above the $2,499 the special charges, before any
+        profit -- and the large-wood preset walks away at $10,120.40,
+        $7,621.40 above it. Linked from index.html's footer, listed in
+        sitemap.xml, registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (names no vendor). Merged origin/main
+        (4 concurrent commits, including #5236's crawl-space-encapsulation
+        comparison page) and resolved the generated front-door mirror
+        conflicts by regenerating from the merged sources rather than
+        picking a side, per resolve-mirror-merge.sh -- extended by hand to
+        cover both gitops/prod/front-door-tools/ and gitops/prod/front-door/,
+        since this merge's conflicts spanned both generator output
+        directories and the script only resolves the first.
+        `node --test` in the venture plus two sibling ventures pulled in
+        by the same merge: 299/299, including two tests pinning the four
+        dollar figures above directly against calc.mjs rather than only
+        against the page's own prose. Full platform/marketing/
+        platform/pages suite: 1281/1281 (first run caught the mirror
+        going stale for both this change and the already-merged #5240;
+        clean after regen.mjs). gitops/tests: 613 passed, 25 skipped
+        (environmental). All platform/ci unittest modules and
+        agent_review's test_review: clean. portfolio/ledger,
+        portfolio/scoring, portfolio/router, portfolio/usage,
+        portfolio/pipeline, infra/tests: 446 passed. All 8 standalone
+        validators portfolio-validate.yml runs that no test file imports
+        (router/validate.py, front-door-tools.mjs --headroom,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py,
+        score_ventures.py --check, validate_usage.py): clean.
+        checklist_coverage.py, clauses.mjs, surface-budget.mjs --check,
+        sync_tree_counts.py: all clean. PR #5249.
+    mrr_end: 0
