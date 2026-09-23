@@ -1081,6 +1081,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every freelance
+  // interpreter already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html',
   // Compares against "a spreadsheet" -- a generic method every rental
   // operator already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-booqable.html and
@@ -1109,16 +1113,40 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that reason. Same reasoning as the other vs-spreadsheet pages above
   // (e.g. saas-seat-true-up's).
   'retainage-cashflow-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $4.50-a-foot installed special" -- the
+  // published per-foot ad rate every gutter shop competes with, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or field-service platform (the venture's own named-product
+  // comparison, vs-jobnimbus, carries its own trademark disclaimer) and its
+  // copy opens by agreeing the flat special is the right tool for
+  // advertising. Same reasoning as automatic-driveway-gate-bid-calculator's
+  // vs-a-flat-4500-special.html and entry-door-bid-calculator's
+  // vs-a-flat-1200-special.html above.
+  'gutter-install-bid-calculator/vs-a-flat-per-foot-special.html',
   // Compares against "a flat fee per assignment" -- a generic pricing habit
   // every freelance interpreter already has access to (a memorized number
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
-  // Compares against "pasting the introspection query into GraphiQL or
-  // Postman by hand" -- a manual habit any GraphQL developer already has,
-  // not a company or product this could be mistaken for. The page's own
-  // footer says so explicitly and names no GraphQL client or IDE vendor.
+  // Compares against "pasting the introspection query into a GraphQL IDE
+  // or API client by hand" -- a manual habit any GraphQL developer already
+  // has, not a company or product this could be mistaken for. The page's
+  // own footer says so explicitly and names no GraphQL client or IDE
+  // vendor.
   'graphql-introspection-exposure-check/vs-running-the-introspection-query-by-hand.html',
+  // Compares against "sales minus booth fee" mental math or a one-line
+  // spreadsheet -- a generic gut check every maker already does, not a
+  // company or product this could be mistaken for. The page names no
+  // spreadsheet application or bookkeeping tool. Distinct from this
+  // venture's own vs-craftybase.html, which names a specific product and
+  // already carries the "not affiliated" clause for that reason.
+  'craft-fair-booth-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat rate per acre" -- the per-acre mowing rate
+  // every lawn-care operator is shopped against, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-lmn.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
