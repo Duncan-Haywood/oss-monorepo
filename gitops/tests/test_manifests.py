@@ -2080,12 +2080,21 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
     #
-    # 326 since this merge: `actions-secrets-inherit-check` graduated -- a
-    # browser-local and CLI checker for GitHub Actions `secrets: inherit`
-    # calls to an external reusable workflow or a fork-reachable job, with a
-    # static `index.html` from its first commit, same shape as the rest of
-    # this running count.
-    total = 326  # `infra/OWNER_CHECKLIST.md`'s own "N of the 326 tools" wording.
+    # 326 since this merge: `supabase-rls-check` graduated -- a browser +
+    # CLI checker reading a Supabase project's own PostgREST schema listing
+    # and testing whether the anon key can read real rows from each table
+    # (the missing-Row-Level-Security exposure behind CVE-2025-48757), with
+    # a static `index.html` from its first commit, same shape as the rest
+    # of this running count.
+    #
+    # 327 since this merge: `actions-secrets-inherit-check` graduated
+    # concurrently -- a browser-local and CLI checker for GitHub Actions
+    # `secrets: inherit` calls to an external reusable workflow or a
+    # fork-reachable job, with a static `index.html` from its first commit,
+    # same shape as the rest of this running count. Both branches only ever
+    # knew their own predecessor's number (325) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 327  # `infra/OWNER_CHECKLIST.md`'s own "N of the 327 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
