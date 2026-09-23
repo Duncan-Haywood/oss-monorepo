@@ -840,6 +840,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries its own "not affiliated" clause. Same reasoning as the other
   // vs-doing-it-by-hand / vs-spreadsheet pages above.
   'childcare-tuition-calculator/vs-doing-it-by-hand.html',
+  // Compares against "tracking orders in a spreadsheet" -- the generic
+  // method every Etsy seller already has, not a company or product this
+  // could be mistaken for. The page names no spreadsheet application or
+  // vendor at all -- distinct from this venture's own
+  // vs-etsys-listing-form-calculator.html, which does name a product
+  // (Etsy's own Profit Calculator) and carries its own "not affiliated"
+  // clause.
+  'etsy-profit-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
