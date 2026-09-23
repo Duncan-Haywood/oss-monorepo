@@ -38246,3 +38246,70 @@ entries:
         session). platform/ci unittest suites (15 modules): all pass.
         checklist_coverage.py and check_no_payment_code.py: clean.
     mrr_end: 0
+  - venture: graphql-introspection-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, graduated per DIRECTION.md's "new ventures rank first
+        when a genuine one is available" (session_gate.py's build-now
+        pipeline was empty). A free browser tool + CLI: sends one real
+        GraphQL introspection query to an endpoint URL the user provides
+        and reports whether introspection is enabled -- exposing every
+        query/mutation/subscription field name and every named type --
+        flagging a non-null mutation surface and field names matching
+        common sensitive-operation wording as higher-severity evidence.
+        Runs client-side in the browser when the target's own CORS policy
+        allows it (an ordinary POST needs no forbidden header, unlike
+        cors-misconfig-check's Origin-header probes), with a
+        zero-dependency Node CLI fallback for when it doesn't, since CORS
+        is a browser-only restriction Node's fetch never enforces.
+        duplicate_check.py scored the closest existing venture
+        (supabase-rls-check) at 0.17, well under the 0.45 flag bar. Merit
+        score 6.167 recorded in venture-scores.yaml (same composite as
+        the sibling header/response-evidence checkers).
+        Also refreshed the stale published gh-pages snapshot at session
+        start (built from d4933783, main was at 9740c6b7) via
+        publish-branch.sh, recorded the github-pages-branch-route reading,
+        and re-ran regen.mjs after merging main forward twice (a 332nd
+        mirrored tool restamps every mirrored page's "All N free tools"
+        back-link) -- fixed the SWITCHES_IN_THE_CATALOGUE and mirrored-
+        tool-count running comments sync_tree_counts.py rewrote, plus the
+        runs-on count gitops/ci/sync_readme_counts.py rewrote.
+        Verified: node --test in the venture, 55/55 (analyze.mjs's pure
+        classification logic, probe.mjs against a real local HTTP server,
+        check.mjs's CLI orchestration with an injected probeFn, the usage
+        counter, and both pages' structure/disclaimers). Ran the built
+        CLI end-to-end as a real subprocess against a local test server
+        (exit 1 on a mutation surface with a sensitive name, as expected).
+        node platform/pages/clauses.mjs graphql-introspection-exposure-check,
+        python3 portfolio/router/validate.py (339->340 ventures),
+        platform/ci/publish_surface.py --write/--check, and
+        platform/ci/validate_workflows.py: clean. node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs: 1281/1281
+        (this file's own long-suite command). python3 -m pytest
+        gitops/tests -q: 637 passed, 1 skipped (nginx-light and
+        openssh-client installed this session per CLAUDE.md's apt
+        guidance). platform/ci unittest suites (15 modules) and
+        platform/ci/agent_review's test_review: all pass. python3 -m
+        pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q: 443 passed
+        (after adding the merit-score row; router/scoring rerun
+        afterward: 88 passed). portfolio/pipeline's
+        validate_doc_consistency.py, validate_candidates.py,
+        probes/validate_probe_index.py, and score_sensitivity.py: clean.
+        platform/ci/usage_state.py --require-honest and
+        check_no_payment_code.py: clean. Installed
+        playwright@1.56.0 + axe-core and ran
+        platform/ci/browser_checks.py --only
+        graphql-introspection-exposure-check: 7/8 checks passed (contrast:
+        0 WCAG A/AA violations across 2 pages/2 viewports; optout: the
+        usage opt-out control persists; journey/sweep/sideways/presets/
+        roundtrip: clean; highlight skipped -- this venture makes no
+        highlight promise). Merged to main and published via
+        CONFIRM=publish-pages-branch PUSH=1 platform/pages/publish-
+        branch.sh in the same session, so the venture is reachable at
+        https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/
+        (per PRODUCT_PLAYBOOK.md's definition of done: merged-to-main is
+        not deployed).
+    mrr_end: 0
