@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 115 files, 554749 bytes
 #   portfolio-front-tools-11: 116 files, 554568 bytes
 #   portfolio-front-tools-12: 133 files, 555341 bytes
-#   portfolio-front-tools-13: 130 files, 547151 bytes
+#   portfolio-front-tools-13: 131 files, 550755 bytes
 #   portfolio-front-tools-14: 101 files, 552061 bytes
 #   portfolio-front-tools-15: 114 files, 554968 bytes
 #   portfolio-front-tools-16: 117 files, 555517 bytes
@@ -1866,6 +1866,7 @@ configMapGenerator:
       - qbi-deduction-calculator__index.html.gz=qbi-deduction-calculator__index.html.gz
       - qbi-deduction-calculator__usage.mjs.gz=qbi-deduction-calculator__usage.mjs.gz
       - qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz=qbi-deduction-calculator__vs-doing-the-worksheet-by-hand.html.gz
+      - qbi-deduction-calculator__why-is-my-qbi-deduction-0.html.gz=qbi-deduction-calculator__why-is-my-qbi-deduction-0.html.gz
       - quarterly-estimated-tax-calendar__calc.mjs.gz=quarterly-estimated-tax-calendar__calc.mjs.gz
       - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
       - quarterly-estimated-tax-calendar__usage.mjs.gz=quarterly-estimated-tax-calendar__usage.mjs.gz
