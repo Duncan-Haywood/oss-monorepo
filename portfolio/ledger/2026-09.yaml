@@ -38246,6 +38246,102 @@ entries:
         session). platform/ci unittest suites (15 modules): all pass.
         checklist_coverage.py and check_no_payment_code.py: clean.
     mrr_end: 0
+  - venture: firebase-rules-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per DIRECTION.md's "new ventures rank
+        first" guidance: session_gate.py read PROCEED with an empty
+        build-now pipeline queue, pages_state.py reported the published
+        snapshot current, and usage_state.py confirmed the visitor signal
+        is still never-measured fleet-wide (null, not zero) so no existing
+        venture's usage trend could rank above a fresh candidate. Sibling
+        checker supabase-rls-check (graduated the same day by an earlier
+        session) named the deterministic checker/CLI archetype this
+        follows. Firebase's Realtime Database and Firestore share the
+        exact "default-open unless a security rule locks it down" shape --
+        both default a new project to 30 days of test mode with a rule
+        that allows any unauthenticated read/write, documented since
+        Appthority's 2018 "Firebase mismanagement" report (2,300+ apps
+        found exposed) and recurring in security research since; OWASP's
+        Mobile Application Security Testing Guide names Firebase backend
+        misconfiguration as its own test case. duplicate_check.py scored
+        every existing venture at 0.16 or below (0.19 against
+        supabase-rls-check's own pipeline write-up, the closest match).
+      - >-
+        Shipped ventures/firebase-rules-check: a free browser tool + CLI
+        sending real, read-only, unauthenticated requests to a Firebase
+        project's Realtime Database (a shallow root listing --
+        `shallow=true` returns child key names only, never field values)
+        and named Firestore collections (one document max per collection,
+        `pageSize=1`), naming which paths return real data with no login.
+        Unlike supabase-rls-check, Firestore has no unauthenticated
+        schema-listing endpoint, so the tool asks the caller to name the
+        Firestore collections to check -- the same "I already know what to
+        check" fallback supabase-rls-check's own `runProbes` offers via its
+        `tables` option, just the primary path here. The Realtime Database
+        half runs the live check directly in the browser (its REST API is
+        designed for that); the Firestore half's browser-CORS behaviour is
+        less certain across every project configuration, so the page
+        attempts it too but names the CLI as the guaranteed fallback if a
+        visitor's browser reports a network/CORS error -- the same
+        CLI-as-fallback posture security-headers-check and
+        cors-misconfig-check already use for a request a browser cannot
+        reliably make itself. Liability scored 6, the same as
+        supabase-rls-check and for the same reason (real-data read rather
+        than only headers/config), mitigated the same way plus one step
+        further: the Realtime Database probe never downloads a field value
+        at all, only key names. Full pipeline write-up at
+        portfolio/pipeline/candidates/firebase-rules-check.md; scored in
+        candidates.yaml and portfolio/scoring/venture-scores.yaml; filed in
+        the front-door's "CI checks & developer gates" category (added to
+        build.mjs's category regex on this venture's first commit rather
+        than after a spell in the catch-all -- build.test.mjs's own
+        catch-all guard confirmed this), with reciprocal links to/from
+        supabase-rls-check closing the orphan gap
+        platform/pages/siblings.test.mjs guards against.
+      - >-
+        Verified locally rather than assuming CI (ci_starvation.py showed
+        the same runner_id:0 starvation signature on the latest
+        Portfolio validate run on main): venture's own tests 56/56, using
+        local fake Realtime Database and Firestore HTTP servers so nothing
+        hit the real internet; a real-browser Playwright smoke test of
+        both pages (worked example renders, correct verdict, no console
+        errors beyond a harmless favicon 404). First full
+        platform/marketing + platform/pages run (1281/1281) caught two
+        real defects this session fixed: the venture had not been added to
+        build.mjs's category regex, so build.test.mjs's catch-all guard
+        failed (fixed by filing it alongside supabase-rls-check in "CI
+        checks & developer gates"), and faq-visible.test.mjs caught the
+        JSON-LD/visible-text divergence CLAUDE.md already records
+        repeatedly -- "--" in the JSON-LD against the page's own em dash,
+        plus two FAQ answers where the visible paragraph had been
+        paraphrased shorter than the JSON-LD text it was supposed to
+        match word-for-word. Fixed by aligning the JSON-LD to the em dash
+        the page renders and making both paragraphs match exactly; a
+        second full run came back 1281/1281 clean. Also: gitops/tests
+        637 passed/1 skipped (nginx-light and openssh-client installed via
+        `apt-get update && apt-get install` per CLAUDE.md's own warning
+        about the missing `apt-get update` step); `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed; all 27 platform/ci
+        unittest modules and agent_review's test_review (21/21): clean;
+        checklist_coverage.py, router/validate.py, publish_surface.py
+        --check, validate_workflows.py, surface-budget.mjs --check,
+        check_no_payment_code.py, clauses.mjs, validate_candidates.py, and
+        validate_doc_consistency.py: all clean. `sync_tree_counts.py`
+        rewrote the mirrored-tool count (327 -> 328) and the opt-out switch
+        count (309 -> 310) across their hand-kept locations, each with the
+        running-comment entry this venture's graduation accounts for; a
+        second run confirmed every count agrees with the tree.
+        `gitops/ci/sync_readme_counts.py` refreshed the runs-on count the
+        same way. `regen.mjs --verify` caught the front-door mirror going
+        stale three times across this session (the new venture's own
+        pages, the build.mjs category reassignment moving ~67 sibling
+        pages' Related links, and the FAQ dash/wording fix) -- fixed each
+        time with `regen.mjs` and re-verified clean.
+    mrr_end: 0
   - venture: source-map-leak-check
     agent_spend_usd: null
     human_hours: 0
