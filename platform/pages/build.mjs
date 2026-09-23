@@ -388,7 +388,16 @@ const CATEGORY_RULES = [
     // question this section already answers for a resale seller. It sat in
     // the catch-all because its slug names a streaming platform, not a
     // storefront keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch)/.test(slug),
+    // `freelance-platform-fee-calculator` is the same platform-cut shape one
+    // further step removed again: Upwork and Fiverr take a percentage of a
+    // freelancer's job price the same way a resale marketplace takes a
+    // percentage of a sale price, and the reader deciding which of the two
+    // nets more is the same reader as `where-to-sell` and
+    // `marketplace-fee-compare` above, just pricing labor instead of an
+    // item. Its slug names neither platform first, so no storefront keyword
+    // above would have caught it and it would otherwise have swelled the
+    // catch-all.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee)/.test(slug),
   },
   {
     id: 'trades',
