@@ -36227,3 +36227,33 @@ entries:
         1281/1281. `checklist_coverage.py`, `surface-budget.mjs --check`,
         and `regen.mjs --verify` all clean after `regen.mjs` (5 mirror
         artifacts regenerated and committed alongside).
+  - venture: docker-base-image-eol-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the full-catalogue browser check suite (`browser_checks.py`,
+        last recorded 2026-09-06, stale since -- builder/front-door files
+        had moved) since no open PR needed triage and the tree's own test
+        suites, `checklist_coverage.py`, `regen.mjs --verify`,
+        `score_ventures.py --check` and `validate_doc_consistency.py` were
+        all clean. `sweep` reported this venture NO-RESPONSE: a real
+        visitor pasting a Dockerfile and clicking "Check" gets a working
+        tool, but the sweep's heuristic pressed the empty file-row's
+        "Remove" button instead, because it sits first in DOM order ahead
+        of "Check" and is guarded to a no-op while only one row exists --
+        so a real dead-tool signal and this specific false positive are
+        indistinguishable without reading the DOM. Traced to
+        `pressPrimaryAction` in `platform/pages/sweep.mjs`, which already
+        excludes "Add another ..." from candidate buttons for the mirror
+        failure (documented inline against `cash-runway-planner`) but not
+        its row-delete counterpart. Added `remove` and `delete` to
+        `NOT_AN_ACTION`, unanchored since no compute button anywhere in
+        the tree is labelled with either word (checked: `grep` across all
+        `ventures/*/index.html` button labels). Re-ran `sweep` alone
+        first (330/330 pass, no regression on the 47 other ventures
+        carrying a Remove/Delete button), then the full 8-check suite
+        with `--record`: all pass (330/330 tools respond, 1250 pages / 2
+        viewports clear WCAG A/AA, all sitemap URLs resolve, no
+        off-origin requests), recorded at c7dae4c7 into
+        `platform/ci/browser_state.json`.
