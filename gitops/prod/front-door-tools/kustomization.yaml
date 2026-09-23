@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 149 files, 555673 bytes
 #   portfolio-front-tools-3: 134 files, 552417 bytes
 #   portfolio-front-tools-4: 142 files, 555359 bytes
-#   portfolio-front-tools-5: 125 files, 552667 bytes
+#   portfolio-front-tools-5: 126 files, 556503 bytes
 #   portfolio-front-tools-6: 133 files, 555309 bytes
 #   portfolio-front-tools-7: 121 files, 548280 bytes
 #   portfolio-front-tools-8: 138 files, 555431 bytes
@@ -787,6 +787,7 @@ configMapGenerator:
       - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz
       - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
       - auto-repair-effective-labor-rate__vs-shop-ware.html.gz=auto-repair-effective-labor-rate__vs-shop-ware.html.gz
+      - auto-repair-effective-labor-rate__vs-shopmonkey.html.gz=auto-repair-effective-labor-rate__vs-shopmonkey.html.gz
       - auto-repair-effective-labor-rate__vs-tekmetric.html.gz=auto-repair-effective-labor-rate__vs-tekmetric.html.gz
       - auto-repair-effective-labor-rate__what-is-my-effective-labor-rate.html.gz=auto-repair-effective-labor-rate__what-is-my-effective-labor-rate.html.gz
       - automatic-driveway-gate-bid-calculator__calc.mjs.gz=automatic-driveway-gate-bid-calculator__calc.mjs.gz
