@@ -229,6 +229,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // flat card is the right tool for a phone quote. Same reasoning as the
   // other generic-method pages above.
   'pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html',
+  // Compares against "a flat per-walk rate" -- the $20-a-walk pricing every
+  // independent dog walker or pet sitter already posts, not a company or
+  // product this could be mistaken for. The page names no marketplace app
+  // or competitor (the venture's own named-product comparison, vs-rover,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat rate is the right tool for advertising. Same reasoning as the other
+  // generic-method pages above.
+  'dog-walking-route-pricing/vs-a-flat-per-walk-rate.html',
   // Compares against "opening each marketplace's own fee calculator and
   // reconciling the answers" -- the method every multi-channel seller already
   // uses, not a company or product this could be mistaken for. It is the one
