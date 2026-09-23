@@ -1016,6 +1016,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-keeper.html, which does name a product and carries its own "not
   // affiliated" clause.
   'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
+  // Compares against "checking the URL by hand in a browser" -- a generic
+  // manual habit any developer already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as this file's own
+  // source-map-leak-check/vs-checking-devtools-by-hand.html and
+  // branch-protection-drift-check/vs-manually-checking-settings.html entries
+  // above.
+  'git-exposure-check/vs-checking-the-url-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
