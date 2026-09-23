@@ -674,6 +674,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-servicemonster.html, which does name a product and
   // carries its own "not affiliated" clause.
   'carpet-cleaning-bid-calculator/vs-a-flat-per-room-special.html',
+  // Compares against "watching your backup's exit code yourself" -- the
+  // cron-mail/systemd-status habit every operator running a scheduled
+  // backup already has, not a company or product this could be mistaken
+  // for. The page names no vendor or competing tool at all -- distinct
+  // from this venture's own vs-healthchecks.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'backup-verification-evidence/vs-checking-the-exit-code-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
