@@ -2245,7 +2245,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # count. Its own PR did not carry a comment entry here; re-derived
     # (this merge) by `sync_tree_counts.py` against the fully merged tree
     # rather than by hand.
-    total = 338  # `infra/OWNER_CHECKLIST.md`'s own "N of the 338 tools" wording.
+    #
+    # 339 since this merge: `subdomain-takeover-check` graduated (this
+    # branch) -- a zero-dependency browser tool + CLI following a
+    # hostname's real CNAME chain over public DNS-over-HTTPS, matching the
+    # final target against 25 known takeover-prone hosting providers, and
+    # confirming with one live GET checked against that provider's own
+    # "unclaimed" fingerprint page rather than escalating a DNS-only match.
+    # Same "read what's actually there, name the exact evidence" checker
+    # shape as `git-exposure-check` and `dotenv-exposure-check`, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    total = 339  # `infra/OWNER_CHECKLIST.md`'s own "N of the 339 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

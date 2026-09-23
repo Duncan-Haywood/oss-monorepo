@@ -1060,6 +1060,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. This page names no git-hosting
   // platform, IDE, or scanning tool.
   'dotenv-exposure-check/vs-checking-by-hand.html',
+  // Compares against "running dig CNAME by hand" -- a generic DNS-lookup
+  // habit every developer already has, not a company or product this could
+  // be mistaken for. The page names third-party hosting providers (S3,
+  // Heroku, GitHub Pages) only as CNAME-target examples, not as the thing
+  // being compared against.
+  'subdomain-takeover-check/vs-checking-dig-by-hand.html',
+  // Compares against "a flat rate per square foot" -- a generic pricing
+  // method every garage-floor coating contractor already has access to, not
+  // a company or product this could be mistaken for. Same reasoning as the
+  // other generic-method pages above (e.g. asphalt-driveway-pave-bid-
+  // calculator's flat-rate page). Distinct from this venture's own
+  // vs-coatingos.html, which compares against a named estimating product
+  // and already carries the "not affiliated" clause for that reason.
+  'epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html',
   // Compares against "a spreadsheet" -- a generic method every SaaS
   // operator already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-vendr.html and
@@ -1067,6 +1081,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "bidding a flat percentage of value" -- a generic rule
+  // of thumb repeated across storage-auction forums generally, not a
+  // company or product this could be mistaken for. The page names no
+  // auction platform, forum, or vendor. Distinct from this venture's own
+  // vs-storagetreasures.html, which names a specific marketplace and
+  // already carries the "not affiliated" clause for that reason.
+  'storage-auction-max-bid-calculator/vs-bidding-a-flat-percentage.html',
+  // Compares against "a spreadsheet" -- a generic method every contractor
+  // already has access to, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-levelset.html, which names
+  // Levelset/Procore and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other vs-spreadsheet pages above
+  // (e.g. saas-seat-true-up's).
+  'retainage-cashflow-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
