@@ -521,6 +521,9 @@ workflows:
 - workflow: grant-reporting-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: graphql-introspection-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
