@@ -505,6 +505,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no vendor or competing
   // calculator at all.
   'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+
+  // Compares against "a flat rate per yard" -- a generic quoting habit every
+  // carpet installer meets, not a company or product this could be mistaken
+  // for. The page names no vendor or competing calculator at all.
+  'carpet-install-bid-calculator/vs-a-flat-rate-per-yard.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
