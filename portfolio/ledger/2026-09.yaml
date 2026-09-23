@@ -36430,6 +36430,45 @@ entries:
         over budget) both before and after. CI (Actions) is starved this
         session (runner_id: 0 on recent Portfolio validate runs per the task
         brief), so this local run is the verification of record.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        pages_state.py and usage_state.py both current/honest at session
+        start; CI confirmed starved (ci_starvation.py on the latest
+        Portfolio validate run: runner_id 0). browser_state.py reported all
+        8 whole-catalogue browser checks STALE (builder/front-door churn),
+        so ran the full suite (`npm install --no-save playwright@1.56.0
+        axe-core`, then `browser_checks.py --record --checks sideways,
+        presets,roundtrip,highlight,contrast,optout,sweep,journey`). 7 of 8
+        passed clean; `sweep` failed one real finding —
+        `docker-base-image-eol-check` read NO-RESPONSE.
+      - >-
+        Root-caused before writing a fix: `sweep.mjs`'s `pressPrimaryAction`
+        picks the first on-page button `NOT_AN_ACTION` doesn't exclude, and
+        this venture's own "Remove" button (guarded to no-op when only one
+        Dockerfile row exists) sits ahead of "Check" in DOM order and wasn't
+        excluded, so a working tool read as dead. Wrote and verified a fix to
+        `NOT_AN_ACTION`, then `git fetch origin main` before pushing (per
+        CLAUDE.md's Duplicate PRs section) turned up that two other sessions
+        had independently landed the same finding minutes earlier: #5141
+        (the identical `sweep.mjs` regex fix, functionally equivalent to the
+        one written here) and #5142 (the sharper fix — disabling the Remove
+        button on the product itself when it would no-op, a real UX
+        improvement this session's sweep-only fix didn't touch). Discarded
+        this session's redundant commit (`git reset --hard origin/main`)
+        rather than push a conflicting third version.
+      - >-
+        The still-open, non-duplicate task was the recording: nobody had run
+        the full suite against the now-fixed code, so `browser_state.py`
+        still read STALE. Re-ran the full 8-check suite on top of #5141/#5142
+        (commit `0b2dea1f`) — all 8 pass clean (1264 pages; 1256+ at 360px no
+        sideways scroll; presets/roundtrip/highlight all green; 1255+ pages
+        x 2 viewports no WCAG A/AA violations; opt-out persistence holds;
+        full customer-journey narrative, sitemap and 404 checks pass) — and
+        recorded it with `--record`, so `browser_state.py` now reads current
+        for the whole catalogue instead of stale.
   - venture: countertop-bid-calculator
     agent_spend_usd: null
     human_hours: 0
