@@ -1608,6 +1608,44 @@ candidates:
       rather than inheriting this one's.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: firebase-rules-check
+    name: Firebase security rules exposure checker
+    doc: candidates/firebase-rules-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/firebase-rules-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep the check strictly read-only and conservative -- the Realtime
+      Database probe uses shallow=true (child key names only, never field
+      values) and the Firestore probe is capped to one document per
+      collection via pageSize=1, and the tool never attempts a
+      write/update/delete even as a secondary "is this also writable"
+      test. Never render or store actual field values in the report; show
+      only Realtime Database key names and Firestore field *names*, never
+      values, so a "clean" demonstration of exposure never becomes a bulk
+      data-viewing tool in its own right. A response this tool cannot
+      classify (a network error, an unexpected status) is reported as an
+      error, never silently folded into either "exposed" or "blocked" --
+      guessing in either direction would be worse than an honest "could
+      not confirm." Measure real user reports before expanding scope into
+      Cloud Storage bucket rules or Cloud Functions, each of which would
+      need its own liability read rather than inheriting this one's.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: source-map-leak-check
     name: Source map leak checker
     doc: candidates/source-map-leak-check.md

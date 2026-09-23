@@ -26,6 +26,15 @@
     <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Firebase Security Rules Exposure Checker — Is Your Database Public?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/firebase-rules-check/"/>
+    <id>tag:marisstella.dev,2026:tool/firebase-rules-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free, in-browser tool: enter your Firebase project ID (plus its Realtime Database URL and/or Firestore collection names) and it sends real, read-only, unauthenticated requests, naming which paths return real data with no login -- the default-open / left-in-test-mode security rules exposure documented since Appthority&#39;s 2018 Firebase mismanagement report. Nothing uploaded to us.</summary>
+  </entry>
+  <entry>
     <title>Upwork vs. Fiverr Fee Calculator — What You Actually Keep</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-platform-fee-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/freelance-platform-fee-calculator</id>

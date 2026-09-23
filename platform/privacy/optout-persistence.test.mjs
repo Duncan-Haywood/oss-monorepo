@@ -476,7 +476,28 @@ const RELATIVE_SELF = relative(
 // throughout this list. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 314;
+//
+// 313 -> 314: `firebase-rules-check` graduated concurrently, adding one
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// `supabase-rls-check`'s. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/firebase-rules-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309, before
+// `osha-trir-dart-calculator`, `supabase-rls-check`,
+// `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list.
+//
+// 314 -> 315: `source-map-leak-check` graduated concurrently, adding one
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as its
+// checker siblings. Verified the way this file's error message prescribes:
+// exactly one added `usage.mjs` (`ventures/source-map-leak-check/usage.mjs`)
+// and no deletions. This branch only ever knew its own predecessor's number
+// (309, before `osha-trir-dart-calculator`, `supabase-rls-check`,
+// `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
+// `turo-host-payout-calculator` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list.
+const SWITCHES_IN_THE_CATALOGUE = 315;
 
 let counter = 0;
 function fixture(source) {
