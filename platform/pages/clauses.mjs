@@ -209,6 +209,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
   'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every personal
+  // trainer already has, not a company or product this could be mistaken
+  // for. Same reasoning as the other vs-spreadsheet pages above.
+  'personal-trainer-package-pricing-calculator/vs-a-spreadsheet.html',
   // Compares against "dividing labor sales by labor hours off your own DMS
   // reports" -- the one line of arithmetic every shop owner can already run
   // against reports they have, not a company or product this could be
@@ -557,6 +561,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no vendor or competing
   // calculator at all.
   'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat rate per square foot" -- a pricing habit every
+  // deck-staining shop is shopped against, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all (the venture's own named-product comparison, vs-joist, carries
+  // its own trademark disclaimer).
+  'deck-staining-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 
   // Compares against "a flat rate per yard" -- a generic quoting habit every
   // carpet installer meets, not a company or product this could be mistaken
@@ -794,6 +804,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-buildertrend.html, which does name a product and carries its
   // own "not affiliated" clause.
   'change-order-margin-calculator/vs-a-rough-lump-sum.html',
+  // Compares against "doing it in a spreadsheet" -- a generic method every
+  // Shopify merchant already has, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // first paragraph says so explicitly.
+  'shopify-fee-calculator/vs-doing-it-in-a-spreadsheet.html',
   // Compares against "doing it by hand or in a spreadsheet" -- the generic
   // method every service business already has, not a company or product
   // this could be mistaken for. The page names no spreadsheet application,

@@ -1,0 +1,135 @@
+name: personal-trainer-package-pricing-calculator
+description: >-
+  Free browser calculator for independent personal trainers: compares a
+  discounted prepaid session package against pay-per-session pricing on net
+  take-home pay per hour, after a gym or studio's percentage revenue-share
+  or flat per-session facility fee -- not just billings. Reuses the
+  makeup-owed dilution mechanic tutor-package-pricing-calculator built (a
+  package discount deeper than the real no-show rate, with a makeup owed on
+  a miss, can pay a worse effective hourly rate than plain pay-per-session)
+  and adds a mechanic tutoring has no equivalent of: a flat venue fee does
+  not shrink with the trainer's own discount, so it erodes a discounted
+  package's per-session rate harder, in percentage terms, than it erodes
+  full price. A percentage revenue-share cut does not do this -- it scales
+  both models down by the same share -- so the calculator distinguishes the
+  two venue-cost structures rather than treating "the gym takes a cut" as
+  one case. Copies the comparison as a plain-text record.
+
+stage: prototype
+owner: duncan
+
+# Screened as a new niche during a 2026-09-23 PROCEED-verdict session
+# (session_gate.py: build-now pipeline queue empty -- every scored
+# candidate already graduated -- and portfolio/DIRECTION.md's 2026-09-06
+# owner direction ranks a genuine new venture first when no in-progress
+# venture work exists). portfolio/router/allocate.py's dispatchable list
+# was reviewed and named no undeployed, already-built candidate; every
+# `build-now` pipeline.md row is already `graduated` or `probe`-pending an
+# owner-gated channel.
+#
+# duplicate_check.py scored every existing venture, screened-out row, and
+# pipeline candidate at 0.42 or below for "Personal trainer session package
+# pricing calculator: compares a discounted prepaid package against
+# pay-per-session pricing on net take-home hourly pay after a gym/studio's
+# percentage commission or flat room-rental fee per session ..." -- under
+# the 0.45 review bar. The closest match, tutor-package-pricing-calculator
+# (0.42), is the venture this one deliberately reuses one mechanic from
+# (see description); the two are cross-linked in each other's footer rather
+# than merged, since tutoring has no venue-cost-split concept at all and a
+# tutor-package-pricing-calculator user who trains clients at a commission
+# gym is exactly this calculator's next question. booth-rent-vs-commission
+# (0.11) is the nearest venture by subject (independent service providers
+# splitting revenue with a venue) and solves a different problem: a binary
+# choice between two employment structures (commission split vs. a flat
+# booth-rent lease) for stylists/barbers/nail techs, with no package
+# pricing, no no-show rate, and no makeup-owed dilution at all. No
+# personal-training, fitness, or gym row exists in
+# portfolio/pipeline/screened-out.md.
+#
+# Not an advice-of-record product: deterministic arithmetic over numbers
+# the trainer supplies (a rate, a session count, a no-show rate, a makeup
+# policy, a venue cost structure), the same shape as
+# tutor-package-pricing-calculator and no-show-fee-calculator -- it does
+# not set pricing policy, does not recommend a venue arrangement, and does
+# not predict any specific client's behavior.
+#
+# Distribution channel: r/tattooartists-style trade communities exist for
+# most service niches in this portfolio, and personal training has its own
+# -- r/personaltraining and r/personaltrainer are active professional
+# subreddits where independent trainers discuss client pricing, package
+# structure, and gym commission/rental arrangements specifically (distinct
+# from r/Fitness and r/bodyweightfitness, which serve the client side of
+# the industry, not the trainer's business side). "Personal trainer package
+# pricing", "personal training package deal", and "gym commission vs
+# rental for personal trainers" are plausible search phrases for a trainer
+# who has been offered, or is considering selling, a discounted block of
+# sessions while paying a gym or studio for space -- the same audience
+# shape as tutor-package-pricing-calculator and booth-rent-vs-commission,
+# arriving with a specific pricing decision rather than browsing. The
+# commission/rental-split pain point itself is well documented in the
+# fitness-business trade press (NASM, IDEA Health & Fitness Association
+# coverage of trainer compensation models); this calculator narrows that
+# general pain point to the one arithmetic question a trainer can answer
+# with numbers already in front of them.
+
+hypotheses:
+  - claim: >-
+      An independent personal trainer deciding whether to sell a discounted
+      session package will use this calculator to check the package against
+      pay-per-session pricing before offering it, because the net-take-home
+      consequence of a makeup policy combined with a venue's cost structure
+      is not the intuitive answer (a package "protects against no-shows"
+      reads as strictly better, not sometimes worse per hour, and a flat
+      facility fee reads as a fixed cost rather than one that bites harder
+      on a discount).
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Trainers who pay a flat per-session facility fee (rather than a
+      percentage revenue-share) are more likely to be surprised by the
+      result than trainers on a percentage split, because a percentage cut
+      scales both pricing models down proportionally and changes no
+      decision, while a flat fee changes which pricing model actually pays
+      better -- measurable once usage data exists by whether the
+      flat-fee-erodes-package-more finding correlates with return visits or
+      summary copies more than the discount-exceeds-noshow-rate finding
+      alone does.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      Most visitors who run the comparison already have a specific venue
+      arrangement in mind (their actual gym's percentage or their studio's
+      posted rental fee) rather than exploring hypothetical structures --
+      measurable once usage data exists by whether the venue-model select is
+      changed from its "no venue cost" default before Compare is clicked.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all arithmetic runs in the visitor's own
+  # browser against numbers they type in. Serving one more user costs a
+  # static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, return usage, or unsolicited feedback after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's
+    "fair run" definition).
+  - A materially better free tool covering the same package-vs-per-session,
+    venue-cost-aware arithmetic at the same zero-install, zero-signup bar
+    becomes the obvious default, such that this tool's differentiation no
+    longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/personal-trainer-package-pricing-calculator/
+  analytics: null

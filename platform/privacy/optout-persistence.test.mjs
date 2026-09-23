@@ -404,7 +404,15 @@ const RELATIVE_SELF = relative(
 // the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/freelance-platform-fee-calculator/usage.mjs`) and
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 306;
+//
+// 306 -> 307: `personal-trainer-package-pricing-calculator` graduated,
+// adding one `usage.mjs` following the same opt-out pattern as its
+// siblings (`usageOptedOut`/`setUsageOptOut` gating `record`/`readUsage`
+// the same way `tutor-package-pricing-calculator`'s does). Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/personal-trainer-package-pricing-calculator/usage.mjs`) and no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 307;
 
 let counter = 0;
 function fixture(source) {
