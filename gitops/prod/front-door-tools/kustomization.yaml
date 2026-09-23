@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 133 files, 551720 bytes
 #   portfolio-front-tools-4: 139 files, 552262 bytes
 #   portfolio-front-tools-5: 126 files, 554271 bytes
-#   portfolio-front-tools-6: 130 files, 550791 bytes
+#   portfolio-front-tools-6: 131 files, 555674 bytes
 #   portfolio-front-tools-7: 121 files, 542296 bytes
 #   portfolio-front-tools-8: 138 files, 554320 bytes
 #   portfolio-front-tools-9: 115 files, 556050 bytes
@@ -1014,6 +1014,7 @@ configMapGenerator:
       - crawl-space-encapsulation-bid-calculator__how-much-to-charge-for-crawl-space-encapsulation.html.gz=crawl-space-encapsulation-bid-calculator__how-much-to-charge-for-crawl-space-encapsulation.html.gz
       - crawl-space-encapsulation-bid-calculator__index.html.gz=crawl-space-encapsulation-bid-calculator__index.html.gz
       - crawl-space-encapsulation-bid-calculator__usage.mjs.gz=crawl-space-encapsulation-bid-calculator__usage.mjs.gz
+      - crawl-space-encapsulation-bid-calculator__vs-a-flat-4-dollar-sq-ft-special.html.gz=crawl-space-encapsulation-bid-calculator__vs-a-flat-4-dollar-sq-ft-special.html.gz
       - crawl-space-encapsulation-bid-calculator__vs-quoteiq.html.gz=crawl-space-encapsulation-bid-calculator__vs-quoteiq.html.gz
       - cron-dst-drift-check__cli.mjs.gz=cron-dst-drift-check__cli.mjs.gz
   - name: portfolio-front-tools-7
