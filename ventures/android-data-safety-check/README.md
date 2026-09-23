@@ -1,5 +1,11 @@
 # Android Data Safety Checker
 
+Two free, related checkers for Android developers preparing a Google Play
+submission, sharing one venture, one license, and one usage counter -- see
+[Target API level checker](#target-api-level-checker) below for the second.
+
+## Data safety checker
+
 A free tool for Android developers: scans your `AndroidManifest.xml`
 permissions and Gradle dependencies for known SDKs, maps each one to a
 **Google Play Data safety** category, and checks it against a plain list of
@@ -66,6 +72,50 @@ deliberately not exhaustive: a permission or SDK with no clear one-to-one
 category, or one this list doesn't yet recognise, is simply not flagged --
 silence here is a gap in this list, not a clean bill of health.
 
+## Target API level checker
+
+A second free tool, same venture: reads your `AndroidManifest.xml` or Gradle
+`targetSdkVersion`/`targetSdk` declaration and checks it against **Google
+Play's target API level requirement** -- a different Play Console gate than
+Data safety. Google requires an app to target a minimum API level per form
+factor (phone/tablet, Wear OS, Android TV, Android XR, Android Automotive
+OS) by a published deadline; an app below the floor for its form factor is
+not removed, but stops being visible to and installable by new users on a
+device running a newer Android version than it targets.
+
+After using this, you can find out before a release whether your app is
+about to lose visibility to new users on newer devices, which used to mean
+either tracking the deadline by hand or finding out from a Play Console
+warning after the fact.
+
+### Browser
+
+Open `target-api-level.html`. Select your `AndroidManifest.xml` and/or
+`build.gradle`/`build.gradle.kts` files, pick your form factor, and click
+**Check**. Nothing is uploaded.
+
+### CLI
+
+```
+node target-sdk-check.mjs [path] [--form-factor <id>] [--json]
+node target-sdk-check.mjs --list-form-factors
+```
+
+Exits `0` when the highest declared `targetSdkVersion` meets the
+existing-app-update floor for the chosen form factor, `1` otherwise --
+usable as a CI gate the same way as `check.mjs` above.
+
+**Evidence, not a determination.** The deadline table in
+`target-sdk-scan.mjs` is reproduced from
+[Google's own target API level requirement page](https://developer.android.com/google/play/requirements/target-sdk)
+as fetched 2026-09-23. Google revises these numbers and dates on its own
+schedule, and an extension requested in Play Console is not visible to this
+tool -- verify against the live page and your own Play Console before
+relying on this for a release decision. A variable or version-catalog
+reference (`targetSdk = libs.versions.targetSdk.get()`) is reported as
+unresolved rather than guessed, the same principle as the Data safety
+checker's Gradle-alias caveat above.
+
 ## Privacy
 
 Everything runs locally. The browser tool reads files with the File API and
@@ -108,4 +158,7 @@ cd ventures/android-data-safety-check && node --test
 Assertions across the detection/parsing logic (`scan.test.mjs`), the CLI's
 file-walking and reporting (`check.test.mjs`), the usage counter
 (`usage.test.mjs`), and the page's structure and disclaimers
-(`page.test.mjs`).
+(`page.test.mjs`) for the Data safety checker; and the target API level
+detection logic (`target-sdk-scan.test.mjs`), its CLI
+(`target-sdk-check.test.mjs`), and its page (`target-api-level.test.mjs`)
+for the second tool.
