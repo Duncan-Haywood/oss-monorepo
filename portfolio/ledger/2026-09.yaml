@@ -37928,6 +37928,58 @@ entries:
         branch's files, none of which touch `platform/pages/build.mjs` or
         the Pages workflow.
     mrr_end: 0
+  - venture: foundation-repair-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-a-flat-price-per-pier.html, against the flat per-pier rate the
+        venture's own VENTURE.yaml hypothesis already names as the generic
+        rule of thumb contractors are shopped on (surface-budget.mjs
+        confirmed 0/1 generic-method pages used; the existing
+        vs-jobber.html is a named-product page and unbudgeted). Worked
+        example built from calc.mjs's own shipped index.html defaults ($42
+        hourly wage, 34% burden, $420/pier, $18/extra ft, $95/interior
+        bracket, $185/strap, $850 engineering fee, $650 plumbing allowance,
+        $285 travel, 16% overhead, 28% margin): an 8-pier exterior job at 12
+        ft depth (29.9 crew-hours, $9,488.87, $1,186.11/pier) vs. a 6-pier
+        interior job at 14 ft depth with an engineering stamp, four
+        carbon-fiber straps, and a plumbing reroute (50.9 crew-hours,
+        $14,802.53, $2,467.09/pier) -- fewer piers, more crew-hours.
+        Quoting the interior job at the exterior job's per-pier rate
+        ($7,116.66 for six piers) lands $3,541.17 below its own break-even
+        cost, and $7,685.87 short of this calculator's price at target
+        margin. Registered the page in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (names no vendor). `node --test` in
+        the venture: 118/118, including a test pinning every dollar figure
+        on the page directly against calc.mjs. Merged a sibling PR
+        (#5240, exterior-painting-bid-calculator's own comparison page) and
+        #5236/#5243 landing on main mid-session; resolved the generated
+        front-door mirror conflict per
+        platform/marketing/resolve-mirror-merge.sh (checked out the
+        generated .gz/json/txt files from either side, then regenerated
+        from the merged sources) and infra_state.yaml by keeping the later
+        publish reading. Full platform/marketing/platform/pages suite:
+        1281/1281 (re-run after the merge). `python3 -m pytest
+        gitops/tests -q`: 637 passed, 1 skipped, after installing
+        nginx-light and openssh-client via `apt-get update && apt-get
+        install` per CLAUDE.md's warning about the missing `apt-get
+        update`. `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests
+        -q`: 446 passed. All platform/ci unittest modules and
+        agent_review's test_review (21/21): clean. checklist_coverage.py,
+        check_no_payment_code.py, and sync_tree_counts.py: clean.
+        regen.mjs --verify: current after the merge. Confirmed
+        ci_starvation.py against the latest portfolio-validate.yml run
+        (runner_id 0, 4s, no steps) before relying on this local
+        verification rather than CI's red badge. Also refreshed
+        infra_state.yaml's github-pages-branch-route reading at session
+        start: the published gh-pages snapshot was stale (built from
+        192e41d8 while main was at 5cf4506d), republished with
+        publish-branch.sh and confirmed current with pages_state.py
+        --require-current.
+    mrr_end: 0
   - venture: fireplace-insert-bid-calculator
     agent_spend_usd: null
     human_hours: 0
