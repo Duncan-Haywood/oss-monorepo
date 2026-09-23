@@ -35399,3 +35399,57 @@ entries:
         71/71 run steps passed, sibling-links-ci.yml 2/2 -- the remaining
         selected workflows need a runner or deploy credentials this
         sandbox does not have and were not run.
+  - venture: parcel-dim-weight-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled generic-brief session: session_gate.py returned PROCEED
+        (meta-work share 0%, build-now pipeline empty), no open PRs, and the
+        decision queue's 17 rows are all owner-only credential/legal asks.
+        node platform/pages/surface-budget.mjs showed exactly one venture
+        in the whole catalogue at 0 of its 1 budgeted generic-method
+        comparison pages: this one. Added
+        vs-guessing-the-box-size.html: this calculator vs. eyeballing
+        which carton triggers the dimensional-weight penalty -- a habit
+        every shipper already has, not a product this could be mistaken
+        for. It names the three things a guess cannot produce that the
+        engine already computes: the exact pounds of air billed, the
+        break-even cube/height at your own divisor, and the girth/longest
+        side surcharge flags a "looks fine" box gives no warning about.
+        Linked one hop from index.html so it is not a crawlable orphan, and
+        added it to the venture's own sitemap.xml per
+        venture-sitemap-coverage.test.mjs.
+      - >-
+        Added the page to platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (generic method, no carrier or vendor
+        named) after surface-budget.test.mjs's classification confirmed it
+        reads as generic-method rather than named-product. Caught and fixed
+        one authoring mistake before it reached CI: the FAQPage JSON-LD
+        quoted three answers with straight single quotes while the visible
+        prose used double quotes, which faq-visible.test.mjs treats as a
+        genuine divergence between what a crawler parses and what a
+        visitor reads -- re-escaped the JSON-LD to match verbatim. Ran
+        node platform/marketing/regen.mjs after --verify caught the newly
+        stale front-door mirror (7 artifacts, including the new page's own
+        mirrored copy missing entirely), then --verify again clean.
+      - >-
+        CI is starved: every portfolio-validate.yml attempt in the last
+        several hours (checked runs 35673997485, 35673990100, 35673637158)
+        completed in 3-5s; ci_starvation.py on 35673997485 confirms
+        runner_id: 0, no runner ever assigned. Verified locally per
+        CLAUDE.md's starvation checklist: venture's own suite 52/52;
+        node --test platform/marketing/*.test.mjs 267/267; node --test
+        platform/pages/*.test.mjs 1010/1010 (an initial concurrent run
+        showed 1 failure from the faq-visible defect above, caught before
+        the fix landed; the clean isolated re-run after fixing came back
+        1010/1010); platform/proposal 101/101; platform/privacy +
+        platform/webcheck 142/142; gitops/tests 637 passed / 1 skipped
+        (environmental, after `apt-get update &&` then installing
+        nginx-light and openssh-client); portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests 446
+        passed; all platform/ci unittest modules clean; platform/ci/
+        agent_review test_review 21/21; checklist_coverage.py and
+        sync_tree_counts.py --check both clean (322 mirrored tools, 304
+        opt-out switches, no drift); regen.mjs --verify current after the
+        regen above.
