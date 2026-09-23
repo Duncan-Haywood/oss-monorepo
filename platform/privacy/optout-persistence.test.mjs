@@ -413,21 +413,32 @@ const RELATIVE_SELF = relative(
 // (`ventures/personal-trainer-package-pricing-calculator/usage.mjs`) and no
 // deletions.
 //
-// 307 -> 308: `actions-secrets-inherit-check` graduated, adding one
-// `usage.mjs` following the same opt-out pattern as its `actions-*`
-// siblings (`usageOptedOut`/`setUsageOptOut` gating `record`/`readUsage`
-// the same way `actions-cache-poisoning-check`'s does). Verified the way
+// 307 -> 308: `supabase-rls-check` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its siblings. Verified the way
 // this file's error message prescribes: exactly one added `usage.mjs`
-// (`ventures/actions-secrets-inherit-check/usage.mjs`) and no deletions.
+// (`ventures/supabase-rls-check/usage.mjs`) and no deletions.
 //
-// 308 -> 309: `voiceover-project-rate-calculator` graduated, adding one
-// `usage.mjs` following the same opt-out pattern as its siblings
-// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
-// `locksmith-bid-calculator`'s does). Verified the way this file's error
-// message prescribes: exactly one added `usage.mjs`
-// (`ventures/voiceover-project-rate-calculator/usage.mjs`) and no
-// deletions.
-const SWITCHES_IN_THE_CATALOGUE = 309;
+// 308 -> 309: `actions-secrets-inherit-check` graduated concurrently,
+// adding one `usage.mjs` following the same opt-out pattern as its
+// `actions-*` siblings (`usageOptedOut`/`setUsageOptOut` gating
+// `record`/`readUsage` the same way `actions-cache-poisoning-check`'s
+// does). Verified the way this file's error message prescribes: exactly
+// one added `usage.mjs` (`ventures/actions-secrets-inherit-check/usage.mjs`)
+// and no deletions. Both branches only ever knew their own predecessor's
+// number (307) until this merge -- the same ordinary collision shape
+// recorded throughout this list.
+//
+// 309 -> 310: `voiceover-project-rate-calculator` graduated concurrently
+// with the pair above, adding one `usage.mjs` following the same opt-out
+// pattern as its siblings (`usageAllowed`/`toggleUsage` gating
+// `recordEvent` the same way `locksmith-bid-calculator`'s does). This
+// branch only ever knew its own predecessor's number (308, before the
+// supabase-rls-check/actions-secrets-inherit-check pair landed) until this
+// merge -- the same collision shape as the entry immediately above.
+// Verified the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
+// no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 310;
 
 let counter = 0;
 function fixture(source) {

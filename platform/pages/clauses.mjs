@@ -860,6 +860,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (Etsy's own Profit Calculator) and carries its own "not affiliated"
   // clause.
   'etsy-profit-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $4/sq ft encapsulation special" -- a generic
+  // pricing habit every waterproofing contractor already meets, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor at all -- distinct from this venture's own vs-quoteiq.html,
+  // which does name a product and carries its own "not affiliated"
+  // clause. Same reasoning as the other vs-a-flat-*-special pages above.
+  'crawl-space-encapsulation-bid-calculator/vs-a-flat-4-dollar-sq-ft-special.html',
+  // Compares against "a flat $3,999 house special" -- a generic postcard
+  // pricing pattern painting companies of many different names advertise,
+  // not one specific company or product this could be mistaken for. The
+  // page names no painting company at all. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // automatic-driveway-gate-bid-calculator's vs-a-flat-4500-special.html).
+  'exterior-painting-bid-calculator/vs-a-flat-3999-house-special.html',
   // Compares against "the app's own earnings screen" -- a feature every
   // gig-delivery/rideshare platform has (DoorDash, Uber, Instacart, Lyft,
   // and others alike), not one specific company or product this could be
@@ -879,6 +893,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-buildxact.html, which does name a
   // product and carries its own "not affiliated" clause.
   'drywall-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat $2,495 furnace special" -- a generic postcard
+  // pricing pattern HVAC companies of many different names advertise, not
+  // one specific company or product this could be mistaken for. The page
+  // names no HVAC company at all -- distinct from this venture's own
+  // vs-servicetitan.html, which does name a product and carries its own
+  // "not affiliated" clause. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'furnace-bid-calculator/vs-a-flat-2495-furnace-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
