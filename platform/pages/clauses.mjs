@@ -1008,6 +1008,21 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
   'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
+  // Compares against "a spreadsheet" -- a generic method most filers who pay
+  // quarterly estimated tax more than once already build for themselves, not
+  // a company or product this could be mistaken for. The page names no
+  // spreadsheet vendor at all, same reasoning as osha-trir-dart-calculator's
+  // own vs-spreadsheet.html above -- distinct from this venture's own
+  // vs-keeper.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
+  // Compares against "checking the URL by hand in a browser" -- a generic
+  // manual habit any developer already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as this file's own
+  // source-map-leak-check/vs-checking-devtools-by-hand.html and
+  // branch-protection-drift-check/vs-manually-checking-settings.html entries
+  // above.
+  'git-exposure-check/vs-checking-the-url-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

@@ -38649,6 +38649,43 @@ entries:
         21/21 pass (unaffected by this change; run per the starvation
         checklist). YAML-validated the workflow edit with `yaml.safe_load`.
     mrr_end: 0
+  - venture: asphalt-driveway-pave-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added should-i-only-charge-material-cost-for-paving-fabric.html, a
+        new guide page (unbudgeted page type; the venture was already at
+        its 1-per-venture generic-method and named-product comparison
+        budgets per surface-budget.mjs). Uses the calculator's own
+        fabric-over-cracks preset (JOB_PRESETS[3], a 2,150 sq ft paved
+        mill-and-overlay) to show that fabric's $0.55/sq ft sticker price
+        ($1,182.50 material on this job) is not what fabric should add to
+        the price -- at the calculator's own default 16% overhead / 28%
+        margin, the correct price delta is $1,905.14, so charging only the
+        material line leaves $722.64 of overhead and margin uncollected.
+        All dollar figures are pinned to calc.mjs's own calculateBid output
+        via a new test file, not hand-typed, so a future rate change cannot
+        leave the page quietly wrong. Wired into index.html's related-links
+        footer, the SEO walkthrough page, README.md, and sitemap.xml; not
+        orphaned per page.test.mjs's linking conventions.
+        Caught and fixed one real FAQ JSON-LD/visible-copy divergence
+        (em dash in the visible prose vs. a literal `--` in three JSON-LD
+        answers) via platform/pages/faq-visible.test.mjs before this
+        shipped -- the same class of defect CLAUDE.md already records
+        costing a PR a round trip.
+        Ran node --test in the venture: 145/145. platform/marketing +
+        platform/pages (1281 assertions): 1281/1281 after regenerating the
+        front-door mirror (node platform/marketing/regen.mjs --verify:
+        confirmed stale beforehand, clean after). checklist_coverage.py,
+        surface-budget.mjs --check, clauses.mjs asphalt-driveway-pave-bid-calculator:
+        all clean. python3 -m pytest gitops/tests -q: 613 passed, 25
+        skipped (documented benign skip, nginx/ssh not installed this
+        session). All 15 platform/ci unittest modules and agent_review:
+        clean. Confirmed the CI signature is starvation, not a real
+        failure, via ci_starvation.py --run 35908061034 (runner_id: 0,
+        3s, no steps) before merging.
+    mrr_end: 0
   - venture: graphql-introspection-exposure-check
     agent_spend_usd: null
     human_hours: 0
