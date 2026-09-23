@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 127 files, 556759 bytes
 #   portfolio-front-tools-13: 126 files, 556518 bytes
 #   portfolio-front-tools-14: 134 files, 550213 bytes
-#   portfolio-front-tools-15: 99 files, 544337 bytes
+#   portfolio-front-tools-15: 100 files, 547879 bytes
 #   portfolio-front-tools-16: 118 files, 551207 bytes
 #   portfolio-front-tools-17: 123 files, 550342 bytes
 #   portfolio-front-tools-18: 96 files, 484279 bytes
@@ -2150,6 +2150,7 @@ configMapGenerator:
       - sign-language-interpreter-rate-calculator__index.html.gz=sign-language-interpreter-rate-calculator__index.html.gz
       - sign-language-interpreter-rate-calculator__usage.mjs.gz=sign-language-interpreter-rate-calculator__usage.mjs.gz
       - sign-language-interpreter-rate-calculator__vs-a-flat-fee-per-assignment.html.gz=sign-language-interpreter-rate-calculator__vs-a-flat-fee-per-assignment.html.gz
+      - sign-language-interpreter-rate-calculator__vs-a-spreadsheet.html.gz=sign-language-interpreter-rate-calculator__vs-a-spreadsheet.html.gz
       - sitemap-lastmod-freshness-check__check.mjs.gz=sitemap-lastmod-freshness-check__check.mjs.gz
       - sitemap-lastmod-freshness-check__engine.mjs.gz=sitemap-lastmod-freshness-check__engine.mjs.gz
       - sitemap-lastmod-freshness-check__fetch-url.mjs.gz=sitemap-lastmod-freshness-check__fetch-url.mjs.gz

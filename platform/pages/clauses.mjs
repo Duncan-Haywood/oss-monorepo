@@ -1081,6 +1081,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every freelance
+  // interpreter already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html',
   // Compares against "a spreadsheet" -- a generic method every rental
   // operator already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-booqable.html and
