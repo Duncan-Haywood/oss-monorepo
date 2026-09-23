@@ -65,6 +65,9 @@ it is under water. **Copy bid summary** pastes a plain-text draft.
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
 
+See also: [this calculator vs. a flat rate per square foot](vs-a-flat-rate-per-square-foot.html)
+and [this calculator vs. CoatingOS](vs-coatingos.html).
+
 ## Privacy
 
 Nothing is uploaded. Every figure stays in the browser. The only thing stored
