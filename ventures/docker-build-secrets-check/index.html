@@ -148,6 +148,14 @@ CMD ["node", "dist/server.js"]
       return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     }
 
+    // A lone file's Remove button is a silent no-op by design (the last
+    // block must stay) -- disabled here so a visitor sees why, instead of
+    // clicking it and seeing nothing happen.
+    function syncRemoveButtons() {
+      const disable = els.files.children.length <= 1;
+      els.files.querySelectorAll(".remove-file").forEach((btn) => { btn.disabled = disable; });
+    }
+
     function fileBlock(name = "", text = "") {
       const wrap = document.createElement("div");
       wrap.className = "file-block";
@@ -160,13 +168,17 @@ CMD ["node", "dist/server.js"]
       `;
       wrap.querySelector(".ftext").value = text;
       wrap.querySelector(".remove-file").addEventListener("click", () => {
-        if (els.files.children.length > 1) wrap.remove();
+        if (els.files.children.length > 1) {
+          wrap.remove();
+          syncRemoveButtons();
+        }
       });
       return wrap;
     }
 
     function addFile(name = "", text = "") {
       els.files.appendChild(fileBlock(name, text));
+      syncRemoveButtons();
     }
 
     function collectFiles() {
