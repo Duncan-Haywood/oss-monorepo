@@ -80,6 +80,15 @@
     <summary type="text">Free, in-browser tool: paste your Supabase project URL and anon key, and it sends a real read-only request to every table it can see, naming which ones return real rows to an unauthenticated request -- the CVE-2025-48757 missing-RLS exposure class. Nothing uploaded to us.</summary>
   </entry>
   <entry>
+    <title>Turo Host Payout Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/turo-host-payout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/turo-host-payout-calculator</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Turo host payout calculator. Turo&#39;s host share now depends on your earnings plan (Peace of Mind, Balanced, More Earnings) AND how far ahead the guest books — this tool models the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate. No sign-up, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Voice-Over Project Rate Calculator — Free, No Sign-Up</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/voiceover-project-rate-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/voiceover-project-rate-calculator</id>
