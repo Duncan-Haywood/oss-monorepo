@@ -15,12 +15,12 @@
     {
       "@type": "Question",
       "name": "What does running dig CNAME by hand actually show you?",
-      "acceptedAnswer": { "@type": "Answer", "text": "dig CNAME blog.example.com shows you the CNAME target -- a real, fast way to see where a hostname points. It does not tell you whether that target is one of the roughly two dozen hosting providers known to let an unclaimed name be claimed by anyone, and it does not tell you whether the target is actually unclaimed right now versus in active, legitimate use." }
+      "acceptedAnswer": { "@type": "Answer", "text": "dig CNAME blog.example.com shows you the CNAME target — a real, fast way to see where a hostname points. It does not tell you whether that target is one of the roughly two dozen hosting providers known to let an unclaimed name be claimed by anyone, and it does not tell you whether the target is actually unclaimed right now versus in active, legitimate use." }
     },
     {
       "@type": "Question",
       "name": "Where does the by-hand check fall short?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a quick dig lookup misses: (1) recognising which of dozens of possible CNAME target patterns actually belongs to a takeover-prone provider -- a hostname like old-app.herokuapp.com means nothing to dig, which just prints the string. (2) Following a multi-hop CNAME chain to its real end rather than stopping at the first hop. (3) Confirming the target is genuinely unclaimed with a live HTTP request checked against that specific provider's own 'nothing is claimed at this name' page -- a CNAME pointing at a provider is not proof of anything on its own; plenty of CNAMEs to Heroku or S3 are perfectly legitimate and in active use." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Three ways this scripted check catches and a quick dig lookup misses: (1) recognising which of dozens of possible CNAME target patterns actually belongs to a takeover-prone provider — a hostname like old-app.herokuapp.com means nothing to dig, which just prints the string. (2) Following a multi-hop CNAME chain to its real end rather than stopping at the first hop. (3) Confirming the target is genuinely unclaimed with a live HTTP request checked against that specific provider's own \"nothing is claimed at this name\" page — a CNAME pointing at a provider is not proof of anything on its own; plenty of CNAMEs to Heroku or S3 are perfectly legitimate and in active use." }
     },
     {
       "@type": "Question",

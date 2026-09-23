@@ -1,6 +1,6 @@
 # Subdomain takeover checker
 
-Scored 2026-09-23. Composite 6.0 · floor 1 (ai_leverage). Same shape as this
+Scored 2026-09-23. Composite 6.375 · floor 1 (ai_leverage). Same shape as this
 portfolio's other deterministic checker ventures: whether a finding is
 confirmed is decided by matching a live HTTP response against a fixed
 provider fingerprint table, not a model in the loop — which is what keeps the
@@ -88,10 +88,17 @@ recorded honestly in each entry's `note` field rather than overclaimed.
 | Liability containment | 7 | Every request is a plain DNS lookup or GET, never a claim/write attempt at any provider; a finding is only ever "confirmed" against a live fingerprint match, never escalated from DNS alone, which is the structural mitigation against the false-positive risk this subject matter carries |
 | Ethical robustness | 8 | Read-only against public DNS and a hostname's own HTTP response, no crawling, no enumeration of a domain's other subdomains, gets more useful to more site owners as it is used more, and a clean report is stated as evidence about the checked hostnames only, never a full DNS-zone audit |
 
-Composite (six scoring dimensions, matching `venture-scores.yaml`'s schema):
-(1+10+6+10+2+7)/6 = **6.0**. Floor: **1** (`ai_leverage`). Both gates
-(`liability_containment`, `ethical_robustness`) pass well above the floor of
-5.
+Composite: (1+10+6+10+2+7+7+8)/8 = **6.375**. Floor: **1** (`ai_leverage`).
+Both gates (`liability_containment`, `ethical_robustness`) pass well above
+the floor of 5.
+
+(`venture-scores.yaml`'s own ongoing-tracking schema uses a six-dimension
+composite with the two gates recorded separately as pass/fail rather than
+folded into the mean -- see that file's entry for this venture, composite
+6.0 there. The two files score different things and are not expected to
+show the same number; this write-up's 6.375 is the pipeline-intake figure
+`validate_doc_consistency.py` checks against `candidates.yaml` and
+`README.md`.)
 
 ## Mitigation for the floor and near-floor dimensions
 

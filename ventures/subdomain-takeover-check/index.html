@@ -38,27 +38,27 @@
     {
       "@type": "Question",
       "name": "What is a subdomain takeover?",
-      "acceptedAnswer": { "@type": "Answer", "text": "A DNS CNAME record on your domain still points at a third-party service (an S3 bucket, a Heroku app, a GitHub Pages site), but whatever used to be configured there has since been deleted or was never created. Many of those services let anyone claim an unclaimed name on their platform -- and once they do, they can serve their own content under your subdomain, complete with your domain's own cookies and any trust your CSP or CORS policy places in it." }
+      "acceptedAnswer": { "@type": "Answer", "text": "A DNS CNAME record on your domain still points at a third-party service (an S3 bucket, a Heroku app, a GitHub Pages site), but whatever used to be configured there has since been deleted or was never created. Many of those services let anyone claim an unclaimed name on their platform — and once they do, they can serve their own content under your subdomain, complete with your domain's own cookies and any trust your CSP or CORS policy places in it." }
     },
     {
       "@type": "Question",
       "name": "How does this tool confirm a takeover risk rather than just guessing from DNS?",
-      "acceptedAnswer": { "@type": "Answer", "text": "It follows the hostname's CNAME chain over real DNS first. If the chain ends at a hostname matching one of 25 known takeover-prone providers, it sends one live GET request to your hostname and checks the response against that specific provider's own 'nothing is claimed at this name' page text. Only a match on both -- the CNAME target AND the live response -- is reported as confirmed; a CNAME match with no confirming response is reported separately, as worth a manual look rather than proven." }
+      "acceptedAnswer": { "@type": "Answer", "text": "It follows the hostname's CNAME chain over real DNS first. If the chain ends at a hostname matching one of 25 known takeover-prone providers, it sends one live GET request to your hostname and checks the response against that specific provider's own \"nothing is claimed at this name\" page text. Only a match on both — the CNAME target and the live response — is reported as confirmed; a CNAME match with no confirming response is reported separately, as worth a manual look rather than proven." }
     },
     {
       "@type": "Question",
       "name": "Does this tool claim the vulnerable name for me, or otherwise fix it?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. It only detects and reports. Claiming the resource yourself (creating the S3 bucket, the Heroku app, the GitHub Pages repo under the exact name your CNAME expects) is the actual fix in most cases, alongside removing the DNS record if the subdomain is no longer needed at all -- see the guide page for the walkthrough." }
+      "acceptedAnswer": { "@type": "Answer", "text": "No. It only detects and reports. Claiming the resource yourself (creating the S3 bucket, the Heroku app, the GitHub Pages repo under the exact name your CNAME expects) is the actual fix in most cases, alongside removing the DNS record if the subdomain is no longer needed at all — see the guide page for the walkthrough." }
     },
     {
       "@type": "Question",
       "name": "Is it safe to point this at a hostname?",
-      "acceptedAnswer": { "@type": "Answer", "text": "This tool sends one DNS lookup and, only for a provider match, one ordinary GET request to the hostname you name -- the same requests your own browser already makes when you visit it. It never attempts to claim, register, or write anything at any provider. It does not upload the hostname or anything it finds to our servers when run in the browser; every request goes straight from your browser to the DNS resolver and the target. Still, only run this against a hostname you own or are authorised to test." }
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool sends one DNS lookup and, only for a provider match, one ordinary GET request to the hostname you name — the same requests your own browser already makes when you visit it. It never attempts to claim, register, or write anything at any provider. It does not upload the hostname or anything it finds to our servers when run in the browser; every request goes straight from your browser to the DNS resolver and the target. Still, only run this against a hostname you own or are authorised to test." }
     },
     {
       "@type": "Question",
       "name": "Does a clean report mean my whole domain has no dangling CNAMEs?",
-      "acceptedAnswer": { "@type": "Answer", "text": "It means the hostnames you checked in this run showed no CNAME risk this tool's 25-provider table could detect. This tool only checks the exact hostnames you give it -- it does not enumerate your DNS zone or guess at other subdomains -- and it only recognises the providers in its table. See README.md's coverage note for what that does and does not include." }
+      "acceptedAnswer": { "@type": "Answer", "text": "It means the hostnames you checked in this run showed no CNAME risk this tool's 25-provider table could detect. This tool only checks the exact hostnames you give it — it does not enumerate your DNS zone or guess at other subdomains — and it only recognises the providers in its table. See README.md's coverage note for what that does and does not include." }
     }
   ]
 }
