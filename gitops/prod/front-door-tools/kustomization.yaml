@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 139 files, 556687 bytes
 #   portfolio-front-tools-5: 127 files, 551428 bytes
 #   portfolio-front-tools-6: 130 files, 556816 bytes
-#   portfolio-front-tools-7: 122 files, 547530 bytes
+#   portfolio-front-tools-7: 123 files, 552284 bytes
 #   portfolio-front-tools-8: 138 files, 554149 bytes
 #   portfolio-front-tools-9: 116 files, 555995 bytes
 #   portfolio-front-tools-10: 115 files, 555808 bytes
@@ -1055,6 +1055,7 @@ configMapGenerator:
       - deck-staining-bid-calculator__index.html.gz=deck-staining-bid-calculator__index.html.gz
       - deck-staining-bid-calculator__share.mjs.gz=deck-staining-bid-calculator__share.mjs.gz
       - deck-staining-bid-calculator__usage.mjs.gz=deck-staining-bid-calculator__usage.mjs.gz
+      - deck-staining-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=deck-staining-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - deck-staining-bid-calculator__vs-joist.html.gz=deck-staining-bid-calculator__vs-joist.html.gz
       - delivery-app-margin-calculator__calc.mjs.gz=delivery-app-margin-calculator__calc.mjs.gz
       - delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz=delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz
