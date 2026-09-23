@@ -825,6 +825,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own "not affiliated" clause. Same reasoning as the other vs-doing-it-by-
   // hand / vs-spreadsheet pages above.
   'appointment-deposit-calculator/vs-doing-it-by-hand.html',
+  // Compares against "pricing tuition by hand or in a spreadsheet" -- the
+  // generic method every center director already has, not a company or
+  // product this could be mistaken for. The page names no spreadsheet
+  // application or childcare management platform at all -- distinct from
+  // this venture's own vs-procare.html, which does name a product and
+  // carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-doing-it-by-hand / vs-spreadsheet pages above.
+  'childcare-tuition-calculator/vs-doing-it-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
