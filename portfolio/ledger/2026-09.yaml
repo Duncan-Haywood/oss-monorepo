@@ -35613,3 +35613,77 @@ entries:
         workflows (agent cross-review, hetzner-gitops-ci, deploy/publish
         steps) need a runner or deploy credentials this sandbox does not
         have and were not run.
+  - venture: no-tax-on-tips-overtime-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        DIRECTION.md's priority order ranks a real correctness defect on an
+        already-live product above building a new venture when the pipeline
+        has no build-now candidate and usage.yaml has no visitor signal to
+        act on (both true this session). WebSearch turned up a dated,
+        specific one: Forbes and Spidell both reported 2026-03 that the
+        IRS's own Form 1040/Schedule 1-A instructions for the OBBBA
+        qualified-tips deduction were revised a month into the 2025 filing
+        season, after an earlier Schedule 1-A draft read as capping the
+        self-employed deduction at raw net profit from the tipped trade or
+        business -- the exact simplification this venture's own calc.mjs
+        already shipped. The corrected rule caps the deduction at net
+        profit LESS deductions allocable to that business: the deductible
+        part of self-employment tax, plus any self-employed retirement-plan
+        or health-insurance deduction claimed against it (corroborated
+        across three independent web searches synthesizing IRS guidance,
+        consistent on all three line items each time).
+      - >-
+        Added seTaxDeduction/seHealthInsuranceDeduction/seRetirementContribution
+        as three new optional inputs to computeQualifiedTipDeduction and
+        computeCombinedEstimate in calc.mjs -- each subtracted from entered
+        net profit before the net-profit cap is applied, with a finding
+        explaining the Schedule 1-A reduction when any are nonzero. Kept
+        the tool's own "applies published rules to numbers you enter"
+        framing: it takes the three allocable amounts as inputs (each
+        already computed elsewhere on the filer's own return) rather than
+        computing self-employment tax itself, so it does not introduce a
+        second, independent SE-tax calculation that could drift from the
+        real one. Added the three fields to index.html (shown alongside
+        the existing self-employed net-profit field, wired into the same
+        computeCombinedEstimate call), 4 new calc.test.mjs cases (the
+        worked $20,000/$1,413/$2,000/$1,000 example, an over-reduction
+        floored at $0 not negative, and a no-allocable-deductions
+        regression check), and documented the correction in calc.mjs's own
+        header comment, README.md, and this VENTURE.yaml.
+      - >-
+        CI is starved (ci_starvation.py on run 35815960814: runner_id 0,
+        3s, no steps). Verified locally per CLAUDE.md's starvation
+        checklist, after apt-get update && apt-get install -y
+        --no-install-recommends python3-pytest nginx-light openssh-client
+        (all three were missing; guard_state.py --require-runnable named
+        the pytest gap, CLAUDE.md's own checklist named the other two):
+        venture's own suite (calc/page/usage) 41/41 with the new tests
+        included; regen.mjs --verify caught the newly-stale front-door
+        mirror (this venture's calc.mjs/index.html are mirrored) and
+        --verify again clean after running regen.mjs; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1277/1277
+        (re-run after the regen, since the mirror files it checks had
+        changed); browser_checks.py --only
+        no-tax-on-tips-overtime-calculator 7/8 (highlight skipped --
+        this venture prints no rejection-highlight promise sentence,
+        unrelated to this change), 0 WCAG A/AA violations, 0 console
+        errors; gitops/tests 637 passed / 1 skipped (environmental, only
+        meaningful on a GitHub-hosted runner); checklist_coverage.py and
+        sync_tree_counts.py --check both clean (322 mirrored tools, 304
+        opt-out switches, no drift -- this change added no new venture or
+        comparison page); score_ventures.py --check (330/330) and
+        router/validate.py (329/329) both clean; check_no_payment_code.py
+        and check_ledger_only.py both clean; portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests 446 passed; all platform/ci
+        unittest modules and agent_review's test_review clean.
+        Also ran run_workflow_locally.py --tree (the whole-tree "is main
+        green" sweep) in the background while finishing this diff's own
+        edits and ledger entry -- it came back "UNSTABLE CHECKOUT: tracked
+        files changed while the sweep ran", its own self-check for exactly
+        this race, so that result is not a reading of anything and is not
+        reported as a finding about main; the diff-specific checks above
+        were run individually, not concurrently with each other or with
+        that sweep, so they stand.

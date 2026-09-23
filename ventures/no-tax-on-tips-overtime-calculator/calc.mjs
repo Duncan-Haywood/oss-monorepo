@@ -31,6 +31,18 @@
 // Married filing separately does not qualify for either deduction.
 // Neither deduction reduces AGI, self-employment tax, FICA/payroll tax, or
 // state tax -- see README.
+//
+// Self-employed net-profit ceiling (2026-03 IRS correction): Schedule 1-A's
+// instructions limit the tip deduction to net profit from the trade or
+// business LESS deductions allocable to it -- the deductible part of
+// self-employment tax, plus any self-employed retirement-plan or
+// health-insurance deduction claimed against that business -- not raw
+// Schedule C net profit. An earlier Schedule 1-A draft read as "net profit"
+// alone; Forbes and Spidell both reported filers and some software
+// overstating the deduction under that earlier reading. This module takes
+// the three allocable amounts as separate optional inputs (each already
+// computed elsewhere on the same return) rather than deriving
+// self-employment tax itself, to avoid restating that computation here.
 
 export const TIP_DEDUCTION_CAP = 25000;
 export const OVERTIME_CAP_SINGLE = 12500;
@@ -77,6 +89,9 @@ export function computeQualifiedTipDeduction({
   magi,
   isSelfEmployed = false,
   netProfitFromTippedWork = null,
+  seTaxDeduction = null,
+  seHealthInsuranceDeduction = null,
+  seRetirementContribution = null,
 } = {}) {
   const findings = [];
   const tips = num(qualifiedTips);
@@ -109,14 +124,36 @@ export function computeQualifiedTipDeduction({
   let deduction = Math.min(tips, cap);
   let cappedByNetProfit = false;
   if (isSelfEmployed && netProfitFromTippedWork !== null && netProfitFromTippedWork !== '' && Number.isFinite(Number(netProfitFromTippedWork))) {
-    const netProfit = Math.max(0, Number(netProfitFromTippedWork));
+    let netProfit = Math.max(0, Number(netProfitFromTippedWork));
+
+    // Schedule 1-A's own instructions limit the deduction to gross income
+    // from the trade or business LESS other deductions allocable to it --
+    // not raw Schedule C net profit. The IRS clarified this a full month
+    // into the 2025 filing season (2026-03), after an earlier Schedule 1-A
+    // draft read as "net profit" alone: allocable deductions include the
+    // deductible part of self-employment tax and, where claimed against
+    // this business, the self-employed retirement-plan and health-insurance
+    // deductions. All three are entered elsewhere on the same return, so
+    // this only subtracts figures the filer already has -- it does not
+    // compute self-employment tax itself.
+    const allocable = num(seTaxDeduction) + num(seHealthInsuranceDeduction) + num(seRetirementContribution);
+    if (allocable > 0) {
+      const reduced = Math.max(0, netProfit - allocable);
+      findings.push({
+        severity: 'medium',
+        title: 'Net-profit ceiling reduced by allocable deductions',
+        detail: `Schedule 1-A's instructions cap the deduction at net profit LESS deductions allocable to this business -- the deductible part of self-employment tax, plus any self-employed retirement-plan or health-insurance deduction claimed against it. ${money(netProfit)} of net profit minus ${money(allocable)} of allocable deductions leaves a ${money(reduced)} ceiling.`,
+      });
+      netProfit = reduced;
+    }
+
     if (netProfit < deduction) {
       cappedByNetProfit = true;
       deduction = netProfit;
       findings.push({
         severity: 'medium',
         title: 'Capped at net profit from the tipped trade or business',
-        detail: `For self-employment income, the deduction cannot exceed net profit from the tipped trade or business (${money(netProfit)} entered), even though qualified tips and the phased-out cap allow more.`,
+        detail: `For self-employment income, the deduction cannot exceed net profit from the tipped trade or business (${money(netProfit)}${allocable > 0 ? ' after allocable deductions' : ' entered'}), even though qualified tips and the phased-out cap allow more.`,
       });
     }
   }
@@ -213,11 +250,23 @@ export function computeCombinedEstimate({
   qualifiedTips,
   isSelfEmployed,
   netProfitFromTippedWork,
+  seTaxDeduction,
+  seHealthInsuranceDeduction,
+  seRetirementContribution,
   overtimePremium,
   marginalRatePercent,
   occupationEligible,
 } = {}) {
-  const tipResult = computeQualifiedTipDeduction({ qualifiedTips, filingStatus, magi, isSelfEmployed, netProfitFromTippedWork });
+  const tipResult = computeQualifiedTipDeduction({
+    qualifiedTips,
+    filingStatus,
+    magi,
+    isSelfEmployed,
+    netProfitFromTippedWork,
+    seTaxDeduction,
+    seHealthInsuranceDeduction,
+    seRetirementContribution,
+  });
   const otResult = computeQualifiedOvertimeDeduction({ overtimePremium, filingStatus, magi });
 
   const findings = [];
