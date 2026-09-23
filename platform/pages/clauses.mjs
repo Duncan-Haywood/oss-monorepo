@@ -1135,6 +1135,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // git-exposure-check's and firebase-rules-check's by-hand comparisons
   // above.
   'graphql-introspection-exposure-check/vs-crafting-the-query-by-hand.html',
+  // Compares against "a flat rate per acre" -- the per-acre mowing rate
+  // every lawn-care operator is shopped against, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-lmn.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
