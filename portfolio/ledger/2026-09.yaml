@@ -38209,6 +38209,43 @@ entries:
         (runner_id: 0) before merging; said so in the PR body naming what
         was verified locally.
     mrr_end: 0
+  - venture: flooring-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-a-flat-price-per-square-foot.html (surface-budget.mjs confirmed
+        0/1 generic-method pages used; the existing vs-rfms.html is a
+        named-product page and unbudgeted). Worked example built directly
+        from calc.mjs's own MATERIAL_PRESETS/TEAROUT_PRESETS and shipped
+        index.html cost defaults ($2.40/$0.35 material/underlayment, $28
+        hourly wage, 30% burden, $85 dump fee, $40 travel, 12% overhead,
+        25% target margin): 300 sq ft of empty-room straight-lay LVP with
+        no tear-out (3.8 crew-hours, $1,721.07, $5.74/sq ft) vs. the same
+        300 sq ft of porcelain tile over an existing ceramic tear-out with
+        13 stair treads, 6 transitions, two furniture-move rooms, leveling,
+        and baseboard (32.6 crew-hours, $4,415.64, $14.72/sq ft) -- identical
+        footage, roughly nine times the labor. Quoting the harder job at
+        the easy job's per-square-foot rate ($1,721.07 for the same 300 sq
+        ft) lands $1,590.67 below its own break-even cost, and $2,694.58
+        short of this calculator's price at target margin. Registered the
+        page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no
+        vendor), wired into index.html and sitemap.xml. Also refreshed the
+        stale published gh-pages snapshot at session start (built from
+        cf54f857, main was at d4ab694f) via publish-branch.sh, and recorded
+        the github-pages-branch-route reading via pages_state.py --record.
+        Verified: node --test in the venture 111/111 (the worked-example
+        test exercises calc.mjs's calculateBid directly against the same
+        MATERIAL_PRESETS/TEAROUT_PRESETS index.html uses, not hand-typed
+        cost inputs). Full platform/marketing + platform/pages suite:
+        1281/1281 after regen.mjs (which found the front-door mirror stale
+        for this change and regenerated it -- verified clean with
+        regen.mjs --verify afterward). python3 -m pytest gitops/tests -q:
+        613 passed, 25 skipped (nginx/ssh binaries not installed in this
+        session). platform/ci unittest suites (15 modules): all pass.
+        checklist_coverage.py and check_no_payment_code.py: clean.
+    mrr_end: 0
   - venture: source-map-leak-check
     agent_spend_usd: null
     human_hours: 0

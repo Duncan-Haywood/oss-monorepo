@@ -15337,6 +15337,58 @@ ventures:
       own or are authorised to test" caution. A response the tool cannot
       classify (network error, CORS block, unexpected status) is reported
       as an error, never folded into either "exposed" or "safe".
+  - slug: mercari-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI anywhere in the product. The value is a domain model --
+      Mercari's shipping-inclusive 10% current schedule versus the
+      legacy item-price-only 10% plus 2.9%+$0.50 processing schedule,
+      and the disclosure that the 3.6% Buyer Protection Fee is
+      buyer-paid and never touches seller payout -- that is arithmetic
+      on published constants, and adding inference would only make the
+      result less checkable against a seller's own payout statement.
+    basis: >-
+      Screened 2026-09-23, same rubric shape as poshmark-fee-calculator
+      and whatnot-seller-payout: single-marketplace fee arithmetic with
+      a non-obvious structural insight a flat-rate page misses --
+      Mercari's January 6, 2025 fee change moved buyer-paid shipping
+      inside the 10% fee base for the first time, which most sellers
+      and most existing fee-calculator pages still get wrong by
+      applying 10% to the item price alone. duplicate_check.py's top
+      score against the final description was 0.23 (against
+      whatnot-seller-payout and poshmark-fee-calculator, both a
+      different marketplace's own fee shape), well under the 0.45 flag
+      bar; where-to-sell-calculator lists Mercari only as a blank
+      "type in your own rate" custom channel with no modeled schedule.
+      Not a trade bid calculator. Defensibility 4 (below the sibling
+      marketplace calculators' typical 5): the current-vs-legacy
+      schedule comparison is a real, checkable insight, but the
+      underlying fee change is Mercari's own public announcement and a
+      competing calculator could model the same two schedules without
+      much originality. Distribution 6: r/Mercari and r/MercariSellers
+      are active named communities carrying live "did my fees go up or
+      down" threads since the January 2025 change, and "mercari fee
+      calculator" is a recurring search phrase, but no channel
+      measurement exists yet.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended list price or an instruction to edit a listing.
+      Mercari's schedule is a labelled published constant, cited to
+      Mercari's own Help Center articles, not a live fetch. Nothing the
+      user enters leaves the browser.
   - slug: voiceover-project-rate-calculator
     scores:
       ai_leverage: 1

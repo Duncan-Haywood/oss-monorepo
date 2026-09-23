@@ -2089,18 +2089,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # only ever knew its own predecessor's number (325) until this merge --
     # the same ordinary collision shape recorded throughout this list.
     #
-    # 327 since this merge: `actions-secrets-inherit-check` and
-    # `osha-trir-dart-calculator` graduated concurrently -- the former a
-    # browser-local and CLI checker for GitHub Actions `secrets: inherit`
-    # calls to an external reusable workflow or a fork-reachable job, the
-    # latter a browser-local calculator turning a company's own OSHA 300 log
-    # counts into its TRIR and DART rate against a target -- each with a
-    # static `index.html` from its first commit, same shape as the rest of
-    # this running count. All three branches (these two plus
-    # `supabase-rls-check`, below) only ever knew their own predecessor's
-    # number (325 or 326) until this merge -- the same ordinary collision
-    # shape recorded throughout this list, re-derived here by
-    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    # 326 since this merge: `actions-secrets-inherit-check` graduated
+    # concurrently -- a browser-local and CLI checker for GitHub Actions
+    # `secrets: inherit` calls to an external reusable workflow or a
+    # fork-reachable job, with a static `index.html` from its first commit,
+    # same shape as the rest of this running count. Both branches only ever
+    # knew their own predecessor's number (325) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    #
+    # 327 since this merge: `osha-trir-dart-calculator` graduated -- a
+    # browser-local calculator turning a company's own OSHA 300 log counts
+    # into its TRIR and DART rate against a target, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
     #
     # 328 since this merge: `supabase-rls-check` graduated concurrently -- a
     # browser + CLI checker reading a Supabase project's own PostgREST
@@ -2120,15 +2121,25 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `supabase-rls-check` in alongside it -- the same ordinary collision
     # shape recorded throughout this list.
     #
-    # 330 since this merge: `voiceover-project-rate-calculator` graduated
-    # concurrently -- a browser-local calculator pricing freelance voice-over
-    # project work (script-based, by usage/licensing term, and audiobook, per
-    # finished hour), with a static `index.html` from its first commit, same
-    # shape as the rest of this running count. This branch only ever knew its
-    # own predecessor's number (325, before the osha-trir-dart-calculator/
-    # supabase-rls-check pair landed) until this merge -- the same ordinary
-    # collision shape recorded throughout this list.
-    total = 330  # `infra/OWNER_CHECKLIST.md`'s own "N of the 330 tools" wording.
+    # 330 since this merge: `mercari-fee-calculator` graduated concurrently
+    # -- a browser-local calculator pricing a Mercari sale against the
+    # current (Jan 6, 2025) shipping-inclusive 10% fee schedule and the
+    # legacy item-price-only 10% + 2.9% + $0.50 schedule, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (327) until this merge -- the same ordinary collision shape
+    # recorded throughout this list.
+    #
+    # 331 since this merge: `voiceover-project-rate-calculator` graduated
+    # concurrently with both above -- a browser-local calculator pricing
+    # freelance voice-over project work (script-based, by usage/licensing
+    # term, and audiobook, per finished hour), with a static `index.html`
+    # from its first commit, same shape as the rest of this running count.
+    # This branch only ever knew its own predecessor's number (325, before
+    # the osha-trir-dart-calculator/supabase-rls-check pair landed) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    total = 331  # `infra/OWNER_CHECKLIST.md`'s own "N of the 331 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
