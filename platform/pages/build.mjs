@@ -37,16 +37,16 @@ import {
 
 import {
   ICONS,
-  OFFLINE_SIZE_MARKER,
-  OFFLINE_WIDGET_HTML,
   OFFLINE_WIDGET_SCRIPT,
   THEME_COLOR,
   injectOfflineSupport,
   offlineBundleSizeLabel,
+  offlineSizeMarker,
   renderIcon,
   renderKillSwitchWorker,
   renderManifest,
   renderOfflinePage,
+  renderOfflineWidgetHtml,
   renderServiceWorker,
   renderSocialCard,
 } from './offline.mjs';
@@ -1816,8 +1816,18 @@ const CATEGORY_RULES = [
     // it past `build.test.mjs`'s bound the same way `git-exposure-check`
     // would have on its own. It cross-links `git-exposure-check` as Related
     // (same family, a different static-file exposure class).
+    //
+    // `subdomain-takeover-check` joined 2026-09-23: the same "read what's
+    // actually there, name the exact evidence" shape as `git-exposure-check`
+    // and `dotenv-exposure-check` immediately above -- a real DNS lookup
+    // plus one real GET request, the response classified against a
+    // provider's own fingerprint rather than escalated from the DNS match
+    // alone. Its slug does not start with a keyword this rule already
+    // recognised, so it landed in the catch-all on its first commit and
+    // pushed it past `build.test.mjs`'s bound the same way its two
+    // predecessors above did.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check)/.test(
         slug,
       ),
   },
@@ -3673,6 +3683,30 @@ export function groupByCategory(surfaces) {
     .filter((group) => group.items.length > 0);
 }
 
+/** The bucket a tool's offline download falls into: its sub-group where its
+ *  category has `SUBCATEGORY_RULES` (only `trades` does, at 131 tools and
+ *  growing), its category otherwise. Used by both the hub's "save this
+ *  category" picker and `collectOfflineBundle`, so the two can never name
+ *  different buckets -- a category on its own is the coarsest partition that
+ *  scales with the catalog rather than a fixed ceiling (see
+ *  `collectOfflineBundle`), and `trades` alone had already outgrown that once
+ *  the fleet's dominant shape (bid calculators) concentrated there. */
+export function offlineBucketFor(slug) {
+  return subcategoryFor(slug) ?? categoryFor(slug);
+}
+
+/** Every offline bucket, in the order the hub picker should list them. */
+export function offlineBuckets(surfaces) {
+  const buckets = [];
+  for (const { category, items } of groupByCategory(surfaces)) {
+    for (const { subcategory } of groupBySubcategory(category.id, items)) {
+      const { id, title } = subcategory ?? category;
+      buckets.push({ id, title });
+    }
+  }
+  return buckets;
+}
+
 /**
  * The shared look for a category page. Kept as one string rather than a file so
  * a category page is a single request with nothing to 404: the hub already
@@ -5314,7 +5348,7 @@ ${sections}
 
     <p class="empty" id="empty">No tool matches that. Try a marketplace, a trade, or the thing you are pricing.</p>
 
-${OFFLINE_WIDGET_HTML}
+${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
 
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
@@ -7523,48 +7557,68 @@ export function renderNotFound(baseUrl) {
 // Offline support
 // ---------------------------------------------------------------------------
 
-/** Files a visitor asking to "save all tools" needs: each tool's entry page and
- *  the modules and styles that page loads. Not the whole tree — the SEO
+/** Files a visitor asking to "save a category" needs: each tool's entry page
+ *  and the modules and styles that page loads. Not the whole tree — the SEO
  *  articles and sitemaps are not what someone with no signal is reaching for,
  *  and this runs on a phone's data. */
 const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 
+/**
+ * Partitioned by category rather than one bundle of every tool: see
+ * `renderServiceWorker`'s `bundles` param for why. Returns `{ shared,
+ * categories }` — `shared` is fetched alongside whichever category the
+ * visitor picks, and each category's own `assets` are that category's tool
+ * pages and their scripts.
+ */
 export async function collectOfflineBundle(outDir, surfaces) {
-  // The shared scripts and stylesheets are loaded by every tool page in this
-  // bundle, so a tool cached for offline use without them opens with no band at
-  // all — or, for the stylesheets, with an unstyled one bolted to the page.
-  // That is the cost of extracting them: what used to be inline and therefore
-  // cached with the page is now a separate request the cache has to know about.
-  const assets = new Set([
-    './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
-    BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
+  // The shared scripts and stylesheets are loaded by every tool page, so a
+  // tool cached for offline use without them opens with no band at all — or,
+  // for the stylesheets, with an unstyled one bolted to the page. That is the
+  // cost of extracting them: what used to be inline and therefore cached with
+  // the page is now a separate request the cache has to know about. `./`,
+  // `index.html`, `offline.html` and `manifest.webmanifest` are not here —
+  // they are already in `shell` and precached on install regardless of
+  // whether a visitor ever asks to save a category.
+  const shared = [
+    SAVED_BIDS_MODULE_FILE, BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
     INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
     // Not loaded by any page on this site — it runs on the embedder's — but
     // precached all the same so the snippet's second line is served from the
     // same revision as the first.
     EMBED_HOST_FILE,
-  ]);
+  ].sort();
 
+  const byCategory = new Map();
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
     // copyTree publishes the directory holding the entry point as `slug/`, so
     // the tool's front page is always exactly here.
     const entry = path.join(dir, 'index.html');
     const rel = (file) => path.relative(outDir, file).split(path.sep).join('/');
+    const assets = new Set();
     if (existsSync(entry)) {
       assets.add(rel(entry));
       // A visitor can arrive at either form; a cache entry under one does not
       // answer a request for the other.
       assets.add(`${surface.slug}/`);
     }
-
     for (const file of await listFiles(dir)) {
       if (BUNDLE_EXTENSIONS.has(path.extname(file))) assets.add(rel(file));
     }
+    if (assets.size === 0) continue;
+
+    const { id, title } = offlineBucketFor(surface.slug);
+    if (!byCategory.has(id)) byCategory.set(id, { id, title, assets: new Set() });
+    const bucket = byCategory.get(id).assets;
+    for (const asset of assets) bucket.add(asset);
   }
 
-  return [...assets].sort();
+  const categories = [...byCategory.values()]
+    .map((category) => ({ id: category.id, title: category.title, assets: [...category.assets].sort() }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  return { shared, categories };
 }
 
 /**
@@ -7588,7 +7642,7 @@ export async function addOfflineSupport({
   // forever. Hashing the generator closes that.
   codeVersion,
 } = {}) {
-  const bundle = await collectOfflineBundle(outDir, surfaces);
+  const { shared, categories } = await collectOfflineBundle(outDir, surfaces);
 
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
@@ -7619,7 +7673,8 @@ export async function addOfflineSupport({
         // Enough for the front door to open with no signal on a device that has
         // been here once. Everything else is cached as it is visited.
         shell: ['./', 'index.html', 'offline.html', 'manifest.webmanifest', 'icon-192.png'],
-        bundle,
+        shared,
+        bundles: Object.fromEntries(categories.map((c) => [c.id, c.assets])),
       }),
   );
 
@@ -7633,34 +7688,48 @@ export async function addOfflineSupport({
     injected += 1;
   }
 
-  // The real weight of everything "Save all tools for offline" fetches, over
+  // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front
   // door's own nginx both gzip text responses in transit, so raw bytes
   // overstate what a visitor's mobile data plan is actually charged (see
   // build.test.mjs's "stays small enough to fetch on mobile data" for the
   // same measurement). Taken after the head injection above, so it matches
-  // what a browser really downloads. Patched into the hub's own copy so it
-  // can never drift from reality: see OFFLINE_SIZE_MARKER in offline.mjs for
-  // the stale "about 3 MB" claim this replaces, which stood while the
-  // catalog grew to 174 tools and 16.8 MB raw (5.2 MB gzipped).
-  let bundleBytes = 0;
-  for (const asset of bundle) {
-    if (asset.endsWith('/')) continue; // directory alias of a page already counted
-    const buf = await fs.readFile(path.join(outDir, asset));
-    bundleBytes += zlib.gzipSync(buf, { level: 9 }).length;
+  // what a browser really downloads. `shared` and `index.html` are not
+  // patch-order-sensitive here the way the old single whole-catalog number
+  // was: neither carries a size marker, so nothing this loop reads is a file
+  // the patch below is about to rewrite.
+  const gzipBytesOf = async (assets) => {
+    let bytes = 0;
+    for (const asset of assets) {
+      if (asset.endsWith('/')) continue; // directory alias of a page already counted
+      const buf = await fs.readFile(path.join(outDir, asset));
+      bytes += zlib.gzipSync(buf, { level: 9 }).length;
+    }
+    return bytes;
+  };
+  const sharedBytes = await gzipBytesOf(shared);
+  const categorySizes = [];
+  for (const category of categories) {
+    categorySizes.push({
+      id: category.id,
+      title: category.title,
+      assets: category.assets,
+      bundleBytes: sharedBytes + (await gzipBytesOf(category.assets)),
+    });
   }
-  const hubIndex = path.join(outDir, 'index.html');
-  const beforePatch = await fs.readFile(hubIndex, 'utf8');
-  const afterPatch = beforePatch.replaceAll(OFFLINE_SIZE_MARKER, offlineBundleSizeLabel(bundleBytes));
-  await fs.writeFile(hubIndex, afterPatch);
-  // index.html is itself one of the stated assets; account for the patch's own
-  // size delta so bundleBytes matches the bytes actually on disk afterward,
-  // rather than the pre-patch state it was measured from.
-  bundleBytes +=
-    zlib.gzipSync(Buffer.from(afterPatch), { level: 9 }).length -
-    zlib.gzipSync(Buffer.from(beforePatch), { level: 9 }).length;
 
-  return { cacheName, bundle, bundleBytes, injected };
+  // Patched into the hub's own copy so the picker's per-category size can
+  // never drift from reality: see offlineSizeMarker in offline.mjs for the
+  // stale "about 3 MB" whole-catalog claim this replaces, which stood while
+  // the catalog grew to 174 tools and 16.8 MB raw (5.2 MB gzipped).
+  const hubIndex = path.join(outDir, 'index.html');
+  let hub = await fs.readFile(hubIndex, 'utf8');
+  for (const { id, bundleBytes } of categorySizes) {
+    hub = hub.replaceAll(offlineSizeMarker(id), offlineBundleSizeLabel(bundleBytes));
+  }
+  await fs.writeFile(hubIndex, hub);
+
+  return { cacheName, shared, categories: categorySizes, injected };
 }
 
 // ---------------------------------------------------------------------------

@@ -997,6 +997,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // calculator at all -- distinct from this venture's own vs-pestpac.html,
   // which does name a product and carries its own "not affiliated" clause.
   'pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html',
+  // Compares against "a flat $189 broken-spring special" -- the generic
+  // postcard/search-ad pricing habit the trade is shopped on, not a company
+  // or product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-housecall-pro.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'garage-door-bid-calculator/vs-a-flat-189-broken-spring-special.html',
   // Compares against doing Mercari fee math in your head -- a method every
   // seller already has, not a company or product this could be mistaken
   // for. Mercari itself is named only as the subject of the fee schedule
@@ -1053,6 +1060,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. This page names no git-hosting
   // platform, IDE, or scanning tool.
   'dotenv-exposure-check/vs-checking-by-hand.html',
+  // Compares against "running dig CNAME by hand" -- a generic DNS-lookup
+  // habit every developer already has, not a company or product this could
+  // be mistaken for. The page names third-party hosting providers (S3,
+  // Heroku, GitHub Pages) only as CNAME-target examples, not as the thing
+  // being compared against.
+  'subdomain-takeover-check/vs-checking-dig-by-hand.html',
+  // Compares against "a flat rate per square foot" -- a generic pricing
+  // method every garage-floor coating contractor already has access to, not
+  // a company or product this could be mistaken for. Same reasoning as the
+  // other generic-method pages above (e.g. asphalt-driveway-pave-bid-
+  // calculator's flat-rate page). Distinct from this venture's own
+  // vs-coatingos.html, which compares against a named estimating product
+  // and already carries the "not affiliated" clause for that reason.
+  'epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html',
   // Compares against "a spreadsheet" -- a generic method every SaaS
   // operator already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-vendr.html and
@@ -1060,6 +1081,31 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every freelance
+  // interpreter already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every rental
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-booqable.html and
+  // vs-inflatableoffice.html, which name specific rental platforms and
+  // already carry the "not affiliated" clause for that reason. Same
+  // reasoning as the other vs-spreadsheet pages above.
+  'bounce-house-rental-calculator/vs-a-spreadsheet.html',
+  // Compares against "reading the concentrate label's sticker price as the
+  // diluted product's cost" -- a generic pricing habit every janitorial
+  // operator already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-janitorial-manager.html, which
+  // names a specific platform and already carries the "not affiliated"
+  // clause for that reason.
+  'cleaning-dilution-calculator/vs-pricing-off-the-label-price.html',
+  // Compares against "bidding a flat percentage of value" -- a generic rule
+  // of thumb repeated across storage-auction forums generally, not a
+  // company or product this could be mistaken for. The page names no
+  // auction platform, forum, or vendor. Distinct from this venture's own
+  // vs-storagetreasures.html, which names a specific marketplace and
+  // already carries the "not affiliated" clause for that reason.
+  'storage-auction-max-bid-calculator/vs-bidding-a-flat-percentage.html',
   // Compares against "a spreadsheet" -- a generic method every contractor
   // already has access to, not a company or product this could be mistaken
   // for. Distinct from this venture's own vs-levelset.html, which names
@@ -1067,6 +1113,21 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that reason. Same reasoning as the other vs-spreadsheet pages above
   // (e.g. saas-seat-true-up's).
   'retainage-cashflow-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $4.50-a-foot installed special" -- the
+  // published per-foot ad rate every gutter shop competes with, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or field-service platform (the venture's own named-product
+  // comparison, vs-jobnimbus, carries its own trademark disclaimer) and its
+  // copy opens by agreeing the flat special is the right tool for
+  // advertising. Same reasoning as automatic-driveway-gate-bid-calculator's
+  // vs-a-flat-4500-special.html and entry-door-bid-calculator's
+  // vs-a-flat-1200-special.html above.
+  'gutter-install-bid-calculator/vs-a-flat-per-foot-special.html',
+  // Compares against "a flat fee per assignment" -- a generic pricing habit
+  // every freelance interpreter already has access to (a memorized number
+  // quoted for most bookings), not a company or product this could be
+  // mistaken for. The page names no agency, platform, or vendor.
+  'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
