@@ -6534,6 +6534,34 @@ products:
           watching -- whether a visitor who tried the worked example came
           back to check their own workflows.
 
+  - slug: actions-secrets-inherit-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool scanning GitHub Actions
+          workflow YAML for two secrets: inherit risks on a
+          reusable-workflow call -- secrets: inherit handed to a workflow
+          hosted in a different repository, and secrets: inherit on a job
+          reachable from a pull_request_target/workflow_run trigger.
+          Direct sibling of actions-cache-poisoning-check,
+          actions-secret-leak-check and pinned-actions-check, closing a gap
+          none of those three cover (none of them read secrets: inherit at
+          all). `live_url_visitors` is null, not zero -- see the standing
+          note on this route elsewhere in this file; nobody has measured
+          yet. Named channel to watch: r/devops, r/github, and GitHub's own
+          Security Lab / community discussions, the same channel the rest
+          of this portfolio's actions-* family targets. `check_run`
+          against `example_loaded` is the signal worth watching -- whether
+          a visitor who tried the worked example came back to check their
+          own workflows.
+
   - slug: twitch-payout-calculator
     surface: github-pages
     readings:
