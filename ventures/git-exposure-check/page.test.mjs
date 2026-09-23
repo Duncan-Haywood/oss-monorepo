@@ -7,6 +7,7 @@ import { buildReport } from './analyze.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
+const vsHtml = readFileSync(join(HERE, 'vs-checking-the-url-by-hand.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -105,4 +106,53 @@ test('the bundled worked example is valid input for buildReport and produces a d
   const report = buildReport(example.target, example);
   assert.equal(report.ok, false, 'the worked example must demonstrate the danger finding');
   assert.ok(report.findings.some((f) => f.id === 'git-directory-exposed'));
+});
+
+test('the vs page carries valid FAQPage JSON-LD', () => {
+  const blocks = jsonLdBlocks(vsHtml);
+  assert.ok(blocks.length >= 1);
+  const faq = blocks.map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the vs page');
+  assert.ok(faq.mainEntity.length >= 3);
+});
+
+test('the no-warranty and authorisation disclaimers are present on the vs page too', () => {
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /provided free and as-is, without warranty/);
+  assert.match(vsHtml, /authoris(?:ed|ation)/i);
+});
+
+test('the vs page links back to the index page, and index links to the vs page', () => {
+  assert.match(vsHtml, /href="index\.html"/);
+  assert.match(html, /href="vs-checking-the-url-by-hand\.html"/);
+});
+
+test('the vs page names no competing product or company', () => {
+  const bodyOnly = vsHtml.replace(/<a\b[^>]*href="[^"]*"[^>]*>/gi, '');
+  assert.doesNotMatch(bodyOnly, /git-dumper|GitTools/i);
+});
+
+// The false-positive and false-negative worked examples on the vs page are a
+// factual claim about analyze.mjs's own classification -- pinned against the
+// real function rather than typed by hand, so a change to looksLikeGitHead or
+// buildReport that breaks either claim fails here instead of shipping a page
+// that describes behaviour the code no longer has.
+test('the vs page worked examples match analyze.mjs: a soft-404 is clean and a detached HEAD is a finding', () => {
+  const softNotFoundBody = '<html><body>404 - Page Not Found</body></html>';
+  const softReport = buildReport('https://example.com/', {
+    head: { ok: true, status: 200, url: 'https://example.com/.git/HEAD', bodySample: softNotFoundBody },
+    config: { ok: true, status: 200, url: 'https://example.com/.git/config', bodySample: softNotFoundBody },
+  });
+  assert.equal(softReport.ok, true, 'a soft-404 page must not be reported as exposed');
+  assert.equal(softReport.findings.length, 0);
+
+  const detachedSha = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+  const detachedReport = buildReport('https://example.com/', {
+    head: { ok: true, status: 200, url: 'https://example.com/.git/HEAD', bodySample: detachedSha },
+    config: { ok: true, status: 404, url: 'https://example.com/.git/config', bodySample: '' },
+  });
+  assert.equal(detachedReport.ok, false, 'a detached-HEAD exposure must still be reported');
+  assert.ok(detachedReport.findings.some((f) => f.id === 'git-head-exposed'));
+
+  assert.match(vsHtml, new RegExp(detachedSha));
 });
