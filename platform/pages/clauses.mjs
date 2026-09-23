@@ -1114,6 +1114,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
+  // Compares against "pasting the introspection query into GraphiQL or
+  // Postman by hand" -- a manual habit any GraphQL developer already has,
+  // not a company or product this could be mistaken for. The page's own
+  // footer says so explicitly and names no GraphQL client or IDE vendor.
+  'graphql-introspection-exposure-check/vs-running-the-introspection-query-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

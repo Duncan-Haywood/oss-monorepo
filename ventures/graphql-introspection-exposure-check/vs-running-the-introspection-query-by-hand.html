@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. pasting the introspection query in by hand — GraphQL Introspection Exposure Check</title>
+<meta name="description" content="Pasting __schema { types { name fields { name } } } into a GraphQL IDE or HTTP client answers the yes/no question fine. It has no natural way to separate query fields from mutation fields at a glance, flag sensitive-sounding field names across hundreds of results, or turn the result into something a CI pipeline can gate on.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-running-the-introspection-query-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. pasting the introspection query in by hand">
+<meta property="og:description" content="A hand-run introspection query answers the yes/no question. It does not separate mutation fields from query fields at a glance, flag sensitive-sounding names across hundreds of results, or produce something a CI pipeline can gate on.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't the introspection query itself the same either way?","acceptedAnswer":{"@type":"Answer","text":"Yes -- this checker sends the identical unauthenticated introspection query you would paste into your own GraphQL IDE or API client. What differs is what happens to the response. Reading raw JSON tells you introspection answered; it does not, by itself, count how many of those fields sit under mutationType versus queryType, or scan every field name against a list of common sensitive-operation wording."}},{"@type":"Question","name":"Why does it matter whether a field is on the query type or the mutation type?","acceptedAnswer":{"@type":"Answer","text":"Because the risk is different. A queryable field that should not be readable is a data-exposure question; a mutation field is a write operation -- something a caller can invoke, not just read about. GraphQL's introspection JSON nests both under the same top-level __schema.types array with no visual separator, so noticing that the exposed schema includes mutation fields, not just query fields, means cross-referencing every field back to whichever root type it hangs off, by hand, across however many types the schema defines. This checker raises its introspection-enabled finding to danger severity specifically because a non-empty mutation surface was found, and notice otherwise."}},{"@type":"Question","name":"Can I just search the JSON for words like \"admin\" or \"delete\"?","acceptedAnswer":{"@type":"Answer","text":"You can, and on a small schema that works. It stops scaling once the schema has hundreds of fields spread across dozens of types, because a text search finds the word wherever it appears -- in a type name, a description string, an argument -- not specifically in a field name on the query or mutation root, and it does not distinguish a hit that is more concerning (a mutation named resetUserPassword) from one that is merely worth a second look (a query named adminNotes). This checker runs its sensitive-word match only against query and mutation field names specifically, and reports the two lists with different severities."}},{"@type":"Question","name":"Does this replace checking the schema by hand?","acceptedAnswer":{"@type":"Answer","text":"No -- a sensitive-sounding field name is a hint to review by hand, not proof of a missing access control, and this checker says so on its own results page. What it removes is the bookkeeping step of finding which fields deserve that closer look in the first place, out of however many the schema exposes."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere, either way?","acceptedAnswer":{"@type":"Answer","text":"Pasting a query into your own GraphQL IDE or API client sends it straight to the endpoint you name, through no third party. This checker's browser version does exactly the same -- the request goes from your tab straight to the endpoint -- and its CLI's request goes straight from your machine. Neither this page nor this site ever sees the endpoint, the query, or the response."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1a4560; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-size: .9em; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>This checker vs. pasting the introspection query in by hand</h1>
+<p class="lede">The usual way to check whether a GraphQL endpoint has introspection enabled is to open your GraphQL IDE, an API client, or curl, paste in <code>{ __schema { types { name fields { name } } } }</code>, and see whether a schema comes back. That answers the yes/no question fine. It works much less well the moment the schema is large enough that the useful next questions -- how much of this is write surface, and which of these hundreds of field names are worth a second look -- require reading every field by eye rather than getting a yes or no.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>Pasting the query in by hand</strong> is free and needs no tool beyond whatever HTTP client you already have open. It works well as a quick sanity check on an endpoint you already half-expect to be misconfigured.</p>
+<p><strong>This checker</strong> sends the identical query, then classifies the result: it counts query, mutation, and subscription fields separately, flags a non-empty mutation surface as the higher-severity case, and scans field names for common sensitive-operation wording -- the bookkeeping a raw JSON read has to do silently, in your head, across however many fields the schema exposes.</p>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Does an unauthenticated introspection query return a schema at all?</td><td>Either one. Reading the raw response answers this exactly as well as this checker does.</td></tr>
+<tr><td>How many of the exposed fields are mutations (write operations) rather than queries?</td><td>This checker. By hand, this means cross-referencing every field in the JSON back to whichever root type it hangs off, across however many types the schema defines.</td></tr>
+<tr><td>Do any mutation or query field names match common sensitive-operation wording (<code>admin</code>, <code>delete</code>, <code>password</code>, <code>token</code>, and similar)?</td><td>This checker, scanned automatically and reported per root type. By hand, this is a manual scan of every field name in a schema that can run to hundreds of entries.</td></tr>
+<tr><td>Can the result be wired into a CI pipeline as a regression gate?</td><td>This checker's CLI, which exits non-zero on a danger-severity finding. A one-off request pasted into an IDE or API client has no natural way to fail a build.</td></tr>
+<tr><td>Is anything I send uploaded anywhere?</td><td>Neither. A pasted query goes straight to the endpoint you name either way; this checker's browser and CLI paths never route through this site.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Isn't the introspection query itself the same either way?</h3>
+<p>Yes -- this checker sends the identical unauthenticated introspection query you would paste into your own GraphQL IDE or API client. What differs is what happens to the response. Reading raw JSON tells you introspection answered; it does not, by itself, count how many of those fields sit under <code>mutationType</code> versus <code>queryType</code>, or scan every field name against a list of common sensitive-operation wording.</p>
+<h3>Why does it matter whether a field is on the query type or the mutation type?</h3>
+<p>Because the risk is different. A queryable field that should not be readable is a data-exposure question; a mutation field is a write operation -- something a caller can invoke, not just read about. GraphQL's introspection JSON nests both under the same top-level <code>__schema.types</code> array with no visual separator, so noticing that the exposed schema includes mutation fields, not just query fields, means cross-referencing every field back to whichever root type it hangs off, by hand, across however many types the schema defines. This checker raises its introspection-enabled finding to danger severity specifically because a non-empty mutation surface was found, and notice otherwise.</p>
+<h3>Can I just search the JSON for words like "admin" or "delete"?</h3>
+<p>You can, and on a small schema that works. It stops scaling once the schema has hundreds of fields spread across dozens of types, because a text search finds the word wherever it appears -- in a type name, a description string, an argument -- not specifically in a field name on the query or mutation root, and it does not distinguish a hit that is more concerning (a mutation named <code>resetUserPassword</code>) from one that is merely worth a second look (a query named <code>adminNotes</code>). This checker runs its sensitive-word match only against query and mutation field names specifically, and reports the two lists with different severities.</p>
+<h3>Does this replace checking the schema by hand?</h3>
+<p>No -- a sensitive-sounding field name is a hint to review by hand, not proof of a missing access control, and this checker says so on its own results page. What it removes is the bookkeeping step of finding which fields deserve that closer look in the first place, out of however many the schema exposes.</p>
+<h3>Is anything I enter uploaded anywhere, either way?</h3>
+<p>Pasting a query into your own GraphQL IDE or API client sends it straight to the endpoint you name, through no third party. This checker's browser version does exactly the same -- the request goes from your tab straight to the endpoint -- and its CLI's request goes straight from your machine. Neither this page nor this site ever sees the endpoint, the query, or the response.</p>
+</section>
+
+<footer>
+<p><strong>Evidence, not a determination.</strong> A sensitive-sounding field name, from either process, is a hint to review by hand, not proof of a missing access control.</p>
+<p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified security review or penetration test. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for having authorisation to test any system you point it at. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+<p><strong>This page names no specific product.</strong> "Pasting the introspection query in by hand" describes a manual habit every GraphQL developer already has access to, not any company's product or service.</p>
+<p><strong>Nothing is uploaded.</strong> The checker this page links to talks straight from your tab (or your own machine, for the CLI) to the endpoint you name -- never through this site.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+</body>
+</html>
