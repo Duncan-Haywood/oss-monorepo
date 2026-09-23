@@ -549,7 +549,20 @@ const RELATIVE_SELF = relative(
 // merge -- the same ordinary collision shape recorded throughout this
 // list. Total re-derived here by `sync_tree_counts.py` against the fully
 // merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 319;
+//
+// 319 -> 320: `dotenv-exposure-check` graduated (this branch), adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `dotenv-exposure-check-usage` storage name). Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/dotenv-exposure-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (317, before
+// `graphql-introspection-exposure-check`, `podcast-feed-check`, and
+// `git-exposure-check` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Total re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by
+// hand.
+const SWITCHES_IN_THE_CATALOGUE = 320;
 
 let counter = 0;
 function fixture(source) {
