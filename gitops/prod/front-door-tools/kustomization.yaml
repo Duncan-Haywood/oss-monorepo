@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 151 files, 556233 bytes
 #   portfolio-front-tools-3: 136 files, 555947 bytes
 #   portfolio-front-tools-4: 135 files, 552488 bytes
-#   portfolio-front-tools-5: 122 files, 549807 bytes
+#   portfolio-front-tools-5: 123 files, 554479 bytes
 #   portfolio-front-tools-6: 131 files, 555997 bytes
 #   portfolio-front-tools-7: 129 files, 556519 bytes
 #   portfolio-front-tools-8: 133 files, 553647 bytes
@@ -834,6 +834,7 @@ configMapGenerator:
       - cabinet-refinishing-bid-calculator__index.html.gz=cabinet-refinishing-bid-calculator__index.html.gz
       - cabinet-refinishing-bid-calculator__share.mjs.gz=cabinet-refinishing-bid-calculator__share.mjs.gz
       - cabinet-refinishing-bid-calculator__usage.mjs.gz=cabinet-refinishing-bid-calculator__usage.mjs.gz
+      - cabinet-refinishing-bid-calculator__vs-a-flat-price-per-door.html.gz=cabinet-refinishing-bid-calculator__vs-a-flat-price-per-door.html.gz
       - cabinet-refinishing-bid-calculator__vs-kickserv.html.gz=cabinet-refinishing-bid-calculator__vs-kickserv.html.gz
       - cache-control-check__analyze.mjs.gz=cache-control-check__analyze.mjs.gz
       - cache-control-check__check.mjs.gz=cache-control-check__check.mjs.gz
