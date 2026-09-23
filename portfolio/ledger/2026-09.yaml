@@ -35687,3 +35687,75 @@ entries:
         reported as a finding about main; the diff-specific checks above
         were run individually, not concurrently with each other or with
         that sweep, so they stand.
+  - venture: interior-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session: 0 open PRs at start (one, #5082 for
+        carpet-install-bid-calculator, merged mid-session -- rebased onto it
+        before pushing). session_gate.py returned PROCEED with the
+        build-now pipeline empty; per allocate.py's untested-hypothesis
+        ranking (rank #13, merit 6.83, 0 ledger entries, 2 mentions) and
+        surface-budget.mjs --for interior-door-bid-calculator (0 of 1
+        generic-method comparison pages used, only vs-jobber.html on the
+        named-product side), shipped vs-a-flat-per-door-price.html: this
+        calculator vs. a flat "$150 a door installed" special, the
+        venture's own named hypothesis (README.md's "The problem it
+        solves"). Figures are pinned against calc.mjs's own
+        calculateBid/suggestedScopeKit/suggestedDoorKit/suggestedSizeKit
+        presets, not invented: a hollow-slab hang-only 80-inch door (the
+        calculator's own "cheap special" preset) walks away at $339.14
+        against a $271.31 break-even -- already above a flat $150 quote
+        before any scope changes; framing the same single opening as a
+        pocket conversion for a French-or-barn pair at 96 inches with
+        paint, haul-away, and hardware (the "losing job" preset) costs
+        $2,258.93 to run and walks away at $2,823.66, so the same $150
+        quote is $2,108.93 short of that job's own break-even cost. Modeled
+        on junk-removal-bid-calculator/vs-a-flat-truck-fraction-rate.html
+        and basement-finishing-bid-calculator/vs-tracking-it-in-a-
+        spreadsheet.html (same generic-method-vs-flat-rate pattern, reused
+        rather than re-invented, same CSS palette as the venture's own
+        vs-jobber.html). Linked from index.html's existing nav and added to
+        sitemap.xml; added to platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (generic pricing habit, no vendor
+        named) next to the other flat-rate entries it mirrors.
+        faq-visible.test.mjs caught a real defect on first run -- the
+        JSON-LD FAQPage answer used a curly/straight quote mismatch
+        against the visible prose around "one door," -- fixed by matching
+        the JSON-LD to the page's own wording before re-running clean.
+        regen.mjs --verify caught the newly-stale front-door mirror (1
+        page missing) both before and again after the #5082 rebase (the
+        mirror is generated output that always conflicts across two
+        branches adding a page -- resolved per
+        resolve-mirror-merge.sh's own reasoning by taking either side of
+        the generated .gz blobs and re-running node platform/marketing/
+        regen.mjs from the merged sources, never hand-picking a side),
+        then --verify again clean.
+      - >-
+        CI is starved: sampled #5082's own check runs (the PR merged
+        mid-session) directly -- all 23 check runs completed in ~3-4
+        seconds each with runner_id: 0 on the sampled jobs, the
+        no-runner-assigned signature CLAUDE.md documents, not real
+        failures. Verified locally per the starvation checklist instead:
+        venture's own suite 133/133; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1277/1277
+        (after the faq-visible fix above); platform/proposal +
+        platform/privacy + platform/webcheck 243/243; gitops/tests 613
+        passed / 25 skipped (environmental -- nginx-light/openssh-client
+        and the public HETZNERSSHKEY route, not installed/available in
+        this sandbox); portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests 446 passed; all 27
+        platform/ci unittest modules clean; platform/ci/agent_review
+        test_review 21/21; checklist_coverage.py clean; sync_tree_counts.py
+        --check clean (322 mirrored tools, 304 opt-out switches, no
+        drift -- this change added no new venture or opt-out switch);
+        surface-budget.mjs --check clean (no venture over budget);
+        router/validate.py (329/329), validate_doc_consistency.py,
+        validate_candidates.py, validate_probe_index.py,
+        score_sensitivity.py, score_ventures.py --check (330/330), and
+        usage/validate_usage.py (275 products, 461 readings) all clean --
+        run individually in place of run_workflow_locally.py --for-changes,
+        which was killed after 13 minutes stuck inside
+        test_publish_surface (a live-network unit test that hangs rather
+        than fails fast against this sandbox's egress proxy).
