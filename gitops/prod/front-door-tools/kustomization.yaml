@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 104 files, 556063 bytes
 #   portfolio-front-tools-2: 151 files, 556226 bytes
 #   portfolio-front-tools-3: 136 files, 555905 bytes
-#   portfolio-front-tools-4: 134 files, 549229 bytes
+#   portfolio-front-tools-4: 135 files, 553735 bytes
 #   portfolio-front-tools-5: 124 files, 553762 bytes
 #   portfolio-front-tools-6: 130 files, 554350 bytes
 #   portfolio-front-tools-7: 133 files, 555620 bytes
@@ -716,6 +716,7 @@ configMapGenerator:
       - artificial-turf-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=artificial-turf-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - artificial-turf-bid-calculator__vs-jobber.html.gz=artificial-turf-bid-calculator__vs-jobber.html.gz
       - asbestos-abatement-bid-calculator__calc.mjs.gz=asbestos-abatement-bid-calculator__calc.mjs.gz
+      - asbestos-abatement-bid-calculator__how-much-does-asbestos-abatement-cost.html.gz=asbestos-abatement-bid-calculator__how-much-does-asbestos-abatement-cost.html.gz
       - asbestos-abatement-bid-calculator__index.html.gz=asbestos-abatement-bid-calculator__index.html.gz
       - asbestos-abatement-bid-calculator__share.mjs.gz=asbestos-abatement-bid-calculator__share.mjs.gz
       - asbestos-abatement-bid-calculator__usage.mjs.gz=asbestos-abatement-bid-calculator__usage.mjs.gz
