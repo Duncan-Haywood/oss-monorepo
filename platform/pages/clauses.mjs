@@ -1053,6 +1053,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. This page names no git-hosting
   // platform, IDE, or scanning tool.
   'dotenv-exposure-check/vs-checking-by-hand.html',
+  // Compares against "running dig CNAME by hand" -- a generic DNS-lookup
+  // habit every developer already has, not a company or product this could
+  // be mistaken for. The page names third-party hosting providers (S3,
+  // Heroku, GitHub Pages) only as CNAME-target examples, not as the thing
+  // being compared against.
+  'subdomain-takeover-check/vs-checking-dig-by-hand.html',
   // Compares against "a flat rate per square foot" -- a generic pricing
   // method every garage-floor coating contractor already has access to, not
   // a company or product this could be mistaken for. Same reasoning as the
@@ -1075,6 +1081,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carry the "not affiliated" clause for that reason. Same
   // reasoning as the other vs-spreadsheet pages above.
   'bounce-house-rental-calculator/vs-a-spreadsheet.html',
+  // Compares against "reading the concentrate label's sticker price as the
+  // diluted product's cost" -- a generic pricing habit every janitorial
+  // operator already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-janitorial-manager.html, which
+  // names a specific platform and already carries the "not affiliated"
+  // clause for that reason.
+  'cleaning-dilution-calculator/vs-pricing-off-the-label-price.html',
   // Compares against "bidding a flat percentage of value" -- a generic rule
   // of thumb repeated across storage-auction forums generally, not a
   // company or product this could be mistaken for. The page names no

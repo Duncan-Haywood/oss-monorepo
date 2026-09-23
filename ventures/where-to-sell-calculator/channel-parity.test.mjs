@@ -54,12 +54,17 @@ import {
   DEFAULTS as STOCKX_DEFAULTS,
   calculate as calculateStockxSale,
 } from '../stockx-seller-payout-calculator/calc.mjs';
+import {
+  SELLING_FEE_RATE as MERCARI_SELLING_FEE_RATE,
+  calculateSale as calculateMercariSale,
+} from '../mercari-fee-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
 const whatnot = CHANNEL_PRESETS.find((preset) => preset.id === 'whatnot');
 const poshmark = CHANNEL_PRESETS.find((preset) => preset.id === 'poshmark');
 const stockx = CHANNEL_PRESETS.find((preset) => preset.id === 'stockx');
+const mercari = CHANNEL_PRESETS.find((preset) => preset.id === 'mercari');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -518,12 +523,73 @@ test('StockX is off until the seller turns it on', () => {
   assert.equal(stockx.enabled, false);
 });
 
+test('this page still has a Mercari channel to compare', () => {
+  assert.ok(mercari, 'no channel with id "mercari" in CHANNEL_PRESETS');
+});
+
+test('the Mercari fee assumptions match the dedicated calculator\'s current schedule', () => {
+  // Imported from mercari-fee-calculator's own SELLING_FEE_RATE rather than
+  // typed here, for the reason CLAUDE.md records twice against a copied
+  // constant going stale: if that calculator's current-schedule rate
+  // changes, this fails rather than the two pages quietly drifting apart.
+  assert.equal(
+    mercari.commissionRate,
+    MERCARI_SELLING_FEE_RATE,
+    'selling fee disagrees with mercari-fee-calculator\'s current schedule',
+  );
+  // The current schedule has no separate payment processing fee -- only the
+  // pre-2025 legacy schedule does, which this page does not model.
+  assert.equal(mercari.paymentRate, 0, 'Mercari: the current schedule has no separate processing fee');
+  assert.equal(mercari.paymentFixed, 0, 'Mercari: the current schedule has no separate processing fee');
+});
+
+test('Mercari net profit matches the dedicated calculator on the shared worked example', () => {
+  // Same discipline as the Reverb, TikTok Shop, Whatnot and StockX checks
+  // above: rate equality alone would not catch a base mismatch (the current
+  // schedule charges its fee on item + buyer-paid shipping, matching this
+  // page's default "order" commission base), so this asserts the number a
+  // seller actually reads on both pages, either side of the handoff.
+  const shared = {
+    price: 40,
+    shippingCharged: 6,
+    shippingCost: 5,
+    itemCost: 15,
+    packagingCost: 0,
+    otherCost: 2,
+    monthlyOrders: 1,
+  };
+  const here = calculateChannel({ ...mercari, enabled: true }, shared);
+  const there = calculateMercariSale({
+    itemPrice: shared.price,
+    buyerShipping: shared.shippingCharged,
+    labelCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    legacySchedule: false,
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  // Compared to a billionth rather than with `assert.equal`, for the same
+  // reason as the Poshmark sweep above: this page reaches the fee by
+  // `(price + shippingCharged) * (orderRate)` where orderRate already folds
+  // in payment/ad rates, and the dedicated calculator reaches it by
+  // `(itemPrice + buyerShipping) * (SELLING_FEE_RATE / 100)` directly -- the
+  // same combined-rate multiplication, done in a different order, which
+  // disagrees in the last bit of a double. A real drift in the rate would be
+  // cents, not eleven orders of magnitude below the cent either page shows.
+  const near = (a, b, what) => assert.ok(
+    Math.abs(a - b) < 1e-9,
+    `${what}: this page says ${a}, mercari-fee-calculator says ${b}`,
+  );
+  near(here.fees.commission, there.sellingFee, 'selling fee on the same order total');
+  near(here.profit, there.profit, 'net profit must not jump across the handoff');
+});
+
 test('every channel with a handoff has a parity assertion in this file', () => {
   // The check that stops this file going stale the way it just did. A new
   // channel that can hand an item to a dedicated calculator is a new chance
   // for the two to disagree, so it must be named here -- and if it is not,
   // this fails naming it, instead of waiting for a seller to find the gap.
-  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx']);
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark', 'stockx', 'mercari']);
   const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
   assert.deepEqual(
     missing,
