@@ -564,6 +564,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // says so explicitly ("names no specific product"). Same reasoning as the
   // reverb-fee-calculator and whatnot-seller-payout spreadsheet pages above.
   'quote-margin-check/vs-tracking-quotes-in-a-spreadsheet.html',
+  // Compares against "a flat pneumatic special" -- the "$18,995 pneumatic
+  // installed" price every accessibility and elevator contractor is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'home-elevator-bid-calculator/vs-a-flat-pneumatic-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
