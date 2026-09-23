@@ -35759,6 +35759,108 @@ entries:
         which was killed after 13 minutes stuck inside
         test_publish_surface (a live-network unit test that hangs rather
         than fails fast against this sandbox's egress proxy).
+  - venture: android-data-safety-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py printed PROCEED with the build-now pipeline empty
+        (every scored candidate already graduated), so per DIRECTION.md's
+        2026-09-06 owner direction a genuine new niche outranks a parity
+        feature. A GitHub PR/branch survey (single open PR, unrelated
+        venture) ruled out duplicate work in flight. Screened "Google
+        Play's target API level (targetSdkVersion) enforcement deadline"
+        against screened-out.md and this venture's own tree: grep for
+        "targetsdkversion", "target api level", "target sdk" across
+        ventures/ and portfolio/ found nothing before this change, and
+        duplicate_check.py scored every venture, screened-out row,
+        ai-first-markets idea, and pipeline candidate at or below 0.26
+        against the one-line description (closest: this venture's own
+        pre-change description, sharing only "Android"/"Play Store" --
+        a different Play Console mechanism entirely). Fetched Google's own
+        target API level requirement page
+        (developer.android.com/google/play/requirements/target-sdk) via
+        WebFetch on 2026-09-23 for the authoritative per-form-factor
+        deadline table rather than trusting aggregator blog summaries,
+        which disagreed with each other and with the primary source on the
+        Android Automotive OS existing-app floor (31 vs. 32).
+      - >-
+        Per pipeline/README.md rule 3 ("a candidate that fits an existing
+        venture is a product line first"), added this as a second tool
+        inside ventures/android-data-safety-check rather than a new
+        ventures/ directory: same buyer (an Android developer preparing a
+        Google Play submission/update), same delivery mechanism (point it
+        at the project's AndroidManifest.xml/Gradle files), same
+        CLI-and-browser-checker shape, same usage counter and license.
+        Shipped target-sdk-scan.mjs (detection logic covering
+        AndroidManifest.xml uses-sdk, Gradle Groovy, and Kotlin DSL syntax,
+        reporting a variable/version-catalog reference as unresolved
+        rather than guessed, plus the dated deadline table),
+        target-sdk-check.mjs (CLI, reusing check.mjs's existing file-walking
+        via collectFiles), and target-api-level.html (browser tool sharing
+        usage.mjs, the LICENSE, and the sponsor link). Cross-linked from
+        index.html both ways, added to sitemap.xml, updated README.md and
+        VENTURE.yaml (new hypothesis, dated rationale comment), and
+        regenerated the front-door mirror (regen.mjs).
+      - >-
+        CI is starved (ci_starvation.py on run 35821502514: runner_id 0,
+        3s, no steps). Verified locally per CLAUDE.md's starvation
+        checklist, after apt-get update && apt-get install -y
+        --no-install-recommends python3-pytest nginx-light openssh-client
+        (all three missing; guard_state.py --require-runnable confirmed no
+        other fixable skip remained): new unit/CLI/page tests 34/34 plus
+        the venture's full suite 89/89 (re-run clean after each merge
+        below); clauses.mjs clean (4 pages); router/validate.py 329/329;
+        regen.mjs --verify caught the stale mirror twice (once per merge
+        below) and clean again after regen.mjs both times; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1277/1277,
+        re-run a second time on the fully-merged tree after the shallow-clone
+        fix below, still 1277/1277; browser_checks.py --only
+        android-data-safety-check 7/8 (highlight skipped, this venture
+        makes no rejection-highlight promise), 0 WCAG A/AA violations, 0
+        console errors; guard_state.py --require-runnable clean (one
+        environmental skip only); gitops/tests 637/1 skipped
+        (environmental); checklist_coverage.py and sync_tree_counts.py
+        --check both clean (no drift -- this change added no new venture
+        or comparison page); score_ventures.py --check (330/330) clean
+        since this adds no new venture; check_no_payment_code.py,
+        usage/validate_usage.py, pipeline/validate_doc_consistency.py and
+        validate_candidates.py, and probes/validate_probe_index.py all
+        clean; portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests 446/446; all 15
+        platform/ci unittest modules and agent_review's test_review clean.
+      - >-
+        Hit the shallow-clone trap CLAUDE.md documents at length: this
+        session's clone read `is-shallow-repository: true` from the start,
+        an early `git fetch origin main` (by ref name, not `--unshallow`)
+        deepened only that ref by one commit, and a later `git fetch origin
+        main` after two other sessions had merged made a merged commit
+        render as a root commit with an 11,024-file diffstat --
+        `git rev-list --count origin/main` read `1`, the exact symptom
+        CLAUDE.md names as diagnostic regardless of what
+        `is-shallow-repository` says. `git fetch --unshallow origin main`
+        (naming the ref, not bare `--unshallow`) fixed it -- verified
+        `is-shallow-repository: false` and `git rev-list --count
+        origin/main` at 7546 afterward. Content reads
+        (`git show origin/main:<path>`, and this venture's own diff) were
+        unaffected throughout, per CLAUDE.md's own note that only
+        history-shaped questions go wrong in this state -- but the merge
+        conflict resolution below was re-run after the fix out of caution,
+        since a merge is exactly the kind of history-shaped operation the
+        trap warns about. Resolved the generated front-door mirror conflict
+        twice (once per incoming main commit batch, both times via
+        `git checkout --ours` on the two generated files plus
+        `regen.mjs`/`--verify`, never by hand, per
+        resolve-mirror-merge.sh's own guidance for the sibling
+        `front-door/catalog.json.gz` conflict that script doesn't cover).
+      - >-
+        run_workflow_locally.py --for-changes came back "UNSTABLE CHECKOUT:
+        HEAD moved ... while the sweep ran" -- expected, since it was
+        launched before the first merge above and this session committed
+        during its run. Per CLAUDE.md's own handling of this exact tool
+        self-check, that result is not reported as a finding; the
+        diff-specific checks above were run individually against a settled
+        tree and stand on their own.
   - venture: amazon-fba-calculator
     agent_spend_usd: null
     human_hours: 0
