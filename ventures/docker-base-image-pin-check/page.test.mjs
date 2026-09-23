@@ -155,3 +155,17 @@ test('index links one hop to the docker-build-secrets-check sibling', () => {
     'index must link ../docker-build-secrets-check/ so the pair is reciprocal and neither is an orphan',
   );
 });
+
+// docker-base-image-eol-check graduated with an outbound link here from its
+// first commit (siblings-budget.json is held at an orphan budget of 0);
+// this is the reciprocal half, added in the same change. Same FROM line, a
+// different question -- this tool asks whether the reference is pinned
+// against being repointed, that one asks whether the release line it names
+// is still receiving security patches at all.
+test('index links one hop to the docker-base-image-eol-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/docker-base-image-eol-check\/"/,
+    'index must link ../docker-base-image-eol-check/ so the pair is reciprocal and neither is an orphan',
+  );
+});
