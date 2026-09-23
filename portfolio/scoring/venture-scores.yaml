@@ -15111,3 +15111,49 @@ ventures:
       reserve is labelled arithmetic on a percentage the freelancer
       supplies, not a tax calculation, and nothing entered leaves the
       browser.
+  - slug: osha-trir-dart-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain-specific derivation —
+      OSHA's own 200,000-hour base rate applied to a company's recordable
+      and DART case counts, plus solving backwards for the additional
+      injury-free hours that dilute the current rate down to a stated
+      target — not a wrapper around a general-purpose rate formula.
+    basis: >-
+      Graduated and scored 2026-09-23, in the same change, per
+      `score_ventures.py --check`. Same deterministic-arithmetic shape as
+      this portfolio's other rate/margin calculators
+      (`cat-adjuster-fee-calculator`, `pour-cost-calculator`), applied to a
+      compliance rate rather than a price: a company's own OSHA 300 log
+      counts turned into TRIR and DART rate, and a gap against a target
+      rate (a GC's prequalification ceiling, a trade average, or an
+      internal goal). Defensibility 4: the arithmetic is transparent and
+      reproducible, as it has to be, and the fleet's calculator archetype
+      generally scores 1-5 here; the injury-free-hours-to-target derivation
+      is specific to this buyer and not modeled by a generic rate
+      calculator. Distribution 6: "TRIR calculator" and "how to calculate
+      TRIR" are narrow, recurring search terms currently dominated by
+      lead-gen forms in front of EHS-software or safety-consulting vendors,
+      and r/safety plus ASSP-adjacent professional forums are a named,
+      real channel that discusses this exact rate — but volume is
+      unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the company's own entered case
+      counts and hours worked, never a determination of whether any
+      specific case is OSHA recordable and never a claim that a company is
+      compliant with any OSHA rule — recordability stays the employer's
+      own judgment call against 29 CFR 1904.7, explicit in the disclaimer
+      and FAQ. Nothing entered leaves the browser.

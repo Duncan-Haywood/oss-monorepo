@@ -412,7 +412,13 @@ const RELATIVE_SELF = relative(
 // this file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/personal-trainer-package-pricing-calculator/usage.mjs`) and no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 307;
+//
+// 307 -> 308: `osha-trir-dart-calculator` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its siblings (`readOptOut`/
+// `writeOptOut` gating `recordUsage`). Verified the way this file's error
+// message prescribes: exactly one added `usage.mjs`
+// (`ventures/osha-trir-dart-calculator/usage.mjs`) and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 308;
 
 let counter = 0;
 function fixture(source) {

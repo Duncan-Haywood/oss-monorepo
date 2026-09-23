@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 325 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 326 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator comparing Upwork and Fiverr net payout for the same job price, after platform fees, withdrawal fees, and a tax reserve. Solve for the price to charge on either platform to hit a take-home goal.</summary>
+  </entry>
+  <entry>
+    <title>OSHA TRIR &amp; DART Rate Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/osha-trir-dart-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/osha-trir-dart-calculator</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free OSHA TRIR and DART rate calculator: turn your OSHA 300 log&#39;s recordable case count and total hours worked into the two rates GC prequalification forms and insurance renewals ask for, and see how many injury-free hours it takes to hit a target rate. Nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>Personal Trainer Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free backflow-preventer test fee calculator: per-device test fee with a multi-device discount, a per-device report-filing fee, a travel fee, and a retest fee for failed devices. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bridal-hair-makeup-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bridal-hair-makeup-pricing-calculator</id>
-    <published>2026-09-16T00:00:00Z</published>
-    <updated>2026-09-16T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for bridal hair and makeup artists: price the bride, bridal party, hair-only, makeup-only, and kids&#39; services, apply an early-start fee and travel, top up to your service minimum, and check whether the group fits in one artist&#39;s schedule before the ceremony — or needs a second artist billed and paid as its own line item.</summary>
   </entry>
 </feed>

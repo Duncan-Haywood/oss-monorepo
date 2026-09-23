@@ -1547,3 +1547,26 @@ candidates:
     mitigation: Keep tip-occupation eligibility an explicit self-reported checkbox with an inline caveat rather than the tool making the determination against Treasury's published occupation list; keep MAGI a user-estimated input rather than derived from a full return; keep the overtime-premium-only rule (half the rate, not the full 1.5x) and the phase-out's round-up-to-the-next-$1,000 rule both stated more than once in visible copy, not only in the footer; and measure repeat use and organic referral traffic before adding state-conformity modeling or a fuller tax-return integration this v0 deliberately does not attempt.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: osha-trir-dart-calculator
+    name: OSHA TRIR & DART rate calculator
+    doc: candidates/osha-trir-dart-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/osha-trir-dart-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and never let it decide whether a specific case is OSHA recordable or claim a company is compliant with any OSHA rule -- recordability stays the employer's own judgment call against 29 CFR 1904.7, explicit in the disclaimer and FAQ; the injury-free-hours-to-target figure is framed as a planning number, never as advice to under-report a case to keep the rate low; measure repeat use and organic search demand before adding any per-period history, CSV import, or multi-period trend feature this v0 deliberately does not attempt.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

@@ -1,0 +1,40 @@
+name: osha-trir-dart-calculator
+description: Free browser calculator that turns a company's own OSHA 300 log counts (recordable cases, DART cases, total hours worked) into its Total Recordable Incident Rate (TRIR) and DART rate, compares them against a target rate the company sets, and computes the additional injury-free hours needed to dilute the current rate down to that target.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: EHS coordinators and safety managers at construction and manufacturing contractors repeatedly need their current TRIR/DART rate to fill in a GC prequalification form, a bid package, or an insurance renewal, and currently compute it in a spreadsheet or only once a year at the OSHA 300A posting deadline.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The injury-free-hours-to-target figure (not just the rate itself) is what makes the arithmetic worth returning to mid-year, because a rate in isolation is a fact about the past and the hours-to-target figure is something a safety program can plan toward.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/safety, EHS/ASSP-adjacent professional forums, and the search phrases "TRIR calculator" and "how to calculate TRIR" are a reachable, free channel for this — existing results are mostly lead-gen forms in front of safety-consulting or EHS-software vendors, not a free, private, no-signup calculator — measurable only once the tool is live and discoverable in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: every calculation runs in the visitor's own
+  # browser from numbers they type. Serving one more visitor costs a static
+  # file and nothing else.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified EHS coordinators or safety managers use the tool to check a real rate within 90 days of it being discoverable.
+  - Operators report that recordable/DART case counts and hours worked are not numbers they have on hand without pulling their own OSHA 300 log first, making the arithmetic no faster than their existing spreadsheet.
+  - The injury-free-hours-to-target framing is read as encouraging under-reporting of recordable cases to keep the rate low, rather than as a planning figure — making it unusable as a shared, non-punitive tool.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/osha-trir-dart-calculator/
+  analytics: null
