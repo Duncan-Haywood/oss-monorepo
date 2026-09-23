@@ -35502,3 +35502,55 @@ entries:
         step blocked on network egress this sandbox's proxy does not permit)
         and was killed unrun; every suite it would exercise for this diff
         was already run individually above and came back clean.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled review session: 0 open PRs. Started a
+        parcel-dim-weight-calculator comparison page
+        (vs-tracking-box-sizes-in-a-spreadsheet.html), but a fetch of
+        origin/main mid-session turned up #5070, merged minutes earlier,
+        which had already given that same venture its one budgeted
+        generic-method comparison page (vs-guessing-the-box-size.html,
+        which also already covers the multi-package rounding trap this
+        session's draft was going to lead with). Adding a second
+        generic-method page to the same venture would have exceeded
+        surface-budget.mjs's one-per-venture cap and duplicated shipped
+        work, so the draft was discarded rather than pushed -- per
+        CLAUDE.md's "Duplicate PRs": overlap is normal, but this was
+        supersession, not overlap, once #5070 was checked. (The generic
+        lesson from the discarded draft is worth keeping even though the
+        page was not: two ventures' generic-method comparison pages must
+        not share exact `<h1>` wording, or front-door.mjs's
+        comparisonSubject reads the shared phrase as one named product
+        compared by two tools and generates an unmounted portfolio-level
+        page, which front-door.test.mjs's kustomization-mount test
+        correctly catches. Caught locally before push, not shipped as a
+        defect.)
+      - >-
+        Re-pointed the session at browser_state.py instead, which showed
+        all 8 whole-catalogue browser/accessibility checks STALE since
+        2026-09-18, invalidated by every clauses.mjs change any
+        comparison-page PR makes (five have merged since: #5056, #5063,
+        #5066, #5070, #5072). Ran the full sweep --
+        npm install --no-save playwright@1.56.0 axe-core, then
+        browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey
+        against a fresh build at 61f482da. All 8 passed clean: 1218 pages
+        at 360px with no sideways scroll; 67/67 preset pickers keep the
+        takeoff on placeholder (258 skipped, no picker); 217/217 share
+        links round-trip (108 skipped, no link); 106/106 highlighted-field
+        checks; 1217 pages x 2 viewports with no WCAG A/AA violations;
+        384 opt-out pages all remember the choice; 329/329 tools answered
+        with no errors in the golden-path sweep; the whole-site journey
+        (backup/restore, sitemap, 404, no off-origin request) passed with
+        0 failed checks and 0 page/console errors. Recorded via
+        browser_checks.py --record, so browser_state.py now reads current
+        rather than re-inviting the next session to skip the run.
+      - >-
+        No shipping outcome to report for the discarded draft -- it never
+        reached main. The recorded outcome this session ships is the clean
+        whole-catalogue accessibility/regression reading, which is the
+        thing CLAUDE.md notes a guard nobody runs is worth less than no
+        guard for.
