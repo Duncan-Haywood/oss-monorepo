@@ -37171,6 +37171,78 @@ entries:
         ledger-only branch.
     mrr_end: 0
 
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Recording a prior already-merged change with no ledger entry:
+        PR #5201, merged as commit 9295026733691bc1a5208056a5f89a4d3ffad9c3,
+        added vs-doing-it-by-hand.html, a generic-method comparison page
+        comparing the calculator against working out a deposit policy by
+        hand or in a spreadsheet -- the deposit/balance arithmetic is
+        trivial either way, but the net-revenue break-even comparison and
+        the policy-paragraph draft are the parts a spreadsheet doesn't set
+        up on its own. Names no product, so it was registered in
+        COMPARISON_DISCLAIMER_EXEMPT in clauses.mjs rather than carrying
+        the trademark disclaimer, and it filled this venture's previously-
+        empty generic-method comparison budget slot (surface-budget.mjs:
+        0/1 before, 1/1 after). Wired into index.html and sitemap.xml, and
+        the front-door mirror was regenerated (regen.mjs) and reverified
+        clean (regen.mjs --verify). Filed here, riding alongside this
+        session's own childcare-tuition-calculator entry below, per
+        CLAUDE.md's rule against a ledger-only commit.
+    mrr_end: 0
+  - venture: childcare-tuition-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-doing-it-by-hand.html, against pricing tuition by hand or in a
+        spreadsheet (surface-budget.mjs had reported 0/1 generic-method
+        pages used; the venture's existing vs-procare.html is a
+        named-product page and unbudgeted). Read calc.mjs and index.html
+        first rather than inventing the angle: the per-child division
+        (monthly cost / enrolled children) is trivial arithmetic a
+        spreadsheet does exactly as well, but staffing and overhead are
+        fixed to the room's licensed ratio rather than to headcount, so
+        the empty-seat cost and the occupancy-table break-even (six
+        occupancy levels held against fixed cost, tuition solved backward
+        from a target margin) are the parts that are easy to get subtly
+        wrong or skip in a hand-built sheet -- the same worked-example
+        figures already in how-to-price-daycare-tuition.html (break-even
+        $602.12/child, $669.02 needed for a 10% margin, $2,700/month
+        ($32,400/year) on 3 empty seats at the shipped defaults) were
+        re-verified directly against calc.mjs's calculateClassroom and
+        occupancyTable before being reused, rather than retyped from the
+        sibling page. Names no spreadsheet application or childcare
+        platform, so it was registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT rather than carrying the trademark
+        disclaimer, and links back to the venture's existing vs-procare.html
+        so neither comparison page is orphaned. Wired into index.html and
+        sitemap.xml. `node --test` in the venture: 42/42 (was 34 on
+        vs-procare.test.mjs alone). clauses.mjs childcare-tuition-calculator:
+        clean. surface-budget.mjs --for and --check: both exit 0, no
+        venture over budget. checklist_coverage.py: clean. regen.mjs
+        --verify caught the new page as expected (STALE, naming the exact
+        7 mirror artifacts, including the missing
+        front-door-tools/childcare-tuition-calculator__vs-doing-it-by-hand.html.gz);
+        regen.mjs fixed it and --verify then reported current, with the new
+        page's kustomization.yaml mount line written by the generator
+        itself rather than by hand. `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1281/1281.
+        `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped
+        (environmental) after installing nginx-light/openssh-client via
+        `apt-get update && apt-get install`. All 27 platform/ci unittest
+        modules: clean (0 failures). Re-verified before starting that no
+        commit had touched this venture in the prior two days and that the
+        only other open PR (#5198) was for a different venture
+        (certified-payroll-calculator), per this file's own duplicate-PR
+        guidance. Left uncommitted for the parent session to review, commit,
+        and push.
+    mrr_end: 0
+
   - venture: booth-rent-vs-commission
     agent_spend_usd: null
     human_hours: 0
