@@ -37437,3 +37437,52 @@ entries:
         (repo-tracked here as the standing job, not a defect) and recorded
         github-pages-branch-route as current.
     mrr_end: 0
+  - venture: certified-payroll-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-doing-it-by-hand.html, a generic-method comparison page
+        against computing certified payroll overtime by hand or in a
+        spreadsheet -- the venture had zero generic-method comparison
+        pages before this (surface-budget.mjs room for 1). Wired into
+        index.html and sitemap.xml; exempted from the not-affiliated
+        clause in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no
+        vendor, same reasoning as the sibling vs-doing-it-by-hand pages
+        on depreciation-recapture-calculator and overtime-pay-calculator).
+        `node --test` in the venture: 42/42.
+
+
+        Confirmed Actions starvation via ci_starvation.py before relying
+        on local verification (runner_id: 0 across every check on this
+        session's own pushes). `main` advanced repeatedly under the
+        branch while verifying -- three separate `git fetch origin main`
+        + `git merge` cycles, each producing conflicts confined entirely
+        to the generated front-door mirror (gitops/prod/front-door and
+        front-door-tools), resolved with
+        platform/marketing/resolve-mirror-merge.sh plus a manual
+        `regen.mjs` pass for gitops/prod/front-door/ (outside that
+        script's declared scope) each time, reverified with
+        `regen.mjs --verify` after every resolution. One
+        run_workflow_locally.py --for-changes reading was discarded per
+        its own "UNSTABLE CHECKOUT" warning (HEAD moved mid-sweep from a
+        concurrent commit); the re-run on a stable HEAD reported
+        portfolio-validate.yml 71/71 run steps passed and
+        sibling-links-ci.yml 2/2. `platform/marketing`/`platform/pages`
+        suite: 1281/1281 (run twice, once per merge). gitops/tests: 637
+        passed / 1 skipped after installing nginx-light and
+        openssh-client (apt-get update first), clearing the other 24
+        environmental skips guard_state.py had flagged as fixable.
+        platform/ci unittest (15 modules, 192 tests), agent_review
+        unittest (21 tests), and
+        portfolio/ledger+scoring+router+usage+pipeline+infra pytest
+        (446 tests) all clean. checklist_coverage.py and
+        check_venture_regression.py (against origin/main) both clean.
+
+
+        Merged as #5198 (squash), then republished the gh-pages branch
+        (CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh) and recorded the fresh
+        github-pages-branch-route reading (#5226) per CLAUDE.md's
+        standing job for any merge touching a served surface.
+    mrr_end: 0
