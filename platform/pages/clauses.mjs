@@ -681,6 +681,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-healthchecks.html, which does name a
   // product and carries its own "not affiliated" clause.
   'backup-verification-evidence/vs-checking-the-exit-code-yourself.html',
+  // Compares against "a flat price-per-foot" fence quote -- the "$35 a
+  // foot installed" per-foot pricing habit every fence contractor is
+  // shopped on, not a company or product this could be mistaken for. The
+  // page names no vendor or competing calculator at all -- distinct from
+  // this venture's own vs-fence-cloud.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'fence-bid-calculator/vs-a-flat-price-per-foot.html',
   // Compares against "building your own cash-flow spreadsheet" -- the
   // running-balance habit every small business owner already has, not a
   // company or product this could be mistaken for. The page names no
