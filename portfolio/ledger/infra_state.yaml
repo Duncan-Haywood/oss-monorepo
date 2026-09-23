@@ -320,6 +320,34 @@ readings:
       not move on it (a browser cannot see `:6443`), but it does close the one
       gap the 2026-09-04 measurement had: that reading came from a GitHub
       runner, and nobody had confirmed a visitor sees the same thing.
+      **2026-09-23: `marisstella.dev` and `www.marisstella.dev` now answer
+      with real content over a valid Let's Encrypt certificate for
+      `CN=marisstella.dev` (`SSL certificate verify ok`), from a session with
+      open egress (see `agent-session-egress` below) — no longer
+      `ERR_CONNECTION_REFUSED`.** This is NOT this repository's catalogue:
+      the served page is a "Maris Stella Labs — Independent Venture Studio"
+      landing page (`last-modified: Mon, 21 Sep 2026 22:13:38 GMT`, two days
+      before this reading), linking to `https://pairwise.marisstella.dev`,
+      `https://duncanhaywood.dev`, and `mailto:duncan.andrew.haywood@gmail.com`
+      — content that matches nothing in `gitops/prod/` (no `/tools/<slug>/`
+      links, no `CollectionPage` catalogue markup). `tools.marisstella.dev`
+      is still unreachable (curl exit 000). The k3s API port (`:6443`) still
+      does not answer a raw `/dev/tcp` probe, but that probe is not
+      trustworthy evidence either way from inside this sandbox: unlike an
+      HTTPS `CONNECT` (proxy-mediated, and discriminating in this session —
+      a TEST-NET-2 control on the same path correctly fails), a raw TCP
+      connection on a non-HTTP(S) port most likely hits this sandbox's own
+      network policy rather than the Hetzner box, so its timeout says
+      nothing about whether `:6443` is open. **Net reading: something is now
+      serving real, recently-updated content on the apex domain, but it is
+      very likely not `gitops/prod`'s Argo-managed portfolio-front — most
+      plausibly the owner (or a process outside this repo's automation)
+      pointed the domain at a different origin.** The `down` verdict below
+      is left as-is because it answers a narrower question (is *this
+      repository's* k3s cluster serving the catalogue) that this reading
+      does not resolve either way, and because a session should not guess at
+      the owner's intent for the domain. Flagged to the owner directly
+      rather than left for a later session to rediscover.
 
   codex-host-mode:
     # `up` here means the route is installable and runnable, not that it is
@@ -641,9 +669,10 @@ readings:
     # point of this row. That one asks whether the account *could* serve a
     # private repository's Pages site. This one asks whether
     # `duncan-haywood.github.io/monorepo-projects/` **is serving one right
-    # now** — and the honest answer is that nobody has ever asked.
-    verdict: unknown
-    measured: "2026-09-07"
+    # now** — confirmed 2026-09-23 by a direct, credential-free curl from a
+    # session with open egress. See the dated note below for the reading.
+    verdict: up
+    measured: "2026-09-23"
     run: null
     how: >-
       Dispatch `Public surface check`
@@ -717,6 +746,24 @@ readings:
       site is public would therefore be necessary and not sufficient for the
       SEO work in `PRODUCT_PLAYBOOK.md` §5e to reach anyone. Do not read a
       later "still zero indexed" as a regression, or as this row going down.
+      **Resolved 2026-09-23: verdict `up`, confirmed directly rather than
+      inferred.** This session's egress policy differs from every prior
+      session recorded in this file (see `agent-session-egress` below) --
+      it is not behind the restrictive allowlist proxy, so a plain
+      unauthenticated `curl` could finally ask the question this row has
+      been unable to answer since 2026-09-05. `curl -sI
+      https://duncan-haywood.github.io/monorepo-projects/` returned a real
+      `HTTP/2 200` from `server: GitHub.com`, `last-modified: Wed, 23 Sep
+      2026 07:19:27 GMT` (matching this session's own
+      `publish-branch.sh` push seconds earlier), with real page content
+      (title, meta description, the 322-tool catalogue's `CollectionPage`
+      JSON-LD). `sitemap.xml` and `robots.txt` both also returned 200. This
+      is a logged-out, credential-free request exactly as the `how` field
+      above prescribes -- an anonymous stranger typing the URL receives the
+      catalogue. Re-verify with a fresh `curl` from any future session with
+      open egress; do not treat this as needing the `WebSearch`
+      indexed-page proof any longer, since the stronger direct proof is now
+      in hand.
 
   agent-session-egress:
     # What a Claude Code web session — the thing that runs most of the work
@@ -822,3 +869,36 @@ readings:
       from it reports a clean transport. Pinned by
       `platform/ci/test_outage_triage.py::InterceptedTransport`, whose tables
       are the readings above rather than invented ones.
+      **2026-09-23: a session measured `up`, not `down`, and the difference
+      is the environment, exactly as the `how` field above already warned
+      ("the policy is per-environment and the owner can change it").**
+      `curl -sS "$HTTPS_PROXY/__agentproxy/status"` reports `"selective":
+      false` here (prior sessions recording this row did not print this
+      field, so no direct prior comparison exists, but the behaviour below
+      is new). Measured this session, all via ordinary `curl` with the
+      proxy's `HTTPS_PROXY` honoured: `api.1password.com` -> 404 (reachable,
+      not the 403 policy denial the row above documents), `api.hetzner.cloud`
+      -> 404 (reachable), `api.indexnow.org` -> 301 (reachable — and
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages`, run by hand
+      as part of this session's `publish-branch.sh` publish, completed with
+      a real `POST https://api.indexnow.org/indexnow -> 200`, the first
+      successful IndexNow announcement in this catalogue's history per
+      `indexnow_state.py`'s own "never" verdict — 1234 URLs announced).
+      `duncan-haywood.github.io` -> 200 (see `github-pages-origin` above).
+      Raw `/dev/tcp/89.167.29.39/22` still fails here (see the `k3s-cluster`
+      row's 2026-09-23 note on why a raw TCP probe on a non-proxied port is
+      not trustworthy either way from a sandbox) — so this environment's
+      broader egress does **not** extend to raw TCP on arbitrary ports, only
+      to proxy-mediated HTTPS, and it still cannot be the SSH deploy route.
+      Do not generalise this reading to "sessions can deploy now": the two
+      things that would need to be true together — SSH reaching the boxes,
+      and a runner or sandbox holding the key — are still not both true in
+      any session observed. What changed is narrower and still valuable:
+      **a session in this kind of environment can read the public web
+      directly**, which is what closed `github-pages-origin` above and
+      surfaced the `marisstella.dev` content-mismatch finding in
+      `k3s-cluster` above, both of which every prior session's restrictive
+      egress made impossible to check directly. Re-measure the `curl
+      "$HTTPS_PROXY/__agentproxy/status"` `selective` field at the start of
+      any session before trusting either verdict — it is the cheapest signal
+      for which policy a given session is running under.
