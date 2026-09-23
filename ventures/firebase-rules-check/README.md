@@ -61,6 +61,13 @@ rules source for anyone logged in as a project member. This tool sends a real, l
 unauthenticated request to your project's actual REST endpoint from the outside — the view an
 attacker, an external auditor, or a developer without console access has.
 
+## How this compares to checking it by hand
+
+Pasting `.json` onto a Realtime Database URL or curl-ing the Firestore REST API by hand catches
+the obvious open root, but a plain request pulls real field values (not just key names), can't
+tell a blocked path from a genuinely empty one without reading the HTTP status, and checks one
+path at a time. See [how this compares to checking it by hand](vs-requesting-the-url-by-hand.html).
+
 ## Privacy
 
 The Realtime Database request goes straight from your browser (or your own machine, for the CLI)
