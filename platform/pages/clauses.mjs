@@ -1059,6 +1059,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Heroku, GitHub Pages) only as CNAME-target examples, not as the thing
   // being compared against.
   'subdomain-takeover-check/vs-checking-dig-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method every SaaS
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-vendr.html and
+  // vs-zylo.html, which name specific SaaS-management platforms and already
+  // carry the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
+  'saas-seat-true-up/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

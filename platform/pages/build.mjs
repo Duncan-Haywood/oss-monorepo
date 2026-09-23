@@ -81,10 +81,18 @@ import {
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  maskScriptAndStyleBodies,
   renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
+
+// Re-exported so callers outside `platform/pages/` (the mirror generator,
+// `platform/marketing/front-door-tools.mjs`) get it from the module they
+// already import other build-time helpers from, rather than reaching into
+// `embed.mjs` -- an implementation detail of where this file's own version of
+// the same defect (see the export's own doc comment) happened to need it too.
+export { maskScriptAndStyleBodies };
 import {
   INVALID_MODULE_FILE,
   INVALID_STYLE_FILE,
@@ -6781,51 +6789,58 @@ export function faqEntries(html) {
     .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
-/**
- * Blank out every `<script>...</script>` body, character-for-character (so
- * the result is the same length and every match index still lines up with
- * the original string) — everything else is untouched.
- *
- * `injectChrome` and the mirror's own nav/related/embed injectors all locate
- * the document's real `<body>`/`</body>` tags with a plain regex over the
- * whole page. That broke on `git-exposure-check`'s own soft-404 guide page:
- * its FAQ answer explains the two responses a checker sees by literally
- * quoting one, `<html><body>404 Not Found</body></html>`, inside a
- * `<script type="application/ld+json">` block in `<head>` — text describing
- * markup, not markup. A raw regex over the full document finds that quoted
- * `<body>`/`</body>` first, since it sits before the page's real body, and
- * every downstream `.replace()`/`indexOf()` call then lands inside the JSON
- * string instead of the actual document structure, corrupting the JSON-LD
- * (a raw newline inside a string literal) and leaving the nav or footer
- * markup stranded in `<head>`. Search a masked copy instead: scripts can
- * still open and close a real `<body>` around themselves, but nothing typed
- * *inside* one can be mistaken for a document tag again.
- *
- * A second, independent fix for the same defect landed in a concurrent
- * session's PR and was reconciled here (2026-09-23): that one restricted the
- * search to start after the real `</head>`, which is narrower — it does not
- * cover the mirror's own `injectMirrorNav`/`injectMirrorRelated`/
- * `injectMirrorEmbed` (`platform/marketing/front-door-tools.mjs`), which hit
- * the identical bug against the committed `gitops/prod/` mirror and need a
- * reusable primitive, not a `build.mjs`-local helper. This masking approach
- * is kept for that reason; the other session's regression test (further down
- * this file) still passes against it.
- */
-export function maskScriptContents(html) {
-  return html.replace(/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi, (_, open, body, close) => (
-    open + body.replace(/[^\n]/g, ' ') + close
-  ));
+// Finds the document's real `<body ...>`/`</body>` pair by position, not by
+// literal text. `html.match(/<body[^>]*>/i)` (the previous implementation)
+// finds the *first* occurrence of that shape anywhere in the string, which is
+// wrong the moment a page's own content quotes an example HTML document
+// earlier than its real body tag -- exactly what a security checker's own
+// copy does when it shows what a soft-404 error page looks like, e.g. a
+// FAQPage JSON-LD answer containing the literal text
+// `<html><body>404 Not Found</body></html>`. `git-exposure-check`'s own
+// "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html" page hit
+// this: the fake `<body>`/`</body>` inside its head's JSON-LD matched first,
+// and the topBar/footer this function inserts landed *inside the JSON
+// string*, corrupting it (`check.mjs` and `page-integrity.mjs` both catch
+// invalid JSON-LD, but only after the page ships broken to a crawler until
+// caught -- and it blocked `publish-branch.sh`'s own build-artifact check the
+// day this was found, for the same reason). The real `<body>` tag can only
+// legitimately appear after the real `</head>`, so searching from there skips
+// any earlier, textually-identical example inside the head's own scripts.
+//
+// `</body>` is the *last* match after that real opening tag, not the first --
+// added after the first version of this fix (which took the first match
+// after `openEnd`) still corrupted a page whose fake example sits inside the
+// real `<body>` rather than in `<head>`: the fake `</body>` inside it then
+// preceded the page's own real closing tag, and "first after the open tag"
+// found that one instead. Nothing legitimate ever follows the document's real
+// `</body>` but `</html>`, so the last match in the document is always the
+// real one, regardless of where an earlier quoted example -- in `<head>` or
+// in `<body>` -- happens to place its own fake `<body>`/`</body>` text.
+// Every insertion below uses this function's indices with plain string
+// slicing rather than `String.prototype.replace(literalOrRegex, ...)`,
+// because that method also matches by content rather than position and would
+// reintroduce the identical bug at each call site.
+function locateBody(html) {
+  const headEnd = /<\/head\s*>/i.exec(html);
+  const searchFrom = headEnd ? headEnd.index + headEnd[0].length : 0;
+  const open = /<body[^>]*>/i.exec(html.slice(searchFrom));
+  if (!open) return null;
+  const openIndex = searchFrom + open.index;
+  const openEnd = openIndex + open[0].length;
+  const closes = [...html.slice(openEnd).matchAll(/<\/body\s*>/gi)];
+  if (!closes.length) return null;
+  const lastClose = closes[closes.length - 1];
+  return { openTag: open[0], openIndex, openEnd, closeIndex: openEnd + lastClose.index };
 }
 
-/** `pattern.exec()` against a masked copy of `html` — see `maskScriptContents`. */
-function structuralMatch(html, pattern) {
-  return pattern.exec(maskScriptContents(html));
+function spliceAt(html, index, text) {
+  return html.slice(0, index) + text + html.slice(index);
 }
 
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = structuralMatch(html, /<body[^>]*>/i);
-  if (!bodyOpen || !structuralMatch(html, /<\/body>/i)) return html;
+  const initialBody = locateBody(html);
+  if (!initialBody) return html;
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6881,9 +6896,9 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     }
   }
   if (headExtras) {
-    const headClose = structuralMatch(html, /<\/head>/i);
-    const insertAt = headClose ? headClose.index : bodyOpen.index;
-    html = html.slice(0, insertAt) + `${headExtras}\n` + html.slice(insertAt);
+    html = /<\/head>/i.test(html)
+      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
+      : spliceAt(html, initialBody.openIndex, `${headExtras}\n`);
   }
 
   const hub = `${toRoot}`;
@@ -6927,22 +6942,24 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // `CHROME_STYLE_FILE`.
   const styleLink =
     `<link rel="stylesheet" href="${escapeHtml(`${toRoot}${CHROME_STYLE_FILE}`)}">`;
-  const headCloseForStyle = structuralMatch(html, /<\/head>/i);
-  const withStyle = headCloseForStyle
-    ? html.slice(0, headCloseForStyle.index) + `${styleLink}\n` + html.slice(headCloseForStyle.index)
-    : html;
+  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
   const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
-  // Re-locate <body> against `withStyle`: the head-close insertion above (if
-  // any) landed before it and shifted its position.
-  const bodyOpenAfterStyle = structuralMatch(withStyle, /<body[^>]*>/i);
-  const topInsertAt = bodyOpenAfterStyle.index + bodyOpenAfterStyle[0].length;
-  const afterTop =
-    withStyle.slice(0, topInsertAt) + `\n${stylePrefix}${topBar}` + withStyle.slice(topInsertAt);
+  // Re-located rather than reusing `initialBody`: the head-extras/stylesheet
+  // insertions above may have shifted every index that followed them. Two
+  // separate `locateBody` calls, not one reused across both splices below,
+  // because inserting the top bar shifts `closeIndex` by exactly the bar's
+  // length -- reusing the first call's stale index would put the footer that
+  // many characters into the wrong place on every page long enough for it to
+  // matter.
+  const bodyAfterHead = locateBody(withStyle);
+  if (!bodyAfterHead) return withStyle; // defensive: entry already required a body pair
+  const withTopBar = spliceAt(withStyle, bodyAfterHead.openEnd, `\n${stylePrefix}${topBar}`);
 
-  const bodyClose = structuralMatch(afterTop, /<\/body>/i);
-  return afterTop.slice(0, bodyClose.index) + `${footer}\n` + afterTop.slice(bodyClose.index);
+  const bodyBeforeFooter = locateBody(withTopBar);
+  if (!bodyBeforeFooter) return withTopBar; // defensive: same structure, just shifted
+  return spliceAt(withTopBar, bodyBeforeFooter.closeIndex, `${footer}\n`);
 }
 
 /**
