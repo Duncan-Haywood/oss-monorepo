@@ -125,16 +125,28 @@ const only = onlySlugs();
 // often the *first* button in the document: `pressPrimaryAction` would stop
 // there and record a working tool as NO-RESPONSE, having never pressed its
 // action at all. That is `cash-runway-planner`, whose one-off payment rows have
-// an "Add another row" above the Forecast button. Anchored, so a compute
-// button that merely contains the word is still pressed.
+// an "Add another row" above the Forecast button.
 //
-// `[+\s]*` in front of the anchor because 15 ventures spell the label
-// "+ Add another …" (docker-base-image-eol-check among them) — the leading
-// "+ " put "add another" one character past `^`, so the bare anchor let the
-// row-adder through as a candidate primary action after all, exactly the
-// false-NO-RESPONSE this exclusion exists to prevent, just for a differently
-// punctuated label than the one that motivated it.
-const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|^[+\s]*add another\b/i;
+// It used to be anchored (`^add another\b`) rather than plain `\badd
+// another\b`, on the reasoning that a compute button merely containing the
+// phrase should still be pressed — but every "Add another …" button across
+// the fleet is itself a row-adder, none compute anything, and three of them
+// (`docker-base-image-eol-check`, plus two more with "+ Add another run" /
+// "+ Add another workflow file") spell the label with a leading "+ ", which
+// the anchor does not match. Unanchoring closes that gap rather than
+// special-casing the "+".
+//
+// "Remove" is the same row-editing shape from the other end. On
+// `docker-base-image-eol-check` each pasted-Dockerfile block puts its own
+// "Remove" button before the textarea and above "Check", so it was the first
+// non-excluded button in the document and `pressPrimaryAction` clicked it
+// instead of the tool's real action — reported NO-RESPONSE on 2026-09-23 for
+// a tool that answers correctly for a real visitor who clicks Check. 49
+// ventures carry a "Remove"/"Remove this run"/"Remove this tree" button for
+// deleting an added row; none of them compute anything by removing one, so
+// excluding the word is safe everywhere it appears, unanchored like the rest
+// of this list.
+const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|remove|add another/i;
 
 // Several tools open on an empty form and offer their own worked example. That
 // button is the shortest path this product has to first value, so a sweep that

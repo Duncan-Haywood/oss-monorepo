@@ -27,7 +27,7 @@
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
     button.secondary { background: #e3e9ef; color: #17324a; }
     button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
-    button:disabled { opacity: .45; cursor: not-allowed; }
+    button:disabled { cursor: not-allowed; opacity: 0.6; }
     .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
     .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
     .file-block-head input { margin-bottom: 0; }
@@ -175,17 +175,13 @@ CMD ["python3", "serve.py"]
       return wrap;
     }
 
-    // A "Remove" button that clicks and does nothing (only one Dockerfile
-    // block left, so the click handler's own guard refuses) reads as broken
-    // to a visitor and, worse, is the first pressable control in document
-    // order -- so a generic interaction test tried it before ever reaching
-    // "Check" and reported the whole tool unresponsive. Disabling it whenever
-    // it would be a no-op fixes both: the button stops lying about what it
-    // does, and it stops being the thing that gets pressed first.
+    // With one Dockerfile block on the page, "Remove" has nothing to do and
+    // the click handler above silently no-ops -- a button that looks
+    // actionable and isn't. Disabled until a second block exists to remove.
     function updateRemoveButtons() {
-      const blocks = [...els.files.querySelectorAll(".file-block")];
-      const onlyOne = blocks.length <= 1;
-      for (const block of blocks) block.querySelector(".remove-file").disabled = onlyOne;
+      const buttons = els.files.querySelectorAll(".remove-file");
+      const disable = buttons.length <= 1;
+      for (const button of buttons) button.disabled = disable;
     }
 
     function addFile(name = "", text = "") {
