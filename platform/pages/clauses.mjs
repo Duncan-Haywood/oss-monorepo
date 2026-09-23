@@ -1060,6 +1060,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every rental
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-booqable.html and
+  // vs-inflatableoffice.html, which name specific rental platforms and
+  // already carry the "not affiliated" clause for that reason. Same
+  // reasoning as the other vs-spreadsheet pages above.
+  'bounce-house-rental-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
