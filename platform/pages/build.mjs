@@ -777,8 +777,18 @@ const CATEGORY_RULES = [
     // customer/stop list and its own cost structure into route economics.
     // Not a trade bid (nothing priced by area or a construction job) and
     // not a marketplace fee.
+    // `sign-language-interpreter-rate-calculator` joined 2026-09-23, filed
+    // here on its first commit rather than left for a catch-all spell: a
+    // freelance/contract sign language interpreter turning an assignment's
+    // hours, a booking minimum, portal-to-portal travel, and an after-hours
+    // differential into a customer-facing fee is the same job as
+    // `notary-trip-quote` and `court-reporter-transcript-calculator` (which
+    // it links to, and which links back) — a solo professional turning
+    // time, travel, and a booking policy into a price. Not a trade bid
+    // (nothing priced by area or a construction job) and not a marketplace
+    // fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate)/.test(
         slug,
       ),
   },
