@@ -392,6 +392,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // says so explicitly ("common, honest shortcut"). Same reasoning as the
   // other generic-method pages above.
   'crown-molding-bid-calculator/vs-a-flat-rate-crown-molding-special.html',
+  // Compares against "a flat $3,995 installed" stair lift special -- a
+  // generic pricing method every accessibility/elevator contractor already
+  // has access to, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("common, honest shortcut"). Same
+  // reasoning as the other generic-method pages above.
+  'stair-lift-bid-calculator/vs-a-flat-rate-stair-lift-special.html',
   // Compares against "tracking payouts in a spreadsheet" -- a generic method
   // every Whatnot seller already has access to, not a company or product
   // this could be mistaken for. The page's own footer says so explicitly
@@ -505,6 +511,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no vendor or competing
   // calculator at all.
   'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // every remodeler pricing rec-room versus framed-finish versus
+  // legal-living scope already reaches for, not a company or product this
+  // could be mistaken for. The page names no spreadsheet application and its
+  // own footer says so explicitly. Same reasoning as the
+  // amazon-fba-calculator and reverb-fee-calculator spreadsheet pages above.
+  'basement-finishing-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
