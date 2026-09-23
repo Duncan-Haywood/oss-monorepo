@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 127 files, 556872 bytes
 #   portfolio-front-tools-6: 128 files, 552747 bytes
 #   portfolio-front-tools-7: 135 files, 553544 bytes
-#   portfolio-front-tools-8: 121 files, 545639 bytes
+#   portfolio-front-tools-8: 122 files, 550225 bytes
 #   portfolio-front-tools-9: 114 files, 556011 bytes
 #   portfolio-front-tools-10: 117 files, 554442 bytes
 #   portfolio-front-tools-11: 126 files, 556518 bytes
@@ -1226,6 +1226,7 @@ configMapGenerator:
       - ev-charger-bid-calculator__index.html.gz=ev-charger-bid-calculator__index.html.gz
       - ev-charger-bid-calculator__share.mjs.gz=ev-charger-bid-calculator__share.mjs.gz
       - ev-charger-bid-calculator__usage.mjs.gz=ev-charger-bid-calculator__usage.mjs.gz
+      - ev-charger-bid-calculator__vs-a-flat-hang-fee.html.gz=ev-charger-bid-calculator__vs-a-flat-hang-fee.html.gz
       - ev-charger-bid-calculator__vs-servicetitan.html.gz=ev-charger-bid-calculator__vs-servicetitan.html.gz
       - ev-charger-bid-calculator__vs-workiz.html.gz=ev-charger-bid-calculator__vs-workiz.html.gz
       - exterior-painting-bid-calculator__calc.mjs.gz=exterior-painting-bid-calculator__calc.mjs.gz
