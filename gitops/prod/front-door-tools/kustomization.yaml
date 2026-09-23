@@ -33,24 +33,24 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 134 files, 556445 bytes
-#   portfolio-front-tools-1: 101 files, 554102 bytes
-#   portfolio-front-tools-2: 150 files, 555950 bytes
-#   portfolio-front-tools-3: 134 files, 556766 bytes
-#   portfolio-front-tools-4: 140 files, 553748 bytes
-#   portfolio-front-tools-5: 125 files, 549145 bytes
-#   portfolio-front-tools-6: 130 files, 542288 bytes
-#   portfolio-front-tools-7: 122 files, 556724 bytes
-#   portfolio-front-tools-8: 138 files, 555234 bytes
-#   portfolio-front-tools-9: 116 files, 555206 bytes
-#   portfolio-front-tools-10: 118 files, 552922 bytes
-#   portfolio-front-tools-11: 114 files, 550414 bytes
-#   portfolio-front-tools-12: 127 files, 554628 bytes
-#   portfolio-front-tools-13: 132 files, 555174 bytes
-#   portfolio-front-tools-14: 109 files, 553391 bytes
-#   portfolio-front-tools-15: 107 files, 556314 bytes
+#   portfolio-front-tools-0: 134 files, 556532 bytes
+#   portfolio-front-tools-1: 101 files, 554090 bytes
+#   portfolio-front-tools-2: 150 files, 555953 bytes
+#   portfolio-front-tools-3: 134 files, 556769 bytes
+#   portfolio-front-tools-4: 140 files, 553735 bytes
+#   portfolio-front-tools-5: 125 files, 549139 bytes
+#   portfolio-front-tools-6: 130 files, 542276 bytes
+#   portfolio-front-tools-7: 122 files, 556719 bytes
+#   portfolio-front-tools-8: 138 files, 555230 bytes
+#   portfolio-front-tools-9: 116 files, 555199 bytes
+#   portfolio-front-tools-10: 118 files, 552904 bytes
+#   portfolio-front-tools-11: 114 files, 550413 bytes
+#   portfolio-front-tools-12: 127 files, 554624 bytes
+#   portfolio-front-tools-13: 132 files, 555171 bytes
+#   portfolio-front-tools-14: 109 files, 553375 bytes
+#   portfolio-front-tools-15: 107 files, 556319 bytes
 #   portfolio-front-tools-16: 127 files, 555935 bytes
-#   portfolio-front-tools-17: 68 files, 322070 bytes
+#   portfolio-front-tools-17: 71 files, 333662 bytes
 #   portfolio-front-tools-18: 49 files, 265861 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2283,6 +2283,9 @@ configMapGenerator:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - voiceover-project-rate-calculator__calc.mjs.gz=voiceover-project-rate-calculator__calc.mjs.gz
+      - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
+      - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
