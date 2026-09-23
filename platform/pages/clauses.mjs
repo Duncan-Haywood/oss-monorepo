@@ -730,6 +730,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-quoteiq.html, which does name a product and carries its own
   // "not affiliated" clause.
   'concrete-lifting-bid-calculator/vs-a-flat-rate-special.html',
+  // Compares against "a flat price per finished square foot" -- the
+  // per-square-foot pricing habit every countertop fabricator is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-moraware.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
