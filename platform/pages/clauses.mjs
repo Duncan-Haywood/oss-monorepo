@@ -100,6 +100,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // every repository admin already has, not a company or product this
   // could be mistaken for.
   'branch-protection-drift-check/vs-manually-checking-settings.html',
+  // Compares against "opening devtools and checking by hand" -- a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for.
+  'source-map-leak-check/vs-checking-devtools-by-hand.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',

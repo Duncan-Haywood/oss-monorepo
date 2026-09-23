@@ -998,6 +998,9 @@ workflows:
 - workflow: solar-pv-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: source-map-leak-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []

@@ -2094,7 +2094,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # same shape as the rest of this running count. Both branches only ever
     # knew their own predecessor's number (325) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
-    total = 327  # `infra/OWNER_CHECKLIST.md`'s own "N of the 327 tools" wording.
+    #
+    # 328 since this merge: `source-map-leak-check` graduated -- a browser +
+    # CLI checker reading each script's own sourceMappingURL comment and
+    # fetching the referenced map to test whether a production source map
+    # is publicly readable, and whether it embeds full original source text
+    # or only file paths, with a static `index.html` from its first commit,
+    # same shape as the rest of this running count.
+    total = 328  # `infra/OWNER_CHECKLIST.md`'s own "N of the 328 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

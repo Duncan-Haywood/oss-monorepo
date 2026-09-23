@@ -427,7 +427,12 @@ const RELATIVE_SELF = relative(
 // and no deletions. Both branches only ever knew their own predecessor's
 // number (307) until this merge -- the same ordinary collision shape
 // recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 309;
+//
+// 310 since this merge: `source-map-leak-check` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its sibling checkers
+// (`usageOptedOut`/`setUsageOptOut`-equivalent gating via `readOptOut`/
+// `writeOptOut` in `recordUsage`, same as `supabase-rls-check`'s).
+const SWITCHES_IN_THE_CATALOGUE = 310;
 
 let counter = 0;
 function fixture(source) {

@@ -1585,3 +1585,38 @@ candidates:
       rather than inheriting this one's.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: source-map-leak-check
+    name: Source map leak checker
+    doc: candidates/source-map-leak-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/source-map-leak-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep every request GET-only and read the map's own JSON only for
+      structural fields (sources, sourcesContent presence, counts) -- never
+      render or store the actual decoded source text server-side, and never
+      write, submit, or otherwise modify anything on the target. Cap the
+      number of bytes read per script/map file so a run cannot be turned
+      into an unbounded download. A response this tool cannot classify (a
+      network error, a browser CORS block, an unexpected status) is
+      reported as an error, never silently folded into either "exposed" or
+      "safe" -- guessing in either direction would be worse than an honest
+      "could not confirm." Explicit "only test a site you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
