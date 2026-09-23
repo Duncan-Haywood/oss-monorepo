@@ -151,6 +151,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // not a company or product this could be mistaken for. Same reasoning as
   // the other manual-method pages above.
   'ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html',
+  // Compares against "picking a resistor or capacitor from the parts bin"
+  // -- a manual component-selection habit every user of this calculator
+  // already has access to, not a company or product this could be
+  // mistaken for. Same reasoning as the other manual-method pages above,
+  // including this venture's own resistor-calculator sibling entry.
+  'ai-engineering-academy/rc-filter-calculator/vs-picking-a-component-from-the-parts-bin.html',
   // Compares against "a spreadsheet" -- a generic method every HOA board
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
@@ -620,6 +626,54 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-smartmoving.html, which does name a product and carries its own
   // "not affiliated" clause.
   'moving-bid-calculator/vs-a-bedroom-count-quote.html',
+  // Compares against "a flat rate repair price" -- the price-book-by-
+  // complaint habit every independent appliance repair technician is
+  // shopped against, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-housecall-pro.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'appliance-repair-quote-calculator/vs-a-flat-rate-repair-price.html',
+  // Compares against "a flat Saturday-special price" -- the flat per-unit
+  // event-day pricing habit every portable sanitation yard is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing platform at all -- distinct from this
+  // venture's own vs-servicecore.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'portable-restroom-event-quote/vs-a-flat-saturday-special-price.html',
+  // Compares against "a spreadsheet" -- the flat fee-percentage tracking
+  // habit every eBay seller already has, not a company or product this
+  // could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own
+  // vs-ebay-fee-calculator.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'ebay-fee-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat price per door" -- the per-door pricing habit
+  // every cabinet painter is shopped against, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all -- distinct from this venture's own vs-kickserv.html, which does
+  // name a product and carries its own "not affiliated" clause.
+  'cabinet-refinishing-bid-calculator/vs-a-flat-price-per-door.html',
+  // Compares against "a flat $199 house sweep special" -- the postcard
+  // chimney-sweep rate every sweep is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'chimney-sweep-bid-calculator/vs-a-flat-house-sweep-special.html',
+  // Compares against "a flat per-room special" -- the "3 bedrooms, $129"
+  // room-count pricing habit every carpet-cleaning technician is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-servicemonster.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'carpet-cleaning-bid-calculator/vs-a-flat-per-room-special.html',
+  // Compares against "watching your backup's exit code yourself" -- the
+  // cron-mail/systemd-status habit every operator running a scheduled
+  // backup already has, not a company or product this could be mistaken
+  // for. The page names no vendor or competing tool at all -- distinct
+  // from this venture's own vs-healthchecks.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'backup-verification-evidence/vs-checking-the-exit-code-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
