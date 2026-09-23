@@ -1016,6 +1016,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-keeper.html, which does name a product and carries its own "not
   // affiliated" clause.
   'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
+  // Compares against "tracking Turo payouts in a spreadsheet" -- the generic
+  // method every host comparing plans or booking windows already reaches
+  // for, not a company or product this could be mistaken for. Turo is named
+  // throughout only as the platform this calculator's arithmetic runs
+  // against, the same way amazon-fba-calculator's and
+  // str-host-payout-calculator's own spreadsheet pages above name Amazon and
+  // Airbnb/Vrbo while still comparing against a spreadsheet, not the
+  // platform as a product. Same reasoning as those two pages.
+  'turo-host-payout-calculator/vs-tracking-turo-payouts-in-a-spreadsheet.html',
   // Compares against "pasting a Realtime Database URL into a browser or
   // curl-ing the Firestore REST API by hand" -- a generic manual habit any
   // developer with the project ID already has, not a company or product

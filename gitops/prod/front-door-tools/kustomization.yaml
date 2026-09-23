@@ -50,8 +50,8 @@
 #   portfolio-front-tools-14: 133 files, 553149 bytes
 #   portfolio-front-tools-15: 98 files, 543311 bytes
 #   portfolio-front-tools-16: 121 files, 553387 bytes
-#   portfolio-front-tools-17: 118 files, 556171 bytes
-#   portfolio-front-tools-18: 68 files, 343546 bytes
+#   portfolio-front-tools-17: 118 files, 557007 bytes
+#   portfolio-front-tools-18: 69 files, 347920 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2321,6 +2321,7 @@ configMapGenerator:
       - turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz=turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz
       - turo-host-payout-calculator__index.html.gz=turo-host-payout-calculator__index.html.gz
       - turo-host-payout-calculator__usage.mjs.gz=turo-host-payout-calculator__usage.mjs.gz
+      - turo-host-payout-calculator__vs-tracking-turo-payouts-in-a-spreadsheet.html.gz=turo-host-payout-calculator__vs-tracking-turo-payouts-in-a-spreadsheet.html.gz
       - tutor-package-pricing-calculator__calc.mjs.gz=tutor-package-pricing-calculator__calc.mjs.gz
       - tutor-package-pricing-calculator__index.html.gz=tutor-package-pricing-calculator__index.html.gz
       - tutor-package-pricing-calculator__usage.mjs.gz=tutor-package-pricing-calculator__usage.mjs.gz
@@ -2413,12 +2414,12 @@ configMapGenerator:
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
-      - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
       - wedding-florist-proposal-calculator__index.html.gz=wedding-florist-proposal-calculator__index.html.gz
       - wedding-florist-proposal-calculator__share.mjs.gz=wedding-florist-proposal-calculator__share.mjs.gz
       - wedding-florist-proposal-calculator__usage.mjs.gz=wedding-florist-proposal-calculator__usage.mjs.gz

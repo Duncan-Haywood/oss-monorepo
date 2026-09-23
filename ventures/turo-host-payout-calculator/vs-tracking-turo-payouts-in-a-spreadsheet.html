@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. tracking Turo payouts in a spreadsheet | Turo Host Payout Calculator</title>
+  <meta name="description" content="Turo's host share is a 3-plan x 4-window matrix, not one percentage. On the same $350 trip, plan choice alone is worth $70.00 and booking timing alone is worth $52.50 -- two different swings a spreadsheet has to compute separately.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-tracking-turo-payouts-in-a-spreadsheet.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This calculator vs. tracking Turo payouts in a spreadsheet">
+  <meta property="og:description" content="Plan choice and booking timing move a Turo host's payout by different amounts on the same trip. This free calculator shows both swings at once instead of one lookup at a time.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. Every step this calculator runs is ordinary arithmetic: look up the host share for the chosen earnings plan and booking window in Turo's 3-plan x 4-window matrix, add any extra-mileage, late-return, and additional-usage fees to the trip price to get the split-eligible amount, then multiply by the share. Getting it right by hand means keeping the whole 12-cell matrix current -- Turo has changed this exact structure more than once within 2026 -- and remembering that the percentage applies to the trip price plus those extra fees, not the headline day rate alone."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Show both swings on the same trip at once. Changing which earnings plan you picked, holding the booking window fixed, is a different question from changing when the guest booked, holding the plan fixed -- and they move the payout by different amounts. On this page's own worked example, plan choice alone is worth $70.00 (Peace of Mind's $245.00 up to More Earnings' $315.00), while booking-window timing alone is worth $52.50 (a last-minute $262.50 up to a 28+-day $315.00) on the exact same $350 trip. A spreadsheet with one cell for \"the percentage\" answers one of those two questions at a time; this calculator recomputes both the moment either input changes."}},{"@type":"Question","name":"Why do the plan swing and the booking-window swing come out to different dollar amounts on the same trip?","acceptedAnswer":{"@type":"Answer","text":"Because they are two independent levers in a matrix, not two readings of one percentage. Turo's host share is set by which of 3 plans a host picked crossed with which of 4 booking windows the guest's booking fell into -- 12 cells, not one. On this page's $350, 3-13-day-window worked example, moving across the 3 plans swings the payout by $70.00; moving across the 4 booking windows on the Balanced plan alone swings it by $52.50. Neither number tells you the other, and a spreadsheet has to build two separate comparisons -- one holding the window fixed, one holding the plan fixed -- to see both, the same two tables this calculator prints automatically."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a shape this calculator's inputs cannot represent -- a fleet of vehicles on different plans, a promotional or delivery discount that changes your effective rate, or a booking history you want to total trip by trip rather than project linearly from one trip's numbers. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields -- plan, booking window, and the three extra-fee types -- for the matrix question most hosts actually face."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. Nothing you enter -- trip price, plan, booking window, or fees -- is uploaded anywhere, and the optional usage counter records only which features were used and the day, never your trip numbers."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a1f16; background: #f2f6ef; }
+    body { max-width: 780px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4d20; overflow-wrap: anywhere; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4d20; margin: 0 0 6px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.1; margin: .3rem 0; max-width: 26ch; letter-spacing: -.04em; color: #1f4d20; }
+    .lede { font-size: 1.05rem; max-width: 66ch; color: #4a5245; }
+    section { background: #fff; border: 1px solid #d7e3d1; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1f4d2010; margin: 1.2rem 0; }
+    h2 { margin-top: 0; font-size: 1.15rem; color: #1f4d20; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e6efe1; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5245; }
+    tbody tr.selected th { color: #1f4d20; }
+    tbody tr.selected th::after { content: " · your selection"; font-weight: 700; font-size: .78rem; }
+    .note, .fine { font-size: .88rem; color: #4a5245; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5245; }
+    footer p { margin: .6rem 0; }
+  </style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Turo host payout calculator</a></p>
+<header>
+<h1>This calculator vs. tracking Turo payouts in a spreadsheet</h1>
+<p class="lede">A host comparing plans, or checking what booking timing is worth, usually starts building a table: a row per earnings plan, a column per booking window, 12 cells to fill in from Turo's help pages. Each cell is ordinary arithmetic. Keeping the whole grid current &mdash; and remembering that the percentage applies to the trip price plus any extra-mileage, late-return, and additional-usage fees, not just the headline day rate &mdash; is the part that gets skipped.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p><strong>A spreadsheet</strong> can reproduce every step this calculator runs: look up the host share in Turo's 3-plan &times; 4-booking-window matrix, add the trip price to any extra-mileage, late-return, and additional-usage fees to get the split-eligible amount, then multiply by the share. Building it means copying all 12 cells from Turo's host-earnings pages into the right row and column, and re-copying them whenever Turo revises the structure &mdash; which it has done more than once within 2026.</p>
+<p><strong>This calculator</strong> keeps the whole matrix wired to one trip, so entering a trip price once shows the payout under the selected plan and window, the same trip re-priced under all three plans at that window, and the same trip re-priced under all four windows at that plan &mdash; two different comparisons, each with its own dollar swing, from a single entry rather than two separate lookups built by hand.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What does changing my earnings plan alone do to this trip's payout?</td><td>This calculator's plan-comparison table &mdash; see below.</td></tr>
+<tr><td>What does the guest's booking timing alone do to this trip's payout?</td><td>This calculator's booking-window table &mdash; see below. A different question, a different swing.</td></tr>
+<tr><td>Does the percentage apply to the headline day rate or to the extra fees too?</td><td>The extra fees too &mdash; this calculator adds extra-mileage, late-return, and additional-usage fees to the trip price before applying the share, automatically.</td></tr>
+<tr><td>My situation has a wrinkle this calculator doesn't model (a multi-vehicle fleet, a delivery discount).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No, for either approach &mdash; a spreadsheet file stays wherever you saved it, and this calculator runs entirely in your browser.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<h2>One trip, twelve cells, two different swings</h2>
+<p>Using this calculator's own worked example: a $350 trip, 3 days, no extra fees, on the Balanced plan, booked 3-13 days ahead. Host payout on that trip: <strong>$280.00</strong>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Plan (same trip, same 3-13-day window)</th><th scope="col">Host share</th><th scope="col">Host payout</th><th scope="col">Turo's cut</th></tr></thead>
+<tbody>
+<tr><th scope="row">Peace of Mind</th><td>70%</td><td>$245.00</td><td>$105.00</td></tr>
+<tr class="selected"><th scope="row">Balanced</th><td>80%</td><td>$280.00</td><td>$70.00</td></tr>
+<tr><th scope="row">More Earnings</th><td>90%</td><td>$315.00</td><td>$35.00</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Swing across plans on this trip, window held fixed: <strong>$70.00</strong>.</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Booking window (same trip, same Balanced plan)</th><th scope="col">Host share</th><th scope="col">Host payout</th><th scope="col">Turo's cut</th></tr></thead>
+<tbody>
+<tr><th scope="row">0-2 days ahead</th><td>75%</td><td>$262.50</td><td>$87.50</td></tr>
+<tr class="selected"><th scope="row">3-13 days ahead</th><td>80%</td><td>$280.00</td><td>$70.00</td></tr>
+<tr><th scope="row">14-27 days ahead</th><td>85%</td><td>$297.50</td><td>$52.50</td></tr>
+<tr><th scope="row">28+ days ahead</th><td>90%</td><td>$315.00</td><td>$35.00</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Swing across booking windows on this trip, plan held fixed: <strong>$52.50</strong>.</p>
+<p>Two different questions, two different answers, on the identical $350 trip: plan choice alone is worth <strong>$70.00</strong>; booking timing alone is worth <strong>$52.50</strong>. A spreadsheet with a single cell for &ldquo;the Turo percentage&rdquo; cannot show either swing without building a second table &mdash; and building only one of the two, which is the easy mistake, hides half the story. At 6 trips like this one a month on the Balanced / 3-13-day cell: $280.00 &times; 6 = <strong>$1,680.00 a month</strong>, or <strong>$20,160.00 a year</strong> &mdash; a linear projection from one trip's payout, and only right if every trip actually lands in the same plan/window cell the projection assumes.</p>
+</section>
+<p>A spreadsheet is not wrong about the arithmetic &mdash; every number above is arithmetic a spreadsheet can do. What it does not do on its own is keep all 12 cells of Turo's matrix current, or hold one lever fixed while varying the other to isolate what plan choice is worth versus what booking timing is worth. This calculator does not know your own booking history, your fleet, or a delivery discount that changes your effective rate; it replaces the lookup and the arithmetic a spreadsheet has to be told to redo every time Turo's numbers move.</p>
+<section>
+<h2>Common questions</h2>
+<h3>Can a spreadsheet do this math instead?</h3>
+<p>Yes. Every step this calculator runs is ordinary arithmetic: look up the host share for the chosen earnings plan and booking window in Turo's 3-plan x 4-window matrix, add any extra-mileage, late-return, and additional-usage fees to the trip price to get the split-eligible amount, then multiply by the share. Getting it right by hand means keeping the whole 12-cell matrix current -- Turo has changed this exact structure more than once within 2026 -- and remembering that the percentage applies to the trip price plus those extra fees, not the headline day rate alone.</p>
+<h3>What does a spreadsheet not do that this calculator does?</h3>
+<p>Show both swings on the same trip at once. Changing which earnings plan you picked, holding the booking window fixed, is a different question from changing when the guest booked, holding the plan fixed -- and they move the payout by different amounts. On this page's own worked example, plan choice alone is worth $70.00 (Peace of Mind's $245.00 up to More Earnings' $315.00), while booking-window timing alone is worth $52.50 (a last-minute $262.50 up to a 28+-day $315.00) on the exact same $350 trip. A spreadsheet with one cell for "the percentage" answers one of those two questions at a time; this calculator recomputes both the moment either input changes.</p>
+<h3>Why do the plan swing and the booking-window swing come out to different dollar amounts on the same trip?</h3>
+<p>Because they are two independent levers in a matrix, not two readings of one percentage. Turo's host share is set by which of 3 plans a host picked crossed with which of 4 booking windows the guest's booking fell into -- 12 cells, not one. On this page's $350, 3-13-day-window worked example, moving across the 3 plans swings the payout by $70.00; moving across the 4 booking windows on the Balanced plan alone swings it by $52.50. Neither number tells you the other, and a spreadsheet has to build two separate comparisons -- one holding the window fixed, one holding the plan fixed -- to see both, the same two tables this calculator prints automatically.</p>
+<h3>Is a spreadsheet ever the better choice?</h3>
+<p>Yes, when your situation has a shape this calculator's inputs cannot represent -- a fleet of vehicles on different plans, a promotional or delivery discount that changes your effective rate, or a booking history you want to total trip by trip rather than project linearly from one trip's numbers. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields -- plan, booking window, and the three extra-fee types -- for the matrix question most hosts actually face.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No. The calculator runs entirely in your browser. Nothing you enter -- trip price, plan, booking window, or fees -- is uploaded anywhere, and the optional usage counter records only which features were used and the day, never your trip numbers.</p>
+<p class="note">This page names no spreadsheet application or fleet-management platform as a competitor &mdash; it compares against the generic method of tracking Turo payouts in a spreadsheet, not a competing calculator or service. Turo is named throughout only as the platform this calculator's arithmetic runs against. Open <a href="./">the Turo host payout calculator</a>, or see <a href="how-much-does-turo-take-from-hosts.html">how much Turo actually takes from hosts</a>, the plan &times; booking-window matrix worked through on the same trip.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This is not legal, tax, financial, or business advice, and it is not a quote from Turo or any other platform. Verify every rate against your own Turo Host Hub before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device; nothing you enter is uploaded anywhere. This page names no spreadsheet application or fleet-management platform &mdash; it compares against the generic method of tracking payouts by hand, not a competing product.</p>
+<p class="support">Free and open source. If it saved you time, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body>
+</html>
