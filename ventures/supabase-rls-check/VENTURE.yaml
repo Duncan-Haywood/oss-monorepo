@@ -1,0 +1,72 @@
+name: supabase-rls-check
+description: >-
+  A free browser tool + CLI: reads a Supabase project's own public PostgREST
+  schema listing, then sends one real, read-only GET per table using the
+  anon key the user provides, and names which tables return real rows to
+  that unauthenticated request -- the missing-Row-Level-Security exposure
+  behind CVE-2025-48757 (170+ apps built with AI app-builder platforms found
+  exposed in 2025-2026). Runs entirely client-side in the browser (PostgREST
+  answers with Access-Control-Allow-Origin: *, unlike a check that needs a
+  forbidden request header); the CLI performs the identical check for CI.
+  Never writes, updates, or deletes anything -- read-only, capped at one row
+  per table.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, security researcher, or agency doing due diligence on a
+      Supabase-backed project who has read about CVE-2025-48757 or the
+      "170+ Lovable apps" incident will search terms like "supabase rls
+      checker", "check supabase anon key exposure", "is my supabase table
+      public", or "supabase rls disabled check" and find this tool, since it
+      needs no dashboard login -- only the anon key and URL any visitor's
+      browser already has -- and runs entirely in the browser with nothing
+      sent to a third party.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Real, dated, ongoing demand exists: multiple 2026 guide posts and
+      security write-ups (dev.to's "Missing RLS: The Most Underrated Breach
+      Cause of 2026", multiple "Supabase RLS Guide 2026" posts, a byteiota
+      report naming 170+ exposed apps) plus at least one named hosted
+      competitor (VibeAppScanner) building a paid/hosted response to the
+      same problem. A developer who has just read one of these wants an
+      immediate, no-signup way to check their own project, which none of
+      the write-ups themselves provide.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or team that gets an exposed-table finding will wire the
+      CLI into their own migration/deploy CI as a regression gate, so a
+      newly created table that ships without RLS is caught the same day
+      rather than discovered by an attacker -- producing return usage with
+      no action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Supabase (or PostgREST) changes the anon role's default schema grant or
+    the REST API's CORS policy such that this exact client-side check no
+    longer works, and no equivalent read-only introspection route replaces
+    it -- at which point the check would need server-side infrastructure
+    this portfolio does not run, changing its cost and liability profile.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/supabase-rls-check/
+  analytics: null
