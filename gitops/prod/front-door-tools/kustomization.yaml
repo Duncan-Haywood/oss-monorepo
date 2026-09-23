@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 149 files, 552541 bytes
 #   portfolio-front-tools-3: 133 files, 551711 bytes
 #   portfolio-front-tools-4: 139 files, 556687 bytes
-#   portfolio-front-tools-5: 126 files, 546732 bytes
+#   portfolio-front-tools-5: 127 files, 551428 bytes
 #   portfolio-front-tools-6: 130 files, 556816 bytes
 #   portfolio-front-tools-7: 122 files, 547530 bytes
 #   portfolio-front-tools-8: 138 files, 553591 bytes
@@ -781,6 +781,7 @@ configMapGenerator:
       - automatic-driveway-gate-bid-calculator__how-much-to-charge-to-install-an-automatic-gate.html.gz=automatic-driveway-gate-bid-calculator__how-much-to-charge-to-install-an-automatic-gate.html.gz
       - automatic-driveway-gate-bid-calculator__index.html.gz=automatic-driveway-gate-bid-calculator__index.html.gz
       - automatic-driveway-gate-bid-calculator__usage.mjs.gz=automatic-driveway-gate-bid-calculator__usage.mjs.gz
+      - automatic-driveway-gate-bid-calculator__vs-a-flat-4500-special.html.gz=automatic-driveway-gate-bid-calculator__vs-a-flat-4500-special.html.gz
       - automatic-driveway-gate-bid-calculator__vs-jobber.html.gz=automatic-driveway-gate-bid-calculator__vs-jobber.html.gz
       - backflow-test-fee-calculator__calc.mjs.gz=backflow-test-fee-calculator__calc.mjs.gz
       - backflow-test-fee-calculator__index.html.gz=backflow-test-fee-calculator__index.html.gz
