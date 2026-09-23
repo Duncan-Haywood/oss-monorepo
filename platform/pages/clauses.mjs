@@ -943,6 +943,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-jobber.html, which does name a
   // product and carries its own "not affiliated" clause.
   'french-drain-bid-calculator/vs-a-flat-price-per-foot.html',
+  // Compares against "a flat $4 a square foot installed" special -- a generic
+  // postcard pricing pattern excavation and landscape shops of many different
+  // names advertise for gravel driveways, not one specific company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  // Same reasoning as the other vs-a-flat-*-special pages already in the tree
+  // (e.g. exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'gravel-driveway-bid-calculator/vs-a-flat-4-per-square-foot-special.html',
   // Compares against "a flat price per square foot" -- the generic pricing
   // habit the trade is shopped on, not a company or product this could be
   // mistaken for. The page names no vendor or competing calculator at all --
