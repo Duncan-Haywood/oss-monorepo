@@ -36430,3 +36430,214 @@ entries:
         over budget) both before and after. CI (Actions) is starved this
         session (runner_id: 0 on recent Portfolio validate runs per the task
         brief), so this local run is the verification of record.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        pages_state.py and usage_state.py both current/honest at session
+        start; CI confirmed starved (ci_starvation.py on the latest
+        Portfolio validate run: runner_id 0). browser_state.py reported all
+        8 whole-catalogue browser checks STALE (builder/front-door churn),
+        so ran the full suite (`npm install --no-save playwright@1.56.0
+        axe-core`, then `browser_checks.py --record --checks sideways,
+        presets,roundtrip,highlight,contrast,optout,sweep,journey`). 7 of 8
+        passed clean; `sweep` failed one real finding —
+        `docker-base-image-eol-check` read NO-RESPONSE.
+      - >-
+        Root-caused before writing a fix: `sweep.mjs`'s `pressPrimaryAction`
+        picks the first on-page button `NOT_AN_ACTION` doesn't exclude, and
+        this venture's own "Remove" button (guarded to no-op when only one
+        Dockerfile row exists) sits ahead of "Check" in DOM order and wasn't
+        excluded, so a working tool read as dead. Wrote and verified a fix to
+        `NOT_AN_ACTION`, then `git fetch origin main` before pushing (per
+        CLAUDE.md's Duplicate PRs section) turned up that two other sessions
+        had independently landed the same finding minutes earlier: #5141
+        (the identical `sweep.mjs` regex fix, functionally equivalent to the
+        one written here) and #5142 (the sharper fix — disabling the Remove
+        button on the product itself when it would no-op, a real UX
+        improvement this session's sweep-only fix didn't touch). Discarded
+        this session's redundant commit (`git reset --hard origin/main`)
+        rather than push a conflicting third version.
+      - >-
+        The still-open, non-duplicate task was the recording: nobody had run
+        the full suite against the now-fixed code, so `browser_state.py`
+        still read STALE. Re-ran the full 8-check suite on top of #5141/#5142
+        (commit `0b2dea1f`) — all 8 pass clean (1264 pages; 1256+ at 360px no
+        sideways scroll; presets/roundtrip/highlight all green; 1255+ pages
+        x 2 viewports no WCAG A/AA violations; opt-out persistence holds;
+        full customer-journey narrative, sitemap and 404 checks pass) — and
+        recorded it with `--record`, so `browser_state.py` now reads current
+        for the whole catalogue instead of stale.
+  - venture: commercial-photo-license-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session. Helped drive open PR #5150
+        (fence-bid-calculator) to green by resolving its merge conflict
+        against a newer main, but a concurrent session pushed a
+        byte-identical resolution first, so fast-forwarded to their commit
+        rather than duplicating; #5150 merged before this session's
+        re-verification finished. Then surveyed router/allocate.py's top
+        ~30 candidates via surface-budget.mjs --for -- every one already
+        had its generic-method comparison budget used (0/1 -> 1/1) by
+        concurrent sessions in the hours before this one. Picked
+        deck-bid-calculator (0/1, untouched in the prior 30 commits, no
+        open PR) and wrote vs-a-flat-price-per-square-foot.html, but on
+        merging a newer main before pushing, found another session had
+        landed an equivalent page (vs-a-flat-28-a-foot-estimate.html, #5157)
+        minutes earlier -- same angle, near-identical worked-example
+        numbers. Discarded the duplicate (git reset --hard origin/main;
+        the commit had never been pushed, so nothing to undo upstream) per
+        CLAUDE.md's "Duplicate PRs" guidance rather than shipping redundant
+        content into a venture already at budget. Re-scanned all 333
+        ventures programmatically for zero-budget, non-"bid-calculator"
+        candidates untouched in the last 40 commits (143 found) to reduce
+        further collision risk, and picked commercial-photo-license-
+        calculator: added vs-a-flat-usage-fee.html, comparing the
+        calculator against a flat 25% usage-fee add-on (the "just add 25%
+        for usage" shorthand many photographers use instead of pricing
+        channels, term, territory, and exclusivity separately). Worked
+        examples computed from app.mjs's own calculate() at a fixed $1,200
+        creative fee: a narrow one-month/local/non-exclusive/web-only
+        license clears the flat 25% quote by $128.54; the calculator's own
+        shipped default job (6-month/national/non-exclusive/web-only)
+        already runs $225.00 over it; a 24-month/worldwide/fully-exclusive/
+        four-channel/20%-rush license runs $5,761.10 over. First draft
+        repeated the exact em-dash bug hit on the deck attempt (literal
+        "&amp;mdash;"/"--" inside the FAQPage JSON-LD where the visible
+        prose decodes to a real em dash) -- faq-visible.test.mjs would have
+        caught it; fixed proactively this time by writing literal em dashes
+        into the JSON-LD from the start, then verified with faq-visible
+        directly. Linked from index.html and sitemap.xml (this venture's
+        own path convention, no ventures/ prefix), test added under its
+        test/ subdirectory (one of the 21 ventures CLAUDE.md flags as
+        keeping suites off the flat glob), and exempted in clauses.mjs
+        (names no product). Also independently reproduced the documented
+        regen-`--verify`-races-a-concurrent-`node --test` hazard on the
+        deck attempt (ran `--verify` while a platform/marketing +
+        platform/pages run was in flight -- 8 spurious failures including
+        "UNSTABLE CHECKOUT"); avoided it entirely on this venture by never
+        touching the working tree while a background test run was live.
+        Checked clean: venture suite (test/ subdirectory glob) 40/40 (incl.
+        11 new), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1281/1281, `python3 -m pytest
+        gitops/tests -q` 637 passed/1 skipped (environmental),
+        platform/proposal+privacy+webcheck 243/243, platform/ci unittest
+        sweep 27/27, agent_review 21/21, portfolio ledger+scoring+router+
+        usage+pipeline+infra/tests 446/446, checklist_coverage.py clean,
+        surface-budget.mjs --check clean (101 ventures now at 1/1, was 97
+        at session start), sync_tree_counts.py unchanged (no new venture),
+        regen.mjs --verify current after regen, run_workflow_locally.py
+        --for-changes: portfolio-validate.yml 71/71 run steps passed,
+        sibling-links-ci.yml 2/2 passed (the one pages.yml FAIL is the
+        local sweep's known inability to evaluate a `${{ }}` build-site
+        step -- confirmed by building with build_pages_site.py and checking
+        with check_pages_links.py by hand: no dead links, on both the
+        deck-bid-calculator and commercial-photo-license-calculator
+        attempts). CI (Actions) starved throughout this session
+        (ci_starvation.py confirmed runner_id: 0 on every recent
+        portfolio-validate.yml push, including #5157/#5161/#5163/#5167),
+        so this local run is the verification of record.
+  - venture: countertop-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        #5157 (deck-bid-calculator) and #5153 (concrete-bid-calculator) were
+        already claimed for the same generic-method comparison-page pattern;
+        surveyed surface-budget.mjs --check for other ventures at 0/1 and
+        picked countertop-bid-calculator (not touched in git log -30 or any
+        open PR). surface-budget.mjs --for confirmed 0 generic-method pages
+        (one named-product page, vs-moraware.html, already shipped). Added
+        vs-a-flat-price-per-square-foot.html: the angle is the venture's own
+        stated hypothesis in VENTURE.yaml (a flat price-per-finished-sq-ft
+        rule of thumb cannot see that a 28 sq ft waterfall island is a
+        different job from a 40 sq ft galley). Worked-example table is
+        computed from calc.mjs's own shipped JOB_PRESETS and index.html's own
+        shipped shop-rate defaults against a $60/sq ft flat quote (galley
+        covers with $612.45 to spare; the venture's own default L-kitchen
+        job is short $539.07; the "slab trap" waterfall preset is short
+        $1,767.95), pinned by a test that re-derives the figures from
+        calc.mjs rather than hard-coding them. Added to
+        COMPARISON_DISCLAIMER_EXEMPT in platform/pages/clauses.mjs (generic
+        method, no competitor named). Caught and fixed a real bug before
+        merging: the FAQPage JSON-LD used a literal `--` and single quotes
+        where the visible page used the em-dash entity and double quotes;
+        faq-visible.test.mjs caught the mismatch on the first full local run,
+        fixed to match verbatim, re-verified clean. `node --test` in the
+        venture: 121/121. `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs`: 1281/1281 (clean, after the fix).
+        `python3 -m pytest gitops/tests -q`: 613 passed, 25 skipped.
+        `python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q`: 446 passed.
+        platform/ci and platform/ci/agent_review unittest suites: all green.
+        checklist_coverage.py and sync_tree_counts.py clean.
+        check_venture_regression.py: no live venture disappears.
+        regen.mjs --verify: current (after regen.mjs, run twice more to
+        absorb #5157/#5161/#5163 and then #5167 merging to main mid-session
+        -- resolved gitops/prod/front-door* conflicts with
+        resolve-mirror-merge.sh + regen.mjs, and platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT by hand, concatenation only). Opened
+        #5169, confirmed every check starved via ci_starvation.py
+        (runner_id: 0 across all 16 check runs), merged. Published the
+        gh-pages snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current.
+  - venture: dog-walking-route-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        surface-budget.mjs --for showed 0 generic-method comparison pages (a
+        vs-rover.html named-product page already shipped) and 1 guide, so
+        added vs-a-flat-per-walk-rate.html at the venture's own generic-method
+        budget (1). Names no company (a flat per-walk rate, not a
+        marketplace app), so exempted in COMPARISON_DISCLAIMER_EXEMPT in
+        platform/pages/clauses.mjs rather than carrying a not-affiliated
+        clause, same reasoning as the sibling vs-a-flat-per-vehicle-price.html
+        and vs-a-flat-per-breed-price.html exemptions. Worked-example table is
+        computed from calc.mjs's own shipped DEFAULTS, comparing the venture's
+        own stated $20-a-walk flat rate against a nearby stop (10 drive min,
+        4 mi) and a farther one (25 drive min, 12 mi): the flat rate clears
+        cost by $0.57 nearby but loses $10.79 on the farther stop, pinned by a
+        test that re-derives every figure from calc.mjs rather than
+        hard-coding them. Linked from index.html, listed in sitemap.xml.
+        `node --test` in the venture: 80/80. `node platform/pages/clauses.mjs
+        --all`: clean. `node platform/marketing/regen.mjs --verify`: current
+        (after regen.mjs -- ran three times across the session to absorb
+        main advancing by 6, then 9, then further commits mid-session;
+        resolved gitops/prod/front-door* and front-door-tools* conflicts each
+        time with regen.mjs after checking out --ours to clear the markers,
+        never by hand-picking a side, per platform/marketing/
+        resolve-mirror-merge.sh's own reasoning -- the front-door/ half of
+        the mirror isn't covered by that script, so it needed the same
+        checkout+regen treatment applied by hand). `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1281/1281,
+        run four times across the session (twice before the first push,
+        twice more after absorbing each subsequent main advance), always
+        clean. `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped,
+        run twice. `checklist_coverage.py`, all 15 platform/ci unittest
+        modules, agent_review's test_review (21/21), `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` (446 passed), and all 8
+        portfolio-validate.yml validators: clean. Also ran the whole-catalogue
+        browser/axe sweep (browser_checks.py --record, all 8 checks: sideways,
+        presets, roundtrip, highlight all `ok`) but it timed out mid-`contrast`
+        after 1900s against 1259 pages -- recording here rather than silently
+        dropping it, since the catalogue has grown past what a single
+        session's timeout budget can finish; a future session should resume
+        it with a longer budget or `--only` a narrower slice. Opened #5166;
+        main advanced twice more while landing it (merge conflicts in the
+        generated front-door mirror both times, resolved the same way each
+        time) before `ci_starvation.py`/`indexnow_state.py` confirmed Actions
+        starved (0 workflow runs dispatched on the PR at all, and the last 10
+        publish-pages-branch.yml runs all runner_id: 0) and it merged on the
+        local checklist. Published the gh-pages snapshot (publish-branch.sh,
+        #5172) and recorded github-pages-branch-route as current. Also fixed
+        two of my own commits' authorship/signature mid-session (a stray
+        `git filter-branch` first rewrote unrelated upstream commit hashes
+        too, even though their content was untouched -- reverted that via a
+        backup branch and redid it with git commit-tree/checkout on just the
+        two commits that needed it, verified byte-identical trees throughout
+        via git diff).
