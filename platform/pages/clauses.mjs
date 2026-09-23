@@ -1102,6 +1102,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that reason. Same reasoning as the other vs-spreadsheet pages above
   // (e.g. saas-seat-true-up's).
   'retainage-cashflow-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat fee per assignment" -- a generic pricing habit
+  // every freelance interpreter already has access to (a memorized number
+  // quoted for most bookings), not a company or product this could be
+  // mistaken for. The page names no agency, platform, or vendor.
+  'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

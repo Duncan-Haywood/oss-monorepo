@@ -34,6 +34,8 @@ Open [`index.html`](index.html), enter an assignment's hours, rate, setting,
 and travel, and click **Calculate my rate**. A second section works out a
 late-cancellation fee from a previously scheduled fee and the notice given.
 
+See also: [this calculator vs. a flat fee per assignment](vs-a-flat-fee-per-assignment.html).
+
 ## What it calculates
 
 All in [`calc.mjs`](calc.mjs), two pure functions with no dependencies:
