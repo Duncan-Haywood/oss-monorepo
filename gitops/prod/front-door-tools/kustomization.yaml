@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 129 files, 555907 bytes
 #   portfolio-front-tools-7: 127 files, 556607 bytes
 #   portfolio-front-tools-8: 135 files, 549715 bytes
-#   portfolio-front-tools-9: 116 files, 552224 bytes
+#   portfolio-front-tools-9: 117 files, 556911 bytes
 #   portfolio-front-tools-10: 116 files, 552980 bytes
 #   portfolio-front-tools-11: 118 files, 556578 bytes
 #   portfolio-front-tools-12: 129 files, 549891 bytes
@@ -1371,6 +1371,7 @@ configMapGenerator:
       - gutter-cleaning-bid-calculator__share.mjs.gz=gutter-cleaning-bid-calculator__share.mjs.gz
       - gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz=gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz
       - gutter-cleaning-bid-calculator__usage.mjs.gz=gutter-cleaning-bid-calculator__usage.mjs.gz
+      - gutter-cleaning-bid-calculator__vs-a-flat-price-per-linear-foot.html.gz=gutter-cleaning-bid-calculator__vs-a-flat-price-per-linear-foot.html.gz
       - gutter-cleaning-bid-calculator__vs-jobber.html.gz=gutter-cleaning-bid-calculator__vs-jobber.html.gz
       - gutter-guard-bid-calculator__calc.mjs.gz=gutter-guard-bid-calculator__calc.mjs.gz
       - gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz=gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz
