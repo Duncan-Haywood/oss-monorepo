@@ -64,8 +64,9 @@ into a proposal.
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
 
-See also: [this calculator vs. a flat rate per square foot](vs-a-flat-rate-per-square-foot.html)
-and [this calculator vs. JobNimbus](vs-jobnimbus.html).
+See also: [this calculator vs. a flat rate per square foot](vs-a-flat-rate-per-square-foot.html),
+[this calculator vs. JobNimbus](vs-jobnimbus.html), and
+[should I only charge material cost for paving fabric?](should-i-only-charge-material-cost-for-paving-fabric.html).
 
 ## Privacy
 

@@ -2184,19 +2184,28 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
     #
-    # 335 since this merge: `podcast-feed-check` graduated -- a
-    # zero-dependency CLI + browser checker parsing a podcast's RSS 2.0 +
-    # iTunes/Podcast-namespace feed against Apple Podcasts' documented
-    # requirements and the RSS spec's RFC 822 pubDate format, with a static
-    # `index.html` from its first commit, same shape as the rest of this
-    # running count. This branch only ever knew its own predecessor's
-    # number (333, before `source-map-leak-check` and
-    # `sign-language-interpreter-rate-calculator` landed) until this merge
-    # -- the same ordinary collision shape recorded throughout this list,
-    # and re-derived here by `sync_tree_counts.py` against the fully merged
+    # 335 since this merge: `graphql-introspection-exposure-check` also
+    # graduated, concurrently -- a checker for GraphQL introspection left
+    # enabled in production, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count. This branch
+    # only ever knew its own predecessor's number (331) until this merge --
+    # the same ordinary collision shape recorded throughout this list,
+    # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
     #
-    # 336 since this merge: `git-exposure-check` also graduated,
+    # 336 since this merge: `podcast-feed-check` also graduated,
+    # concurrently -- a zero-dependency CLI + browser checker parsing a
+    # podcast's RSS 2.0 + iTunes/Podcast-namespace feed against Apple
+    # Podcasts' documented requirements and the RSS spec's RFC 822 pubDate
+    # format, with a static `index.html` from its first commit, same shape
+    # as the rest of this running count. This branch only ever knew its
+    # own predecessor's number (333, before `source-map-leak-check` and
+    # `sign-language-interpreter-rate-calculator` landed) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list, re-derived here by `sync_tree_counts.py` against the fully
+    # merged tree rather than by hand.
+    #
+    # 337 since this merge: `git-exposure-check` also graduated,
     # concurrently -- a zero-dependency CLI + browser report viewer sending
     # two real GET requests (.git/HEAD, .git/config) and classifying the
     # response body against the exact grammar of a real git-internal file
@@ -2212,7 +2221,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # collision shape recorded throughout this list. Total re-derived here
     # by `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
-    total = 336  # `infra/OWNER_CHECKLIST.md`'s own "N of the 336 tools" wording.
+    total = 337  # `infra/OWNER_CHECKLIST.md`'s own "N of the 337 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
