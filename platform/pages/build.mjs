@@ -81,10 +81,18 @@ import {
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  maskScriptAndStyleBodies,
   renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
+
+// Re-exported so callers outside `platform/pages/` (the mirror generator,
+// `platform/marketing/front-door-tools.mjs`) get it from the module they
+// already import other build-time helpers from, rather than reaching into
+// `embed.mjs` -- an implementation detail of where this file's own version of
+// the same defect (see the export's own doc comment) happened to need it too.
+export { maskScriptAndStyleBodies };
 import {
   INVALID_MODULE_FILE,
   INVALID_STYLE_FILE,
@@ -6774,20 +6782,7 @@ export function faqEntries(html) {
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
 
-  // A `<script>` or `<style>` block can legitimately carry the literal text of
-  // an HTML tag as data -- git-exposure-check's own JSON-LD illustrates a
-  // soft-404 body with "such as <html><body>404 Not Found</body></html>",
-  // sitting in <head>, ahead of the real <body>. A structural tag is never
-  // real inside script/style content, so those blocks are masked out (same
-  // length, so every index below still lines up with `html`) before any
-  // <head>/<body> tag is located below. Unmasked, `<body[^>]*>`'s first match
-  // and a literal `.replace(bodyOpen[0], ...)` both landed on that fake
-  // `<body>` instead, splicing the top bar into the middle of the JSON-LD and
-  // breaking it as JSON (2026-09-23).
-  const masked = html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, (block) =>
-    block.replace(/[^\n]/g, ' '),
-  );
-
+  const masked = maskScriptAndStyleBodies(html);
   const bodyOpenMatch = masked.match(/<body[^>]*>/i);
   if (!bodyOpenMatch || !/<\/body>/i.test(masked)) return html;
   const bodyOpenStart = bodyOpenMatch.index;

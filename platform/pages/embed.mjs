@@ -36,6 +36,31 @@
 
 import { stripForInjection } from './jobs.mjs';
 
+/**
+ * `html` with every `<script>`/`<style>` block's *content* replaced by spaces
+ * (newlines kept, so line-based error messages elsewhere stay meaningful),
+ * same length throughout -- so every index found by matching against the
+ * result lines up exactly with the real, unmasked document.
+ *
+ * A script or style block can legitimately carry the literal text of an HTML
+ * tag as data: git-exposure-check's own FAQPage JSON-LD, in <head>,
+ * illustrates a soft-404 response body with "such as
+ * <html><body>404 Not Found</body></html>" -- ahead of the page's real
+ * <body>. A structural tag is never real inside script/style content, so
+ * callers that need to find the actual `<head>`/`<body>` tags mask those
+ * blocks out first. Unmasked, `injectChrome`'s `<body[^>]*>` search (in
+ * `build.mjs`) and the mirror's `injectMirrorNav`
+ * (`platform/marketing/front-door-tools.mjs`) both took the first match --
+ * landing on that fake `<body>` instead of the real one, and splicing chrome
+ * into the middle of the JSON-LD, breaking it as JSON on both the built site
+ * and the mirror (2026-09-23).
+ */
+export function maskScriptAndStyleBodies(html) {
+  return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, (block) =>
+    block.replace(/[^\n]/g, ' '),
+  );
+}
+
 /** Written into the page; the runtime file and its stylesheet live at the
  *  site root, one copy for the whole site, on the `pf-rates.js` precedent. */
 export const EMBED_MODULE_FILE = 'pf-embed.js';
@@ -145,8 +170,15 @@ export function injectEmbedWidget(html, { slug, toRoot = './', canonical, title,
   const withOffer = html.replace(footer[0], footer[0].replace('</aside>', `${offerMarkup(canonical, title)}  </aside>`));
 
   const styleLink = `<link rel="stylesheet" href="${attr(toRoot + EMBED_STYLE_FILE)}">`;
-  const withStyle = withOffer.replace(/<\/head>/i, `${styleLink}\n</head>`);
-  const prefix = withStyle === withOffer ? `${styleLink}\n` : '';
+  // Matched against the masked copy -- see `maskScriptAndStyleBodies`'s
+  // comment -- so a venture's own JSON-LD naming an HTML tag as data cannot
+  // stand in for the real `</head>`/`</body>`. Positions still line up with
+  // `withOffer` because masking preserves length.
+  const headCloseMatch = maskScriptAndStyleBodies(withOffer).match(/<\/head>/i);
+  const withStyle = headCloseMatch
+    ? withOffer.slice(0, headCloseMatch.index) + `${styleLink}\n` + withOffer.slice(headCloseMatch.index)
+    : withOffer;
+  const prefix = !headCloseMatch ? `${styleLink}\n` : '';
 
   // `type="module"`, deferred and run in document order, on the same reasoning
   // `pf-rates.js` and `pf-invalid.mjs` give: last in the document, it runs
@@ -156,7 +188,13 @@ export function injectEmbedWidget(html, { slug, toRoot = './', canonical, title,
     ` data-pf-embed-url="${attr(canonical)}" data-pf-embed-title="${attr(title)}"` +
     ` data-pf-embed-slug="${attr(slug || '')}"></script>`;
 
-  return withStyle.replace(/<\/body>/i, `${tag}\n</body>`);
+  // The *last* `</body>`, not the first -- the real closing tag is always
+  // structurally the last one, so no masking is needed to find it, unlike
+  // `</head>` above (a fake `</head>` mention could precede the real one).
+  const bodyCloses = [...withStyle.matchAll(/<\/body>/gi)];
+  if (!bodyCloses.length) return withStyle;
+  const bodyCloseIndex = bodyCloses[bodyCloses.length - 1].index;
+  return withStyle.slice(0, bodyCloseIndex) + `${tag}\n` + withStyle.slice(bodyCloseIndex);
 }
 
 /**
