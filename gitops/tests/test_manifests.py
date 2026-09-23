@@ -2108,31 +2108,27 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # schema listing and testing whether the anon key can read real rows
     # from each table (the missing-Row-Level-Security exposure behind
     # CVE-2025-48757), with a static `index.html` from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 329 since this merge: `source-map-leak-check` graduated -- a browser +
+    # CLI checker reading each script's own sourceMappingURL comment and
+    # fetching the referenced map to test whether a production source map
+    # is publicly readable, and whether it embeds full original source text
+    # or only file paths, with a static `index.html` from its first commit,
     # same shape as the rest of this running count. This branch only ever
-    # knew its own predecessor's number (325) until this merge -- the same
-    # ordinary collision shape recorded throughout this list, and
-    # re-derived here by `sync_tree_counts.py` against the merged tree
-    # rather than by hand.
+    # knew its own predecessor's number (328, from `actions-secrets-inherit-
+    # check` alone) until this merge brought `osha-trir-dart-calculator` and
+    # `supabase-rls-check` in alongside it -- the same ordinary collision
+    # shape recorded throughout this list.
     #
-    # 329 since this merge: `mercari-fee-calculator` graduated concurrently
-    # with the pair above -- a browser-local calculator pricing a Mercari
-    # sale against the current (Jan 6, 2025) shipping-inclusive 10% fee
-    # schedule and the legacy item-price-only 10% + 2.9% + $0.50 schedule,
-    # with a static `index.html` from its first commit, same shape as the
-    # rest of this running count. This branch only ever knew its own
-    # predecessor's number (327) until this merge -- the same ordinary
-    # collision shape recorded throughout this list.
-    #
-    # 330 since this merge: `voiceover-project-rate-calculator` graduated
-    # concurrently with all three above -- a browser-local calculator
-    # pricing freelance voice-over project work (script-based, by
-    # usage/licensing term, and audiobook, per finished hour), with a static
+    # 330 since this merge: `mercari-fee-calculator` graduated concurrently
+    # -- a browser-local calculator pricing a Mercari sale against the
+    # current (Jan 6, 2025) shipping-inclusive 10% fee schedule and the
+    # legacy item-price-only 10% + 2.9% + $0.50 schedule, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count. This branch only ever knew its own predecessor's
-    # number (325, before the osha-trir-dart-calculator/supabase-rls-check
-    # pair landed) until this merge -- the same ordinary collision shape
-    # recorded throughout this list, and re-derived here by
-    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    # number (327) until this merge -- the same ordinary collision shape
+    # recorded throughout this list.
     #
     # 331 since this merge: `turo-host-payout-calculator` graduated -- a
     # browser-local calculator turning one Turo trip's price into a host
@@ -2157,7 +2153,21 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
     # landed) until this merge -- the same ordinary collision shape
     # recorded throughout this list.
-    total = 332  # `infra/OWNER_CHECKLIST.md`'s own "N of the 332 tools" wording.
+    #
+    # 333 since this merge: `source-map-leak-check` graduated concurrently --
+    # a browser + CLI checker reading each script's own trailing
+    # sourceMappingURL comment and naming which scripts have a publicly
+    # readable production source map, distinguishing one that embeds full
+    # original source text from one that exposes only file paths. Same
+    # "read what's actually there, name the exact evidence" checker shape
+    # as `cors-misconfig-check` and `supabase-rls-check`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (327, before `osha-trir-dart-calculator`, `supabase-rls-check`,
+    # `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
+    # `turo-host-payout-calculator` landed) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 333  # `infra/OWNER_CHECKLIST.md`'s own "N of the 333 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

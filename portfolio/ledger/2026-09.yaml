@@ -38342,6 +38342,53 @@ entries:
         pages' Related links, and the FAQ dash/wording fix) -- fixed each
         time with `regen.mjs` and re-verified clean.
     mrr_end: 0
+  - venture: source-map-leak-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated as a new venture (candidates.yaml/venture-scores.yaml
+        composite 6.125, floor 1 ai_leverage, both gates pass): a free
+        browser tool + CLI reading each script's own trailing
+        sourceMappingURL comment, fetching the referenced map (or decoding
+        an inline data: URI map), and naming which scripts have a publicly
+        readable production source map -- distinguishing full
+        sourcesContent exposure from paths-only exposure, and a reference
+        whose map cleanly 404s/403s (healthy) from a script with no
+        reference at all. Same "read what's actually there, name the exact
+        evidence" checker shape as cors-misconfig-check,
+        security-headers-check, and supabase-rls-check.
+        duplicate_check.py scored every existing venture at 0.15 or below.
+        Shipped with 63 node --test assertions across probe/analyze/check/
+        usage/page, a guide page (HowTo JSON-LD) and a generic-method
+        comparison page against checking devtools by hand (exempted from
+        the named-competitor disclaimer in clauses.mjs, since it names no
+        trademarked product), a dedicated CI workflow, and the front-door
+        registration (build.mjs category + reciprocal sibling link from
+        docker-build-secrets-check).
+        node --test in the venture: 63/63. platform/pages + platform/
+        marketing: 1281/1281 (after fixing a worked-example fake hostname
+        that accidentally contained the placeholder-origin substring, an
+        FAQPage JSON-LD/visible-copy divergence on both pages, and running
+        launched.mjs --write). gitops/tests: 613 passed, 25 skipped.
+        platform/ci unittest suites (15) and agent_review: clean.
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests: 446
+        passed. clauses.mjs, surface-budget.mjs, router/validate.py,
+        validate_workflows.py, validate_candidates.py,
+        validate_doc_consistency.py, score_ventures.py --check: all clean.
+        Merged origin/main twice while this was in flight
+        (osha-trir-dart-calculator, supabase-rls-check, then
+        voiceover-project-rate-calculator, android-data-safety-check's
+        category move) and resolved the resulting narrative-comment /
+        adjacent-list-entry collisions in gitops/tests/test_manifests.py,
+        platform/privacy/optout-persistence.test.mjs, platform/pages/
+        build.mjs, and portfolio/scoring/venture-scores.yaml by hand;
+        discarded and regenerated the front-door mirror rather than
+        picking a side on the binary .gz conflicts, per
+        resolve-mirror-merge.sh's guidance. Every check on the PR (#5274)
+        confirmed starved via ci_starvation.py (runner_id: 0) before
+        merging; said so in the PR body naming what was verified locally.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
