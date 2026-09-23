@@ -37725,3 +37725,68 @@ entries:
         Published the gh-pages snapshot after merging and recorded
         github-pages-branch-route as current.
     mrr_end: 0
+  - venture: exterior-painting-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-a-flat-3999-house-special.html, against the "$3,999 whole-house
+        exterior paint special" this venture's own VENTURE.yaml hypothesis
+        already names as the generic price homeowners are shopped on
+        (surface-budget.mjs confirmed 0/1 generic-method pages used; the
+        venture's existing vs-paintscout.html is a named-product page and
+        unbudgeted). Worked example built from calc.mjs's own two
+        JOB_PRESETS entries at the shipped index.html shop-rate defaults
+        ($36/hr wage, 32% burden, $85 travel/equipment, 16% overhead, 28%
+        margin): the 1-story 1,800 sf ranch preset prices at $1,940.12
+        (breakeven $1,396.89) -- well under the $3,999 special -- while the
+        2-story 2,800 sf colonial preset with extra trim, shutters, an
+        occupied yard, and hard access prices at $6,286.96 with a breakeven
+        of $4,526.61, so matching the flat special on that job is $527.61
+        under walk-away cost before any profit is counted, not just a
+        thinner margin. Registered the page in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (names no painting company).
+        Caught and fixed a real authoring bug via faq-visible.test.mjs
+        before push: the FAQ answers' JSON-LD used a literal "--" where the
+        visible prose used "&mdash;", so the schema and rendered text
+        diverged -- the same defect class this ledger has recorded before
+        (freelance-platform-fee-calculator,
+        automatic-driveway-gate-bid-calculator) -- fixed by swapping the
+        JSON-LD's em dashes to the literal character. `node --test` in the
+        venture: 120/120, including two tests pinning the four dollar
+        figures above directly against calc.mjs rather than only against
+        the page's own prose, so a future change to the pricing model
+        cannot leave this page quietly wrong. Full `platform/marketing`/
+        `platform/pages` suite: 1281/1281 (first run caught the faq-visible
+        defect above; clean after the fix). `python3 -m pytest gitops/tests
+        -q`: 637 passed, 1 skipped, after installing nginx-light and
+        openssh-client via `apt-get update && apt-get install` per
+        CLAUDE.md's own warning about the missing `apt-get update`. `python3
+        -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q`: 446 passed. All
+        27 platform/ci unittest modules and agent_review's test_review
+        (21/21): clean. `checklist_coverage.py` and `surface-budget.mjs
+        --check`: clean. `regen.mjs --verify` caught the front-door mirror
+        going stale twice -- once after the new page shipped, once again
+        after the em-dash fix -- fixed both times with `regen.mjs` and
+        re-verified clean. `run_workflow_locally.py --for-changes`: 70/71
+        run steps passed on `portfolio-validate.yml` (the one failure,
+        `check_venture_regression.py`, was a false positive from `main`
+        advancing past this branch's merge point mid-sweep -- confirmed by
+        diffing `ventures/` between this branch and `origin/main`, which
+        showed a venture *added* upstream, not removed -- resolved by
+        re-fetching and re-merging rather than by silencing the check), plus
+        `sibling-links-ci.yml` 2/2. Confirmed `ci_starvation.py` against a
+        fresh PR run (runner_id 0, 3s, no steps) before relying on the
+        local checklist rather than CI. Rebased onto main twice while this
+        ran, the second time recovering from the shallow-clone trap
+        CLAUDE.md's "Duplicate PRs" section warns about (`git fetch origin
+        main` by name had reset that ref to depth 1, so `git merge`
+        reported "unrelated histories"; fixed with `git fetch --unshallow
+        origin main`) -- across both merges, resolved clauses.mjs and the
+        ledger by keeping every side's additive entries, infra_state.yaml
+        by keeping the later reading, and the generated front-door mirror
+        by regenerating from the merged sources rather than picking a side,
+        per platform/marketing/resolve-mirror-merge.sh.
+    mrr_end: 0
