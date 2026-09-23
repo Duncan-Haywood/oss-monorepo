@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 119 files, 554491 bytes
 #   portfolio-front-tools-12: 126 files, 549265 bytes
 #   portfolio-front-tools-13: 125 files, 554056 bytes
-#   portfolio-front-tools-14: 134 files, 552852 bytes
+#   portfolio-front-tools-14: 135 files, 556750 bytes
 #   portfolio-front-tools-15: 101 files, 556469 bytes
 #   portfolio-front-tools-16: 119 files, 555780 bytes
 #   portfolio-front-tools-17: 118 files, 543508 bytes
@@ -2016,6 +2016,7 @@ configMapGenerator:
       - retainage-cashflow-calculator__share.mjs.gz=retainage-cashflow-calculator__share.mjs.gz
       - retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz=retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz
       - retainage-cashflow-calculator__usage.mjs.gz=retainage-cashflow-calculator__usage.mjs.gz
+      - retainage-cashflow-calculator__vs-a-spreadsheet.html.gz=retainage-cashflow-calculator__vs-a-spreadsheet.html.gz
       - retainage-cashflow-calculator__vs-levelset.html.gz=retainage-cashflow-calculator__vs-levelset.html.gz
       - retaining-wall-bid-calculator__calc.mjs.gz=retaining-wall-bid-calculator__calc.mjs.gz
       - retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz=retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz

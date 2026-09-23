@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a spreadsheet | Construction Retainage Calculator</title>
+<meta name="description" content="A spreadsheet can multiply contract value by a retainage percentage. It won't model the 10%-to-5% release-schedule rule, won't compare a partial check today against waiting, and won't write the payment follow-up. Free, private, no account.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/retainage-cashflow-calculator/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet multiplies contract value by a retainage rate fine. Where it quietly goes wrong: the reduction-point release schedule, comparing a partial check today against waiting, and the payment follow-up draft it can't write.">
+<meta property="og:url" content="https://example.invalid/retainage-cashflow-calculator/vs-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't retainage withheld just contract value times the retainage percentage?","acceptedAnswer":{"@type":"Answer","text":"That multiplication is trivial and a spreadsheet does it fine. What it does not do on its own is model the reduction-point release schedule many contracts use — the full rate on completed work until a stated percent complete, then a lower rate on the whole contract from there. Reproducing that in a spreadsheet means writing and maintaining a conditional formula per project; this calculator applies the rule from the percent complete, reduction point, and reduced rate you enter."}},{"@type":"Question","name":"How is comparing a partial retainage check to waiting harder than a spreadsheet formula?","acceptedAnswer":{"@type":"Answer","text":"A partial check today can mean three different deals — take it and close the rest, take it while the remainder still arrives later, or wait for the full amount — and each has its own carrying-cost math against the days involved. Modeling one path in a cell is straightforward; modeling and comparing all three, with the carrying cost applied only to the unpaid retainage and not the rest of the earned balance, is where a spreadsheet formula stops being quick to build correctly. This calculator computes and ranks all three from the same inputs."}},{"@type":"Question","name":"Can a spreadsheet write the payment follow-up email?","acceptedAnswer":{"@type":"Answer","text":"Not on its own — a spreadsheet holds numbers, not the sentence that turns them into a factual status request naming the project, invoice reference, due date, and unpaid amount. This calculator generates that follow-up draft from the same figures already in the worksheet, so the numbers in the email and the numbers behind it can't drift apart."}},{"@type":"Question","name":"Does this replace a project's own payment-tracking spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"No. A spreadsheet or ledger that tracks every pay application, every retainage line, and every payment received across a whole project is still the right tool for that ongoing record. This page answers one question at a time — what is this project's retainage, release schedule, and partial-offer decision worth right now — and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#17211b;background:#f4f0e8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#8a3d14;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch}.lede{font-size:1.05rem;max-width:64ch;color:#514d46}section{background:#fffdf8;border:1px solid #d8d0c0;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #ded5c4;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d8d0c0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#514d46}.fine,.note{font-size:.88rem;color:#514d46}footer{color:#514d46;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Construction Retainage Calculator</a></p>
+<header>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">A spreadsheet multiplies contract value by a retainage rate fine. Where it quietly goes wrong: the reduction-point release schedule, comparing a partial check today against waiting, and writing the follow-up email from the same numbers.</p>
+</header>
+<section>
+<h2>What each tool does</h2>
+<p>
+  A lot of contractors already track retainage in a spreadsheet: one column
+  for contract value, one for the retainage percentage, a formula that
+  multiplies them. That arithmetic is trivial and a spreadsheet does it fine.
+  What it does not do on its own is <strong>model the reduction-point release
+  schedule</strong> many contracts use &mdash; the full retainage rate on
+  completed work until a stated percent complete, then a lower rate on the
+  whole contract from there. Reproducing that correctly means a conditional
+  formula built and maintained per project, not a single multiplication.
+</p>
+<p>
+  It also does not <strong>compare a partial check offered today against
+  waiting</strong>. That decision has three different shapes &mdash; take
+  the check and close the rest, take it while the remainder still arrives
+  later, or wait for the full amount &mdash; each with its own carrying-cost
+  math, and building all three correctly in cells is where a quick formula
+  stops being quick. And it cannot <strong>write the payment follow-up</strong>:
+  a spreadsheet holds numbers, not the sentence that turns them into a
+  factual status request.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What's contract value times the retainage percentage?</td><td>Either one &mdash; a spreadsheet multiplies fine.</td></tr>
+<tr><td>How much retainage is typically releasable under a reduction-point schedule at this percent complete?</td><td>This calculator &mdash; models the rule from percent complete, reduction point, and reduced rate; a spreadsheet needs a maintained conditional formula.</td></tr>
+<tr><td>Should I take a partial retainage check today, or wait for the rest?</td><td>This calculator's own <a href="should-i-take-partial-retainage-now.html">partial-release comparison</a> &mdash; ranks all three paths automatically.</td></tr>
+<tr><td>Can I generate a factual payment follow-up from these same figures?</td><td>This calculator &mdash; a spreadsheet has no draft to write.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No, on either &mdash; but this calculator needs no account, no template, and no formula to maintain.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most contractors get different value from each: an ongoing project
+  spreadsheet or ledger for tracking every pay application and payment
+  received over time, and a private calculator like this one for an instant,
+  no-login read on what one project's retainage, release schedule, and a
+  partial offer are worth right now, plus a follow-up draft to send.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Nothing you type is uploaded anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't retainage withheld just contract value times the retainage percentage?</h3>
+<p>That multiplication is trivial and a spreadsheet does it fine. What it does not do on its own is model the reduction-point release schedule many contracts use &mdash; the full rate on completed work until a stated percent complete, then a lower rate on the whole contract from there. Reproducing that in a spreadsheet means writing and maintaining a conditional formula per project; this calculator applies the rule from the percent complete, reduction point, and reduced rate you enter.</p>
+<h3>How is comparing a partial retainage check to waiting harder than a spreadsheet formula?</h3>
+<p>A partial check today can mean three different deals &mdash; take it and close the rest, take it while the remainder still arrives later, or wait for the full amount &mdash; and each has its own carrying-cost math against the days involved. Modeling one path in a cell is straightforward; modeling and comparing all three, with the carrying cost applied only to the unpaid retainage and not the rest of the earned balance, is where a spreadsheet formula stops being quick to build correctly. This calculator computes and ranks all three from the same inputs.</p>
+<h3>Can a spreadsheet write the payment follow-up email?</h3>
+<p>Not on its own &mdash; a spreadsheet holds numbers, not the sentence that turns them into a factual status request naming the project, invoice reference, due date, and unpaid amount. This calculator generates that follow-up draft from the same figures already in the worksheet, so the numbers in the email and the numbers behind it can't drift apart.</p>
+<h3>Does this replace a project's own payment-tracking spreadsheet?</h3>
+<p>No. A spreadsheet or ledger that tracks every pay application, every retainage line, and every payment received across a whole project is still the right tool for that ongoing record. This page answers one question at a time &mdash; what is this project's retainage, release schedule, and partial-offer decision worth right now &mdash; and nothing it computes is saved anywhere once you leave the page.</p>
+<p class="note">
+  Open the <a href="./">Construction Retainage Calculator</a> to run your
+  own project's figures.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it helped you see what retainage is costing you, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
