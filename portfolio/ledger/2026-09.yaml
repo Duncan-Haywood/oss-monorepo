@@ -36109,3 +36109,29 @@ entries:
         Shipped in the same PR (#5106) as the asbestos-abatement guide
         page above, after the same em-dash fix and the same full-sweep
         and `regen.mjs --verify` verification.
+  - venture: commissary-kitchen-cost-split-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same gap, found the same way (surface-budget.mjs): 1 comparison
+        page, 0 guide pages. Added
+        how-to-split-shared-kitchen-costs-fairly.html, worked from
+        calc.mjs's own `computeSplit`/`resolvePoolTotalCents`/`DEFAULTS`:
+        splitting a $5,000 pool evenly across three tenants booking
+        40/25/15 hours charges all three ~$1,666.67, while the default
+        70/30 hours/storage blend prices them at $2,564.82 / $1,528.82 /
+        $906.36 -- an even split overcharges the lightest tenant by
+        about 84% and undercharges the heaviest by about 35%, with an
+        hours-only split ($2,462.50 / $1,567.19 / $970.31) shown as a
+        third point of comparison. Every figure is pinned in the new
+        page's own test file directly against `computeSplit`'s output
+        cents, not just grepped for in the HTML. Learned from the
+        asbestos-abatement em-dash defect above: fixed the JSON-LD's
+        literal "--" to a real em dash before first commit, so
+        `faq-visible.test.mjs` passed on the first local run instead of
+        needing a follow-up. Linked from index.html and README.md, added
+        to sitemap.xml. `node --test
+        ventures/commissary-kitchen-cost-split-calculator/*.test.mjs`:
+        58/58. `checklist_coverage.py`, `surface-budget.mjs --check`,
+        and `regen.mjs --verify` all clean after `regen.mjs`.
