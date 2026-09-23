@@ -9592,6 +9592,64 @@ ventures:
       of named patterns, not a full security assessment or a determination
       that the target is secure.
 
+  - slug: docker-base-image-eol-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic lookup of each Dockerfile `FROM` line's release against
+      a curated, dated table checked into the tool -- never a live query.
+      There is nothing to infer: a release line's own publisher either has
+      a stated end-of-life date past today or it does not.
+    basis: >-
+      Screened per the venture's own VENTURE.yaml: `duplicate_check.py`
+      scored the closest existing venture (docker-base-image-pin-check,
+      which asks a structurally different question -- is the reference
+      immutable, not whether the release line it points to is still
+      supported) at 0.13, well under the 0.45 flag bar;
+      email-auth-check (0.28, DNS mail-auth classification, unrelated) was
+      the closer false positive checked by hand. Same
+      CLI/checker-over-another-calculator shape as docker-base-image-pin-check
+      and its siblings, applied to a base-image surface no existing checker
+      in the fleet covers -- not pinning, not secrets, not cache order, but
+      whether the release line is still patched. Autonomous ops 10 / gross
+      margin 10: nothing to host -- the browser page classifies pasted text
+      client-side and the CLI runs on the user's own machine against files
+      already on disk. Distribution 5: a developer auditing a Dockerfile
+      after an end-of-life incident, or before a security review, is a
+      plausible searcher for "is node 18 end of life" or "docker base image
+      eol checker" -- named, specific search terms, but no forum volume
+      specific to this portfolio has been measured yet, so set level with
+      docker-base-image-pin-check rather than above it. Time to revenue 6,
+      defensibility 4: donations-only; a table-driven classifier over one
+      well-known set of release lines is easy to reimplement, so
+      defensibility rests on the specific EOL-vs-CVE framing
+      (vs-a-vulnerability-scanner.html) and this portfolio's
+      disclaimer/usage conventions, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only static-text scanner over Dockerfile content the user
+      already has on disk or pastes in -- no network call of its own, no
+      registry credential, no data leaving the browser or the user's own
+      machine. The one caveat the venture's own VENTURE.yaml names rather
+      than hides: the EOL table is maintained by hand and can go stale, so
+      every row carries a `confidence: confirmed` or `estimated` label and a
+      `DATASET_AS_OF` snapshot date, and the page and README both tell the
+      visitor to re-verify before relying on it. Makes no compliance or
+      security claim -- "past this project's own stated end-of-life date" is
+      a narrower, checkable fact than "safe" or "compliant", and the page's
+      own tests forbid the broader claim.
+
   - slug: docker-base-image-pin-check
     scores:
       ai_leverage: 1
