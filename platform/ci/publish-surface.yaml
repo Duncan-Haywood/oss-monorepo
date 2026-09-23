@@ -659,6 +659,9 @@ workflows:
 - workflow: menu-engineering-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mercari-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
@@ -1089,6 +1092,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tuckpointing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: turo-host-payout-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tutor-package-pricing-calculator-ci.yml

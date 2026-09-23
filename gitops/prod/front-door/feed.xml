@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 329 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 331 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -35,6 +35,15 @@
     <summary type="text">Free calculator comparing Upwork and Fiverr net payout for the same job price, after platform fees, withdrawal fees, and a tax reserve. Solve for the price to charge on either platform to hit a take-home goal.</summary>
   </entry>
   <entry>
+    <title>Mercari Fee Calculator — What You Actually Keep After the 10% Fee</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mercari-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mercari-fee-calculator</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Mercari seller fee calculator for the current schedule (10% on item price + buyer-paid shipping, effective Jan 6 2025) and the legacy pre-2025 schedule (10% on item price plus 2.9%+$0.50 processing). Real profit, price for a target profit, and which schedule pays more. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
     <title>OSHA TRIR &amp; DART Rate Calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/osha-trir-dart-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/osha-trir-dart-calculator</id>
@@ -60,6 +69,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, in-browser tool: paste your Supabase project URL and anon key, and it sends a real read-only request to every table it can see, naming which ones return real rows to an unauthenticated request -- the CVE-2025-48757 missing-RLS exposure class. Nothing uploaded to us.</summary>
+  </entry>
+  <entry>
+    <title>Turo Host Payout Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/turo-host-payout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/turo-host-payout-calculator</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Turo host payout calculator. Turo&#39;s host share now depends on your earnings plan (Peace of Mind, Balanced, More Earnings) AND how far ahead the guest books — this tool models the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate. No sign-up, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Voice-Over Project Rate Calculator — Free, No Sign-Up</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">A site published at a URL subpath — user.github.io/repo/, gitlab.io/project/, a CDN subdirectory — cannot govern its own robots.txt, so its sitemap is never auto-discovered and its pages are never enumerated. Paste your site URL to find out. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Tutor Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tutor-package-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/tutor-package-pricing-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Twitch Payout Calculator — Real Take-Home From Subs and Bits</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/twitch-payout-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/twitch-payout-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% default, or 60%/70% under the Plus Program) and Bits, see whether a mobile subscription really pays less (it doesn&#39;t), and check how many more subs close a monthly income gap.</summary>
   </entry>
 </feed>
