@@ -184,6 +184,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. Same reasoning as the other vs-flat-day-rate
   // page above.
   'equipment-rental-break-even/vs-flat-day-rate.html',
+  // Compares against "the flat $10-per-1,000-followers rule" -- a pricing
+  // shortcut floated across influencer-marketing blogs and rate-card
+  // templates generally, not a company or product this could be mistaken
+  // for. The page names no specific source for the figure.
+  'brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html',
   // Compares against "eyeballing which box triggers the dimensional
   // penalty" -- a habit every shipper already has, not a company or
   // product this could be mistaken for. The page names no carrier tool.
@@ -1016,6 +1021,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-keeper.html, which does name a product and carries its own "not
   // affiliated" clause.
   'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every Turo host
+  // already has, not a company or product this could be mistaken for. The
+  // page names no spreadsheet vendor at all. Same reasoning as the other
+  // vs-a-spreadsheet pages above; distinct from this venture's own
+  // how-much-does-turo-take-from-hosts.html, which is a guide page, not a
+  // comparison.
+  'turo-host-payout-calculator/vs-a-spreadsheet.html',
   // Compares against "pasting a Realtime Database URL into a browser or
   // curl-ing the Firestore REST API by hand" -- a generic manual habit any
   // developer with the project ID already has, not a company or product
@@ -1029,6 +1041,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "doing the math yourself" -- a generic method (adding
+  // up wall-clock minutes by hand) every repository maintainer already
+  // does, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-billing-page.html, which compares against
+  // GitHub's own billing page and already carries the "not affiliated"
+  // clause for that reason.
+  'actions-minutes-estimator/vs-doing-the-math-yourself.html',
   // Compares against "typing the URL into a browser tab and eyeballing the
   // response" -- a manual habit every developer already has, not a company
   // or product this could be mistaken for. This page names no git-hosting

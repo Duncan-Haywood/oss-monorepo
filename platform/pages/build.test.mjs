@@ -2074,6 +2074,37 @@ test('a lone tool advertises no siblings and still renders', () => {
   assert.ok(html.includes('data-pf-to="hub"'));
 });
 
+// Found 2026-09-23 on `git-exposure-check`'s own
+// "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html": its FAQPage
+// JSON-LD quotes a literal example error page, `<html><body>404 Not
+// Found</body></html>`, to explain what a soft-404 false positive looks like.
+// The old implementation found the real body tag with
+// `html.match(/<body[^>]*>/i)` -- the *first* textual match anywhere in the
+// document -- and then inserted the top bar and footer with
+// `html.replace(bodyOpen[0], ...)`, which also replaces by content rather
+// than position. Both found the fake `<body>`/`</body>` inside the head's own
+// JSON-LD first, since it appears earlier in the string than the real tag,
+// and spliced the chrome markup into the middle of a JSON string. It blocked
+// `publish-branch.sh`'s own build-artifact check the day this was found.
+test('a page quoting a literal <body>/</body> example in its own head is not corrupted', () => {
+  const html =
+    '<html><head><script type="application/ld+json">' +
+    '{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"q",' +
+    '"acceptedAnswer":{"@type":"Answer","text":"looks like <html><body>404 Not Found</body></html>"}}]}' +
+    '</script></head><body>real content</body></html>';
+  const out = injectChrome(html, { slug: 'x', toRoot: '../', total: 3, related: [] });
+
+  const scriptMatch = out.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(scriptMatch, 'the original JSON-LD block is still present');
+  assert.doesNotThrow(() => JSON.parse(scriptMatch[1]), 'the JSON-LD was not corrupted by chrome injection');
+
+  // The chrome markup landed in the real body, not spliced into the example
+  // string sitting ahead of it.
+  assert.doesNotMatch(scriptMatch[1], /pf-chrome/);
+  assert.match(out, /real content[\s\S]*pf-chrome-foot/);
+  assert.match(out, /pf-chrome-top[\s\S]*real content/);
+});
+
 // The clause is injected rather than required of each venture because the
 // requirement can otherwise only be discovered after the venture is on `main`.
 // Three ventures shipped without it in one day; these two tests are what stop

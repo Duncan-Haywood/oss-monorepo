@@ -6790,6 +6790,16 @@ export function faqEntries(html) {
  * markup stranded in `<head>`. Search a masked copy instead: scripts can
  * still open and close a real `<body>` around themselves, but nothing typed
  * *inside* one can be mistaken for a document tag again.
+ *
+ * A second, independent fix for the same defect landed in a concurrent
+ * session's PR and was reconciled here (2026-09-23): that one restricted the
+ * search to start after the real `</head>`, which is narrower — it does not
+ * cover the mirror's own `injectMirrorNav`/`injectMirrorRelated`/
+ * `injectMirrorEmbed` (`platform/marketing/front-door-tools.mjs`), which hit
+ * the identical bug against the committed `gitops/prod/` mirror and need a
+ * reusable primitive, not a `build.mjs`-local helper. This masking approach
+ * is kept for that reason; the other session's regression test (further down
+ * this file) still passes against it.
  */
 export function maskScriptContents(html) {
   return html.replace(/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi, (_, open, body, close) => (
