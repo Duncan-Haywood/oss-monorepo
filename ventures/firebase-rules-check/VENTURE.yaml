@@ -1,0 +1,80 @@
+name: firebase-rules-check
+description: >-
+  A free browser tool + CLI: sends real, read-only, unauthenticated requests
+  to a Firebase project's Realtime Database (a shallow root listing -- key
+  names only, never field values) and/or named Firestore collections (one
+  document max per collection, field names only), and names which paths
+  return real data with no login -- the default-open / left-in-test-mode
+  security rules exposure documented since Appthority's 2018 "Firebase
+  mismanagement" report (2,300+ apps found exposed) and recurring in
+  security research since. The Realtime Database half runs entirely
+  client-side in the browser (its REST API is designed to be called
+  directly with plain HTTP); the CLI performs the identical check for CI,
+  and covers Firestore when a visitor's browser reports a CORS/network
+  error. Never writes, updates, or deletes anything -- read-only, capped at
+  one document per Firestore collection and a shallow (values-free) read of
+  the Realtime Database.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, security researcher, or agency doing due diligence on a
+      Firebase-backed project will search terms like "firebase security
+      rules checker", "is my firebase database public", "check firestore
+      rules online", or "firebase realtime database exposed" and find this
+      tool, since it needs no console login -- only the project ID and
+      database URL any visitor's browser already has in the app's public
+      config -- and the Realtime Database half runs entirely in the
+      browser, with nothing sent to a third party.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Real, dated, ongoing demand exists: Appthority's 2018 research found
+      2,300+ apps exposing a Firebase backend left in test mode, and the
+      same shape -- test mode extended past its 30-day expiry, or a
+      hand-written rule broader than intended -- keeps recurring in
+      security research and bug-bounty write-ups since, because both
+      Firebase products default new projects to an open rule specifically
+      so a team can build first and lock rules down later. A developer who
+      has just read one of these write-ups, or who inherited a project with
+      no rules documentation, wants an immediate, no-login way to check
+      their own project, which the Firebase console's own Rules Playground
+      does not provide without being logged in as a project member.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or team that gets an exposed-path finding will wire the
+      CLI into their own CI/deploy pipeline as a regression gate, so a
+      newly added collection or path that ships without a rule is caught
+      the same day rather than discovered by an attacker -- producing
+      return usage with no action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Firebase changes the Realtime Database or Firestore REST API's CORS
+    policy or default authorization model such that this exact client-side
+    check no longer works, and no equivalent read-only introspection route
+    replaces it -- at which point the check would need server-side
+    infrastructure this portfolio does not run, changing its cost and
+    liability profile.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/firebase-rules-check/
+  analytics: null

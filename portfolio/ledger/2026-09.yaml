@@ -38209,6 +38209,103 @@ entries:
         (runner_id: 0) before merging; said so in the PR body naming what
         was verified locally.
     mrr_end: 0
+  - venture: sign-language-interpreter-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser calculator pricing a single
+        freelance/contract sign language (ASL) interpreting assignment --
+        hours requested against a two-hour booking minimum, portal-to-portal
+        travel time and mileage, an after-hours/weekend/holiday differential,
+        and a team-interpreting flag for long legal/medical/mental-health
+        bookings per RID's own Standard Practice Paper guidance -- plus a
+        tiered late-cancellation fee calculator. Entirely client-side, zero
+        marginal cost. Screened per portfolio/pipeline/README.md's
+        archetype-saturation note (141+ trade-bid calculators, 38+ CI
+        checkers) for a distinct solo-professional-services pricing niche;
+        closest in shape to notary-trip-quote and
+        court-reporter-transcript-calculator (same solo-professional
+        time/travel/minimum-booking shape) but a structurally different kind
+        of work, with a team-staffing decision driven by the interpreting
+        profession's own cognitive-load guidance rather than by area, page
+        count, or word count. python3 portfolio/pipeline/duplicate_check.py
+        against the candidate description scored nothing >= 0.09 against any
+        existing venture, pipeline candidate, or screened-out row -- see the
+        evidence recorded in VENTURE.yaml's header comment. Also grepped
+        screened-out.md and ventures/ directly for "interpreter", "sign
+        language", "ASL", "Deaf", "RID" -- no prior coverage found. Checked
+        open PRs (github MCP) for a colliding interpreter-pricing niche and
+        found none.
+
+        Gates (both required >= 5): liability_containment 8, ethical_robustness
+        8 -- deterministic arithmetic over adjustable, commonly cited industry
+        conventions, output framed explicitly as a negotiation starting point
+        or invoice draft, never a quote/guarantee/valuation on the user's
+        behalf, and not legal/medical advice about the underlying assignment.
+        Full merit score recorded in portfolio/scoring/venture-scores.yaml
+        (composite 5.667, floor 1 on ai_leverage -- no AI in the product,
+        deterministic arithmetic throughout).
+
+        Shipped with a two-file crawlable-orphan pairing to
+        court-reporter-transcript-calculator (both commonly booked for the
+        same deposition/hearing) rather than landing as an orphan under the
+        siblings.mjs budget of 0 -- footer links added in both ventures'
+        index.html with a page.test.mjs assertion on each href. Filed into
+        build.mjs's `services` category (Service business pricing & quotes)
+        on first commit rather than left for a catch-all spell, per that
+        section's own convention. Added a .github/workflows/sign-language-
+        interpreter-rate-calculator-ci.yml (copied from an existing sibling
+        venture's workflow) and recorded it with `python3
+        platform/ci/publish_surface.py --write` (classified 'none' -- an
+        ordinary test-only venture CI). Ran `node platform/pages/launched.mjs
+        --write` so the tool enters the portfolio's Atom feed. Ran
+        `node platform/marketing/regen.mjs` twice (once after the initial
+        venture commit, again after fixing a JSON-LD/visible-prose FAQ text
+        mismatch platform/pages/faq-visible.test.mjs caught) so the
+        gitops/prod/ front-door mirror serves the corrected page; `--verify`
+        confirmed current after each write. Added a baseline row to
+        portfolio/usage/usage.yaml (live_url_visitors: null, all local event
+        counters at 0 -- published minutes ago, nobody has visited or opted
+        into local counting yet).
+
+        Verified locally, CI starved (ci_starvation.py: runner_id 0 on recent
+        runs, confirmed before relying on any check state): venture's own
+        suite 37/37 (calc.test.mjs 27, usage.test.mjs 6, page.test.mjs 4);
+        court-reporter-transcript-calculator's suite 53/53 after adding the
+        reciprocal sibling link and its page.test.mjs assertion; the full
+        platform/marketing + platform/pages suite 1281/1281 (first run found
+        3 failures -- a JSON-LD/visible-FAQ-prose text mismatch and a missing
+        launch date, both fixed and re-verified 0 failures, plus a
+        front-door-mirror-staleness gap closed via regen.mjs, verified with
+        --verify before and after); checklist_coverage.py,
+        portfolio/router/validate.py (338 files valid),
+        portfolio/scoring/score_ventures.py --check (338 ventures, added this
+        venture's score row), portfolio/usage/validate_usage.py (280
+        products, 466 readings), publish_surface.py --check (clean after
+        --write recorded the new CI workflow), validate_doc_consistency.py,
+        probes/validate_probe_index.py, score_sensitivity.py,
+        node platform/pages/clauses.mjs sign-language-interpreter-rate-
+        calculator, all 15 platform/ci unittest modules, agent_review's
+        test_review (21/21), and portfolio ledger+scoring+router+usage+
+        pipeline+infra pytest suites (446 passed): all clean. gitops/tests
+        (python3 -m pytest, after apt-get install python3-pytest): 612
+        passed, 25 skipped, 1 failed on
+        test_mirrored_tool_count_matches_what_the_docs_claim (claims 329,
+        actual 330 after this venture's mirror entry) -- this is the exact
+        drift CLAUDE.md's "sync_tree_counts.py" section documents as
+        unfixable on a branch (several concurrent sessions can each move this
+        count by the time of merge) and explicitly says to run
+        sync_tree_counts.py *after* merging main, not before; left as-is
+        per that guidance rather than hand-editing a number a concurrent
+        merge would immediately invalidate again. Did not run the
+        Playwright/axe browser-check suite (time budget; this is a
+        prototype-stage venture and the task brief marks that suite
+        optional) or mypy (module not installed in this environment and not
+        on this venture's own checklist). Rebased onto latest origin/main
+        immediately before push; checked open PRs for a colliding venture
+        and found none.
+    mrr_end: 0
   - venture: flooring-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -38246,6 +38343,223 @@ entries:
         session). platform/ci unittest suites (15 modules): all pass.
         checklist_coverage.py and check_no_payment_code.py: clean.
     mrr_end: 0
+  - venture: firebase-rules-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per DIRECTION.md's "new ventures rank
+        first" guidance: session_gate.py read PROCEED with an empty
+        build-now pipeline queue, pages_state.py reported the published
+        snapshot current, and usage_state.py confirmed the visitor signal
+        is still never-measured fleet-wide (null, not zero) so no existing
+        venture's usage trend could rank above a fresh candidate. Sibling
+        checker supabase-rls-check (graduated the same day by an earlier
+        session) named the deterministic checker/CLI archetype this
+        follows. Firebase's Realtime Database and Firestore share the
+        exact "default-open unless a security rule locks it down" shape --
+        both default a new project to 30 days of test mode with a rule
+        that allows any unauthenticated read/write, documented since
+        Appthority's 2018 "Firebase mismanagement" report (2,300+ apps
+        found exposed) and recurring in security research since; OWASP's
+        Mobile Application Security Testing Guide names Firebase backend
+        misconfiguration as its own test case. duplicate_check.py scored
+        every existing venture at 0.16 or below (0.19 against
+        supabase-rls-check's own pipeline write-up, the closest match).
+      - >-
+        Shipped ventures/firebase-rules-check: a free browser tool + CLI
+        sending real, read-only, unauthenticated requests to a Firebase
+        project's Realtime Database (a shallow root listing --
+        `shallow=true` returns child key names only, never field values)
+        and named Firestore collections (one document max per collection,
+        `pageSize=1`), naming which paths return real data with no login.
+        Unlike supabase-rls-check, Firestore has no unauthenticated
+        schema-listing endpoint, so the tool asks the caller to name the
+        Firestore collections to check -- the same "I already know what to
+        check" fallback supabase-rls-check's own `runProbes` offers via its
+        `tables` option, just the primary path here. The Realtime Database
+        half runs the live check directly in the browser (its REST API is
+        designed for that); the Firestore half's browser-CORS behaviour is
+        less certain across every project configuration, so the page
+        attempts it too but names the CLI as the guaranteed fallback if a
+        visitor's browser reports a network/CORS error -- the same
+        CLI-as-fallback posture security-headers-check and
+        cors-misconfig-check already use for a request a browser cannot
+        reliably make itself. Liability scored 6, the same as
+        supabase-rls-check and for the same reason (real-data read rather
+        than only headers/config), mitigated the same way plus one step
+        further: the Realtime Database probe never downloads a field value
+        at all, only key names. Full pipeline write-up at
+        portfolio/pipeline/candidates/firebase-rules-check.md; scored in
+        candidates.yaml and portfolio/scoring/venture-scores.yaml; filed in
+        the front-door's "CI checks & developer gates" category (added to
+        build.mjs's category regex on this venture's first commit rather
+        than after a spell in the catch-all -- build.test.mjs's own
+        catch-all guard confirmed this), with reciprocal links to/from
+        supabase-rls-check closing the orphan gap
+        platform/pages/siblings.test.mjs guards against.
+      - >-
+        Verified locally rather than assuming CI (ci_starvation.py showed
+        the same runner_id:0 starvation signature on the latest
+        Portfolio validate run on main): venture's own tests 56/56, using
+        local fake Realtime Database and Firestore HTTP servers so nothing
+        hit the real internet; a real-browser Playwright smoke test of
+        both pages (worked example renders, correct verdict, no console
+        errors beyond a harmless favicon 404). First full
+        platform/marketing + platform/pages run (1281/1281) caught two
+        real defects this session fixed: the venture had not been added to
+        build.mjs's category regex, so build.test.mjs's catch-all guard
+        failed (fixed by filing it alongside supabase-rls-check in "CI
+        checks & developer gates"), and faq-visible.test.mjs caught the
+        JSON-LD/visible-text divergence CLAUDE.md already records
+        repeatedly -- "--" in the JSON-LD against the page's own em dash,
+        plus two FAQ answers where the visible paragraph had been
+        paraphrased shorter than the JSON-LD text it was supposed to
+        match word-for-word. Fixed by aligning the JSON-LD to the em dash
+        the page renders and making both paragraphs match exactly; a
+        second full run came back 1281/1281 clean. Also: gitops/tests
+        637 passed/1 skipped (nginx-light and openssh-client installed via
+        `apt-get update && apt-get install` per CLAUDE.md's own warning
+        about the missing `apt-get update` step); `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed; all 27 platform/ci
+        unittest modules and agent_review's test_review (21/21): clean;
+        checklist_coverage.py, router/validate.py, publish_surface.py
+        --check, validate_workflows.py, surface-budget.mjs --check,
+        check_no_payment_code.py, clauses.mjs, validate_candidates.py, and
+        validate_doc_consistency.py: all clean. `sync_tree_counts.py`
+        rewrote the mirrored-tool count (327 -> 328) and the opt-out switch
+        count (309 -> 310) across their hand-kept locations, each with the
+        running-comment entry this venture's graduation accounts for; a
+        second run confirmed every count agrees with the tree.
+        `gitops/ci/sync_readme_counts.py` refreshed the runs-on count the
+        same way. `regen.mjs --verify` caught the front-door mirror going
+        stale three times across this session (the new venture's own
+        pages, the build.mjs category reassignment moving ~67 sibling
+        pages' Related links, and the FAQ dash/wording fix) -- fixed each
+        time with `regen.mjs` and re-verified clean.
+    mrr_end: 0
+  - venture: source-map-leak-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated as a new venture (candidates.yaml/venture-scores.yaml
+        composite 6.125, floor 1 ai_leverage, both gates pass): a free
+        browser tool + CLI reading each script's own trailing
+        sourceMappingURL comment, fetching the referenced map (or decoding
+        an inline data: URI map), and naming which scripts have a publicly
+        readable production source map -- distinguishing full
+        sourcesContent exposure from paths-only exposure, and a reference
+        whose map cleanly 404s/403s (healthy) from a script with no
+        reference at all. Same "read what's actually there, name the exact
+        evidence" checker shape as cors-misconfig-check,
+        security-headers-check, and supabase-rls-check.
+        duplicate_check.py scored every existing venture at 0.15 or below.
+        Shipped with 63 node --test assertions across probe/analyze/check/
+        usage/page, a guide page (HowTo JSON-LD) and a generic-method
+        comparison page against checking devtools by hand (exempted from
+        the named-competitor disclaimer in clauses.mjs, since it names no
+        trademarked product), a dedicated CI workflow, and the front-door
+        registration (build.mjs category + reciprocal sibling link from
+        docker-build-secrets-check).
+        node --test in the venture: 63/63. platform/pages + platform/
+        marketing: 1281/1281 (after fixing a worked-example fake hostname
+        that accidentally contained the placeholder-origin substring, an
+        FAQPage JSON-LD/visible-copy divergence on both pages, and running
+        launched.mjs --write). gitops/tests: 613 passed, 25 skipped.
+        platform/ci unittest suites (15) and agent_review: clean.
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests: 446
+        passed. clauses.mjs, surface-budget.mjs, router/validate.py,
+        validate_workflows.py, validate_candidates.py,
+        validate_doc_consistency.py, score_ventures.py --check: all clean.
+        Merged origin/main twice while this was in flight
+        (osha-trir-dart-calculator, supabase-rls-check, then
+        voiceover-project-rate-calculator, android-data-safety-check's
+        category move) and resolved the resulting narrative-comment /
+        adjacent-list-entry collisions in gitops/tests/test_manifests.py,
+        platform/privacy/optout-persistence.test.mjs, platform/pages/
+        build.mjs, and portfolio/scoring/venture-scores.yaml by hand;
+        discarded and regenerated the front-door mirror rather than
+        picking a side on the binary .gz conflicts, per
+        resolve-mirror-merge.sh's guidance. Every check on the PR (#5274)
+        confirmed starved via ci_starvation.py (runner_id: 0) before
+        merging; said so in the PR body naming what was verified locally.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This session's sandbox has open egress (`curl
+        "$HTTPS_PROXY/__agentproxy/status"` reports `"selective": false`),
+        unlike the restricted agent sandbox `CLAUDE.md` and
+        `public_surface.py`'s own docstring document -- confirmed by
+        `duncan-haywood.github.io`, `api.github.com` and
+        `api.indexnow.org` all answering 200/301 to plain `curl` rather
+        than the usual `403 to CONNECT`. A prior session today had already
+        found and recorded the sharper half of this in
+        `portfolio/ledger/infra_state.yaml`'s `k3s-cluster` and
+        `agent-session-egress` rows (`marisstella.dev` now answers with a
+        "Maris Stella Labs" landing page unrelated to this repository's
+        catalogue, not `ERR_CONNECTION_REFUSED` -- flagged to the owner
+        directly); this entry does not repeat that finding, only builds on
+        it.
+      - >-
+        Refreshed the published gh-pages snapshot at session start (built
+        from 9740c6b7, main was at 8c2eac4a) via publish-branch.sh, which
+        also sent this catalogue's first-ever successful IndexNow
+        announcement from this kind of session -- `POST
+        https://api.indexnow.org/indexnow -> 200`, 1321 URLs -- reproduced
+        a second time by hand to confirm it was not a fluke. Re-ran after a
+        concurrent session's merge landed (`pages_state.py
+        --require-current` went stale again from a1cf0f5c) rather than
+        chasing every subsequent merge for the rest of the session.
+      - >-
+        Ran `platform/ci/public_surface.py --sample 40` against the live
+        hostnames and confirmed by hand (35/35 direct `curl` spot checks
+        across 15 ventures, random sample) that the GitHub Pages catalogue
+        itself is healthy: every sampled tool page, comparison page and
+        venture index returned 200 with a real title tag and a sane byte
+        count. The apex sitemap sample it already runs is now checking dead
+        ground, though -- `gitops/prod/front-door/sitemap.xml.gz` lists
+        only `marisstella.dev` URLs, and that domain no longer serves this
+        repository's pages, so every one of those probes reads as a
+        disagreement (39/40) for a reason that has nothing to do with the
+        product's health, while the origin actually serving it (GitHub
+        Pages, 511KB, 200) got zero page-level sampling.
+      - >-
+        Fixed forward rather than filing it: `public_surface.py` gained
+        `pages_sitemap_urls()`/`pages_sitemap_probes()`, a second sitemap
+        sample read from the `gh-pages` branch's own committed
+        `sitemap.xml` via `git show` (same remote-tracking-ref-first
+        resolution as `publish_surface.pages_branch_survey()`, and
+        deliberately not a copy of `build.mjs`'s URL-construction logic --
+        the exact mistake `CLAUDE.md` already records costing live product
+        twice). `render()`/`as_json()`/`main()` carry a third,
+        independently-labelled "GitHub Pages sitemap sample" section, with
+        an explicit "not taken" note (rather than a silently empty section)
+        when the branch ref has not been fetched locally --
+        `.github/workflows/public-surface-check.yml` now fetches it first
+        (copied from the identical step in `browser-checks-ci.yml`, not
+        restated), since `actions/checkout@v4` only fetches the ref under
+        test and this would otherwise silently sample nothing on every CI
+        run.
+      - >-
+        Verified against the real repository, not only fixtures: with
+        `gh-pages` fetched, `python3 public_surface.py --sample 8` reports
+        "GitHub Pages sitemap sample: 8/8 served" alongside the (correctly
+        red) apex sitemap section. Added 8 new tests
+        (`PagesSitemapTests`, plus render/json coverage for the new
+        section and its "not taken" note) -- `python3 -m unittest
+        test_public_surface`: 64/64 pass. All 15 `platform/ci` unittest
+        modules: pass. `python3 -m pytest gitops/tests -q`: 613 passed, 25
+        skipped (nginx/ssh binaries not installed this session, same as
+        every other reading this month). `checklist_coverage.py`: clean.
+        `(cd platform/ci/agent_review && python3 -m unittest test_review)`:
+        21/21 pass (unaffected by this change; run per the starvation
+        checklist). YAML-validated the workflow edit with `yaml.safe_load`.
+    mrr_end: 0
   - venture: graphql-introspection-exposure-check
     agent_spend_usd: null
     human_hours: 0
@@ -38267,47 +38581,63 @@ entries:
         duplicate_check.py scored the closest existing venture
         (supabase-rls-check) at 0.17, well under the 0.45 flag bar. Merit
         score 6.167 recorded in venture-scores.yaml (same composite as
-        the sibling header/response-evidence checkers).
+        the sibling header/response-evidence checkers). Closed a
+        crawlable-orphan finding from platform/pages/siblings.mjs --check
+        by adding a reciprocal link from cors-misconfig-check's footer.
         Also refreshed the stale published gh-pages snapshot at session
         start (built from d4933783, main was at 9740c6b7) via
         publish-branch.sh, recorded the github-pages-branch-route reading,
-        and re-ran regen.mjs after merging main forward twice (a 332nd
+        and re-ran regen.mjs after merging main forward twice (a 335th
         mirrored tool restamps every mirrored page's "All N free tools"
         back-link) -- fixed the SWITCHES_IN_THE_CATALOGUE and mirrored-
-        tool-count running comments sync_tree_counts.py rewrote, plus the
-        runs-on count gitops/ci/sync_readme_counts.py rewrote.
+        tool-count running comments sync_tree_counts.py rewrote (keeping
+        every concurrent session's own changelog entries in the merge, not
+        picking a side), plus the runs-on count
+        gitops/ci/sync_readme_counts.py rewrote.
         Verified: node --test in the venture, 55/55 (analyze.mjs's pure
         classification logic, probe.mjs against a real local HTTP server,
         check.mjs's CLI orchestration with an injected probeFn, the usage
-        counter, and both pages' structure/disclaimers). Ran the built
-        CLI end-to-end as a real subprocess against a local test server
-        (exit 1 on a mutation surface with a sensitive name, as expected).
+        counter, and both pages' structure/disclaimers), plus
+        cors-misconfig-check's own suite, 70/70, after adding the sibling
+        link. Ran the built CLI end-to-end as a real subprocess against a
+        local test server (exit 1 on a mutation surface with a sensitive
+        name, as expected).
         node platform/pages/clauses.mjs graphql-introspection-exposure-check,
-        python3 portfolio/router/validate.py (339->340 ventures),
-        platform/ci/publish_surface.py --write/--check, and
-        platform/ci/validate_workflows.py: clean. node --test
+        python3 portfolio/router/validate.py, platform/ci/publish_surface.py
+        --write/--check, platform/ci/validate_workflows.py, and
+        platform/pages/siblings.mjs --check: clean. node --test
         platform/marketing/*.test.mjs platform/pages/*.test.mjs: 1281/1281
-        (this file's own long-suite command). python3 -m pytest
-        gitops/tests -q: 637 passed, 1 skipped (nginx-light and
-        openssh-client installed this session per CLAUDE.md's apt
-        guidance). platform/ci unittest suites (15 modules) and
-        platform/ci/agent_review's test_review: all pass. python3 -m
-        pytest portfolio/ledger portfolio/scoring portfolio/router
-        portfolio/usage portfolio/pipeline infra/tests -q: 443 passed
-        (after adding the merit-score row; router/scoring rerun
-        afterward: 88 passed). portfolio/pipeline's
+        (this file's own long-suite command, re-run clean after the merge
+        and the sibling-link fix). python3 -m pytest gitops/tests -q: 637
+        passed, 1 skipped (nginx-light and openssh-client installed this
+        session per CLAUDE.md's apt guidance). platform/ci unittest suites
+        (15 modules) and platform/ci/agent_review's test_review: all pass.
+        python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests
+        -q: 443 passed (after adding the merit-score row; router/scoring
+        rerun afterward: 88 passed). portfolio/pipeline's
         validate_doc_consistency.py, validate_candidates.py,
         probes/validate_probe_index.py, and score_sensitivity.py: clean.
         platform/ci/usage_state.py --require-honest and
-        check_no_payment_code.py: clean. Installed
-        playwright@1.56.0 + axe-core and ran
-        platform/ci/browser_checks.py --only
+        check_no_payment_code.py: clean. Installed playwright@1.56.0 +
+        axe-core and ran platform/ci/browser_checks.py --only
         graphql-introspection-exposure-check: 7/8 checks passed (contrast:
         0 WCAG A/AA violations across 2 pages/2 viewports; optout: the
         usage opt-out control persists; journey/sweep/sideways/presets/
         roundtrip: clean; highlight skipped -- this venture makes no
-        highlight promise). Merged to main and published via
-        CONFIRM=publish-pages-branch PUSH=1 platform/pages/publish-
+        highlight promise). Merged main forward twice while this was in
+        flight (turo-host-payout-calculator, then
+        sign-language-interpreter-rate-calculator/firebase-rules-check/
+        source-map-leak-check landing concurrently) and resolved the
+        resulting narrative-comment / adjacent-list-entry collisions in
+        gitops/tests/test_manifests.py,
+        platform/privacy/optout-persistence.test.mjs,
+        portfolio/scoring/venture-scores.yaml, portfolio/usage/usage.yaml,
+        and this file by hand, keeping every concurrent entry rather than
+        picking a side; discarded and regenerated the front-door mirror
+        rather than picking a side on the binary .gz conflicts, per
+        resolve-mirror-merge.sh's guidance. Merged to main and published
+        via CONFIRM=publish-pages-branch PUSH=1 platform/pages/publish-
         branch.sh in the same session, so the venture is reachable at
         https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/
         (per PRODUCT_PLAYBOOK.md's definition of done: merged-to-main is
