@@ -758,6 +758,9 @@ workflows:
 - workflow: pergola-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: personal-trainer-package-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pest-control-bid-calculator-ci.yml
   classification: none
   publishes: []
