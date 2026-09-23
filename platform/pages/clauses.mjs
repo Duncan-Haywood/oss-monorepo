@@ -163,6 +163,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "eyeballing which box triggers the dimensional
+  // penalty" -- a habit every shipper already has, not a company or
+  // product this could be mistaken for. The page names no carrier tool.
+  'parcel-dim-weight-calculator/vs-guessing-the-box-size.html',
   // Compares against "the headline commission rate a company quotes" -- the
   // industry-wide convention of leading with one percentage out of a tiered
   // schedule, not a company or product this could be mistaken for. The page
