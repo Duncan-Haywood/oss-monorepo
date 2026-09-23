@@ -47,10 +47,10 @@
 #   portfolio-front-tools-11: 116 files, 553109 bytes
 #   portfolio-front-tools-12: 133 files, 556728 bytes
 #   portfolio-front-tools-13: 131 files, 550088 bytes
-#   portfolio-front-tools-14: 101 files, 552061 bytes
-#   portfolio-front-tools-15: 114 files, 554968 bytes
-#   portfolio-front-tools-16: 117 files, 555517 bytes
-#   portfolio-front-tools-17: 92 files, 451676 bytes
+#   portfolio-front-tools-14: 101 files, 552883 bytes
+#   portfolio-front-tools-15: 114 files, 555253 bytes
+#   portfolio-front-tools-16: 117 files, 555520 bytes
+#   portfolio-front-tools-17: 93 files, 455734 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2025,15 +2025,16 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
       - shopify-fee-calculator__to-where-to-sell.mjs.gz=shopify-fee-calculator__to-where-to-sell.mjs.gz
       - shopify-fee-calculator__usage.mjs.gz=shopify-fee-calculator__usage.mjs.gz
+      - shopify-fee-calculator__vs-a-flat-card-fee-guess.html.gz=shopify-fee-calculator__vs-a-flat-card-fee-guess.html.gz
       - shopify-fee-calculator__vs-beprofit.html.gz=shopify-fee-calculator__vs-beprofit.html.gz
       - shopify-fee-calculator__which-shopify-promo-costs-less.html.gz=shopify-fee-calculator__which-shopify-promo-costs-less.html.gz
       - shopify-fee-calculator__why-paypal-costs-more.html.gz=shopify-fee-calculator__why-paypal-costs-more.html.gz
-      - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
       - shopify-permission-drift__capture.mjs.gz=shopify-permission-drift__capture.mjs.gz
       - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
@@ -2147,12 +2148,12 @@ configMapGenerator:
       - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
       - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
-      - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
       - subpath-robots-check__analyze.mjs.gz=subpath-robots-check__analyze.mjs.gz
       - subpath-robots-check__cli.mjs.gz=subpath-robots-check__cli.mjs.gz
       - subpath-robots-check__index.html.gz=subpath-robots-check__index.html.gz
@@ -2269,12 +2270,12 @@ configMapGenerator:
       - walk-in-tub-bid-calculator__calc.mjs.gz=walk-in-tub-bid-calculator__calc.mjs.gz
       - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
-      - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
       - walk-in-tub-bid-calculator__usage.mjs.gz=walk-in-tub-bid-calculator__usage.mjs.gz
       - walk-in-tub-bid-calculator__vs-a-flat-installed-special.html.gz=walk-in-tub-bid-calculator__vs-a-flat-installed-special.html.gz
