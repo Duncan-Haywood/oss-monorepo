@@ -37084,6 +37084,7 @@ entries:
         github-pages-branch-route as current earlier in the session, before
         this venture's own change; refreshing again after this merge below.
     mrr_end: 0
+
   - venture: deck-staining-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -37130,6 +37131,7 @@ entries:
         Refreshed the gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current.
     mrr_end: 0
+
   - venture: entry-door-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -37168,6 +37170,7 @@ entries:
         merge-conflict round-trip each time main advanced underneath the
         ledger-only branch.
     mrr_end: 0
+
   - venture: appointment-deposit-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -37239,6 +37242,52 @@ entries:
         guidance. Left uncommitted for the parent session to review, commit,
         and push.
     mrr_end: 0
+
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-guessing-which-pays-more.html, against the chair-side napkin habit
+        of eyeballing the commission split against the flat rent check
+        (surface-budget.mjs confirmed the venture at 0/1 generic-method pages
+        used; its existing vs-vagaro.html is a named-product page and
+        unbudgeted). Worked example computed via calc.mjs's own
+        compareCompensation on the shipped index.html defaults ($85 ticket,
+        14 clients/week, $80 retail/week, 50%/10% commission split, $275/week
+        booth rent): the napkin guess (gross minus rent for booth, half of
+        gross for commission) puts booth $360/week ahead; the real numbers,
+        once card fees, backbar, retail cost, and the smaller retail-commission
+        rate are counted, put booth only $176.17/week ahead, and once the 5
+        extra unpaid hours/week booth rent adds are divided in, only
+        $0.88/hour ahead -- a materially different picture from the napkin
+        gap. Registered the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (names no vendor). `node --test` in the venture: 61/61.
+        `platform/pages`/`platform/marketing` suites (after
+        `node platform/marketing/regen.mjs`, confirmed current via
+        `--verify`): 1010/1010 and 271/271. `python3 -m pytest gitops/tests
+        -q`: 637 passed, 1 skipped (environmental) after installing
+        nginx-light/openssh-client via `apt-get update && apt-get install`.
+        `python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q`: 446 passed.
+        checklist_coverage.py and sync_tree_counts.py: clean, no drift. All
+        platform/ci unittest modules and agent_review's test_review (21/21):
+        clean. guard_state.py --require-runnable: clean once nginx/ssh-keygen
+        were installed. run_workflow_locally.py --for-changes: 9/11 selected
+        workflows passed (portfolio-validate.yml 70/70 run steps,
+        sibling-links-ci.yml 2/2); the rest need GitHub-hosted-runner-only
+        credentials this sandbox does not have (agent-cross-review, Hetzner
+        preflight, Pages deploy/publish). Its venture-regression step read
+        UNRUN because the branch had fallen 11 commits behind `origin/main`
+        (a new venture graduation and five more comparison-page PRs landed
+        mid-session) -- re-ran `check_venture_regression.py` directly, which
+        correctly reported the same "checkout is behind, not removing
+        anything" reason rather than a false regression, then merged
+        `origin/main` and re-ran `regen.mjs` to pick up the concurrent
+        mirror changes before pushing.
+    mrr_end: 0
+
   - venture: etsy-profit-calculator
     agent_spend_usd: null
     human_hours: 0
