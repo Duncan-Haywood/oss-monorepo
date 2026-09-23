@@ -2108,18 +2108,32 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # schema listing and testing whether the anon key can read real rows
     # from each table (the missing-Row-Level-Security exposure behind
     # CVE-2025-48757), with a static `index.html` from its first commit,
-    # same shape as the rest of this running count.
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (325) until this merge -- the same
+    # ordinary collision shape recorded throughout this list, and
+    # re-derived here by `sync_tree_counts.py` against the merged tree
+    # rather than by hand.
     #
     # 329 since this merge: `mercari-fee-calculator` graduated concurrently
-    # with both of the above -- a browser-local calculator pricing a Mercari
+    # with the pair above -- a browser-local calculator pricing a Mercari
     # sale against the current (Jan 6, 2025) shipping-inclusive 10% fee
     # schedule and the legacy item-price-only 10% + 2.9% + $0.50 schedule,
     # with a static `index.html` from its first commit, same shape as the
     # rest of this running count. This branch only ever knew its own
     # predecessor's number (327) until this merge -- the same ordinary
-    # collision shape recorded throughout this list, and re-derived here by
+    # collision shape recorded throughout this list.
+    #
+    # 330 since this merge: `voiceover-project-rate-calculator` graduated
+    # concurrently with all three above -- a browser-local calculator
+    # pricing freelance voice-over project work (script-based, by
+    # usage/licensing term, and audiobook, per finished hour), with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (325, before the osha-trir-dart-calculator/supabase-rls-check
+    # pair landed) until this merge -- the same ordinary collision shape
+    # recorded throughout this list, and re-derived here by
     # `sync_tree_counts.py` against the merged tree rather than by hand.
-    total = 329  # `infra/OWNER_CHECKLIST.md`'s own "N of the 329 tools" wording.
+    total = 330  # `infra/OWNER_CHECKLIST.md`'s own "N of the 330 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

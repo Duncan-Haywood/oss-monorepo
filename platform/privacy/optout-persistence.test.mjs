@@ -446,7 +446,18 @@ const RELATIVE_SELF = relative(
 // (`ventures/mercari-fee-calculator/usage.mjs`) and no deletions. This
 // branch only ever knew its own predecessor's number (309) until this
 // merge -- the same ordinary collision shape recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 311;
+//
+// 311 -> 312: `voiceover-project-rate-calculator` graduated concurrently
+// with all three above, adding one `usage.mjs` following the same opt-out
+// pattern as its siblings (`usageAllowed`/`toggleUsage` gating
+// `recordEvent` the same way `locksmith-bid-calculator`'s does). This
+// branch only ever knew its own predecessor's number (308, before the
+// osha-trir-dart-calculator/supabase-rls-check pair landed) until this
+// merge -- the same collision shape as the entry immediately above.
+// Verified the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
+// no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 312;
 
 let counter = 0;
 function fixture(source) {
