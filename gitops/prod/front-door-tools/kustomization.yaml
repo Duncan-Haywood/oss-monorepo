@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 124 files, 555270 bytes
 #   portfolio-front-tools-15: 103 files, 554766 bytes
 #   portfolio-front-tools-16: 119 files, 552363 bytes
-#   portfolio-front-tools-17: 110 files, 492753 bytes
+#   portfolio-front-tools-17: 111 files, 496166 bytes
 #   portfolio-front-tools-18: 49 files, 266570 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2327,6 +2327,7 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
       - voiceover-project-rate-calculator__calc.mjs.gz=voiceover-project-rate-calculator__calc.mjs.gz
+      - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
       - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
       - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
