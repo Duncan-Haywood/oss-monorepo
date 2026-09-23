@@ -488,12 +488,15 @@ const RELATIVE_SELF = relative(
 // landed) until this merge -- the same ordinary collision shape recorded
 // throughout this list.
 //
-// 315 -> 316: `source-map-leak-check` graduated on this branch, adding one
+// 314 -> 315: `source-map-leak-check` graduated on this branch, adding one
 // `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as its
 // checker siblings. Verified the way this file's error message prescribes:
 // exactly one added `usage.mjs`
-// (`ventures/source-map-leak-check/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 316;
+// (`ventures/source-map-leak-check/usage.mjs`) and no deletions -- the true
+// count landed one lower than this branch's own hand count predicted, since
+// the two prior entries above both trace back to the same 313
+// (`mercari-fee-calculator`) base and the merge does not sum their deltas.
+const SWITCHES_IN_THE_CATALOGUE = 315;
 
 let counter = 0;
 function fixture(source) {

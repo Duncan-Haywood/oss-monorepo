@@ -2164,15 +2164,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # landed) until this merge -- the same ordinary collision shape
     # recorded throughout this list.
     #
-    # 334 since this merge: `source-map-leak-check` graduated on this branch
+    # 333 since this merge: `source-map-leak-check` graduated on this branch
     # -- a browser + CLI checker reading each script's own trailing
     # `sourceMappingURL` comment and naming scripts with a publicly readable
     # production source map, same "read what's actually there" checker shape
     # as `cors-misconfig-check` and `supabase-rls-check`, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count. Re-derived here by `sync_tree_counts.py` against the
-    # merged tree rather than by hand.
-    total = 334  # `infra/OWNER_CHECKLIST.md`'s own "N of the 334 tools" wording.
+    # merged tree rather than by hand -- the true count landed one lower
+    # than this branch's own hand count predicted, since the two prior
+    # entries above both trace back to the same 330 (`mercari-fee-calculator`)
+    # base and the merge does not sum their deltas.
+    total = 333  # `infra/OWNER_CHECKLIST.md`'s own "N of the 333 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
