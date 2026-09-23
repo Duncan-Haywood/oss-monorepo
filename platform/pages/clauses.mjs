@@ -975,6 +975,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // calculator at all -- distinct from this venture's own vs-pestpac.html,
   // which does name a product and carries its own "not affiliated" clause.
   'pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html',
+  // Compares against "a flat $999 mold special" -- a generic postcard
+  // pricing pattern mold remediation companies of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no company at all -- distinct from this venture's
+  // own vs-xactimate.html, which does name a product and carries its own
+  // "not affiliated" clause. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
+  'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
