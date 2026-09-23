@@ -103,6 +103,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
+  // Compares against checking RLS in Supabase's own Table Editor and
+  // Advisor by hand -- the same platform's own built-in dashboard features,
+  // described only to explain what a manual look there does and does not
+  // tell you, not a separate company or product this could be mistaken
+  // for. Same shape as branch-protection-drift-check's exemption above.
+  'supabase-rls-check/vs-manually-checking-the-dashboard.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
@@ -943,6 +949,21 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-jobber.html, which does name a
   // product and carries its own "not affiliated" clause.
   'french-drain-bid-calculator/vs-a-flat-price-per-foot.html',
+  // Compares against "a flat $4 a square foot installed" special -- a generic
+  // postcard pricing pattern excavation and landscape shops of many different
+  // names advertise for gravel driveways, not one specific company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  // Same reasoning as the other vs-a-flat-*-special pages already in the tree
+  // (e.g. exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'gravel-driveway-bid-calculator/vs-a-flat-4-per-square-foot-special.html',
+  // Compares against "a flat price per square foot" -- the generic pricing
+  // habit the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-rfms.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'flooring-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "a flat quote by house size" -- the generic pricing
   // habit pest control accounts are shopped on, not a company or product
   // this could be mistaken for. The page names no vendor or competing
