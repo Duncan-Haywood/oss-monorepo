@@ -36266,3 +36266,52 @@ entries:
         current, and all portfolio validators (router/validate.py,
         pipeline/validate_doc_consistency.py, pipeline/validate_candidates.py,
         scoring/score_ventures.py --check, usage/validate_usage.py) green.
+  - venture: duct-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py verdict PROCEED (0% meta-work share). Router's
+        top-ranked candidates were prototype-stage exploration tasks;
+        surface-budget.mjs --for showed duct-cleaning-bid-calculator (merit
+        6.67, router rank ~62) had a named-product comparison (vs-jobber.html)
+        and one guide but zero generic-method pages, with budget for one.
+        duplicate_check.py against the niche scored nothing above 0.30, so no
+        near-duplicate risk. Added vs-a-flat-whole-house-special.html,
+        comparing the calculator against a flat "$99 whole-house" / "$299
+        after-coupon" duct-cleaning special -- calc.mjs's own docstring and
+        JOB_TYPE_PRESETS already name that as the number a flat quote loses
+        money on. Worked-example figures are derived directly from calc.mjs's
+        own JOB_PRESETS and the form's shipped defaults (a test asserts
+        this): the shipped default job (1 system, 10 vents, 1 story) clears
+        a $299 special by $66.09, while an occupied 14-vent ranch with a coil
+        clean misses it by $63.12, a 2-system colonial by $301.50, and a
+        2-system split-level with heavy pet hair by $380.99. Names no
+        commercial product, so it is exempted from the not-affiliated clause
+        in platform/pages/clauses.mjs (row added with rationale) rather than
+        carrying a disclaimer about a party that doesn't exist. Linked from
+        index.html's "Related" line and added to sitemap.xml, so it is not
+        orphaned. `node --test` in the venture: 112/112. `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1281/1281
+        after `regen.mjs` (7 mirror artifacts were stale before the new page
+        was regenerated in, confirmed clean again after merging main).
+        `checklist_coverage.py`, `surface-budget.mjs --check`, and
+        `regen.mjs --verify` all clean. `python3 -m pytest gitops/tests -q`:
+        637 passed, 1 skipped. All 15 `platform/ci` unittest modules passed,
+        plus `agent_review`'s `test_review` (21/21). `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed. All 8
+        `portfolio-validate.yml` validators (router/validate.py,
+        front-door-tools.mjs --headroom, pipeline/validate_doc_consistency.py,
+        pipeline/validate_candidates.py, probes/validate_probe_index.py,
+        score_sensitivity.py, scoring/score_ventures.py --check,
+        usage/validate_usage.py) green. `ci_starvation.py` on the latest push
+        to main confirmed `runner_id: 0` (starved, not a real failure), so
+        this local checklist is the verification of record. Main advanced by
+        one commit (docker-base-image-eol-check, #5142) mid-session; merged
+        and resolved the expected front-door mirror conflict via
+        `resolve-mirror-merge.sh` (271/271 its own tests), then re-verified
+        `regen.mjs --verify` current and the full marketing/pages suite
+        1281/1281 clean post-merge. decision_queue.py unchanged at 17
+        owner-only asks; pages_state.py snapshot already current at session
+        start (no served-surface change had landed since the last publish).
