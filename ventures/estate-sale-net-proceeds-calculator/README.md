@@ -8,6 +8,11 @@ minimum guarantee, and compare two companies' quotes side by side against the
 same sale estimate. Nothing is uploaded; the arithmetic runs on the visitor's
 own device.
 
+See [`vs-headline-commission-rate.html`](vs-headline-commission-rate.html)
+for why the lower headline rate can retain more, or
+[`why-estate-sale-fees-bite-harder-on-a-smaller-sale.html`](why-estate-sale-fees-bite-harder-on-a-smaller-sale.html)
+for why the same flat fee stack takes a bigger share of a smaller estate.
+
 ```
 cd ventures/estate-sale-net-proceeds-calculator && node --test
 ```
