@@ -229,6 +229,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // flat card is the right tool for a phone quote. Same reasoning as the
   // other generic-method pages above.
   'pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html',
+  // Compares against "a flat per-walk rate" -- the $20-a-walk pricing every
+  // independent dog walker or pet sitter already posts, not a company or
+  // product this could be mistaken for. The page names no marketplace app
+  // or competitor (the venture's own named-product comparison, vs-rover,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat rate is the right tool for advertising. Same reasoning as the other
+  // generic-method pages above.
+  'dog-walking-route-pricing/vs-a-flat-per-walk-rate.html',
   // Compares against "opening each marketplace's own fee calculator and
   // reconciling the answers" -- the method every multi-channel seller already
   // uses, not a company or product this could be mistaken for. It is the one
@@ -730,6 +738,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-fotoquote.html, which does name a product and
   // carries its own "not affiliated" clause.
   'commercial-photo-license-calculator/vs-a-flat-usage-fee.html',
+  // Compares against "a flat $X/sq ft or $X/hole special" -- the coupon-rate
+  // habit lifting shops already get quoted against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-quoteiq.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'concrete-lifting-bid-calculator/vs-a-flat-rate-special.html',
+  // Compares against "a flat price per finished square foot" -- the
+  // per-square-foot pricing habit every countertop fabricator is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-moraware.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
