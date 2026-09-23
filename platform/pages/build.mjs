@@ -6790,6 +6790,13 @@ export function faqEntries(html) {
  * markup stranded in `<head>`. Search a masked copy instead: scripts can
  * still open and close a real `<body>` around themselves, but nothing typed
  * *inside* one can be mistaken for a document tag again.
+ *
+ * Chosen over searching only after the real `</head>` (an earlier, narrower
+ * fix for this same defect, briefly on `main`): that heuristic protects a
+ * fake tag quoted in a `<head>` script, which is what this bug was first
+ * found from, but not one quoted in a script sitting inside `<body>` itself
+ * — a venture's own inline JSON-LD is not guaranteed to live in `<head>`.
+ * Masking script content is correct regardless of where the script sits.
  */
 export function maskScriptContents(html) {
   return html.replace(/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi, (_, open, body, close) => (
