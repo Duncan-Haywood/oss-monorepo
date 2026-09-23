@@ -35399,3 +35399,71 @@ entries:
         71/71 run steps passed, sibling-links-ci.yml 2/2 -- the remaining
         selected workflows need a runner or deploy credentials this
         sandbox does not have and were not run.
+  - venture: str-host-payout-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session: 0 open PRs (review-open-prs-first.md step 1
+        empty), session_gate.py PROCEED with the build-now pipeline empty.
+        Per allocate.py's untested-hypothesis ranking and
+        surface-budget.mjs --for <slug> (0 of 1 generic-method comparison
+        pages used) shipped vs-subtracting-a-flat-percentage.html: this
+        calculator vs. the "Airbnb takes 15%, Vrbo takes 8%" mental-math
+        shortcut of applying one headline rate to the subtotal. On the
+        venture's own shipped example ($225/night, 2 nights, $95 cleaning,
+        10% tax, $200 deposit -- $545 subtotal) an 8% flat guess prices
+        Vrbo's pay-per-booking payout at $501.40 against this calculator's
+        actual commission-on-subtotal-plus-processing-on-guest-payment
+        arithmetic of $493.77 -- $7.63 overstated per stay, ~$275/year
+        across the venture's own default of 36 bookings. The page also
+        contrasts Airbnb, where the guess is nearly exact ($460.53 vs
+        $460.52) because Airbnb's fee is a single rate on a single base --
+        the fee-base-mismatch point the venture's own untested hypothesis
+        names directly ("generic '15% vs 8%' pages mix fee bases").
+      - >-
+        Added the page to platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (compares a mental-math habit, names
+        no product), linked it from index.html's related-links footer and
+        sitemap.xml, and added a page.test.mjs test that locks the worked
+        Vrbo/Airbnb numbers against calc.mjs's own compareChannels rather
+        than restating them by hand. Hit and fixed one real bug before
+        landing: the FAQPage JSON-LD's answer text used ASCII "--" and
+        straight quotes while the visible prose used em dashes and curly
+        punctuation matching the rest of the page, which
+        faq-visible.test.mjs correctly caught as JSON-LD/visible-text
+        divergence (PRODUCT_PLAYBOOK's FAQ-must-be-visible rule) --
+        corrected the JSON-LD to match the page's own prose rather than
+        the reverse. Ran node platform/marketing/regen.mjs after --verify
+        caught the newly-stale front-door mirror, then --verify again
+        clean.
+      - >-
+        CI is starved: ci_starvation.py --run 35673997485 (the latest
+        portfolio-validate.yml run, on the previous commit) confirms
+        runner_id: 0, 3s, no steps. Verified locally per CLAUDE.md's
+        starvation checklist: venture's own suite 38/38;
+        node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        1277/1277 (an initial run caught the JSON-LD/visible-text mismatch
+        above at 1276/1277; clean after the fix); platform/proposal
+        101/101; platform/privacy + platform/webcheck 140/142 (2 skipped,
+        environmental -- shallow-clone history-pinned tests); gitops/tests
+        613 passed / 25 skipped (environmental, before installing
+        nginx-light/openssh-client; guard_state.py --require-runnable
+        confirmed 0 fixable skips remained after installing
+        openssh-client -- ssh-keygen); portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests 446
+        passed; all platform/ci unittest modules clean;
+        platform/ci/agent_review test_review 21/21; checklist_coverage.py
+        and sync_tree_counts.py --check both clean (322 mirrored tools, 304
+        opt-out switches, no drift); regen.mjs --verify current after the
+        regen above. pytest came from apt (python3-pytest 7.4.4), run as
+        python3 -m pytest throughout. run_workflow_locally.py
+        --for-changes ran portfolio-validate.yml, portfolio-pages.yml,
+        hetzner-gitops-ci.yml and siblings; the only non-environmental,
+        non-UNRUN failure was pages.yml's link-check step, which fails
+        because the tool cannot evaluate that workflow's `if: ${{ }}`
+        build-gate expression and skips the build step entirely, leaving
+        no _site directory for the link check to read -- a local-runner
+        limitation in the workflow's own conditional structure, not a
+        defect this change introduced (the build step is skipped
+        identically regardless of diff content).

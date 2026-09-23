@@ -1,8 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { compareChannels, CHANNEL_PRESETS } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+const vsFlatSeo = readFileSync(
+  new URL("./vs-subtracting-a-flat-percentage.html", import.meta.url),
+  "utf8",
+);
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -116,4 +121,52 @@ test("index links one hop to the security-deposit-return-calculator sibling", ()
     /href="\.\.\/security-deposit-return-calculator\/"/,
     "index must link ../security-deposit-return-calculator/ so crawlers reach the deposit calculator in one hop",
   );
+});
+
+test("the generic flat-percentage comparison page links back, names no product, and matches the worked Vrbo example", () => {
+  assert.match(vsFlatSeo, /<a href="\.\/">/);
+  assert.match(vsFlatSeo, /names no specific product/i);
+  assert.match(vsFlatSeo, /No warranty/);
+  assert.match(vsFlatSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsFlatSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+
+  const input = {
+    nightlyRate: 225,
+    nights: 2,
+    cleaningFee: 95,
+    extraFees: 0,
+    taxRate: 10,
+    securityDeposit: 200,
+    bookingsPerYear: 36,
+  };
+  const comparison = compareChannels(input, CHANNEL_PRESETS);
+  const vrbo = comparison.channels.find((c) => c.id === "vrbo-pay-per-booking");
+  const airbnb = comparison.channels.find((c) => c.id === "airbnb-host-only");
+  const naiveVrboGuess = comparison.booking.subtotal * 0.92;
+  const naiveAirbnbGuess = comparison.booking.subtotal * 0.845;
+
+  nearEnough(comparison.booking.subtotal, 545);
+  nearEnough(naiveVrboGuess, 501.4);
+  nearEnough(vrbo.payoutPerStay, 493.77);
+  nearEnough(naiveVrboGuess - vrbo.payoutPerStay, 7.63);
+  nearEnough(naiveAirbnbGuess, 460.53);
+  nearEnough(airbnb.payoutPerStay, 460.52);
+
+  assert.match(vsFlatSeo, /\$545/);
+  assert.match(vsFlatSeo, /\$501\.40/);
+  assert.match(vsFlatSeo, /\$493\.77/);
+  assert.match(vsFlatSeo, /\$7\.63/);
+  assert.match(vsFlatSeo, /\$460\.53/);
+  assert.match(vsFlatSeo, /\$460\.52/);
+});
+
+function nearEnough(actual, expected) {
+  assert.ok(Math.abs(actual - expected) < 0.01, `${actual} vs ${expected}`);
+}
+
+// index.html links to the flat-percentage comparison in the same related-
+// links footer that links every other follow-on page, so a visitor who
+// lands on the calculator first has a crawlable path to it too.
+test("index links to the flat-percentage comparison page", () => {
+  assert.match(html, /href="\.\/vs-subtracting-a-flat-percentage\.html"/);
 });

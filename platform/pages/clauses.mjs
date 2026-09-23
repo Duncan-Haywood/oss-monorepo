@@ -496,6 +496,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly. Same reasoning as the reverb-fee-calculator spreadsheet
   // page above.
   'amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "subtracting a flat percentage" -- the mental-math
+  // shortcut of applying one headline rate to a nightly rate, not a company
+  // or product this could be mistaken for. The page names no platform's
+  // calculator or competing tool and its own body says so explicitly. Same
+  // reasoning as the other vs-spreadsheet / by-hand pages above.
+  'str-host-payout-calculator/vs-subtracting-a-flat-percentage.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

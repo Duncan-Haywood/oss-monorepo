@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. subtracting a flat percentage</title>
+  <meta name="description" content="Free short-term rental host payout calculator vs. the 'Airbnb takes 15%, Vrbo takes 8%' mental-math shortcut. On the calculator's own $545 stay, a flat 8% guess overstates Vrbo's payout by $7.63 because commission and processing sit on different fee bases.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-subtracting-a-flat-percentage.html">
+  <meta property="og:title" content="This calculator vs. subtracting a flat percentage">
+  <meta property="og:description" content="A flat percentage assumes every fee sits on the same base. Vrbo's does not — 5% commission on the rental, 3% processing on the guest's full payment including tax and deposit. On one $545 stay that mismatch overstates the payout by $7.63.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't subtracting a flat percentage give the same answer as this calculator?","acceptedAnswer":{"@type":"Answer","text":"Because a flat percentage assumes every fee is a share of the same number, and on most channels it isn't. Vrbo's pay-per-booking plan charges a 5% commission on the rental subtotal and a separate 3% processing fee on the guest's full payment — subtotal plus occupancy tax plus any refundable security deposit. Blending those two rates into one \"about 8%\" and applying it to the subtotal alone leaves out the tax and deposit that the processing leg is actually charged on, so the guess and the real payout diverge by exactly that gap."}},{"@type":"Question","name":"How much difference does it actually make?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped example stay — a $225 nightly rate, 2 nights, a $95 cleaning fee, 10% occupancy tax, and a $200 security deposit, for a $545 subtotal — an 8% flat guess prices the Vrbo payout at $501.40. The same stay run through this calculator's actual commission-plus-processing arithmetic comes to $493.77. That is $7.63 overstated on one stay, or roughly $275 a year across the calculator's own default of 36 marketplace bookings — money the guess says is in the deposit that the real fee schedule already took."}},{"@type":"Question","name":"Why does the flat-percentage guess work fine for Airbnb but not Vrbo?","acceptedAnswer":{"@type":"Answer","text":"Because Airbnb's 2026 host-only fee is, unlike Vrbo's, already a single rate on a single base: 15.5% of the same booking subtotal, with no separate processing charge on a different number. Applying 15.5% straight to the $545 subtotal gives $460.53 against this calculator's own $460.52 — close enough to round to the same cent. The flat-percentage shortcut is not wrong in general; it is wrong exactly when a channel's published rate is actually two rates on two different bases, which is Vrbo's case and not Airbnb's."}},{"@type":"Question","name":"What about a direct-booking site's monthly cost — where does that fit into a percentage?","acceptedAnswer":{"@type":"Answer","text":"It doesn't, which is the sharper version of the same problem. A direct-booking site or channel manager typically bills a flat monthly or annual fee — this calculator's own default is $29 a month — on top of card processing. That cost has no percentage at all until it's divided by the bookings a host actually keeps after leaving the marketplace, and a host estimating \"direct is basically free besides card fees\" has no way to fold a flat monthly bill into any percentage guess. This calculator amortizes it per stay automatically; a flat-percentage mental model has nowhere to put it."}},{"@type":"Question","name":"Is this the same as checking my own payout statement?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not replace one. A payout statement reports what a platform actually paid on a booking that already happened. This calculator answers a forward-looking question — what would this stay pay on each channel, before it's booked — using the fee structure a host enters or accepts as a 2026 starting point. Reconcile against an actual statement once a stay closes; use this calculator to compare channels before choosing one."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241812; background: #f3ebe3; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #7a2e1b; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddccbc; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c4a3d; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #3b2418; color: #f7efe6; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #5c4a3d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c4a3d; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Airbnb/Vrbo host payout calculator</a></p>
+  <h1>This calculator vs. subtracting a flat percentage</h1>
+  <p>
+    "Airbnb takes about 15%, Vrbo takes about 8%" is the mental math most
+    hosts start from — two round numbers subtracted from a nightly rate to
+    guess a payout. It costs nothing and takes no time. It is also built on
+    an assumption that only sometimes holds: that a channel's whole fee is
+    one rate charged on one number.
+  </p>
+  <p>
+    <strong>The flat-percentage guess</strong> takes a headline rate and
+    applies it to the booking subtotal, done. <strong>This calculator</strong>
+    instead runs the same stay through each channel's actual fee
+    structure — a commission on one base, processing on another, a flat
+    site cost with no percentage at all — because that is what a payout
+    statement actually charges, not what a single blended number can
+    represent.
+  </p>
+  <p>
+    On this calculator's own shipped example — a $225 nightly rate, 2
+    nights, a $95 cleaning fee, 10% occupancy tax, and a $200 security
+    deposit, for a <strong>$545</strong> subtotal — an 8% flat guess prices
+    Vrbo's pay-per-booking payout at <strong>$501.40</strong>. This
+    calculator's own arithmetic, splitting the 5% commission on the
+    subtotal from the 3% processing fee on the guest's full payment
+    (subtotal plus tax plus deposit), comes to <strong>$493.77</strong>.
+    That is <strong>$7.63</strong> overstated on one stay — about
+    <strong>$275 a year</strong> across the calculator's own default of 36
+    marketplace bookings.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I want a payout number in five seconds and I'm not opening a calculator.</td>
+        <td>The flat-percentage guess — free, but built from a headline rate, not the actual fee bases.</td>
+      </tr>
+      <tr>
+        <td>Does this channel's fee sit on one number or two different ones?</td>
+        <td>This calculator's per-channel breakdown — commission, processing, and any flat site cost, shown separately.</td>
+      </tr>
+      <tr>
+        <td>Is a flat-percentage guess close enough for this channel?</td>
+        <td>Depends which one. It's nearly exact for Airbnb's single-rate 15.5% fee and off by real money for Vrbo's split commission-plus-processing.</td>
+      </tr>
+      <tr>
+        <td>Where does a direct-booking site's flat monthly cost fit into a percentage?</td>
+        <td>It doesn't — this calculator amortizes it per stay instead of leaving it out.</td>
+      </tr>
+      <tr>
+        <td>Do I need to create an account, upload a payout statement, or sign up?</td>
+        <td>No, for either approach — the guess needs nothing and neither does this calculator.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Run your own stay through every channel</a>
+  <p>
+    The guess isn't a bad habit so much as a shortcut that happens to be
+    exact on one channel and wrong on another, with no way to tell which
+    from the headline rate alone. This tool needs no account and no
+    sign-in: it is a static page, the arithmetic runs in your browser, and
+    once it has loaded it keeps working with the connection off. This page
+    names no specific product or company — it compares against a mental
+    shortcut, not a competing tool.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Why doesn't subtracting a flat percentage give the same answer as this calculator?</h3>
+  <p>Because a flat percentage assumes every fee is a share of the same number, and on most channels it isn't. Vrbo's pay-per-booking plan charges a 5% commission on the rental subtotal and a separate 3% processing fee on the guest's full payment — subtotal plus occupancy tax plus any refundable security deposit. Blending those two rates into one "about 8%" and applying it to the subtotal alone leaves out the tax and deposit that the processing leg is actually charged on, so the guess and the real payout diverge by exactly that gap.</p>
+  <h3>How much difference does it actually make?</h3>
+  <p>On this calculator's own shipped example stay — a $225 nightly rate, 2 nights, a $95 cleaning fee, 10% occupancy tax, and a $200 security deposit, for a $545 subtotal — an 8% flat guess prices the Vrbo payout at $501.40. The same stay run through this calculator's actual commission-plus-processing arithmetic comes to $493.77. That is $7.63 overstated on one stay, or roughly $275 a year across the calculator's own default of 36 marketplace bookings — money the guess says is in the deposit that the real fee schedule already took.</p>
+  <h3>Why does the flat-percentage guess work fine for Airbnb but not Vrbo?</h3>
+  <p>Because Airbnb's 2026 host-only fee is, unlike Vrbo's, already a single rate on a single base: 15.5% of the same booking subtotal, with no separate processing charge on a different number. Applying 15.5% straight to the $545 subtotal gives $460.53 against this calculator's own $460.52 — close enough to round to the same cent. The flat-percentage shortcut is not wrong in general; it is wrong exactly when a channel's published rate is actually two rates on two different bases, which is Vrbo's case and not Airbnb's.</p>
+  <h3>What about a direct-booking site's monthly cost — where does that fit into a percentage?</h3>
+  <p>It doesn't, which is the sharper version of the same problem. A direct-booking site or channel manager typically bills a flat monthly or annual fee — this calculator's own default is $29 a month — on top of card processing. That cost has no percentage at all until it's divided by the bookings a host actually keeps after leaving the marketplace, and a host estimating "direct is basically free besides card fees" has no way to fold a flat monthly bill into any percentage guess. This calculator amortizes it per stay automatically; a flat-percentage mental model has nowhere to put it.</p>
+  <h3>Is this the same as checking my own payout statement?</h3>
+  <p>No, and it does not replace one. A payout statement reports what a platform actually paid on a booking that already happened. This calculator answers a forward-looking question — what would this stay pay on each channel, before it's booked — using the fee structure a host enters or accepts as a 2026 starting point. Reconcile against an actual statement once a stay closes; use this calculator to compare channels before choosing one.</p>
+  <p class="note">
+    Also: <a href="./airbnb-vs-vrbo-host-fees.html">Airbnb vs Vrbo host fees, compared on the same stay</a> ·
+    <a href="./vs-airbnb-earnings-estimator.html">This calculator vs. Airbnb's own Estimate Your Earnings tool</a>
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not legal, tax, financial, or business advice, and it does not tell you where to list or what to charge. Platform fees change by market, host type, and date. Verify every figure against your own payout statements before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it changes a listing decision, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
