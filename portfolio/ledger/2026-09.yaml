@@ -35759,3 +35759,75 @@ entries:
         which was killed after 13 minutes stuck inside
         test_publish_surface (a live-network unit test that hangs rather
         than fails fast against this sandbox's egress proxy).
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py said PROCEED with an empty build-now pipeline and
+        router/allocate.py's top-merit dispatchable ventures all carry the
+        generic "Explore the untested hypothesis" task shape rather than a
+        concrete defect to fix, so this session picked the standing
+        deploy-solved priority instead: amazon-fba-calculator already
+        carries 20 guide pages and one named-product comparison
+        (vs-amazon-revenue-calculator.html, against Amazon's own Revenue
+        Calculator) and was at its one-per-venture generic-method budget
+        per surface-budget.mjs, but PRODUCT_PLAYBOOK.md/DIRECTION.md's
+        Duplicate-PRs section is explicit that comparisons against
+        distinct named products are unbudgeted (locksmith-bid-calculator
+        carries three). Added a second: vs-jungle-scout-fba-calculator.html,
+        comparing this free no-signup FBA-vs-FBM tool against Jungle
+        Scout's own free FBA Calculator (junglescout.com/fba-calculator),
+        which is a pre-launch cost estimator tied to Jungle Scout's paid
+        product-research suite rather than an FBA-vs-FBM decision tool on
+        a listing already being sold -- a real, distinct competitor, not a
+        restatement of the Amazon comparison already on the page.
+      - >-
+        Sourced the Jungle Scout facts with WebSearch/WebFetch rather than
+        from memory (support.junglescout.com's own article 403'd the
+        fetch, so relied on junglescout.com/fba-calculator's own page text
+        plus corroborating search results) and wrote only what those
+        sources actually support -- what it estimates (FBA fees, upfront/
+        variable/marketing costs pre-launch) and where it lives (free web
+        tool, also bundled in the paid suite) -- deliberately not claiming
+        specifics about its signup flow that the primary source's fetch
+        could not confirm. Followed PRODUCT_PLAYBOOK.md 5f: nominative
+        fair use only, facts sourced and comparative rather than
+        derogatory, and the not-affiliated/trademark disclaimer in the
+        same wording the existing Amazon comparison page already uses.
+        Linked the new page from index.html's "What this checks" section
+        and added it to sitemap.xml; clauses.mjs, surface-budget.mjs
+        --check, and check.mjs (build.mjs --out + check.mjs, 322 products/
+        1226 pages, no dead links) all pass.
+      - >-
+        CI is starved (ci_starvation.py on runs 35821502593 and
+        35821502695: runner_id 0, 3s, no steps, on every `.github/`
+        workflow checked -- the one green run in the list,
+        35821618504, is the managed Pages builder, not Actions).
+        Verified locally per CLAUDE.md's starvation checklist: this
+        venture's own suite 319/319; regen.mjs --verify caught the
+        now-stale front-door mirror (this venture is mirrored) and
+        --verify again clean after running regen.mjs; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        1277/1277 (a first concurrent run raced its own regen.mjs
+        --verify mid-suite and read 7 transient failures -- the exact
+        hazard CLAUDE.md's regen section documents; a sequential re-run
+        came back clean); platform/proposal 101/101; platform/privacy +
+        platform/webcheck 142/142; after `apt-get update &&
+        apt-get install -y --no-install-recommends python3-pytest
+        nginx-light openssh-client`, gitops/tests 637 passed / 1 skipped
+        (environmental); checklist_coverage.py clean; all platform/ci
+        unittest modules and agent_review's test_review clean; portfolio/
+        ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests 446 passed; score_ventures.py
+        --check (330/330), router/validate.py (329/329),
+        check_no_payment_code.py, and check_ledger_only.py all clean.
+        sync_tree_counts.py not run -- this change added no venture and
+        no opt-out switch, so neither mirrored-tool nor switch count
+        moved. browser_checks.py not run: browser_state.py reports the
+        whole catalogue STALE from an unrelated clauses.mjs move earlier
+        in the tree's history (not this change), a full run is 20-30
+        minutes, and the new page has no form or interactive input --
+        it is static text and links using the same template, CSS, and
+        disclaimer wording as the already-shipped
+        vs-amazon-revenue-calculator.html on the same venture.
