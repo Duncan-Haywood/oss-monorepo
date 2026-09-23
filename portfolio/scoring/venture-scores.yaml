@@ -15279,7 +15279,64 @@ ventures:
       authorised to test" caution. A response the tool cannot classify
       (network error, unexpected status) is reported as an error, never
       folded into either "exposed" or "blocked".
-
+  - slug: source-map-leak-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a script's source map is
+      exposed is decided by a fixed decision table against the script's own
+      sourceMappingURL comment and the map's own JSON, not a model
+      judgment, and it never claims a full security audit.
+    basis: >-
+      Screened 2026-09-23, same session as supabase-rls-check, per
+      portfolio/pipeline/README.md's "archetype itself" section: a
+      zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.15 or below against the final description (reads each
+      script's own sourceMappingURL comment, fetches the map, and reports
+      whether it is publicly readable and whether it embeds full source
+      text), well under the 0.45 flag bar; no existing venture reads
+      client-side JS build artifacts for this exposure. Autonomous ops 10 /
+      gross margin 10: every request runs from the visitor's own browser
+      (when the target's CORS policy allows it) or machine (for the CLI)
+      against a site of their choosing, so serving one more user costs a
+      static file and needs no human review of any output.
+      Time to revenue 5, distribution 5: donations-only, and unlike
+      supabase-rls-check this is not tied to a single dated CVE or incident
+      -- it is an evergreen bundler-configuration footgun that webpack's and
+      Vite's own documentation, and error-tracking vendors like Sentry,
+      explicitly warn about and ship a "hidden" mode to avoid, which is
+      real, durable evidence of the mistake being common without a single
+      named 2026 incident to cite. Scored a point below supabase-rls-check
+      on both for that reason -- real but less acutely newsworthy demand.
+      Defensibility 2: transparent, narrow probe-and-classify tool with no
+      data moat, easily reimplemented by anyone who reads the source map
+      spec.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, scored comfortably above the sibling checker family's typical
+      6-7: every request is GET only, and unlike supabase-rls-check this
+      tool never queries live application data at all -- it only reads
+      static files (scripts and maps) that are, by construction, already
+      served to any anonymous visitor of the target site. A "clean"
+      demonstration of exposure cannot become a data-viewing tool, because
+      there is no private data in scope to begin with -- only whether a
+      file the server already serves publicly happens to be a source map.
+      Every page and the README carry an explicit "only test a site you
+      own or are authorised to test" caution. A response the tool cannot
+      classify (network error, CORS block, unexpected status) is reported
+      as an error, never folded into either "exposed" or "safe".
   - slug: mercari-fee-calculator
     scores:
       ai_leverage: 1
@@ -15394,6 +15451,80 @@ ventures:
       or manuscript, nothing is scraped or inferred about a third party or
       about the buyer on the other side of the deal, and all computation is
       client-side.
+
+  - slug: sign-language-interpreter-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. An assignment fee, a booking-minimum override, a
+      differential-scaled interpreting fee, and a cancellation-tier lookup
+      are all exact arithmetic on hours, a rate, travel minutes/miles, and a
+      notice period the interpreter already has -- there is no inference
+      step, only a comparison, a multiplication, and a sum. The
+      team-interpreting flag is a lookup against a fixed set (setting,
+      length), not a judgement call the tool makes.
+    basis: >-
+      Graduated 2026-09-23 as a browser-local calculator pricing a single
+      freelance/contract sign language interpreting assignment: hours
+      requested against a two-hour booking minimum, portal-to-portal travel
+      time and mileage, an after-hours/weekend/holiday differential, and a
+      team-interpreting flag for long legal/medical/mental-health bookings
+      per RID's own Standard Practice Paper guidance, plus a tiered
+      late-cancellation fee calculator. Screened against 141+ trade-bid
+      calculators and the saturated marketplace-fee-calculator and
+      dev-tooling-checker shapes for a distinct solo-professional-services
+      pricing angle the portfolio had not yet touched (freelance sign
+      language interpreters), closely modeled on the already-graduated
+      notary-trip-quote and court-reporter-transcript-calculator (same
+      reasoning: a solo professional turning time, travel, and a booking
+      minimum into a customer-facing price) but for a structurally
+      different kind of work, with its own minimum-booking convention,
+      differential structure, and team-staffing decision driven by the
+      interpreting profession's own cognitive-load guidance rather than by
+      area, page count, or word count. duplicate_check.py scored nothing
+      >= 0.09 against any existing venture, pipeline candidate, or
+      screened-out row -- the closest matches (no-show-fee-calculator 0.09,
+      locksmith-bid-calculator 0.08, cnc-machining-quote-calculator 0.08)
+      are a different product shape (a no-show policy tool with no
+      travel/minimum arithmetic, a trade bid, a shop-quote calculator)
+      rather than a near-duplicate. Autonomous ops 10 / gross margin 10:
+      entirely client-side, no server component, zero marginal cost per
+      visitor. Distribution 5: r/interpreters, RID's own membership forums,
+      and interpreting-focused Facebook/Discord communities see recurring
+      "what should I charge" and "should this be a team assignment"
+      threads, with real search phrases ("sign language interpreter rate
+      calculator", "how much do ASL interpreters charge") -- a smaller,
+      more specialized professional population than court reporting or
+      voice-over work, so scored a point below those peers rather than
+      matched to them. Time to revenue 5, defensibility 3: donations-only;
+      the booking-minimum, travel-billing, and differential arithmetic is
+      easy to reimplement once shown, the same defensibility ceiling every
+      deterministic rate calculator in this portfolio carries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price *starting point* derived from commonly cited,
+      adjustable industry conventions, explicitly framed as a basis for
+      negotiation or an invoice draft, never a quote, guarantee, or
+      valuation performed on the user's behalf -- being wrong costs an
+      interpreter a miscalibrated invoice, not a filing or a contract
+      obligation, and the tool is not legal or medical advice about the
+      underlying assignment. Ethically: every input is a number the user
+      already knows about their own booking, nothing is scraped or inferred
+      about a third party, a client, or a Deaf/hard-of-hearing consumer of
+      the interpreting service, and the team-interpreting finding favors
+      interpreter wellbeing and service quality over a lower quote.
+
   - slug: turo-host-payout-calculator
     scores:
       ai_leverage: 1
@@ -15458,3 +15589,149 @@ ventures:
       already knows about their own trip, nothing is scraped or inferred
       about Turo, a guest, or a third party, and all computation is
       client-side.
+
+  - slug: firebase-rules-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a Realtime Database path
+      or Firestore collection returns real data to an unauthenticated
+      request is decided by the HTTP status and a shallow/capped read
+      against a fixed decision table -- a factual, deterministic
+      classification, not a model judgment, and it never claims a full
+      security audit.
+    basis: >-
+      Screened 2026-09-23, the same session as supabase-rls-check and the
+      same archetype: a zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.16 or below (0.19 against supabase-rls-check's own
+      pipeline write-up) against the final description (real, read-only,
+      unauthenticated requests to a Firebase project's Realtime Database
+      and named Firestore collections), well under the 0.45 flag bar --
+      supabase-rls-check itself is the closest match, a different backend
+      with the same "default-open unless a rule locks it down" shape. Autonomous ops 10 / gross margin 10: every Realtime Database
+      request runs from the visitor's own browser (or machine, for the
+      CLI) against a project of their choosing, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 6, one point below supabase-rls-check's 7: the
+      underlying exposure class is older and more evergreen (documented
+      since Appthority's 2018 "Firebase mismanagement" report, 2,300+ apps
+      found exposed) and stays a recurring finding in security research
+      and bug-bounty write-ups, and OWASP's Mobile Application Security
+      Testing Guide names Firebase backend misconfiguration as its own
+      test case -- real, durable search demand ("firebase security rules
+      checker", "is my firebase database public") -- but scored a point
+      below supabase-rls-check for lacking that venture's one specific,
+      dated, named 2026 incident and a named hosted paid competitor;
+      several free open-source scanner scripts exist for the same
+      problem, which is evidence of demand rather than evidence the niche
+      is unserved, but is weaker distribution evidence than a company
+      selling a hosted response to the exact same CVE this session.
+      Time to revenue 6, defensibility 2: donations-only; a transparent
+      probe-and-classify tool has no data moat, and the Firebase console's
+      own Rules Playground plus multiple free scanner scripts already
+      cover the same underlying misconfiguration class, so defensibility
+      rests only on needing no console login and no third party seeing
+      the project ID, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, scored at 6, the same as supabase-rls-check and for the same
+      reason: every request is GET only, the Realtime Database probe uses
+      shallow=true (child key names only, never field values) and the
+      Firestore probe is capped to one document per collection, and the
+      tool never attempts a write/update/delete. It never renders or
+      stores actual field values, only key/field *names* and counts, so a
+      "clean" demonstration of exposure never becomes a bulk data-viewing
+      tool. Every request runs from the user's own browser (for the
+      Realtime Database half) or machine (for the CLI) directly to a
+      project they name -- never this portfolio's infrastructure touching
+      a third party. Every page and the README carry an explicit "only
+      test a project you own or are authorised to test" caution. A
+      response the tool cannot classify (network error, unexpected
+      status) is reported as an error, never folded into either "exposed"
+      or "blocked".
+
+  - slug: podcast-feed-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a required feed element
+      is present, whether itunes:category matches Apple's documented list,
+      whether a pubDate is valid RFC 822, and whether two items share a
+      guid are all decided by exact comparison against the parsed feed
+      itself -- a factual, deterministic comparison, not a model judgment,
+      and it never claims a guarantee that any podcast platform will
+      accept or display the show.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool in the same
+      shape as redirect-chain-check and hreflang-reciprocity-check (real
+      network fetch the browser can't fully do itself, paired with a
+      paste-based browser mode), not another <trade>-bid-calculator, and a
+      genuinely new sub-domain for the ~65-strong checker archetype (which
+      clusters into GitHub Actions/CI security, web/SEO headers/markup,
+      app-store manifests, and npm/dependency checks -- none about podcast
+      RSS feeds). duplicate_check.py scored every existing venture,
+      screened-out row, and pipeline candidate at 0.16 or below against the
+      final description (closest: hreflang-reciprocity-check and
+      sitemap-lastmod-freshness-check, both a different evidence class),
+      well under the 0.45 flag bar; the only other venture with "podcast"
+      in its description, podcast-sponsorship-rate-calculator, prices an ad
+      read rather than validating feed XML. Autonomous ops 10 / gross
+      margin 10: the CLI's one request runs from the user's own machine
+      against a feed URL of their choosing, and the browser page parses
+      only pasted text, so serving one more user costs a static file.
+      Distribution 6: Apple builds and documents its own feed-validation
+      step inside Podcasts Connect specifically because feed-spec
+      violations are a common, recurring submission-rejection cause --
+      direct evidence of real demand rather than an inferred one -- plus
+      r/podcasting (a large, established independent-podcaster forum where
+      "episode not showing up" and "feed rejected" are recurring thread
+      topics) and adjacent-category demand shown by the established
+      general-purpose W3C Feed Validator. Softer than a dedicated
+      by-name-competitor comparison would be (no single named podcast-
+      specific validator competitor was confirmed at screening time, and
+      none of this was verified against a live fetch this session --
+      egress to arbitrary hosts is proxy-denied here). Time to revenue 6,
+      defensibility 3: donations-only; a transparent rules-based checker
+      over a documented spec and a public category taxonomy is easy to
+      reimplement, and general RSS/Atom validation already has an
+      established free competitor (the W3C Feed Validator), though none
+      identified at screening time targets the iTunes/Podcast-namespace
+      requirements specifically.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is evidence against named, documented rules ("this
+      element is missing", "this date format is invalid"), never a
+      determination made on the show's behalf -- being wrong costs a
+      podcaster a few minutes double-checking one element, not a legal or
+      financial loss, and every finding whose source data (Apple's category
+      list) could itself be stale on this tool's part says so explicitly
+      rather than asserting certainty. Ethically: a static, deterministic
+      checker with no revenue model that depends on which direction it
+      errs in -- both severities (danger/notice) are disclosed in every
+      finding, nothing is scraped, and the tool gets strictly more useful
+      to more podcasters as it scales with no customer worse off because
+      another one exists.

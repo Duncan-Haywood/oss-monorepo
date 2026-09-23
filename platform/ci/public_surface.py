@@ -62,6 +62,13 @@ Not a hand-written list of URLs. Three sources, all generated:
     publishes. Probing URLs we tell crawlers to fetch is the check that
     catches a dead link in the one document search engines read first.
 
+  * **Which paths to probe on GitHub Pages**, from that origin's own
+    committed `sitemap.xml` on the `gh-pages` branch (added 2026-09-23, see
+    `pages_sitemap_urls`). The apex sitemap above stopped being the whole
+    answer the same day: `marisstella.dev` now serves a page unrelated to
+    this catalogue, so a check that only sampled the apex would have zero
+    page-level coverage of the origin that is actually healthy.
+
 Restating either list here would be the mistake `CLAUDE.md` records twice as
 having cost live product (a constant copied out of `build.mjs` froze half a
 rule in place and left seven finished pages public nowhere). Both are read.
@@ -502,6 +509,87 @@ def sitemap_probes(limit: int = DEFAULT_SAMPLE, urls: list[str] | None = None) -
     ]
 
 
+# How many of the GitHub Pages origin's per-venture sitemaps to open (each
+# lists a handful of pages) before sampling the pages themselves down to
+# `DEFAULT_SAMPLE`. Reading all ~330 would mean ~330 extra `git show`
+# invocations for a check meant to run cheaply and often; this many is enough
+# that `sample`'s even spread still lands across most of the catalogue.
+PAGES_SITEMAP_CHILD_SAMPLE = 20
+
+
+def pages_sitemap_urls(base_url: str | None = None, ref: str | None = None) -> list[str]:
+    """A sample of page URLs from the GitHub Pages origin's own sitemap.
+
+    `APEX_SITEMAP` (above) is the *other* live origin's promise to crawlers,
+    and as of 2026-09-23 it is the only one this module samples at the page
+    level. That stopped being sufficient the same day: `marisstella.dev` now
+    answers with a page unrelated to this repository's catalogue (see
+    `portfolio/ledger/infra_state.yaml`'s `k3s-cluster` row), while GitHub
+    Pages is the origin actually serving it — so probing only the apex
+    sitemap leaves the healthy origin with zero page-level coverage, and a
+    session could spend a check run confirming a domain that no longer
+    matters.
+
+    This reads the `gh-pages` branch's own committed `sitemap.xml` — a
+    sitemap *index*, one child per venture plus `sitemap-hub.xml` — via
+    `git show`, the same way `publish_surface.pages_branch_survey()` already
+    reads that branch (remote-tracking ref first; see that function's own
+    comment for why a web session's local `gh-pages` can be stale or absent).
+    A sample of the children is opened the same way and their own `<loc>`
+    entries, already the full page URLs `build.mjs` wrote into them, are
+    returned flat.
+
+    Deliberately not a copy of `build.mjs`'s URL-construction logic (venture
+    slug, entry-point resolution, `ENTRY_OVERRIDES`) — `CLAUDE.md` records
+    twice that restating a rule from that file rather than reading its output
+    is what left finished pages public nowhere. Nor is it a live HTTP fetch
+    of the sitemap: this module's other URL lists are read from committed
+    files with no network call, and `git show` keeps this one the same way,
+    so listing what to probe never itself depends on the thing being probed.
+    """
+    if ref is None:
+        ref = publish_surface.pages_branch_survey().get("ref")
+    if not ref:
+        return []
+    index_text = publish_surface._git("show", f"{ref}:sitemap.xml")
+    if not index_text:
+        return []
+    children = re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", index_text)
+    if not children:
+        return []
+    base_url = base_url or pages_base_url()
+    if not base_url:
+        return []
+    base_url = base_url.rstrip("/") + "/"
+    urls: list[str] = []
+    for child in sample(children, PAGES_SITEMAP_CHILD_SAMPLE):
+        if not child.startswith(base_url):
+            # Not this origin's own sitemap entry -- reading it via `git show`
+            # on this ref would either miss (wrong path) or, worse, silently
+            # hit an unrelated file that happens to share the path. Skipped
+            # rather than guessed at.
+            continue
+        path = child[len(base_url):]
+        text = publish_surface._git("show", f"{ref}:{path}")
+        if not text:
+            continue
+        urls.extend(re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text))
+    return urls
+
+
+def pages_sitemap_probes(limit: int = DEFAULT_SAMPLE, urls: list[str] | None = None) -> list[Probe]:
+    """Probes for URLs the GitHub Pages origin's own sitemap lists.
+
+    Mirrors `sitemap_probes` for the *other* live origin -- see
+    `pages_sitemap_urls` for why both are needed now.
+    """
+    urls = pages_sitemap_urls() if urls is None else urls
+    return [
+        Probe(url=url, expect="serves", why="listed in the GitHub Pages origin's own sitemap")
+        for url in sample(urls, limit)
+    ]
+
+
 def run_probes(probes: list[Probe], opener=None, workers: int = 8) -> list[Result]:
     """Probe concurrently, but return results in the order asked for."""
     if not probes:
@@ -530,10 +618,16 @@ def measured_nothing(results: list[Result]) -> bool:
     return bool(results) and len(unmeasured(results)) == len(results)
 
 
-def render(host_results: list[Result], page_results: list[Result]) -> str:
+def render(
+    host_results: list[Result],
+    page_results: list[Result],
+    pages_sitemap_results: list[Result] | None = None,
+    pages_sitemap_note: str = "",
+) -> str:
     """A GitHub step summary: what the manifests promised, what answered."""
+    pages_sitemap_results = pages_sitemap_results or []
     out: list[str] = ["## Public surface, measured from outside the cluster", ""]
-    everything = host_results + page_results
+    everything = host_results + page_results + pages_sitemap_results
     if measured_nothing(everything):
         # Lead with this. It must be impossible to skim the table below and
         # come away with a belief about the origin, because every cell in it
@@ -603,7 +697,39 @@ def render(host_results: list[Result], page_results: list[Result]) -> str:
             out.append("Every sampled URL from the published sitemap returned a document.")
         out.append("")
 
-    bad = disagreements(host_results + page_results)
+    if pages_sitemap_note and not pages_sitemap_results:
+        # Distinguished from a silent empty section on purpose: an empty list
+        # here is not "nothing to report", it is "this sample was never
+        # taken" -- and the whole recurring failure this repo's CLAUDE.md
+        # records is a guard that stopped running with nothing left to say
+        # so. A reader must see this line rather than infer coverage from an
+        # absent one.
+        out += ["### GitHub Pages sitemap sample: not taken", "", pages_sitemap_note, ""]
+    elif pages_sitemap_results:
+        broken = disagreements(pages_sitemap_results)
+        skipped = unmeasured(pages_sitemap_results)
+        countable = len(pages_sitemap_results) - len(skipped)
+        out += [
+            f"### GitHub Pages sitemap sample: {countable - len(broken)}/{countable} served",
+            "",
+        ]
+        if skipped:
+            out += [
+                f"{len(skipped)} URL(s) not measured — blocked by the agent "
+                "egress gateway, so they are excluded from the count above.",
+                "",
+            ]
+        if broken:
+            out += ["| URL | Result |", "| --- | --- |"]
+            out += [f"| `{r.probe.url}` | {r.summary()} |" for r in broken]
+        else:
+            out.append(
+                "Every sampled URL from the GitHub Pages origin's own sitemap "
+                "returned a document."
+            )
+        out.append("")
+
+    bad = disagreements(host_results + page_results + pages_sitemap_results)
     out.append(
         "All probes agree with the manifests."
         if not bad
@@ -616,7 +742,14 @@ def render(host_results: list[Result], page_results: list[Result]) -> str:
     return "\n".join(out)
 
 
-def as_json(host_results: list[Result], page_results: list[Result]) -> str:
+def as_json(
+    host_results: list[Result],
+    page_results: list[Result],
+    pages_sitemap_results: list[Result] | None = None,
+    pages_sitemap_note: str = "",
+) -> str:
+    pages_sitemap_results = pages_sitemap_results or []
+
     def row(r: Result) -> dict:
         return {
             "url": r.probe.url,
@@ -632,11 +765,13 @@ def as_json(host_results: list[Result], page_results: list[Result]) -> str:
             "blocked": r.blocked,
         }
 
-    everything = host_results + page_results
+    everything = host_results + page_results + pages_sitemap_results
     return json.dumps(
         {
             "hosts": [row(r) for r in host_results],
             "pages": [row(r) for r in page_results],
+            "pages_sitemap": [row(r) for r in pages_sitemap_results],
+            "pages_sitemap_note": pages_sitemap_note,
             "disagreements": len(disagreements(everything)),
             "unmeasured": len(unmeasured(everything)),
             # A consumer that reads only one key should read this one: it is
@@ -674,7 +809,7 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--hosts-only",
         action="store_true",
-        help="skip the sitemap sample; probe only the public hostnames",
+        help="skip both sitemap samples; probe only the public hostnames",
     )
     args = parser.parse_args(argv)
 
@@ -684,14 +819,33 @@ def main(argv=None) -> int:
     # five days unchallenged.
     hosts = run_probes(host_probes() + pages_probes())
     pages: list[Result] = []
+    pages_sitemap: list[Result] = []
+    pages_sitemap_note = ""
     if not args.hosts_only:
         limit = 0 if args.all else args.sample
         urls = sitemap_urls()
         pages = run_probes(sitemap_probes(limit=limit or len(urls), urls=urls))
+        pages_sitemap_urls_ = pages_sitemap_urls()
+        if pages_sitemap_urls_:
+            pages_sitemap = run_probes(
+                pages_sitemap_probes(limit=limit or len(pages_sitemap_urls_), urls=pages_sitemap_urls_)
+            )
+        else:
+            branch_row = publish_surface.pages_branch_survey()
+            pages_sitemap_note = (
+                f"No `gh-pages` sitemap could be read (branch state: "
+                f"{branch_row.get('state')}). `git fetch origin gh-pages` first."
+            )
 
     if args.json_out:
-        Path(args.json_out).write_text(as_json(hosts, pages), encoding="utf-8")
-    print(as_json(hosts, pages) if args.json else render(hosts, pages))
+        Path(args.json_out).write_text(
+            as_json(hosts, pages, pages_sitemap, pages_sitemap_note), encoding="utf-8"
+        )
+    print(
+        as_json(hosts, pages, pages_sitemap, pages_sitemap_note)
+        if args.json
+        else render(hosts, pages, pages_sitemap, pages_sitemap_note)
+    )
     # Exit 1 on a disagreement, so the job that runs this is red exactly when
     # the public surface stops matching what this repository ships -- and
     # green while a gated host stays correctly dark.
@@ -700,7 +854,7 @@ def main(argv=None) -> int:
     # "it is broken" call for different actions, and collapsing them is how a
     # sandbox run gets filed as an outage. A caller that only checks `!= 0`
     # still treats it as not-green, which is the safe default.
-    everything = hosts + pages
+    everything = hosts + pages + pages_sitemap
     if measured_nothing(everything):
         return 2
     return 1 if disagreements(everything) else 0
