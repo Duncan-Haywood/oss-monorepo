@@ -1014,6 +1014,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // competing tool at all. Same reasoning as sri-check's own
   // vs-checking-tags-by-hand.html above.
   'git-exposure-check/vs-checking-with-curl-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method most filers who pay
+  // quarterly estimated tax more than once already build for themselves, not
+  // a company or product this could be mistaken for. The page names no
+  // spreadsheet vendor at all, same reasoning as osha-trir-dart-calculator's
+  // own vs-spreadsheet.html above -- distinct from this venture's own
+  // vs-keeper.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
