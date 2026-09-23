@@ -452,6 +452,18 @@ class SitemapTests(unittest.TestCase):
     def test_a_missing_sitemap_is_empty_not_an_error(self):
         self.assertEqual(ps.sitemap_urls(Path("/nonexistent/sitemap.xml.gz")), [])
 
+    def test_a_gz_sitemap_is_inflated_before_parsing(self):
+        # `APEX_SITEMAP` is stored gzip-only since 2026-09-23 -- see the
+        # constant's own comment. A `.gz` path must be read the same way the
+        # real one is, not treated as opaque bytes.
+        import gzip
+
+        path = Path(self.enterContext(__import__("tempfile").TemporaryDirectory())) / "sitemap.xml.gz"
+        path.write_bytes(
+            gzip.compress(b"<urlset><url><loc>https://a/</loc></url></urlset>"),
+        )
+        self.assertEqual(ps.sitemap_urls(path), ["https://a/"])
+
     def test_the_committed_apex_sitemap_parses_and_is_not_empty(self):
         urls = ps.sitemap_urls()
         self.assertTrue(urls, "gitops/prod/front-door/sitemap.xml.gz lists no URLs")

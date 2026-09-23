@@ -90,9 +90,10 @@ from pathlib import Path
 import publish_surface
 
 REPO = Path(__file__).resolve().parents[2]
-# Stored gzip-only since 2026-09-23 (see `sitemapStoredKey` in
-# `platform/marketing/front-door.mjs`) to keep `portfolio-front-html` under
-# etcd's object ceiling. `sitemap_urls()` below decompresses it.
+# Stored gzip-only since 2026-09-23 -- see `sitemapStoredKey` in
+# `platform/marketing/front-door.mjs`. The URL this tool probes is still
+# `/sitemap.xml`; only the committed file's name and encoding changed, and
+# `sitemap_urls()` below is what reads the `.gz` back to plain XML.
 APEX_SITEMAP = REPO / "gitops" / "prod" / "front-door" / "sitemap.xml.gz"
 
 # The canonical site build. `DEFAULT_BASE_URL` in this file is the origin every
@@ -459,16 +460,19 @@ def pages_probes(rows=None, base_url=None, branch_route=None) -> list[Probe]:
 def sitemap_urls(path: Path | None = None) -> list[str]:
     """Every `<loc>` in the apex sitemap the deployment publishes.
 
-    Gunzipped rather than read as text: the committed file is stored
-    gzip-only (see the note on `APEX_SITEMAP`), and reading its raw bytes as
-    UTF-8 would not throw -- it would decode to mojibake that matches no
-    `<loc>` and this function would return an empty list exactly as silently
-    as it does for a genuinely missing file.
+    `APEX_SITEMAP` names a `.gz` -- the file is stored gzip-only since
+    2026-09-23 -- so a `.gz` path is inflated before parsing. A caller passing
+    a plain path (this file's own tests do, with a temp fixture) is read as
+    plain text, unchanged from before that switch.
     """
     path = path or APEX_SITEMAP
     if not path.is_file():
         return []
-    return re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", gzip.decompress(path.read_bytes()).decode("utf-8"))
+    if path.suffix == ".gz":
+        text = gzip.decompress(path.read_bytes()).decode("utf-8")
+    else:
+        text = path.read_text(encoding="utf-8")
+    return re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text)
 
 
 def sample(urls: list[str], limit: int) -> list[str]:

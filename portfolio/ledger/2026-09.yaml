@@ -35962,92 +35962,95 @@ entries:
         describes. Linked from index.html, added to sitemap.xml.
       - >-
         Regenerating the mirror (`regen.mjs`) to publish the new page
-        surfaced that `main` was already red on
-        `gitops/tests/test_manifests.py::test_generated_configmaps_stay_under_the_etcd_object_ceiling`
-        before this change: `portfolio-front-html` serialised to
-        944,047 bytes against a 943,718-byte budget, 329 bytes over --
-        confirmed by stashing this session's diff and re-running the
-        bare test against `origin/main`. Root cause: the front door's
-        `kustomization.yaml` already named `sitemap.xml`/`llms.txt` as
-        "the next two by the same test... deliberately left plain for
-        now... worth doing one at a time and against a measurement" in
-        the comment left when `catalog.json` was gzipped on 2026-09-12.
-        That measurement had arrived -- the sitemap had grown to
-        137,903 bytes plain (from 113,830 on 2026-09-12) as the
-        catalogue kept growing, and this session's own +124-byte
-        addition tipped it the rest of the way over budget. Gzipped
-        sitemap.xml the same way catalog.json already was: `.gz`-only
-        ConfigMap key, `gzip_static always; gunzip on;` in
-        front-door/default.conf (no `try_files`, which stats the
-        uncompressed name and would 404 before gzip_static runs -- the
-        exact trap the catalog.json blocks already document at length),
-        `sitemapStoredKey()` beside `catalogStoredKey()` in
-        front-door.mjs, matching tests in front-door.test.mjs (stored
-        key vs COMPRESSED_SUFFIX, no stale plain sibling, kustomization
-        entry, and a dedicated nginx-block test asserting gzip_static
-        rather than try_files). Also fixed platform/ci/public_surface.py's
-        `sitemap_urls()`, which read the committed file straight off
-        disk as UTF-8 and would have silently returned zero URLs once
-        the plain `sitemap.xml` stopped existing -- the exact
-        absence-reads-as-a-clean-result failure mode CLAUDE.md warns
-        about elsewhere in this file, caught before it shipped rather
-        than after. Result: `portfolio-front-html` now serialises to
-        ~820 KB with over 100 KB of headroom restored, verified against
-        real nginx (see below) rather than only the generator's own
-        math.
+        surfaced that `main` (at the c78800fb this session forked from)
+        was red on
+        `gitops/tests/test_manifests.py::test_generated_configmaps_stay_under_the_etcd_object_ceiling`:
+        `portfolio-front-html` serialised to 944,047 bytes against a
+        943,718-byte budget, 329 bytes over -- confirmed by stashing
+        this session's diff and re-running the bare test against
+        `origin/main`. Root cause: the front door's `kustomization.yaml`
+        already named `sitemap.xml`/`llms.txt` as "the next two by the
+        same test... deliberately left plain for now... worth doing one
+        at a time and against a measurement" in the comment left when
+        `catalog.json` was gzipped on 2026-09-12. That measurement had
+        arrived -- the sitemap had grown to 137,903 bytes plain (from
+        113,830 on 2026-09-12). Gzipped sitemap.xml the same way
+        catalog.json already was and fixed
+        platform/ci/public_surface.py's `sitemap_urls()`, which read the
+        committed file straight off disk as UTF-8 and would have
+        silently returned zero URLs once the plain `sitemap.xml` stopped
+        existing.
       - >-
-        Along the way, found and fixed a second, independent bug in the
-        guard meant to catch exactly this: front-door.test.mjs's own
-        ConfigMap-ceiling test measured binary keys with
-        `BINARY = /\.(png|ico|woff2?)$/`, which never matched `.gz` --
-        so it had been under-counting `catalog.json.gz` and
-        `compare.html.gz` by the 4/3 base64 expansion kustomize actually
-        applies to them since 2026-09-12, silently passing a total the
-        real, applied ConfigMap had already outgrown. Only
+        Pushing this branch and opening #5099 surfaced that PR #5097
+        (basement-finishing-bid-calculator, merged minutes earlier) had
+        independently hit the identical wall regenerating its own mirror
+        addition and shipped the same fix first -- same mechanism
+        (`.gz`-only key, `gzip_static always; gunzip on;`, no
+        `try_files`, `sitemapStoredKey()` beside `catalogStoredKey()`),
+        confirmed by `git merge-tree` showing real conflicts in every
+        file this session had also touched, not a fast-forward. This is
+        the exact collision CLAUDE.md's "any constant that counts the
+        tree will be written by two branches at once" warns about, one
+        level up from a byte count: two sessions independently
+        discovering and fixing the same latent regression a few minutes
+        apart. Rather than force a duplicate implementation through,
+        merged origin/main and took its version of every file the two
+        fixes shared (front-door.mjs, public_surface.py, the generated
+        gitops/prod/front-door* tree, kustomization.yaml, default.conf) --
+        picking a side was correct here because the two sides implement
+        the same change, not two different ones. `regen.mjs` then
+        rebuilt the mirror fresh from the merged venture tree so both
+        this session's and #5097's new pages pack into one consistent
+        set of shards.
+      - >-
+        Two of this session's fixes were not on `main` yet and survived
+        the merge as genuine additions rather than duplicates: (1)
+        front-door.test.mjs's own ConfigMap-ceiling test measured binary
+        keys with `BINARY = /\.(png|ico|woff2?)$/`, which never matched
+        `.gz` -- so it had been under-counting `catalog.json.gz`,
+        `compare.html.gz` and `sitemap.xml.gz` by the 4/3 base64
+        expansion kustomize actually applies, silently passing a total
+        the real, applied ConfigMap could already have outgrown. Only
         `gitops/tests/test_manifests.py`'s Python check (which decodes
         each file and falls back to base64 on `UnicodeDecodeError`
         rather than trusting a filename pattern) was measuring this
-        correctly, which is what caught the etcd-budget regression above
-        in the first place. Added `gz` to the JS test's BINARY pattern
-        so both checks now agree.
+        correctly. Ported the one-line `gz` addition to the JS pattern
+        onto #5097's version of the file. (2) A new identity-encoding
+        assertion for `/sitemap.xml` in
+        gitops/tests/test_front_door_serving.py, mirroring the one
+        `/catalog.json` already had -- the check that actually proves
+        `gzip_static always; gunzip on;` serves a client that sends no
+        `Accept-Encoding` header (the common case for a crawler), which
+        every other assertion in that test file passes without
+        verifying. #5097 had not added this for the sitemap block; it
+        survived the merge untouched since #5097 never edited that file.
       - >-
         Verified with real nginx, not just the generator's own read-back:
         after `apt-get update && apt-get install -y
         --no-install-recommends python3-pytest nginx-light
         openssh-client`, `gitops/tests/test_front_door_serving.py`
         (boots nginx against the built ConfigMaps) 19 passed / 1 skipped
-        (environmental), including a new identity-encoding assertion for
-        `/sitemap.xml` mirroring the one `/catalog.json` already had --
-        the check that actually proves `gzip_static always; gunzip on;`
-        serves a client that sent no `Accept-Encoding` header, which is
-        the common case for a crawler and the one way this config could
-        be wrong with every other assertion here green.
+        (environmental), including the identity-encoding assertion for
+        `/sitemap.xml` above.
         `test_generated_configmaps_stay_under_the_etcd_object_ceiling`
-        and its client-side-apply sibling: 2/2 (both red before the
-        fix). Full `gitops/tests`: 613 passed / 25 skipped (up from 612
-        passed / 1 failed pre-fix). `regen.mjs --verify` clean after
-        `regen.mjs`. `node --test platform/marketing/*.test.mjs
-        platform/pages/*.test.mjs`: 1281/1281 (4 new tests, all
-        passing). `node --test
-        ventures/security-camera-bid-calculator/*.test.mjs`: 144/144.
-        `platform/proposal` 101/101; `platform/privacy` +
-        `platform/webcheck` 142/142; all platform/ci unittest modules
-        (27 files) and `agent_review`'s `test_review` clean;
-        `platform/ci/test_public_surface.py` 54/54 (covers the
-        `sitemap_urls()` gunzip fix). `portfolio/ledger
-        portfolio/scoring portfolio/router portfolio/usage
-        portfolio/pipeline infra/tests`: 446 passed. `score_ventures.py
-        --check` (330/330), `router/validate.py` (329/329),
-        `check_no_payment_code.py`, `checklist_coverage.py`, and
-        `check_ledger_only.py` all clean. `sync_tree_counts.py` not run
-        -- no venture or opt-out switch was added. Ran
-        `browser_checks.py --only security-camera-bid-calculator` after
-        installing `playwright@1.56.0`/`axe-core` rather than skipping
-        it: sideways/presets/roundtrip/contrast/optout/sweep/journey all
-        `ok` (7/8; `highlight` skipped -- this venture prints no
+        and its client-side-apply sibling: 2/2. Full `gitops/tests`
+        post-merge: 637 passed / 1 skipped (matches #5097's own reported
+        count -- this session's tree now agrees with `main`'s). `regen.mjs
+        --verify` clean after `regen.mjs`. `node --test
+        ventures/security-camera-bid-calculator/*.test.mjs`: 144/144;
+        `ventures/basement-finishing-bid-calculator/*.test.mjs` (the
+        sibling PR's own venture, exercised by the same merge): 151/151.
+        `platform/ci/test_public_surface.py` 55/55 (#5097 added its own
+        gz-fixture test alongside this session's, both pass).
+        `checklist_coverage.py`, `score_ventures.py --check` (330/330),
+        `router/validate.py` (329/329), `check_no_payment_code.py`, and
+        `check_ledger_only.py` all clean post-merge.
+        `sync_tree_counts.py` not run -- neither venture addition moved
+        the mirrored-tool or switch counts. Ran `browser_checks.py --only
+        security-camera-bid-calculator` after installing
+        `playwright@1.56.0`/`axe-core` rather than skipping it:
+        sideways/presets/roundtrip/contrast/optout/sweep/journey all `ok`
+        (7/8; `highlight` skipped -- this venture prints no
         highlight-promise sentence, which is allowed). A full
-        whole-catalogue run was not attempted: `browser_state.py`
-        reports it STALE from this session's own `clauses.mjs` append
-        (a data-only change, no rendering logic touched) and a full
-        sweep is 20-30 minutes for one static comparison page using an
-        already-shipped template.
+        whole-catalogue browser run was not attempted: 20-30 minutes for
+        one static comparison page using an already-shipped template.

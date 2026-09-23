@@ -226,18 +226,45 @@ export const ROBOTS_FILE = 'robots.txt';
 /** The sitemap `robots.txt` points at, and nginx serves. */
 export const SITEMAP_FILE = 'sitemap.xml';
 
-/** Where `--write` puts the two, beside the page they describe. */
-export const ROBOTS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', ROBOTS_FILE);
 /**
- * Where `--write` puts the sitemap, gzipped — see `sitemapStoredKey`.
+ * The ConfigMap key it is stored under, gzipped — see `COMPRESSED_SUFFIX`.
  *
- * The suffix is spelled out rather than taken from `COMPRESSED_SUFFIX`, which
- * is declared several hundred lines below this: a `const` is hoisted into the
- * temporal dead zone, not initialised, so a forward reference here would throw
- * at module load. `sitemapStoredKey()`, declared beside `COMPRESSED_SUFFIX`,
- * is the accessor that does use the constant, and `front-door.test.mjs`
- * asserts the two agree so this literal cannot drift. Same reason
- * `CATALOG_OUTPUT_FILE` spells `.gz` literally.
+ * `catalogStoredKey`'s own doc comment names `sitemap.xml` (113,830 bytes the
+ * day `catalog.json` was compressed) as the next key over this same threshold
+ * by the same test, left plain deliberately until it was the key actually
+ * doing the tripping — "one at a time and against a measurement". That day
+ * came on 2026-09-23: `basement-finishing-bid-calculator` gaining a second
+ * named-product comparison page took `portfolio-front-html` to 944,243 bytes
+ * against the 943,718-byte budget, over by 525 — the same failure shape
+ * `catalogStoredKey` records, one key further down the list it named.
+ *
+ * `sitemap.xml` compresses harder than `catalog.json` did: it is almost pure
+ * repeated `<url><loc>…</loc></url>` structure, one line per published page,
+ * so gzip -9 took the then-137,891-byte file to 14,679 — about a ninth, even
+ * before the 4/3 base64 expansion `binaryData` imposes. That is roughly
+ * 118 KB of headroom bought back at once, not the ~90 KB `catalog.json`'s
+ * compression bought, because sitemap URLs repeat the same venture host and
+ * path shape far more than catalogue titles and descriptions do.
+ *
+ * The *URL* is unchanged and stays `/sitemap.xml` — `SITEMAP_FILE` is what
+ * `robots.txt`, `llms.txt` and the front page link, and a well-known path is
+ * not something to move to save bytes. Only the stored key changes.
+ */
+export const sitemapStoredKey = () => `${SITEMAP_FILE}${COMPRESSED_SUFFIX}`;
+
+/** Where `--write` puts `robots.txt`, beside the page it describes. */
+export const ROBOTS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', ROBOTS_FILE);
+
+/**
+ * Where `--write` puts the sitemap, beside the page it describes.
+ *
+ * The suffix is spelled out rather than taken from `COMPRESSED_SUFFIX`, for
+ * the same reason `CATALOG_OUTPUT_FILE` spells it out: `COMPRESSED_SUFFIX` is
+ * declared several hundred lines below this, and a `const` is hoisted into
+ * the temporal dead zone, not initialised, so a forward reference here would
+ * throw at module load rather than read as a stale copy. `sitemapStoredKey()`
+ * above is the accessor that does use the constant, and
+ * `front-door.test.mjs` asserts the two agree so this literal cannot drift.
  */
 export const SITEMAP_OUTPUT_FILE = path.join(
   REPO_ROOT,
@@ -1263,13 +1290,12 @@ export const COMPARE_KEY = 'compare.html';
  * `catalog.json` joined them on 2026-09-12, on that same stated criterion
  * rather than as an exception to it — it grows with the catalogue, and by then
  * it was both the largest key in the object and the one that took it over
- * budget. See `catalogStoredKey` for the measurement. `sitemap.xml` joined on
- * 2026-09-23, the next by the same test and the same reasoning — see
- * `sitemapStoredKey` for that measurement. `llms.txt` (106,635 bytes on
- * 2026-09-12) is the one left by the same criterion: it also grows with the
- * catalogue, and compressing a well-known path is a change to how nginx
+ * budget. See `catalogStoredKey` for the measurement. `sitemap.xml` (113,830
+ * bytes) and `llms.txt` (106,635) are the next two by the same test and are
+ * deliberately left plain for now: one key bought roughly thirty ventures of
+ * headroom, and compressing a well-known path is a change to how nginx
  * answers it, so it is worth doing one at a time and against a measurement
- * rather than all three on the strength of the first two working.
+ * rather than all three on the strength of the first one working.
  *
  * nginx serves them with `gzip_static always; gunzip on;`, reached by a
  * `rewrite`, never a `try_files`. That is not style: `try_files` stats the
@@ -1279,34 +1305,6 @@ export const COMPARE_KEY = 'compare.html';
  * `front-door/default.conf` document the same trap at length.
  */
 export const COMPRESSED_SUFFIX = '.gz';
-
-/**
- * The ConfigMap key the sitemap is stored under, gzipped.
- *
- * Compressed since 2026-09-23, joining `compare.html` and `catalog.json` on
- * the same stated criterion: it *grows with the catalogue*, one `<url>`
- * element per indexable page, so it cannot be left plain indefinitely the
- * way the front page and the category pages can.
- *
- * The comment on `catalogStoredKey` measured this file at 113,830 bytes on
- * 2026-09-12 and named it, with `llms.txt`, as "the next two by the same
- * test... deliberately left plain for now... worth doing one at a time and
- * against a measurement rather than all three on the strength of the first
- * one working." This is that measurement: on 2026-09-23 the fleet's next
- * venture took `portfolio-front-html` to 944,171 bytes against the
- * 943,718-byte test budget in `gitops/tests/test_manifests.py` — over by
- * 453 bytes, and the sitemap had grown to 137,903 bytes plain in the
- * eleven days since, the largest single lever available short of `llms.txt`
- * (`sitemapStoredKey` moves first because it is larger). Gzipped it costs
- * roughly a sixth of that even after the 4/3 base64 expansion `binaryData`
- * imposes, the same multiple `catalogStoredKey`'s own measurement found.
- *
- * The *URL* is unchanged and stays `/sitemap.xml` — `SITEMAP_FILE` is what
- * `robots.txt` and every venture page's canonical link elsewhere in the tree
- * name, and a well-known path is not something to move to save bytes. Only
- * the stored key changes.
- */
-export const sitemapStoredKey = () => `${SITEMAP_FILE}${COMPRESSED_SUFFIX}`;
 
 /** The ConfigMap key the comparison index is stored under, gzipped. */
 export const compareStoredKey = () => `${COMPARE_KEY}${COMPRESSED_SUFFIX}`;
@@ -2859,9 +2857,10 @@ if (isMain) {
     // is the `og:image` defect one layer out.
     await fs.writeFile(ROBOTS_OUTPUT_FILE, ROBOTS_TXT);
     console.log(`wrote ${path.relative(REPO_ROOT, ROBOTS_OUTPUT_FILE)} (${ROBOTS_TXT.length} bytes)`);
-    // Gzipped since 2026-09-23 — this is the key that grows fastest with the
-    // catalogue's indexable page count and it is what took the object over
-    // budget that day. See `sitemapStoredKey`. The URL is still `/sitemap.xml`.
+    // Gzipped, unlike the write above it: this is the key `catalogStoredKey`
+    // named as the next one over the etcd budget by this same test, and it
+    // is what took the object over on 2026-09-23. See `sitemapStoredKey`.
+    // The URL is still `/sitemap.xml`.
     const storedSitemap = compress(sitemap);
     await fs.writeFile(SITEMAP_OUTPUT_FILE, storedSitemap);
     console.log(
@@ -2966,9 +2965,9 @@ if (isMain) {
     // `location = /catalog.json` block's own `root`, so a regeneration that
     // stopped writing the compressed copy would go on serving a frozen
     // catalogue -- 200s, valid JSON, quietly describing a catalogue that has
-    // moved on. `SITEMAP_FILE` joins the same sweep as of 2026-09-23, for the
-    // identical reason: a plain `sitemap.xml` left beside `sitemap.xml.gz`
-    // would still be found by `location = /sitemap.xml`'s own `root`.
+    // moved on. `SITEMAP_FILE` joins on 2026-09-23 for the identical reason,
+    // one key over: a plain `sitemap.xml` left beside the new `.gz` would
+    // keep answering `/sitemap.xml` with a sitemap that stopped growing.
     for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
       const file = path.join(path.dirname(OUTPUT_FILE), stale);
       if (await fs.stat(file).then(() => true, () => false)) {

@@ -76,34 +76,30 @@ configMapGenerator:
       # Same reason as the card for riding in this ConfigMap: it has to sit at
       # the document root for `/favicon.svg` to resolve.
       - favicon.svg=front-door/favicon.svg
-      # The crawler handshake. Both ride in this ConfigMap for the same reason
-      # the card and the icon do: they have to sit at the document root for
-      # `/robots.txt` and `/sitemap.xml` to resolve, and two ConfigMaps cannot
-      # mount at one `mountPath`.
+      # The crawler handshake's first half. Rides in this ConfigMap for the
+      # same reason the card and the icon do: it has to sit at the document
+      # root for `/robots.txt` to resolve, and two ConfigMaps cannot mount at
+      # one `mountPath`. Text, so it lands in `data`. Under a kilobyte against
+      # a 1 MiB object ceiling.
       - robots.txt=front-door/robots.txt
-      # `sitemap.xml`, gzipped. Text on its own, so it would otherwise land in
-      # `data` under a kilobyte together with `robots.txt` above — but it grows
-      # with the catalogue, one `<url>` element per indexable page, and it was
-      # the largest single lever left once `catalog.json` had already moved.
+      # The sitemap `robots.txt` above points at.
       #
-      # **Stored gzipped since 2026-09-23.** It was 137,903 bytes plain and
-      # the fastest-growing key left in this ConfigMap after `catalog.json.gz`
-      # and `compare.html.gz` — the fleet's next venture took
-      # `portfolio-front-html` to 944,171 bytes against the 943,718-byte test
-      # budget in `gitops/tests/test_manifests.py`. Over that budget is not a
-      # degraded document, it is the whole `prod` Application: the hashed
-      # ConfigMap name `portfolio-front.yaml` mounts is never created, new pods
-      # sit in ContainerCreating, and Argo reports Degraded. See
-      # `sitemapStoredKey` in `platform/marketing/front-door.mjs` for the full
-      # measurement and `COMPRESSED_SUFFIX` for why only a growing few keys
-      # here are compressed rather than the whole ConfigMap.
+      # **Stored gzipped since 2026-09-23**, same reason and same mechanism as
+      # `catalog.json.gz` below: it is almost pure repeated
+      # `<url><loc>…</loc></url>` structure, one entry per published page, so
+      # it is both the fastest-growing key in this ConfigMap and the one that
+      # compresses hardest — gzip -9 took it from 137,891 bytes to 14,679, about
+      # a ninth, before the 4/3 base64 expansion `binaryData` imposes. It was
+      # the key that took the object over the 943,718-byte budget in
+      # `gitops/tests/test_manifests.py` that day (944,243 bytes, over by 525).
+      # See `sitemapStoredKey` in `platform/marketing/front-door.mjs`.
       #
       # A `.gz` key is not valid UTF-8, so kustomize files it under
-      # `binaryData` as base64 — the 4/3 expansion the ceiling tests already
-      # model. The URL is unchanged: nginx still answers `/sitemap.xml`, via
-      # `gzip_static always; gunzip on;` and *no* `try_files`, because
-      # `try_files` stats the uncompressed name and there is no longer a plain
-      # sibling on disk. The `location = /sitemap.xml` block in
+      # `binaryData` as base64. The URL is unchanged: nginx still answers
+      # `/sitemap.xml`, via `gzip_static always; gunzip on;` and *no*
+      # `try_files`, for the identical reason `catalog.json`'s entry below
+      # gives — `try_files` stats the uncompressed name and there is no
+      # longer a plain sibling on disk. The `location = /sitemap.xml` block in
       # `front-door/default.conf` carries the long version of that trap.
       - sitemap.xml.gz=front-door/sitemap.xml.gz
       # The apex's own Atom feed over the mirrored tools. Same reason as the
