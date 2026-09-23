@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 151 files, 556969 bytes
 #   portfolio-front-tools-3: 136 files, 554827 bytes
 #   portfolio-front-tools-4: 135 files, 539761 bytes
-#   portfolio-front-tools-5: 121 files, 544136 bytes
+#   portfolio-front-tools-5: 122 files, 548806 bytes
 #   portfolio-front-tools-6: 129 files, 550240 bytes
 #   portfolio-front-tools-7: 127 files, 556011 bytes
 #   portfolio-front-tools-8: 135 files, 556309 bytes
@@ -873,6 +873,7 @@ configMapGenerator:
       - carpet-cleaning-bid-calculator__index.html.gz=carpet-cleaning-bid-calculator__index.html.gz
       - carpet-cleaning-bid-calculator__share.mjs.gz=carpet-cleaning-bid-calculator__share.mjs.gz
       - carpet-cleaning-bid-calculator__usage.mjs.gz=carpet-cleaning-bid-calculator__usage.mjs.gz
+      - carpet-cleaning-bid-calculator__vs-a-flat-per-room-special.html.gz=carpet-cleaning-bid-calculator__vs-a-flat-per-room-special.html.gz
       - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
       - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
       - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
