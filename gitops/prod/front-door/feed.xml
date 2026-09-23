@@ -14,7 +14,7 @@
     <published>2026-09-23T00:00:00Z</published>
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Dockerfile and find every FROM line pinned to a base image release (node:18, python:3.9, ubuntu:20.04...) that is already past its publisher&#39;s own end-of-life date, or due soon. Free, runs in your browser, nothing uploaded.</summary>
+    <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Dimensional Weight Calculator</title>
