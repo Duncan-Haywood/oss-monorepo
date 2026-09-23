@@ -2094,7 +2094,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # same shape as the rest of this running count. Both branches only ever
     # knew their own predecessor's number (325) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
-    total = 327  # `infra/OWNER_CHECKLIST.md`'s own "N of the 327 tools" wording.
+    #
+    # 328 since this merge: `firebase-rules-check` graduated -- a browser +
+    # CLI checker sending real, read-only, unauthenticated requests to a
+    # Firebase project's Realtime Database (a shallow key listing) and
+    # named Firestore collections (one document max), testing whether an
+    # unauthenticated request returns real data -- the default-open /
+    # left-in-test-mode security-rules exposure documented since
+    # Appthority's 2018 "Firebase mismanagement" report. Direct sibling of
+    # `supabase-rls-check`, same "default-open unless a rule locks it
+    # down" shape for a different backend, with a static `index.html` from
+    # its first commit, same shape as the rest of this running count.
+    total = 328  # `infra/OWNER_CHECKLIST.md`'s own "N of the 328 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

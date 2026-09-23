@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 327 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 328 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Firebase Security Rules Exposure Checker — Is Your Database Public?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/firebase-rules-check/"/>
+    <id>tag:marisstella.dev,2026:tool/firebase-rules-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free, in-browser tool: enter your Firebase project ID (plus its Realtime Database URL and/or Firestore collection names) and it sends real, read-only, unauthenticated requests, naming which paths return real data with no login -- the default-open / left-in-test-mode security rules exposure documented since Appthority&#39;s 2018 Firebase mismanagement report. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Upwork vs. Fiverr Fee Calculator — What You Actually Keep</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Estimate your embedding index&#39;s real storage footprint from vector count, dimension, and metadata, then compare monthly cost across up to three vector database providers using their own quoted rates. Free, private, no signup.</summary>
-  </entry>
-  <entry>
-    <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-instructions-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/agent-instructions-drift-check</id>
-    <published>2026-09-16T00:00:00Z</published>
-    <updated>2026-09-16T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn&#39;t defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
