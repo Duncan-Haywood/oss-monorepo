@@ -12,8 +12,57 @@ description: >-
   doesn't mention. A reference cross-check against a fixed mapping table,
   never a determination that Play Console will accept a submission -- not
   advice-of-record, no compliance warranty, and it says so on every page.
+
+  Second tool, added 2026-09-23, same buyer and delivery folder: a target
+  API level checker (`target-sdk-check.mjs` / `target-api-level.html`) reads
+  a project's declared `targetSdkVersion` and checks it against Google
+  Play's separate target API level enforcement requirement (a different
+  Play Console gate than Data safety) for the app's form factor, naming the
+  file/line found and the days remaining to Google's published enforcement
+  and extension deadlines.
 stage: prototype
 owner: duncan
+
+# Second tool added 2026-09-23 (target-sdk-check.mjs / target-api-level.html):
+# a genuinely different Play Console gate from Data safety -- Google Play's
+# target API level enforcement requirement, which restricts an app update
+# from reaching devices on newer Android versions once its declared
+# targetSdkVersion falls too far behind a published per-form-factor floor.
+# Added as a second tool inside this venture rather than a new `ventures/`
+# directory per portfolio/pipeline/README.md rule 3 ("a candidate that fits
+# an existing venture is a product line first"): same buyer (an Android
+# developer preparing a Google Play submission/update), same delivery
+# mechanism (point it at the project's AndroidManifest.xml/Gradle files),
+# same CLI-and-browser-checker shape, same usage counter and license.
+#
+# grep -ril "targetsdkversion\|target api level\|target sdk" ventures/
+# portfolio/ turned up nothing before this change -- no existing venture or
+# pipeline candidate reads this gate. duplicate_check.py against the
+# one-line description scored every venture, screened-out row,
+# ai-first-markets idea, and pipeline candidate at or below 0.26 (closest:
+# this venture's own pre-change description, sharing only "Android" and
+# "Play Store" -- a different Play Console mechanism entirely: an
+# enforcement deadline restricting visibility to new users on newer OS
+# versions, not a Data safety declaration mismatch).
+#
+# Deadline data (target-sdk-scan.mjs's TARGET_API_REQUIREMENT/FORM_FACTORS)
+# is reproduced from Google's own "Meet Google Play's target API level
+# requirement" page (developer.android.com/google/play/requirements/
+# target-sdk) as fetched 2026-09-23, dated in the source and on every page
+# that shows it, with an explicit "re-check the live page" caveat -- the
+# same disclosed-staleness pattern as the Data safety checker's SDK mapping
+# table above.
+#
+# Distribution channel: the same one already established for this venture
+# (r/androiddev, Stack Overflow's `android` tag) plus the deadline itself --
+# the 2026-08-31 primary date (already passed as of this change, with a
+# 2026-11-01 extension window still open) is a recurring, high-search-intent
+# event every Android developer with a live app must act on, unlike most of
+# this portfolio's evergreen checkers. Organic search terms with plausible
+# recurring volume: "google play target api level requirement",
+# "targetsdkversion deadline", "play console target api 35". No external
+# search-volume tool was queried to confirm magnitude, matching this
+# venture's own standing caveat.
 
 # CLI/checker archetype, chosen deliberately per portfolio/pipeline/README.md's
 # "archetype itself" section (2026-09-07, widened 2026-09-11 for the
@@ -90,6 +139,16 @@ hypotheses:
       A developer who gets a clean report from the CLI will wire it into
       their own release checklist or CI as a pre-submission gate, producing
       return usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Google Play's 2026-08-31 target API level enforcement deadline drives
+      an Android developer to search a phrase this tool's target API level
+      checker ranks for ("targetsdkversion deadline", "google play target
+      api level requirement"), since no existing free tool in this
+      portfolio or elsewhere reads a project's declared targetSdkVersion
+      against the published per-form-factor floor.
     status: untested
     checked: null
     evidence: customer-contact
