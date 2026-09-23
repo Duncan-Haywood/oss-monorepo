@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 140 files, 554077 bytes
 #   portfolio-front-tools-5: 124 files, 553523 bytes
 #   portfolio-front-tools-6: 129 files, 555907 bytes
-#   portfolio-front-tools-7: 127 files, 552060 bytes
+#   portfolio-front-tools-7: 128 files, 556792 bytes
 #   portfolio-front-tools-8: 135 files, 556460 bytes
 #   portfolio-front-tools-9: 116 files, 554189 bytes
 #   portfolio-front-tools-10: 116 files, 552870 bytes
@@ -1124,6 +1124,7 @@ configMapGenerator:
       - dryer-vent-bid-calculator__index.html.gz=dryer-vent-bid-calculator__index.html.gz
       - dryer-vent-bid-calculator__share.mjs.gz=dryer-vent-bid-calculator__share.mjs.gz
       - dryer-vent-bid-calculator__usage.mjs.gz=dryer-vent-bid-calculator__usage.mjs.gz
+      - dryer-vent-bid-calculator__vs-a-flat-99-dollar-special.html.gz=dryer-vent-bid-calculator__vs-a-flat-99-dollar-special.html.gz
       - dryer-vent-bid-calculator__vs-wepro.html.gz=dryer-vent-bid-calculator__vs-wepro.html.gz
       - drywall-bid-calculator__calc.mjs.gz=drywall-bid-calculator__calc.mjs.gz
       - drywall-bid-calculator__how-much-to-charge.html.gz=drywall-bid-calculator__how-much-to-charge.html.gz
