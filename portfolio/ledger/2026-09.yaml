@@ -36135,3 +36135,29 @@ entries:
         ventures/commissary-kitchen-cost-split-calculator/*.test.mjs`:
         58/58. `checklist_coverage.py`, `surface-budget.mjs --check`,
         and `regen.mjs --verify` all clean after `regen.mjs`.
+  - venture: land-survey-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same gap, found the same way (surface-budget.mjs): 1 comparison
+        page, 0 guide pages. Added
+        how-much-does-a-land-survey-cost.html, worked from calc.mjs's own
+        `calculateSurveyBid`/`naivePerAcreQuote`/`DEFAULTS`: the same 5
+        acres prices at $1,084.82 with 4 easy corners in open terrain,
+        $1,274.05 at the shipped defaults (3 locate + 1 set, moderate),
+        or $1,970.97 with all 4 corners set from scratch in heavy
+        terrain -- while a flat $120/acre rate quotes all three at
+        $600.00. A 40-acre parcel with easy corners and light research
+        prices at the $850.00 minimum job fee, about 82% under the
+        $4,800.00 a flat per-acre rate would charge for that acreage --
+        a small, hard parcel can cost more than a large, easy one.
+        Every figure pinned in the new page's own test file against
+        calc.mjs directly. Fixed the JSON-LD em-dash issue before first
+        commit (literal `—` in the JSON string, not `--`), verified
+        byte-exact against the visible prose before writing the test, so
+        `faq-visible.test.mjs` passed first try again. Linked from
+        index.html and README.md, added to sitemap.xml. `node --test
+        ventures/land-survey-bid-calculator/*.test.mjs`: 94/94.
+        `checklist_coverage.py`, `surface-budget.mjs --check`, and
+        `regen.mjs --verify` all clean after `regen.mjs`.
