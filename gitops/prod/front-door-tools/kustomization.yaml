@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 100 files, 554584 bytes
 #   portfolio-front-tools-2: 148 files, 553085 bytes
 #   portfolio-front-tools-3: 135 files, 556343 bytes
-#   portfolio-front-tools-4: 141 files, 550416 bytes
+#   portfolio-front-tools-4: 142 files, 553840 bytes
 #   portfolio-front-tools-5: 125 files, 554334 bytes
 #   portfolio-front-tools-6: 133 files, 554873 bytes
 #   portfolio-front-tools-7: 122 files, 556678 bytes
@@ -747,6 +747,7 @@ configMapGenerator:
       - asphalt-driveway-pave-bid-calculator__calc.mjs.gz=asphalt-driveway-pave-bid-calculator__calc.mjs.gz
       - asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz=asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz
       - asphalt-driveway-pave-bid-calculator__index.html.gz=asphalt-driveway-pave-bid-calculator__index.html.gz
+      - asphalt-driveway-pave-bid-calculator__should-i-only-charge-material-cost-for-paving-fabric.html.gz=asphalt-driveway-pave-bid-calculator__should-i-only-charge-material-cost-for-paving-fabric.html.gz
       - asphalt-driveway-pave-bid-calculator__usage.mjs.gz=asphalt-driveway-pave-bid-calculator__usage.mjs.gz
       - asphalt-driveway-pave-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=asphalt-driveway-pave-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz=asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz
