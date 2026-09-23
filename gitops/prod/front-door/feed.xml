@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 332 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 334 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,24 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free calculator for independent personal trainers: compares a discounted prepaid session package against pay-per-session pricing on net take-home pay per hour, after your gym or studio&#39;s percentage cut or flat facility fee — not just revenue. A flat per-session fee erodes a discounted package harder than it erodes full price, and a makeup-owed policy can turn a package&#39;s guaranteed revenue into a worse hourly rate. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Sign Language Interpreter Rate Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sign-language-interpreter-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/sign-language-interpreter-rate-calculator</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free rate calculator for freelance ASL/sign language interpreters. Price a single assignment from hours, the 2-hour booking minimum, portal-to-portal travel, mileage, an after-hours/weekend/holiday differential, and a team-interpreting flag for long legal/medical/mental-health bookings — plus a late-cancellation fee calculator. Entirely client-side.</summary>
+  </entry>
+  <entry>
+    <title>Source Map Leak Checker — Is Your Production JS Exposing Original Source?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/source-map-leak-check/"/>
+    <id>tag:marisstella.dev,2026:tool/source-map-leak-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste your site&#39;s URL (or a list of JS file URLs), and it finds every script&#39;s sourceMappingURL comment, fetches the map, and names which ones are publicly readable and whether they embed full original source text. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Supabase RLS Exposure Checker — Is Your Anon Key Reading Real Rows?</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your branch protection required status checks and your GitHub Actions workflow YAML to find every required check name no job can ever report again — the reason a pull request sits at &#39;Expected — Waiting for status to be reported&#39; forever. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>StockX Seller Payout Calculator — Net Profit After All Fees</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/stockx-seller-payout-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/stockx-seller-payout-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for StockX sneaker, streetwear, and card sellers: find real net payout and net profit after the seller fee (which drops by seller level), the Fast Shipping discount, the payment processing fee, and outbound shipping cost, then check a month of sales against a profit goal.</summary>
-  </entry>
-  <entry>
-    <title>Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/storage-auction-max-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/storage-auction-max-bid-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free calculator for storage-unit auction bidders: prices the buyer&#39;s premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.</summary>
   </entry>
 </feed>
