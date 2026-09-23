@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 117 files, 556705 bytes
 #   portfolio-front-tools-11: 115 files, 540165 bytes
 #   portfolio-front-tools-12: 128 files, 554601 bytes
-#   portfolio-front-tools-13: 129 files, 552567 bytes
+#   portfolio-front-tools-13: 130 files, 556942 bytes
 #   portfolio-front-tools-14: 119 files, 554991 bytes
 #   portfolio-front-tools-15: 100 files, 553886 bytes
 #   portfolio-front-tools-16: 123 files, 554525 bytes
@@ -1802,6 +1802,7 @@ configMapGenerator:
       - pest-control-bid-calculator__how-much-to-charge.html.gz=pest-control-bid-calculator__how-much-to-charge.html.gz
       - pest-control-bid-calculator__index.html.gz=pest-control-bid-calculator__index.html.gz
       - pest-control-bid-calculator__usage.mjs.gz=pest-control-bid-calculator__usage.mjs.gz
+      - pest-control-bid-calculator__vs-a-flat-quote-by-house-size.html.gz=pest-control-bid-calculator__vs-a-flat-quote-by-house-size.html.gz
       - pest-control-bid-calculator__vs-pestpac.html.gz=pest-control-bid-calculator__vs-pestpac.html.gz
       - pet-grooming-bid-calculator__calc.mjs.gz=pet-grooming-bid-calculator__calc.mjs.gz
       - pet-grooming-bid-calculator__how-much-to-charge.html.gz=pet-grooming-bid-calculator__how-much-to-charge.html.gz
