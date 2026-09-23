@@ -613,12 +613,15 @@ const CATEGORY_RULES = [
     // rather than by judging the arrival alone, which is what
     // `build.test.mjs`'s bound asks for. Worth recording for whoever trips it
     // next, because the enumeration turned up one more that looks misfiled and
-    // was left alone deliberately: `android-data-safety-check` sits in the
+    // was left alone deliberately: `android-data-safety-check` sat in the
     // catch-all while its own `VENTURE.yaml` calls it "the direct Android-side
     // counterpart to `ios-privacy-manifest-check`", and that counterpart is
-    // filed under `ci`. Moving it would take the catch-all to 4, but it is
-    // another session's arrival from the same day and filing this one restored
-    // the bound on its own, so it is noted rather than moved.
+    // filed under `ci`. Moving it would have taken the catch-all to 4, but it
+    // was another session's arrival from the same day and filing this one
+    // restored the bound on its own, so it was noted rather than moved.
+    // Moved to `ci` on 2026-09-23 (see that section's own comment) when
+    // `voiceover-project-rate-calculator` needed the slot this note had been
+    // holding open.
     //
     // `staffing-markup-calculator` joined 2026-09-10 and is filed here on its
     // first commit rather than after a spell in the catch-all — which is what
@@ -1730,8 +1733,19 @@ const CATEGORY_RULES = [
     // `security-headers-check` as Related, reciprocally, closing the
     // crawlable-orphan gap a new venture otherwise opens. Listed by exact
     // slug, same reason as its neighbors.
+    //
+    // `android-data-safety-check` moved here 2026-09-23, restoring the bound
+    // `voiceover-project-rate-calculator`'s arrival (a creator/freelance
+    // pricing tool, no honest home in this section) tripped. The trades
+    // comment block above already named this exact move and deliberately
+    // deferred it -- its own `VENTURE.yaml` calls it "the direct Android-side
+    // counterpart to `ios-privacy-manifest-check`", which is filed here, and
+    // it is the same browser-plus-CLI "read a manifest you already have, name
+    // the exact undeclared category" shape as the rest of this section. Doing
+    // the move now is what that comment asked the next session that needed
+    // the slot to do, rather than raising the bound instead.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check)/.test(
         slug,
       ),
   },

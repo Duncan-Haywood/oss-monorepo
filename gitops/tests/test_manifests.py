@@ -2106,7 +2106,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # re-derived here by `sync_tree_counts.py` against the merged tree
     # rather than by hand.
     #
-    # 329 since this merge: `firebase-rules-check` graduated -- a browser +
+    # 329 since this merge: `voiceover-project-rate-calculator` graduated
+    # concurrently with the pair above -- a browser-local calculator pricing
+    # freelance voice-over project work (script-based, by usage/licensing
+    # term, and audiobook, per finished hour), with a static `index.html`
+    # from its first commit, same shape as the rest of this running count.
+    # This branch only ever knew its own predecessor's number (325, before
+    # the osha-trir-dart-calculator/supabase-rls-check pair landed) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    #
+    # 330 since this merge: `firebase-rules-check` graduated -- a browser +
     # CLI checker sending real, read-only, unauthenticated requests to a
     # Firebase project's Realtime Database (a shallow key listing) and
     # named Firestore collections (one document max), testing whether an
@@ -2117,10 +2127,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # down" shape for a different backend, with a static `index.html` from
     # its first commit, same shape as the rest of this running count. This
     # branch only ever knew its own predecessor's number (327, before
-    # `osha-trir-dart-calculator` and `supabase-rls-check` landed) until
-    # this merge -- the same ordinary collision shape recorded throughout
-    # this list.
-    total = 329  # `infra/OWNER_CHECKLIST.md`'s own "N of the 329 tools" wording.
+    # `osha-trir-dart-calculator`, `supabase-rls-check`, and
+    # `voiceover-project-rate-calculator` landed) until this merge -- the
+    # same ordinary collision shape recorded throughout this list.
+    total = 330  # `infra/OWNER_CHECKLIST.md`'s own "N of the 330 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

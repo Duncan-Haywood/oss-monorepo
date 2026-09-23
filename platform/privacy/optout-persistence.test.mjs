@@ -438,16 +438,27 @@ const RELATIVE_SELF = relative(
 // this merge -- the same ordinary collision shape recorded throughout
 // this list.
 //
-// 310 -> 311: `firebase-rules-check` graduated, adding one `usage.mjs`
+// 310 -> 311: `voiceover-project-rate-calculator` graduated concurrently
+// with the pair above, adding one `usage.mjs` following the same opt-out
+// pattern as its siblings (`usageAllowed`/`toggleUsage` gating
+// `recordEvent` the same way `locksmith-bid-calculator`'s does). This
+// branch only ever knew its own predecessor's number (308, before the
+// osha-trir-dart-calculator/supabase-rls-check pair landed) until this
+// merge -- the same collision shape as the entry immediately above.
+// Verified the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
+// no deletions.
+//
+// 311 -> 312: `firebase-rules-check` graduated, adding one `usage.mjs`
 // following the same `readOptOut`/`writeOptOut` pattern as
 // `supabase-rls-check`'s. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/firebase-rules-check/usage.mjs`) and no deletions. This
 // branch only ever knew its own predecessor's number (309, before
-// `osha-trir-dart-calculator` and `supabase-rls-check` landed) until this
-// merge -- the same ordinary collision shape recorded throughout this
-// list.
-const SWITCHES_IN_THE_CATALOGUE = 311;
+// `osha-trir-dart-calculator`, `supabase-rls-check`, and
+// `voiceover-project-rate-calculator` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list.
+const SWITCHES_IN_THE_CATALOGUE = 312;
 
 let counter = 0;
 function fixture(source) {
