@@ -2080,14 +2080,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
     #
-    # 326 since this merge: `supabase-rls-check` graduated -- a browser +
-    # CLI checker reading a Supabase project's own PostgREST schema listing
-    # and testing whether the anon key can read real rows from each table
-    # (the missing-Row-Level-Security exposure behind CVE-2025-48757), with
-    # a static `index.html` from its first commit, same shape as the rest
-    # of this running count.
+    # 326 since this merge: `actions-secrets-inherit-check` graduated -- a
+    # browser-local and CLI checker for GitHub Actions `secrets: inherit`
+    # calls to an external reusable workflow or a fork-reachable job, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch was open before
+    # `osha-trir-dart-calculator` and `supabase-rls-check` landed, so it
+    # only ever knew its own predecessor's number (325) until this merge --
+    # the same ordinary collision shape recorded throughout this list.
     #
-    # 327 since this merge: `actions-secrets-inherit-check` graduated
+    # 326 since this merge: `actions-secrets-inherit-check` graduated
     # concurrently -- a browser-local and CLI checker for GitHub Actions
     # `secrets: inherit` calls to an external reusable workflow or a
     # fork-reachable job, with a static `index.html` from its first commit,
@@ -2095,13 +2097,29 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # knew their own predecessor's number (325) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
     #
-    # 328 since this merge: `mercari-fee-calculator` graduated -- a
-    # browser-local calculator pricing a Mercari sale against the current
-    # (Jan 6, 2025) shipping-inclusive 10% fee schedule and the legacy
-    # item-price-only 10% + 2.9% + $0.50 schedule, with a static
+    # 327 since this merge: `osha-trir-dart-calculator` graduated -- a
+    # browser-local calculator turning a company's own OSHA 300 log counts
+    # into its TRIR and DART rate against a target, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 328  # `infra/OWNER_CHECKLIST.md`'s own "N of the 328 tools" wording.
+    #
+    # 328 since this merge: `supabase-rls-check` graduated concurrently -- a
+    # browser + CLI checker reading a Supabase project's own PostgREST
+    # schema listing and testing whether the anon key can read real rows
+    # from each table (the missing-Row-Level-Security exposure behind
+    # CVE-2025-48757), with a static `index.html` from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 329 since this merge: `mercari-fee-calculator` graduated concurrently
+    # with both of the above -- a browser-local calculator pricing a Mercari
+    # sale against the current (Jan 6, 2025) shipping-inclusive 10% fee
+    # schedule and the legacy item-price-only 10% + 2.9% + $0.50 schedule,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (327) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, and re-derived here by
+    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    total = 329  # `infra/OWNER_CHECKLIST.md`'s own "N of the 329 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

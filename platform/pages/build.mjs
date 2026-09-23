@@ -921,10 +921,25 @@ const CATEGORY_RULES = [
     // different sections already. Slug ends in `-checker`, not any suffix
     // this rule already catches, so it is added by exact match rather than
     // widening the suffix list to a word this is the only user of.
+    // `osha-trir-dart-calculator` joined 2026-09-23, filed here on its
+    // first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. Its posture matches this
+    // section's blurb exactly: it turns a company's own OSHA 300 log
+    // counts into a TRIR/DART rate observation the safety coordinator acts
+    // on, and is explicit in its disclaimer and FAQ that it never decides
+    // whether a specific case is OSHA recordable or claims compliance with
+    // any OSHA rule. Not `trades`, even though its buyer is often a
+    // construction contractor: that section prices a bid, this one reports
+    // a compliance rate, the same buyer-vs-job distinction that keeps
+    // `real-estate-agent-photo-app` here rather than with the other
+    // real-estate tools. Slug ends in `-calculator`, not any suffix this
+    // rule already catches, so it is added by exact match rather than
+    // widening the suffix list to a word this is the only user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
-      || slug === '1099-k-threshold-checker',
+      || slug === '1099-k-threshold-checker'
+      || slug === 'osha-trir-dart-calculator',
   },
   {
     id: 'backoffice',

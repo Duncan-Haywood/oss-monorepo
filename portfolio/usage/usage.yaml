@@ -6839,3 +6839,23 @@ products:
           watching: it is the feature this venture's write-up bets on, since
           it answers a question (does editing an old listing actually help)
           neither schedule's headline rate answers on its own.
+  - slug: osha-trir-dart-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          rate_calculated: 0
+          target_dilution_shown: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/osha-trir-dart-calculator/`) from its first commit, so
+          unlike most rows here it has never been an instrumented-but-
+          unreachable product. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Counts honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
