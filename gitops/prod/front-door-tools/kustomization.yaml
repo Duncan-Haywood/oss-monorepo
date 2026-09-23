@@ -34,9 +34,9 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 133 files, 553416 bytes
-#   portfolio-front-tools-1: 104 files, 556936 bytes
-#   portfolio-front-tools-2: 151 files, 555426 bytes
-#   portfolio-front-tools-3: 135 files, 552696 bytes
+#   portfolio-front-tools-1: 104 files, 556063 bytes
+#   portfolio-front-tools-2: 151 files, 556226 bytes
+#   portfolio-front-tools-3: 136 files, 555905 bytes
 #   portfolio-front-tools-4: 134 files, 549229 bytes
 #   portfolio-front-tools-5: 124 files, 553781 bytes
 #   portfolio-front-tools-6: 130 files, 554039 bytes
@@ -46,10 +46,10 @@
 #   portfolio-front-tools-10: 114 files, 555073 bytes
 #   portfolio-front-tools-11: 125 files, 555742 bytes
 #   portfolio-front-tools-12: 125 files, 554553 bytes
-#   portfolio-front-tools-13: 132 files, 556966 bytes
-#   portfolio-front-tools-14: 99 files, 548730 bytes
-#   portfolio-front-tools-15: 115 files, 553336 bytes
-#   portfolio-front-tools-16: 107 files, 488220 bytes
+#   portfolio-front-tools-13: 132 files, 546054 bytes
+#   portfolio-front-tools-14: 98 files, 557035 bytes
+#   portfolio-front-tools-15: 116 files, 556998 bytes
+#   portfolio-front-tools-16: 108 files, 491141 bytes
 #   portfolio-front-tools-17: 49 files, 265801 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -260,6 +260,7 @@ configMapGenerator:
       - amazon-fba-calculator__to-where-to-sell.mjs.gz=amazon-fba-calculator__to-where-to-sell.mjs.gz
       - amazon-fba-calculator__usage.mjs.gz=amazon-fba-calculator__usage.mjs.gz
       - amazon-fba-calculator__vs-amazon-revenue-calculator.html.gz=amazon-fba-calculator__vs-amazon-revenue-calculator.html.gz
+      - amazon-fba-calculator__vs-jungle-scout-fba-calculator.html.gz=amazon-fba-calculator__vs-jungle-scout-fba-calculator.html.gz
       - amazon-fba-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=amazon-fba-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - etsy-profit-calculator__are-etsy-offsite-ads-worth-it.html.gz=etsy-profit-calculator__are-etsy-offsite-ads-worth-it.html.gz
       - etsy-profit-calculator__calc.mjs.gz=etsy-profit-calculator__calc.mjs.gz
@@ -314,12 +315,12 @@ configMapGenerator:
       - reverb-fee-calculator__to-where-to-sell.mjs.gz=reverb-fee-calculator__to-where-to-sell.mjs.gz
       - reverb-fee-calculator__usage.mjs.gz=reverb-fee-calculator__usage.mjs.gz
       - reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz=reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz
-      - reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz=reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz=reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz
       - 3pl-quote-normalizer__LICENSE.gz=3pl-quote-normalizer__LICENSE.gz
       - 3pl-quote-normalizer__calc.mjs.gz=3pl-quote-normalizer__calc.mjs.gz
       - 3pl-quote-normalizer__compare.html.gz=3pl-quote-normalizer__compare.html.gz
@@ -470,12 +471,12 @@ configMapGenerator:
       - music-lesson-break-even__usage.mjs.gz=music-lesson-break-even__usage.mjs.gz
       - music-lesson-break-even__vs-mymusicstaff.html.gz=music-lesson-break-even__vs-mymusicstaff.html.gz
       - portable-restroom-event-quote__calc.mjs.gz=portable-restroom-event-quote__calc.mjs.gz
-      - portable-restroom-event-quote__how-many.html.gz=portable-restroom-event-quote__how-many.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - portable-restroom-event-quote__how-many.html.gz=portable-restroom-event-quote__how-many.html.gz
       - portable-restroom-event-quote__index.html.gz=portable-restroom-event-quote__index.html.gz
       - portable-restroom-event-quote__usage.mjs.gz=portable-restroom-event-quote__usage.mjs.gz
       - portable-restroom-event-quote__vs-servicecore.html.gz=portable-restroom-event-quote__vs-servicecore.html.gz
@@ -1838,6 +1839,7 @@ configMapGenerator:
       - quote-margin-check__summary.mjs.gz=quote-margin-check__summary.mjs.gz
       - quote-margin-check__usage.mjs.gz=quote-margin-check__usage.mjs.gz
       - quote-margin-check__vs-bonsai.html.gz=quote-margin-check__vs-bonsai.html.gz
+      - quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz=quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz
       - radon-mitigation-bid-calculator__calc.mjs.gz=radon-mitigation-bid-calculator__calc.mjs.gz
       - radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz=radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz
       - radon-mitigation-bid-calculator__index.html.gz=radon-mitigation-bid-calculator__index.html.gz
@@ -1918,12 +1920,12 @@ configMapGenerator:
       - self-storage-rate-increase-calculator__vs-sitelink.html.gz=self-storage-rate-increase-calculator__vs-sitelink.html.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
-      - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
       - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
       - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
       - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
@@ -2021,13 +2023,13 @@ configMapGenerator:
       - soffit-fascia-bid-calculator__index.html.gz=soffit-fascia-bid-calculator__index.html.gz
       - soffit-fascia-bid-calculator__usage.mjs.gz=soffit-fascia-bid-calculator__usage.mjs.gz
       - soffit-fascia-bid-calculator__vs-jobber.html.gz=soffit-fascia-bid-calculator__vs-jobber.html.gz
-      - solar-pv-bid-calculator__calc.mjs.gz=solar-pv-bid-calculator__calc.mjs.gz
-      - solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz=solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - solar-pv-bid-calculator__calc.mjs.gz=solar-pv-bid-calculator__calc.mjs.gz
+      - solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz=solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz
       - solar-pv-bid-calculator__index.html.gz=solar-pv-bid-calculator__index.html.gz
       - solar-pv-bid-calculator__share.mjs.gz=solar-pv-bid-calculator__share.mjs.gz
       - solar-pv-bid-calculator__usage.mjs.gz=solar-pv-bid-calculator__usage.mjs.gz
@@ -2142,12 +2144,12 @@ configMapGenerator:
       - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
-      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
       - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
       - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
       - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
