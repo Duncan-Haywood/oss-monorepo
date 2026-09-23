@@ -38389,3 +38389,77 @@ entries:
         confirmed starved via ci_starvation.py (runner_id: 0) before
         merging; said so in the PR body naming what was verified locally.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This session's sandbox has open egress (`curl
+        "$HTTPS_PROXY/__agentproxy/status"` reports `"selective": false`),
+        unlike the restricted agent sandbox `CLAUDE.md` and
+        `public_surface.py`'s own docstring document -- confirmed by
+        `duncan-haywood.github.io`, `api.github.com` and
+        `api.indexnow.org` all answering 200/301 to plain `curl` rather
+        than the usual `403 to CONNECT`. A prior session today had already
+        found and recorded the sharper half of this in
+        `portfolio/ledger/infra_state.yaml`'s `k3s-cluster` and
+        `agent-session-egress` rows (`marisstella.dev` now answers with a
+        "Maris Stella Labs" landing page unrelated to this repository's
+        catalogue, not `ERR_CONNECTION_REFUSED` -- flagged to the owner
+        directly); this entry does not repeat that finding, only builds on
+        it.
+      - >-
+        Refreshed the published gh-pages snapshot at session start (built
+        from 9740c6b7, main was at 8c2eac4a) via publish-branch.sh, which
+        also sent this catalogue's first-ever successful IndexNow
+        announcement from this kind of session -- `POST
+        https://api.indexnow.org/indexnow -> 200`, 1321 URLs -- reproduced
+        a second time by hand to confirm it was not a fluke. Re-ran after a
+        concurrent session's merge landed (`pages_state.py
+        --require-current` went stale again from a1cf0f5c) rather than
+        chasing every subsequent merge for the rest of the session.
+      - >-
+        Ran `platform/ci/public_surface.py --sample 40` against the live
+        hostnames and confirmed by hand (35/35 direct `curl` spot checks
+        across 15 ventures, random sample) that the GitHub Pages catalogue
+        itself is healthy: every sampled tool page, comparison page and
+        venture index returned 200 with a real title tag and a sane byte
+        count. The apex sitemap sample it already runs is now checking dead
+        ground, though -- `gitops/prod/front-door/sitemap.xml.gz` lists
+        only `marisstella.dev` URLs, and that domain no longer serves this
+        repository's pages, so every one of those probes reads as a
+        disagreement (39/40) for a reason that has nothing to do with the
+        product's health, while the origin actually serving it (GitHub
+        Pages, 511KB, 200) got zero page-level sampling.
+      - >-
+        Fixed forward rather than filing it: `public_surface.py` gained
+        `pages_sitemap_urls()`/`pages_sitemap_probes()`, a second sitemap
+        sample read from the `gh-pages` branch's own committed
+        `sitemap.xml` via `git show` (same remote-tracking-ref-first
+        resolution as `publish_surface.pages_branch_survey()`, and
+        deliberately not a copy of `build.mjs`'s URL-construction logic --
+        the exact mistake `CLAUDE.md` already records costing live product
+        twice). `render()`/`as_json()`/`main()` carry a third,
+        independently-labelled "GitHub Pages sitemap sample" section, with
+        an explicit "not taken" note (rather than a silently empty section)
+        when the branch ref has not been fetched locally --
+        `.github/workflows/public-surface-check.yml` now fetches it first
+        (copied from the identical step in `browser-checks-ci.yml`, not
+        restated), since `actions/checkout@v4` only fetches the ref under
+        test and this would otherwise silently sample nothing on every CI
+        run.
+      - >-
+        Verified against the real repository, not only fixtures: with
+        `gh-pages` fetched, `python3 public_surface.py --sample 8` reports
+        "GitHub Pages sitemap sample: 8/8 served" alongside the (correctly
+        red) apex sitemap section. Added 8 new tests
+        (`PagesSitemapTests`, plus render/json coverage for the new
+        section and its "not taken" note) -- `python3 -m unittest
+        test_public_surface`: 64/64 pass. All 15 `platform/ci` unittest
+        modules: pass. `python3 -m pytest gitops/tests -q`: 613 passed, 25
+        skipped (nginx/ssh binaries not installed this session, same as
+        every other reading this month). `checklist_coverage.py`: clean.
+        `(cd platform/ci/agent_review && python3 -m unittest test_review)`:
+        21/21 pass (unaffected by this change; run per the starvation
+        checklist). YAML-validated the workflow edit with `yaml.safe_load`.
+    mrr_end: 0
