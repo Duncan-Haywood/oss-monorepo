@@ -2229,6 +2229,30 @@ test('the chrome escapes venture copy', () => {
   assert.ok(html.includes('&lt;script&gt;'));
 });
 
+test('the footer lands at the real closing </body>, not a literal one inside earlier copy', () => {
+  // git-exposure-check's own guide page describes a soft-404 body as literal
+  // text inside its hand-authored JSON-LD: "such as
+  // <html><body>404 Not Found</body></html>". A plain first-match replace on
+  // </body> spliced the footer chrome into the middle of that JSON-LD string
+  // and broke it as valid JSON (2026-09-23).
+  const page =
+    '<html><head></head><body>' +
+    '<script type="application/ld+json">{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Q",' +
+    '"acceptedAnswer":{"@type":"Answer","text":"such as <html><body>404 Not Found</body></html>, not real."}}]}</script>' +
+    '<h1>Tool</h1></body></html>';
+  const html = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+
+  const scriptStart = html.indexOf('<script type="application/ld+json">') + '<script type="application/ld+json">'.length;
+  const scriptEnd = html.indexOf('</script>', scriptStart);
+  assert.doesNotThrow(() => JSON.parse(html.slice(scriptStart, scriptEnd)), 'the JSON-LD block must still parse');
+
+  // The footer must land after the page's own real closing tag, not inside it.
+  const bodyCloses = [...html.matchAll(/<\/body>/gi)].map((m) => m.index);
+  assert.equal(bodyCloses.length, 2, 'one literal mention plus one real closing tag');
+  const footerIndex = html.indexOf('pf-chrome-foot');
+  assert.ok(footerIndex > bodyCloses[0] && footerIndex < bodyCloses[1], 'footer sits between the literal mention and the real close');
+});
+
 test('the chrome counts locally, honours opt-out, and asks for nothing off-origin', async () => {
   const page = await read('etsy-profit-calculator', 'index.html');
   // From the injected element, not the style block that names the same class:

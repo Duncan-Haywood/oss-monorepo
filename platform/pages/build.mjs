@@ -6762,8 +6762,28 @@ export function faqEntries(html) {
 
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = html.match(/<body[^>]*>/i);
-  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+
+  // A `<script>` or `<style>` block can legitimately carry the literal text of
+  // an HTML tag as data -- git-exposure-check's own JSON-LD illustrates a
+  // soft-404 body with "such as <html><body>404 Not Found</body></html>",
+  // sitting in <head>, ahead of the real <body>. A structural tag is never
+  // real inside script/style content, so those blocks are masked out (same
+  // length, so every index below still lines up with `html`) before any
+  // <head>/<body> tag is located below. Unmasked, `<body[^>]*>`'s first match
+  // and a literal `.replace(bodyOpen[0], ...)` both landed on that fake
+  // `<body>` instead, splicing the top bar into the middle of the JSON-LD and
+  // breaking it as JSON (2026-09-23).
+  const masked = html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, (block) =>
+    block.replace(/[^\n]/g, ' '),
+  );
+
+  const bodyOpenMatch = masked.match(/<body[^>]*>/i);
+  if (!bodyOpenMatch || !/<\/body>/i.test(masked)) return html;
+  const bodyOpenStart = bodyOpenMatch.index;
+  const bodyOpenEnd = bodyOpenStart + bodyOpenMatch[0].length;
+  const headCloseMatch = masked.match(/<\/head>/i);
+  const bodyCloseMatches = [...masked.matchAll(/<\/body>/gi)];
+  const bodyCloseIndex = bodyCloseMatches[bodyCloseMatches.length - 1].index;
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6818,12 +6838,6 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       })}</script>`;
     }
   }
-  if (headExtras) {
-    html = /<\/head>/i.test(html)
-      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
-      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
-  }
-
   const hub = `${toRoot}`;
   const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
   <a href="${escapeHtml(hub)}" data-pf-to="hub">← All ${total} free tools</a>
@@ -6865,13 +6879,32 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // `CHROME_STYLE_FILE`.
   const styleLink =
     `<link rel="stylesheet" href="${escapeHtml(`${toRoot}${CHROME_STYLE_FILE}`)}">`;
-  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
-  // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
-  const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
+  // A page with no real <head> close still gets the stylesheet, ahead of the
+  // bar it styles, right after the body tag instead.
+  const stylePrefix = headCloseMatch ? '' : `${styleLink}\n`;
 
-  return withStyle
-    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n</body>`);
+  // Every insertion point was located once above, against the masked copy, so
+  // none of them can land inside a script/style block's own text. Applied here
+  // as plain splices against the real, unmasked `html`, in ascending order of
+  // position with a running offset -- never by re-searching the growing
+  // string, which is what let an earlier match win again.
+  const splices = [];
+  if (headCloseMatch) {
+    splices.push([headCloseMatch.index, `${headExtras ? `${headExtras}\n` : ''}${styleLink}\n`]);
+  } else if (headExtras) {
+    splices.push([bodyOpenStart, `${headExtras}\n`]);
+  }
+  splices.push([bodyOpenEnd, `\n${stylePrefix}${topBar}`]);
+  splices.push([bodyCloseIndex, `${footer}\n`]);
+  splices.sort((a, b) => a[0] - b[0]);
+
+  let result = '';
+  let cursor = 0;
+  for (const [position, insertion] of splices) {
+    result += html.slice(cursor, position) + insertion;
+    cursor = position;
+  }
+  return result + html.slice(cursor);
 }
 
 /**
