@@ -37982,6 +37982,58 @@ entries:
         branch's files, none of which touch `platform/pages/build.mjs` or
         the Pages workflow.
     mrr_end: 0
+  - venture: foundation-repair-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-a-flat-price-per-pier.html, against the flat per-pier rate the
+        venture's own VENTURE.yaml hypothesis already names as the generic
+        rule of thumb contractors are shopped on (surface-budget.mjs
+        confirmed 0/1 generic-method pages used; the existing
+        vs-jobber.html is a named-product page and unbudgeted). Worked
+        example built from calc.mjs's own shipped index.html defaults ($42
+        hourly wage, 34% burden, $420/pier, $18/extra ft, $95/interior
+        bracket, $185/strap, $850 engineering fee, $650 plumbing allowance,
+        $285 travel, 16% overhead, 28% margin): an 8-pier exterior job at 12
+        ft depth (29.9 crew-hours, $9,488.87, $1,186.11/pier) vs. a 6-pier
+        interior job at 14 ft depth with an engineering stamp, four
+        carbon-fiber straps, and a plumbing reroute (50.9 crew-hours,
+        $14,802.53, $2,467.09/pier) -- fewer piers, more crew-hours.
+        Quoting the interior job at the exterior job's per-pier rate
+        ($7,116.66 for six piers) lands $3,541.17 below its own break-even
+        cost, and $7,685.87 short of this calculator's price at target
+        margin. Registered the page in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (names no vendor). `node --test` in
+        the venture: 118/118, including a test pinning every dollar figure
+        on the page directly against calc.mjs. Merged a sibling PR
+        (#5240, exterior-painting-bid-calculator's own comparison page) and
+        #5236/#5243 landing on main mid-session; resolved the generated
+        front-door mirror conflict per
+        platform/marketing/resolve-mirror-merge.sh (checked out the
+        generated .gz/json/txt files from either side, then regenerated
+        from the merged sources) and infra_state.yaml by keeping the later
+        publish reading. Full platform/marketing/platform/pages suite:
+        1281/1281 (re-run after the merge). `python3 -m pytest
+        gitops/tests -q`: 637 passed, 1 skipped, after installing
+        nginx-light and openssh-client via `apt-get update && apt-get
+        install` per CLAUDE.md's warning about the missing `apt-get
+        update`. `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests
+        -q`: 446 passed. All platform/ci unittest modules and
+        agent_review's test_review (21/21): clean. checklist_coverage.py,
+        check_no_payment_code.py, and sync_tree_counts.py: clean.
+        regen.mjs --verify: current after the merge. Confirmed
+        ci_starvation.py against the latest portfolio-validate.yml run
+        (runner_id 0, 4s, no steps) before relying on this local
+        verification rather than CI's red badge. Also refreshed
+        infra_state.yaml's github-pages-branch-route reading at session
+        start: the published gh-pages snapshot was stale (built from
+        192e41d8 while main was at 5cf4506d), republished with
+        publish-branch.sh and confirmed current with pages_state.py
+        --require-current.
+    mrr_end: 0
   - venture: fireplace-insert-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -38026,4 +38078,43 @@ entries:
         score_ventures.py --check, validate_usage.py): clean.
         checklist_coverage.py, clauses.mjs, surface-budget.mjs --check,
         sync_tree_counts.py: all clean. PR #5249.
+    mrr_end: 0
+  - venture: french-drain-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-a-flat-price-per-foot.html, against the flat per-foot rate
+        calc.mjs's own file header already names as the generic special
+        drainage contractors are shopped on (surface-budget.mjs confirmed
+        0/1 generic-method pages used; the existing vs-jobber.html is a
+        named-product page and unbudgeted). Worked example built from
+        calc.mjs's own JOB_PRESETS[0] and JOB_PRESETS[2] at the shipped
+        index.html shop-rate defaults ($42 hourly wage, 30% burden, $95
+        travel, 15% overhead, 30% target margin): a 40-ft shallow daylight
+        trench in dirt (9.3 crew-hours, $1,862.64, $46.57/ft) vs. an 80-ft
+        deep drywell run in clay with two catch basins, three downspout
+        ties, and a 15-ft driveway crossing (45.3 crew-hours, $8,824.85,
+        $110.31/ft) -- twice the footage, roughly five times the labor.
+        Quoting the deep job at the shallow job's per-foot rate ($3,725.28
+        for eighty feet) lands $2,452.12 below its own break-even cost, and
+        $5,099.58 short of this calculator's price at target margin.
+        Registered the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (names no vendor). `node --test` in the venture: 135/135, including
+        a test pinning every dollar figure on the page directly against
+        calc.mjs (with the depth/pipe/soil/outlet suggested-kit helpers, so
+        the test exercises the same auto-fill path index.html uses rather
+        than hand-typed cost inputs). Full platform/marketing/platform/pages
+        suite and `python3 -m pytest gitops/tests -q` (637 passed, 1
+        skipped) both re-run clean at this tree state. checklist_coverage.py,
+        check_no_payment_code.py, and sync_tree_counts.py: clean.
+        regen.mjs --verify: current. Landed in the same push as this
+        session's earlier foundation-repair-bid-calculator comparison page
+        (PR #5251, auto-merged by the repo's cross-review layer while this
+        session was still running local verification on the next merge) --
+        that PR's branch could not be reused per CLAUDE.md's "already
+        merged" rule, so this session restarted the branch from the new
+        main tip and carried the pending ledger entry forward into this
+        commit instead of opening a ledger-only PR.
     mrr_end: 0
