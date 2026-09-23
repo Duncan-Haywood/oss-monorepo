@@ -1128,6 +1128,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
+  // Compares against "a flat price per shirt" -- a generic pricing habit
+  // every apparel decorator already has access to (one per-piece quote
+  // regardless of placement count), not a company or product this could be
+  // mistaken for. The page names no vendor, platform, or shop-management
+  // tool; vs-printavo.html already carries this venture's one
+  // named-competitor comparison and its own trademark disclaimer.
+  'apparel-decoration-price-calculator/vs-a-flat-price-per-shirt.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
