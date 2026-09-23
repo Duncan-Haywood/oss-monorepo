@@ -163,4 +163,14 @@ assert.match(
   'index must link ../ats-resume-checker/ so crawlers reach the ATS resume checker in one hop',
 );
 
+// Crawlable-orphan link. `freelance-platform-fee-calculator` shipped with no
+// inbound sibling link at all; both tools price a self-employed freelancer's
+// own work, one a recurring retainer and the other a one-off Upwork/Fiverr
+// job, so a reader pricing one is plausibly pricing the other.
+assert.match(
+  index,
+  /href="\.\.\/freelance-platform-fee-calculator\/"/,
+  'index must link ../freelance-platform-fee-calculator/ so crawlers reach the Upwork vs. Fiverr fee calculator in one hop',
+);
+
 console.log('freelance retainer page tests passed');
