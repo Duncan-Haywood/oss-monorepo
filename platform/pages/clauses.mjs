@@ -724,6 +724,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-stack.html, which does name a product and carries its own
   // "not affiliated" clause.
   'concrete-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat $99 dryer vent special" -- the coupon-page
+  // flat rate every dryer-vent tech is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-wepro.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'dryer-vent-bid-calculator/vs-a-flat-99-dollar-special.html',
   // Compares against "a flat price per linear foot" -- the per-foot
   // quoting habit gutter-cleaning companies are told to bid by, not a
   // company or product this could be mistaken for. The page names no
@@ -752,6 +759,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-moraware.html, which does name a product and carries
   // its own "not affiliated" clause.
   'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // a freelancer pricing the same job on both platforms already reaches
+  // for, not a company or product this could be mistaken for. The page
+  // names Upwork and Fiverr only as the two platforms this calculator's own
+  // arithmetic runs, the same way tiktok-shop-fee-calculator's spreadsheet
+  // page above names TikTok Shop, and its own footer says so explicitly.
+  'freelance-platform-fee-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "a rough lump sum" -- the round-number, eyeball-the-
+  // takeoff habit contractors already price change orders with, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-buildertrend.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'change-order-margin-calculator/vs-a-rough-lump-sum.html',
   // Compares against "opening settings.json or an mcpServers block and
   // reading it by eye before committing" -- a generic manual habit every
   // developer and reviewer already has access to, not a company or product
