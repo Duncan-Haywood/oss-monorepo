@@ -458,17 +458,27 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
 //
-// 312 -> 313: `firebase-rules-check` graduated, adding one `usage.mjs`
+// 312 -> 313: `turo-host-payout-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
+// `voiceover-project-rate-calculator`'s does). This branch only ever knew
+// its own predecessor's number (312, before `mercari-fee-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
+//
+// 313 -> 314: `firebase-rules-check` graduated, adding one `usage.mjs`
 // following the same `readOptOut`/`writeOptOut` pattern as
 // `supabase-rls-check`'s. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/firebase-rules-check/usage.mjs`) and no deletions. This
 // branch only ever knew its own predecessor's number (309, before
 // `osha-trir-dart-calculator`, `supabase-rls-check`,
-// `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
-// landed) until this merge -- the same ordinary collision shape recorded
-// throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 313;
+// `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
+// `turo-host-payout-calculator` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list.
+const SWITCHES_IN_THE_CATALOGUE = 314;
 
 let counter = 0;
 function fixture(source) {

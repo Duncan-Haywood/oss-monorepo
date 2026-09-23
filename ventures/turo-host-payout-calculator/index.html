@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Turo Host Payout Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free Turo host payout calculator. Turo's host share now depends on your earnings plan (Peace of Mind, Balanced, More Earnings) AND how far ahead the guest books — this tool models the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate. No sign-up, nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Turo Host Payout Calculator — free, no sign-up">
+  <meta property="og:description" content="See your real host payout under Turo's plan x booking-window matrix, compare all three earnings plans on the same trip, and project a monthly estimate. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Turo Host Payout Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a Turo host's payout for one trip from the trip price, the host's earnings plan (Peace of Mind, Balanced, More Earnings), and how far ahead the guest booked -- the two factors that together set the host share under Turo's 2026 earnings-plan structure. Compares the same trip across all three plans and all four booking windows, and projects a monthly/annual estimate from a stated trip frequency. Entirely client-side; nothing is uploaded.","featureList":"plan x booking-window host-share matrix, extra-mileage/late-return/additional-usage fee inclusion, per-day payout, plan comparison table with damage-responsibility caps, booking-window sensitivity table, monthly/annual projection"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does Turo actually take from hosts in 2026?","acceptedAnswer":{"@type":"Answer","text":"There is no single answer — Turo restructured host earnings around March 2026 into three named earnings plans (Peace of Mind, Balanced, More Earnings), and within each plan your host share also depends on how far ahead of the trip the guest booked (0-2, 3-13, 14-27, or 28+ days). The same trip can pay a host anywhere from roughly 65% to 100% of the trip price depending on which cell of that matrix it falls into. This calculator models the whole matrix rather than assuming one flat percentage."}},{"@type":"Question","name":"Why does the booking window change my payout for the exact same trip?","acceptedAnswer":{"@type":"Answer","text":"Turo's host share locks in at the moment the guest books, and it rewards trips booked further in advance — a trip booked 28+ days out pays a higher host share than the identical trip booked 0-2 days before it starts, under every earnings plan. That is a real, sizeable dollar difference on the same listing, not a rounding effect, which is what the booking-window comparison on this page is for."}},{"@type":"Question","name":"What is the trade-off between the three earnings plans, besides the percentage?","acceptedAnswer":{"@type":"Answer","text":"Each plan pairs a host share with a damage-responsibility cap — the dollar amount you can be held responsible for if the vehicle is damaged on a trip. Peace of Mind pays the lowest share but caps your exposure lowest (commonly cited around $250); More Earnings pays the highest share but raises your exposure cap (commonly cited around $2,750). A higher host share is not free money — it comes with more risk on your own vehicle."}},{"@type":"Question","name":"Is this an official Turo tool, and can I rely on the exact numbers?","acceptedAnswer":{"@type":"Answer","text":"No. This is an independent, unofficial calculator, not affiliated with, endorsed by, or sponsored by Turo. Turo has changed its host-earnings structure more than once within 2026 alone, so treat every default number here as a commonly cited starting point to check against your own Turo Host Hub — not a guarantee of what you will actually be paid."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1a1f16; background: #f2f6ef; }
+    body { max-width: 1040px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4d20; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4d20; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5245; }
+    .card { background: #fff; border: 1px solid #d7e3d1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4d2010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b7cbae; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    fieldset { border: 1px solid #e1ecdc; border-radius: 10px; margin: 16px 0 0; padding: 6px 14px 14px; }
+    legend { font-size: .8rem; font-weight: 700; color: #2f6b30; padding: 0 6px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #235c26; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6efe1; color: #1f4d20; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e6efe1; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5245; }
+    tr.selected-row td { background: #eef6ea; font-weight: 700; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .cut { font-weight: 700; color: #9a3412; }
+    .finding { border-bottom: 1px solid #e6efe1; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e6efe1; color: #2f6b30; }
+    .stats { font-size: .85rem; color: #4a5245; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d7e3d1; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TURO HOST PAYOUT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What will Turo actually pay you for this trip?</h1>
+    <p>Turo's host share is no longer one flat percentage. It's a matrix: your
+    <strong>earnings plan</strong> (Peace of Mind, Balanced, or More Earnings)
+    <em>and</em> how far ahead the guest booked (0-2, 3-13, 14-27, or 28+ days)
+    together decide your share of the trip price -- and it locks in at
+    booking time. Enter one trip below and see your payout, how the other two
+    plans would have paid on the exact same trip, and how much booking
+    timing alone is worth.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Hosting a spare room or a house instead of a car? See the <a href="../str-host-payout-calculator/">short-term rental host payout calculator</a> for the same kind of comparison across Airbnb, Vrbo, and direct booking.</p>
+  </header>
+
+  <section class="card">
+    <h2>One trip</h2>
+    <div class="grid">
+      <div>
+        <label for="trip-price">Trip price (what the guest pays for the whole trip, before extra fees)</label>
+        <input type="number" id="trip-price" min="0" step="1" placeholder="e.g. 350">
+      </div>
+      <div>
+        <label for="days">Trip length (days)</label>
+        <input type="number" id="days" min="1" step="1" value="1">
+      </div>
+      <div>
+        <label for="plan">Your earnings plan</label>
+        <select id="plan">
+          <option value="peace_of_mind">Peace of Mind ($250 damage cap)</option>
+          <option value="balanced" selected>Balanced ($1,500 damage cap)</option>
+          <option value="more_earnings">More Earnings ($2,750 damage cap)</option>
+        </select>
+      </div>
+      <div>
+        <label for="booking-window">How far ahead did the guest book?</label>
+        <select id="booking-window">
+          <option value="0_2">0-2 days ahead (last-minute)</option>
+          <option value="3_13" selected>3-13 days ahead</option>
+          <option value="14_27">14-27 days ahead</option>
+          <option value="28_plus">28+ days ahead</option>
+        </select>
+      </div>
+    </div>
+
+    <fieldset>
+      <legend>Extra fees the guest owes (optional -- also split at your host share)</legend>
+      <div class="grid">
+        <div>
+          <label for="extra-mileage-fee">Extra-mileage fee</label>
+          <input type="number" id="extra-mileage-fee" min="0" step="1" value="0">
+        </div>
+        <div>
+          <label for="late-return-fee">Late-return fee</label>
+          <input type="number" id="late-return-fee" min="0" step="1" value="0">
+        </div>
+        <div>
+          <label for="additional-usage-fee">Additional-usage fee</label>
+          <input type="number" id="additional-usage-fee" min="0" step="1" value="0">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Optional: project a monthly estimate</legend>
+      <div class="grid">
+        <div>
+          <label for="trips-per-month">Trips like this one, per month</label>
+          <input type="number" id="trips-per-month" min="0" step="1" placeholder="e.g. 6">
+        </div>
+      </div>
+    </fieldset>
+
+    <p>
+      <button type="button" id="calculate">Calculate my payout</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter a trip price above and click Calculate my payout.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Your payout on this trip</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <tbody id="result-body"></tbody>
+    </table>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card" id="plans-card" hidden>
+    <h2>The same trip, all three earnings plans</h2>
+    <p class="note">Same trip price, same booking window as above — only the plan changes. Your selected plan is highlighted.</p>
+    <table>
+      <thead><tr><th>Plan</th><th>Host share</th><th>Your payout</th><th>Turo's cut</th><th>Damage cap</th></tr></thead>
+      <tbody id="plans-body"></tbody>
+    </table>
+    <p class="note" id="plans-swing"></p>
+  </section>
+
+  <section class="card" id="windows-card" hidden>
+    <h2>The same trip, all four booking windows</h2>
+    <p class="note">Same trip price, same plan as above — only when the guest booked changes. Your selected window is highlighted.</p>
+    <table>
+      <thead><tr><th>Booked</th><th>Host share</th><th>Your payout</th><th>Turo's cut</th></tr></thead>
+      <tbody id="windows-body"></tbody>
+    </table>
+    <p class="note" id="windows-swing"></p>
+  </section>
+
+  <section class="card" id="monthly-card" hidden>
+    <h2>Monthly estimate</h2>
+    <p id="monthly-text"></p>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies Turo's documented plan x booking-window host-share
+    matrix to the numbers you enter, using commonly cited default rates you
+    can adjust by choosing a different plan and window. It does <strong>not</strong>
+    know your specific listing's real booking history, promotions or
+    delivery discounts that can lower your effective rate, or whatever Turo's
+    structure is on the day you read this — Turo has changed this exact
+    structure more than once within 2026. Treat the output as an estimate to
+    check against your own Turo Host Hub, never a guarantee of what you will
+    actually be paid.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much does Turo actually take from hosts in 2026?</h3>
+    <p>There is no single answer — Turo restructured host earnings around March 2026 into three named earnings plans (Peace of Mind, Balanced, More Earnings), and within each plan your host share also depends on how far ahead of the trip the guest booked (0-2, 3-13, 14-27, or 28+ days). The same trip can pay a host anywhere from roughly 65% to 100% of the trip price depending on which cell of that matrix it falls into. This calculator models the whole matrix rather than assuming one flat percentage.</p>
+    <h3>Why does the booking window change my payout for the exact same trip?</h3>
+    <p>Turo's host share locks in at the moment the guest books, and it rewards trips booked further in advance — a trip booked 28+ days out pays a higher host share than the identical trip booked 0-2 days before it starts, under every earnings plan. That is a real, sizeable dollar difference on the same listing, not a rounding effect, which is what the booking-window comparison on this page is for.</p>
+    <h3>What is the trade-off between the three earnings plans, besides the percentage?</h3>
+    <p>Each plan pairs a host share with a damage-responsibility cap — the dollar amount you can be held responsible for if the vehicle is damaged on a trip. Peace of Mind pays the lowest share but caps your exposure lowest (commonly cited around $250); More Earnings pays the highest share but raises your exposure cap (commonly cited around $2,750). A higher host share is not free money — it comes with more risk on your own vehicle.</p>
+    <h3>Is this an official Turo tool, and can I rely on the exact numbers?</h3>
+    <p>No. This is an independent, unofficial calculator, not affiliated with, endorsed by, or sponsored by Turo. Turo has changed its host-earnings structure more than once within 2026 alone, so treat every default number here as a commonly cited starting point to check against your own Turo Host Hub — not a guarantee of what you will actually be paid.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including against your own Turo Host Hub numbers. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Turo. Turo is a trademark of its owner, named here only to describe the host-earnings structure this tool computes against — Turo has changed that structure more than once within 2026, so verify current numbers in your own Turo Host Hub before relying on this.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>payout-calculated</code>, <code>example-loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeTripPayout, comparePlans, compareBookingWindows, estimateMonthly, PLAN_LABELS, BOOKING_WINDOW_LABELS } from "./calc.mjs";
+    import { recordEvent, usageAllowed, toggleUsage } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      tripPrice: $("#trip-price"),
+      days: $("#days"),
+      plan: $("#plan"),
+      bookingWindow: $("#booking-window"),
+      extraMileageFee: $("#extra-mileage-fee"),
+      lateReturnFee: $("#late-return-fee"),
+      additionalUsageFee: $("#additional-usage-fee"),
+      tripsPerMonth: $("#trips-per-month"),
+      status: $("#status"),
+      reportCard: $("#report-card"),
+      stats: $("#stats"),
+      resultBody: $("#result-body"),
+      findings: $("#findings"),
+      plansCard: $("#plans-card"),
+      plansBody: $("#plans-body"),
+      plansSwing: $("#plans-swing"),
+      windowsCard: $("#windows-card"),
+      windowsBody: $("#windows-body"),
+      windowsSwing: $("#windows-swing"),
+      monthlyCard: $("#monthly-card"),
+      monthlyText: $("#monthly-text"),
+    };
+
+    function money(n) {
+      const format = (n) => `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+    function pct(n) {
+      return `${Math.round(n * 1000) / 10}%`;
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = "";
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function currentInput() {
+      return {
+        tripPrice: Number(els.tripPrice.value),
+        days: Number(els.days.value) || 1,
+        plan: els.plan.value,
+        bookingWindow: els.bookingWindow.value,
+        extraMileageFee: Number(els.extraMileageFee.value) || 0,
+        lateReturnFee: Number(els.lateReturnFee.value) || 0,
+        additionalUsageFee: Number(els.additionalUsageFee.value) || 0,
+      };
+    }
+
+    function runCalculate() {
+      const input = currentInput();
+      const result = computeTripPayout(input);
+
+      els.stats.textContent = `${money(result.splitEligible)} split-eligible (trip price plus any extra fees above), at a ${pct(result.hostShare)} host share for ${PLAN_LABELS[result.plan]} / ${BOOKING_WINDOW_LABELS[result.bookingWindow]}.`;
+      els.resultBody.innerHTML = `
+        <tr><td>Split-eligible amount (trip price + extra fees)</td><td class="price">${money(result.splitEligible)}</td></tr>
+        <tr><td>Your host share</td><td class="price">${pct(result.hostShare)}</td></tr>
+        <tr><td><strong>Your payout</strong></td><td class="price">${money(result.hostPayout)}</td></tr>
+        <tr><td>Turo's cut</td><td class="cut">${money(result.turoCut)}</td></tr>
+        <tr><td>Your payout per day</td><td class="price">${money(result.perDay)}</td></tr>`;
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+
+      const plans = comparePlans({ ...input, selectedPlan: input.plan });
+      els.plansBody.innerHTML = plans.rows.map((r) => `
+        <tr class="${r.selected ? "selected-row" : ""}">
+          <td>${r.label}${r.selected ? " (selected)" : ""}</td>
+          <td>${pct(r.hostShare)}</td>
+          <td class="price">${money(r.hostPayout)}</td>
+          <td class="cut">${money(r.turoCut)}</td>
+          <td>${money(r.damageCap)}</td>
+        </tr>`).join("");
+      els.plansSwing.textContent = `Swing across plans on this trip: ${money(plans.swing)}.`;
+      els.plansCard.hidden = false;
+
+      const windows = compareBookingWindows({ ...input, selectedWindow: input.bookingWindow });
+      els.windowsBody.innerHTML = windows.rows.map((r) => `
+        <tr class="${r.selected ? "selected-row" : ""}">
+          <td>${r.label}${r.selected ? " (selected)" : ""}</td>
+          <td>${pct(r.hostShare)}</td>
+          <td class="price">${money(r.hostPayout)}</td>
+          <td class="cut">${money(r.turoCut)}</td>
+        </tr>`).join("");
+      els.windowsSwing.textContent = `Swing across booking windows on this trip: ${money(windows.swing)} — the value of when the guest booked, alone.`;
+      els.windowsCard.hidden = false;
+
+      const tripsPerMonth = Number(els.tripsPerMonth.value);
+      if (tripsPerMonth > 0) {
+        const monthly = estimateMonthly(result.hostPayout, tripsPerMonth);
+        els.monthlyText.textContent = `At ${monthly.trips} trip(s) like this one per month: ${money(monthly.monthly)}/month, ${money(monthly.annual)}/year. Linear projection from this one trip's payout — it assumes every trip matches the numbers above, not a booked calendar.`;
+        els.monthlyCard.hidden = false;
+      } else {
+        els.monthlyCard.hidden = true;
+      }
+
+      els.status.textContent = "";
+      recordEvent("payout-calculated");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => {
+      if (!els.tripPrice.value) {
+        els.status.innerHTML = `<span class="error">Enter a trip price above first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.tripPrice.value = "350";
+      els.days.value = "3";
+      els.plan.value = "balanced";
+      els.bookingWindow.value = "3_13";
+      els.extraMileageFee.value = "0";
+      els.lateReturnFee.value = "0";
+      els.additionalUsageFee.value = "0";
+      els.tripsPerMonth.value = "6";
+      runCalculate();
+      recordEvent("example-loaded");
+      els.status.textContent = "Worked example: a 3-day, $350 trip on the Balanced plan, booked 3-13 days ahead, at 6 trips a month.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.tripPrice.value = "";
+      els.days.value = "1";
+      els.extraMileageFee.value = "0";
+      els.lateReturnFee.value = "0";
+      els.additionalUsageFee.value = "0";
+      els.tripsPerMonth.value = "";
+      els.reportCard.hidden = true;
+      els.plansCard.hidden = true;
+      els.windowsCard.hidden = true;
+      els.monthlyCard.hidden = true;
+      els.status.textContent = "Enter a trip price above and click Calculate my payout.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      toggleUsage(false);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (!usageAllowed()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
