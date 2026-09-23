@@ -2141,7 +2141,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this running count. This branch only ever knew its own predecessor's
     # number (330, before mercari-fee-calculator landed) until this merge --
     # the same ordinary collision shape recorded throughout this list.
-    total = 331  # `infra/OWNER_CHECKLIST.md`'s own "N of the 331 tools" wording.
+    #
+    # 332 since this merge: `graphql-introspection-exposure-check` graduated
+    # -- a checker for GraphQL introspection left enabled in production,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (331) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, re-derived here by
+    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    total = 332  # `infra/OWNER_CHECKLIST.md`'s own "N of the 332 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
