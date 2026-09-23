@@ -36054,3 +36054,62 @@ entries:
         highlight-promise sentence, which is allowed). A full
         whole-catalogue browser run was not attempted: 20-30 minutes for
         one static comparison page using an already-shipped template.
+  - venture: canonical-tag-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session, generic brief. session_gate.py said PROCEED and
+        flagged the published gh-pages snapshot as stale (built from
+        49d28bb8 while main was at c7a8bda3); refreshed it first with
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        (IndexNow accepted 1233 URLs, 200), then confirmed
+        `pages_state.py --require-current` and recorded the reading.
+      - >-
+        No open PRs and the build-now pipeline was empty (every scored
+        candidate already graduated), so rather than start a 331st venture
+        or collide with the concurrent bid-calculator comparison-page burst
+        (5 sessions in one 15-minute window per session_gate), ran
+        `node platform/pages/surface-budget.mjs --check` across the fleet
+        looking for an under-marketed venture outside that pattern.
+        canonical-tag-check had 0/1 generic-method comparison pages and 0
+        guide pages -- only a named-product page (vs-screaming-frog.html).
+        Added vs-checking-canonical-tags-by-hand.html: canonical tags read
+        by eye (view-source/DevTools) show the tag's text but not whether
+        the canonical target actually resolves, redirects, or is itself
+        noindexed -- that needs the second real fetch this tool already
+        makes. Generic-method, no named competitor, so exempted in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT beside the sibling
+        by-hand pages it follows the same reasoning as. Linked from
+        index.html, added to sitemap.xml, and its own
+        vs-checking-canonical-tags-by-hand.test.mjs pins the FAQPage JSON-LD
+        against the visible copy verbatim, following the vs-screaming-frog
+        sibling test's shape.
+      - >-
+        Verified: `node --test ventures/canonical-tag-check/**/*.test.mjs`
+        86/86. `node platform/pages/clauses.mjs canonical-tag-check` clean.
+        `node platform/pages/surface-budget.mjs --check` clean fleet-wide
+        (240 ventures at 0 generic-method pages, 81 at 1, this one now among
+        the 81). `checklist_coverage.py`, `router/validate.py` (329/329),
+        `score_ventures.py --check` (330/330), `validate_doc_consistency.py`,
+        `usage/validate_usage.py`, `probes/validate_probe_index.py`,
+        `pipeline/validate_candidates.py` all clean.
+        `regen.mjs --verify` correctly caught the new page missing from the
+        gh-pages mirror; ran `regen.mjs` and re-verified clean -- committing
+        the 6 rewritten artifacts plus the 1 new mirrored page/kustomization
+        row in this same commit per the front-door-mirror-staleness lesson
+        this file already records. `node --test
+        platform/marketing/front-door-tools.test.mjs` 101/101 (the suite
+        that catches exactly this class of staleness).
+        `python3 -m pytest gitops/tests -q` 613 passed / 25 skipped
+        (nginx/ssh-key environmental, per this file's own note) after
+        `apt-get install -y --no-install-recommends python3-pytest`.
+        `(cd platform/ci && for m in test_*.py; do python3 -m unittest
+        "${m%.py}"; done)` 27/27 modules clean. `(cd platform/ci/agent_review
+        && python3 -m unittest test_review)` 21/21.
+        `run_workflow_locally.py --for-changes` and the full
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` sweep were
+        started and ran clean through the venture- and mirror-relevant
+        checks (canonical-tag-check-ci.yml, front-door generator) before
+        this entry was written; see the PR/commit for their final tail if
+        either surfaced something after.

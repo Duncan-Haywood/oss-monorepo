@@ -578,6 +578,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which does name a product and carries its
   // own "not affiliated" clause.
   'home-elevator-bid-calculator/vs-a-flat-pneumatic-special.html',
+  // Compares against "viewing page source or DevTools and reading the
+  // canonical tag by eye" -- a manual habit every developer and SEO
+  // practitioner already has, not a company or product this could be
+  // mistaken for. The page names no competing tool at all -- distinct from
+  // this venture's own vs-screaming-frog.html, which does name a product
+  // and carries its own "not affiliated" clause.
+  'canonical-tag-check/vs-checking-canonical-tags-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

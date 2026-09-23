@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canonical Tag Checker vs. checking canonical tags by hand</title>
+<meta name="description" content="Viewing page source or DevTools shows you the canonical tag's text. It cannot show you whether the canonical target itself resolves, redirects, or is marked noindex -- that needs a second, real request. This free tool makes it and reports what it finds.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/canonical-tag-check/vs-checking-canonical-tags-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Canonical Tag Checker vs. checking canonical tags by hand">
+<meta property="og:description" content="Reading a canonical tag by eye only shows you its text. This tool fetches the canonical target too and reports whether it actually resolves, redirects, or is noindexed -- evidence a manual read can't produce.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What's wrong with just viewing page source and reading the canonical tag?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Nothing, for reading the tag's text -- view-source or DevTools shows you exactly what the canonical tag says. What it can't show you is whether that target is actually a good canonical: whether it resolves, whether it redirects somewhere else first, or whether the page it points at is itself marked noindex. Those all require a second, real request to the canonical URL, which a manual read never makes." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the canonical target need to be fetched at all?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because a canonical tag is a claim, not a guarantee -- it tells a search engine \"index this URL instead,\" but says nothing about whether that URL is reachable or usable. A canonical pointing at a URL that 404s, redirects through several hops, or carries its own noindex directive quietly tells search engines to index nothing at all. That only shows up by actually requesting the target, the same way a search engine would." }
+    },
+    {
+      "@type": "Question",
+      "name": "How would I miss a second, conflicting canonical tag by eye?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Two canonical tags naming different URLs commonly come from two systems writing one each -- a CMS plugin and a hand-written template tag, say -- and both can be buried well down a long head section among dozens of other tags. Skimming source for \"the\" canonical tag finds the first one and stops; it's easy to miss that a second one exists and disagrees. A tool that parses every canonical tag in the document catches this by construction." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can DevTools show me if the canonical target redirects or 404s?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Not directly. DevTools' Network tab shows requests the current page actually made -- and a browser loading a page does not fetch that page's own canonical URL as part of rendering it. Seeing what the canonical target itself returns means opening it as a separate request and checking the result, which is exactly the second fetch this tool makes and reports on." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Canonical Tag Checker vs. checking canonical tags by hand</h1>
+
+<p>Viewing page source or opening DevTools is the obvious first move, and it's the right one for
+reading the tag's text. What it can't do is tell you whether the canonical tag is actually
+<em>correct</em> -- whether the URL it names resolves, redirects, or is itself marked noindex. That
+takes a second real request, which a manual read never makes and this tool does every time.</p>
+
+<table>
+  <thead><tr><th></th><th>Viewing source / DevTools by hand</th><th>Canonical Tag Checker</th></tr></thead>
+  <tbody>
+    <tr><td>Reads the canonical tag's text</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Catches a second, conflicting canonical tag buried in a long head section</td><td>Only if you scroll past the first one and notice</td><td>Always -- every canonical tag in the document is parsed</td></tr>
+    <tr><td>Confirms the canonical target actually resolves</td><td>No -- requires a separate manual request</td><td>Yes -- fetches the target automatically when there's exactly one</td></tr>
+    <tr><td>Catches a canonical target that redirects or 404s</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Catches a canonical target that is itself marked noindex</td><td>No -- requires opening and reading that page too</td><td>Yes</td></tr>
+    <tr><td>Cost</td><td>Free, but time and easy to miss something</td><td>Free</td></tr>
+  </tbody>
+</table>
+
+<h2>Common questions</h2>
+<h3>What's wrong with just viewing page source and reading the canonical tag?</h3>
+<p>Nothing, for reading the tag's text -- view-source or DevTools shows you exactly what the canonical tag says. What it can't show you is whether that target is actually a good canonical: whether it resolves, whether it redirects somewhere else first, or whether the page it points at is itself marked noindex. Those all require a second, real request to the canonical URL, which a manual read never makes.</p>
+<h3>Why does the canonical target need to be fetched at all?</h3>
+<p>Because a canonical tag is a claim, not a guarantee -- it tells a search engine "index this URL instead," but says nothing about whether that URL is reachable or usable. A canonical pointing at a URL that 404s, redirects through several hops, or carries its own noindex directive quietly tells search engines to index nothing at all. That only shows up by actually requesting the target, the same way a search engine would.</p>
+<h3>How would I miss a second, conflicting canonical tag by eye?</h3>
+<p>Two canonical tags naming different URLs commonly come from two systems writing one each -- a CMS plugin and a hand-written template tag, say -- and both can be buried well down a long head section among dozens of other tags. Skimming source for "the" canonical tag finds the first one and stops; it's easy to miss that a second one exists and disagrees. A tool that parses every canonical tag in the document catches this by construction.</p>
+<h3>Can DevTools show me if the canonical target redirects or 404s?</h3>
+<p>Not directly. DevTools' Network tab shows requests the current page actually made -- and a browser loading a page does not fetch that page's own canonical URL as part of rendering it. Seeing what the canonical target itself returns means opening it as a separate request and checking the result, which is exactly the second fetch this tool makes and reports on.</p>
+
+<p><a href="index.html">&larr; Back to the Canonical Tag Checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  You are responsible for reviewing and verifying its output before relying on it, and for having
+  authorisation to check any URL you point it at. To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

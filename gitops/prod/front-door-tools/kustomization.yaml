@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 151 files, 556226 bytes
 #   portfolio-front-tools-3: 136 files, 555905 bytes
 #   portfolio-front-tools-4: 134 files, 549229 bytes
-#   portfolio-front-tools-5: 124 files, 553762 bytes
+#   portfolio-front-tools-5: 125 files, 556891 bytes
 #   portfolio-front-tools-6: 130 files, 554350 bytes
 #   portfolio-front-tools-7: 133 files, 555620 bytes
 #   portfolio-front-tools-8: 124 files, 539899 bytes
@@ -849,6 +849,7 @@ configMapGenerator:
       - canonical-tag-check__analyze.mjs.gz=canonical-tag-check__analyze.mjs.gz
       - canonical-tag-check__index.html.gz=canonical-tag-check__index.html.gz
       - canonical-tag-check__usage.mjs.gz=canonical-tag-check__usage.mjs.gz
+      - canonical-tag-check__vs-checking-canonical-tags-by-hand.html.gz=canonical-tag-check__vs-checking-canonical-tags-by-hand.html.gz
       - canonical-tag-check__vs-screaming-frog.html.gz=canonical-tag-check__vs-screaming-frog.html.gz
       - caption-quality-check__check.mjs.gz=caption-quality-check__check.mjs.gz
       - caption-quality-check__engine.mjs.gz=caption-quality-check__engine.mjs.gz
