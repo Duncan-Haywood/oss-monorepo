@@ -1778,8 +1778,15 @@ const CATEGORY_RULES = [
     // the exact undeclared category" shape as the rest of this section. Doing
     // the move now is what that comment asked the next session that needed
     // the slot to do, rather than raising the bound instead.
+    // `git-exposure-check` joined 2026-09-23: the same "read what's actually
+    // there, name the exact evidence" shape as `cors-misconfig-check` and
+    // `security-headers-check` (two real GET requests, response classified
+    // against a fixed decision table), just reading a response body instead
+    // of headers. Its slug does not start with a keyword this rule already
+    // recognised, so it would otherwise have swelled the catch-all the way
+    // `supabase-rls-check` once did.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|git-exposure-check|firebase-rules-check|source-map-leak-check)/.test(
         slug,
       ),
   },
@@ -1903,6 +1910,16 @@ const CATEGORY_RULES = [
     // from `tutor-package-pricing-calculator`'s own commit rather than
     // landing as an orphan, which is also what keeps the catch-all inside
     // the bound `build.test.mjs` puts on it.
+    // `podcast-feed-check` joined 2026-09-23, landing here rather than in the
+    // `ci` category above it: the axis this section groups on is the earner,
+    // not whether the tool is a calculator or a checker (already established
+    // by `affiliate-disclosure-checker`, which protects a blogger's own
+    // earned income the same shape as `ats-resume-checker` protects a job
+    // seeker's). A podcaster checking their own feed before publishing is
+    // protecting their show's reach the same way an affiliate blogger checks
+    // their own post before it costs them a disclosure violation -- and it
+    // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
+    // the same solo-earner audience.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1916,6 +1933,7 @@ const CATEGORY_RULES = [
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
         'personal-trainer-package-pricing-calculator',
+        'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',

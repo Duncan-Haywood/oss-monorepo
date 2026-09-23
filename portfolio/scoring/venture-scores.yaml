@@ -15590,6 +15590,80 @@ ventures:
       about Turo, a guest, or a third party, and all computation is
       client-side.
 
+  - slug: git-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether .git/HEAD or .git/config
+      is really exposed is decided by matching the response body against
+      the exact grammar of a real git-internal file (a "ref: refs/heads/…"
+      line or a 40-hex-char SHA; a config's own [core] section) -- a
+      factual, deterministic comparison, not a model judgment, and it
+      never claims a security assessment or penetration test.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report-viewer, in
+      the same shape as cors-misconfig-check and security-headers-check,
+      not another <trade>-bid-calculator. duplicate_check.py scored every
+      existing venture at 0.17 or below against the final description
+      (cors-misconfig-check closest, a different evidence class entirely
+      -- a reflected Origin response header, not a file body); no existing
+      venture reads git-internal file content or checks deployment-
+      artifact source exposure. Nothing in screened-out.md covers git or
+      version-control exposure.
+      Autonomous ops 10 / gross margin 10: the CLI's two requests run
+      from the user's own machine against a site they choose, and the
+      browser page only renders a report already produced, so serving
+      one more user costs a static file and needs no human review of any
+      output.
+      Distribution 7: any web developer, security researcher, or agency
+      doing deploy verification or due diligence is a plausible searcher;
+      OWASP's Web Security Testing Guide names ".git folder" exposure
+      explicitly under "Review Old Backup and Unreferenced Files", it is
+      a recurring, bounty-paying HackerOne/Bugcrowd report category, and
+      r/netsec and security blogs publish "found via dorking" posts on
+      an ongoing basis.
+      Time to revenue 6, defensibility 2: donations-only; two fixed
+      regexes and two GET requests are genuinely easy to reimplement --
+      scored below the sibling checkers' typical 3 because there is no
+      fallback-rule or multi-header interaction to get right here, only
+      the body-vs-status-code distinction that is this tool's whole
+      differentiator over a bare status check.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only two ordinary, unauthenticated GET requests
+      from the user's own machine to paths under a site the user chooses
+      -- never this portfolio's infrastructure touching a third party,
+      never bypassing authentication or reading protected data beyond
+      what the target already serves to any anonymous visitor if
+      misconfigured. Both requests are capped at 8KB of body read, and
+      the tool never requests packed objects, the index, or reflog data
+      -- it reports evidence of exposure and names git-dumper/GitTools as
+      the tool an authorised tester would use to quantify it further,
+      rather than performing that bulk extraction itself. Every page and
+      the README carry an explicit "only test systems you own or are
+      authorised to test" caution, the same posture as any request-based
+      security tool. A probe that fails at the network level is reported
+      as incomplete rather than silently skipped or guessed at, and a
+      finding is only ever raised from a response body this tool actually
+      observed and that matches the real-content classification (never a
+      bare 200 status), which specifically avoids the false-positive
+      failure mode of a naive dork against a "soft 404" server. The page's
+      footer and FAQ state plainly that a clean report is evidence from
+      two specific requests, not a full security assessment or a
+      determination that the target is secure.
+
   - slug: firebase-rules-check
     scores:
       ai_leverage: 1
@@ -15661,3 +15735,77 @@ ventures:
       response the tool cannot classify (network error, unexpected
       status) is reported as an error, never folded into either "exposed"
       or "blocked".
+
+  - slug: podcast-feed-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a required feed element
+      is present, whether itunes:category matches Apple's documented list,
+      whether a pubDate is valid RFC 822, and whether two items share a
+      guid are all decided by exact comparison against the parsed feed
+      itself -- a factual, deterministic comparison, not a model judgment,
+      and it never claims a guarantee that any podcast platform will
+      accept or display the show.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool in the same
+      shape as redirect-chain-check and hreflang-reciprocity-check (real
+      network fetch the browser can't fully do itself, paired with a
+      paste-based browser mode), not another <trade>-bid-calculator, and a
+      genuinely new sub-domain for the ~65-strong checker archetype (which
+      clusters into GitHub Actions/CI security, web/SEO headers/markup,
+      app-store manifests, and npm/dependency checks -- none about podcast
+      RSS feeds). duplicate_check.py scored every existing venture,
+      screened-out row, and pipeline candidate at 0.16 or below against the
+      final description (closest: hreflang-reciprocity-check and
+      sitemap-lastmod-freshness-check, both a different evidence class),
+      well under the 0.45 flag bar; the only other venture with "podcast"
+      in its description, podcast-sponsorship-rate-calculator, prices an ad
+      read rather than validating feed XML. Autonomous ops 10 / gross
+      margin 10: the CLI's one request runs from the user's own machine
+      against a feed URL of their choosing, and the browser page parses
+      only pasted text, so serving one more user costs a static file.
+      Distribution 6: Apple builds and documents its own feed-validation
+      step inside Podcasts Connect specifically because feed-spec
+      violations are a common, recurring submission-rejection cause --
+      direct evidence of real demand rather than an inferred one -- plus
+      r/podcasting (a large, established independent-podcaster forum where
+      "episode not showing up" and "feed rejected" are recurring thread
+      topics) and adjacent-category demand shown by the established
+      general-purpose W3C Feed Validator. Softer than a dedicated
+      by-name-competitor comparison would be (no single named podcast-
+      specific validator competitor was confirmed at screening time, and
+      none of this was verified against a live fetch this session --
+      egress to arbitrary hosts is proxy-denied here). Time to revenue 6,
+      defensibility 3: donations-only; a transparent rules-based checker
+      over a documented spec and a public category taxonomy is easy to
+      reimplement, and general RSS/Atom validation already has an
+      established free competitor (the W3C Feed Validator), though none
+      identified at screening time targets the iTunes/Podcast-namespace
+      requirements specifically.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is evidence against named, documented rules ("this
+      element is missing", "this date format is invalid"), never a
+      determination made on the show's behalf -- being wrong costs a
+      podcaster a few minutes double-checking one element, not a legal or
+      financial loss, and every finding whose source data (Apple's category
+      list) could itself be stale on this tool's part says so explicitly
+      rather than asserting certainty. Ethically: a static, deterministic
+      checker with no revenue model that depends on which direction it
+      errs in -- both severities (danger/notice) are disclosed in every
+      finding, nothing is scraped, and the tool gets strictly more useful
+      to more podcasters as it scales with no customer worse off because
+      another one exists.
