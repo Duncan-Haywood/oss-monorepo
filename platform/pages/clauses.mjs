@@ -547,6 +547,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-servicetitan.html and vs-workiz.html, which do name a product
   // and carry their own "not affiliated" clauses.
   'ev-charger-bid-calculator/vs-a-flat-hang-fee.html',
+  // Compares against "a flat per-door price" -- the "$150 a door installed"
+  // pricing habit every interior-door carpenter is shopped against, not a
+  // company or product this could be mistaken for. The page names no vendor
+  // or competing calculator at all.
+  'interior-door-bid-calculator/vs-a-flat-per-door-price.html',
   // Compares against "tracking quotes in a spreadsheet" -- the generic
   // method every freelancer pricing a fixed quote already reaches for, not
   // a company or product this could be mistaken for. The page's own footer
