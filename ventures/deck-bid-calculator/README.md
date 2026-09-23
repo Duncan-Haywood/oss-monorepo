@@ -25,7 +25,9 @@ cd ventures/deck-bid-calculator && node --test
 
 Search page: [`how-much-to-charge.html`](how-much-to-charge.html). See
 [this calculator vs. QuoteIQ](vs-quoteiq.html) for which job fits a one-off
-bid check versus an ongoing, paid quoting and job-costing app.
+bid check versus an ongoing, paid quoting and job-costing app, or
+[this calculator vs. a flat $28-a-foot estimate](vs-a-flat-28-a-foot-estimate.html)
+for worked examples of where a per-square-foot rate stops covering the job.
 
 ## The problem it solves
 
