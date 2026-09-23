@@ -147,7 +147,7 @@
   <p>It sends exactly one ordinary POST request carrying a read-only introspection query -- GraphQL's introspection meta-fields cannot mutate anything. It does nothing a GraphQL client wouldn't also do by querying the endpoint directly. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server.</p>
   <h3>Does a clean report mean the API has no other security issues?</h3>
   <p>No. This checks exactly one thing -- whether an unauthenticated introspection query succeeds -- from one request. It is not a full security assessment, does not test authenticated behaviour, field-level authorization, query depth/complexity limits, or batching/aliasing abuse, and a sensitive-sounding field name is a hint to review by hand, not proof of a missing access control. Treat a clean report as evidence about introspection specifically.</p>
-  <p>More background: <a href="why-disable-graphql-introspection-in-production.html">why production GraphQL APIs disable introspection, and what it actually protects against</a>.</p>
+  <p>More background: <a href="why-disable-graphql-introspection-in-production.html">why production GraphQL APIs disable introspection, and what it actually protects against</a>. Already sending the query yourself with curl or Postman? See <a href="vs-sending-the-query-yourself.html">where that misses a confirmed block and a buried sensitive field name</a>.</p>
 </section>
 
 <script type="module">

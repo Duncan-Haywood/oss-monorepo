@@ -43,8 +43,8 @@
 #   portfolio-front-tools-7: 123 files, 556743 bytes
 #   portfolio-front-tools-8: 139 files, 555175 bytes
 #   portfolio-front-tools-9: 119 files, 547406 bytes
-#   portfolio-front-tools-10: 120 files, 554674 bytes
-#   portfolio-front-tools-11: 116 files, 548727 bytes
+#   portfolio-front-tools-10: 120 files, 554882 bytes
+#   portfolio-front-tools-11: 117 files, 552823 bytes
 #   portfolio-front-tools-12: 127 files, 556759 bytes
 #   portfolio-front-tools-13: 126 files, 556518 bytes
 #   portfolio-front-tools-14: 134 files, 550213 bytes
@@ -1443,6 +1443,7 @@ configMapGenerator:
       - graphql-introspection-exposure-check__index.html.gz=graphql-introspection-exposure-check__index.html.gz
       - graphql-introspection-exposure-check__probe.mjs.gz=graphql-introspection-exposure-check__probe.mjs.gz
       - graphql-introspection-exposure-check__usage.mjs.gz=graphql-introspection-exposure-check__usage.mjs.gz
+      - graphql-introspection-exposure-check__vs-sending-the-query-yourself.html.gz=graphql-introspection-exposure-check__vs-sending-the-query-yourself.html.gz
       - graphql-introspection-exposure-check__why-disable-graphql-introspection-in-production.html.gz=graphql-introspection-exposure-check__why-disable-graphql-introspection-in-production.html.gz
       - gravel-driveway-bid-calculator__calc.mjs.gz=gravel-driveway-bid-calculator__calc.mjs.gz
       - gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz=gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz
@@ -1537,12 +1538,12 @@ configMapGenerator:
       - ice-dam-removal-bid-calculator__share.mjs.gz=ice-dam-removal-bid-calculator__share.mjs.gz
       - ice-dam-removal-bid-calculator__usage.mjs.gz=ice-dam-removal-bid-calculator__usage.mjs.gz
       - ice-dam-removal-bid-calculator__vs-jobber.html.gz=ice-dam-removal-bid-calculator__vs-jobber.html.gz
-      - ice-dam-removal-bid-calculator__why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html.gz=ice-dam-removal-bid-calculator__why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ice-dam-removal-bid-calculator__why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html.gz=ice-dam-removal-bid-calculator__why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html.gz
       - ifta-quarterly-fuel-tax-calculator__calc.mjs.gz=ifta-quarterly-fuel-tax-calculator__calc.mjs.gz
       - ifta-quarterly-fuel-tax-calculator__how-to-calculate-ifta-quarterly-tax.html.gz=ifta-quarterly-fuel-tax-calculator__how-to-calculate-ifta-quarterly-tax.html.gz
       - ifta-quarterly-fuel-tax-calculator__index.html.gz=ifta-quarterly-fuel-tax-calculator__index.html.gz

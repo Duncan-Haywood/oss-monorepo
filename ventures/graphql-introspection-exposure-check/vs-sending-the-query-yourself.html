@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraphQL Introspection Exposure Checker vs. sending the query yourself</title>
+<meta name="description" content="Pasting a __schema query into curl or a GraphQL client catches the obvious case. It also misses two real cases this checker doesn't: an explicit 'introspection disabled' error easy to misread as 'this isn't even GraphQL', and a sensitive-sounding field name buried in a schema with hundreds of fields, which nobody scans by eye.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/graphql-introspection-exposure-check/vs-sending-the-query-yourself.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Isn't sending an introspection query with curl or Postman enough?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For the obvious case, yes: send {\"query\":\"{__schema{queryType{name}}}\"} and if you get real schema data back, introspection is enabled. That single request genuinely settles the yes/no question most of the time. Where it stops being enough is judging severity and reading an ambiguous response, both of which this checker does for you." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does an ambiguous response look like, and why is it easy to misjudge by hand?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Some endpoints return HTTP 200 with a body carrying only an errors array and no data key at all -- which can mean \"introspection is explicitly disabled\" (a hardened GraphQL server) or \"this URL isn't a GraphQL endpoint\" (a generic API error, a proxy's JSON error page, a typo'd path). Both look like an error object to someone skimming the response. This checker distinguishes them: it pattern-matches the error message for the word \"introspection\" to report a real, deliberate block, and separately flags a response with neither a data nor an errors key as incomplete rather than silently calling it clean." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is scanning the returned schema for sensitive field names hard to do by hand?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A real production schema commonly returns hundreds of query and mutation field names in one response. Scrolling that JSON looking for anything that sounds like adminResetPassword or internalGrantRole among 300 other names is exactly the kind of task a person's attention skips fields on, especially the second or third time they run the check. This checker runs the same fixed word list against every field name on every run, so it never gets tired partway through the list." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does it matter whether mutations are called out separately from queries?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A schema dump doesn't visually separate \"things that read data\" from \"things that write data\" -- queryType and mutationType are just two more keys in the same JSON tree. Someone confirming \"yes, introspection answered\" can see that and stop reading, without registering that the same response also handed over the full list of mutation names -- the write surface. This checker raises a danger-severity finding specifically when mutationType is non-null, rather than treating every introspection response the same." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to the GraphQL Introspection Exposure Checker</a></p>
+<h1>GraphQL Introspection Exposure Checker vs. sending the query yourself</h1>
+<p>
+  Pasting <code>{"query":"{__schema{queryType{name}}}"}</code> into curl, Postman, or a GraphQL
+  client and reading what comes back is a real, fast way to answer the basic question: does this
+  endpoint answer an unauthenticated introspection query at all. That single request genuinely
+  settles the obvious case, and it is the method most developers reach for first. This page names
+  no product or company being compared against — "sending the query yourself" is a generic manual
+  habit, not a competing tool.
+</p>
+
+<table>
+  <thead><tr><th>Case</th><th>Sending the query yourself</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>Introspection answers with a full schema</td><td>Correctly reads as "enabled"</td><td>Correctly reads as "enabled"</td></tr>
+    <tr><td>Response has no <code>data</code> key, only an <code>errors</code> array naming introspection</td><td>Read as an error; easy to not notice it is a deliberate, confirmed block</td><td>Pattern-matches the error text for "introspection" and reports it as a confirmed block</td></tr>
+    <tr><td>Response has no <code>data</code> and no <code>errors</code> key — not a GraphQL endpoint at all</td><td>Also just "an error"; easy to conflate with the case above and call the target clean</td><td>Flagged separately as <em>incomplete</em> rather than silently treated as "introspection disabled"</td></tr>
+    <tr><td>A schema with hundreds of query/mutation field names</td><td>Scanning by eye for a handful of sensitive-sounding names among hundreds is easy to do incompletely, especially on repeat checks</td><td>Runs the same fixed word list against every field name, every run</td></tr>
+    <tr><td>Mutations exposed alongside queries</td><td>Both are just keys in the same JSON tree; easy to confirm "introspection answered" without separately registering the write surface</td><td>Raises a danger-severity finding specifically when <code>mutationType</code> is non-null</td></tr>
+    <tr><td>Repeatable in CI on every deploy</td><td>Manual, point-in-time</td><td>CLI returns a real exit code</td></tr>
+  </tbody>
+</table>
+
+<h2>Two worked examples</h2>
+<p>
+  <strong>The ambiguous-error case.</strong> An endpoint returns HTTP 200 with a body carrying
+  <code>{"errors":[{"message":"Introspection is not allowed"}]}</code> and no <code>data</code>
+  key. That is actually good news — a hardened server explicitly refusing the query — but it looks
+  identical, at a glance, to a misconfigured proxy returning a generic JSON error for a URL that
+  is not a GraphQL endpoint at all. This checker reads the error message text, matches the word
+  "introspection", and reports a confirmed, deliberate block rather than lumping it in with "we
+  don't know what this response means."
+</p>
+<p>
+  <strong>The buried mutation name.</strong> A schema with 340 query fields and 28 mutation fields
+  answers in full. Somewhere in the 28 is <code>adminResetUserPassword</code>. A person who has
+  already confirmed "yes, introspection is on" from the first screenful of query names has little
+  reason to keep scrolling through the mutation list looking for anything unusual. This checker's
+  word-list match against every mutation field name surfaces it as a danger-severity finding on
+  every run, whether it is the first check or the fiftieth.
+</p>
+
+<h2>When to still just send the query yourself</h2>
+<p>
+  If you only need a one-off sanity check on an endpoint you already suspect, and you already know
+  to distinguish an "introspection disabled" error from a "this isn't GraphQL" error, sending the
+  query yourself is fine — it costs nothing and you are already there. The gap this tool closes is
+  correctness on the two cases above, consistent scanning of every field name rather than a
+  first-screenful skim, and repeatability: the same classification, run again on every deploy,
+  with an exit code a CI pipeline can act on.
+</p>
+
+<h2>Common questions</h2>
+<h3>Isn't sending an introspection query with curl or Postman enough?</h3>
+<p>For the obvious case, yes: send <code>{"query":"{__schema{queryType{name}}}"}</code> and if you get real schema data back, introspection is enabled. That single request genuinely settles the yes/no question most of the time. Where it stops being enough is judging severity and reading an ambiguous response, both of which this checker does for you.</p>
+<h3>What does an ambiguous response look like, and why is it easy to misjudge by hand?</h3>
+<p>Some endpoints return HTTP 200 with a body carrying only an errors array and no data key at all -- which can mean "introspection is explicitly disabled" (a hardened GraphQL server) or "this URL isn't a GraphQL endpoint" (a generic API error, a proxy's JSON error page, a typo'd path). Both look like an error object to someone skimming the response. This checker distinguishes them: it pattern-matches the error message for the word "introspection" to report a real, deliberate block, and separately flags a response with neither a data nor an errors key as incomplete rather than silently calling it clean.</p>
+<h3>Why is scanning the returned schema for sensitive field names hard to do by hand?</h3>
+<p>A real production schema commonly returns hundreds of query and mutation field names in one response. Scrolling that JSON looking for anything that sounds like adminResetPassword or internalGrantRole among 300 other names is exactly the kind of task a person's attention skips fields on, especially the second or third time they run the check. This checker runs the same fixed word list against every field name on every run, so it never gets tired partway through the list.</p>
+<h3>Why does it matter whether mutations are called out separately from queries?</h3>
+<p>A schema dump doesn't visually separate "things that read data" from "things that write data" -- queryType and mutationType are just two more keys in the same JSON tree. Someone confirming "yes, introspection answered" can see that and stop reading, without registering that the same response also handed over the full list of mutation names -- the write surface. This checker raises a danger-severity finding specifically when mutationType is non-null, rather than treating every introspection response the same.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  exposure class — an unauthenticated introspection query answered by the one endpoint you give
+  it. A clean report describes what that one request found, not a guarantee the API has no other
+  access-control gaps.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. You are responsible for reviewing and verifying its output
+  before relying on it, and for having authorisation to test any system you point it at. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
