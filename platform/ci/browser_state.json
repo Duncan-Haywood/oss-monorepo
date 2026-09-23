@@ -11,50 +11,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "8bc021630c5f1284d5c15f743bd44f9b1d1ce727",
-      "measured": "2026-09-17",
-      "pages": 1139,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "11a5705ecd3d55e38c1a1a185e928c5655f9f08c",
-        "ventures": "bf8a59e1f31b6a6316f9d8d6a5137cac348009c4"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "aa5302360ebbfa2d1e22aac7289ed4ee8fe96147",
-      "measured": "2026-09-17",
-      "pages": 1141,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "84d3e061b382dc9acd5c1d8bf8ba208d3e6258d0",
-        "ventures": "2e7f2c4e32d7652476f5c67b0709d63d78824b0a"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "b03101bdb9c47bfc2dbf0fdf3043f6cb535aab10",
       "measured": "2026-09-17",
       "pages": 1149,
@@ -460,6 +416,28 @@
         "platform/marketing": "5944e94cfcfc8d8fd9cf4fc5fd65c9a5512b8fc2",
         "platform/pages": "b291aabff14bd4e7a11d7f0df978d433c01ae6ee",
         "ventures": "4b8a4cb1d34c6f5027afcaf1e2d361e3d7040c7a"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "cec8325709cf5c9c97ed5ebfe7a7b3125c428b78",
+      "measured": "2026-09-23",
+      "pages": 1270,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "5944e94cfcfc8d8fd9cf4fc5fd65c9a5512b8fc2",
+        "platform/pages": "1f956100c38eb8a47e11d4fcebbfad8f65f19d8d",
+        "ventures": "ed094fad740db574ff0fa08ce6648193a00c88a1"
       }
     }
   ]
