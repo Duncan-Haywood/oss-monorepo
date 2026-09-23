@@ -28,6 +28,7 @@ import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.m
 import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
 import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mjs';
 import { FIELD_IDS as STOCKX_FIELDS } from '../stockx-seller-payout-calculator/share.mjs';
+import { INPUT_IDS as MERCARI_FIELDS } from '../mercari-fee-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -39,6 +40,7 @@ const TARGET_FIELDS = {
   'whatnot-seller-payout': WHATNOT_FIELDS,
   'poshmark-fee-calculator': POSHMARK_FIELDS,
   'stockx-seller-payout-calculator': STOCKX_FIELDS,
+  'mercari-fee-calculator': MERCARI_FIELDS,
 };
 
 const SHARED = {
