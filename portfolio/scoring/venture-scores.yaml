@@ -13691,6 +13691,66 @@ ventures:
       tool has no incentive to push a visitor toward either pricing
       model, and it helps an instructor see a tradeoff their own
       package discount already creates.
+  - slug: personal-trainer-package-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the trainer supplies: a rate, a
+      session count, a no-show rate, a makeup policy, and a gym or studio's
+      percentage or flat cost structure. Both pricing models' net revenue
+      and net effective hourly pay are exact calculations against those
+      inputs, not a judgment call -- the same reasoning this portfolio
+      applies to tutor-package-pricing-calculator and overtime-pay-calculator.
+    basis: >-
+      Screened 2026-09-23 during a PROCEED-verdict session with an empty
+      build-now queue and no in-progress venture work.
+      `duplicate_check.py` top match 0.42 (tutor-package-pricing-calculator),
+      under the 0.45 review bar; that match is the venture this one
+      deliberately reuses one mechanic from (the makeup-owed dilution) while
+      adding one tutoring has no equivalent of (a flat venue fee eroding a
+      discounted package rate harder than a full rate) -- the two cross-link
+      as siblings rather than overlapping, since tutoring carries no
+      venue-cost split at all. booth-rent-vs-commission (0.11) is the
+      nearest venture by subject and solves a different problem (a binary
+      commission-vs-booth-rent choice for stylists/barbers, no package
+      pricing, no no-show rate). No personal-training or fitness row exists
+      in screened-out.md.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is trivially cloneable, so defensibility rests on the specific
+      framing (a flat venue fee's disproportionate bite on a discounted
+      package rate is not the obvious comparison) and this portfolio's
+      disclaimer/usage conventions, not on any moat.
+      Distribution 5: independent personal trainers are a real and
+      search-active audience with dedicated trade communities
+      (r/personaltraining, r/personaltrainer) distinct from the
+      client-facing fitness subreddits, comparable to
+      tutor-package-pricing-calculator's audience -- not scored higher
+      because no search-volume tool was queried to confirm magnitude and
+      the portfolio has no measured traffic of its own to extrapolate from.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: arithmetic over figures the trainer supplies, run entirely in
+      their own browser, with no network call, no stored data, and nothing
+      leaving the device. It does not track any specific client's
+      attendance or makeup obligation, schedule anything, recommend a venue
+      arrangement, or determine what policy to run -- both pages' footers
+      say so plainly. Ethically: donations-only with no per-use fee, so the
+      tool has no incentive to push a visitor toward either pricing model
+      or venue arrangement, and it helps a trainer see a tradeoff their own
+      package discount and venue cost structure already create.
   - slug: storage-auction-max-bid-calculator
     scores:
       ai_leverage: 1

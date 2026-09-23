@@ -209,6 +209,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
   'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every personal
+  // trainer already has, not a company or product this could be mistaken
+  // for. Same reasoning as the other vs-spreadsheet pages above.
+  'personal-trainer-package-pricing-calculator/vs-a-spreadsheet.html',
   // Compares against "dividing labor sales by labor hours off your own DMS
   // reports" -- the one line of arithmetic every shop owner can already run
   // against reports they have, not a company or product this could be
@@ -562,6 +566,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no vendor or competing
   // calculator at all.
   'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat rate per square foot" -- a pricing habit every
+  // deck-staining shop is shopped against, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all (the venture's own named-product comparison, vs-joist, carries
+  // its own trademark disclaimer).
+  'deck-staining-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 
   // Compares against "a flat rate per yard" -- a generic quoting habit every
   // carpet installer meets, not a company or product this could be mistaken
@@ -777,6 +787,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-moraware.html, which does name a product and carries
   // its own "not affiliated" clause.
   'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against a flat "2.9% + 30 cents" card-fee rule of thumb -- the
+  // generic processing-fee estimate every merchant already carries, not a
+  // company or product this could be mistaken for. The page names no
+  // processor or payment company at all, referring only to "Shopify
+  // Payments" (Shopify's own term) and "a third-party processor" generically
+  // -- distinct from this venture's own vs-beprofit.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'shopify-fee-calculator/vs-a-flat-card-fee-guess.html',
   // Compares against "tracking it in a spreadsheet" -- the generic method
   // a freelancer pricing the same job on both platforms already reaches
   // for, not a company or product this could be mistaken for. The page
@@ -791,6 +809,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-buildertrend.html, which does name a product and carries its
   // own "not affiliated" clause.
   'change-order-margin-calculator/vs-a-rough-lump-sum.html',
+  // Compares against "doing it by hand or in a spreadsheet" -- the generic
+  // method every service business already has, not a company or product
+  // this could be mistaken for. The page names no spreadsheet application,
+  // booking platform, or vendor at all -- distinct from this venture's own
+  // vs-square-appointments.html, which does name a product and carries its
+  // own "not affiliated" clause. Same reasoning as the other vs-doing-it-by-
+  // hand / vs-spreadsheet pages above.
+  'appointment-deposit-calculator/vs-doing-it-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

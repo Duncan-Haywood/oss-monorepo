@@ -1806,6 +1806,18 @@ const CATEGORY_RULES = [
     // and CPM market. Shipped with reciprocal inbound sibling links from
     // both of those ventures' first commits rather than landing in the
     // catch-all.
+    //
+    // `personal-trainer-package-pricing-calculator` joined 2026-09-23, found
+    // by enumerating the catch-all after this new venture pushed it to 6
+    // rather than by judging the arrival alone: an independent personal
+    // trainer deciding whether a discounted prepaid session package still
+    // pays as well per hour, net of a gym or studio's cut, as billing per
+    // session is the same move as `tutor-package-pricing-calculator`'s
+    // instructor -- one person pricing their own labour, not a business
+    // quoting a customer. Shipped with a reciprocal inbound sibling link
+    // from `tutor-package-pricing-calculator`'s own commit rather than
+    // landing as an orphan, which is also what keeps the catch-all inside
+    // the bound `build.test.mjs` puts on it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1818,6 +1830,7 @@ const CATEGORY_RULES = [
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
+        'personal-trainer-package-pricing-calculator',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',
