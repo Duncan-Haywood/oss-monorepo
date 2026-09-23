@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 130 files, 553570 bytes
 #   portfolio-front-tools-7: 123 files, 554891 bytes
 #   portfolio-front-tools-8: 138 files, 547168 bytes
-#   portfolio-front-tools-9: 112 files, 543252 bytes
+#   portfolio-front-tools-9: 113 files, 547245 bytes
 #   portfolio-front-tools-10: 114 files, 534759 bytes
 #   portfolio-front-tools-11: 115 files, 556049 bytes
 #   portfolio-front-tools-12: 127 files, 553435 bytes
@@ -1378,6 +1378,7 @@ configMapGenerator:
       - gig-driver-net-pay-calculator__share.mjs.gz=gig-driver-net-pay-calculator__share.mjs.gz
       - gig-driver-net-pay-calculator__usage.mjs.gz=gig-driver-net-pay-calculator__usage.mjs.gz
       - gig-driver-net-pay-calculator__vs-gridwise.html.gz=gig-driver-net-pay-calculator__vs-gridwise.html.gz
+      - gig-driver-net-pay-calculator__vs-the-apps-earnings-screen.html.gz=gig-driver-net-pay-calculator__vs-the-apps-earnings-screen.html.gz
       - gravel-driveway-bid-calculator__calc.mjs.gz=gravel-driveway-bid-calculator__calc.mjs.gz
       - gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz=gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz
       - gravel-driveway-bid-calculator__index.html.gz=gravel-driveway-bid-calculator__index.html.gz
