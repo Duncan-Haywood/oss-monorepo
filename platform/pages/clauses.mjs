@@ -943,6 +943,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-jobber.html, which does name a
   // product and carries its own "not affiliated" clause.
   'french-drain-bid-calculator/vs-a-flat-price-per-foot.html',
+  // Compares against "a spreadsheet" -- a generic method almost every EHS
+  // team already has, not a company or product this could be mistaken for.
+  // The page names no spreadsheet vendor at all, same reasoning as
+  // overtime-pay-calculator's own vs-spreadsheet.html above.
+  'osha-trir-dart-calculator/vs-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

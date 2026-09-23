@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 116 files, 548221 bytes
 #   portfolio-front-tools-10: 117 files, 556720 bytes
 #   portfolio-front-tools-11: 115 files, 552299 bytes
-#   portfolio-front-tools-12: 128 files, 552434 bytes
+#   portfolio-front-tools-12: 129 files, 555949 bytes
 #   portfolio-front-tools-13: 132 files, 553037 bytes
 #   portfolio-front-tools-14: 112 files, 555721 bytes
 #   portfolio-front-tools-15: 102 files, 541132 bytes
@@ -1731,6 +1731,7 @@ configMapGenerator:
       - osha-trir-dart-calculator__how-to-calculate-trir.html.gz=osha-trir-dart-calculator__how-to-calculate-trir.html.gz
       - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
       - osha-trir-dart-calculator__usage.mjs.gz=osha-trir-dart-calculator__usage.mjs.gz
+      - osha-trir-dart-calculator__vs-spreadsheet.html.gz=osha-trir-dart-calculator__vs-spreadsheet.html.gz
       - overtime-pay-calculator__calc.mjs.gz=overtime-pay-calculator__calc.mjs.gz
       - overtime-pay-calculator__index.html.gz=overtime-pay-calculator__index.html.gz
       - overtime-pay-calculator__usage.mjs.gz=overtime-pay-calculator__usage.mjs.gz
