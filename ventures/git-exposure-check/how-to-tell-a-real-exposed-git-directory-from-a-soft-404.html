@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to tell a real exposed .git directory from a soft-404 false positive</title>
+<meta name="description" content="A status-only check flags every site behind a server that answers unknown paths with 200 (a soft-404) as an exposed .git directory. Worked through on the actual response bytes: what a real .git/HEAD and .git/config look like, what a soft-404 page looks like instead, and the exact regexes that tell them apart.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/git-exposure-check/how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to tell a real exposed .git directory from a soft-404 false positive">
+<meta property="og:description" content="Both requests return HTTP 200. Only one of them is a real exposure. Worked through on the actual response bodies a free checker uses to tell them apart.">
+<meta property="og:url" content="https://example.invalid/git-exposure-check/how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a real .git/HEAD file actually contain?","acceptedAnswer":{"@type":"Answer","text":"One line, almost always ref: refs/heads/main (or another branch name) with a trailing newline. On a detached HEAD it is instead a bare 40-character hex commit id, such as da39a3ee5e6b4b0d3255bfef95601890afd80709. Nothing else a webserver would plausibly serve at that path looks like either shape."}},{"@type":"Question","name":"What does a soft-404 false positive look like on the same path?","acceptedAnswer":{"@type":"Answer","text":"A server or CDN configured to answer every unknown path with a 200-status custom error page returns the same status code, 200, for .git/HEAD as a genuinely exposed one -- but the body is generic error-page content such as <html><body>404 Not Found</body></html>, not a git ref or a commit id. A status-only check cannot tell these two 200 responses apart and flags both as exposed."}},{"@type":"Question","name":"I got a 200 status on .git/HEAD -- is my site exposed?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. Status 200 only means the server answered; it does not mean the body is real git content. Check the body against the two shapes above: ref: refs/heads/<name> or a bare 40-character hex string. If the body is an error page, a redirect target, or anything else, the path is not exposed even though the status code says 200."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.7rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; }
+  code { background: rgba(127,127,127,0.12); padding: 0.05rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 0.6rem 0; font-size: 0.88rem; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  .verdict { font-weight: 700; }
+  .verdict.bad { color: #c0392b; }
+  .verdict.ok { color: #0a7c42; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>How to tell a real exposed .git directory from a soft-404 false positive</h1>
+<p>
+  Requesting <code>/.git/HEAD</code> and getting back <code>HTTP 200</code> is not, on its own,
+  evidence your <code>.git</code> directory is exposed. Plenty of webservers and CDNs answer
+  <em>every</em> unknown path with <code>200</code> and a custom "not found" page -- a pattern
+  usually called a <strong>soft 404</strong>. A checker that only looks at the status code flags
+  every site behind one of those as exposed, whether or not a real <code>.git</code> directory is
+  actually there. The fix is to look at what the body <em>contains</em>, not just the status it
+  arrived with.
+</p>
+
+<h2>What the two response bodies actually look like</h2>
+<table>
+<thead><tr><th>Path</th><th>Status</th><th>Real exposure body</th><th>Soft-404 body</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>.git/HEAD</code></td>
+  <td>200 (both cases)</td>
+  <td><code>ref: refs/heads/main\n</code></td>
+  <td><code>&lt;html&gt;&lt;body&gt;404 Not Found&lt;/body&gt;&lt;/html&gt;</code></td>
+</tr>
+<tr>
+  <td><code>.git/config</code></td>
+  <td>200 (both cases)</td>
+  <td><code>[core]\n&#9;repositoryformatversion = 0\n</code></td>
+  <td><code>&lt;html&gt;&lt;body&gt;404 Not Found&lt;/body&gt;&lt;/html&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>
+  Both rows return <strong>the same status code</strong>. A checker that stops at "was it 200?"
+  cannot distinguish the left case from the right one -- it would call both "exposed." The
+  difference only shows up in the body.
+</p>
+
+<h2>The exact shapes this tool matches</h2>
+<p>
+  <a href="./">The checker on this site</a> parses each body against the narrow shape a real git
+  file actually has, not a loose "contains the word ref" guess:
+</p>
+<ul>
+  <li><code>.git/HEAD</code> matches only <code>ref: refs/heads/&lt;name&gt;</code> (a symbolic
+    ref) or a bare 40-character hex commit id such as
+    <code>da39a3ee5e6b4b0d3255bfef95601890afd80709</code> (a detached HEAD) -- nothing else.</li>
+  <li><code>.git/config</code> matches only a body containing a <code>[core]</code> section, the
+    one every real repository's config opens with because <code>git init</code> writes it.</li>
+</ul>
+<p>
+  A generic error page -- even one written to look plausible -- essentially never happens to
+  produce either shape by coincidence.
+</p>
+
+<h2>Worked through on both cases</h2>
+<p><strong>Case 1: a real exposure.</strong> Both probes return git-internal content:</p>
+<pre>.git/HEAD   -> status 200, body: "ref: refs/heads/main"
+.git/config -> status 200, body: "[core]\n\trepositoryformatversion = 0\n"</pre>
+<p class="verdict bad">Verdict: 1 danger-level finding -- the .git directory is publicly readable.</p>
+
+<p><strong>Case 2: a soft-404, same status code on both.</strong></p>
+<pre>.git/HEAD   -> status 200, body: "&lt;html&gt;&lt;body&gt;404 Not Found&lt;/body&gt;&lt;/html&gt;"
+.git/config -> status 200, body: "&lt;html&gt;&lt;body&gt;404 Not Found&lt;/body&gt;&lt;/html&gt;"</pre>
+<p class="verdict ok">Verdict: no finding -- neither body matched real git-internal content, despite both
+  requests returning 200.</p>
+<p>
+  A status-only check sees two identical-looking "200 on <code>.git/HEAD</code>" results and has
+  no way to tell these two cases apart. Checking the body is what makes the difference visible.
+</p>
+
+<h2>Check your own site</h2>
+<p>
+  <a href="./">The git exposure checker</a> runs a small Node CLI against a site you name, then
+  renders a plain-English report from the JSON it prints -- nothing you paste is uploaded anywhere.
+  Free and local.
+</p>
+<p><a href="./">&larr; Back to the checker</a></p>
+
+<h2>Common questions</h2>
+<h3>What does a real .git/HEAD file actually contain?</h3>
+<p>One line, almost always <code>ref: refs/heads/main</code> (or another branch name) with a trailing newline. On a detached HEAD it is instead a bare 40-character hex commit id, such as <code>da39a3ee5e6b4b0d3255bfef95601890afd80709</code>. Nothing else a webserver would plausibly serve at that path looks like either shape.</p>
+<h3>What does a soft-404 false positive look like on the same path?</h3>
+<p>A server or CDN configured to answer every unknown path with a 200-status custom error page returns the same status code, 200, for <code>.git/HEAD</code> as a genuinely exposed one -- but the body is generic error-page content such as <code>&lt;html&gt;&lt;body&gt;404 Not Found&lt;/body&gt;&lt;/html&gt;</code>, not a git ref or a commit id. A status-only check cannot tell these two 200 responses apart and flags both as exposed.</p>
+<h3>I got a 200 status on .git/HEAD -- is my site exposed?</h3>
+<p>Not necessarily. Status 200 only means the server answered; it does not mean the body is real git content. Check the body against the two shapes above: <code>ref: refs/heads/&lt;name&gt;</code> or a bare 40-character hex string. If the body is an error page, a redirect target, or anything else, the path is not exposed even though the status code says 200.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page and the checker it links to are provided free and
+  as-is, without warranty of any kind, express or implied. They are not security advice, and do
+  not replace a qualified security review or penetration test. You are responsible for reviewing
+  and verifying any output before relying on it, and for having authorisation to test any system
+  you point the CLI at. To the maximum extent permitted by law, the authors accept no liability
+  for any loss or damage arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licensed</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional.</p>
+</footer>
+</body>
+</html>
