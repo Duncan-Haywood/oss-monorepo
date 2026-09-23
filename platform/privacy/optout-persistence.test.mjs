@@ -427,7 +427,14 @@ const RELATIVE_SELF = relative(
 // and no deletions. Both branches only ever knew their own predecessor's
 // number (307) until this merge -- the same ordinary collision shape
 // recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 309;
+//
+// 309 -> 310: `mercari-fee-calculator` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `mercari-fee-calculator-usage` storage name). Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/mercari-fee-calculator/usage.mjs`) and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 310;
 
 let counter = 0;
 function fixture(source) {
