@@ -512,6 +512,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly. Same reasoning as the reverb-fee-calculator spreadsheet
   // page above.
   'amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // every TikTok Shop seller pricing more than one organic/affiliate
+  // decision already reaches for, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // footer says so explicitly. Same reasoning as the reverb-fee-calculator
+  // and amazon-fba-calculator spreadsheet pages above.
+  'tiktok-shop-fee-calculator/vs-tracking-it-in-a-spreadsheet.html',
   // Compares against "tracking payouts in a spreadsheet" -- the generic
   // method every host comparing more than one channel already reaches for,
   // not a company or product this could be mistaken for. The page names
