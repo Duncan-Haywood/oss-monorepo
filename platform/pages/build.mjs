@@ -6771,10 +6771,50 @@ export function faqEntries(html) {
     .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
+/**
+ * Blank out text that is not part of the rendered document tree -- inline
+ * `<script>`/`<style>` bodies and HTML comments -- keeping every other
+ * character and the overall length unchanged. A caller that scans the result
+ * for a structural tag like `<body>` or `</head>` then cannot mistake text
+ * *data* for the real element: a JSON-LD sample describing a raw HTML error
+ * page (`<html><body>404 Not Found</body></html>`) reads as inert, not as a
+ * second body.
+ *
+ * Found via `how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html`:
+ * its own FAQ answer quotes exactly that string inside a `<script
+ * type="application/ld+json">` block in `<head>`, ahead of the page's real
+ * `<body>`. The naive `html.match(/<body[^>]*>/i)` this replaces found that
+ * quoted tag instead, and the topBar/footer splices below it then landed
+ * *inside the JSON string* -- corrupting the JSON-LD (caught by
+ * `check.mjs`'s inline-script pass) while the real page shipped with no site
+ * navigation at all.
+ */
+function maskInertRegions(html) {
+  return html.replace(
+    /<!--[\s\S]*?-->|<script\b[^>]*>[\s\S]*?<\/script\s*>|<style\b[^>]*>[\s\S]*?<\/style\s*>/gi,
+    (m) => ' '.repeat(m.length),
+  );
+}
+
+/** Locate the real `<body ...>` and `</body>` tags, past `maskInertRegions`. */
+export function locateBodyTags(html) {
+  const masked = maskInertRegions(html);
+  const openMatch = /<body[^>]*>/i.exec(masked);
+  const closeMatch = /<\/body\s*>/i.exec(masked);
+  const toHit = (m) => (m ? { text: html.slice(m.index, m.index + m[0].length), index: m.index } : null);
+  return { open: toHit(openMatch), close: toHit(closeMatch) };
+}
+
+/** Same idea for the document's `</head>`. */
+function locateHeadClose(html) {
+  const match = /<\/head\s*>/i.exec(maskInertRegions(html));
+  return match ? { text: html.slice(match.index, match.index + match[0].length), index: match.index } : null;
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = html.match(/<body[^>]*>/i);
-  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+  const bodyTags = locateBodyTags(html);
+  if (!bodyTags.open || !bodyTags.close) return html;
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6830,9 +6870,9 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     }
   }
   if (headExtras) {
-    html = /<\/head>/i.test(html)
-      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
-      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+    const headClose = locateHeadClose(html);
+    const at = headClose ? headClose.index : bodyTags.open.index;
+    html = html.slice(0, at) + `${headExtras}\n` + html.slice(at);
   }
 
   const hub = `${toRoot}`;
@@ -6876,13 +6916,23 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // `CHROME_STYLE_FILE`.
   const styleLink =
     `<link rel="stylesheet" href="${escapeHtml(`${toRoot}${CHROME_STYLE_FILE}`)}">`;
-  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
+  const headClose = locateHeadClose(html);
+  const withStyle = headClose
+    ? html.slice(0, headClose.index) + `${styleLink}\n` + html.slice(headClose.index)
+    : html;
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
   const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
-  return withStyle
-    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n</body>`);
+  // Re-located rather than carried forward: the head-extras and stylesheet
+  // splices above shift every index that came before the real `<body>`.
+  const finalOpen = locateBodyTags(withStyle).open;
+  const afterTopBar =
+    withStyle.slice(0, finalOpen.index + finalOpen.text.length) +
+    `\n${stylePrefix}${topBar}` +
+    withStyle.slice(finalOpen.index + finalOpen.text.length);
+
+  const finalClose = locateBodyTags(afterTopBar).close;
+  return afterTopBar.slice(0, finalClose.index) + `${footer}\n` + afterTopBar.slice(finalClose.index);
 }
 
 /**
