@@ -1016,6 +1016,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-keeper.html, which does name a product and carries its own "not
   // affiliated" clause.
   'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every Turo host
+  // already has, not a company or product this could be mistaken for. The
+  // page names no spreadsheet vendor at all. Same reasoning as the other
+  // vs-a-spreadsheet pages above; distinct from this venture's own
+  // how-much-does-turo-take-from-hosts.html, which is a guide page, not a
+  // comparison.
+  'turo-host-payout-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
