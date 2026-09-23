@@ -50,8 +50,8 @@
 #   portfolio-front-tools-14: 134 files, 555945 bytes
 #   portfolio-front-tools-15: 99 files, 543151 bytes
 #   portfolio-front-tools-16: 118 files, 550734 bytes
-#   portfolio-front-tools-17: 119 files, 554028 bytes
-#   portfolio-front-tools-18: 76 files, 383539 bytes
+#   portfolio-front-tools-17: 119 files, 553281 bytes
+#   portfolio-front-tools-18: 77 files, 388252 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2373,6 +2373,7 @@ configMapGenerator:
       - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
       - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
       - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
+      - voiceover-project-rate-calculator__vs-voices-com.html.gz=voiceover-project-rate-calculator__vs-voices-com.html.gz
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
@@ -2415,12 +2416,12 @@ configMapGenerator:
       - water-heater-bid-calculator__usage.mjs.gz=water-heater-bid-calculator__usage.mjs.gz
       - water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz=water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
-      - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
