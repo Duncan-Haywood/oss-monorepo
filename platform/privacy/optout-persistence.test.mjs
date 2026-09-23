@@ -448,7 +448,9 @@ const RELATIVE_SELF = relative(
 // Verified the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 311;
+// 311 -> 312: one added `usage.mjs` (`ventures/podcast-feed-check/usage.mjs`,
+// this venture's graduation) and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 312;
 
 let counter = 0;
 function fixture(source) {
