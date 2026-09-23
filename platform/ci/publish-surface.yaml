@@ -488,6 +488,9 @@ workflows:
 - workflow: foundation-repair-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-platform-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: freelance-retainer-calculator-ci.yml
   classification: none
   publishes: []
