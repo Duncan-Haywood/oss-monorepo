@@ -36161,3 +36161,33 @@ entries:
         ventures/land-survey-bid-calculator/*.test.mjs`: 94/94.
         `checklist_coverage.py`, `surface-budget.mjs --check`, and
         `regen.mjs --verify` all clean after `regen.mjs`.
+  - venture: stockx-seller-payout-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        surface-budget.mjs showed 0 named-product comparison pages (the
+        venture only had a generic-method vs-spreadsheet page). Added
+        vs-goat-seller-fees.html: an illustrative worked example pricing
+        the same $200 pair through StockX's seller-level fee (via
+        calc.mjs's own `calculate()`, so the StockX-side numbers cannot
+        drift from what the calculator computes) and GOAT's tiered
+        commission plus cash-out fee (no GOAT calculator exists in this
+        portfolio, so that side is pinned against its own stated formula
+        in the new test file instead). Every rate is disclosed as
+        illustrative, not either platform's published schedule, and the
+        page carries the trademark/affiliation clause
+        platform/pages/clauses.mjs requires for naming a specific
+        commercial product. Linked from index.html, added to sitemap.xml.
+        `node --test ventures/stockx-seller-payout-calculator/*.test.mjs`:
+        83/83. `checklist_coverage.py`, `surface-budget.mjs --check`,
+        `platform/pages/clauses.mjs stockx-seller-payout-calculator`, and
+        `regen.mjs --verify` all clean after `regen.mjs`.
+      - >-
+        Separately, found `score_ventures.py --check` red on `main`
+        (docker-base-image-eol-check graduated with a VENTURE.yaml but no
+        venture-scores.yaml row) while running this session's full
+        checklist. Another session fixed the same gap in parallel (#5111,
+        merged before this branch's push) -- confirmed via
+        `git log origin/main` and dropped this session's now-duplicate
+        commit rather than shipping a second copy of the same fix.

@@ -578,6 +578,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which does name a product and carries its
   // own "not affiliated" clause.
   'home-elevator-bid-calculator/vs-a-flat-pneumatic-special.html',
+  // Compares against "a flat water heater special" -- the "$1,200 water
+  // heater installed" price every plumber and water-heater installer is
+  // shopped against, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-servicetitan.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html',
   // Compares against "a flat per-window special" -- the "$250 a window
   // installed" price every window-treatment shop is shopped against, not a
   // company or product this could be mistaken for. The page names no vendor
@@ -599,6 +606,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-bitumio.html, which does name a product and carries
   // its own "not affiliated" clause.
   'asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html',
+  // Compares against "a bedroom-count quote" -- the "3 bedroom house"
+  // size-bracket pricing habit every local mover is shopped against, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-smartmoving.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'moving-bid-calculator/vs-a-bedroom-count-quote.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
