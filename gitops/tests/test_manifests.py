@@ -2089,6 +2089,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # only ever knew its own predecessor's number (325) until this merge --
     # the same ordinary collision shape recorded throughout this list.
     #
+    # 326 since this merge: `actions-secrets-inherit-check` graduated
+    # concurrently -- a browser-local and CLI checker for GitHub Actions
+    # `secrets: inherit` calls to an external reusable workflow or a
+    # fork-reachable job, with a static `index.html` from its first commit,
+    # same shape as the rest of this running count. Both branches only ever
+    # knew their own predecessor's number (325) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    #
     # 327 since this merge: `osha-trir-dart-calculator` graduated -- a
     # browser-local calculator turning a company's own OSHA 300 log counts
     # into its TRIR and DART rate against a target, with a static
@@ -2106,16 +2114,37 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # re-derived here by `sync_tree_counts.py` against the merged tree
     # rather than by hand.
     #
-    # 329 since this merge: `voiceover-project-rate-calculator` graduated
-    # concurrently with the pair above -- a browser-local calculator pricing
-    # freelance voice-over project work (script-based, by usage/licensing
-    # term, and audiobook, per finished hour), with a static `index.html`
-    # from its first commit, same shape as the rest of this running count.
-    # This branch only ever knew its own predecessor's number (325, before
-    # the osha-trir-dart-calculator/supabase-rls-check pair landed) until
-    # this merge -- the same ordinary collision shape recorded throughout
-    # this list.
-    total = 329  # `infra/OWNER_CHECKLIST.md`'s own "N of the 329 tools" wording.
+    # 329 since this merge: `mercari-fee-calculator` graduated concurrently
+    # with the pair above -- a browser-local calculator pricing a Mercari
+    # sale against the current (Jan 6, 2025) shipping-inclusive 10% fee
+    # schedule and the legacy item-price-only 10% + 2.9% + $0.50 schedule,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (327) until this merge -- the same ordinary
+    # collision shape recorded throughout this list.
+    #
+    # 330 since this merge: `voiceover-project-rate-calculator` graduated
+    # concurrently with all three above -- a browser-local calculator
+    # pricing freelance voice-over project work (script-based, by
+    # usage/licensing term, and audiobook, per finished hour), with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (325, before the osha-trir-dart-calculator/supabase-rls-check
+    # pair landed) until this merge -- the same ordinary collision shape
+    # recorded throughout this list, and re-derived here by
+    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    #
+    # 331 since this merge: `podcast-feed-check` graduated -- a zero-
+    # dependency CLI + browser checker parsing a podcast's RSS 2.0 +
+    # iTunes/Podcast-namespace feed against Apple Podcasts' documented
+    # requirements and the RSS spec's RFC 822 pubDate format, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. `mercari-fee-calculator` (already counted in the 330
+    # above) merged to `main` while this branch was open; this branch only
+    # ever knew its own predecessor's number (330, before that merge) until
+    # `git fetch`, re-derived here by `sync_tree_counts.py` against the
+    # merged tree rather than by hand.
+    total = 331  # `infra/OWNER_CHECKLIST.md`'s own "N of the 331 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -33,25 +33,25 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 134 files, 556513 bytes
-#   portfolio-front-tools-1: 101 files, 554087 bytes
-#   portfolio-front-tools-2: 150 files, 555907 bytes
-#   portfolio-front-tools-3: 134 files, 556738 bytes
-#   portfolio-front-tools-4: 139 files, 556615 bytes
-#   portfolio-front-tools-5: 127 files, 551107 bytes
-#   portfolio-front-tools-6: 130 files, 542244 bytes
-#   portfolio-front-tools-7: 122 files, 556533 bytes
-#   portfolio-front-tools-8: 138 files, 555268 bytes
-#   portfolio-front-tools-9: 116 files, 548200 bytes
-#   portfolio-front-tools-10: 117 files, 556701 bytes
-#   portfolio-front-tools-11: 115 files, 552281 bytes
-#   portfolio-front-tools-12: 128 files, 552427 bytes
-#   portfolio-front-tools-13: 132 files, 551758 bytes
-#   portfolio-front-tools-14: 119 files, 554991 bytes
-#   portfolio-front-tools-15: 100 files, 553846 bytes
-#   portfolio-front-tools-16: 123 files, 554471 bytes
-#   portfolio-front-tools-17: 89 files, 412403 bytes
-#   portfolio-front-tools-18: 49 files, 265784 bytes
+#   portfolio-front-tools-0: 134 files, 556523 bytes
+#   portfolio-front-tools-1: 101 files, 554007 bytes
+#   portfolio-front-tools-2: 150 files, 555903 bytes
+#   portfolio-front-tools-3: 134 files, 556750 bytes
+#   portfolio-front-tools-4: 139 files, 556581 bytes
+#   portfolio-front-tools-5: 127 files, 551047 bytes
+#   portfolio-front-tools-6: 130 files, 542273 bytes
+#   portfolio-front-tools-7: 122 files, 556605 bytes
+#   portfolio-front-tools-8: 138 files, 555282 bytes
+#   portfolio-front-tools-9: 116 files, 548208 bytes
+#   portfolio-front-tools-10: 117 files, 556738 bytes
+#   portfolio-front-tools-11: 115 files, 540174 bytes
+#   portfolio-front-tools-12: 128 files, 554667 bytes
+#   portfolio-front-tools-13: 127 files, 555595 bytes
+#   portfolio-front-tools-14: 123 files, 555504 bytes
+#   portfolio-front-tools-15: 102 files, 553903 bytes
+#   portfolio-front-tools-16: 123 files, 556629 bytes
+#   portfolio-front-tools-17: 93 files, 433611 bytes
+#   portfolio-front-tools-18: 49 files, 265740 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1639,6 +1639,11 @@ configMapGenerator:
       - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
       - menu-engineering-calculator__usage.mjs.gz=menu-engineering-calculator__usage.mjs.gz
       - menu-engineering-calculator__vs-marginedge.html.gz=menu-engineering-calculator__vs-marginedge.html.gz
+      - mercari-fee-calculator__calc.mjs.gz=mercari-fee-calculator__calc.mjs.gz
+      - mercari-fee-calculator__how-much-does-mercari-take.html.gz=mercari-fee-calculator__how-much-does-mercari-take.html.gz
+      - mercari-fee-calculator__index.html.gz=mercari-fee-calculator__index.html.gz
+      - mercari-fee-calculator__share.mjs.gz=mercari-fee-calculator__share.mjs.gz
+      - mercari-fee-calculator__usage.mjs.gz=mercari-fee-calculator__usage.mjs.gz
       - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
       - merchant-feed-check__engine.mjs.gz=merchant-feed-check__engine.mjs.gz
       - merchant-feed-check__index.html.gz=merchant-feed-check__index.html.gz
@@ -1647,16 +1652,16 @@ configMapGenerator:
       - merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz=merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz
       - metal-roof-bid-calculator__calc.mjs.gz=metal-roof-bid-calculator__calc.mjs.gz
       - metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz=metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz
-      - metal-roof-bid-calculator__index.html.gz=metal-roof-bid-calculator__index.html.gz
-      - metal-roof-bid-calculator__usage.mjs.gz=metal-roof-bid-calculator__usage.mjs.gz
-      - metal-roof-bid-calculator__vs-acculynx.html.gz=metal-roof-bid-calculator__vs-acculynx.html.gz
-      - mini-split-bid-calculator__calc.mjs.gz=mini-split-bid-calculator__calc.mjs.gz
-      - mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz=mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - metal-roof-bid-calculator__index.html.gz=metal-roof-bid-calculator__index.html.gz
+      - metal-roof-bid-calculator__usage.mjs.gz=metal-roof-bid-calculator__usage.mjs.gz
+      - metal-roof-bid-calculator__vs-acculynx.html.gz=metal-roof-bid-calculator__vs-acculynx.html.gz
+      - mini-split-bid-calculator__calc.mjs.gz=mini-split-bid-calculator__calc.mjs.gz
+      - mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz=mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz
       - mini-split-bid-calculator__index.html.gz=mini-split-bid-calculator__index.html.gz
       - mini-split-bid-calculator__usage.mjs.gz=mini-split-bid-calculator__usage.mjs.gz
       - mini-split-bid-calculator__vs-servicetitan.html.gz=mini-split-bid-calculator__vs-servicetitan.html.gz
@@ -1780,16 +1785,16 @@ configMapGenerator:
       - pdf-accessibility-tag-check__vs-uploading-to-an-online-checker.html.gz=pdf-accessibility-tag-check__vs-uploading-to-an-online-checker.html.gz
       - pergola-bid-calculator__calc.mjs.gz=pergola-bid-calculator__calc.mjs.gz
       - pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz=pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz
-      - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
-      - pergola-bid-calculator__share.mjs.gz=pergola-bid-calculator__share.mjs.gz
-      - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
-      - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
-      - personal-trainer-package-pricing-calculator__calc.mjs.gz=personal-trainer-package-pricing-calculator__calc.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
+      - pergola-bid-calculator__share.mjs.gz=pergola-bid-calculator__share.mjs.gz
+      - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
+      - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
+      - personal-trainer-package-pricing-calculator__calc.mjs.gz=personal-trainer-package-pricing-calculator__calc.mjs.gz
       - personal-trainer-package-pricing-calculator__index.html.gz=personal-trainer-package-pricing-calculator__index.html.gz
       - personal-trainer-package-pricing-calculator__usage.mjs.gz=personal-trainer-package-pricing-calculator__usage.mjs.gz
       - personal-trainer-package-pricing-calculator__vs-a-spreadsheet.html.gz=personal-trainer-package-pricing-calculator__vs-a-spreadsheet.html.gz
@@ -1912,6 +1917,11 @@ configMapGenerator:
       - quarterly-estimated-tax-calendar__calc.mjs.gz=quarterly-estimated-tax-calendar__calc.mjs.gz
       - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
       - quarterly-estimated-tax-calendar__usage.mjs.gz=quarterly-estimated-tax-calendar__usage.mjs.gz
+  - name: portfolio-front-tools-14
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - quarterly-estimated-tax-calendar__vs-keeper.html.gz=quarterly-estimated-tax-calendar__vs-keeper.html.gz
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
       - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
@@ -1922,11 +1932,6 @@ configMapGenerator:
       - quote-margin-check__history.mjs.gz=quote-margin-check__history.mjs.gz
       - quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz=quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz
       - quote-margin-check__if-they-ask-for-10-percent-off.html.gz=quote-margin-check__if-they-ask-for-10-percent-off.html.gz
-  - name: portfolio-front-tools-14
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - quote-margin-check__index.html.gz=quote-margin-check__index.html.gz
       - quote-margin-check__markdown.mjs.gz=quote-margin-check__markdown.mjs.gz
       - quote-margin-check__report.mjs.gz=quote-margin-check__report.mjs.gz
@@ -2040,17 +2045,17 @@ configMapGenerator:
       - shed-install-bid-calculator__vs-jobber.html.gz=shed-install-bid-calculator__vs-jobber.html.gz
       - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz
       - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
+  - name: portfolio-front-tools-15
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
       - shop-rate-calculator__vs-guessing-your-burden-and-overhead.html.gz=shop-rate-calculator__vs-guessing-your-burden-and-overhead.html.gz
       - shop-rate-calculator__vs-servicetitan.html.gz=shop-rate-calculator__vs-servicetitan.html.gz
       - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
-  - name: portfolio-front-tools-15
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - shopify-fee-calculator__calc.mjs.gz=shopify-fee-calculator__calc.mjs.gz
       - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
       - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
@@ -2147,15 +2152,15 @@ configMapGenerator:
       - sri-check__usage.mjs.gz=sri-check__usage.mjs.gz
       - sri-check__vs-srihash.html.gz=sri-check__vs-srihash.html.gz
       - sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz=sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz
-      - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
-      - staffing-markup-calculator__index.html.gz=staffing-markup-calculator__index.html.gz
-      - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
-      - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
+      - staffing-markup-calculator__index.html.gz=staffing-markup-calculator__index.html.gz
+      - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
+      - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
       - staffing-markup-calculator__vs-tempworks.html.gz=staffing-markup-calculator__vs-tempworks.html.gz
       - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
       - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
@@ -2275,15 +2280,15 @@ configMapGenerator:
       - vector-db-cost-calculator__what-is-vector-index-overhead.html.gz=vector-db-cost-calculator__what-is-vector-index-overhead.html.gz
       - vehicle-wrap-bid-calculator__calc.mjs.gz=vehicle-wrap-bid-calculator__calc.mjs.gz
       - vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz=vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz
-      - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
-      - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
-      - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
-      - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
+      - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
+      - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
+      - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
       - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
       - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
       - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz

@@ -397,7 +397,13 @@ const CATEGORY_RULES = [
     // item. Its slug names neither platform first, so no storefront keyword
     // above would have caught it and it would otherwise have swelled the
     // catch-all.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee)/.test(slug),
+    // `mercari-fee-calculator` is the same single-channel fee-schedule shape
+    // as `poshmark` and `stockx` above — a shipping-inclusive percentage
+    // selling fee on one storefront, with an older schedule an unedited
+    // listing may still be running — and would otherwise sit in the
+    // catch-all for the same reason those two did: the slug names the
+    // storefront, not a marketplace keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',
@@ -1858,6 +1864,16 @@ const CATEGORY_RULES = [
     // from `tutor-package-pricing-calculator`'s own commit rather than
     // landing as an orphan, which is also what keeps the catch-all inside
     // the bound `build.test.mjs` puts on it.
+    // `podcast-feed-check` joined 2026-09-23, landing here rather than in the
+    // `ci` category above it: the axis this section groups on is the earner,
+    // not whether the tool is a calculator or a checker (already established
+    // by `affiliate-disclosure-checker`, which protects a blogger's own
+    // earned income the same shape as `ats-resume-checker` protects a job
+    // seeker's). A podcaster checking their own feed before publishing is
+    // protecting their show's reach the same way an affiliate blogger checks
+    // their own post before it costs them a disclosure violation -- and it
+    // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
+    // the same solo-earner audience.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1871,6 +1887,7 @@ const CATEGORY_RULES = [
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
         'personal-trainer-package-pricing-calculator',
+        'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',

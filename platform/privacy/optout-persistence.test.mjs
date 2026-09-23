@@ -438,8 +438,17 @@ const RELATIVE_SELF = relative(
 // this merge -- the same ordinary collision shape recorded throughout
 // this list.
 //
-// 310 -> 311: `voiceover-project-rate-calculator` graduated concurrently
-// with the pair above, adding one `usage.mjs` following the same opt-out
+// 310 -> 311: `mercari-fee-calculator` graduated concurrently with both of
+// the above, adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed
+// under its own `mercari-fee-calculator-usage` storage name). Verified the
+// way this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/mercari-fee-calculator/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309) until this
+// merge -- the same ordinary collision shape recorded throughout this list.
+//
+// 311 -> 312: `voiceover-project-rate-calculator` graduated concurrently
+// with all three above, adding one `usage.mjs` following the same opt-out
 // pattern as its siblings (`usageAllowed`/`toggleUsage` gating
 // `recordEvent` the same way `locksmith-bid-calculator`'s does). This
 // branch only ever knew its own predecessor's number (308, before the
@@ -448,9 +457,14 @@ const RELATIVE_SELF = relative(
 // Verified the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
-// 311 -> 312: one added `usage.mjs` (`ventures/podcast-feed-check/usage.mjs`,
-// this venture's graduation) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 312;
+// 312 -> 313: this branch (`podcast-feed-check`, adding
+// `ventures/podcast-feed-check/usage.mjs`) and `mercari-fee-calculator`
+// (already merged to `main`, adding
+// `ventures/mercari-fee-calculator/usage.mjs`) each independently bumped
+// 311 -> 312 against a base where the other had not landed yet -- the same
+// two-branches-same-number collision this file's own comments already
+// record twice above. Both additions are real; the merged total is 313.
+const SWITCHES_IN_THE_CATALOGUE = 313;
 
 let counter = 0;
 function fixture(source) {
