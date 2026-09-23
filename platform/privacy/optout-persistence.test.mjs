@@ -539,7 +539,17 @@ const RELATIVE_SELF = relative(
 // re-derived here by `sync_tree_counts.py` against the fully merged tree
 // (and its regenerated mirror) rather than trusted from either branch's
 // arithmetic.
-const SWITCHES_IN_THE_CATALOGUE = 318;
+//
+// 318 -> 319: `git-exposure-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its siblings, keyed under its own
+// `git-exposure-check-usage` storage name. This branch only ever knew its
+// own predecessor's number (313, before `firebase-rules-check`,
+// `source-map-leak-check`, and `podcast-feed-check` landed) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Total re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 319;
 
 let counter = 0;
 function fixture(source) {

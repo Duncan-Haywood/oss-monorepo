@@ -2204,7 +2204,24 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # merge -- the same ordinary collision shape recorded throughout this
     # list, re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 336  # `infra/OWNER_CHECKLIST.md`'s own "N of the 336 tools" wording.
+    #
+    # 337 since this merge: `git-exposure-check` also graduated,
+    # concurrently -- a zero-dependency CLI + browser report viewer sending
+    # two real GET requests (.git/HEAD, .git/config) and classifying the
+    # response body against the exact grammar of a real git-internal file
+    # to detect a publicly exposed .git directory, distinguishing real
+    # exposure from a webserver that answers every path with 200 (a
+    # soft-404). Same "read what's actually there, name the exact evidence"
+    # checker shape as `cors-misconfig-check` and `security-headers-check`,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (332, before `sign-language-interpreter-rate-
+    # calculator`, `firebase-rules-check`, `source-map-leak-check`, and
+    # `podcast-feed-check` landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list. Total re-derived here
+    # by `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 337  # `infra/OWNER_CHECKLIST.md`'s own "N of the 337 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
