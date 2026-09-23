@@ -457,7 +457,17 @@ const RELATIVE_SELF = relative(
 // Verified the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 312;
+//
+// 312 -> 313: `turo-host-payout-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
+// `voiceover-project-rate-calculator`'s does). This branch only ever knew
+// its own predecessor's number (312, before `mercari-fee-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 313;
 
 let counter = 0;
 function fixture(source) {
