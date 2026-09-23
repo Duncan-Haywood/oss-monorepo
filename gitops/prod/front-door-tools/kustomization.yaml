@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 133 files, 551864 bytes
 #   portfolio-front-tools-1: 101 files, 553906 bytes
 #   portfolio-front-tools-2: 149 files, 557036 bytes
-#   portfolio-front-tools-3: 135 files, 552945 bytes
-#   portfolio-front-tools-4: 139 files, 550830 bytes
+#   portfolio-front-tools-3: 135 files, 554547 bytes
+#   portfolio-front-tools-4: 140 files, 554077 bytes
 #   portfolio-front-tools-5: 124 files, 553523 bytes
 #   portfolio-front-tools-6: 129 files, 555907 bytes
 #   portfolio-front-tools-7: 127 files, 552060 bytes
@@ -531,6 +531,7 @@ configMapGenerator:
       - concrete-bid-calculator__index.html.gz=concrete-bid-calculator__index.html.gz
       - concrete-bid-calculator__share.mjs.gz=concrete-bid-calculator__share.mjs.gz
       - concrete-bid-calculator__usage.mjs.gz=concrete-bid-calculator__usage.mjs.gz
+      - concrete-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=concrete-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
       - concrete-bid-calculator__vs-stack.html.gz=concrete-bid-calculator__vs-stack.html.gz
       - lawn-care-bid-calculator__calc.mjs.gz=lawn-care-bid-calculator__calc.mjs.gz
       - lawn-care-bid-calculator__how-to-price-lawn-mowing.html.gz=lawn-care-bid-calculator__how-to-price-lawn-mowing.html.gz
@@ -605,12 +606,12 @@ configMapGenerator:
       - actions-secret-leak-check__usage.mjs.gz=actions-secret-leak-check__usage.mjs.gz
       - actions-secret-leak-check__vs-reading-the-workflow-by-eye.html.gz=actions-secret-leak-check__vs-reading-the-workflow-by-eye.html.gz
       - actions-secret-leak-check__why-github-actions-secret-masking-fails.html.gz=actions-secret-leak-check__why-github-actions-secret-masking-fails.html.gz
-      - actions-self-hosted-exposure-check__classify.mjs.gz=actions-self-hosted-exposure-check__classify.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-self-hosted-exposure-check__classify.mjs.gz=actions-self-hosted-exposure-check__classify.mjs.gz
       - actions-self-hosted-exposure-check__index.html.gz=actions-self-hosted-exposure-check__index.html.gz
       - actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz=actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz
       - actions-self-hosted-exposure-check__usage.mjs.gz=actions-self-hosted-exposure-check__usage.mjs.gz
