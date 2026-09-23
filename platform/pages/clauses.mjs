@@ -681,6 +681,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-healthchecks.html, which does name a
   // product and carries its own "not affiliated" clause.
   'backup-verification-evidence/vs-checking-the-exit-code-yourself.html',
+  // Compares against "building your own cash-flow spreadsheet" -- the
+  // running-balance habit every small business owner already has, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing platform at all -- distinct from this venture's
+  // own vs-quickbooks-cash-flow-planner.html, which does name a product
+  // and carries its own "not affiliated" clause.
+  'cash-runway-planner/vs-a-spreadsheet.html',
+  // Compares against "a flat whole-house special" -- the "$99 whole-house"
+  // or "$299 after-coupon" rate every duct-cleaning company is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'duct-cleaning-bid-calculator/vs-a-flat-whole-house-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
