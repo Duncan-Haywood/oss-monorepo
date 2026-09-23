@@ -45,13 +45,13 @@
 #   portfolio-front-tools-9: 119 files, 554998 bytes
 #   portfolio-front-tools-10: 119 files, 555791 bytes
 #   portfolio-front-tools-11: 119 files, 554459 bytes
-#   portfolio-front-tools-12: 126 files, 549229 bytes
+#   portfolio-front-tools-12: 127 files, 551019 bytes
 #   portfolio-front-tools-13: 125 files, 554029 bytes
 #   portfolio-front-tools-14: 135 files, 556713 bytes
 #   portfolio-front-tools-15: 100 files, 552854 bytes
 #   portfolio-front-tools-16: 118 files, 550142 bytes
 #   portfolio-front-tools-17: 123 files, 555974 bytes
-#   portfolio-front-tools-18: 88 files, 439049 bytes
+#   portfolio-front-tools-18: 88 files, 439588 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1690,6 +1690,7 @@ configMapGenerator:
       - mercari-fee-calculator__how-much-does-mercari-take.html.gz=mercari-fee-calculator__how-much-does-mercari-take.html.gz
       - mercari-fee-calculator__index.html.gz=mercari-fee-calculator__index.html.gz
       - mercari-fee-calculator__share.mjs.gz=mercari-fee-calculator__share.mjs.gz
+      - mercari-fee-calculator__to-where-to-sell.mjs.gz=mercari-fee-calculator__to-where-to-sell.mjs.gz
       - mercari-fee-calculator__usage.mjs.gz=mercari-fee-calculator__usage.mjs.gz
       - mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz=mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz
       - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
