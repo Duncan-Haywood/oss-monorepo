@@ -356,6 +356,9 @@ workflows:
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: docker-base-image-eol-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: docker-base-image-pin-check-ci.yml
   classification: none
   publishes: []

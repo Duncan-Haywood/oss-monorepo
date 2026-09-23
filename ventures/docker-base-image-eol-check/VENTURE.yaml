@@ -1,0 +1,88 @@
+name: docker-base-image-eol-check
+description: Free, read-only checker that scans a repository's Dockerfiles and flags every FROM line whose base image release line (node:18, python:3.9, ubuntu:20.04, ...) has passed its publisher's own end-of-life date, or is due to soon -- using a curated, dated table checked into the tool, never a live lookup. Also flags images discontinued outright by their publisher (openjdk).
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row, and ai-first-markets idea --
+# top score 0.13 (`docker-base-image-pin-check`, which asks a structurally
+# different question: is the reference immutable, not whether the release
+# line it points to is still supported), well below the 0.45 read-this-first
+# bar. `email-auth-check` (0.28) was the closer false-positive checked by
+# hand: DNS record classification for a domain's own mail auth, unrelated to
+# container base images. Direct graduation of an already-obvious, low-risk
+# dev-tool idea, following the same "CLI/checker over another calculator"
+# shape `docker-base-image-pin-check` and its siblings already established
+# in `portfolio/pipeline/README.md`'s "archetype itself" section, applied to
+# a base-image surface no existing checker in the fleet covers: not pinning,
+# not secrets, not cache order -- whether the release line is still patched.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high, with one caveat worth stating rather than hiding. The tool
+# makes a factual claim (a named project's own end-of-life date) from a
+# table maintained by hand rather than a live feed, so a date can go stale.
+# Three mitigations, verifiable by reading the code, not just asserting it:
+# (1) every row carries `confidence: confirmed` (the project's own published
+# fixed date) or `estimated` (inferred from that project's own stated
+# support-length policy), never presented as equally certain; (2) every
+# finding names its source and a `DATASET_AS_OF` snapshot date, with the
+# page and README both telling the visitor to re-verify before relying on
+# it; (3) it makes no compliance or security claim -- "past this project's
+# own stated end-of-life date" is a narrower, checkable fact than "safe" or
+# "compliant", and the page's own tests forbid the broader claim. Comparable
+# to `docker-base-image-pin-check`, `oidc-trust-policy-check`, and
+# `license-drift-check`, all already graduated on data-freshness-disclosed
+# reasoning of this same shape.
+hypotheses:
+  - claim: >-
+      A developer or platform engineer reviewing a Dockerfile after reading
+      about an end-of-life base image incident, or simply auditing an old
+      service before a security review, will search "is node 18 end of
+      life", "docker base image eol checker", or "python 3.9 eol docker" and
+      find this tool -- landing on r/docker, r/devops, or a dependency-
+      hygiene blog post -- since no existing free tool answers this
+      specific question straight from Dockerfile text with no pull, no
+      build, and no account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `check.py --fail-on-risk` into CI to block a
+      Dockerfile change that introduces (or leaves in place, past the point
+      it goes stale) a base image release line already past end-of-life,
+      the same way the pin-check sibling's CLI convention is meant to be
+      used, treating it as a cheap pre-build gate that runs before any
+      vulnerability scan of the built image is even possible.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A visitor who already runs a vulnerability scanner (Trivy, Grype,
+      Docker Scout) in CI will still use this tool, because a scanner
+      reports known CVEs already matched against a built image and cannot
+      tell them a release line with zero currently-known CVEs has stopped
+      receiving new ones -- the distinction `vs-a-vulnerability-scanner.html`
+      exists to make explicit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/
+  analytics: null

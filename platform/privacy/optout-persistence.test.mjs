@@ -395,7 +395,10 @@ const RELATIVE_SELF = relative(
 // `docker-cache-order-check` landed, so it only ever knew its own
 // predecessor's number (301) until this merge -- same collision shape as
 // the entries above it.
-const SWITCHES_IN_THE_CATALOGUE = 304;
+//
+// 304 -> 305: `docker-base-image-eol-check` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings.
+const SWITCHES_IN_THE_CATALOGUE = 305;
 
 let counter = 0;
 function fixture(source) {
