@@ -34,11 +34,11 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 133 files, 551864 bytes
-#   portfolio-front-tools-1: 102 files, 556729 bytes
-#   portfolio-front-tools-2: 151 files, 556370 bytes
-#   portfolio-front-tools-3: 135 files, 556653 bytes
-#   portfolio-front-tools-4: 139 files, 553093 bytes
-#   portfolio-front-tools-5: 122 files, 548803 bytes
+#   portfolio-front-tools-1: 101 files, 553906 bytes
+#   portfolio-front-tools-2: 150 files, 556465 bytes
+#   portfolio-front-tools-3: 135 files, 555554 bytes
+#   portfolio-front-tools-4: 140 files, 554666 bytes
+#   portfolio-front-tools-5: 124 files, 555342 bytes
 #   portfolio-front-tools-6: 130 files, 555322 bytes
 #   portfolio-front-tools-7: 127 files, 552842 bytes
 #   portfolio-front-tools-8: 133 files, 554555 bytes
@@ -302,6 +302,7 @@ configMapGenerator:
       - tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz=tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz
       - tiktok-shop-fee-calculator__usage.mjs.gz=tiktok-shop-fee-calculator__usage.mjs.gz
       - tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz=tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz
+      - tiktok-shop-fee-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=tiktok-shop-fee-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz=tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz
       - reverb-fee-calculator__calc.mjs.gz=reverb-fee-calculator__calc.mjs.gz
       - reverb-fee-calculator__index.html.gz=reverb-fee-calculator__index.html.gz
@@ -311,13 +312,13 @@ configMapGenerator:
       - reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz=reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz
       - reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz
       - reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz
-      - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz
-      - reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz=reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz
+      - reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz=reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz
       - reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz=reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz
       - reverb-fee-calculator__to-where-to-sell.mjs.gz=reverb-fee-calculator__to-where-to-sell.mjs.gz
       - reverb-fee-calculator__usage.mjs.gz=reverb-fee-calculator__usage.mjs.gz
@@ -466,14 +467,14 @@ configMapGenerator:
       - vendor-rate-break-even__index.html.gz=vendor-rate-break-even__index.html.gz
       - vendor-rate-break-even__is-switching-vendors-worth-it.html.gz=vendor-rate-break-even__is-switching-vendors-worth-it.html.gz
       - vendor-rate-break-even__share.mjs.gz=vendor-rate-break-even__share.mjs.gz
-      - vendor-rate-break-even__usage.mjs.gz=vendor-rate-break-even__usage.mjs.gz
-      - vendor-rate-break-even__vs-crest-capital.html.gz=vendor-rate-break-even__vs-crest-capital.html.gz
-      - music-lesson-break-even__calc.mjs.gz=music-lesson-break-even__calc.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-rate-break-even__usage.mjs.gz=vendor-rate-break-even__usage.mjs.gz
+      - vendor-rate-break-even__vs-crest-capital.html.gz=vendor-rate-break-even__vs-crest-capital.html.gz
+      - music-lesson-break-even__calc.mjs.gz=music-lesson-break-even__calc.mjs.gz
       - music-lesson-break-even__how-to-price-music-lessons.html.gz=music-lesson-break-even__how-to-price-music-lessons.html.gz
       - music-lesson-break-even__index.html.gz=music-lesson-break-even__index.html.gz
       - music-lesson-break-even__share.mjs.gz=music-lesson-break-even__share.mjs.gz
@@ -606,14 +607,14 @@ configMapGenerator:
       - actions-self-hosted-exposure-check__index.html.gz=actions-self-hosted-exposure-check__index.html.gz
       - actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz=actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz
       - actions-self-hosted-exposure-check__usage.mjs.gz=actions-self-hosted-exposure-check__usage.mjs.gz
-      - actions-self-hosted-exposure-check__vs-stepsecurity.html.gz=actions-self-hosted-exposure-check__vs-stepsecurity.html.gz
-      - actions-transitive-pin-check__analyze.mjs.gz=actions-transitive-pin-check__analyze.mjs.gz
-      - actions-transitive-pin-check__check.mjs.gz=actions-transitive-pin-check__check.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-self-hosted-exposure-check__vs-stepsecurity.html.gz=actions-self-hosted-exposure-check__vs-stepsecurity.html.gz
+      - actions-transitive-pin-check__analyze.mjs.gz=actions-transitive-pin-check__analyze.mjs.gz
+      - actions-transitive-pin-check__check.mjs.gz=actions-transitive-pin-check__check.mjs.gz
       - actions-transitive-pin-check__classify.mjs.gz=actions-transitive-pin-check__classify.mjs.gz
       - actions-transitive-pin-check__index.html.gz=actions-transitive-pin-check__index.html.gz
       - actions-transitive-pin-check__usage.mjs.gz=actions-transitive-pin-check__usage.mjs.gz
@@ -751,13 +752,13 @@ configMapGenerator:
       - ats-resume-checker__usage.mjs.gz=ats-resume-checker__usage.mjs.gz
       - ats-resume-checker__vs-jobscan.html.gz=ats-resume-checker__vs-jobscan.html.gz
       - ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz=ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz
-      - attic-insulation-bid-calculator__calc.mjs.gz=attic-insulation-bid-calculator__calc.mjs.gz
-      - attic-insulation-bid-calculator__how-much-to-charge.html.gz=attic-insulation-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - attic-insulation-bid-calculator__calc.mjs.gz=attic-insulation-bid-calculator__calc.mjs.gz
+      - attic-insulation-bid-calculator__how-much-to-charge.html.gz=attic-insulation-bid-calculator__how-much-to-charge.html.gz
       - attic-insulation-bid-calculator__index.html.gz=attic-insulation-bid-calculator__index.html.gz
       - attic-insulation-bid-calculator__share.mjs.gz=attic-insulation-bid-calculator__share.mjs.gz
       - attic-insulation-bid-calculator__usage.mjs.gz=attic-insulation-bid-calculator__usage.mjs.gz
