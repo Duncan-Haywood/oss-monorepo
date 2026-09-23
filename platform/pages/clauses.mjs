@@ -512,6 +512,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'depreciation-recapture-calculator/vs-doing-it-by-hand.html',
+  // Compares against "computing certified payroll overtime by hand or in a
+  // spreadsheet" -- a generic method every payroll admin on a Davis-Bacon
+  // job already has, not a company or product this could be mistaken for.
+  // Same reasoning as the other vs-doing-it-by-hand pages above.
+  'certified-payroll-calculator/vs-doing-it-by-hand.html',
   // Compares against "looking up the 1099-K threshold yourself" -- a search
   // or memory check every gig/marketplace seller already does, not a
   // company or product this could be mistaken for. The page names no
@@ -862,6 +867,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-gridwise.html, which does name a product and carries
   // its own "not affiliated" clause.
   'gig-driver-net-pay-calculator/vs-the-apps-earnings-screen.html',
+  // Compares against tracking a tiled-shower bid in a spreadsheet -- the
+  // generic method, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-jobber.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'walk-in-shower-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
