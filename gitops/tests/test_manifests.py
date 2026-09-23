@@ -2085,17 +2085,27 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # calls to an external reusable workflow or a fork-reachable job, with a
     # static `index.html` from its first commit, same shape as the rest of
     # this running count. This branch was open before
-    # `osha-trir-dart-calculator` landed, so it only ever knew its own
-    # predecessor's number (325) until this merge -- the same ordinary
-    # collision shape recorded throughout this list, and re-derived here by
-    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    # `osha-trir-dart-calculator` and `supabase-rls-check` landed, so it
+    # only ever knew its own predecessor's number (325) until this merge --
+    # the same ordinary collision shape recorded throughout this list.
     #
     # 327 since this merge: `osha-trir-dart-calculator` graduated -- a
     # browser-local calculator turning a company's own OSHA 300 log counts
     # into its TRIR and DART rate against a target, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 327  # `infra/OWNER_CHECKLIST.md`'s own "N of the 327 tools" wording.
+    #
+    # 328 since this merge: `supabase-rls-check` graduated concurrently -- a
+    # browser + CLI checker reading a Supabase project's own PostgREST
+    # schema listing and testing whether the anon key can read real rows
+    # from each table (the missing-Row-Level-Security exposure behind
+    # CVE-2025-48757), with a static `index.html` from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (325) until this merge -- the same
+    # ordinary collision shape recorded throughout this list, and
+    # re-derived here by `sync_tree_counts.py` against the merged tree
+    # rather than by hand.
+    total = 328  # `infra/OWNER_CHECKLIST.md`'s own "N of the 328 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

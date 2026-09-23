@@ -1570,3 +1570,41 @@ candidates:
     mitigation: Keep the calculation deterministic and never let it decide whether a specific case is OSHA recordable or claim a company is compliant with any OSHA rule -- recordability stays the employer's own judgment call against 29 CFR 1904.7, explicit in the disclaimer and FAQ; the injury-free-hours-to-target figure is framed as a planning number, never as advice to under-report a case to keep the rate low; measure repeat use and organic search demand before adding any per-period history, CSV import, or multi-period trend feature this v0 deliberately does not attempt.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: supabase-rls-check
+    name: Supabase RLS exposure checker
+    doc: candidates/supabase-rls-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/supabase-rls-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.25
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep the check strictly read-only and conservative -- every request is
+      GET, capped to one row via a Range header, and the tool never attempts
+      a write/update/delete even as a secondary "is this also writable"
+      test, which would materially raise both the liability and the
+      implementation surface. Never render or store actual row values in
+      the report; show only row counts, exact counts, and column names,
+      never field values, so a "clean" demonstration of exposure never
+      becomes a bulk data-viewing tool in its own right. A response this
+      tool cannot classify (a network error, an unexpected status) is
+      reported as an error, never silently folded into either "exposed" or
+      "blocked" -- guessing in either direction would be worse than an
+      honest "could not confirm." Measure real user reports before
+      expanding scope into authenticated-role testing, storage buckets, or
+      Edge Functions, each of which would need its own liability read
+      rather than inheriting this one's.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
