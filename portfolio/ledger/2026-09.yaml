@@ -36227,3 +36227,42 @@ entries:
         1281/1281. `checklist_coverage.py`, `surface-budget.mjs --check`,
         and `regen.mjs --verify` all clean after `regen.mjs` (5 mirror
         artifacts regenerated and committed alongside).
+  - venture: import-landed-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Router's top-merit dispatchable candidates (reverb-fee-calculator,
+        where-to-sell-calculator) were already at or over their
+        generic-method surface budget (surface-budget.mjs --for), so built
+        the next-ranked one with headroom instead:
+        import-landed-cost-calculator had a generic-method vs-spreadsheet
+        page but zero named-product comparisons. Added vs-flexport.html,
+        comparing the calculator against Flexport as a category (freight
+        forwarder / customs brokerage sold as an ongoing account
+        relationship) rather than a self-service arithmetic tool -- same
+        shape as vs-quickbooks-online-invoicing.html on
+        invoice-payment-terms-calculator. No Flexport pricing is reachable
+        from this session, so no dollar figure for Flexport appears on the
+        page; only well-documented, non-numeric identity facts are stated,
+        plus the not-affiliated trademark clause. Linked from index.html,
+        added to sitemap.xml. `node --test
+        ventures/import-landed-cost-calculator/*.test.mjs`: 48/48.
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`:
+        1281/1281 after `regen.mjs` (7 generator artifacts were stale before
+        the new page was regenerated in). `checklist_coverage.py`,
+        `surface-budget.mjs --check`, and `regen.mjs --verify` all clean.
+        `python3 -m pytest gitops/tests -q`: 613 passed, 25 skipped (the
+        documented nginx/ssh-key environment skips). All 15
+        `platform/ci` unittest modules passed. Main advanced by one commit
+        (carpet-cleaning-bid-calculator, #5130) mid-session; merged and
+        resolved the expected front-door mirror conflict per
+        `resolve-mirror-merge.sh`'s guidance (regenerated rather than
+        picking a side), then re-verified clean.
+      - >-
+        Separately: session_gate.py verdict PROCEED (0% meta-work share),
+        decision_queue.py unchanged at 17 owner-only asks (none duplicated),
+        no open PRs at session start, pages_state.py snapshot already
+        current, and all portfolio validators (router/validate.py,
+        pipeline/validate_doc_consistency.py, pipeline/validate_candidates.py,
+        scoring/score_ventures.py --check, usage/validate_usage.py) green.
