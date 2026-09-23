@@ -36641,3 +36641,57 @@ entries:
         backup branch and redid it with git commit-tree/checkout on just the
         two commits that needed it, verified byte-identical trees throughout
         via git diff).
+  - venture: freelance-platform-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Surveyed surface-budget.mjs for ventures at 0 generic-method and 0
+        named-product comparison pages (223 ventures had 0 generic-method;
+        freelance-platform-fee-calculator was the only one also at 0
+        named-product, with just its existing Upwork-fee guide). Added
+        vs-checking-each-platforms-fee-page-separately.html: Fiverr's fee
+        page states a flat 20%, Upwork's has stated no single number since
+        May 1 2025 (only a 0-15% per-contract range), so checking both by
+        hand risks reaching for the tiered 20%/10%/5% formula Upwork
+        retired -- still repeated on older blog posts and calculators.
+        Worked example: on a $3,000 job, an actual 5%-quoted freelancer
+        keeps $2,850 (95%, from calc.mjs's comparePlatforms); the retired
+        formula computes $2,650 (88.3%) instead, a $200 understatement,
+        pinned by a test that recomputes the retired formula independently
+        (calc.mjs deliberately encodes no Upwork formula). Because the page
+        names Upwork and Fiverr, it carries the venture's existing
+        not-affiliated clause rather than clauses.mjs's no-vendor exemption,
+        landing as a named-product page in surface-budget.mjs (unbudgeted).
+        `node --test` in the venture: 51/51. Full `platform/marketing`/
+        `platform/pages` suite: 1281/1281, run three times across the
+        session (before first push, after absorbing one main advance, and
+        again after a self-inflicted history-rewrite fix -- see below).
+        `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped.
+        `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`:
+        446 passed. checklist_coverage.py, surface-budget.mjs --check,
+        router/validate.py, validate_candidates.py, score_ventures.py
+        --check, validate_probe_index.py, usage/validate_usage.py,
+        sync_tree_counts.py: all clean. All 15 platform/ci unittest modules
+        and agent_review's test_review (21/21): clean. run_workflow_locally.py
+        --for-changes: 71/71 run steps on portfolio-validate.yml, 2/2 on
+        sibling-links-ci.yml. Opened #5176; main advanced once more while
+        landing it, resolved the front-door mirror conflict the same way as
+        prior sessions (take main's side on the generated files, then
+        regen.mjs). Made a real mistake mid-session: used
+        `git rebase --rebase-merges --exec "git commit --amend --reset-author"`
+        to fix my own two commits' author identity, which replayed and
+        re-authored every commit on main's side of the merge too, diverging
+        the branch from main's actual history (force-pushed this by mistake
+        before noticing `mergeable_state: dirty` and a stale duplicate-check
+        bot comment on the PR). Fixed by resetting the branch to
+        `origin/main` and cherry-picking only my own content commit, taking
+        main's side on the same generated-file conflicts, re-running
+        regen.mjs, and re-verifying the full suite before force-pushing the
+        correction -- confirmed clean with
+        `git merge-base --is-ancestor origin/main HEAD`. Confirmed every
+        check on the PR starved via ci_starvation.py (both portfolio-validate
+        and hetzner-gitops-ci runs: runner_id 0), merged. Published the
+        gh-pages snapshot (publish-branch.sh, #5180) and recorded
+        github-pages-branch-route as current.
