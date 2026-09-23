@@ -44,5 +44,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Run sri, probe, check, usage, and page-wiring tests
-        run: node --test sri.test.mjs probe.test.mjs check.test.mjs usage.test.mjs page.test.mjs
+      - name: Run sri, probe, check, usage, page-wiring, and comparison-page tests
+        run: node --test sri.test.mjs probe.test.mjs check.test.mjs usage.test.mjs page.test.mjs vs-srihash.test.mjs vs-checking-tags-by-hand.test.mjs
