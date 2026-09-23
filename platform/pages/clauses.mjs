@@ -547,6 +547,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-servicetitan.html and vs-workiz.html, which do name a product
   // and carry their own "not affiliated" clauses.
   'ev-charger-bid-calculator/vs-a-flat-hang-fee.html',
+  // Compares against "tracking quotes in a spreadsheet" -- the generic
+  // method every freelancer pricing a fixed quote already reaches for, not
+  // a company or product this could be mistaken for. The page's own footer
+  // says so explicitly ("names no specific product"). Same reasoning as the
+  // reverb-fee-calculator and whatnot-seller-payout spreadsheet pages above.
+  'quote-margin-check/vs-tracking-quotes-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
