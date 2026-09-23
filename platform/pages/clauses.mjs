@@ -151,6 +151,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // not a company or product this could be mistaken for. Same reasoning as
   // the other manual-method pages above.
   'ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html',
+  // Compares against "picking a resistor or capacitor from the parts bin"
+  // -- a manual component-selection habit every user of this calculator
+  // already has access to, not a company or product this could be
+  // mistaken for. Same reasoning as the other manual-method pages above,
+  // including this venture's own resistor-calculator sibling entry.
+  'ai-engineering-academy/rc-filter-calculator/vs-picking-a-component-from-the-parts-bin.html',
   // Compares against "a spreadsheet" -- a generic method every HOA board
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
@@ -627,6 +633,19 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-housecall-pro.html, which does name a
   // product and carries its own "not affiliated" clause.
   'appliance-repair-quote-calculator/vs-a-flat-rate-repair-price.html',
+  // Compares against "a spreadsheet" -- the flat fee-percentage tracking
+  // habit every eBay seller already has, not a company or product this
+  // could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own
+  // vs-ebay-fee-calculator.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'ebay-fee-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat price per door" -- the per-door pricing habit
+  // every cabinet painter is shopped against, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all -- distinct from this venture's own vs-kickserv.html, which does
+  // name a product and carries its own "not affiliated" clause.
+  'cabinet-refinishing-bid-calculator/vs-a-flat-price-per-door.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
