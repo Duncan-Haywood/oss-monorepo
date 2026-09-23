@@ -10,7 +10,12 @@ Each tenant can also carry a flat monthly base/access fee, charged before the
 proportional split. Produces a clean, itemized per-tenant bill.
 
 Open `index.html` directly, or serve this directory with
-`python3 -m http.server`. Run the tests with:
+`python3 -m http.server`. See
+[`vs-splitting-evenly.html`](vs-splitting-evenly.html) for the comparison
+against an even split, or
+[`how-to-split-shared-kitchen-costs-fairly.html`](how-to-split-shared-kitchen-costs-fairly.html)
+for the worked numbers on why an even split overcharges a light tenant and
+undercharges a heavy one. Run the tests with:
 
 ```
 node --test ventures/commissary-kitchen-cost-split-calculator/*.test.mjs
