@@ -438,8 +438,17 @@ const RELATIVE_SELF = relative(
 // this merge -- the same ordinary collision shape recorded throughout
 // this list.
 //
-// 310 -> 311: `voiceover-project-rate-calculator` graduated concurrently
-// with the pair above, adding one `usage.mjs` following the same opt-out
+// 310 -> 311: `mercari-fee-calculator` graduated concurrently with both of
+// the above, adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed
+// under its own `mercari-fee-calculator-usage` storage name). Verified the
+// way this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/mercari-fee-calculator/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309) until this
+// merge -- the same ordinary collision shape recorded throughout this list.
+//
+// 311 -> 312: `voiceover-project-rate-calculator` graduated concurrently
+// with all three above, adding one `usage.mjs` following the same opt-out
 // pattern as its siblings (`usageAllowed`/`toggleUsage` gating
 // `recordEvent` the same way `locksmith-bid-calculator`'s does). This
 // branch only ever knew its own predecessor's number (308, before the
@@ -448,7 +457,16 @@ const RELATIVE_SELF = relative(
 // Verified the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 311;
+//
+// 312 -> 313: `sign-language-interpreter-rate-calculator` graduated, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent`, the same shape as
+// `voiceover-project-rate-calculator`'s, which it is modeled on). Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs`
+// (`ventures/sign-language-interpreter-rate-calculator/usage.mjs`) and no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 313;
 
 let counter = 0;
 function fixture(source) {
