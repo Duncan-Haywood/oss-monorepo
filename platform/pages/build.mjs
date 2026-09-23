@@ -404,7 +404,13 @@ const CATEGORY_RULES = [
     // does not start with a marketplace keyword this rule already
     // recognised, so it would otherwise have swelled the catch-all the way
     // `str-host` itself once did.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee)/.test(slug),
+    // `mercari-fee-calculator` is the same single-channel fee-schedule shape
+    // as `poshmark` and `stockx` above — a shipping-inclusive percentage
+    // selling fee on one storefront, with an older schedule an unedited
+    // listing may still be running — and would otherwise sit in the
+    // catch-all for the same reason those two did: the slug names the
+    // storefront, not a marketplace keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',
