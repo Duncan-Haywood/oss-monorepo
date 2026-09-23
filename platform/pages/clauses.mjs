@@ -1081,6 +1081,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "reading the concentrate label's sticker price as the
+  // diluted product's cost" -- a generic pricing habit every janitorial
+  // operator already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-janitorial-manager.html, which
+  // names a specific platform and already carries the "not affiliated"
+  // clause for that reason.
+  'cleaning-dilution-calculator/vs-pricing-off-the-label-price.html',
   // Compares against "bidding a flat percentage of value" -- a generic rule
   // of thumb repeated across storage-auction forums generally, not a
   // company or product this could be mistaken for. The page names no
