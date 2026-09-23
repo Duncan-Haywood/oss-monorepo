@@ -36789,3 +36789,124 @@ entries:
         instead of waiting further, and squash-merged. Published the
         gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current.
+  - venture: agent-permission-config-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per DIRECTION.md's "current priority" (the
+        pipeline's build-now queue is empty per session_gate.py, so a fresh
+        niche was in bounds) and the "fleet-parity trap"/archetype guidance
+        in pipeline/README.md: rather than a 143rd <trade>-bid-calculator or
+        a 39th generic misconfiguration checker, this is a new *object* to
+        check -- an AI-coding-agent's own permission and MCP-server config
+        (Claude Code's .claude/settings.json permissions.allow/deny/ask, and
+        the mcpServers block shared by .mcp.json/.cursor/mcp.json/
+        .vscode/mcp.json) -- for a blanket Bash allow-all rule, an unscoped
+        destructive-command allow with no matching deny, a plain-http MCP
+        server url, and a hardcoded-looking secret in a committed server's
+        env/headers instead of an environment-variable reference. Zero
+        network calls anywhere in the product; the CLI's only filesystem
+        access beyond the config files themselves is a best-effort local
+        `git ls-files` check used to say whether a flagged file is tracked.
+        Distinct from this repo's two existing AI-agent-tooling ventures --
+        agent-instructions-drift-check checks whether AGENTS.md/CLAUDE.md
+        matches the repo (documentation, not permissions);
+        mcp-supply-chain-watch monitors an already-connected remote MCP
+        server's own tool schema for change over time (an ongoing external
+        feed, not a one-time local-config lint) -- confirmed by running
+        duplicate_check.py against the final description: every venture,
+        screened-out row, and pipeline candidate scored at or below 0.16
+        (closest: agent-instructions-drift-check), well under the 0.45
+        flag bar; the venture's own post-graduation self-match scored 0.99.
+        Channel named per DIRECTION.md's graduation condition: the
+        permissions/mcpServers JSON shape became a real, multi-vendor
+        convention across Claude Code, Cursor, and VS Code's Copilot agent
+        mode through 2025-2026, and developer communities actively discuss
+        agent tool-permission risk today (r/ClaudeAI, r/cursor,
+        r/ChatGPTCoding, Hacker News "vibe coding" security threads), plus
+        vendor guidance warning specifically against a blanket Bash allow
+        and hardcoded MCP credentials -- a developer who has just read one
+        of those warnings and wants to check their own config is the first
+        visitor this targets. Scored and written up directly as
+        VENTURE.yaml plus a portfolio/scoring/venture-scores.yaml row
+        (composite 5.667, liability_containment and ethical_robustness both
+        pass) rather than a pipeline/candidates.yaml entry, matching how
+        recent CLI/checker siblings (agent-instructions-drift-check,
+        cron-dst-drift-check) graduated.
+
+        Built: engine.mjs (parseConfig, isBashAllowAllRule,
+        findUnscopedRiskyAllows, findInsecureMcpUrls, findHardcodedSecrets,
+        hasNoDenyRules, analyze), cli.mjs (auto-discovers the four default
+        config paths or takes --file, --json, and a best-effort git-tracked
+        note), a paste-based browser page (index.html) with a worked
+        example that trips all four finding kinds, a docs page and a
+        generic-method comparison page (vs-manual-config-review.html, added
+        to clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT with why), the §5b
+        no-warranty/no-SLA/privacy disclaimers, opt-in-off usage counting
+        (usage.mjs, check_run/example_loaded/sponsor_link_clicked), the
+        GitHub Sponsors link, a LICENSE, and a dedicated CI workflow. Filed
+        under build.mjs's `ci` category (CI checks & developer gates)
+        beside agent-instructions-drift-check, with a reciprocal Related
+        link added to that sibling's footer closing the crawlable-orphan
+        gap a new venture otherwise opens. platform/pages/launched.json
+        updated via launched.mjs --write; portfolio/usage/usage.yaml given
+        a baseline row (`live_url_visitors: null` -- unmeasured, not zero,
+        per DIRECTION.md's North star point 2).
+
+        Verified: `node --test engine.test.mjs cli.test.mjs page.test.mjs`
+        in the venture: 39/39. `node --test` on
+        agent-instructions-drift-check (footer link added): 87/87 combined.
+        Full `platform/marketing`/`platform/pages` suite: 1281/1281 --
+        first pass found and fixed two real authoring bugs this venture
+        introduced: faq-visible.test.mjs caught three FAQ answers per page
+        (index.html, vs-manual-config-review.html,
+        why-ai-agent-permission-configs-need-a-linter.html) whose JSON-LD
+        used a literal `--` where the visible prose used an em dash (plus
+        one genuine wording drift, fixed to match), and
+        siblings.test.mjs's crawlable-orphan budget caught the new venture
+        landing with no inbound sibling link until the
+        agent-instructions-drift-check footer link was added; both fixed
+        and the suite re-run clean. `git fetch origin main` immediately
+        before pushing picked up #5188 (invoice-payment-terms-calculator's
+        FreshBooks comparison page, merged while this session was running);
+        merged it, resolving the generated front-door mirror's binary .gz
+        conflicts by re-running regen.mjs (never hand-picking a side, per
+        resolve-mirror-merge.sh) and a small clauses.mjs
+        COMPARISON_DISCLAIMER_EXEMPT conflict (both branches had appended
+        distinct entries -- kept both), then regen.mjs --verify current.
+        `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped, after
+        running `python3 platform/ci/sync_tree_counts.py` (mirrored-tool
+        count 324->325, opt-out-switch count 306->307, both this venture on
+        top of freelance-platform-fee-calculator's prior rise from #5188)
+        and `python3 gitops/ci/sync_readme_counts.py` (runs-on line
+        418/420/379 -> 419/421/380, this venture's new CI workflow) --
+        running-comment entries naming why each count moved added by hand
+        in gitops/tests/test_manifests.py and
+        platform/privacy/optout-persistence.test.mjs, per each script's own
+        printed reminder that it rewrites numbers only. `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed (was 3 failed before
+        adding this venture's venture-scores.yaml row -- score_ventures.py
+        and test_allocate.py both require every VENTURE.yaml to carry a
+        score). checklist_coverage.py, router/validate.py,
+        publish_surface.py --check, usage/validate_usage.py,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py, score_ventures.py
+        --check: all clean. All platform/ci unittest modules (12+31+64+89+
+        55+32+81+116+13+20+43) and agent_review's test_review (21/21):
+        clean. `node platform/pages/clauses.mjs agent-permission-config-check`:
+        3 published pages carry required clauses. `PLAYWRIGHT=$(npm root
+        -g)/playwright/index.js python3 platform/ci/browser_checks.py
+        --only agent-permission-config-check`: sideways, presets,
+        roundtrip, contrast, optout, sweep, and journey all ok; highlight
+        skipped as not applicable to this venture (it makes no highlight
+        promise). `run_workflow_locally.py --for-changes` run clean on the
+        merged, post-sync-fix tree (a first attempt raced the merge and was
+        correctly discarded by the tool's own unstable-checkout guard --
+        HEAD moved mid-run -- rather than trusting a result computed
+        against a moving target). regen.mjs --verify: current.
+        Actions confirmed starved this session
+        (`ci_starvation.py --run 35863781373`: never got a runner), so
+        every line above was run locally rather than trusted from a red or
+        absent check.
