@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 127 files, 556910 bytes
 #   portfolio-front-tools-13: 129 files, 556399 bytes
 #   portfolio-front-tools-14: 128 files, 555848 bytes
-#   portfolio-front-tools-15: 101 files, 549364 bytes
+#   portfolio-front-tools-15: 102 files, 552567 bytes
 #   portfolio-front-tools-16: 118 files, 554159 bytes
 #   portfolio-front-tools-17: 122 files, 549531 bytes
 #   portfolio-front-tools-18: 49 files, 266591 bytes
@@ -2125,6 +2125,7 @@ configMapGenerator:
       - skylight-install-bid-calculator__calc.mjs.gz=skylight-install-bid-calculator__calc.mjs.gz
       - skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz=skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz
       - skylight-install-bid-calculator__index.html.gz=skylight-install-bid-calculator__index.html.gz
+      - skylight-install-bid-calculator__should-i-install-a-customer-supplied-skylight.html.gz=skylight-install-bid-calculator__should-i-install-a-customer-supplied-skylight.html.gz
       - skylight-install-bid-calculator__usage.mjs.gz=skylight-install-bid-calculator__usage.mjs.gz
       - skylight-install-bid-calculator__vs-a-flat-rate-per-skylight-special.html.gz=skylight-install-bid-calculator__vs-a-flat-rate-per-skylight-special.html.gz
       - skylight-install-bid-calculator__vs-jobber.html.gz=skylight-install-bid-calculator__vs-jobber.html.gz
