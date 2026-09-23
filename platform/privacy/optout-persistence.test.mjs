@@ -514,37 +514,55 @@ const RELATIVE_SELF = relative(
 // (`ventures/source-map-leak-check/usage.mjs`) and no deletions. That
 // branch only ever knew its own predecessor's number (309, before
 // `osha-trir-dart-calculator`, `supabase-rls-check`,
-// `mercari-fee-calculator`, `voiceover-project-rate-calculator`,
-// `turo-host-payout-calculator`, and `podcast-feed-check` landed) until
-// this merge -- the same ordinary collision shape recorded throughout
-// this list. Total re-derived here by `sync_tree_counts.py` against the
-// fully merged tree rather than by hand.
+// `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
+// `turo-host-payout-calculator` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list. Total
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
 //
-// 317 -> 318: `git-exposure-check` also graduated, concurrently, adding
-// one `usage.mjs` following the same opt-out pattern as its siblings
-// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
-// `git-exposure-check-usage` storage name). Verified the way this file's
-// error message prescribes: exactly one added `usage.mjs`
-// (`ventures/git-exposure-check/usage.mjs`) and no deletions. This branch
-// only ever knew its own predecessor's number (313, before
-// `firebase-rules-check`, `source-map-leak-check`, and
-// `podcast-feed-check` landed) until this merge -- the same ordinary
-// collision shape recorded throughout this list. Total re-derived here by
-// `sync_tree_counts.py` against the fully merged tree rather than by
-// hand.
+// 316 -> 317: `graphql-introspection-exposure-check` also graduated,
+// concurrently, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its checker siblings, keyed under
+// its own `graphql-introspection-exposure-check-usage` storage name. This
+// branch only ever knew its own predecessor's number (313) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Verified the way this file's error message prescribes: exactly
+// one added `usage.mjs`
+// (`ventures/graphql-introspection-exposure-check/usage.mjs`) and no
+// deletions.
 //
-// 318 -> 319: `dotenv-exposure-check` graduated (this branch), adding one
+// 317 -> 318: `podcast-feed-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its checker siblings. That
+// branch's own comment read this as a no-op against its own predecessor
+// number, which was wrong once merged with this branch's own addition --
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// (and its regenerated mirror) rather than trusted from either branch's
+// arithmetic.
+//
+// 318 -> 319: `git-exposure-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its siblings, keyed under its own
+// `git-exposure-check-usage` storage name. This branch only ever knew its
+// own predecessor's number (313, before `firebase-rules-check`,
+// `source-map-leak-check`, and `podcast-feed-check` landed) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Total re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+//
+// 319 -> 320: `dotenv-exposure-check` graduated (this branch), adding one
 // `usage.mjs` following the same opt-out pattern as its siblings
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
 // `dotenv-exposure-check-usage` storage name). Verified the way this
 // file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/dotenv-exposure-check/usage.mjs`) and no deletions. This
 // branch only ever knew its own predecessor's number (317, before
+// `graphql-introspection-exposure-check`, `podcast-feed-check`, and
 // `git-exposure-check` landed) until this merge -- the same ordinary
 // collision shape recorded throughout this list. Total re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by
 // hand.
-const SWITCHES_IN_THE_CATALOGUE = 319;
+const SWITCHES_IN_THE_CATALOGUE = 320;
 
 let counter = 0;
 function fixture(source) {

@@ -38649,6 +38649,127 @@ entries:
         21/21 pass (unaffected by this change; run per the starvation
         checklist). YAML-validated the workflow edit with `yaml.safe_load`.
     mrr_end: 0
+  - venture: asphalt-driveway-pave-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added should-i-only-charge-material-cost-for-paving-fabric.html, a
+        new guide page (unbudgeted page type; the venture was already at
+        its 1-per-venture generic-method and named-product comparison
+        budgets per surface-budget.mjs). Uses the calculator's own
+        fabric-over-cracks preset (JOB_PRESETS[3], a 2,150 sq ft paved
+        mill-and-overlay) to show that fabric's $0.55/sq ft sticker price
+        ($1,182.50 material on this job) is not what fabric should add to
+        the price -- at the calculator's own default 16% overhead / 28%
+        margin, the correct price delta is $1,905.14, so charging only the
+        material line leaves $722.64 of overhead and margin uncollected.
+        All dollar figures are pinned to calc.mjs's own calculateBid output
+        via a new test file, not hand-typed, so a future rate change cannot
+        leave the page quietly wrong. Wired into index.html's related-links
+        footer, the SEO walkthrough page, README.md, and sitemap.xml; not
+        orphaned per page.test.mjs's linking conventions.
+        Caught and fixed one real FAQ JSON-LD/visible-copy divergence
+        (em dash in the visible prose vs. a literal `--` in three JSON-LD
+        answers) via platform/pages/faq-visible.test.mjs before this
+        shipped -- the same class of defect CLAUDE.md already records
+        costing a PR a round trip.
+        Ran node --test in the venture: 145/145. platform/marketing +
+        platform/pages (1281 assertions): 1281/1281 after regenerating the
+        front-door mirror (node platform/marketing/regen.mjs --verify:
+        confirmed stale beforehand, clean after). checklist_coverage.py,
+        surface-budget.mjs --check, clauses.mjs asphalt-driveway-pave-bid-calculator:
+        all clean. python3 -m pytest gitops/tests -q: 613 passed, 25
+        skipped (documented benign skip, nginx/ssh not installed this
+        session). All 15 platform/ci unittest modules and agent_review:
+        clean. Confirmed the CI signature is starvation, not a real
+        failure, via ci_starvation.py --run 35908061034 (runner_id: 0,
+        3s, no steps) before merging.
+    mrr_end: 0
+  - venture: graphql-introspection-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, graduated per DIRECTION.md's "new ventures rank first
+        when a genuine one is available" (session_gate.py's build-now
+        pipeline was empty). A free browser tool + CLI: sends one real
+        GraphQL introspection query to an endpoint URL the user provides
+        and reports whether introspection is enabled -- exposing every
+        query/mutation/subscription field name and every named type --
+        flagging a non-null mutation surface and field names matching
+        common sensitive-operation wording as higher-severity evidence.
+        Runs client-side in the browser when the target's own CORS policy
+        allows it (an ordinary POST needs no forbidden header, unlike
+        cors-misconfig-check's Origin-header probes), with a
+        zero-dependency Node CLI fallback for when it doesn't, since CORS
+        is a browser-only restriction Node's fetch never enforces.
+        duplicate_check.py scored the closest existing venture
+        (supabase-rls-check) at 0.17, well under the 0.45 flag bar. Merit
+        score 6.167 recorded in venture-scores.yaml (same composite as
+        the sibling header/response-evidence checkers). Closed a
+        crawlable-orphan finding from platform/pages/siblings.mjs --check
+        by adding a reciprocal link from cors-misconfig-check's footer.
+        Also refreshed the stale published gh-pages snapshot at session
+        start (built from d4933783, main was at 9740c6b7) via
+        publish-branch.sh, recorded the github-pages-branch-route reading,
+        and re-ran regen.mjs after merging main forward twice (a 335th
+        mirrored tool restamps every mirrored page's "All N free tools"
+        back-link) -- fixed the SWITCHES_IN_THE_CATALOGUE and mirrored-
+        tool-count running comments sync_tree_counts.py rewrote (keeping
+        every concurrent session's own changelog entries in the merge, not
+        picking a side), plus the runs-on count
+        gitops/ci/sync_readme_counts.py rewrote.
+        Verified: node --test in the venture, 55/55 (analyze.mjs's pure
+        classification logic, probe.mjs against a real local HTTP server,
+        check.mjs's CLI orchestration with an injected probeFn, the usage
+        counter, and both pages' structure/disclaimers), plus
+        cors-misconfig-check's own suite, 70/70, after adding the sibling
+        link. Ran the built CLI end-to-end as a real subprocess against a
+        local test server (exit 1 on a mutation surface with a sensitive
+        name, as expected).
+        node platform/pages/clauses.mjs graphql-introspection-exposure-check,
+        python3 portfolio/router/validate.py, platform/ci/publish_surface.py
+        --write/--check, platform/ci/validate_workflows.py, and
+        platform/pages/siblings.mjs --check: clean. node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs: 1281/1281
+        (this file's own long-suite command, re-run clean after the merge
+        and the sibling-link fix). python3 -m pytest gitops/tests -q: 637
+        passed, 1 skipped (nginx-light and openssh-client installed this
+        session per CLAUDE.md's apt guidance). platform/ci unittest suites
+        (15 modules) and platform/ci/agent_review's test_review: all pass.
+        python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests
+        -q: 443 passed (after adding the merit-score row; router/scoring
+        rerun afterward: 88 passed). portfolio/pipeline's
+        validate_doc_consistency.py, validate_candidates.py,
+        probes/validate_probe_index.py, and score_sensitivity.py: clean.
+        platform/ci/usage_state.py --require-honest and
+        check_no_payment_code.py: clean. Installed playwright@1.56.0 +
+        axe-core and ran platform/ci/browser_checks.py --only
+        graphql-introspection-exposure-check: 7/8 checks passed (contrast:
+        0 WCAG A/AA violations across 2 pages/2 viewports; optout: the
+        usage opt-out control persists; journey/sweep/sideways/presets/
+        roundtrip: clean; highlight skipped -- this venture makes no
+        highlight promise). Merged main forward twice while this was in
+        flight (turo-host-payout-calculator, then
+        sign-language-interpreter-rate-calculator/firebase-rules-check/
+        source-map-leak-check landing concurrently) and resolved the
+        resulting narrative-comment / adjacent-list-entry collisions in
+        gitops/tests/test_manifests.py,
+        platform/privacy/optout-persistence.test.mjs,
+        portfolio/scoring/venture-scores.yaml, portfolio/usage/usage.yaml,
+        and this file by hand, keeping every concurrent entry rather than
+        picking a side; discarded and regenerated the front-door mirror
+        rather than picking a side on the binary .gz conflicts, per
+        resolve-mirror-merge.sh's guidance. Merged to main and published
+        via CONFIRM=publish-pages-branch PUSH=1 platform/pages/publish-
+        branch.sh in the same session, so the venture is reachable at
+        https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/
+        (per PRODUCT_PLAYBOOK.md's definition of done: merged-to-main is
+        not deployed).
+    mrr_end: 0
+
   - venture: sri-check
     agent_spend_usd: null
     human_hours: 0

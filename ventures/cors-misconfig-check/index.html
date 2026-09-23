@@ -309,7 +309,10 @@
   Content-Security-Policy strength rather than a reflected <code>Origin</code>, and
   <a href="../supabase-rls-check/">Supabase RLS exposure checker</a> covers a database-level
   access-control evidence class again -- whether a table returns real rows, not a response
-  header at all.</p>
+  header at all, and
+  <a href="../graphql-introspection-exposure-check/">GraphQL introspection exposure checker</a>
+  covers a schema-enumeration evidence class again -- whether an unauthenticated introspection
+  query reveals the full query/mutation surface, not a response header or a database table.</p>
 </footer>
 </body>
 </html>

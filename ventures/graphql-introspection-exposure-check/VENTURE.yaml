@@ -1,0 +1,78 @@
+name: graphql-introspection-exposure-check
+description: >-
+  A free browser tool + CLI: sends one real GraphQL introspection query to
+  an endpoint URL the user provides and reports whether introspection is
+  enabled -- exposing every query, mutation, and subscription field name,
+  and every named type, whether or not any real client links to it.
+  Introspection defaults to on in most GraphQL server libraries and is
+  standard practice to disable in production per OWASP's API Security
+  guidance. Flags a non-null mutation surface and field names matching
+  common sensitive-operation wording as higher-severity evidence. Runs
+  client-side in the browser when the target's own CORS policy allows it
+  (an ordinary POST needs no forbidden header, unlike
+  ventures/cors-misconfig-check); the CLI performs the identical check
+  unconditionally, since CORS is a browser-only restriction Node's fetch
+  never enforces. Never mutates anything -- introspection fields are
+  read-only by construction.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, security researcher, or agency doing due diligence on a
+      GraphQL-backed API will search terms like "graphql introspection
+      checker", "check if graphql introspection is enabled", "graphql
+      schema exposure", or "disable graphql introspection production" and
+      find this tool, since it needs no signup and runs the actual
+      introspection query rather than asking the reader to run one by hand
+      in GraphiQL.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Real, ongoing demand exists: OWASP's API Security project and every
+      major GraphQL server library's own documentation (Apollo Server,
+      graphql-yoga, express-graphql) name disabling introspection in
+      production as standard hardening, and Apollo Server changed its own
+      default to introspection-off outside development after years of the
+      opposite default -- evidence that the exposure is common enough for a
+      major vendor to change a default over. A developer who has just read
+      one of these wants an immediate way to check their own endpoint,
+      which none of the write-ups themselves provide.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or team that gets an introspection-enabled finding will
+      wire the CLI into their own deploy/CI pipeline as a regression gate,
+      so a newly deployed environment that ships with introspection on by
+      default (the common case) is caught the same day rather than
+      discovered by an attacker or a later audit -- producing return usage
+      with no action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Every major GraphQL server library switches its default to
+    introspection-off in production (Apollo Server has already done this in
+    current major versions) and no equivalent regression risk (a config
+    flag flipped back on, a third-party server library that hasn't
+    followed) remains to check for -- at which point the check would be
+    testing a problem that no longer exists by default.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/graphql-introspection-exposure-check/
+  analytics: null

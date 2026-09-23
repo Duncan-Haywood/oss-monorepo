@@ -1778,13 +1778,25 @@ const CATEGORY_RULES = [
     // the exact undeclared category" shape as the rest of this section. Doing
     // the move now is what that comment asked the next session that needed
     // the slot to do, rather than raising the bound instead.
-    // `git-exposure-check` joined 2026-09-23: the same "read what's actually
-    // there, name the exact evidence" shape as `cors-misconfig-check` and
-    // `security-headers-check` (two real GET requests, response classified
-    // against a fixed decision table), just reading a response body instead
-    // of headers. Its slug does not start with a keyword this rule already
-    // recognised, so it would otherwise have swelled the catch-all the way
-    // `supabase-rls-check` once did.
+    //
+    // `graphql-introspection-exposure-check` joined 2026-09-23, filed here on
+    // its first commit rather than left for a later move -- the same
+    // "read what's actually there, name the exact evidence" checker shape as
+    // `cors-misconfig-check`, `security-headers-check`, `supabase-rls-check`,
+    // `firebase-rules-check`, and `source-map-leak-check`, for a GraphQL
+    // endpoint's introspection exposure rather than a response header, a
+    // database table, or a source map. It cross-links `cors-misconfig-check`
+    // and `supabase-rls-check` as Related, reciprocally (a link added to
+    // `cors-misconfig-check`'s own footer, not just this one, so the pair
+    // closes the crawlable-orphan gap a new venture otherwise opens).
+    //
+    // `git-exposure-check` joined 2026-09-23, concurrently: the same "read
+    // what's actually there, name the exact evidence" shape as
+    // `cors-misconfig-check` and `security-headers-check` (two real GET
+    // requests, response classified against a fixed decision table), just
+    // reading a response body instead of headers. Its slug does not start
+    // with a keyword this rule already recognised, so it would otherwise
+    // have swelled the catch-all the way `supabase-rls-check` once did.
     //
     // `dotenv-exposure-check` joined 2026-09-23, the same session: the same
     // "read what's actually there, name the exact evidence" shape as
@@ -1797,7 +1809,7 @@ const CATEGORY_RULES = [
     // would have on its own. It cross-links `git-exposure-check` as Related
     // (same family, a different static-file exposure class).
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|git-exposure-check|firebase-rules-check|source-map-leak-check|dotenv-exposure-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check)/.test(
         slug,
       ),
   },
