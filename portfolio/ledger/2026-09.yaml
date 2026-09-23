@@ -37858,3 +37858,50 @@ entries:
         by regenerating from the merged sources rather than picking a side,
         per platform/marketing/resolve-mirror-merge.sh.
     mrr_end: 0
+  - venture: gutter-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-a-flat-4-50-per-foot-special.html, against the "$4.50 a foot
+        installed" flat rate this venture's own VENTURE.yaml hypothesis
+        already names as the generic price gutter shops are shopped on
+        (surface-budget.mjs confirmed 0/1 generic-method pages used before
+        this change; the venture's existing vs-jobnimbus.html is a
+        named-product page and unbudgeted). Worked example built from
+        calc.mjs's own JOB_PRESETS entries at the shipped index.html
+        shop-rate defaults ($38/hr wage, 32% burden, $95 travel/equipment,
+        16% overhead, 32% margin): the preset literally labelled "the
+        $4.50/ft special" -- 140 ft of 5" aluminum, four outside miters, the
+        first two downspouts included, no fascia, no tear-off -- has a
+        walk-away cost of $1,189.34, so the flat rate itself ($630.00 on
+        that footage) falls $559.34 short of covering its own brochure job,
+        before a single inside miter or extra downspout is added. The
+        2-story colonial preset (220 ft of 6" aluminum, two inside miters,
+        four downspouts, 40 ft fascia, tear-off) walk-away costs $4,611.88
+        against $990.00 at the flat rate, a $3,621.88 shortfall. Registered
+        the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no
+        gutter company or CRM).
+      - >-
+        Verified: node --test in the venture 115/115; full
+        platform/marketing + platform/pages suite 1281/1281; gitops/tests
+        637 passed/1 skipped (environmental, after installing nginx-light
+        and openssh-client per CLAUDE.md's apt-get-update warning); all 27
+        platform/ci unittest modules and agent_review's test_review (21/21)
+        clean; portfolio ledger+scoring+router+usage+pipeline+infra pytest
+        suites 446 passed; checklist_coverage.py, router/validate.py,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py, score_ventures.py
+        --check, usage/validate_usage.py, publish_surface.py --check,
+        sync_tree_counts.py: all clean, no drift. guard_state.py
+        --require-runnable: no fixable skips. regen.mjs --verify caught the
+        front-door mirror going stale after the new page shipped; fixed
+        with regen.mjs and re-verified clean. browser_checks.py --only
+        gutter-install-bid-calculator: all 8 checks passed (contrast,
+        optout, sweep, journey included) after installing
+        playwright@1.56.0 and axe-core in one `npm install --no-save`.
+        Confirmed ci_starvation.py against a fresh publish-pages-branch.yml
+        run (runner_id 0, 3s, no steps) before relying on this local
+        checklist rather than CI.
+    mrr_end: 0
