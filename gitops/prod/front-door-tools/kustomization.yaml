@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 125 files, 556642 bytes
 #   portfolio-front-tools-15: 103 files, 554424 bytes
 #   portfolio-front-tools-16: 117 files, 553246 bytes
-#   portfolio-front-tools-17: 115 files, 512045 bytes
+#   portfolio-front-tools-17: 116 files, 515893 bytes
 #   portfolio-front-tools-18: 49 files, 266581 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2292,6 +2292,7 @@ configMapGenerator:
     files:
       - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
       - turo-host-payout-calculator__calc.mjs.gz=turo-host-payout-calculator__calc.mjs.gz
+      - turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz=turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz
       - turo-host-payout-calculator__index.html.gz=turo-host-payout-calculator__index.html.gz
       - turo-host-payout-calculator__usage.mjs.gz=turo-host-payout-calculator__usage.mjs.gz
       - tutor-package-pricing-calculator__calc.mjs.gz=tutor-package-pricing-calculator__calc.mjs.gz
