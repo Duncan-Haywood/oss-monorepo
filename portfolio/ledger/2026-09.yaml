@@ -37390,3 +37390,50 @@ entries:
         venture, so the mirrored-tool count is unaffected).
         `check_ledger_only.py`: not tripped (5 files outside ledger prose).
     mrr_end: 0
+  - venture: gig-driver-net-pay-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-the-apps-earnings-screen.html, against the gross-per-hour figure
+        every gig platform's own earnings screen shows (surface-budget.mjs
+        had reported 0/1 generic-method pages used; the venture's existing
+        vs-gridwise.html is a named-product page and unbudgeted). Read
+        calc.mjs's calculateSession and its own top comment -- the app
+        screen never subtracts vehicle cost, entirely the driver's own --
+        to build the worked example: a session paying $220 for 95 miles and
+        6.5 hours shows $33.85/hour gross on the earnings screen; pricing
+        the vehicle (28 MPG at $3.40/gallon, an 8 cent/mile maintenance
+        reserve, $145/month insurance and other fixed costs prorated across
+        1,400 typical monthly miles) brings it to $29.39/hour before tax,
+        and a 25% self-employment tax reserve brings what's actually kept
+        to $22.04/hour -- $11.81 (35%) less than the app displayed.
+        Registered the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT.
+        `node --test` in the venture: 50/50. `python3 -m pytest gitops/tests
+        -q`: 637 passed, 1 skipped. All 27 platform/ci unittest modules and
+        agent_review's test_review (21/21): clean. checklist_coverage.py
+        and surface-budget.mjs --check: clean. Rebased onto one concurrent
+        sibling merge (sunroom-bid-calculator), resolving the generated
+        front-door mirror by regenerating from the merged sources.
+        Also fixed a git-config mistake mid-session: two commits had been
+        authored as ci@example.com/CI instead of Claude/noreply@anthropic.com
+        (a stale local git config from earlier in the session) --
+        caught by the repo's own commit-signature check before pushing,
+        fixed with `git rebase --exec "git commit --amend --no-edit
+        --reset-author"` after correcting the config, verified byte-identical
+        trees before and after. Confirmed every check on the PR starved via
+        ci_starvation.py (portfolio-validate.yml: runner_id 0, 4s, no steps)
+        before merging (#5225). Killed two background verification sweeps
+        (the full platform/marketing+platform/pages node --test suite and
+        run_workflow_locally.py --tree) mid-run after realizing they had
+        been reading the working tree while concurrent git rebase/checkout
+        operations for this same push were mutating it -- the same
+        interleaving hazard CLAUDE.md's regen.test.mjs section warns about,
+        recognized one level up (git operations racing a background reader,
+        not two --verify runs racing each other) and not trusted rather
+        than reported as a result. Published the gh-pages snapshot after
+        several publish-backwards refusals during a fast-moving window
+        (repo-tracked here as the standing job, not a defect) and recorded
+        github-pages-branch-route as current.
+    mrr_end: 0
