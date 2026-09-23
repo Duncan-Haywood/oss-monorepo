@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 334 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 336 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -44,6 +44,15 @@
     <summary type="text">Free calculator comparing Upwork and Fiverr net payout for the same job price, after platform fees, withdrawal fees, and a tax reserve. Solve for the price to charge on either platform to hit a take-home goal.</summary>
   </entry>
   <entry>
+    <title>Git Exposure Checker — is your .git directory publicly readable?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/git-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/git-exposure-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends two real requests to your site (.git/HEAD and .git/config), then paste the JSON here for a plain-English report on whether your .git directory is publicly exposed -- letting anyone reconstruct your full source history, including secrets removed in a later commit. Correctly tells a real exposure apart from a 200-status soft-404 page. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Mercari Fee Calculator — What You Actually Keep After the 10% Fee</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mercari-fee-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/mercari-fee-calculator</id>
@@ -69,6 +78,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free calculator for independent personal trainers: compares a discounted prepaid session package against pay-per-session pricing on net take-home pay per hour, after your gym or studio&#39;s percentage cut or flat facility fee — not just revenue. A flat per-session fee erodes a discounted package harder than it erodes full price, and a makeup-owed policy can turn a package&#39;s guaranteed revenue into a worse hourly rate. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Podcast Feed Validator — Apple Podcasts / RSS 2.0 Spec Checker</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/podcast-feed-check/"/>
+    <id>tag:marisstella.dev,2026:tool/podcast-feed-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free tool: paste your podcast&#39;s RSS feed XML and check it against the documented Apple Podcasts feed requirements and the RSS 2.0 spec -- missing title/description/language/category/explicit/artwork, an invalid pubDate format, a missing atom:link rel=self, and duplicate episode guids (the documented cause of an episode reappearing as new or disappearing from a podcast app). A zero-dependency CLI fetches your feed URL for real. Runs in your browser or as a CI check. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Sign Language Interpreter Rate Calculator — Free, No Sign-Up</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent propane (LP gas) delivery route operators: find real annual profit per customer after the retail/wholesale price spread, the minimum-delivery fee on small fills, drive time and mileage, and tank rental and hazmat compliance cost, then see whether your whole route hits your income goal.</summary>
-  </entry>
-  <entry>
-    <title>QBI Deduction Calculator — Section 199A, 2025 &amp; 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/qbi-deduction-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/qbi-deduction-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the Section 199A qualified business income (QBI) deduction: applies the 20% deduction, the taxable-income threshold and phase-in range for 2025 and 2026 (including the OBBBA-widened 2026 range and new $400 minimum deduction), the specified-service-business (SSTB) phase-out, and the W-2 wage / UBIA limitation. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Required Checks Drift Check — Is a Branch Protection Check Stuck Forever?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/required-checks-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/required-checks-drift-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your branch protection required status checks and your GitHub Actions workflow YAML to find every required check name no job can ever report again — the reason a pull request sits at &#39;Expected — Waiting for status to be reported&#39; forever. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
