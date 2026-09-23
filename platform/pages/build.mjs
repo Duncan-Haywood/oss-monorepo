@@ -6760,10 +6760,41 @@ export function faqEntries(html) {
     .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
+/**
+ * Blank out every `<script>...</script>` body, character-for-character (so
+ * the result is the same length and every match index still lines up with
+ * the original string) — everything else is untouched.
+ *
+ * `injectChrome` and the mirror's own nav/related/embed injectors all locate
+ * the document's real `<body>`/`</body>` tags with a plain regex over the
+ * whole page. That broke on `git-exposure-check`'s own soft-404 guide page:
+ * its FAQ answer explains the two responses a checker sees by literally
+ * quoting one, `<html><body>404 Not Found</body></html>`, inside a
+ * `<script type="application/ld+json">` block in `<head>` — text describing
+ * markup, not markup. A raw regex over the full document finds that quoted
+ * `<body>`/`</body>` first, since it sits before the page's real body, and
+ * every downstream `.replace()`/`indexOf()` call then lands inside the JSON
+ * string instead of the actual document structure, corrupting the JSON-LD
+ * (a raw newline inside a string literal) and leaving the nav or footer
+ * markup stranded in `<head>`. Search a masked copy instead: scripts can
+ * still open and close a real `<body>` around themselves, but nothing typed
+ * *inside* one can be mistaken for a document tag again.
+ */
+export function maskScriptContents(html) {
+  return html.replace(/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi, (_, open, body, close) => (
+    open + body.replace(/[^\n]/g, ' ') + close
+  ));
+}
+
+/** `pattern.exec()` against a masked copy of `html` — see `maskScriptContents`. */
+function structuralMatch(html, pattern) {
+  return pattern.exec(maskScriptContents(html));
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = html.match(/<body[^>]*>/i);
-  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+  const bodyOpen = structuralMatch(html, /<body[^>]*>/i);
+  if (!bodyOpen || !structuralMatch(html, /<\/body>/i)) return html;
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6819,9 +6850,9 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     }
   }
   if (headExtras) {
-    html = /<\/head>/i.test(html)
-      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
-      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+    const headClose = structuralMatch(html, /<\/head>/i);
+    const insertAt = headClose ? headClose.index : bodyOpen.index;
+    html = html.slice(0, insertAt) + `${headExtras}\n` + html.slice(insertAt);
   }
 
   const hub = `${toRoot}`;
@@ -6865,13 +6896,22 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // `CHROME_STYLE_FILE`.
   const styleLink =
     `<link rel="stylesheet" href="${escapeHtml(`${toRoot}${CHROME_STYLE_FILE}`)}">`;
-  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
+  const headCloseForStyle = structuralMatch(html, /<\/head>/i);
+  const withStyle = headCloseForStyle
+    ? html.slice(0, headCloseForStyle.index) + `${styleLink}\n` + html.slice(headCloseForStyle.index)
+    : html;
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
   const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
-  return withStyle
-    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n</body>`);
+  // Re-locate <body> against `withStyle`: the head-close insertion above (if
+  // any) landed before it and shifted its position.
+  const bodyOpenAfterStyle = structuralMatch(withStyle, /<body[^>]*>/i);
+  const topInsertAt = bodyOpenAfterStyle.index + bodyOpenAfterStyle[0].length;
+  const afterTop =
+    withStyle.slice(0, topInsertAt) + `\n${stylePrefix}${topBar}` + withStyle.slice(topInsertAt);
+
+  const bodyClose = structuralMatch(afterTop, /<\/body>/i);
+  return afterTop.slice(0, bodyClose.index) + `${footer}\n` + afterTop.slice(bodyClose.index);
 }
 
 /**
