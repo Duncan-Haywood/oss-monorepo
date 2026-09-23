@@ -2072,7 +2072,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # a browser-local calculator comparing Upwork's and Fiverr's net payout
     # for the same job price, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 324  # `infra/OWNER_CHECKLIST.md`'s own "N of the 324 tools" wording.
+    #
+    # 325 since this merge: `personal-trainer-package-pricing-calculator`
+    # graduated -- a browser-local calculator comparing a prepaid session
+    # package to pay-per-session pricing on net take-home pay per hour,
+    # after a gym or studio's percentage or flat cost structure, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 325  # `infra/OWNER_CHECKLIST.md`'s own "N of the 325 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
