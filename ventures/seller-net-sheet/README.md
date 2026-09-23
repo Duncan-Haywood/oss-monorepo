@@ -31,7 +31,9 @@ closing help can net less than a cleaner $417,000 offer. This tool keeps
 those lines separate and shows both nets on one page.
 
 [Higher offer vs cleaner offer](offer-comparison.html) answers that search
-question directly.
+question directly, and
+[this calculator vs. Zillow's Home Sale Calculator](vs-zillows-home-sale-calculator.html)
+covers the rougher, pre-offer estimate most sellers see first.
 
 **No warranty.** This tool is provided free and as-is, without warranty of
 any kind, express or implied. It is not legal, tax, financial, or

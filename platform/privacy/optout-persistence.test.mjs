@@ -438,17 +438,26 @@ const RELATIVE_SELF = relative(
 // this merge -- the same ordinary collision shape recorded throughout
 // this list.
 //
-// 310 -> 311: `mercari-fee-calculator` graduated concurrently with both of
-// the above, adding one `usage.mjs` following the same opt-out pattern as
-// its siblings (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed
-// under its own `mercari-fee-calculator-usage` storage name). Verified the
-// way this file's error message prescribes: exactly one added `usage.mjs`
+// 310 -> 311: `source-map-leak-check` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its sibling checkers
+// (`usageOptedOut`/`setUsageOptOut`-equivalent gating via `readOptOut`/
+// `writeOptOut` in `recordUsage`, same as `supabase-rls-check`'s). This
+// branch only ever knew its own predecessor's number (310, counting only
+// `actions-secrets-inherit-check`) until this merge brought
+// `osha-trir-dart-calculator` and `supabase-rls-check` in alongside it --
+// the same ordinary collision shape recorded throughout this list.
+//
+// 311 -> 312: `mercari-fee-calculator` graduated concurrently, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `mercari-fee-calculator-usage` storage name). Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/mercari-fee-calculator/usage.mjs`) and no deletions. This
 // branch only ever knew its own predecessor's number (309) until this
 // merge -- the same ordinary collision shape recorded throughout this list.
 //
-// 311 -> 312: `voiceover-project-rate-calculator` graduated concurrently
-// with all three above, adding one `usage.mjs` following the same opt-out
+// 312 -> 313: `voiceover-project-rate-calculator` graduated concurrently
+// with both above, adding one `usage.mjs` following the same opt-out
 // pattern as its siblings (`usageAllowed`/`toggleUsage` gating
 // `recordEvent` the same way `locksmith-bid-calculator`'s does). This
 // branch only ever knew its own predecessor's number (308, before the
@@ -458,8 +467,17 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
 //
-// 312 -> 313: `turo-host-payout-calculator` graduated, adding one
-// `usage.mjs` following the same opt-out pattern as its siblings
+// 312 -> 313: `sign-language-interpreter-rate-calculator` graduated, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent`, the same shape as
+// `voiceover-project-rate-calculator`'s, which it is modeled on). Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs`
+// (`ventures/sign-language-interpreter-rate-calculator/usage.mjs`) and no
+// deletions.
+//
+// 313 -> 314: `turo-host-payout-calculator` also graduated, concurrently,
+// adding one `usage.mjs` following the same opt-out pattern as its siblings
 // (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
 // `voiceover-project-rate-calculator`'s does). This branch only ever knew
 // its own predecessor's number (312, before `mercari-fee-calculator`
@@ -468,16 +486,42 @@ const RELATIVE_SELF = relative(
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
 //
-// 313 -> 314: `git-exposure-check` graduated, adding one `usage.mjs`
-// following the same opt-out pattern as its siblings (`readOptOut`/
-// `writeOptOut` gating `recordUsage`, keyed under its own
-// `git-exposure-check-usage` storage name). This branch only ever knew its
-// own predecessor's number (313, before `turo-host-payout-calculator`
-// landed) until this merge -- the same ordinary collision shape recorded
-// throughout this list. Verified the way this file's error message
+// 314 -> 315: `firebase-rules-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// `supabase-rls-check`'s. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
-// (`ventures/git-exposure-check/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 314;
+// (`ventures/firebase-rules-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309, before
+// `osha-trir-dart-calculator`, `supabase-rls-check`,
+// `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list.
+//
+// 315 -> 316: `source-map-leak-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// its checker siblings. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/source-map-leak-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309, before
+// `osha-trir-dart-calculator`, `supabase-rls-check`,
+// `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
+// `turo-host-payout-calculator` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list. Total
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
+//
+// 316 -> 317: `git-exposure-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `git-exposure-check-usage` storage name). Verified the way this file's
+// error message prescribes: exactly one added `usage.mjs`
+// (`ventures/git-exposure-check/usage.mjs`) and no deletions. This branch
+// only ever knew its own predecessor's number (313, before
+// `firebase-rules-check` and `source-map-leak-check` landed) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Total re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 317;
 
 let counter = 0;
 function fixture(source) {
