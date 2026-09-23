@@ -34,6 +34,18 @@ owner: duncan
 # the user already know the figure, points self-employed tip earners at the
 # net-profit cap those simpler tools omit, and is privacy-first with no
 # upsell -- donation-only like the rest of this portfolio.
+#
+# Corrected 2026-09-23: the self-employed net-profit cap was net profit
+# alone. Schedule 1-A's instructions (an IRS clarification a month into the
+# 2025 filing season, 2026-03, widely reported after an earlier Schedule
+# 1-A draft read as "net profit" alone and some software overstated the
+# deduction under that reading) limit the deduction to net profit LESS
+# deductions allocable to that business -- the deductible part of
+# self-employment tax, plus any self-employed retirement-plan or
+# health-insurance deduction claimed against it. calc.mjs now takes those
+# three as separate optional inputs (each already computed elsewhere on the
+# same return, so this does not derive self-employment tax itself) and
+# reduces the net-profit ceiling by their sum before applying it.
 
 hypotheses:
   - claim: >-

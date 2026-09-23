@@ -51,7 +51,13 @@ rate/overtime-hours/weeks rows to compute it. Click **Calculate**.
 All in [`calc.mjs`](calc.mjs), as pure functions with no dependencies:
 
 - **`computeQualifiedTipDeduction`** — applies the $25,000 cap, the MAGI
-  phase-out, and (when self-employed) the net-profit cap.
+  phase-out, and (when self-employed) the net-profit cap. Per Schedule
+  1-A's instructions (clarified 2026-03, after an earlier draft read as net
+  profit alone), the cap is net profit **minus** deductions allocable to
+  that business — the deductible part of self-employment tax, plus any
+  self-employed retirement-plan or health-insurance deduction claimed
+  against it — each entered as its own optional field rather than derived
+  here, since the filer already computes them elsewhere on the same return.
 - **`computeQualifiedOvertimeDeduction`** — applies the $12,500/$25,000 cap
   and the same phase-out formula.
 - **`phaseOutReduction`** — $100 per $1,000 of MAGI over the threshold,

@@ -108,6 +108,51 @@ test('self-employed tip deduction cannot exceed net profit from the tipped work'
   assert.equal(result.cappedByNetProfit, true);
 });
 
+test('self-employed net-profit ceiling is reduced by allocable SE tax, retirement and health-insurance deductions', () => {
+  // Schedule 1-A's corrected instructions (2026-03): the ceiling is net
+  // profit LESS deductions allocable to the business, not raw net profit.
+  // $20,000 net profit - $1,413 SE tax deduction - $2,000 health insurance
+  // - $1,000 retirement contribution = $15,587 ceiling.
+  const result = computeQualifiedTipDeduction({
+    qualifiedTips: 18000,
+    filingStatus: 'single',
+    magi: 40000,
+    isSelfEmployed: true,
+    netProfitFromTippedWork: 20000,
+    seTaxDeduction: 1413,
+    seHealthInsuranceDeduction: 2000,
+    seRetirementContribution: 1000,
+  });
+  assert.equal(result.deduction, 15587);
+  assert.equal(result.cappedByNetProfit, true);
+  assert.ok(result.findings.some((f) => /Net-profit ceiling reduced/.test(f.title)));
+});
+
+test('allocable deductions that exceed net profit floor the ceiling at $0, never negative', () => {
+  const result = computeQualifiedTipDeduction({
+    qualifiedTips: 5000,
+    filingStatus: 'single',
+    magi: 40000,
+    isSelfEmployed: true,
+    netProfitFromTippedWork: 1000,
+    seTaxDeduction: 1500,
+  });
+  assert.equal(result.deduction, 0);
+  assert.equal(result.cappedByNetProfit, true);
+});
+
+test('with no allocable deductions entered, the ceiling finding is unchanged (no regression)', () => {
+  const result = computeQualifiedTipDeduction({
+    qualifiedTips: 12000,
+    filingStatus: 'single',
+    magi: 40000,
+    isSelfEmployed: true,
+    netProfitFromTippedWork: 5000,
+  });
+  assert.equal(result.deduction, 5000);
+  assert.ok(!result.findings.some((f) => /Net-profit ceiling reduced/.test(f.title)));
+});
+
 test('self-employed net profit above qualified tips does not raise the deduction', () => {
   const result = computeQualifiedTipDeduction({
     qualifiedTips: 4000,
