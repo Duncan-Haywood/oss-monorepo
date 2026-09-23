@@ -37624,3 +37624,53 @@ entries:
         regen step exists to fix -- not a defect in main).
         checklist_coverage.py and surface-budget.mjs --check: clean.
     mrr_end: 0
+  - venture: actions-secrets-inherit-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture (#5234): a free, read-only CLI/browser tool
+        scanning GitHub Actions workflow YAML for two documented secrets:
+        inherit risks on a reusable-workflow call -- secrets: inherit handed
+        to a workflow hosted in a different repository, and secrets: inherit
+        on a job reachable from a pull_request_target/workflow_run trigger.
+        Neither pattern is read by any existing actions-* checker in this
+        portfolio (pinned-actions-check flags a mutable uses: ref
+        generically but knows nothing about secrets: inherit;
+        actions-secret-leak-check is about a secret already in scope
+        leaking out, not which workflow receives the whole set).
+        duplicate_check.py's closest other-venture match was
+        actions-cache-poisoning-check at 0.50 -- lexical overlap from the
+        shared trigger phrase, not the finding shape. Same shape as its
+        actions-* siblings: stdlib-only Python CLI + a browser-ported
+        classifier kept in lock-step via a byte-identical CLI/browser
+        parity test, disclaimers, opt-out usage counting, and full
+        discoverability. Scored in venture-scores.yaml (composite 6.0),
+        registered in publish-surface.yaml, usage.yaml, and its own CI
+        workflow.
+      - >-
+        Caught and fixed an em-dash vs. "--" FAQPage JSON-LD/visible-prose
+        divergence (faq-visible.test.mjs) and a crawlable-orphan finding
+        (siblings.test.mjs) by cross-linking from actions-secret-leak-check's
+        footer -- the same two failure shapes this file already records
+        against other comparison/guide pages landing the same week, now hit
+        by a from-scratch venture instead. Merged main in to resolve a
+        gitops/prod/front-door(-tools)/ mirror-directory conflict per
+        resolve-mirror-merge.sh's guidance (--ours as an interim step, then
+        regen.mjs from the merged sources).
+      - >-
+        Verified: node --test in the venture 25/25 (incl. parity test and a
+        live CLI run against this repo's own 381 workflow files, clean); all
+        27 platform/ci unittest modules; agent_review's test_review 21/21;
+        gitops/tests 613 passed/25 skipped (environmental); portfolio
+        ledger+scoring+router+usage+pipeline+infra pytest suites all green;
+        checklist_coverage.py, router/validate.py, score_ventures.py
+        --check, usage/validate_usage.py, publish_surface.py --check,
+        sync_tree_counts.py, regen.mjs --verify, clauses.mjs: all clean.
+        Full platform/marketing + platform/pages suite: 1281/1281 after the
+        FAQPage fix. Every check on the PR (15 check runs) confirmed
+        starved via ci_starvation.py (runner_id: 0 on each) before merging;
+        said so in one PR comment naming what was verified locally.
+        Published the gh-pages snapshot after merging and recorded
+        github-pages-branch-route as current.
+    mrr_end: 0
