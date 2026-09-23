@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 142 files, 555276 bytes
 #   portfolio-front-tools-5: 126 files, 556174 bytes
 #   portfolio-front-tools-6: 133 files, 555309 bytes
-#   portfolio-front-tools-7: 121 files, 548280 bytes
+#   portfolio-front-tools-7: 122 files, 553018 bytes
 #   portfolio-front-tools-8: 138 files, 555431 bytes
 #   portfolio-front-tools-9: 123 files, 553877 bytes
 #   portfolio-front-tools-10: 116 files, 551133 bytes
@@ -1088,6 +1088,7 @@ configMapGenerator:
       - dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz=dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz
       - dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz=dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz
       - dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz=dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz
+      - dental-ppo-writeoff-calculator__which-ppo-contract-to-renegotiate-first.html.gz=dental-ppo-writeoff-calculator__which-ppo-contract-to-renegotiate-first.html.gz
       - dependency-confusion-check__classify.mjs.gz=dependency-confusion-check__classify.mjs.gz
       - dependency-confusion-check__index.html.gz=dependency-confusion-check__index.html.gz
       - dependency-confusion-check__usage.mjs.gz=dependency-confusion-check__usage.mjs.gz
