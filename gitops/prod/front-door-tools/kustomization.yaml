@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 130 files, 542288 bytes
 #   portfolio-front-tools-7: 122 files, 556724 bytes
 #   portfolio-front-tools-8: 138 files, 555234 bytes
-#   portfolio-front-tools-9: 116 files, 555162 bytes
+#   portfolio-front-tools-9: 116 files, 555206 bytes
 #   portfolio-front-tools-10: 118 files, 552922 bytes
 #   portfolio-front-tools-11: 114 files, 550414 bytes
 #   portfolio-front-tools-12: 127 files, 554628 bytes
@@ -1306,7 +1306,6 @@ configMapGenerator:
       - fireplace-insert-bid-calculator__index.html.gz=fireplace-insert-bid-calculator__index.html.gz
       - fireplace-insert-bid-calculator__share.mjs.gz=fireplace-insert-bid-calculator__share.mjs.gz
       - fireplace-insert-bid-calculator__usage.mjs.gz=fireplace-insert-bid-calculator__usage.mjs.gz
-      - fireplace-insert-bid-calculator__vs-a-flat-2499-installed-special.html.gz=fireplace-insert-bid-calculator__vs-a-flat-2499-installed-special.html.gz
       - fireplace-insert-bid-calculator__vs-jobber.html.gz=fireplace-insert-bid-calculator__vs-jobber.html.gz
       - flaky-test-finder__classify.mjs.gz=flaky-test-finder__classify.mjs.gz
       - flaky-test-finder__index.html.gz=flaky-test-finder__index.html.gz
@@ -1376,6 +1375,7 @@ configMapGenerator:
       - furnace-bid-calculator__index.html.gz=furnace-bid-calculator__index.html.gz
       - furnace-bid-calculator__share.mjs.gz=furnace-bid-calculator__share.mjs.gz
       - furnace-bid-calculator__usage.mjs.gz=furnace-bid-calculator__usage.mjs.gz
+      - furnace-bid-calculator__vs-a-flat-2495-furnace-special.html.gz=furnace-bid-calculator__vs-a-flat-2495-furnace-special.html.gz
       - furnace-bid-calculator__vs-servicetitan.html.gz=furnace-bid-calculator__vs-servicetitan.html.gz
       - garage-door-bid-calculator__calc.mjs.gz=garage-door-bid-calculator__calc.mjs.gz
       - garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz=garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz
