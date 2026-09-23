@@ -33,25 +33,25 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 134 files, 556438 bytes
-#   portfolio-front-tools-1: 101 files, 554089 bytes
-#   portfolio-front-tools-2: 150 files, 555948 bytes
-#   portfolio-front-tools-3: 134 files, 556713 bytes
-#   portfolio-front-tools-4: 140 files, 553769 bytes
-#   portfolio-front-tools-5: 125 files, 549143 bytes
-#   portfolio-front-tools-6: 130 files, 542239 bytes
-#   portfolio-front-tools-7: 122 files, 556743 bytes
-#   portfolio-front-tools-8: 138 files, 555205 bytes
-#   portfolio-front-tools-9: 116 files, 554568 bytes
-#   portfolio-front-tools-10: 120 files, 556177 bytes
-#   portfolio-front-tools-11: 112 files, 555974 bytes
-#   portfolio-front-tools-12: 128 files, 548454 bytes
-#   portfolio-front-tools-13: 133 files, 555853 bytes
-#   portfolio-front-tools-14: 107 files, 553323 bytes
-#   portfolio-front-tools-15: 108 files, 556396 bytes
-#   portfolio-front-tools-16: 124 files, 553193 bytes
-#   portfolio-front-tools-17: 62 files, 294631 bytes
-#   portfolio-front-tools-18: 49 files, 265825 bytes
+#   portfolio-front-tools-0: 134 files, 556445 bytes
+#   portfolio-front-tools-1: 101 files, 554102 bytes
+#   portfolio-front-tools-2: 150 files, 555950 bytes
+#   portfolio-front-tools-3: 134 files, 556766 bytes
+#   portfolio-front-tools-4: 140 files, 553748 bytes
+#   portfolio-front-tools-5: 125 files, 549145 bytes
+#   portfolio-front-tools-6: 130 files, 542288 bytes
+#   portfolio-front-tools-7: 122 files, 556724 bytes
+#   portfolio-front-tools-8: 138 files, 555234 bytes
+#   portfolio-front-tools-9: 116 files, 554555 bytes
+#   portfolio-front-tools-10: 120 files, 556170 bytes
+#   portfolio-front-tools-11: 112 files, 555993 bytes
+#   portfolio-front-tools-12: 128 files, 548392 bytes
+#   portfolio-front-tools-13: 133 files, 555899 bytes
+#   portfolio-front-tools-14: 107 files, 553246 bytes
+#   portfolio-front-tools-15: 108 files, 556379 bytes
+#   portfolio-front-tools-16: 126 files, 552646 bytes
+#   portfolio-front-tools-17: 67 files, 317863 bytes
+#   portfolio-front-tools-18: 49 files, 265861 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2194,6 +2194,13 @@ configMapGenerator:
       - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
       - sunroom-bid-calculator__vs-a-flat-180-per-square-foot-special.html.gz=sunroom-bid-calculator__vs-a-flat-180-per-square-foot-special.html.gz
       - sunroom-bid-calculator__vs-jobber.html.gz=sunroom-bid-calculator__vs-jobber.html.gz
+      - supabase-rls-check__analyze.mjs.gz=supabase-rls-check__analyze.mjs.gz
+      - supabase-rls-check__check.mjs.gz=supabase-rls-check__check.mjs.gz
+      - supabase-rls-check__index.html.gz=supabase-rls-check__index.html.gz
+      - supabase-rls-check__probe.mjs.gz=supabase-rls-check__probe.mjs.gz
+      - supabase-rls-check__usage.mjs.gz=supabase-rls-check__usage.mjs.gz
+      - supabase-rls-check__vs-vibeappscanner.html.gz=supabase-rls-check__vs-vibeappscanner.html.gz
+      - supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz=supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz
       - tender-radar__calc.mjs.gz=tender-radar__calc.mjs.gz
       - tender-radar__draft.mjs.gz=tender-radar__draft.mjs.gz
       - tender-radar__index.html.gz=tender-radar__index.html.gz
@@ -2271,16 +2278,16 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
-      - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
-      - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
-      - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
-      - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
-      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
+      - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
+      - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
+      - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
+      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
