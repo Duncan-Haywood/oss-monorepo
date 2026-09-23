@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OSHA TRIR &amp; DART Rate Calculator | Recordable Incident Rate from Your Own OSHA 300 Log</title>
+  <meta name="description" content="Free OSHA TRIR and DART rate calculator: turn your OSHA 300 log's recordable case count and total hours worked into the two rates GC prequalification forms and insurance renewals ask for, and see how many injury-free hours it takes to hit a target rate. Nothing leaves your browser.">
+  <meta property="og:title" content="OSHA TRIR & DART Rate Calculator">
+  <meta property="og:description" content="Turn your own recordable case count and hours worked into TRIR and DART rate, compare against a target, and see how many injury-free hours close the gap. Free and private.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"OSHA TRIR & DART Rate Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Total Recordable Incident Rate (TRIR) and DART rate from your own recordable and DART case counts and total hours worked, using OSHA's own 200,000-hour base rate, a gap against a target rate you set, and the additional injury-free hours needed to dilute the current rate down to that target"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is TRIR?","acceptedAnswer":{"@type":"Answer","text":"TRIR (Total Recordable Incident Rate) is the number of OSHA-recordable injuries and illnesses per 100 full-time workers per year: recordable cases times 200,000, divided by total hours worked by all employees. 200,000 is OSHA's own base rate — the hours 100 full-time employees work in a year (40 hours a week, 50 weeks) — so the rate is comparable across companies of any size."}},{"@type":"Question","name":"What is DART rate?","acceptedAnswer":{"@type":"Answer","text":"DART rate uses the same formula as TRIR but counts only cases involving Days Away from work, Restricted duty, or job Transfer — the recordable cases serious enough to keep someone from doing their normal job. It is always less than or equal to TRIR, because every DART case is also a recordable case, but not every recordable case is a DART case (a case needing only medical treatment beyond first aid is recordable but not DART)."}},{"@type":"Question","name":"Does this tool decide whether an injury is OSHA recordable?","acceptedAnswer":{"@type":"Answer","text":"No. Recordability is a judgment call made against OSHA's own recordkeeping rule (29 CFR 1904.7) — first aid vs. medical treatment, work-relatedness, and the general recording criteria — and it stays the employer's own determination, case by case. This tool starts from the counts already on your OSHA 300 log and does the rate arithmetic; it does not review, or reach a conclusion about, any individual case."}},{"@type":"Question","name":"Why does a GC prequalification form or insurance renewal ask for this?","acceptedAnswer":{"@type":"Answer","text":"Many general contractors set a TRIR ceiling (often 3.0, or their trade's own published industry average) below which a subcontractor cannot bid, and workers' comp carriers use the same rate as one input to a renewal premium. A company that only calculates its rate once a year, when the OSHA 300A summary is due, is often seeing the number for the first time on the same form that is about to gate a bid or a renewal."}},{"@type":"Question","name":"How is the injury-free hours figure calculated?","acceptedAnswer":{"@type":"Answer","text":"It holds your current recordable case count fixed and solves for how many more hours worked, with no new recordable case, would dilute the rate down to your target: recordable cases times 200,000, divided by the target rate, minus the hours already worked. It is not a prediction and it does not assume anything about future incidents — it is the arithmetic answer to 'if nothing else happens, how much more injury-free work does it take to reach that number.'"}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Nothing about your case counts, hours worked, or company is sent anywhere or stored anywhere but this device. The optional usage counter records only which features were used and the day, never any of your numbers."}},{"@type":"Question","name":"Is this a substitute for OSHA recordkeeping or a Certified Safety Professional?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the counts you type in. It has no opinion on whether a specific case is recordable, does not review your OSHA 300 log for completeness, and is not a substitute for your own recordkeeping process, a Certified Safety Professional, or OSHA's own guidance. Verify every figure against your own log and a qualified professional before using it on a bid form or insurance submission."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2420; background: #eef3f1; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f5c3b; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #f9fdfb; border: 1px solid #cbdcd3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #0d3a1d0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d6459; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #90b8a3; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #90b8a3; background: #e2f0e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #cfe6da; }
+    .primary { background: #1f5c3b; border-color: #1f5c3b; color: #f0faf3; }
+    .primary:hover { background: #184a2f; }
+    .result { position: sticky; top: 15px; background: #10261a; color: #eaf6ee; border-color: #10261a; }
+    .result a { color: inherit; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .target { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .target h3 { margin: 0 0 8px; font-size: .95rem; }
+    .target-hero { margin: 8px 0 0; font-size: 1.3rem; font-weight: 750; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: #ffd8a8; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d6459; }
+    footer a { color: #1f5c3b; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EHS COORDINATORS, SAFETY MANAGERS AND CONTRACTORS</p>
+    <h1>What is your TRIR actually going to say on that prequalification form?</h1>
+    <p>Turn the counts already on your OSHA 300 log into your Total Recordable Incident Rate and DART rate &mdash; the two numbers a GC's prequalification form, a bid package, or an insurance renewal actually asks for &mdash; and see how many more injury-free hours it takes to bring the rate down to the ceiling they set.</p>
+    <p class="seo-link"><a href="./how-to-calculate-trir.html">How to calculate TRIR (with the OSHA formula and a worked example)</a> &middot; <a href="../asbestos-abatement-bid-calculator/">Asbestos abatement bid calculator</a> for pricing the job this rate gets reported against</p>
+  </header>
+
+  <main class="layout">
+    <form id="trirForm">
+      <section>
+        <h2>This period's counts</h2>
+        <p class="hint">From your own OSHA 300 log for the period you're reporting &mdash; a calendar year for the 300A summary, or any period a bid form asks for.</p>
+        <div class="fields">
+          <label>Recordable cases <input id="recordableCases" type="number" min="0" step="1" value="6"></label>
+          <label>Of those, DART cases <input id="dartCases" type="number" min="0" step="1" value="2"></label>
+          <label>Total hours worked (all employees) <input id="totalHoursWorked" type="number" min="1" step="1" value="120000"></label>
+          <label>Target TRIR <input id="targetTrir" type="number" min="0" step="0.1" value="3.0"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">DART cases are the recordable cases that involved Days Away, Restricted duty, or a job Transfer &mdash; a subset of recordable cases, never more than the total. Target TRIR is whatever ceiling you're being measured against: a GC's prequalification cutoff, your trade's published industry average, or your own goal.</p>
+        <div class="fields" style="margin-top:13px">
+          <label>Average hours worked per month (optional, for a time estimate) <input id="avgHoursPerMonth" type="number" min="0" step="100" placeholder="e.g. 10000"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary" id="calculate">Calculate my rates</button>
+        </div>
+      </section>
+    </form>
+
+    <section class="result" aria-live="polite">
+      <p class="hero-label" id="heroLabel">TRIR this period</p>
+      <p class="hero-number" id="trirOut">&mdash;</p>
+      <div id="output" hidden>
+        <dl>
+          <dt class="group">This period</dt>
+          <dt>TRIR</dt><dd id="trirValue"></dd>
+          <dt>DART rate</dt><dd id="dartValue"></dd>
+          <dt>Recordable, not DART</dt><dd id="nonDartOut"></dd>
+          <dt>Total hours worked</dt><dd id="hoursOut"></dd>
+
+          <dt class="group">Against your target</dt>
+          <dt>Target TRIR</dt><dd id="targetOut"></dd>
+          <dt>Gap vs. target</dt><dd id="gapOut"></dd>
+        </dl>
+
+        <div id="targetBox" class="target" hidden>
+          <h3>What it takes to reach that target</h3>
+          <p class="target-hero" id="targetHero"></p>
+        </div>
+
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <div id="problems" hidden>
+        <ul class="errors" id="errorList"></ul>
+      </div>
+      <p class="empty" id="empty">The form opens on a worked example. Change the counts and hours to your own and press the button.</p>
+      <p class="empty" id="exampleNote" hidden>These are the worked example&rsquo;s figures, not yours yet. Change what is different about your period and press the button.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What is TRIR?</h3>
+      <p>TRIR (Total Recordable Incident Rate) is the number of OSHA-recordable injuries and illnesses per 100
+        full-time workers per year: recordable cases times 200,000, divided by total hours worked by all employees.
+        200,000 is OSHA's own base rate &mdash; the hours 100 full-time employees work in a year (40 hours a week, 50
+        weeks) &mdash; so the rate is comparable across companies of any size.</p>
+
+      <h3>What is DART rate?</h3>
+      <p>DART rate uses the same formula as TRIR but counts only cases involving Days Away from work, Restricted
+        duty, or job Transfer &mdash; the recordable cases serious enough to keep someone from doing their normal
+        job. It is always less than or equal to TRIR, because every DART case is also a recordable case, but not
+        every recordable case is a DART case (a case needing only medical treatment beyond first aid is recordable
+        but not DART).</p>
+
+      <h3>Does this tool decide whether an injury is OSHA recordable?</h3>
+      <p>No. Recordability is a judgment call made against OSHA's own recordkeeping rule (29 CFR 1904.7) &mdash;
+        first aid vs. medical treatment, work-relatedness, and the general recording criteria &mdash; and it stays
+        the employer's own determination, case by case. This tool starts from the counts already on your OSHA 300
+        log and does the rate arithmetic; it does not review, or reach a conclusion about, any individual case.</p>
+
+      <h3>Why does a GC prequalification form or insurance renewal ask for this?</h3>
+      <p>Many general contractors set a TRIR ceiling (often 3.0, or their trade's own published industry average)
+        below which a subcontractor cannot bid, and workers' comp carriers use the same rate as one input to a
+        renewal premium. A company that only calculates its rate once a year, when the OSHA 300A summary is due, is
+        often seeing the number for the first time on the same form that is about to gate a bid or a renewal.</p>
+
+      <h3>How is the injury-free hours figure calculated?</h3>
+      <p>It holds your current recordable case count fixed and solves for how many more hours worked, with no new
+        recordable case, would dilute the rate down to your target: recordable cases times 200,000, divided by the
+        target rate, minus the hours already worked. It is not a prediction and it does not assume anything about
+        future incidents &mdash; it is the arithmetic answer to 'if nothing else happens, how much more injury-free
+        work does it take to reach that number.'</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Nothing about your
+        case counts, hours worked, or company is sent anywhere or stored anywhere but this device. The optional
+        usage counter records only which features were used and the day, never any of your numbers.</p>
+
+      <h3>Is this a substitute for OSHA recordkeeping or a Certified Safety Professional?</h3>
+      <p>No. It is arithmetic on the counts you type in. It has no opinion on whether a specific case is recordable,
+        does not review your OSHA 300 log for completeness, and is not a substitute for your own recordkeeping
+        process, a Certified Safety Professional, or OSHA's own guidance. Verify every figure against your own log
+        and a qualified professional before using it on a bid form or insurance submission.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, safety-compliance, insurance, or financial advice, and it does not determine whether any case is OSHA recordable or represent that your company is compliant with any OSHA rule. It is arithmetic on the numbers you type. Verify every figure against your own OSHA 300 log and a qualified Certified Safety Professional before relying on it or submitting it on a bid or insurance form. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use it as a system of record — export or note down anything you need to keep.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your case counts, hours worked, and company are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor.</p>
+    <p class="support">Free and open source. If it saves you a spreadsheet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateRates, ALL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const rate = value => value.toFixed(2);
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      return Object.fromEntries(ALL_INPUT_IDS.map(id => [id, el(id).value]));
+    }
+
+    function markFields(errors) {
+      const bad = new Set(errors.map(e => e.id));
+      for (const id of ALL_INPUT_IDS) {
+        const node = el(id);
+        if (bad.has(id)) node.setAttribute('aria-invalid', 'true');
+        else node.removeAttribute('aria-invalid');
+      }
+    }
+
+    function showProblems(errors) {
+      markFields(errors);
+      el('trirOut').textContent = '—';
+      el('trirOut').className = 'hero-number negative';
+      el('heroLabel').textContent = 'check the highlighted fields';
+      el('output').hidden = true;
+      el('empty').hidden = true;
+      el('problems').hidden = false;
+      el('errorList').replaceChildren(...errors.map(error => {
+        const li = document.createElement('li');
+        li.textContent = error.message;
+        return li;
+      }));
+    }
+
+    function render(result) {
+      markFields([]);
+      el('problems').hidden = true;
+      el('empty').hidden = true;
+      el('output').hidden = false;
+      el('heroLabel').textContent = 'TRIR this period';
+      el('trirOut').className = 'hero-number';
+      el('trirOut').textContent = rate(result.trir);
+
+      el('trirValue').textContent = rate(result.trir);
+      el('dartValue').textContent = rate(result.dartRate);
+      el('nonDartOut').textContent = result.nonDartRecordableCases;
+      el('hoursOut').textContent = result.totalHoursWorked.toLocaleString('en-US');
+
+      el('targetOut').textContent = rate(result.targetTrir);
+      el('gapOut').textContent = `${result.gapVsTarget >= 0 ? '+' : ''}${rate(result.gapVsTarget)}`;
+
+      if (result.extraHoursToTarget !== null) {
+        el('targetBox').hidden = false;
+        const hoursText = `${Math.round(result.extraHoursToTarget).toLocaleString('en-US')} more injury-free hours`;
+        const monthsText = result.monthsToTarget !== null ? ` (~${result.monthsToTarget.toFixed(1)} months at your monthly hours)` : '';
+        el('targetHero').textContent = `${hoursText}${monthsText} to reach ${rate(result.targetTrir)}`;
+      } else {
+        el('targetBox').hidden = true;
+      }
+
+      el('notes').replaceChildren(...result.notes.map(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        return li;
+      }));
+    }
+
+    el('trirForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const result = calculateRates(readInput());
+      if (!result.ok) {
+        showProblems(result.errors);
+        return;
+      }
+      render(result);
+      el('exampleNote').hidden = true;
+      count('rate_calculated');
+      if (result.extraHoursToTarget !== null) count('target_dilution_shown');
+    });
+
+    // Keep the figure on screen matching the form, the same way every
+    // sibling calculator here does: an edited field that does not yet
+    // compute leaves the last good figure up rather than blanking it, and
+    // errors stay with the submit handler so a mid-typed number is not
+    // treated as a mistake.
+    el('trirForm').addEventListener('input', () => {
+      const result = calculateRates(readInput());
+      if (!result.ok) return;
+      render(result);
+      el('exampleNote').hidden = true;
+    });
+
+    (() => {
+      const example = calculateRates(readInput());
+      if (!example.ok) return;
+      render(example);
+      el('exampleNote').hidden = false;
+    })();
+
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
+  </script>
+</body>
+</html>
