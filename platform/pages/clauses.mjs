@@ -907,6 +907,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // other vs-a-flat-*-special pages already in the tree (e.g.
   // exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
   'flat-roof-bid-calculator/vs-a-flat-650-per-square-special.html',
+  // Compares against "a flat price per square foot" -- a generic pricing
+  // habit popcorn ceiling removal is shopped on, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  // Same reasoning as the other generic-method pages above (e.g.
+  // drywall-bid-calculator's flat-rate page).
+  'popcorn-ceiling-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "a flat price per pier" -- the generic pricing habit
   // the trade is shopped on, not a company or product this could be
   // mistaken for. The page names no vendor or competing calculator at all --
