@@ -117,3 +117,15 @@ test("index links one hop to the security-deposit-return-calculator sibling", ()
     "index must link ../security-deposit-return-calculator/ so crawlers reach the deposit calculator in one hop",
   );
 });
+
+// Both compare a peer-to-peer host's payout across a platform's own fee or
+// earnings-plan structure for one booking -- a nightly stay here, a car-share
+// trip there. Without a crawlable link here, a crawler entering on this page
+// never reaches the Turo calculator in one hop.
+test("index links one hop to the turo-host-payout-calculator sibling", () => {
+  assert.match(
+    markup,
+    /href="\.\.\/turo-host-payout-calculator\/"/,
+    "index must link ../turo-host-payout-calculator/ so crawlers reach the Turo host payout calculator in one hop",
+  );
+});

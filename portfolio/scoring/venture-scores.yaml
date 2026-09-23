@@ -15467,3 +15467,68 @@ ventures:
       about a third party, a client, or a Deaf/hard-of-hearing consumer of
       the interpreting service, and the team-interpreting finding favors
       interpreter wellbeing and service quality over a lower quote.
+
+  - slug: turo-host-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on
+      Turo's own documented plan x booking-window host-share matrix, exposed
+      as adjustable inputs rather than hard-coded — and adding inference
+      would only make the result less checkable against a host's own Turo
+      Host Hub numbers.
+    basis: >-
+      Graduated 2026-09-23 as a browser-local calculator turning one Turo
+      trip's price into a host payout under Turo's 2026 earnings-plan
+      structure — a plan (Peace of Mind / Balanced / More Earnings) x
+      booking-window (0-2, 3-13, 14-27, 28+ days ahead) matrix that locks at
+      booking time, not the single flat percentage every earlier "Turo fee
+      calculator" this portfolio's screening pass could find assumes.
+      Screened against 141+ trade-bid calculators and the saturated
+      marketplace-fee-calculator and dev-tooling-checker shapes for a
+      sharing-economy/gig-platform host-payout angle the portfolio does not
+      otherwise serve, closely modeled on the already-graduated
+      str-host-payout-calculator (same reasoning: a platform fee structure
+      that just changed and left users doing the arithmetic by hand) but for
+      a structurally different asset (a shared vehicle) and fee mechanism (a
+      plan x window matrix, not a single migrated percentage).
+      duplicate_check.py scored nothing >= 0.45 against any existing
+      venture, pipeline candidate, or screened-out row — the closest match
+      was str-host-payout-calculator itself (0.16), a different platform and
+      fee shape, not a near-duplicate. Defensibility 4: the underlying
+      matrix is publicly documented by Turo itself (help.turo.com), so the
+      individual numbers are not defensible — what is not free elsewhere is
+      an interactive tool that computes the plan comparison, the
+      booking-window comparison, and a monthly projection together against a
+      host's own trip numbers, one step past the single-lookup shape
+      voiceover-project-rate-calculator scored 3 for. Distribution 6: "how
+      much does turo take from hosts 2026" and "turo host payout calculator"
+      are real, recurring search intent (multiple independent blog posts
+      already ranking for exactly these phrases, found during screening) and
+      r/turo (~60k members) sees "which earnings plan" threads regularly —
+      a narrower buyer pool than a mass-market trade niche, same tier as the
+      voiceover-project-rate-calculator and podcast-sponsorship-rate-calculator
+      peers it otherwise matches, tempered by existing competing content on
+      the same query.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a payout *estimate* built from Turo's own documented,
+      adjustable rate conventions, explicitly framed as a number to check
+      against the host's own Turo Host Hub, never a guarantee of an actual
+      payout or a determination made on the host's behalf — being wrong
+      costs a host a miscalibrated expectation on one trip, not a filing or
+      a contract obligation. Ethically: every input is a number the host
+      already knows about their own trip, nothing is scraped or inferred
+      about Turo, a guest, or a third party, and all computation is
+      client-side.
