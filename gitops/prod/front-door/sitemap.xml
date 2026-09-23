@@ -1186,6 +1186,12 @@
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/vs-whatsmydns.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-eol-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-eol-check/vs-a-vulnerability-scanner.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/docker-base-image-pin-check/</loc>
   </url>
   <url>
