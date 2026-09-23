@@ -723,6 +723,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-jobber.html, which does name a product and carries its own
   // "not affiliated" clause.
   'gutter-cleaning-bid-calculator/vs-a-flat-price-per-linear-foot.html',
+  // Compares against "a flat usage-fee percentage" -- the "just add 25%"
+  // round-number habit photographers already use when quoting usage
+  // rights, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-fotoquote.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'commercial-photo-license-calculator/vs-a-flat-usage-fee.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

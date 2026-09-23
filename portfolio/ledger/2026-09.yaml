@@ -36430,3 +36430,74 @@ entries:
         over budget) both before and after. CI (Actions) is starved this
         session (runner_id: 0 on recent Portfolio validate runs per the task
         brief), so this local run is the verification of record.
+  - venture: commercial-photo-license-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session. Helped drive open PR #5150
+        (fence-bid-calculator) to green by resolving its merge conflict
+        against a newer main, but a concurrent session pushed a
+        byte-identical resolution first, so fast-forwarded to their commit
+        rather than duplicating; #5150 merged before this session's
+        re-verification finished. Then surveyed router/allocate.py's top
+        ~30 candidates via surface-budget.mjs --for -- every one already
+        had its generic-method comparison budget used (0/1 -> 1/1) by
+        concurrent sessions in the hours before this one. Picked
+        deck-bid-calculator (0/1, untouched in the prior 30 commits, no
+        open PR) and wrote vs-a-flat-price-per-square-foot.html, but on
+        merging a newer main before pushing, found another session had
+        landed an equivalent page (vs-a-flat-28-a-foot-estimate.html, #5157)
+        minutes earlier -- same angle, near-identical worked-example
+        numbers. Discarded the duplicate (git reset --hard origin/main;
+        the commit had never been pushed, so nothing to undo upstream) per
+        CLAUDE.md's "Duplicate PRs" guidance rather than shipping redundant
+        content into a venture already at budget. Re-scanned all 333
+        ventures programmatically for zero-budget, non-"bid-calculator"
+        candidates untouched in the last 40 commits (143 found) to reduce
+        further collision risk, and picked commercial-photo-license-
+        calculator: added vs-a-flat-usage-fee.html, comparing the
+        calculator against a flat 25% usage-fee add-on (the "just add 25%
+        for usage" shorthand many photographers use instead of pricing
+        channels, term, territory, and exclusivity separately). Worked
+        examples computed from app.mjs's own calculate() at a fixed $1,200
+        creative fee: a narrow one-month/local/non-exclusive/web-only
+        license clears the flat 25% quote by $128.54; the calculator's own
+        shipped default job (6-month/national/non-exclusive/web-only)
+        already runs $225.00 over it; a 24-month/worldwide/fully-exclusive/
+        four-channel/20%-rush license runs $5,761.10 over. First draft
+        repeated the exact em-dash bug hit on the deck attempt (literal
+        "&amp;mdash;"/"--" inside the FAQPage JSON-LD where the visible
+        prose decodes to a real em dash) -- faq-visible.test.mjs would have
+        caught it; fixed proactively this time by writing literal em dashes
+        into the JSON-LD from the start, then verified with faq-visible
+        directly. Linked from index.html and sitemap.xml (this venture's
+        own path convention, no ventures/ prefix), test added under its
+        test/ subdirectory (one of the 21 ventures CLAUDE.md flags as
+        keeping suites off the flat glob), and exempted in clauses.mjs
+        (names no product). Also independently reproduced the documented
+        regen-`--verify`-races-a-concurrent-`node --test` hazard on the
+        deck attempt (ran `--verify` while a platform/marketing +
+        platform/pages run was in flight -- 8 spurious failures including
+        "UNSTABLE CHECKOUT"); avoided it entirely on this venture by never
+        touching the working tree while a background test run was live.
+        Checked clean: venture suite (test/ subdirectory glob) 40/40 (incl.
+        11 new), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1281/1281, `python3 -m pytest
+        gitops/tests -q` 637 passed/1 skipped (environmental),
+        platform/proposal+privacy+webcheck 243/243, platform/ci unittest
+        sweep 27/27, agent_review 21/21, portfolio ledger+scoring+router+
+        usage+pipeline+infra/tests 446/446, checklist_coverage.py clean,
+        surface-budget.mjs --check clean (101 ventures now at 1/1, was 97
+        at session start), sync_tree_counts.py unchanged (no new venture),
+        regen.mjs --verify current after regen, run_workflow_locally.py
+        --for-changes: portfolio-validate.yml 71/71 run steps passed,
+        sibling-links-ci.yml 2/2 passed (the one pages.yml FAIL is the
+        local sweep's known inability to evaluate a `${{ }}` build-site
+        step -- confirmed by building with build_pages_site.py and checking
+        with check_pages_links.py by hand: no dead links, on both the
+        deck-bid-calculator and commercial-photo-license-calculator
+        attempts). CI (Actions) starved throughout this session
+        (ci_starvation.py confirmed runner_id: 0 on every recent
+        portfolio-validate.yml push, including #5157/#5161/#5163/#5167),
+        so this local run is the verification of record.
