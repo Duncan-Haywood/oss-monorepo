@@ -2067,7 +2067,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 323 since this merge: `docker-base-image-eol-check` graduated -- a
     # browser-local and CLI checker for Dockerfile base-image end-of-life,
     # cross-linked with `docker-base-image-pin-check` from its first commit.
-    total = 323  # `infra/OWNER_CHECKLIST.md`'s own "N of the 323 tools" wording.
+    #
+    # 324 since this merge: `freelance-platform-fee-calculator` graduated --
+    # a browser-local calculator comparing Upwork's and Fiverr's net payout
+    # for the same job price, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 324  # `infra/OWNER_CHECKLIST.md`'s own "N of the 324 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

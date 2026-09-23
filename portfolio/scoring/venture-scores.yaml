@@ -14999,3 +14999,55 @@ ventures:
       link travels in a URL fragment a browser never sends to a server, and
       the usage counter tallies feature names rather than dimensions or
       weights and can be switched off from the footer.
+  - slug: freelance-platform-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on a
+      job price and two platforms' own fee terms — apply each platform's
+      cut, an optional withdrawal fee, and a tax reserve, then compare — and
+      adding inference would only make the result less checkable against
+      the freelancer's own quoted Upwork percentage.
+    basis: >-
+      Graduated 2026-09-23 as a browser-local calculator comparing Upwork's
+      and Fiverr's net payout for the same job price. Distinct from
+      freelance-retainer-calculator (prices a recurring monthly retainer
+      from income goals and capacity, not a platform's cut on a single job)
+      and marketplace-fee-compare (six e-commerce selling channels, not two
+      service-freelancing platforms) — both link this venture and are
+      linked from it. Defensibility 5, one point above the marketplace
+      fee-calculator peers it otherwise matches (poshmark 5,
+      stockx-seller-payout 5): Upwork retired its old public 20%/10%/5% fee
+      tiers in May 2025 for a variable 0-15% fee with no public formula, and
+      several existing "Upwork fee calculator" pages online still describe
+      the retired tiers as current. Being correct about that change, and
+      taking the freelancer's own quoted percentage as an input rather than
+      guessing at a dead formula, is a real if modest wedge — the underlying
+      arithmetic on either side is not individually hard to build.
+      Distribution 7: "upwork vs fiverr fees", "how much does upwork take",
+      and recurring r/Upwork, r/fiverr, and r/freelance threads comparing
+      the two platforms' take-home are real, high-intent search and
+      community demand, scored below reverb/marketplace-fee-compare (8)
+      because the terms are more competitive — Upwork itself publishes a
+      Fiverr fee calculator, and several SEO-driven sites already rank for
+      both platforms' fee pages, some with the stale pre-2025 formula this
+      venture's own guide page corrects.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the freelancer's own entered job
+      price and quoted fee — never a recommendation to take a specific job
+      or accept a specific rate, and never tax or legal advice. The tax
+      reserve is labelled arithmetic on a percentage the freelancer
+      supplies, not a tax calculation, and nothing entered leaves the
+      browser.

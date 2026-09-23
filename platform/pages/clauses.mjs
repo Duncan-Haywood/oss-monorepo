@@ -681,6 +681,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-healthchecks.html, which does name a
   // product and carries its own "not affiliated" clause.
   'backup-verification-evidence/vs-checking-the-exit-code-yourself.html',
+  // Compares against "a flat price-per-foot" fence quote -- the "$35 a
+  // foot installed" per-foot pricing habit every fence contractor is
+  // shopped on, not a company or product this could be mistaken for. The
+  // page names no vendor or competing calculator at all -- distinct from
+  // this venture's own vs-fence-cloud.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'fence-bid-calculator/vs-a-flat-price-per-foot.html',
   // Compares against "building your own cash-flow spreadsheet" -- the
   // running-balance habit every small business owner already has, not a
   // company or product this could be mistaken for. The page names no
@@ -695,6 +702,27 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which does name a product and carries its
   // own "not affiliated" clause.
   'duct-cleaning-bid-calculator/vs-a-flat-whole-house-special.html',
+  // Compares against "a flat $28-a-foot estimate" -- the per-square-foot
+  // rule of thumb every deck job is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-quoteiq.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'deck-bid-calculator/vs-a-flat-28-a-foot-estimate.html',
+  // Compares against "a flat price per square foot" -- the per-square-foot
+  // quoting habit homeowners and GCs already ask concrete contractors for,
+  // not a company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-stack.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'concrete-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat price per linear foot" -- the per-foot
+  // quoting habit gutter-cleaning companies are told to bid by, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-jobber.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'gutter-cleaning-bid-calculator/vs-a-flat-price-per-linear-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
