@@ -36998,3 +36998,49 @@ entries:
         github-pages-branch-route as current earlier in the session, before
         this venture's own change; refreshing again after this merge below.
     mrr_end: 0
+  - venture: deck-staining-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-a-flat-rate-per-square-foot.html, against the flat "$2.50/sq ft"
+        special the venture's own calc.mjs comments already documented
+        (surface-budget.mjs confirmed the venture at 0/1 generic-method
+        pages used; its existing vs-joist.html is a named-product page and
+        unbudgeted). Followed the established naming/structure convention
+        from artificial-turf-bid-calculator's sibling page rather than
+        inventing a new one. Worked example from calc.mjs's own two
+        built-in JOB_PRESETS ("the $2.50/sf special" platform job and the
+        400 sf/80 lf rail/2-stair/second-story/furniture job) priced at
+        the shipped index.html shop-rate defaults ($38/hr wage, 30%
+        burden, $75 travel, 15% overhead, 28% margin): the flat $500 quote
+        on the cheap job clears its $454.95 break-even cost by only
+        $45.05 -- $131.88 short of the calculator's own target-margin
+        price -- and the flat $1,000 quote on the harder job (walking
+        surface alone, the way the rate is normally applied) is
+        $3,815.51 below that job's own $4,815.51 break-even cost, because
+        the actual stainable surface -- deck, rail, and stairs together --
+        is 1,200 sq ft, three times the walking-surface number the rate
+        was quoted off. `node --test` in the venture: 93/93, all green on
+        the first run -- checked the JSON-LD FAQ answers against the
+        visible prose for the literal-`--`-vs-`&mdash;` divergence this
+        ledger already recorded twice this week (gate-bid-calculator's
+        page, freelance-platform-fee-calculator's page) before pushing,
+        rather than after. `platform/marketing`/`platform/pages` suite:
+        1281/1281, run twice as `main` advanced underneath the branch
+        (shopify-fee-calculator's comparison page, then
+        appointment-deposit-calculator's), each a front-door-tools/
+        mirror-shard or front-door/ conflict resolved via
+        resolve-mirror-merge.sh plus a second regen.mjs pass. `python3 -m
+        pytest gitops/tests -q`: 637 passed, 1 skipped (environmental).
+        `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests
+        -q`: 446 passed. checklist_coverage.py and sync_tree_counts.py:
+        clean, no drift. All platform/ci unittest modules and
+        agent_review's test_review (21/21): clean. Confirmed every check
+        on the PR starved via ci_starvation.py (runner_id 0, 3-4s, no
+        steps across all 21 check runs) before squash-merging (#5199).
+        Refreshed the gh-pages snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current.
+    mrr_end: 0
