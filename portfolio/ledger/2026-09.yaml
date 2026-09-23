@@ -37132,6 +37132,45 @@ entries:
         github-pages-branch-route as current.
     mrr_end: 0
 
+  - venture: entry-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-a-flat-1200-special.html, against the flat "$1,200 installed"
+        special the venture's own calc.mjs comments already documented
+        (surface-budget.mjs confirmed the venture at 0/1 generic-method
+        pages used; its existing vs-jobber.html is a named-product page
+        and unbudgeted). Worked example from calc.mjs's own two built-in
+        JOB_PRESETS (the "$1,200 installed special" 36" steel prehung and
+        the fiberglass/2-sidelight/8-ft-rot/brickmold/storm/2nd-story
+        job) priced at the shipped index.html shop-rate defaults ($42/hr
+        wage, 32% burden, $85 travel, 16% overhead, 32% margin): the flat
+        $1,200 quote clears the brochure job's $959.55 break-even cost by
+        $240.45 (just $211.11 under the calculator's own $1,411.11
+        target-margin price), but is $3,742.35 below the harder job's own
+        $4,942.35 break-even cost -- sidelights, rot repair, brickmold,
+        and a storm door do not live inside a per-door special. `node
+        --test` in the venture: 114/114, all green on the first run --
+        applied the em-dash-in-JSON-LD-vs-prose fix from earlier this
+        session's gate-calculator and deck-staining pages before pushing
+        this time, rather than discovering it via a failing test.
+        `platform/marketing`/`platform/pages` suite: 1281/1281. `python3
+        -m pytest gitops/tests -q`: 637 passed, 1 skipped
+        (environmental). `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed.
+        checklist_coverage.py and sync_tree_counts.py: clean, no drift.
+        All platform/ci unittest modules and agent_review's test_review
+        (21/21): clean. This entry rides in the same commit as the
+        product change, per portfolio/ledger/README.md's preference,
+        rather than as a separate follow-up PR -- the pattern the two
+        prior comparison pages this session used, which cost an extra
+        merge-conflict round-trip each time main advanced underneath the
+        ledger-only branch.
+    mrr_end: 0
+
   - venture: booth-rent-vs-commission
     agent_spend_usd: null
     human_hours: 0
