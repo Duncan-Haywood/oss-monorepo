@@ -1608,3 +1608,39 @@ candidates:
       rather than inheriting this one's.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: git-exposure-check
+    name: Git exposure checker
+    doc: candidates/git-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/git-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Only two paths are ever requested (.git/HEAD, .git/config), each
+      capped at 8KB of body read, and the tool never requests packed
+      objects, the index, or reflog data -- if HEAD or config is exposed,
+      the rest almost always is too, and naming that inference in the
+      report is enough without this tool performing the actual bulk
+      extraction an authorised tester's own git-dumper/GitTools run would.
+      Classification requires the response BODY to match the exact grammar
+      of a real git-internal file, not just a 200 status, specifically to
+      avoid a false positive against a server that answers every path with
+      a 200-status "soft 404" page -- pinned by a dedicated test case.
+      Measure real user reports before expanding the probe set past these
+      two files, which would raise both the liability and the
+      implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

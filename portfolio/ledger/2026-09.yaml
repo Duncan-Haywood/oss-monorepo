@@ -38246,3 +38246,92 @@ entries:
         session). platform/ci unittest suites (15 modules): all pass.
         checklist_coverage.py and check_no_payment_code.py: clean.
     mrr_end: 0
+  - venture: git-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened, graduated, and built a new venture: a zero-dependency CLI
+        + browser report viewer that sends two real GET requests
+        (.git/HEAD, .git/config) to a site and classifies the response
+        BODY -- not just the status code -- to tell a genuinely exposed
+        .git directory apart from a webserver that answers every path with
+        200 (a "soft 404"). Real exposure lets anyone reconstruct a site's
+        entire committed source history, including secrets removed in a
+        later commit, via a public tool such as git-dumper or GitTools.
+        session_gate.py and allocate.py both confirmed the build-now
+        pipeline was empty; per DIRECTION.md a genuine new venture ranks
+        first when available. Screened per pipeline/README.md's
+        "archetype itself" section (a checker/CLI shape, not another
+        trade-bid calculator): duplicate_check.py scored every existing
+        venture at 0.17 or below, cors-misconfig-check closest (a
+        different evidence class -- response headers, not a file body);
+        nothing in screened-out.md covers git/version-control exposure.
+        Composite 6.375, floor 1 (ai_leverage), both gates well clear (5):
+        liability_containment 7, ethical_robustness 8 -- see
+        candidates/git-exposure-check.md for the full write-up.
+        Built ventures/git-exposure-check/: VENTURE.yaml, LICENSE,
+        README.md, probe.mjs (two capped, non-redirect-following GET
+        requests against a caller-given base URL), analyze.mjs (pure
+        classification: HEAD must parse as "ref: refs/heads/..." or a
+        40-hex-char SHA, config must carry a real [core] section --
+        deliberately rejects a 200-status soft-404 page, pinned by a
+        dedicated test), check.mjs (CLI, exit 0/1), usage.mjs (opt-in
+        local counting, DNT/GPC honoured), index.html (paste-JSON report
+        viewer, SoftwareApplication + FAQPage JSON-LD, no-warranty/
+        authorised-testing-only/nothing-uploaded disclaimers), robots.txt,
+        sitemap.xml. 52/52 tests pass across analyze/probe/check/usage/page
+        suites (network tests run against a real local loopback HTTP
+        server, never the internet). Added a reciprocal sibling link with
+        docker-build-secrets-check (both ask "is a secret about to be/
+        already exposed" of a deployed artifact) so neither is a crawl
+        orphan.
+        Registered: launched.mjs --write (332 tools), publish_surface.py
+        --write (added git-exposure-check-ci.yml, copied from
+        security-headers-check-ci.yml -- test_validate_workflows.py's
+        "every venture test file runs somewhere" check caught the missing
+        workflow on the first full local run and named the exact fix),
+        venture-scores.yaml (composite 6.0 on the 6-dim scale, floor 1),
+        candidates.yaml + candidates/git-exposure-check.md + README.md's
+        ranked table (inserted as row 43 by composite, renumbering 43-51
+        to 44-52; validate_doc_consistency.py and validate_candidates.py
+        both clean). Filed into build.mjs's existing "CI checks &
+        developer gates" category (same regex family as
+        cors-misconfig-check/security-headers-check) after the first
+        build.test.mjs run caught it landing in the catch-all and pushing
+        it to 6 tools -- fixed in this same PR, not a follow-up.
+        sync_tree_counts.py: mirrored-tool count 331->332, opt-out-switch
+        count 313->314 -- running-comment entries added by hand in
+        gitops/tests/test_manifests.py and
+        platform/privacy/optout-persistence.test.mjs. gitops/ci/
+        sync_readme_counts.py: runs-on counts 425/427/386 -> 426/428/387
+        for the new venture CI workflow. node platform/marketing/regen.mjs:
+        front-door mirror, sitemap, llms.txt, social cards regenerated
+        (twice -- once before, once after the category fix); regen.mjs
+        --verify confirmed current both times.
+        Verified: node --test in the venture 52/52.
+        node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs:
+        1281/1281 (first run caught the catch-all-category defect above;
+        clean after the fix and a second regen.mjs). node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs: 142/142.
+        python3 -m pytest gitops/tests -q: 637 passed, 1 skipped (both
+        pre-existing, documented, unrelated). python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q: 446 passed. platform/ci unittest
+        (15 modules, run twice -- once caught the missing-CI-workflow
+        defect, clean on the re-run): all pass; agent_review/test_review:
+        21 pass. checklist_coverage.py, sync_tree_counts.py,
+        router/validate.py (339/339), validate_doc_consistency.py,
+        validate_candidates.py, score_ventures.py --check (340/340),
+        usage/validate_usage.py, clauses.mjs (1274 pages across 332
+        surfaces), surface-budget.mjs --check, validate_workflows.py
+        (387/387), front-door-tools.mjs --headroom (80.4% used, ~80 more
+        tools of headroom): all clean.
+        Actions is starved (checked open-PR checks on sibling merges this
+        session, runner_id: 0 pattern); merging on the strength of this
+        full local checklist per CLAUDE.md's "Ship without review
+        ceremony." Checked open PRs and recent main commits before and
+        immediately before pushing (github MCP + git log) -- no colliding
+        niche; firebase-rules-check and source-map-leak-check merged to
+        main mid-session, neither overlapping this venture.
+    mrr_end: 0

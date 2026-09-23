@@ -1,0 +1,76 @@
+name: git-exposure-check
+description: >-
+  A free CLI (+ a browser report viewer) for web developers, security
+  researchers, and agencies doing due diligence: sends two real HTTP GET
+  requests to a site -- .git/HEAD and .git/config -- and classifies the
+  response BODY content, not just the status code, to tell a genuinely
+  exposed .git directory apart from a webserver that answers every path
+  with 200 (a "soft 404"). A real exposure lets anyone reconstruct the
+  entire committed source history, including files and secrets removed in a
+  later commit, using a public tool such as git-dumper or GitTools.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, agency, or security researcher who has just read one of
+      the many recurring "how to find exposed .git directories" write-ups,
+      or who wants a quick self-check before or after a deploy, will search
+      exact terms ("git exposure checker", ".git directory exposed check",
+      "is my .git folder public") and use a free, zero-install tool that
+      correctly rejects a soft-404 false positive rather than flagging every
+      site behind such a server.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, currently live exposure class with a real,
+      active channel: OWASP's Web Security Testing Guide names ".git Folder"
+      exposure explicitly under "Review Old Backup and Unreferenced Files",
+      it is a recurring bug-bounty report category on HackerOne and Bugcrowd
+      (their own write-ups cite bounties paid for exactly this finding), and
+      r/netsec and security blogs publish fresh "found exposed .git
+      directories via search-engine dorking" posts on an ongoing basis. No
+      existing venture in this portfolio reads a git-internal file's content
+      to detect deployment-artifact source exposure.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or agency that gets a clean report will wire the CLI into
+      their own deploy-verification CI as a regression gate (exit code 0/1
+      is already scriptable), producing return usage without any action
+      from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI's two requests run from the user's
+  # own machine against a site they choose, and the browser page only
+  # renders a report already produced. Serving one more visitor costs a
+  # static file and nothing else.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and
+    indexed for a fair run (per portfolio/usage/README.md's "fair run"
+    definition).
+  - A materially better free tool covering the same soft-404-aware body
+    classification, at the same zero-install bar, becomes the obvious
+    default, such that this tool's differentiation no longer holds.
+  - Real user reports show the body-content classification produces false
+    positives or false negatives against real deployments, and the
+    underlying pattern (HEAD/config regex match) cannot be made reliable
+    without expanding scope past what this tool's liability read covers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/git-exposure-check/
+  analytics: null

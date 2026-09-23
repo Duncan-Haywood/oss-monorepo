@@ -2141,7 +2141,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this running count. This branch only ever knew its own predecessor's
     # number (330, before mercari-fee-calculator landed) until this merge --
     # the same ordinary collision shape recorded throughout this list.
-    total = 331  # `infra/OWNER_CHECKLIST.md`'s own "N of the 331 tools" wording.
+    #
+    # 332 since this merge: `git-exposure-check` graduated -- a
+    # zero-dependency CLI + browser report viewer sending two real GET
+    # requests (.git/HEAD, .git/config) and classifying the response body
+    # against the exact grammar of a real git-internal file to detect a
+    # publicly exposed .git directory, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch only ever knew its own predecessor's number (331, before
+    # turo-host-payout-calculator landed) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 332  # `infra/OWNER_CHECKLIST.md`'s own "N of the 332 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
