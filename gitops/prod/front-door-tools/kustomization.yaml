@@ -37,8 +37,8 @@
 #   portfolio-front-tools-1: 104 files, 556066 bytes
 #   portfolio-front-tools-2: 151 files, 556233 bytes
 #   portfolio-front-tools-3: 136 files, 555947 bytes
-#   portfolio-front-tools-4: 135 files, 552488 bytes
-#   portfolio-front-tools-5: 122 files, 549807 bytes
+#   portfolio-front-tools-4: 135 files, 553801 bytes
+#   portfolio-front-tools-5: 123 files, 553096 bytes
 #   portfolio-front-tools-6: 131 files, 555997 bytes
 #   portfolio-front-tools-7: 129 files, 556519 bytes
 #   portfolio-front-tools-8: 133 files, 553647 bytes
@@ -659,6 +659,7 @@ configMapGenerator:
       - ai-engineering-academy__rc-filter-calculator__index.html.gz=ai-engineering-academy__rc-filter-calculator__index.html.gz
       - ai-engineering-academy__rc-filter-calculator__share.mjs.gz=ai-engineering-academy__rc-filter-calculator__share.mjs.gz
       - ai-engineering-academy__rc-filter-calculator__usage.mjs.gz=ai-engineering-academy__rc-filter-calculator__usage.mjs.gz
+      - ai-engineering-academy__rc-filter-calculator__vs-picking-a-component-from-the-parts-bin.html.gz=ai-engineering-academy__rc-filter-calculator__vs-picking-a-component-from-the-parts-bin.html.gz
       - ai-engineering-academy__rc-time-calculator__calc.mjs.gz=ai-engineering-academy__rc-time-calculator__calc.mjs.gz
       - ai-engineering-academy__rc-time-calculator__how-long-until-a-capacitor-is-fully-charged.html.gz=ai-engineering-academy__rc-time-calculator__how-long-until-a-capacitor-is-fully-charged.html.gz
       - ai-engineering-academy__rc-time-calculator__index.html.gz=ai-engineering-academy__rc-time-calculator__index.html.gz
@@ -751,12 +752,12 @@ configMapGenerator:
       - attic-insulation-bid-calculator__share.mjs.gz=attic-insulation-bid-calculator__share.mjs.gz
       - attic-insulation-bid-calculator__usage.mjs.gz=attic-insulation-bid-calculator__usage.mjs.gz
       - attic-insulation-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=attic-insulation-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
-      - attic-insulation-bid-calculator__vs-fieldcamp.html.gz=attic-insulation-bid-calculator__vs-fieldcamp.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - attic-insulation-bid-calculator__vs-fieldcamp.html.gz=attic-insulation-bid-calculator__vs-fieldcamp.html.gz
       - auto-repair-effective-labor-rate__calc.mjs.gz=auto-repair-effective-labor-rate__calc.mjs.gz
       - auto-repair-effective-labor-rate__index.html.gz=auto-repair-effective-labor-rate__index.html.gz
       - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz

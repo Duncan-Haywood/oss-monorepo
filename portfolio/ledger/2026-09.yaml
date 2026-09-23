@@ -36191,3 +36191,39 @@ entries:
         merged before this branch's push) -- confirmed via
         `git log origin/main` and dropped this session's now-duplicate
         commit rather than shipping a second copy of the same fix.
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Of the 18 vs-*.html-free ventures flagged at session start, every
+        genuinely static browser tool among them (equipment-rental-break-even,
+        quote-margin-check, tender-radar, mcp-supply-chain-watch,
+        shopify-permission-drift, cra-evidence-desk, world-clock-widget,
+        real-estate-agent-photo-app, print-atelier) had already gained a
+        vs-*.html page from concurrent sessions by the time this one checked
+        the tree -- confirmed with `surface-budget.mjs --for <slug>` on each
+        before ruling it out, per CLAUDE.md's "ask the tree, not just open
+        PRs" lesson. `surface-budget.mjs --for ai-engineering-academy` showed
+        the hub-level page (vs-omni-calculator.html) was the only comparison
+        surface the tool counts, but its scan is not recursive into
+        tools/<subtool>/, so the resistor-calculator sub-tool's own
+        generic-method page (vs-reading-the-color-code-by-eye.html) sat
+        outside that view -- precedent for one generic-method page per
+        distinct sub-tool rather than per host venture. Added a sibling for
+        the rc-filter-calculator sub-tool:
+        vs-picking-a-component-from-the-parts-bin.html, comparing the
+        calculator's design mode (exact component, snapped to a standard
+        E12/E24 value, with the real achieved cutoff and signed error
+        percent) against grabbing a "close enough" resistor or capacitor
+        from the parts bin without recomputing the resulting cutoff at all.
+        Names no commercial product, so it is exempted from the
+        not-affiliated clause in platform/pages/clauses.mjs (row added,
+        `clauses.mjs ai-engineering-academy` clean) rather than carrying a
+        disclaimer about a party that doesn't exist. Linked from the
+        calculator's own index.html so it is not orphaned. `node --test
+        'ventures/ai-engineering-academy/**/*.test.mjs'`: 264/264. `node
+        --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`:
+        1281/1281. `checklist_coverage.py`, `surface-budget.mjs --check`,
+        and `regen.mjs --verify` all clean after `regen.mjs` (5 mirror
+        artifacts regenerated and committed alongside).
