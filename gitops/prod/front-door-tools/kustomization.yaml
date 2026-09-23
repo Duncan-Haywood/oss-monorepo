@@ -34,9 +34,9 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 133 files, 553416 bytes
-#   portfolio-front-tools-1: 104 files, 556936 bytes
-#   portfolio-front-tools-2: 151 files, 555426 bytes
-#   portfolio-front-tools-3: 135 files, 552696 bytes
+#   portfolio-front-tools-1: 104 files, 556063 bytes
+#   portfolio-front-tools-2: 151 files, 556226 bytes
+#   portfolio-front-tools-3: 136 files, 555905 bytes
 #   portfolio-front-tools-4: 134 files, 556034 bytes
 #   portfolio-front-tools-5: 127 files, 556872 bytes
 #   portfolio-front-tools-6: 128 files, 552747 bytes
@@ -260,6 +260,7 @@ configMapGenerator:
       - amazon-fba-calculator__to-where-to-sell.mjs.gz=amazon-fba-calculator__to-where-to-sell.mjs.gz
       - amazon-fba-calculator__usage.mjs.gz=amazon-fba-calculator__usage.mjs.gz
       - amazon-fba-calculator__vs-amazon-revenue-calculator.html.gz=amazon-fba-calculator__vs-amazon-revenue-calculator.html.gz
+      - amazon-fba-calculator__vs-jungle-scout-fba-calculator.html.gz=amazon-fba-calculator__vs-jungle-scout-fba-calculator.html.gz
       - amazon-fba-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=amazon-fba-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - etsy-profit-calculator__are-etsy-offsite-ads-worth-it.html.gz=etsy-profit-calculator__are-etsy-offsite-ads-worth-it.html.gz
       - etsy-profit-calculator__calc.mjs.gz=etsy-profit-calculator__calc.mjs.gz
@@ -314,12 +315,12 @@ configMapGenerator:
       - reverb-fee-calculator__to-where-to-sell.mjs.gz=reverb-fee-calculator__to-where-to-sell.mjs.gz
       - reverb-fee-calculator__usage.mjs.gz=reverb-fee-calculator__usage.mjs.gz
       - reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz=reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz
-      - reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz=reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz=reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz
       - 3pl-quote-normalizer__LICENSE.gz=3pl-quote-normalizer__LICENSE.gz
       - 3pl-quote-normalizer__calc.mjs.gz=3pl-quote-normalizer__calc.mjs.gz
       - 3pl-quote-normalizer__compare.html.gz=3pl-quote-normalizer__compare.html.gz
@@ -470,12 +471,12 @@ configMapGenerator:
       - music-lesson-break-even__usage.mjs.gz=music-lesson-break-even__usage.mjs.gz
       - music-lesson-break-even__vs-mymusicstaff.html.gz=music-lesson-break-even__vs-mymusicstaff.html.gz
       - portable-restroom-event-quote__calc.mjs.gz=portable-restroom-event-quote__calc.mjs.gz
-      - portable-restroom-event-quote__how-many.html.gz=portable-restroom-event-quote__how-many.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - portable-restroom-event-quote__how-many.html.gz=portable-restroom-event-quote__how-many.html.gz
       - portable-restroom-event-quote__index.html.gz=portable-restroom-event-quote__index.html.gz
       - portable-restroom-event-quote__usage.mjs.gz=portable-restroom-event-quote__usage.mjs.gz
       - portable-restroom-event-quote__vs-servicecore.html.gz=portable-restroom-event-quote__vs-servicecore.html.gz
