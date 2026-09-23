@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 338 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 339 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -123,6 +123,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste your site&#39;s URL (or a list of JS file URLs), and it finds every script&#39;s sourceMappingURL comment, fetches the map, and names which ones are publicly readable and whether they embed full original source text. Nothing uploaded to us.</summary>
+  </entry>
+  <entry>
+    <title>Subdomain Takeover Checker — Is Your CNAME Dangling?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/subdomain-takeover-check/"/>
+    <id>tag:marisstella.dev,2026:tool/subdomain-takeover-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste a hostname and it follows its real CNAME chain, then -- if the chain ends at a known takeover-prone provider (S3, Heroku, GitHub Pages, Azure, and 20 more) -- sends one live GET request and checks the response against that provider&#39;s own &#39;nothing is claimed at this name&#39; page. Confirms a dangling CNAME with live evidence, not just a DNS guess. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Supabase RLS Exposure Checker — Is Your Anon Key Reading Real Rows?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free browser tool for New York LLCs: check whether your LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under the NY LLC Transparency Act, see your filing deadline counted down, and organize the beneficial-owner details you&#39;ll need before you email NYDOS yourself. Nothing you type is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>OpenAPI Breaking Change Check — Did This API Version Break Existing Clients?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/openapi-breaking-change-check/"/>
-    <id>tag:marisstella.dev,2026:tool/openapi-breaking-change-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
