@@ -886,6 +886,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-buildxact.html, which does name a
   // product and carries its own "not affiliated" clause.
   'drywall-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat $650 per square special" -- a generic postcard
+  // pricing pattern low-slope roofing companies of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no roofing company at all. Same reasoning as the
+  // other vs-a-flat-*-special pages already in the tree (e.g.
+  // exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'flat-roof-bid-calculator/vs-a-flat-650-per-square-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
