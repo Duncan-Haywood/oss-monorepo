@@ -2080,28 +2080,46 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
     #
-    # 326 since this merge: `supabase-rls-check` graduated -- a browser +
-    # CLI checker reading a Supabase project's own PostgREST schema listing
-    # and testing whether the anon key can read real rows from each table
-    # (the missing-Row-Level-Security exposure behind CVE-2025-48757), with
-    # a static `index.html` from its first commit, same shape as the rest
-    # of this running count.
+    # 326 since this merge: `actions-secrets-inherit-check` graduated -- a
+    # browser-local and CLI checker for GitHub Actions `secrets: inherit`
+    # calls to an external reusable workflow or a fork-reachable job, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch was open before
+    # `osha-trir-dart-calculator` and `supabase-rls-check` landed, so it
+    # only ever knew its own predecessor's number (325) until this merge --
+    # the same ordinary collision shape recorded throughout this list.
     #
-    # 327 since this merge: `actions-secrets-inherit-check` graduated
-    # concurrently -- a browser-local and CLI checker for GitHub Actions
-    # `secrets: inherit` calls to an external reusable workflow or a
-    # fork-reachable job, with a static `index.html` from its first commit,
-    # same shape as the rest of this running count. Both branches only ever
-    # knew their own predecessor's number (325) until this merge -- the same
-    # ordinary collision shape recorded throughout this list.
+    # 327 since this merge: `actions-secrets-inherit-check` and
+    # `osha-trir-dart-calculator` graduated concurrently -- the former a
+    # browser-local and CLI checker for GitHub Actions `secrets: inherit`
+    # calls to an external reusable workflow or a fork-reachable job, the
+    # latter a browser-local calculator turning a company's own OSHA 300 log
+    # counts into its TRIR and DART rate against a target -- each with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. All three branches (these two plus
+    # `supabase-rls-check`, below) only ever knew their own predecessor's
+    # number (325 or 326) until this merge -- the same ordinary collision
+    # shape recorded throughout this list, re-derived here by
+    # `sync_tree_counts.py` against the merged tree rather than by hand.
     #
-    # 328 since this merge: `source-map-leak-check` graduated -- a browser +
+    # 328 since this merge: `supabase-rls-check` graduated concurrently -- a
+    # browser + CLI checker reading a Supabase project's own PostgREST
+    # schema listing and testing whether the anon key can read real rows
+    # from each table (the missing-Row-Level-Security exposure behind
+    # CVE-2025-48757), with a static `index.html` from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 329 since this merge: `source-map-leak-check` graduated -- a browser +
     # CLI checker reading each script's own sourceMappingURL comment and
     # fetching the referenced map to test whether a production source map
     # is publicly readable, and whether it embeds full original source text
     # or only file paths, with a static `index.html` from its first commit,
-    # same shape as the rest of this running count.
-    total = 328  # `infra/OWNER_CHECKLIST.md`'s own "N of the 328 tools" wording.
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (328, from `actions-secrets-inherit-
+    # check` alone) until this merge brought `osha-trir-dart-calculator` and
+    # `supabase-rls-check` in alongside it -- the same ordinary collision
+    # shape recorded throughout this list.
+    total = 329  # `infra/OWNER_CHECKLIST.md`'s own "N of the 329 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

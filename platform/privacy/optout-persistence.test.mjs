@@ -413,26 +413,40 @@ const RELATIVE_SELF = relative(
 // (`ventures/personal-trainer-package-pricing-calculator/usage.mjs`) and no
 // deletions.
 //
-// 307 -> 308: `supabase-rls-check` graduated, adding one `usage.mjs`
-// following the same opt-out pattern as its siblings. Verified the way
+// 307 -> 308: `actions-secrets-inherit-check` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its `actions-*`
+// siblings (`usageOptedOut`/`setUsageOptOut` gating `record`/`readUsage`
+// the same way `actions-cache-poisoning-check`'s does). Verified the way
 // this file's error message prescribes: exactly one added `usage.mjs`
-// (`ventures/supabase-rls-check/usage.mjs`) and no deletions.
-//
-// 308 -> 309: `actions-secrets-inherit-check` graduated concurrently,
-// adding one `usage.mjs` following the same opt-out pattern as its
-// `actions-*` siblings (`usageOptedOut`/`setUsageOptOut` gating
-// `record`/`readUsage` the same way `actions-cache-poisoning-check`'s
-// does). Verified the way this file's error message prescribes: exactly
-// one added `usage.mjs` (`ventures/actions-secrets-inherit-check/usage.mjs`)
-// and no deletions. Both branches only ever knew their own predecessor's
+// (`ventures/actions-secrets-inherit-check/usage.mjs`) and no deletions.
+// This branch was open before `osha-trir-dart-calculator` and
+// `supabase-rls-check` landed, so it only ever knew its own predecessor's
 // number (307) until this merge -- the same ordinary collision shape
 // recorded throughout this list.
 //
-// 310 since this merge: `source-map-leak-check` graduated, adding one
-// `usage.mjs` following the same opt-out pattern as its sibling checkers
+// 308 -> 309: `osha-trir-dart-calculator` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its siblings (`readOptOut`/
+// `writeOptOut` gating `recordUsage`). Verified the way this file's error
+// message prescribes: exactly one added `usage.mjs`
+// (`ventures/osha-trir-dart-calculator/usage.mjs`) and no deletions.
+//
+// 309 -> 310: `supabase-rls-check` graduated concurrently, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings. Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/supabase-rls-check/usage.mjs`) and no deletions.
+// This branch only ever knew its own predecessor's number (307) until
+// this merge -- the same ordinary collision shape recorded throughout
+// this list.
+//
+// 310 -> 311: `source-map-leak-check` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its sibling checkers
 // (`usageOptedOut`/`setUsageOptOut`-equivalent gating via `readOptOut`/
-// `writeOptOut` in `recordUsage`, same as `supabase-rls-check`'s).
-const SWITCHES_IN_THE_CATALOGUE = 310;
+// `writeOptOut` in `recordUsage`, same as `supabase-rls-check`'s). This
+// branch only ever knew its own predecessor's number (310, counting only
+// `actions-secrets-inherit-check`) until this merge brought
+// `osha-trir-dart-calculator` and `supabase-rls-check` in alongside it --
+// the same ordinary collision shape recorded throughout this list.
+const SWITCHES_IN_THE_CATALOGUE = 311;
 
 let counter = 0;
 function fixture(source) {
