@@ -37892,7 +37892,15 @@ entries:
         finished hour". Scored in venture-scores.yaml (composite 6.0, both
         gates pass), registered in usage.yaml (baseline null/zero readings),
         publish-surface.yaml, and its own CI workflow
-        (voiceover-project-rate-calculator-ci.yml).
+        (voiceover-project-rate-calculator-ci.yml). Landing in
+        build.mjs's catch-all "more" category (it fits none of the six named
+        sections) tripped build.test.mjs's zero-headroom bound (5, was
+        already at 5); restored it by moving `android-data-safety-check`
+        into the `ci` category, exactly the move a prior session's own
+        comment had already identified and deliberately deferred ("its own
+        VENTURE.yaml calls it the direct Android-side counterpart to
+        ios-privacy-manifest-check, and that counterpart is filed under
+        ci... noted rather than moved") rather than raising the bound.
       - >-
         Closed the mandatory zero-orphan sibling link both ways with
         translator-project-quote (both price one solo language/audio
