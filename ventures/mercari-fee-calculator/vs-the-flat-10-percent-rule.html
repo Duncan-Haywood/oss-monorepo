@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. the flat 10% rule | Mercari Fee Calculator</title>
+<meta name="description" content="Sellers estimate a Mercari payout by taking 10% off the item price and assuming shipping passes through free. That guess misses the fee on buyer-paid shipping under the current schedule, and misses the legacy processing fee entirely on an older listing. This free, private browser calculator prices both schedules exactly — no account, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-the-flat-10-percent-rule.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. the flat 10% rule">
+<meta property="og:description" content="On a $45 item with $15 buyer-paid shipping, the flat 10%-off-the-item-price guess says a $55.50 payout. The real payout is $54.00 on the current schedule and $53.26 on a legacy listing — a gap the guess never sees, because it never looks at shipping or which schedule the listing is on.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the flat 10% rule get a Mercari payout wrong?","acceptedAnswer":{"@type":"Answer","text":"Because it only ever takes 10% off the item price, and assumes buyer-paid shipping passes straight through untouched. On a $45 item with $15 buyer-paid shipping, that guess says a $55.50 payout. The real payout is $54.00 under the current schedule, because the 10% fee actually applies to the combined $60, not the $45 item price alone — a $1.50 gap the guess never sees."}},{"@type":"Question","name":"What does the flat 10% rule miss on an older, legacy-schedule listing?","acceptedAnswer":{"@type":"Answer","text":"The payment processing fee. A listing made before January 6, 2025 that has not since been edited still runs the old schedule — 10% of the item price only, plus 2.9% of the combined item-plus-shipping total, plus a flat $0.50. On the same $45-item, $15-shipping sale, that processing fee is $2.24, and the flat 10% guess has no line for it at all: it says $55.50 while the real legacy payout is $53.26, a $2.24 gap almost fifty percent wider than the current-schedule gap on the identical sale."}},{"@type":"Question","name":"How much does the flat 10% rule overstate payout, in dollars?","acceptedAnswer":{"@type":"Answer","text":"On this page's worked example — a $45 item plus $15 buyer-paid shipping — the flat 10% guess says $55.50. The real payout is $54.00 on the current schedule (a $1.50 overstatement) and $53.26 on a legacy listing (a $2.24 overstatement). Across 20 such sales in a month, that is $30.00 missing on the current schedule and $44.80 missing on a legacy one — money the guess never accounted for, not money Mercari is taking unfairly."}},{"@type":"Question","name":"Is the flat 10% rule ever exactly right?","acceptedAnswer":{"@type":"Answer","text":"Yes — on a current-schedule listing with no buyer-paid shipping. A $50 item with free shipping (the cost folded into the item price) pays exactly 10% of $50, or $5.00, for a $45.00 payout under both the guess and the real schedule, because there is no shipping for the guess to miss and no legacy processing fee to omit. The gap only opens once shipping is charged separately or the listing predates January 6, 2025."}},{"@type":"Question","name":"Does this calculator know which schedule my listing is on?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not try to guess. You tell it with the legacy-schedule checkbox — checked for a listing made before January 6, 2025 that has not since been edited, unchecked for anything created or edited on or after that date — and it runs the exact arithmetic for whichever schedule you select, plus a side-by-side comparison of both, rather than assuming a flat rate that ignores the question."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #131b2e; background: #eef2f8; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+  a { color: #1c5ea3; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; margin: .3rem 0; max-width: 24ch; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4c5c74; }
+  section { background: #fff; border: 1px solid #c6d3e3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #0a163310; margin: 1.2rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c6d3e3; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4c5c74; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .loses { color: #9b2c1f; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #4c5c74; }
+  footer { color: #4c5c74; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Mercari Fee Calculator</a></p>
+<header>
+<h1>This calculator vs. the flat 10% rule</h1>
+<p class="lede">"Take 10% off the item price" is the mental math every Mercari seller already runs. It is exactly right on a plain, current-schedule listing with no buyer-paid shipping &mdash; and it is wrong the moment shipping enters the sale or the listing predates January 6, 2025.</p>
+</header>
+
+<section>
+<h2>What the flat 10% rule is</h2>
+<p>
+  Mercari's own headline is "sellers pay a 10% selling fee," so most sellers
+  do the fastest possible math: take the item price, knock off a tenth, and
+  call the rest the payout. Buyer-paid shipping, when there is any, is
+  assumed to pass straight through untouched, because it looks like Mercari's
+  cut and the item price's cut are two separate things.
+</p>
+<p>
+  That assumption holds in exactly one case, and breaks in two different
+  ways depending on what the rule never asked about: whether the buyer paid
+  for shipping, and which fee schedule the listing is actually on.
+</p>
+</section>
+
+<section>
+<h2>What this calculator is</h2>
+<p>
+  This page keeps no account and sends nothing to a server. You enter the
+  item price, any buyer-paid shipping, your own shipping-label cost, what
+  you paid for the item, and a target profit, and tell it which fee schedule
+  the listing is on. It runs Mercari's exact published arithmetic for that
+  schedule &mdash; or both schedules side by side &mdash; instead of a flat
+  percentage that was never built to see either variable.
+</p>
+</section>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">Sale</th><th class="num" scope="col">Flat 10% guess payout</th><th class="num" scope="col">Real payout, current schedule</th><th class="num" scope="col">Real payout, legacy schedule</th></tr>
+</thead>
+<tbody>
+<tr><td>$45 item + $15 buyer-paid shipping</td><td class="num">$55.50</td><td class="num loses">$54.00</td><td class="num loses">$53.26</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Worked using this calculator's own arithmetic (<code>calculateSale</code>) on a $45 item price with $15 buyer-paid shipping, no shipping label or item cost entered. Open the calculator to check it yourself, on either schedule.</p>
+<p class="note">
+  Same sale, same flat guess of $55.50 either way &mdash; the guess has no
+  input for which schedule applies. The current schedule's real payout falls
+  $1.50 short of the guess because the 10% fee actually reaches the $15 of
+  shipping. The legacy schedule's real payout falls $2.24 short, because on
+  top of that same shipping-fee gap it also owes a payment processing fee the
+  guess has no line for at all. Across 20 such sales in a month, that is
+  $30.00 the guess overstated on the current schedule and $44.80 on a
+  legacy one.
+</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">What the flat 10% rule does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Takes 10% off the item price only, and assumes buyer-paid shipping passes through with no fee at all.</td>
+<td>Charges the current schedule's 10% fee on the item price plus buyer-paid shipping combined, exactly as Mercari does.</td>
+</tr>
+<tr>
+<td>Has no line for a listing's fee schedule &mdash; it gives the same answer whether the listing is current or legacy.</td>
+<td>Asks which schedule the listing is on and runs that schedule's exact fees, or compares both side by side.</td>
+</tr>
+<tr>
+<td>Has no line for the legacy payment processing fee (2.9% of item plus shipping, plus a flat $0.50) that a pre-2025, unedited listing still owes.</td>
+<td>Adds the legacy processing fee automatically whenever the legacy-schedule box is checked.</td>
+</tr>
+<tr>
+<td>Stops at the fee, so it cannot say what to charge for a target profit after your own shipping-label cost and what you paid for the item.</td>
+<td>Solves for the item price that hits a target profit, on either schedule, after those costs.</td>
+</tr>
+<tr>
+<td>Gives one number, with no way to check whether editing an old listing (and moving it to the current schedule) actually helps.</td>
+<td>Compares both schedules on the same sale, so that decision is a number instead of a guess.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>
+  The flat 10% rule is not wrong because it is careless &mdash; on a plain
+  current-schedule sale with no buyer-paid shipping, it is exactly right, to
+  the cent. It stops being right the moment shipping is charged separately or
+  the listing is old enough to still carry the legacy processing fee, and it
+  has no way to tell you that either condition has been met. This calculator
+  does not replace judgment about your prices; it replaces the arithmetic the
+  flat rule never ran.
+</p>
+
+<section>
+<h2>Common questions</h2>
+<h3>Why does the flat 10% rule get a Mercari payout wrong?</h3>
+<p>Because it only ever takes 10% off the item price, and assumes buyer-paid shipping passes straight through untouched. On a $45 item with $15 buyer-paid shipping, that guess says a $55.50 payout. The real payout is $54.00 under the current schedule, because the 10% fee actually applies to the combined $60, not the $45 item price alone &mdash; a $1.50 gap the guess never sees.</p>
+<h3>What does the flat 10% rule miss on an older, legacy-schedule listing?</h3>
+<p>The payment processing fee. A listing made before January 6, 2025 that has not since been edited still runs the old schedule &mdash; 10% of the item price only, plus 2.9% of the combined item-plus-shipping total, plus a flat $0.50. On the same $45-item, $15-shipping sale, that processing fee is $2.24, and the flat 10% guess has no line for it at all: it says $55.50 while the real legacy payout is $53.26, a $2.24 gap almost fifty percent wider than the current-schedule gap on the identical sale.</p>
+<h3>How much does the flat 10% rule overstate payout, in dollars?</h3>
+<p>On this page's worked example &mdash; a $45 item plus $15 buyer-paid shipping &mdash; the flat 10% guess says $55.50. The real payout is $54.00 on the current schedule (a $1.50 overstatement) and $53.26 on a legacy listing (a $2.24 overstatement). Across 20 such sales in a month, that is $30.00 missing on the current schedule and $44.80 missing on a legacy one &mdash; money the guess never accounted for, not money Mercari is taking unfairly.</p>
+<h3>Is the flat 10% rule ever exactly right?</h3>
+<p>Yes &mdash; on a current-schedule listing with no buyer-paid shipping. A $50 item with free shipping (the cost folded into the item price) pays exactly 10% of $50, or $5.00, for a $45.00 payout under both the guess and the real schedule, because there is no shipping for the guess to miss and no legacy processing fee to omit. The gap only opens once shipping is charged separately or the listing predates January 6, 2025.</p>
+<h3>Does this calculator know which schedule my listing is on?</h3>
+<p>No, and it does not try to guess. You tell it with the legacy-schedule checkbox &mdash; checked for a listing made before January 6, 2025 that has not since been edited, unchecked for anything created or edited on or after that date &mdash; and it runs the exact arithmetic for whichever schedule you select, plus a side-by-side comparison of both, rather than assuming a flat rate that ignores the question.</p>
+<p class="note">
+  Open the <a href="./">Mercari fee calculator</a> and check your own sale, or
+  read <a href="how-much-does-mercari-take.html">how much Mercari takes per
+  sale</a> for the schedules worked through in full.
+</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page is a worked example from the calculator's own arithmetic; it makes no live comparison against any competing service. Open the calculator to run your own numbers &mdash; they stay on this device.</p>
+<p>Not affiliated with, endorsed by, or sponsored by Mercari. Mercari is a trademark of its owner, named here only to describe the published fee schedule this tool computes against (Mercari Help Center, "Fees on Mercari" and "FAQs about our new fee structure", effective January 6, 2025). Mercari can change this schedule at any time &mdash; verify against your own payout statement before you price a listing.</p>
+<p class="support">Free and open source. If it kept you from misjudging a payout, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

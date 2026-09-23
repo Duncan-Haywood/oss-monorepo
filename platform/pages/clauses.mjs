@@ -994,6 +994,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
   'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
+  // Compares against "taking 10% off the item price and assuming shipping
+  // passes through free" -- a mental-math shortcut every Mercari seller
+  // already runs, not a company or product this could be mistaken for. The
+  // page still names Mercari throughout, because Mercari is the platform
+  // whose published fee schedule this calculator computes (the same as its
+  // sibling how-much-does-mercari-take.html), and it carries its own "not
+  // affiliated with Mercari" trademark clause for that reason -- distinct
+  // from the comparison-target disclaimer this exemption removes the need
+  // for. Same reasoning and shape as this file's own
+  // shopify-fee-calculator/vs-a-flat-card-fee-guess.html entry above.
+  'mercari-fee-calculator/vs-the-flat-10-percent-rule.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

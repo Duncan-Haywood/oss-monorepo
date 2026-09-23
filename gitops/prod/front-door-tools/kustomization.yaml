@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 138 files, 555291 bytes
 #   portfolio-front-tools-9: 118 files, 556809 bytes
 #   portfolio-front-tools-10: 120 files, 556490 bytes
-#   portfolio-front-tools-11: 116 files, 551468 bytes
+#   portfolio-front-tools-11: 117 files, 556473 bytes
 #   portfolio-front-tools-12: 127 files, 553969 bytes
 #   portfolio-front-tools-13: 126 files, 554667 bytes
 #   portfolio-front-tools-14: 124 files, 555270 bytes
@@ -1653,6 +1653,7 @@ configMapGenerator:
       - mercari-fee-calculator__index.html.gz=mercari-fee-calculator__index.html.gz
       - mercari-fee-calculator__share.mjs.gz=mercari-fee-calculator__share.mjs.gz
       - mercari-fee-calculator__usage.mjs.gz=mercari-fee-calculator__usage.mjs.gz
+      - mercari-fee-calculator__vs-the-flat-10-percent-rule.html.gz=mercari-fee-calculator__vs-the-flat-10-percent-rule.html.gz
       - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
       - merchant-feed-check__engine.mjs.gz=merchant-feed-check__engine.mjs.gz
       - merchant-feed-check__index.html.gz=merchant-feed-check__index.html.gz
