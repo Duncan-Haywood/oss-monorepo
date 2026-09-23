@@ -505,6 +505,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no vendor or competing
   // calculator at all.
   'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // every remodeler pricing rec-room versus framed-finish versus
+  // legal-living scope already reaches for, not a company or product this
+  // could be mistaken for. The page names no spreadsheet application and its
+  // own footer says so explicitly. Same reasoning as the
+  // amazon-fba-calculator and reverb-fee-calculator spreadsheet pages above.
+  'basement-finishing-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
