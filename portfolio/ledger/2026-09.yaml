@@ -36395,3 +36395,38 @@ entries:
         using it twice within 90 days, or no unsolicited feedback/star/fork
         within 90 days, are the signals that would retire this from further
         build time.
+  - venture: freight-accessorial-auditor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Only open PR was #5150 (fence-bid-calculator), a different venture
+        and angle, so no duplicate risk there. router/allocate.py's top two
+        candidates (reverb-fee-calculator, where-to-sell-calculator) were
+        both already extensively built out; surveyed several money-real-niche
+        ventures with surface-budget.mjs --for instead. Picked
+        freight-accessorial-auditor (LTL/freight invoice audit for small
+        shippers and brokers -- a real-money B2B AP niche): 0 generic-method
+        pages (room for 1, left untouched) and one named-product comparison
+        (vs-trax.html) already shipped. Added vs-cass.html, a second named
+        comparison against Cass Information Systems (Nasdaq: CASS / Cass
+        Freight), a publicly traded freight audit-and-payment provider --
+        unbudgeted under surface-budget.mjs since it names a distinct real
+        competitor rather than a generic method. Content is conservative and
+        hedged (no invented Cass pricing or plan names, matching the
+        discipline vs-trax.html already uses for Trax), carries the
+        no-warranty and not-affiliated clauses, an FAQPage schema pinned to
+        the visible FAQ text by test, and is linked from index.html and
+        listed in sitemap.xml. Added vs-cass.test.mjs mirroring the venture's
+        existing vs-trax.test.mjs conventions (13 assertions). `node --test`
+        in the venture: 143/143. `regen.mjs --verify` found the mirror stale
+        (6 changed, 1 missing artifact for the new page); ran `regen.mjs` and
+        committed the rewritten gitops/prod/ files, re-verified clean.
+        sync_tree_counts.py: both hand-written counts already agreed (no
+        rewrite needed). checklist_coverage.py clean. `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1281/1281.
+        `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped
+        (environmental). surface-budget.mjs --check unchanged (no venture
+        over budget) both before and after. CI (Actions) is starved this
+        session (runner_id: 0 on recent Portfolio validate runs per the task
+        brief), so this local run is the verification of record.
