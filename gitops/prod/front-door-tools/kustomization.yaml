@@ -33,24 +33,24 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 553416 bytes
-#   portfolio-front-tools-1: 104 files, 556063 bytes
-#   portfolio-front-tools-2: 151 files, 556226 bytes
-#   portfolio-front-tools-3: 136 files, 555905 bytes
-#   portfolio-front-tools-4: 134 files, 549229 bytes
-#   portfolio-front-tools-5: 124 files, 553762 bytes
-#   portfolio-front-tools-6: 130 files, 554350 bytes
-#   portfolio-front-tools-7: 133 files, 555620 bytes
-#   portfolio-front-tools-8: 124 files, 539899 bytes
-#   portfolio-front-tools-9: 113 files, 545123 bytes
-#   portfolio-front-tools-10: 115 files, 551128 bytes
-#   portfolio-front-tools-11: 121 files, 556797 bytes
-#   portfolio-front-tools-12: 125 files, 547679 bytes
-#   portfolio-front-tools-13: 135 files, 556790 bytes
-#   portfolio-front-tools-14: 99 files, 549080 bytes
-#   portfolio-front-tools-15: 113 files, 543554 bytes
-#   portfolio-front-tools-16: 117 files, 556611 bytes
-#   portfolio-front-tools-17: 53 files, 274920 bytes
+#   portfolio-front-tools-0: 133 files, 553421 bytes
+#   portfolio-front-tools-1: 104 files, 556066 bytes
+#   portfolio-front-tools-2: 151 files, 556233 bytes
+#   portfolio-front-tools-3: 136 files, 555947 bytes
+#   portfolio-front-tools-4: 134 files, 549252 bytes
+#   portfolio-front-tools-5: 124 files, 553748 bytes
+#   portfolio-front-tools-6: 130 files, 554368 bytes
+#   portfolio-front-tools-7: 131 files, 556187 bytes
+#   portfolio-front-tools-8: 130 files, 555822 bytes
+#   portfolio-front-tools-9: 113 files, 545023 bytes
+#   portfolio-front-tools-10: 116 files, 555908 bytes
+#   portfolio-front-tools-11: 121 files, 556685 bytes
+#   portfolio-front-tools-12: 125 files, 547732 bytes
+#   portfolio-front-tools-13: 135 files, 556669 bytes
+#   portfolio-front-tools-14: 99 files, 549081 bytes
+#   portfolio-front-tools-15: 113 files, 543619 bytes
+#   portfolio-front-tools-16: 119 files, 557006 bytes
+#   portfolio-front-tools-17: 50 files, 269585 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1065,6 +1065,10 @@ configMapGenerator:
       - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
       - dns-configuration-evidence__index.html.gz=dns-configuration-evidence__index.html.gz
       - dns-configuration-evidence__vs-whatsmydns.html.gz=dns-configuration-evidence__vs-whatsmydns.html.gz
+      - docker-base-image-eol-check__classify.mjs.gz=docker-base-image-eol-check__classify.mjs.gz
+      - docker-base-image-eol-check__index.html.gz=docker-base-image-eol-check__index.html.gz
+      - docker-base-image-eol-check__usage.mjs.gz=docker-base-image-eol-check__usage.mjs.gz
+      - docker-base-image-eol-check__vs-a-vulnerability-scanner.html.gz=docker-base-image-eol-check__vs-a-vulnerability-scanner.html.gz
       - docker-base-image-pin-check__classify.mjs.gz=docker-base-image-pin-check__classify.mjs.gz
       - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
       - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
@@ -1147,17 +1151,17 @@ configMapGenerator:
       - einvoice-preflight__endpoint.mjs.gz=einvoice-preflight__endpoint.mjs.gz
       - einvoice-preflight__facturx.mjs.gz=einvoice-preflight__facturx.mjs.gz
       - einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz=einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz
+  - name: portfolio-front-tools-8
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - einvoice-preflight__iban.mjs.gz=einvoice-preflight__iban.mjs.gz
       - einvoice-preflight__index.html.gz=einvoice-preflight__index.html.gz
       - einvoice-preflight__means.mjs.gz=einvoice-preflight__means.mjs.gz
       - einvoice-preflight__period.mjs.gz=einvoice-preflight__period.mjs.gz
       - einvoice-preflight__reference.mjs.gz=einvoice-preflight__reference.mjs.gz
       - einvoice-preflight__remittance.mjs.gz=einvoice-preflight__remittance.mjs.gz
-  - name: portfolio-front-tools-8
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - einvoice-preflight__report.mjs.gz=einvoice-preflight__report.mjs.gz
       - einvoice-preflight__tax.mjs.gz=einvoice-preflight__tax.mjs.gz
       - einvoice-preflight__terms.mjs.gz=einvoice-preflight__terms.mjs.gz
@@ -1518,6 +1522,7 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz
       - kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz
       - kitchen-tile-backsplash-bid-calculator__usage.mjs.gz=kitchen-tile-backsplash-bid-calculator__usage.mjs.gz
+      - kitchen-tile-backsplash-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=kitchen-tile-backsplash-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz=kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz
       - land-survey-bid-calculator__calc.mjs.gz=land-survey-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-11
@@ -2236,7 +2241,6 @@ configMapGenerator:
       - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz
       - water-heater-bid-calculator__share.mjs.gz=water-heater-bid-calculator__share.mjs.gz
       - water-heater-bid-calculator__usage.mjs.gz=water-heater-bid-calculator__usage.mjs.gz
-      - water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz=water-heater-bid-calculator__vs-a-flat-rate-water-heater-special.html.gz
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
@@ -2260,14 +2264,14 @@ configMapGenerator:
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
       - whatnot-seller-payout__index.html.gz=whatnot-seller-payout__index.html.gz
       - whatnot-seller-payout__share.mjs.gz=whatnot-seller-payout__share.mjs.gz
+      - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz
+      - whatnot-seller-payout__to-where-to-sell.mjs.gz=whatnot-seller-payout__to-where-to-sell.mjs.gz
+      - whatnot-seller-payout__usage.mjs.gz=whatnot-seller-payout__usage.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz
-      - whatnot-seller-payout__to-where-to-sell.mjs.gz=whatnot-seller-payout__to-where-to-sell.mjs.gz
-      - whatnot-seller-payout__usage.mjs.gz=whatnot-seller-payout__usage.mjs.gz
       - whatnot-seller-payout__vs-tracking-payouts-in-a-spreadsheet.html.gz=whatnot-seller-payout__vs-tracking-payouts-in-a-spreadsheet.html.gz
       - whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz=whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz
       - wheelchair-ramp-bid-calculator__calc.mjs.gz=wheelchair-ramp-bid-calculator__calc.mjs.gz
