@@ -3,4 +3,5 @@
 <url><loc>https://example.invalid/sri-check/</loc></url>
 <url><loc>https://example.invalid/sri-check/why-does-sri-need-the-crossorigin-attribute.html</loc></url>
 <url><loc>https://example.invalid/sri-check/vs-srihash.html</loc></url>
+<url><loc>https://example.invalid/sri-check/vs-checking-tags-by-hand.html</loc></url>
 </urlset>

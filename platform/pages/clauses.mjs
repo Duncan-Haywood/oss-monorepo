@@ -973,6 +973,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-rfms.html, which does name a
   // product and carries its own "not affiliated" clause.
   'flooring-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "reading a page's view-source or devtools for SRI tags
+  // by eye" -- a manual method every developer already has access to, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-srihash.html, which does name a product (srihash.org)
+  // and carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-checking-it-by-hand / vs-reading-the-color-code-by-eye pages above.
+  'sri-check/vs-checking-tags-by-hand.html',
   // Compares against "a flat price per window" -- the generic postcard
   // pricing habit the trade is shopped on, not a company or product this
   // could be mistaken for. The page names no vendor or competing calculator
