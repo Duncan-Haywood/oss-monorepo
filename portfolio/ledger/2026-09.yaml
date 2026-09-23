@@ -36641,6 +36641,70 @@ entries:
         backup branch and redid it with git commit-tree/checkout on just the
         two commits that needed it, verified byte-identical trees throughout
         via git diff).
+  - venture: shopify-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `surface-budget.mjs --for shopify-fee-calculator` showed 0
+        generic-method comparison pages against a budget of 1 (one
+        named-product page, vs-beprofit.html, already shipped; 18 guides).
+        Added vs-a-flat-card-fee-guess.html: this calculator vs. the
+        "2.9% + 30 cents" flat card-fee rule of thumb most merchants already
+        carry. Names no company -- only "Shopify Payments" and "a
+        third-party processor" (Shopify's own terms) -- so exempted in
+        COMPARISON_DISCLAIMER_EXEMPT in platform/pages/clauses.mjs rather
+        than carrying a not-affiliated clause, same reasoning as the sibling
+        generic-method exemptions already listed there. Every dollar figure
+        on the page is calc.mjs's own calculateOrder() run on two orders: the
+        calculator's own shipped default (index.html: $48 item, $6 shipping,
+        $14 cost of goods, $5 shipping cost, $1 packaging, 2.9%+$0.30
+        Shopify Payments, 2% Shopify third-party fee, 3.49%+$0.49 processor,
+        $39/mo plan over 100 orders) and a larger order at the same plan and
+        volume. The flat guess happens to land on the exact Shopify Payments
+        fee ($1.87 / $5.00) because 2.9%+30 cents is literally that plan's
+        rate, but still overstates real profit by $20.39-$75.78 across the
+        two orders because it has no line for cost of goods, shipping paid,
+        packaging, or the plan allocation; on the third-party path it
+        additionally misses Shopify's own extra transaction fee, understating
+        the true fee by $1.59-$4.39/order ($438.58/month at 100 orders on the
+        larger order). A throwaway node script (not committed) called
+        calculateOrder directly to derive every figure before it was typed
+        into the page; the page's own test then re-derives all of them from
+        calc.mjs a second time and asserts each one literally appears in the
+        HTML, so drift between the calculator and the page fails the suite.
+        Linked from index.html's footer and listed in sitemap.xml.
+        page.test.mjs (this venture's per-page test for
+        shopify-pos-vs-online-fees.html, despite the generic filename) needed
+        no change -- node --test discovers *.test.mjs by glob in this
+        venture's flat layout, no cross-page enumerator to update. Verified
+        locally rather than via CI: `ci_starvation.py --run 35863781373`
+        confirmed the most recent portfolio-validate.yml run on this repo
+        was starved (runner_id: 0, 3s, no steps) immediately before this
+        session, so the following are the verification of record. `node
+        --test ventures/shopify-fee-calculator/*.test.mjs`: 327/327 (20 test
+        files, including the 12 new), no regressions. `node
+        platform/pages/surface-budget.mjs --for shopify-fee-calculator`: now
+        1 generic-method (was 0), within budget; `--check` across the whole
+        tree: clean (218 ventures at 0, 105 at 1 including this one, 1 at 2
+        under its recorded override). `node platform/pages/clauses.mjs`: 1225
+        pages across 324 surfaces carry their required clauses (scoped to
+        this venture: 21/21). `node platform/pages/faq-coverage.mjs`,
+        `faq-duplicate.mjs`, and `guide-coverage.mjs` scoped to this venture:
+        all clean. `node platform/marketing/regen.mjs --verify` reported
+        STALE (7 artifacts: the front-door-tools mirror shard for this
+        venture, its kustomization, and the front-door catalog/compare/
+        llms.txt/sitemap that enumerate every generic-method page); ran
+        `regen.mjs` to rewrite them, then `--verify` again reported current.
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`:
+        1281/1281, no regressions. `python3 platform/ci/checklist_coverage.py`:
+        clean (venture test glob still reaches this venture's flat layout;
+        no new test.mjs directory outside ventures/ was added). Files
+        touched: ventures/shopify-fee-calculator/{vs-a-flat-card-fee-guess.html,
+        vs-a-flat-card-fee-guess.test.mjs (new), index.html, sitemap.xml},
+        platform/pages/clauses.mjs (exemption entry), and the regenerated
+        gitops/prod/front-door* and front-door-tools* mirror artifacts named
+        above.
   - venture: freelance-platform-fee-calculator
     agent_spend_usd: null
     human_hours: 0
