@@ -37290,6 +37290,59 @@ entries:
         gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current.
     mrr_end: 0
+  - venture: sunroom-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-a-flat-180-per-square-foot-special.html, against the "$180/sf"
+        special calc.mjs's own comments and JOB_PRESETS already name as
+        the pricing habit the trade competes with (surface-budget.mjs had
+        reported 0/1 generic-method pages used; the venture's existing
+        vs-jobber.html is a named-product page and unbudgeted, and was
+        tied for the highest router merit, 6.833, among all 214 ventures
+        at 0 generic-method pages that day). Worked example derived from
+        calc.mjs's own suggestedEnclosureKit/suggestedFoundationKit/
+        suggestedRoofKit/suggestedHeightKit helpers and shipped
+        JOB_PRESETS[0]/[1] at the index.html shop-rate defaults ($38/hr
+        wage, 30% burden, $140 travel, 15% overhead, 25% target margin):
+        the flat $180/sf rate is generous on the cheap three-season/
+        existing-deck preset ($21,600 vs. $11,395.50 cost, $6,406.00 over
+        the calculator's own bid price) but a net loss on the four-season/
+        new-slab/insulated-roof/HVAC preset ($34,560 vs. $35,430.47 cost,
+        $12,680.63 below the calculator's own bid price) -- a stronger
+        story than the sibling artificial-turf-bid-calculator/
+        carpet-install-bid-calculator generic pages, which derive the flat
+        rate from the cheap job's own price (zero gap there) rather than
+        from a literal advertised number that turns out generous on one
+        end and a loss on the other. Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (names no company or product), wired
+        into index.html and sitemap.xml. `node --test` in the venture:
+        138/138. Full `platform/marketing`/`platform/pages` suite:
+        1281/1281, re-run clean three times as `main` advanced twice
+        underneath the branch (shopify-fee-calculator's second generic
+        page and entry-door-bid-calculator's comparison page), each
+        resolved by regenerating the front-door mirror from the merged
+        sources (`regen.mjs`) and merging both sides' additive entries in
+        clauses.mjs's exemption list by hand -- surface-budget.mjs --check
+        confirmed no venture over budget after each merge (a prior session
+        had already added shopify-fee-calculator's GENERIC_BUDGET_OVERRIDES
+        row for its own second page before this branch merged).
+        checklist_coverage.py and sync_tree_counts.py: clean, no drift.
+        `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped
+        (environmental) after installing nginx-light/openssh-client via
+        `apt-get update && apt-get install`. `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed. All platform/ci
+        unittest modules and agent_review's test_review (21/21): clean.
+        guard_state.py --require-runnable: clean. Confirmed the one check
+        that ran on the PR (appointment-deposit-calculator-ci.yml's "test"
+        job, triggered by the merge commit) starved via ci_starvation.py
+        (runner_id 0, 3s, no steps) before merging (#5214). Published the
+        gh-pages snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current (#5223).
+    mrr_end: 0
   - venture: walk-in-shower-bid-calculator
     agent_spend_usd: null
     human_hours: 0
