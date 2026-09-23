@@ -980,6 +980,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and carries its own "not affiliated" clause. Same reasoning as the other
   // vs-checking-it-by-hand / vs-reading-the-color-code-by-eye pages above.
   'sri-check/vs-checking-tags-by-hand.html',
+  // Compares against "a flat price per window" -- the generic postcard
+  // pricing habit the trade is shopped on, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all -- distinct from this venture's own vs-marketsharp.html, which
+  // does name a product and carries its own "not affiliated" clause.
+  'window-replacement-bid-calculator/vs-a-flat-price-per-window.html',
   // Compares against "a flat quote by house size" -- the generic pricing
   // habit pest control accounts are shopped on, not a company or product
   // this could be mistaken for. The page names no vendor or competing
