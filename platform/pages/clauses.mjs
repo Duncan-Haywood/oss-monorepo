@@ -505,6 +505,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no vendor or competing
   // calculator at all.
   'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat hang fee" -- a per-charger price every
+  // electrical contractor is shopped against, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all (the venture's two named-product comparisons,
+  // vs-servicetitan and vs-workiz, carry their own trademark disclaimers).
+  'ev-charger-bid-calculator/vs-a-flat-hang-fee.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
