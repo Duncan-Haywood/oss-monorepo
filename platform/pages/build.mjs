@@ -6771,10 +6771,31 @@ export function faqEntries(html) {
     .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
+// A guide page is free to describe raw HTML as prose or JSON-LD text --
+// git-exposure-check's soft-404 guide literally quotes
+// `<html><body>404 Not Found</body></html>` as the error page a server
+// might return. A plain regex/string search for `<body>` cannot tell that
+// quoted example apart from the page's own body tag, and a string-based
+// `.replace()` always lands on whichever occurrence comes first in the
+// document -- here, the one inside `<head>`, not the real one after it.
+// That corrupted the JSON-LD (site chrome landed mid-string) and left the
+// real `<body>` unwrapped. `maskScripts` blanks script contents (same
+// length, so offsets still line up) before searching, and every insertion
+// below is done by index against the *unmasked* html rather than by
+// re-searching for the tag's text, so a second identical `<body>` string
+// elsewhere in the document can never be mistaken for the real one.
+const maskScripts = (source) =>
+  source.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, (block) => block.replace(/[^\n]/g, ' '));
+const findRealBodyOpen = (source) => {
+  const match = maskScripts(source).match(/<body[^>]*>/i);
+  if (!match) return null;
+  return { index: match.index, text: source.slice(match.index, match.index + match[0].length) };
+};
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = html.match(/<body[^>]*>/i);
-  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+  let bodyOpen = findRealBodyOpen(html);
+  if (!bodyOpen || !/<\/body>/i.test(maskScripts(html))) return html;
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6832,7 +6853,12 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   if (headExtras) {
     html = /<\/head>/i.test(html)
       ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
-      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+      : `${html.slice(0, bodyOpen.index)}${headExtras}\n${html.slice(bodyOpen.index)}`;
+    // Either branch can shift everything after the insertion point, so the
+    // body tag's own index (and the `</head>`-relative fallback above) must
+    // be re-found against the html as it now stands.
+    bodyOpen = findRealBodyOpen(html);
+    if (!bodyOpen) return html;
   }
 
   const hub = `${toRoot}`;
@@ -6880,9 +6906,24 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
   const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
-  return withStyle
-    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n</body>`);
+  // Re-find the body tag against `withStyle`: the stylesheet insertion above
+  // can shift everything after it, same as the headExtras insertion earlier.
+  const finalBodyOpen = findRealBodyOpen(withStyle);
+  if (!finalBodyOpen) return withStyle;
+  const withTopBar =
+    withStyle.slice(0, finalBodyOpen.index + finalBodyOpen.text.length) +
+    `\n${stylePrefix}${topBar}` +
+    withStyle.slice(finalBodyOpen.index + finalBodyOpen.text.length);
+
+  // Same masking for the closing tag: a guide's own text can quote
+  // `</body>` too, and a plain `.replace(/<\/body>/i, ...)` would land on
+  // that quoted one -- inside `<head>`, ahead of the real close -- exactly
+  // as the open tag did above.
+  const closeMatch = maskScripts(withTopBar).match(/<\/body>/i);
+  if (!closeMatch) return withTopBar;
+  return (
+    withTopBar.slice(0, closeMatch.index) + `${footer}\n` + withTopBar.slice(closeMatch.index)
+  );
 }
 
 /**

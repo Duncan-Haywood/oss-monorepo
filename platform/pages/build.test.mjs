@@ -1728,6 +1728,32 @@ test('a fragment with no body is left alone rather than corrupted', () => {
   assert.equal(injectChrome(fragment, { slug: 'x', toRoot: '../', total: 2, related: [] }), fragment);
 });
 
+test('literal <body> text in a head script is not mistaken for the real body tag', () => {
+  // git-exposure-check's soft-404 guide quotes a raw error page --
+  // `<html><body>404 Not Found</body></html>` -- inside its JSON-LD FAQ
+  // answer. A plain text/regex search for `<body>` finds that quoted
+  // example first, since it sits in `<head>` ahead of the page's own
+  // `<body>` tag, and a content-addressed `.replace()` would staple the
+  // whole site chrome into the JSON string instead of wrapping the page.
+  const quoted = '<html><body>404 Not Found</body></html>';
+  const html = injectChrome(
+    `<html><head><script type="application/ld+json">{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"q","acceptedAnswer":{"@type":"Answer","text":"looks like ${quoted}"}}]}</script></head><body><h1>Tool</h1></body></html>`,
+    { slug: 'x', toRoot: '../', total: 2, related: [] },
+  );
+  const ldJson = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => JSON.parse(ldJson), 'the JSON-LD block still parses');
+  assert.ok(ldJson.includes(quoted), 'the quoted example text survives untouched');
+  assert.equal(html.match(/<nav class="pf-chrome pf-chrome-top"/g)?.length, 1);
+  assert.equal(html.match(/<aside class="pf-chrome pf-chrome-foot"/g)?.length, 1);
+  // The real body tag, not the quoted one, got wrapped: nav before the
+  // venture's own content, footer after it, both outside the JSON-LD script.
+  const navAt = html.indexOf('<nav class="pf-chrome pf-chrome-top"');
+  const contentAt = html.indexOf('<h1>Tool</h1>');
+  const asideAt = html.indexOf('<aside class="pf-chrome pf-chrome-foot"');
+  assert.ok(navAt > html.indexOf('</script>'), 'nav lands after the JSON-LD script, not inside it');
+  assert.ok(navAt < contentAt && contentAt < asideAt, 'nav, content and footer are in document order');
+});
+
 // ---------------------------------------------------------------------------
 // Discovery tags
 // ---------------------------------------------------------------------------
