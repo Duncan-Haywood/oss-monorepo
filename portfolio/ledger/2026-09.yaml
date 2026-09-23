@@ -38649,6 +38649,58 @@ entries:
         21/21 pass (unaffected by this change; run per the starvation
         checklist). YAML-validated the workflow edit with `yaml.safe_load`.
     mrr_end: 0
+  - venture: sri-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added this venture's first generic-method comparison page,
+        vs-checking-tags-by-hand.html (surface-budget.mjs confirmed 0/1
+        generic-method pages used; the existing vs-srihash.html names a
+        product and is unbudgeted). Explains the two failures a manual
+        view-source/devtools read of a page's SRI tags cannot catch that
+        this tool's CLI does in one fetch: an integrity attribute with no
+        matching crossorigin attribute (most browsers silently stop
+        enforcing it, so the tag looks protected and is not), and a
+        declared hash that has drifted from what the CDN currently serves
+        (indistinguishable from a correct hash by reading the markup
+        alone). Registered the page in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, wired into index.html and
+        sitemap.xml. Also added the pre-existing but CI-unrun
+        vs-srihash.test.mjs and the new test file to sri-check-ci.yml's
+        explicit test list -- the workflow named five files and neither
+        comparison-page test, so both ran only via a bare `node --test`
+        in the venture's own directory, never in CI.
+      - >-
+        Regenerated the front-door mirror (node platform/marketing/regen.mjs)
+        since the page landed in the venture tree; regen.mjs --verify
+        confirmed 7 artifacts stale before the regen (0 after). Merged
+        origin/main mid-session to pick up three concurrent venture
+        graduations (firebase-rules-check,
+        sign-language-interpreter-rate-calculator, source-map-leak-check);
+        resolved the gitops/prod/front-door* mirror conflicts by
+        regenerating against the merged tree (never hand-picking a side,
+        per resolve-mirror-merge.sh) and a platform/pages/clauses.mjs
+        conflict by keeping both sessions' independently-appended
+        COMPARISON_DISCLAIMER_EXEMPT entries.
+      - >-
+        Verified: node --test in ventures/sri-check: 71/71. Combined
+        node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs:
+        1281/1281 both before and after the merge (7 failing -- all
+        committed-mirror-is-stale -- before the first regen). python3 -m
+        pytest gitops/tests -q: 613 passed, 25 skipped (nginx/ssh binaries
+        not installed in this session), unchanged post-merge.
+        sync_tree_counts.py: no drift either side of the merge.
+        checklist_coverage.py, publish_surface.py --check,
+        check_no_payment_code.py, router/validate.py,
+        pipeline/validate_doc_consistency.py: all clean. platform/ci
+        unittest suites (26 modules via `python3 -m unittest discover -p
+        test_*.py`, plus agent_review/test_review separately per its own
+        working-directory requirement): 1005 + 21 passed.
+        run_workflow_locally.py --for-changes: portfolio-validate.yml
+        70/70 run steps, sibling-links-ci.yml 2/2, sri-check-ci.yml 1/1
+        (deploy/hosted-credential/external-app jobs correctly held back).
+    mrr_end: 0
 
   - venture: podcast-feed-check
     agent_spend_usd: null
