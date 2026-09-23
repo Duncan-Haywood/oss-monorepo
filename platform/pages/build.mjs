@@ -5200,6 +5200,9 @@ ${subgroups
                padding: 15px 18px; margin-top: 26px; }
     .optout { margin-top: 18px; font-size: .84rem; }
     .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .offline select { max-width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px;
+                      border-radius: 9px; border: 1px solid var(--line); background: var(--panel);
+                      color: var(--ink); margin-bottom: 10px; }
     .offline button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
                       border: 1px solid var(--accent); background: var(--accent);
                       color: var(--accent-ink); cursor: pointer; }
