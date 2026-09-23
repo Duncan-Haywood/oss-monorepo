@@ -1029,6 +1029,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "typing the URL into a browser tab and eyeballing the
+  // response" -- a manual habit every developer already has, not a company
+  // or product this could be mistaken for. This page names no git-hosting
+  // platform, IDE, or scanning tool.
+  'dotenv-exposure-check/vs-checking-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
