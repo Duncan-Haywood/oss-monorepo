@@ -31,7 +31,9 @@ calculator prices the job both ways and shows the gap: how much a flat
 per-acre quote would have left on the table, or overcharged, on the exact job
 you just priced. See
 [this calculator vs. a flat per-acre quote](vs-a-flat-per-acre-quote.html)
-for two worked examples where the gap runs in opposite directions.
+for two worked examples where the gap runs in opposite directions, or
+[how much does a land survey cost](how-much-does-a-land-survey-cost.html)
+for why a small, hard parcel can cost more than a large, easy one.
 
 ## Hand the customer a proposal
 
