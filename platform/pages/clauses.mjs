@@ -100,6 +100,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // every repository admin already has, not a company or product this
   // could be mistaken for.
   'branch-protection-drift-check/vs-manually-checking-settings.html',
+  // Compares against "opening devtools and checking by hand" -- a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for.
+  'source-map-leak-check/vs-checking-devtools-by-hand.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -949,6 +953,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-jobber.html, which does name a
   // product and carries its own "not affiliated" clause.
   'french-drain-bid-calculator/vs-a-flat-price-per-foot.html',
+  // Compares against "a spreadsheet" -- a generic method almost every EHS
+  // team already has, not a company or product this could be mistaken for.
+  // The page names no spreadsheet vendor at all, same reasoning as
+  // overtime-pay-calculator's own vs-spreadsheet.html above.
+  'osha-trir-dart-calculator/vs-spreadsheet.html',
   // Compares against "a flat $4 a square foot installed" special -- a generic
   // postcard pricing pattern excavation and landscape shops of many different
   // names advertise for gravel driveways, not one specific company or product
@@ -971,6 +980,21 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and carries its own "not affiliated" clause. Same reasoning as the other
   // vs-checking-it-by-hand / vs-reading-the-color-code-by-eye pages above.
   'sri-check/vs-checking-tags-by-hand.html',
+  // Compares against "a flat quote by house size" -- the generic pricing
+  // habit pest control accounts are shopped on, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-pestpac.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html',
+  // Compares against "a flat $999 mold special" -- a generic postcard
+  // pricing pattern mold remediation companies of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no company at all -- distinct from this venture's
+  // own vs-xactimate.html, which does name a product and carries its own
+  // "not affiliated" clause. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
+  'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
