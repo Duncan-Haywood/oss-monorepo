@@ -35399,3 +35399,52 @@ entries:
         71/71 run steps passed, sibling-links-ci.yml 2/2 -- the remaining
         selected workflows need a runner or deploy credentials this
         sandbox does not have and were not run.
+  - venture: artificial-turf-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session: 0 open PRs, session_gate.py returned PROCEED with
+        the build-now pipeline empty. allocate.py ranked this venture #42 by
+        untested-hypothesis merit, and its own hypothesis names the exact
+        generic-method angle surface-budget.mjs showed unused (0 of 1
+        generic-method comparison pages). Shipped
+        vs-a-flat-rate-per-square-foot.html: this calculator vs. quoting from
+        a flat dollars-per-square-foot special regardless of turf type or
+        scope. On the venture's own shipped presets, the 600 sq ft landscape
+        job (sod demo, no wells) prices at $5,468.14 -- $9.11/sq ft.
+        Applying that same $9.11 rate to the 800 sq ft pet-turf preset (sod
+        demo, 2 tree wells) quotes $7,290.86, which is $495.89 *below* that
+        job's own $7,786.75 break-even cost, before a dollar of profit --
+        the flat rate does not just erode margin on the pet job, it prices
+        it as a guaranteed loss.
+      - >-
+        Added the page to platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (generic pricing habit, no vendor
+        named) and linked it from index.html and sitemap.xml.
+        surface-budget.mjs --check confirms no venture is over budget
+        afterward. Ran node platform/marketing/regen.mjs after confirming
+        --verify caught the newly-stale front-door mirror, then --verify
+        again clean.
+      - >-
+        CI is starved: ci_starvation.py on the latest portfolio-validate.yml
+        attempt (35673997485) confirms runner_id: 0, no steps. Verified
+        locally per CLAUDE.md's starvation checklist (apt-get update &&
+        apt-get install -y --no-install-recommends python3-pytest first):
+        venture's own suite 133/133; checklist_coverage.py and
+        sync_tree_counts.py --check both clean (322 mirrored tools, 304
+        opt-out switches, no drift); regen.mjs --verify current after the
+        regen above; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1277/1277 (re-run at
+        --test-concurrency=1 too); platform/proposal 101/101;
+        platform/privacy + platform/webcheck 140 passed / 2 skipped
+        (shallow-clone history-pinned tests, environmental); gitops/tests
+        613 passed / 25 skipped; all platform/ci unittest modules and
+        agent_review's test_review clean; portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests 446 passed.
+        run_workflow_locally.py --for-changes hung past this session's
+        budget with negligible CPU use (unrelated to this change -- likely a
+        step blocked on network egress this sandbox's proxy does not permit)
+        and was killed unrun; every suite it would exercise for this diff
+        was already run individually above and came back clean.
