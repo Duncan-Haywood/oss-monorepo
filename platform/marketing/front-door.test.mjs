@@ -44,6 +44,7 @@ import {
   SITE_NAME,
   SITEMAP_FILE,
   SITEMAP_OUTPUT_FILE,
+  sitemapStoredKey,
   SOCIAL_CARD_ALT,
   SOCIAL_CARD_OUTPUT_FILE,
   TOOLS_URL,
@@ -985,6 +986,99 @@ test('the published slug list is the one check.mjs already pins', async () => {
   assert.ok(slugs.includes('roofing-bid-calculator'));
 });
 
+/**
+ * The committed sitemap, inflated.
+ *
+ * Stored gzip-only since 2026-09-23 (see `sitemapStoredKey` in
+ * `front-door.mjs`), so every assertion below reads it through here rather
+ * than as UTF-8. Reading the `.gz` bytes as text would not throw — it would
+ * produce mojibake that fails the `<?xml` assertion with a message about the
+ * wrong first bytes, which reads like a corrupt generator rather than like a
+ * test that has not caught up with how the key is stored. Same reasoning as
+ * `readCommittedCatalog` below.
+ */
+async function readCommittedSitemap() {
+  return zlib.gunzipSync(await fs.readFile(SITEMAP_OUTPUT_FILE)).toString('utf8');
+}
+
+test('the stored sitemap key agrees with the compression suffix constant', () => {
+  // `SITEMAP_OUTPUT_FILE` spells `.gz` literally, because `COMPRESSED_SUFFIX`
+  // is declared below it and a forward reference would be a TDZ error at
+  // module load. This is the assertion that comment promises, so the literal
+  // cannot drift from the constant the rest of the mechanism uses.
+  assert.equal(sitemapStoredKey(), `${SITEMAP_FILE}${COMPRESSED_SUFFIX}`);
+  assert.equal(path.basename(SITEMAP_OUTPUT_FILE), sitemapStoredKey());
+});
+
+test('no plain sitemap.xml is left beside the compressed key', async () => {
+  // The stale-sibling trap, asserted rather than trusted to the sweep in
+  // `front-door.mjs`: `location = /sitemap.xml`'s own `root` would still find
+  // a plain file, so a regeneration that stopped writing the `.gz` would go on
+  // serving a frozen sitemap under a 200 for as long as anybody looked.
+  const plain = path.join(path.dirname(SITEMAP_OUTPUT_FILE), SITEMAP_FILE);
+  assert.equal(
+    await fs.stat(plain).then(() => true, () => false),
+    false,
+    `${SITEMAP_FILE} must not exist beside its .gz — front-door.mjs sweeps it`,
+  );
+});
+
+test('sitemap.xml rides in the ConfigMap that mounts at the document root', async () => {
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
+    'utf8',
+  );
+  // The compressed key, and the plain name must not also be listed: two keys
+  // for one URL is how a frozen copy ends up being served beside a live one.
+  assert.match(
+    kustomization,
+    new RegExp(`- ${escapeForRegExp(sitemapStoredKey())}=front-door/${escapeForRegExp(sitemapStoredKey())}`),
+  );
+  assert.ok(
+    !new RegExp(`- ${escapeForRegExp(SITEMAP_FILE)}=front-door/${escapeForRegExp(SITEMAP_FILE)}$`, 'm').test(
+      kustomization,
+    ),
+    'the plain sitemap.xml key must be gone, not listed alongside its .gz',
+  );
+});
+
+test('nginx answers /sitemap.xml as XML, above the catch-all', async () => {
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const block = conf.match(
+    new RegExp(`location = /${escapeForRegExp(SITEMAP_FILE)} \\{[\\s\\S]*?\\n {2}\\}`),
+  );
+  assert.ok(block, `front-door/default.conf must serve /${SITEMAP_FILE} explicitly`);
+  assert.match(block[0], /default_type application\/xml;/);
+  // Stored gzip-only since 2026-09-23, so this block is served out of the
+  // content phase by `gzip_static` rather than resolved in the rewrite phase
+  // by `try_files`. Both halves are asserted, because each fails a different
+  // way and both fail silently:
+  //
+  //   - a surviving `try_files` stats the *uncompressed* name, which is on
+  //     disk nowhere now, and answers 404 before `gzip_static` ever runs --
+  //     this document dark behind a config that still reads correctly. That
+  //     is the exact failure `test_front_door_serving.py` exists for and the
+  //     one the mirror's own blocks document at length.
+  //   - plain `gzip_static on` would consult the `.gz` only for a client that
+  //     sent `Accept-Encoding: gzip`, so a search engine that sent no
+  //     encoding header would fall through to a plain file that does not
+  //     exist.
+  assert.ok(
+    !/try_files/.test(block[0]),
+    'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
+  );
+  assert.match(block[0], /gzip_static always;/);
+  assert.match(block[0], /gunzip on;/);
+  assert.ok(!/X-Robots-Tag/.test(block[0]), '/sitemap.xml exists to be crawled');
+  // The highest-stakes ordering assertion in this block. Below the catch-all,
+  // `/sitemap.xml` returns HTML under a 200 and every crawler silently stops
+  // discovering new pages.
+  assert.ok(
+    conf.indexOf(`location = /${SITEMAP_FILE}`) < conf.indexOf('location / {'),
+    'keep the /sitemap.xml block above the catch-all',
+  );
+});
+
 test('the committed robots.txt and sitemap match what this generator produces', async () => {
   // Same contract as the page and the card above: Argo CD delivers the files
   // in git, so a stale commit ships stale bytes and nothing else catches it.
@@ -999,9 +1093,9 @@ test('the committed robots.txt and sitemap match what this generator produces', 
   // ever contradicting each other.
   const { sitemap } = await buildFrontDoor();
   assert.equal(
-    await fs.readFile(SITEMAP_OUTPUT_FILE, 'utf8'),
+    await readCommittedSitemap(),
     sitemap,
-    'gitops/prod/front-door/sitemap.xml is stale — run: node platform/marketing/regen.mjs',
+    'gitops/prod/front-door/sitemap.xml.gz is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1047,7 +1141,8 @@ test('robots.txt points at a sitemap this host actually serves', async () => {
   // tools host would send every crawler to a sitemap that does not resolve.
   assert.match(ROBOTS_TXT, new RegExp(`^Sitemap: ${FRONT_DOOR_URL}${SITEMAP_FILE}$`, 'm'));
   assert.ok(!ROBOTS_TXT.includes(`${TOOLS_URL}${SITEMAP_FILE}`));
-  assert.equal(path.basename(SITEMAP_OUTPUT_FILE), SITEMAP_FILE);
+  // The URL stays `/sitemap.xml`; only the stored key is gzipped.
+  assert.equal(path.basename(SITEMAP_OUTPUT_FILE), sitemapStoredKey());
   assert.equal(path.basename(ROBOTS_OUTPUT_FILE), ROBOTS_FILE);
 });
 
@@ -1112,10 +1207,13 @@ test('nginx answers the crawler paths with the files rather than the page', asyn
   // The catch-all `location /` returns `index.html` for every path. Before
   // these blocks existed, `/robots.txt` was 200 + text/html + 16 KB of markup
   // on the portfolio's only indexable surface.
+  // `SITEMAP_FILE` is not in this loop: it is stored gzip-only since
+  // 2026-09-23 and served by `gzip_static`/`gunzip`, not `try_files`, which
+  // is exactly what this loop asserts every entry has. See the dedicated
+  // 'nginx answers /sitemap.xml as XML, above the catch-all' test above.
   const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
   for (const [file, type] of [
     [ROBOTS_FILE, 'text/plain'],
-    [SITEMAP_FILE, 'application/xml'],
   ]) {
     const block = conf.match(
       new RegExp(`location = /${escapeForRegExp(file)} \\{[\\s\\S]*?\\n {2}\\}`),
@@ -1863,8 +1961,17 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
   assert.ok(names.length >= 16, `only ${names.length} keys parsed out of the ConfigMap block`);
 
   // Binary keys are counted base64'd, which is how kustomize stores them; text
-  // keys ride as-is under `data`.
-  const BINARY = /\.(png|ico|woff2?)$/;
+  // keys ride as-is under `data`. `.gz` joined this list only now: a gzip
+  // stream is essentially never valid UTF-8, so kustomize files every `.gz`
+  // key under `binaryData` the same as a PNG, and this test under-counted
+  // `catalog.json.gz` and `compare.html.gz` by the 4/3 base64 expansion for
+  // as long as it left them out — silently passing a total this ConfigMap's
+  // real, applied size had already outgrown, which is exactly the gap
+  // `gitops/tests/test_manifests.py::test_generated_configmaps_stay_under_the_etcd_object_ceiling`
+  // measures correctly (it reads `raw.decode()` and falls back to base64 on
+  // `UnicodeDecodeError` rather than trusting a filename pattern) and this
+  // test did not.
+  const BINARY = /\.(png|ico|woff2?|gz)$/;
   let total = 0;
   for (const name of names) {
     const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;

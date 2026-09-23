@@ -11,6 +11,7 @@ No test here opens a socket. `fetch` is the only function that would, and
 every test injects a stub opener in its place.
 """
 
+import gzip
 import io
 import json
 import unittest
@@ -435,20 +436,25 @@ class SampleTests(unittest.TestCase):
 
 class SitemapTests(unittest.TestCase):
     def test_locs_are_read_from_the_xml(self):
-        path = Path(self.enterContext(__import__("tempfile").TemporaryDirectory())) / "sitemap.xml"
-        path.write_text(
-            "<urlset><url><loc>https://a/</loc></url>"
-            "<url><loc>\n  https://b/  \n</loc></url></urlset>",
-            encoding="utf-8",
+        # Stored gzip-only since 2026-09-23 (see `APEX_SITEMAP`'s own note),
+        # so the fixture is written the same way the real file is.
+        path = Path(self.enterContext(__import__("tempfile").TemporaryDirectory())) / "sitemap.xml.gz"
+        path.write_bytes(
+            gzip.compress(
+                (
+                    "<urlset><url><loc>https://a/</loc></url>"
+                    "<url><loc>\n  https://b/  \n</loc></url></urlset>"
+                ).encode("utf-8")
+            )
         )
         self.assertEqual(ps.sitemap_urls(path), ["https://a/", "https://b/"])
 
     def test_a_missing_sitemap_is_empty_not_an_error(self):
-        self.assertEqual(ps.sitemap_urls(Path("/nonexistent/sitemap.xml")), [])
+        self.assertEqual(ps.sitemap_urls(Path("/nonexistent/sitemap.xml.gz")), [])
 
     def test_the_committed_apex_sitemap_parses_and_is_not_empty(self):
         urls = ps.sitemap_urls()
-        self.assertTrue(urls, "gitops/prod/front-door/sitemap.xml lists no URLs")
+        self.assertTrue(urls, "gitops/prod/front-door/sitemap.xml.gz lists no URLs")
         for url in urls:
             self.assertTrue(url.startswith("https://"), url)
 

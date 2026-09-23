@@ -77,6 +77,7 @@ disagrees with the manifests -- it never means this tool changed anything.
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import re
 import sys
@@ -89,7 +90,10 @@ from pathlib import Path
 import publish_surface
 
 REPO = Path(__file__).resolve().parents[2]
-APEX_SITEMAP = REPO / "gitops" / "prod" / "front-door" / "sitemap.xml"
+# Stored gzip-only since 2026-09-23 (see `sitemapStoredKey` in
+# `platform/marketing/front-door.mjs`) to keep `portfolio-front-html` under
+# etcd's object ceiling. `sitemap_urls()` below decompresses it.
+APEX_SITEMAP = REPO / "gitops" / "prod" / "front-door" / "sitemap.xml.gz"
 
 # The canonical site build. `DEFAULT_BASE_URL` in this file is the origin every
 # page it generates names in its own `<link rel="canonical">` and in every
@@ -453,11 +457,18 @@ def pages_probes(rows=None, base_url=None, branch_route=None) -> list[Probe]:
 
 
 def sitemap_urls(path: Path | None = None) -> list[str]:
-    """Every `<loc>` in the apex sitemap the deployment publishes."""
+    """Every `<loc>` in the apex sitemap the deployment publishes.
+
+    Gunzipped rather than read as text: the committed file is stored
+    gzip-only (see the note on `APEX_SITEMAP`), and reading its raw bytes as
+    UTF-8 would not throw -- it would decode to mojibake that matches no
+    `<loc>` and this function would return an empty list exactly as silently
+    as it does for a genuinely missing file.
+    """
     path = path or APEX_SITEMAP
     if not path.is_file():
         return []
-    return re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", path.read_text(encoding="utf-8"))
+    return re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", gzip.decompress(path.read_bytes()).decode("utf-8"))
 
 
 def sample(urls: list[str], limit: int) -> list[str]:

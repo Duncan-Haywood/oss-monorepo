@@ -483,6 +483,28 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
         "the inflated body differs from the gzip-encoded one"
     )
 
+    # And the same identity-encoding check for `/sitemap.xml`, gz-only since
+    # 2026-09-23 for the identical reason `catalog.json` went gz-only on
+    # 2026-09-12: it was the largest and fastest-growing key left in
+    # `portfolio-front-html` and took the object over the etcd budget. Every
+    # assertion in the loop above passes with `gzip_static on;` and no
+    # `gunzip on;`, which would 404 a crawler that sent no encoding header --
+    # not a hypothetical client, since a search engine's crawler frequently
+    # does not negotiate gzip on a first fetch.
+    _, _, sitemap_gzip_body = _get(front_door + "/sitemap.xml", gzip_ok=True)
+    status, headers, sitemap_identity_body = _get(front_door + "/sitemap.xml", gzip_ok=False)
+    assert status == 200, (
+        f"/sitemap.xml returned {status} to a client sending Accept-Encoding: identity. "
+        "A gz-only key needs `gzip_static always` (not plain `on`) plus `gunzip on`, and no "
+        "`try_files` -- try_files stats the uncompressed name, which is not on disk."
+    )
+    assert headers.get("Content-Encoding") != "gzip", (
+        "nginx returned gzip to a client that did not accept it -- `gunzip on` is missing"
+    )
+    assert sitemap_identity_body == sitemap_gzip_body, (
+        "the inflated sitemap differs from the gzip-encoded one"
+    )
+
 
 def test_every_category_page_is_served_at_the_url_it_claims(front_door: str) -> None:
     # The category pages are the one part of the apex whose URL and whose

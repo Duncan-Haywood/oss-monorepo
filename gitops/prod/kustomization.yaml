@@ -79,10 +79,33 @@ configMapGenerator:
       # The crawler handshake. Both ride in this ConfigMap for the same reason
       # the card and the icon do: they have to sit at the document root for
       # `/robots.txt` and `/sitemap.xml` to resolve, and two ConfigMaps cannot
-      # mount at one `mountPath`. Text, so both land in `data`. Under a
-      # kilobyte together against a 1 MiB object ceiling.
+      # mount at one `mountPath`.
       - robots.txt=front-door/robots.txt
-      - sitemap.xml=front-door/sitemap.xml
+      # `sitemap.xml`, gzipped. Text on its own, so it would otherwise land in
+      # `data` under a kilobyte together with `robots.txt` above — but it grows
+      # with the catalogue, one `<url>` element per indexable page, and it was
+      # the largest single lever left once `catalog.json` had already moved.
+      #
+      # **Stored gzipped since 2026-09-23.** It was 137,903 bytes plain and
+      # the fastest-growing key left in this ConfigMap after `catalog.json.gz`
+      # and `compare.html.gz` — the fleet's next venture took
+      # `portfolio-front-html` to 944,171 bytes against the 943,718-byte test
+      # budget in `gitops/tests/test_manifests.py`. Over that budget is not a
+      # degraded document, it is the whole `prod` Application: the hashed
+      # ConfigMap name `portfolio-front.yaml` mounts is never created, new pods
+      # sit in ContainerCreating, and Argo reports Degraded. See
+      # `sitemapStoredKey` in `platform/marketing/front-door.mjs` for the full
+      # measurement and `COMPRESSED_SUFFIX` for why only a growing few keys
+      # here are compressed rather than the whole ConfigMap.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64 — the 4/3 expansion the ceiling tests already
+      # model. The URL is unchanged: nginx still answers `/sitemap.xml`, via
+      # `gzip_static always; gunzip on;` and *no* `try_files`, because
+      # `try_files` stats the uncompressed name and there is no longer a plain
+      # sibling on disk. The `location = /sitemap.xml` block in
+      # `front-door/default.conf` carries the long version of that trap.
+      - sitemap.xml.gz=front-door/sitemap.xml.gz
       # The apex's own Atom feed over the mirrored tools. Same reason as the
       # three above for riding in this ConfigMap: the page declares it at
       # `/feed.xml` in `<link rel="alternate">` and links it from the footer,
