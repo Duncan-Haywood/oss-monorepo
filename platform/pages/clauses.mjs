@@ -250,6 +250,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // flat special is the right tool for advertising. Same reasoning as the
   // other generic-method pages above.
   'automatic-driveway-gate-bid-calculator/vs-a-flat-4500-special.html',
+  // Compares against "a flat $1,200 installed" entry-door special -- the
+  // published per-opening ad price every entry-door shop competes with, not
+  // a company or product this could be mistaken for. The page names no
+  // vendor or field-service platform (the venture's own named-product
+  // comparison, vs-jobber, carries its own trademark disclaimer) and its
+  // copy opens by agreeing the flat special is the right tool for
+  // advertising. Same reasoning as the other generic-method pages above.
+  'entry-door-bid-calculator/vs-a-flat-1200-special.html',
   // Compares against "opening each marketplace's own fee calculator and
   // reconciling the answers" -- the method every multi-channel seller already
   // uses, not a company or product this could be mistaken for. It is the one
