@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 105 files, 556163 bytes
 #   portfolio-front-tools-15: 111 files, 556339 bytes
 #   portfolio-front-tools-16: 123 files, 554357 bytes
-#   portfolio-front-tools-17: 105 files, 534057 bytes
+#   portfolio-front-tools-17: 106 files, 538098 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2284,6 +2284,7 @@ configMapGenerator:
       - walk-in-shower-bid-calculator__should-i-tile-a-walk-in-shower-after-hours.html.gz=walk-in-shower-bid-calculator__should-i-tile-a-walk-in-shower-after-hours.html.gz
       - walk-in-shower-bid-calculator__usage.mjs.gz=walk-in-shower-bid-calculator__usage.mjs.gz
       - walk-in-shower-bid-calculator__vs-jobber.html.gz=walk-in-shower-bid-calculator__vs-jobber.html.gz
+      - walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=walk-in-shower-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - walk-in-tub-bid-calculator__calc.mjs.gz=walk-in-tub-bid-calculator__calc.mjs.gz
       - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz

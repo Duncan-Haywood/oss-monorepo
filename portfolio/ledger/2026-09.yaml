@@ -37238,6 +37238,7 @@ entries:
         (certified-payroll-calculator), per this file's own duplicate-PR
         guidance. Left uncommitted for the parent session to review, commit,
         and push.
+    mrr_end: 0
   - venture: etsy-profit-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -37288,6 +37289,7 @@ entries:
         errors -- recorded in browser_state.json (#5207). Published the
         gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current.
+    mrr_end: 0
   - venture: sunroom-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -37340,3 +37342,51 @@ entries:
         (runner_id 0, 3s, no steps) before merging (#5214). Published the
         gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current (#5223).
+    mrr_end: 0
+  - venture: walk-in-shower-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-tracking-it-in-a-spreadsheet.html. surface-budget.mjs showed the
+        venture at 0/1 generic-method pages used; its existing
+        should-i-match-an-alcove-price-on-a-curbless-walk-in.html guide
+        already covers the vs-flat-rate-per-square-foot angle that several
+        sibling tile ventures use, so writing that page here would have
+        duplicated the venture's own guide rather than filled a real gap.
+        Read the guide first and picked the uncovered angle instead: the
+        calculator's own built features (saved bid, shareable bid link,
+        printable proposal with deposit split and price-held date) against
+        tracking a bid in a spreadsheet, the same pattern already shipped
+        for basement-finishing-bid-calculator and others. Registered the
+        page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no
+        vendor). `node --test` in the venture: 163/163.
+
+        Caught the same authoring defect this ledger already recorded
+        against freelance-platform-fee-calculator's and
+        dryer-vent-bid-calculator's pages: faq-visible.test.mjs failed
+        because the new page's JSON-LD FAQ answers used a literal `--`
+        where the visible prose used an em dash, so the schema and the
+        rendered text diverged on three answers -- fixed to match (the
+        JSON-LD now carries the same em dash, following
+        basement-finishing-bid-calculator's own page as the working
+        example) and reran clean.
+
+        `main` advanced twice under the branch while building
+        (shopify-fee-calculator's and appointment-deposit-calculator's own
+        comparison pages) via a first `git fetch origin main` that was
+        never unshallowed by name, so `git merge origin/main` produced one
+        real conflict in clauses.mjs's exemption Set -- resolved by keeping
+        both ventures' entries, no work lost. `node platform/marketing/
+        regen.mjs --verify` caught the front-door mirror going stale twice
+        (once from the merge, once from the FAQ fix after the first
+        regen), fixed both times with `regen.mjs` and reverified current.
+        `platform/marketing`/`platform/pages` suite: 1281/1281 (first run
+        surfaced the faq-visible failure above; second run after the fix
+        was clean). `check_pages.mjs`: 1247 pages checked, all sound.
+        `checklist_coverage.py` and `sync_tree_counts.py`: clean, no drift
+        (this change adds a page to an already-mirrored venture, not a new
+        venture, so the mirrored-tool count is unaffected).
+        `check_ledger_only.py`: not tripped (5 files outside ledger prose).
+    mrr_end: 0
