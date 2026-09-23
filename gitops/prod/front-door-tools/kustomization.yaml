@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 125 files, 555181 bytes
 #   portfolio-front-tools-13: 135 files, 556199 bytes
 #   portfolio-front-tools-14: 100 files, 552187 bytes
-#   portfolio-front-tools-15: 115 files, 552278 bytes
+#   portfolio-front-tools-15: 116 files, 556816 bytes
 #   portfolio-front-tools-16: 117 files, 556606 bytes
 #   portfolio-front-tools-17: 53 files, 274867 bytes
 #
@@ -2093,6 +2093,7 @@ configMapGenerator:
       - stockx-seller-payout-calculator__share.mjs.gz=stockx-seller-payout-calculator__share.mjs.gz
       - stockx-seller-payout-calculator__to-where-to-sell.mjs.gz=stockx-seller-payout-calculator__to-where-to-sell.mjs.gz
       - stockx-seller-payout-calculator__usage.mjs.gz=stockx-seller-payout-calculator__usage.mjs.gz
+      - stockx-seller-payout-calculator__vs-goat-seller-fees.html.gz=stockx-seller-payout-calculator__vs-goat-seller-fees.html.gz
       - stockx-seller-payout-calculator__vs-tracking-stockx-payouts-in-a-spreadsheet.html.gz=stockx-seller-payout-calculator__vs-tracking-stockx-payouts-in-a-spreadsheet.html.gz
       - storage-auction-max-bid-calculator__calc.mjs.gz=storage-auction-max-bid-calculator__calc.mjs.gz
       - storage-auction-max-bid-calculator__index.html.gz=storage-auction-max-bid-calculator__index.html.gz
