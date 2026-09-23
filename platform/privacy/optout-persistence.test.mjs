@@ -515,11 +515,24 @@ const RELATIVE_SELF = relative(
 // branch only ever knew its own predecessor's number (309, before
 // `osha-trir-dart-calculator`, `supabase-rls-check`,
 // `mercari-fee-calculator`, `voiceover-project-rate-calculator`,
-// `turo-host-payout-calculator`, and this branch's own
-// `podcast-feed-check` had landed) until this merge -- the same ordinary
+// `turo-host-payout-calculator`, and `podcast-feed-check` landed) until
+// this merge -- the same ordinary collision shape recorded throughout
+// this list. Total re-derived here by `sync_tree_counts.py` against the
+// fully merged tree rather than by hand.
+//
+// 317 -> 318: `git-exposure-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `git-exposure-check-usage` storage name). Verified the way this file's
+// error message prescribes: exactly one added `usage.mjs`
+// (`ventures/git-exposure-check/usage.mjs`) and no deletions. This branch
+// only ever knew its own predecessor's number (313, before
+// `firebase-rules-check`, `source-map-leak-check`, and
+// `podcast-feed-check` landed) until this merge -- the same ordinary
 // collision shape recorded throughout this list. Total re-derived here by
-// `sync_tree_counts.py` against the fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 317;
+// `sync_tree_counts.py` against the fully merged tree rather than by
+// hand.
+const SWITCHES_IN_THE_CATALOGUE = 318;
 
 let counter = 0;
 function fixture(source) {
