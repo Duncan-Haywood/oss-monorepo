@@ -404,7 +404,14 @@ const RELATIVE_SELF = relative(
 // the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/freelance-platform-fee-calculator/usage.mjs`) and
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 306;
+//
+// 306 -> 307: `agent-permission-config-check` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings (a
+// `usageOptedOut()`/`setUsageOptOut()` pair gating `record()` behind the
+// same `localStorage` opt-out flag). Verified the way this file's error
+// message prescribes: exactly one added `usage.mjs`
+// (`ventures/agent-permission-config-check/usage.mjs`) and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 307;
 
 let counter = 0;
 function fixture(source) {

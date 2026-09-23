@@ -2072,7 +2072,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # a browser-local calculator comparing Upwork's and Fiverr's net payout
     # for the same job price, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 324  # `infra/OWNER_CHECKLIST.md`'s own "N of the 324 tools" wording.
+    #
+    # 325 since this merge: `agent-permission-config-check` graduated -- a
+    # zero-dependency CLI and browser tool statically linting an AI-coding-
+    # agent's permission/MCP config (Claude Code's settings.json, and the
+    # mcpServers block shared by .mcp.json/.cursor/mcp.json/.vscode/mcp.json)
+    # for a blanket Bash allow-all rule, an unscoped destructive-command
+    # allow, a plain-http MCP url, and a hardcoded-looking secret, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 325  # `infra/OWNER_CHECKLIST.md`'s own "N of the 325 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
