@@ -457,14 +457,38 @@ const RELATIVE_SELF = relative(
 // Verified the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
-// 312 -> 313: this branch (`podcast-feed-check`, adding
-// `ventures/podcast-feed-check/usage.mjs`) and `mercari-fee-calculator`
-// (already merged to `main`, adding
-// `ventures/mercari-fee-calculator/usage.mjs`) each independently bumped
-// 311 -> 312 against a base where the other had not landed yet -- the same
-// two-branches-same-number collision this file's own comments already
-// record twice above. Both additions are real; the merged total is 313.
-const SWITCHES_IN_THE_CATALOGUE = 313;
+//
+// 312 -> 313: `turo-host-payout-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
+// `voiceover-project-rate-calculator`'s does). This branch only ever knew
+// its own predecessor's number (312, before `mercari-fee-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
+//
+// 313 -> 314: `firebase-rules-check` graduated concurrently, adding one
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// `supabase-rls-check`'s. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/firebase-rules-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309, before
+// `osha-trir-dart-calculator`, `supabase-rls-check`,
+// `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list.
+//
+// 314 -> 315: `podcast-feed-check` graduated (this branch), adding one
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// `redirect-chain-check`'s. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/podcast-feed-check/usage.mjs`) and no deletions. This branch
+// only ever knew its own predecessor's number (312, before
+// `turo-host-payout-calculator` and `firebase-rules-check` landed) until
+// this merge -- the same ordinary collision shape recorded throughout
+// this list.
+const SWITCHES_IN_THE_CATALOGUE = 315;
 
 let counter = 0;
 function fixture(source) {

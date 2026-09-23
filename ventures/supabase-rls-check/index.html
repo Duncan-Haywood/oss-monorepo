@@ -145,7 +145,7 @@
   <h3>Is it safe to paste my anon key into this page?</h3>
   <p>The anon key is designed to be public -- it is already in your app's client-side bundle. This page never sends it (or your project URL, or anything it reads back) to our servers: every request goes straight from your browser to your own project's REST endpoint, the same way your app's own client already talks to it. Still, only run this against a project you own or are authorised to test.</p>
   <h3>How is this different from Supabase's own dashboard Security Advisor?</h3>
-  <p>The dashboard Advisor lints your database configuration and needs you to be logged in as a project member. This tool checks the live REST API from the outside using only the anon key, the same view an attacker, an external auditor, or a developer without dashboard access would have -- useful when you've inherited a project, are auditing someone else's app with permission, or want a check that needs no login at all. See <a href="vs-vibeappscanner.html">how this compares to a third-party scanner service</a>.</p>
+  <p>The dashboard Advisor lints your database configuration and needs you to be logged in as a project member. This tool checks the live REST API from the outside using only the anon key, the same view an attacker, an external auditor, or a developer without dashboard access would have -- useful when you've inherited a project, are auditing someone else's app with permission, or want a check that needs no login at all. See <a href="vs-manually-checking-the-dashboard.html">the full comparison against checking RLS in the dashboard by hand</a>, or <a href="vs-vibeappscanner.html">how this compares to a third-party scanner service</a>.</p>
   <h3>Does a clean report mean my project is secure?</h3>
   <p>No. This checks one specific, well-documented exposure -- can the anon key read real rows from a table -- using a capped, read-only request per table. It does not test authenticated roles, storage buckets, Edge Functions, write/update/delete access, or anything past what the anon key's schema listing reveals. Treat a clean report as evidence about this one exposure, not a full security audit.</p>
 </section>
@@ -279,7 +279,9 @@
   <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
   optional and never changes what the tool does.</p>
-  <p>Also worth a pass on your stack: <a href="../cors-misconfig-check/">CORS misconfiguration
+  <p>Also worth a pass on your stack: <a href="../firebase-rules-check/">Firebase security rules
+  exposure checker</a> covers the same "default-open unless a rule locks it down" shape for a
+  different backend, <a href="../cors-misconfig-check/">CORS misconfiguration
   checker</a> and <a href="../security-headers-check/">Security Headers checker</a> cover other
   response-evidence classes in the same "read what's actually there, name the exact evidence"
   shape as this tool, and <a href="../dependency-confusion-check/">dependency confusion

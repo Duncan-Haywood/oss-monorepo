@@ -397,13 +397,20 @@ const CATEGORY_RULES = [
     // item. Its slug names neither platform first, so no storefront keyword
     // above would have caught it and it would otherwise have swelled the
     // catch-all.
+    // `turo-host-payout-calculator` is `str-host`'s exact sibling one asset
+    // class over: a Turo host comparing a plan/booking-window payout matrix
+    // on one trip is the same "price a program before you opt in" question
+    // as an Airbnb/Vrbo host comparing fee schedules on one stay. Its slug
+    // does not start with a marketplace keyword this rule already
+    // recognised, so it would otherwise have swelled the catch-all the way
+    // `str-host` itself once did.
     // `mercari-fee-calculator` is the same single-channel fee-schedule shape
     // as `poshmark` and `stockx` above — a shipping-inclusive percentage
     // selling fee on one storefront, with an older schedule an unedited
     // listing may still be running — and would otherwise sit in the
     // catch-all for the same reason those two did: the slug names the
     // storefront, not a marketplace keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',
@@ -1728,6 +1735,17 @@ const CATEGORY_RULES = [
     // `dependency-confusion-check` as Related, reciprocally, closing the
     // crawlable-orphan gap a new venture otherwise opens. Listed by exact
     // slug, same reason as its neighbors.
+    // `firebase-rules-check` joined 2026-09-23, filed here on its first
+    // commit rather than after a spell in the catch-all -- same reasoning
+    // as `supabase-rls-check` immediately above: same browser-plus-CLI,
+    // "read what's actually there, name the exact evidence" shape, run by
+    // a developer against their own project -- just for a Firebase
+    // project's Realtime Database and named Firestore collections instead
+    // of a Supabase project's PostgREST schema. It cross-links
+    // `supabase-rls-check`, `cors-misconfig-check`, and
+    // `security-headers-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
     //
     // `android-data-safety-check` moved here 2026-09-23, restoring the bound
     // `voiceover-project-rate-calculator`'s arrival (a creator/freelance
@@ -1740,7 +1758,7 @@ const CATEGORY_RULES = [
     // the move now is what that comment asked the next session that needed
     // the slot to do, rather than raising the bound instead.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check)/.test(
         slug,
       ),
   },

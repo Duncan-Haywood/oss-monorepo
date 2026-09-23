@@ -464,6 +464,9 @@ workflows:
 - workflow: fire-extinguisher-inspection-route-margin-ci.yml
   classification: none
   publishes: []
+- workflow: firebase-rules-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: fireplace-insert-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1095,6 +1098,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tuckpointing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: turo-host-payout-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tutor-package-pricing-calculator-ci.yml

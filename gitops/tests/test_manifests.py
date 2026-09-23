@@ -2134,17 +2134,41 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # recorded throughout this list, and re-derived here by
     # `sync_tree_counts.py` against the merged tree rather than by hand.
     #
-    # 331 since this merge: `podcast-feed-check` graduated -- a zero-
-    # dependency CLI + browser checker parsing a podcast's RSS 2.0 +
+    # 331 since this merge: `turo-host-payout-calculator` graduated -- a
+    # browser-local calculator turning one Turo trip's price into a host
+    # payout under Turo's 2026 plan x booking-window earnings matrix, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch only ever knew its own predecessor's
+    # number (330, before mercari-fee-calculator landed) until this merge --
+    # the same ordinary collision shape recorded throughout this list.
+    #
+    # 332 since this merge: `firebase-rules-check` graduated concurrently --
+    # a browser + CLI checker sending real, read-only, unauthenticated
+    # requests to a Firebase project's Realtime Database (a shallow key
+    # listing) and named Firestore collections (one document max), testing
+    # whether an unauthenticated request returns real data -- the
+    # default-open / left-in-test-mode security-rules exposure documented
+    # since Appthority's 2018 "Firebase mismanagement" report. Direct
+    # sibling of `supabase-rls-check`, same "default-open unless a rule
+    # locks it down" shape for a different backend, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's number
+    # (327, before `osha-trir-dart-calculator`, `supabase-rls-check`,
+    # `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
+    # landed) until this merge -- the same ordinary collision shape
+    # recorded throughout this list.
+    #
+    # 333 since this merge: `podcast-feed-check` graduated (this branch) --
+    # a zero-dependency CLI + browser checker parsing a podcast's RSS 2.0 +
     # iTunes/Podcast-namespace feed against Apple Podcasts' documented
     # requirements and the RSS spec's RFC 822 pubDate format, with a static
     # `index.html` from its first commit, same shape as the rest of this
-    # running count. `mercari-fee-calculator` (already counted in the 330
-    # above) merged to `main` while this branch was open; this branch only
-    # ever knew its own predecessor's number (330, before that merge) until
-    # `git fetch`, re-derived here by `sync_tree_counts.py` against the
-    # merged tree rather than by hand.
-    total = 331  # `infra/OWNER_CHECKLIST.md`'s own "N of the 331 tools" wording.
+    # running count. This branch only ever knew its own predecessor's
+    # number (330, before `turo-host-payout-calculator` and
+    # `firebase-rules-check` landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, and re-derived here by
+    # `sync_tree_counts.py` against the merged tree rather than by hand.
+    total = 333  # `infra/OWNER_CHECKLIST.md`'s own "N of the 333 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
