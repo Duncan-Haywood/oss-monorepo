@@ -282,6 +282,7 @@ configMapGenerator:
       - vs__doing-it-by-hand.html.gz=front-door/vs__doing-it-by-hand.html.gz
       - vs__tracking-payouts-in-a-spreadsheet.html.gz=front-door/vs__tracking-payouts-in-a-spreadsheet.html.gz
       - vs__tracking-it-in-a-spreadsheet.html.gz=front-door/vs__tracking-it-in-a-spreadsheet.html.gz
+      - vs__flat-day-rate.html.gz=front-door/vs__flat-day-rate.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
