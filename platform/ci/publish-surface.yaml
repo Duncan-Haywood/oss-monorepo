@@ -1070,6 +1070,9 @@ workflows:
 - workflow: subcontractor-cashflow-planner-ci.yml
   classification: none
   publishes: []
+- workflow: subdomain-takeover-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: subpath-robots-check-ci.yml
   classification: none
   publishes: []
