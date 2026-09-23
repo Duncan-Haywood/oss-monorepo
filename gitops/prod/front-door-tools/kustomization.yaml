@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 135 files, 554547 bytes
 #   portfolio-front-tools-4: 140 files, 554077 bytes
 #   portfolio-front-tools-5: 124 files, 553523 bytes
-#   portfolio-front-tools-6: 129 files, 543891 bytes
+#   portfolio-front-tools-6: 130 files, 549117 bytes
 #   portfolio-front-tools-7: 122 files, 551874 bytes
 #   portfolio-front-tools-8: 138 files, 548824 bytes
 #   portfolio-front-tools-9: 116 files, 554349 bytes
@@ -948,6 +948,7 @@ configMapGenerator:
       - concrete-lifting-bid-calculator__index.html.gz=concrete-lifting-bid-calculator__index.html.gz
       - concrete-lifting-bid-calculator__share.mjs.gz=concrete-lifting-bid-calculator__share.mjs.gz
       - concrete-lifting-bid-calculator__usage.mjs.gz=concrete-lifting-bid-calculator__usage.mjs.gz
+      - concrete-lifting-bid-calculator__vs-a-flat-rate-special.html.gz=concrete-lifting-bid-calculator__vs-a-flat-rate-special.html.gz
       - concrete-lifting-bid-calculator__vs-quoteiq.html.gz=concrete-lifting-bid-calculator__vs-quoteiq.html.gz
       - consent-change-record__calc.mjs.gz=consent-change-record__calc.mjs.gz
       - consent-change-record__index.html.gz=consent-change-record__index.html.gz
