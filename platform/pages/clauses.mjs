@@ -848,6 +848,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (Etsy's own Profit Calculator) and carries its own "not affiliated"
   // clause.
   'etsy-profit-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $3,999 house special" -- a generic postcard
+  // pricing pattern painting companies of many different names advertise,
+  // not one specific company or product this could be mistaken for. The
+  // page names no painting company at all. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // automatic-driveway-gate-bid-calculator's vs-a-flat-4500-special.html).
+  'exterior-painting-bid-calculator/vs-a-flat-3999-house-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
