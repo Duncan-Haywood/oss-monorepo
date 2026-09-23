@@ -398,7 +398,13 @@ const RELATIVE_SELF = relative(
 //
 // 304 -> 305: `docker-base-image-eol-check` graduated, adding one
 // `usage.mjs` following the same opt-out pattern as its siblings.
-const SWITCHES_IN_THE_CATALOGUE = 305;
+//
+// 305 -> 306: `freelance-platform-fee-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings. Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/freelance-platform-fee-calculator/usage.mjs`) and
+// no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 306;
 
 let counter = 0;
 function fixture(source) {

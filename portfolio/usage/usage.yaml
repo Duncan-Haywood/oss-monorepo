@@ -6764,3 +6764,26 @@ products:
           signal in this venture that anyone acted on the lever rather than
           looking at it. If the two ever diverge sharply, the lever copy is
           what to change.
+  - slug: freelance-platform-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          comparison_calculated: 0
+          target_solved: 0
+          summary_copied: 0
+          share_link_copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit. The
+          visitor signal is null rather than zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counters are opt-out and never leave the device --
+          nobody has measured, which is not the same as having measured
+          nothing. The event counts are genuine zeros for a venture
+          published minutes ago. `target_solved` is the one worth watching:
+          the main comparison only requires reading a job price someone
+          already has, but solving for a target take-home means a visitor is
+          actively pricing a new job around the calculator's numbers rather
+          than checking one they already quoted.
