@@ -518,6 +518,9 @@ workflows:
 - workflow: gig-driver-net-pay-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: git-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
@@ -798,6 +801,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: podcast-feed-check-ci.yml
   classification: none
   publishes: []
 - workflow: podcast-sponsorship-rate-calculator-ci.yml
