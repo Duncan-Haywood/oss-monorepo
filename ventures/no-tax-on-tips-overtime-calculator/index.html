@@ -128,10 +128,31 @@
       income (Schedule C) — the deduction can't exceed net profit from that
       work</label>
     </div>
-    <div class="grid" id="net-profit-wrap" hidden>
-      <div>
-        <label for="net-profit">Net profit from the tipped trade or business ($)</label>
-        <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 11000">
+    <div id="net-profit-wrap" hidden>
+      <div class="grid">
+        <div>
+          <label for="net-profit">Net profit from the tipped trade or business ($)</label>
+          <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 11000">
+        </div>
+      </div>
+      <p class="note">Schedule 1-A's instructions (clarified 2026-03) cap the
+      deduction at this net profit <strong>minus deductions allocable to the
+      business</strong> -- not raw net profit. If you claim any of these
+      against this business, enter the amounts below so the ceiling is
+      accurate. Leave blank if none apply.</p>
+      <div class="grid">
+        <div>
+          <label for="se-tax-deduction">Deductible part of self-employment tax for this business ($)</label>
+          <input type="number" id="se-tax-deduction" min="0" step="1" placeholder="e.g. 1400">
+        </div>
+        <div>
+          <label for="se-health-deduction">Self-employed health insurance deduction for this business ($)</label>
+          <input type="number" id="se-health-deduction" min="0" step="1" placeholder="e.g. 0">
+        </div>
+        <div>
+          <label for="se-retirement-deduction">Self-employed retirement plan contribution for this business ($)</label>
+          <input type="number" id="se-retirement-deduction" min="0" step="1" placeholder="e.g. 0">
+        </div>
       </div>
     </div>
   </section>
@@ -260,6 +281,7 @@
       filingStatus: $("#filing-status"), magi: $("#magi"), marginalRate: $("#marginal-rate"),
       occupationEligible: $("#occupation-eligible"), qualifiedTips: $("#qualified-tips"),
       selfEmployed: $("#self-employed"), netProfitWrap: $("#net-profit-wrap"), netProfit: $("#net-profit"),
+      seTaxDeduction: $("#se-tax-deduction"), seHealthDeduction: $("#se-health-deduction"), seRetirementDeduction: $("#se-retirement-deduction"),
       tabKnown: $("#tab-known"), tabCompute: $("#tab-compute"), knownPanel: $("#known-panel"), computePanel: $("#compute-panel"),
       otKnown: $("#ot-known"), otRows: $("#ot-rows"),
       status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), body: $("#report-body"), findings: $("#report-findings"),
@@ -324,6 +346,9 @@
         qualifiedTips: Number(els.qualifiedTips.value) || 0,
         isSelfEmployed: els.selfEmployed.checked,
         netProfitFromTippedWork: els.selfEmployed.checked ? (els.netProfit.value === "" ? null : Number(els.netProfit.value)) : null,
+        seTaxDeduction: els.selfEmployed.checked ? Number(els.seTaxDeduction.value) || 0 : 0,
+        seHealthInsuranceDeduction: els.selfEmployed.checked ? Number(els.seHealthDeduction.value) || 0 : 0,
+        seRetirementContribution: els.selfEmployed.checked ? Number(els.seRetirementDeduction.value) || 0 : 0,
         overtimePremium: currentOvertimePremium(),
         marginalRatePercent: Number(els.marginalRate.value),
         occupationEligible: els.occupationEligible.checked ? true : (Number(els.qualifiedTips.value) > 0 ? false : true),
@@ -365,6 +390,9 @@
       els.selfEmployed.checked = false;
       els.netProfitWrap.hidden = true;
       els.netProfit.value = "";
+      els.seTaxDeduction.value = "";
+      els.seHealthDeduction.value = "";
+      els.seRetirementDeduction.value = "";
       els.otKnown.value = "";
       els.otRows.innerHTML = "";
       addOtRow();

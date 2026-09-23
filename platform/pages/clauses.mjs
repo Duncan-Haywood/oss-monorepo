@@ -506,6 +506,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly. Same reasoning as the reverb-fee-calculator spreadsheet
   // page above.
   'amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "tracking payouts in a spreadsheet" -- the generic
+  // method every host comparing more than one channel already reaches for,
+  // not a company or product this could be mistaken for. The page names
+  // Airbnb and Vrbo only as the channels this calculator's own arithmetic
+  // runs -- the same way amazon-fba-calculator's spreadsheet page above
+  // names "Amazon prep" and "Amazon's help pages" without comparing against
+  // Amazon as a product -- and never frames itself as a rival to either
+  // platform or to a named booking/PMS tool the way this venture's own
+  // vs-airbnb-earnings-estimator.html does (that page carries its own
+  // trademark disclaimer for exactly that reason). Same reasoning as the
+  // amazon-fba-calculator spreadsheet page above.
+  'str-host-payout-calculator/vs-tracking-payouts-in-a-spreadsheet.html',
   // Compares against "a flat rate per square foot" -- a pricing habit every
   // turf and landscape shop is shopped against, not a company or product
   // this could be mistaken for. The page names no vendor or competing
@@ -516,6 +528,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carpet installer meets, not a company or product this could be mistaken
   // for. The page names no vendor or competing calculator at all.
   'carpet-install-bid-calculator/vs-a-flat-rate-per-yard.html',
+  // Compares against "a flat truck-fraction rate" -- the "half truck" /
+  // "full truck" pricing habit every junk hauler is shopped against, not a
+  // company or product this could be mistaken for. The page names no vendor
+  // or competing calculator at all.
+  'junk-removal-bid-calculator/vs-a-flat-truck-fraction-rate.html',
   // Compares against "tracking it in a spreadsheet" -- the generic method
   // every remodeler pricing rec-room versus framed-finish versus
   // legal-living scope already reaches for, not a company or product this
