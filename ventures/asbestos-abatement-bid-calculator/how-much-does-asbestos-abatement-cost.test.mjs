@@ -69,8 +69,7 @@ test('FAQPage JSON-LD answers match the visible prose exactly', () => {
   const visible = html.replace(/&mdash;/g, '—').replace(/&sup3;/g, '³');
   for (const qa of ld.mainEntity) {
     assert.ok(visible.includes(qa.name), `visible prose is missing the exact FAQ question "${qa.name}"`);
-    const answer = qa.acceptedAnswer.text.replace(/--/g, '—');
-    assert.ok(visible.includes(answer), `visible prose is missing the exact FAQ answer for "${qa.name}"`);
+    assert.ok(visible.includes(qa.acceptedAnswer.text), `visible prose is missing the exact FAQ answer for "${qa.name}"`);
   }
 });
 
