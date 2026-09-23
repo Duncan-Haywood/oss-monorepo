@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 130 files, 542262 bytes
 #   portfolio-front-tools-7: 122 files, 556546 bytes
 #   portfolio-front-tools-8: 138 files, 555277 bytes
-#   portfolio-front-tools-9: 116 files, 548221 bytes
+#   portfolio-front-tools-9: 117 files, 553331 bytes
 #   portfolio-front-tools-10: 117 files, 556720 bytes
 #   portfolio-front-tools-11: 115 files, 552299 bytes
 #   portfolio-front-tools-12: 128 files, 552434 bytes
@@ -1400,6 +1400,7 @@ configMapGenerator:
       - gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz=gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz
       - gravel-driveway-bid-calculator__index.html.gz=gravel-driveway-bid-calculator__index.html.gz
       - gravel-driveway-bid-calculator__usage.mjs.gz=gravel-driveway-bid-calculator__usage.mjs.gz
+      - gravel-driveway-bid-calculator__vs-a-flat-4-per-square-foot-special.html.gz=gravel-driveway-bid-calculator__vs-a-flat-4-per-square-foot-special.html.gz
       - gravel-driveway-bid-calculator__vs-jobber.html.gz=gravel-driveway-bid-calculator__vs-jobber.html.gz
       - gutter-cleaning-bid-calculator__calc.mjs.gz=gutter-cleaning-bid-calculator__calc.mjs.gz
       - gutter-cleaning-bid-calculator__index.html.gz=gutter-cleaning-bid-calculator__index.html.gz
