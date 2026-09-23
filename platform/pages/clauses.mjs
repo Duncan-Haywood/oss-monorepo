@@ -1053,6 +1053,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. This page names no git-hosting
   // platform, IDE, or scanning tool.
   'dotenv-exposure-check/vs-checking-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method every SaaS
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-vendr.html and
+  // vs-zylo.html, which name specific SaaS-management platforms and already
+  // carry the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
+  'saas-seat-true-up/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
