@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 122 files, 553650 bytes
 #   portfolio-front-tools-6: 134 files, 555870 bytes
 #   portfolio-front-tools-7: 125 files, 555882 bytes
-#   portfolio-front-tools-8: 138 files, 551856 bytes
+#   portfolio-front-tools-8: 139 files, 556381 bytes
 #   portfolio-front-tools-9: 119 files, 554989 bytes
 #   portfolio-front-tools-10: 119 files, 555771 bytes
 #   portfolio-front-tools-11: 119 files, 554491 bytes
@@ -1268,6 +1268,7 @@ configMapGenerator:
       - epoxy-garage-floor-bid-calculator__index.html.gz=epoxy-garage-floor-bid-calculator__index.html.gz
       - epoxy-garage-floor-bid-calculator__share.mjs.gz=epoxy-garage-floor-bid-calculator__share.mjs.gz
       - epoxy-garage-floor-bid-calculator__usage.mjs.gz=epoxy-garage-floor-bid-calculator__usage.mjs.gz
+      - epoxy-garage-floor-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=epoxy-garage-floor-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz=epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz
       - equipment-auction-buyer-premium-calculator__calc.mjs.gz=equipment-auction-buyer-premium-calculator__calc.mjs.gz
       - equipment-auction-buyer-premium-calculator__index.html.gz=equipment-auction-buyer-premium-calculator__index.html.gz
