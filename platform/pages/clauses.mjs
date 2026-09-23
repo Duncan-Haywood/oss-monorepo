@@ -500,6 +500,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly. Same reasoning as the reverb-fee-calculator spreadsheet
   // page above.
   'amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "a flat rate per square foot" -- a pricing habit every
+  // turf and landscape shop is shopped against, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all.
+  'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
