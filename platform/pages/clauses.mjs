@@ -1075,6 +1075,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carry the "not affiliated" clause for that reason. Same
   // reasoning as the other vs-spreadsheet pages above.
   'bounce-house-rental-calculator/vs-a-spreadsheet.html',
+  // Compares against "bidding a flat percentage of value" -- a generic rule
+  // of thumb repeated across storage-auction forums generally, not a
+  // company or product this could be mistaken for. The page names no
+  // auction platform, forum, or vendor. Distinct from this venture's own
+  // vs-storagetreasures.html, which names a specific marketplace and
+  // already carries the "not affiliated" clause for that reason.
+  'storage-auction-max-bid-calculator/vs-bidding-a-flat-percentage.html',
   // Compares against "a spreadsheet" -- a generic method every contractor
   // already has access to, not a company or product this could be mistaken
   // for. Distinct from this venture's own vs-levelset.html, which names
