@@ -653,6 +653,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // at all -- distinct from this venture's own vs-kickserv.html, which does
   // name a product and carries its own "not affiliated" clause.
   'cabinet-refinishing-bid-calculator/vs-a-flat-price-per-door.html',
+  // Compares against "a flat $199 house sweep special" -- the postcard
+  // chimney-sweep rate every sweep is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'chimney-sweep-bid-calculator/vs-a-flat-house-sweep-special.html',
   // Compares against "a flat per-room special" -- the "3 bedrooms, $129"
   // room-count pricing habit every carpet-cleaning technician is shopped
   // against, not a company or product this could be mistaken for. The page
