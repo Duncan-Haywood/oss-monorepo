@@ -790,8 +790,18 @@ const CATEGORY_RULES = [
     // customer/stop list and its own cost structure into route economics.
     // Not a trade bid (nothing priced by area or a construction job) and
     // not a marketplace fee.
+    // `sign-language-interpreter-rate-calculator` joined 2026-09-23, filed
+    // here on its first commit rather than left for a catch-all spell: a
+    // freelance/contract sign language interpreter turning an assignment's
+    // hours, a booking minimum, portal-to-portal travel, and an after-hours
+    // differential into a customer-facing fee is the same job as
+    // `notary-trip-quote` and `court-reporter-transcript-calculator` (which
+    // it links to, and which links back) — a solo professional turning
+    // time, travel, and a booking policy into a price. Not a trade bid
+    // (nothing priced by area or a construction job) and not a marketplace
+    // fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate)/.test(
         slug,
       ),
   },
@@ -1747,6 +1757,17 @@ const CATEGORY_RULES = [
     // crawlable-orphan gap a new venture otherwise opens. Listed by exact
     // slug, same reason as its neighbors.
     //
+    // `source-map-leak-check` joined 2026-09-23 concurrently, same session
+    // as `supabase-rls-check`. Same "read what's actually there, name the
+    // exact evidence" checker shape again, for a different exposure class:
+    // whether a script's own trailing sourceMappingURL comment points at a
+    // publicly readable production source map, and whether that map embeds
+    // full original source text or only file paths. It cross-links
+    // `cors-misconfig-check`, `security-headers-check`, and
+    // `docker-build-secrets-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
+    //
     // `android-data-safety-check` moved here 2026-09-23, restoring the bound
     // `voiceover-project-rate-calculator`'s arrival (a creator/freelance
     // pricing tool, no honest home in this section) tripped. The trades
@@ -1758,7 +1779,7 @@ const CATEGORY_RULES = [
     // the move now is what that comment asked the next session that needed
     // the slot to do, rather than raising the bound instead.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check)/.test(
         slug,
       ),
   },

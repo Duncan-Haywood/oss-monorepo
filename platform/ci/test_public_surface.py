@@ -15,6 +15,7 @@ import gzip
 import io
 import json
 import unittest
+import unittest.mock
 import urllib.error
 from pathlib import Path
 
@@ -476,6 +477,89 @@ class SitemapTests(unittest.TestCase):
         self.assertTrue(all(p.expect == "serves" for p in probes))
 
 
+class PagesSitemapTests(unittest.TestCase):
+    """`pages_sitemap_urls` reads the `gh-pages` branch via `git show` --
+
+    added 2026-09-23 so this module's page-level sample covers the origin
+    that is actually healthy (GitHub Pages) rather than only the apex
+    sitemap, which now names a domain (`marisstella.dev`) serving something
+    unrelated to this catalogue. No test here touches the real git history;
+    `publish_surface._git` and `publish_surface.pages_branch_survey` are
+    stubbed throughout, the same boundary `SitemapTests` above draws around
+    `fetch`.
+    """
+
+    INDEX = (
+        "<sitemapindex>"
+        "<sitemap><loc>https://duncan-haywood.github.io/monorepo-projects/sitemap-hub.xml</loc></sitemap>"
+        "<sitemap><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/sitemap.xml</loc></sitemap>"
+        "</sitemapindex>"
+    )
+    HUB = "<urlset><url><loc>https://duncan-haywood.github.io/monorepo-projects/</loc></url></urlset>"
+    CHILD = (
+        "<urlset>"
+        "<url><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/</loc></url>"
+        "<url><loc>https://duncan-haywood.github.io/monorepo-projects/a-calculator/vs-x.html</loc></url>"
+        "</urlset>"
+    )
+
+    def _git_stub(self, table):
+        def _git(*args):
+            return table.get(args)
+
+        return _git
+
+    def test_reads_the_index_then_its_children_via_git_show(self):
+        table = {
+            ("show", "origin/gh-pages:sitemap.xml"): self.INDEX,
+            ("show", "origin/gh-pages:sitemap-hub.xml"): self.HUB,
+            ("show", "origin/gh-pages:a-calculator/sitemap.xml"): self.CHILD,
+        }
+        with unittest.mock.patch.object(
+            ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
+        ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
+            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertEqual(
+            urls,
+            [
+                "https://duncan-haywood.github.io/monorepo-projects/",
+                "https://duncan-haywood.github.io/monorepo-projects/a-calculator/",
+                "https://duncan-haywood.github.io/monorepo-projects/a-calculator/vs-x.html",
+            ],
+        )
+
+    def test_empty_when_gh_pages_ref_is_unfetched(self):
+        with unittest.mock.patch.object(
+            ps.publish_surface, "pages_branch_survey", return_value={"state": "unfetched"}
+        ):
+            self.assertEqual(ps.pages_sitemap_urls(), [])
+
+    def test_empty_when_the_index_has_no_sitemap_yet(self):
+        with unittest.mock.patch.object(
+            ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
+        ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub({})):
+            self.assertEqual(ps.pages_sitemap_urls(), [])
+
+    def test_a_child_naming_a_different_origin_is_skipped_not_guessed_at(self):
+        table = {
+            ("show", "origin/gh-pages:sitemap.xml"): (
+                "<sitemapindex><sitemap><loc>https://example.com/other/sitemap.xml</loc></sitemap>"
+                "</sitemapindex>"
+            ),
+        }
+        with unittest.mock.patch.object(
+            ps.publish_surface, "pages_branch_survey", return_value={"ref": "origin/gh-pages"}
+        ), unittest.mock.patch.object(ps.publish_surface, "_git", self._git_stub(table)):
+            urls = ps.pages_sitemap_urls(base_url="https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertEqual(urls, [])
+
+    def test_probes_expect_a_document(self):
+        probes = ps.pages_sitemap_probes(limit=2, urls=["https://a/", "https://b/", "https://c/"])
+        self.assertEqual(len(probes), 2)
+        self.assertTrue(all(p.expect == "serves" for p in probes))
+        self.assertIn("GitHub Pages", probes[0].why)
+
+
 class RenderTests(unittest.TestCase):
     def results(self):
         good = ps.Result(probe=ps.Probe(APEX, "serves", "no unmet Secret"), status=200, body_bytes=9000)
@@ -506,6 +590,36 @@ class RenderTests(unittest.TestCase):
         payload = json.loads(ps.as_json(self.results(), []))
         self.assertEqual(payload["disagreements"], 0)
         self.assertEqual(len(payload["hosts"]), 2)
+
+    def test_a_broken_pages_sitemap_url_is_listed_separately_from_the_apex(self):
+        dead = ps.Result(
+            probe=ps.Probe(
+                "https://duncan-haywood.github.io/monorepo-projects/x/", "serves", "GitHub Pages sitemap"
+            ),
+            status=404,
+        )
+        text = ps.render([], [], [dead])
+        self.assertIn("GitHub Pages sitemap sample", text)
+        self.assertIn("0/1 served", text)
+        self.assertIn("1 probe(s) disagree", text)
+
+    def test_an_empty_pages_sitemap_sample_with_a_note_says_it_was_not_taken(self):
+        text = ps.render(self.results(), [], [], pages_sitemap_note="no `gh-pages` ref fetched")
+        self.assertIn("GitHub Pages sitemap sample: not taken", text)
+        self.assertIn("no `gh-pages` ref fetched", text)
+
+    def test_an_empty_pages_sitemap_sample_with_no_note_prints_no_section(self):
+        # `--hosts-only` takes this path: nothing was skipped unexpectedly, so
+        # there is nothing to explain.
+        text = ps.render(self.results(), [], [])
+        self.assertNotIn("GitHub Pages sitemap sample", text)
+
+    def test_json_carries_the_pages_sitemap_results_and_note(self):
+        dead = ps.Result(probe=ps.Probe("https://a/", "serves", "x"), status=404)
+        payload = json.loads(ps.as_json([], [], [dead], "some note"))
+        self.assertEqual(len(payload["pages_sitemap"]), 1)
+        self.assertEqual(payload["pages_sitemap_note"], "some note")
+        self.assertEqual(payload["disagreements"], 1)
 
 
 class JsonOutTests(unittest.TestCase):

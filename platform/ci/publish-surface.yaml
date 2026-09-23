@@ -989,6 +989,9 @@ workflows:
 - workflow: siding-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sign-language-interpreter-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sitemap-lastmod-freshness-check-ci.yml
   classification: none
   publishes: []
@@ -1008,6 +1011,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: solar-pv-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: source-map-leak-check-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml

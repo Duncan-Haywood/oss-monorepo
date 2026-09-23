@@ -100,6 +100,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // every repository admin already has, not a company or product this
   // could be mistaken for.
   'branch-protection-drift-check/vs-manually-checking-settings.html',
+  // Compares against "opening devtools and checking by hand" -- a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for.
+  'source-map-leak-check/vs-checking-devtools-by-hand.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -969,6 +973,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-rfms.html, which does name a
   // product and carries its own "not affiliated" clause.
   'flooring-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat price per window" -- the generic postcard
+  // pricing habit the trade is shopped on, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all -- distinct from this venture's own vs-marketsharp.html, which
+  // does name a product and carries its own "not affiliated" clause.
+  'window-replacement-bid-calculator/vs-a-flat-price-per-window.html',
   // Compares against "a flat quote by house size" -- the generic pricing
   // habit pest control accounts are shopped on, not a company or product
   // this could be mistaken for. The page names no vendor or competing
