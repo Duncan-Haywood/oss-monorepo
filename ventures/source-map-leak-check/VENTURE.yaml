@@ -1,0 +1,77 @@
+name: source-map-leak-check
+description: >-
+  A free browser tool + CLI: reads each of a page's scripts for its own
+  trailing sourceMappingURL comment, fetches the map it points at (or
+  decodes an inline data: URI map), and names which scripts have a
+  publicly readable production source map -- distinguishing a map that
+  embeds full original source text (sourcesContent) from one that exposes
+  only file/folder paths, and a reference whose map returns a clean
+  401/403/404 (blocked, healthy) from a script with no reference at all
+  (clean). Runs client-side when the target's CORS policy allows a
+  cross-origin read; the CLI performs the identical check with no such
+  restriction, for CI. Never writes, submits, or modifies anything --
+  read-only GET requests only.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer, security-conscious team, or bug-bounty researcher
+      auditing a production deployment will search a variant of "check
+      source map exposed", "is my source map public", or "sourceMappingURL
+      production leak" and find this tool, since it needs no login and no
+      upload -- it runs the same kind of request the searcher's own browser
+      devtools already makes when a map is loaded, just scripted and
+      repeatable across every script tag a page loads rather than the one
+      the searcher happened to have open.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, evergreen deployment footgun rather than a
+      one-off incident: bundler documentation itself (webpack's `devtool`
+      guide, Vite's `build.sourcemap` docs) and error-tracking vendors that
+      ingest source maps (Sentry and others) explicitly warn against
+      shipping a plain, fully-referenced source map to production and
+      recommend a "hidden" upload-only mode instead -- which only exists
+      as a documented mode because the mistake this tool checks for is
+      common enough to need one. Security write-ups and bug-bounty
+      methodologies commonly list "check for exposed source maps" as a
+      standard low-effort reconnaissance step against any target running
+      a modern JS bundler.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A team that gets an exposed-map finding will wire the CLI into their
+      own deploy pipeline as a regression gate, so a CDN config change, a
+      new vendor bundle, or a reverted `devtool` setting is caught the same
+      day rather than discovered by an outsider running the same kind of
+      check -- producing return usage with no action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Bundlers converge on a default that makes a publicly-referenced,
+    fully-populated production source map effectively impossible to ship by
+    accident (e.g. every major tool defaults `devtool`/`sourcemap` to a
+    hidden/upload-only mode with no opt-in required), at which point this
+    check would be validating a misconfiguration that can no longer happen
+    by default rather than one teams commonly still ship.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/source-map-leak-check/
+  analytics: null

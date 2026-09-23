@@ -6891,3 +6891,23 @@ products:
           the local counter is opt-in and off by default, so nobody has
           measured yet. The event counts are genuine zeros for a venture
           published minutes ago.
+  - slug: firebase-rules-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool sending real, read-only,
+          unauthenticated requests to a Firebase project's Realtime
+          Database (shallow key listing) and named Firestore collections
+          (one document max), naming which paths return real data with no
+          login. Direct sibling of supabase-rls-check -- same "default-open
+          unless a rule locks it down" shape for a different backend.
+          `live_url_visitors` is null, not zero -- see the standing note on
+          this route elsewhere in this file; nobody has measured, which is
+          not the same as having measured nothing.
