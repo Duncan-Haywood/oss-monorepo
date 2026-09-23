@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 329 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 330 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 329 of them — and
+Every tool in the collection is listed below — all 330 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -330,6 +330,7 @@ page that hosts it.
 - [Shopify Fee Calculator — Payments vs PayPal vs Grow](https://marisstella.dev/tools/shopify-fee-calculator/): Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.
 - [StockX Seller Payout Calculator — Net Profit After All Fees](https://marisstella.dev/tools/stockx-seller-payout-calculator/): Free calculator for StockX sneaker, streetwear, and card sellers: find real net payout and net profit after the seller fee (which drops by seller level), the Fast Shipping discount, the payment processing fee, and outbound shipping cost, then check a month of sales against a profit goal.
 - [Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports](https://marisstella.dev/tools/storage-auction-max-bid-calculator/): Free calculator for storage-unit auction bidders: prices the buyer's premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.
+- [Turo Host Payout Calculator — Free, No Sign-Up](https://marisstella.dev/tools/turo-host-payout-calculator/): Free Turo host payout calculator. Turo's host share now depends on your earnings plan (Peace of Mind, Balanced, More Earnings) AND how far ahead the guest books — this tool models the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate. No sign-up, nothing uploaded.
 - [Twitch Payout Calculator — Real Take-Home From Subs and Bits](https://marisstella.dev/tools/twitch-payout-calculator/): Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% default, or 60%/70% under the Plus Program) and Bits, see whether a mobile subscription really pays less (it doesn't), and check how many more subs close a monthly income gap.
 - [Whatnot Seller Payout Calculator — Keep After 8% + Processing](https://marisstella.dev/tools/whatnot-seller-payout/): Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.
 - [Where to Sell Calculator — eBay vs Etsy vs Amazon](https://marisstella.dev/tools/where-to-sell-calculator/): Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, Reverb, your own store, and a local sale.

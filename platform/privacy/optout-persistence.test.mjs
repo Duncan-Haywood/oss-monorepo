@@ -448,7 +448,14 @@ const RELATIVE_SELF = relative(
 // Verified the way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 311;
+//
+// 311 -> 312: `turo-host-payout-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
+// `voiceover-project-rate-calculator`'s does). Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 312;
 
 let counter = 0;
 function fixture(source) {

@@ -397,7 +397,14 @@ const CATEGORY_RULES = [
     // item. Its slug names neither platform first, so no storefront keyword
     // above would have caught it and it would otherwise have swelled the
     // catch-all.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee)/.test(slug),
+    // `turo-host-payout-calculator` is `str-host`'s exact sibling one asset
+    // class over: a Turo host comparing a plan/booking-window payout matrix
+    // on one trip is the same "price a program before you opt in" question
+    // as an Airbnb/Vrbo host comparing fee schedules on one stay. Its slug
+    // does not start with a marketplace keyword this rule already
+    // recognised, so it would otherwise have swelled the catch-all the way
+    // `str-host` itself once did.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee)/.test(slug),
   },
   {
     id: 'trades',

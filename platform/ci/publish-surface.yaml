@@ -1091,6 +1091,9 @@ workflows:
 - workflow: tuckpointing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: turo-host-payout-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tutor-package-pricing-calculator-ci.yml
   classification: none
   publishes: []
