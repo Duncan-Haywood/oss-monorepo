@@ -37439,6 +37439,57 @@ entries:
         venture, so the mirrored-tool count is unaffected).
         `check_ledger_only.py`: not tripped (5 files outside ledger prose).
     mrr_end: 0
+  - venture: drywall-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED; build-now pipeline empty and
+        router/allocate.py's top-ranked tasks all needed real customer
+        contact this session cannot manufacture. Ran the full whole-catalogue
+        browser/accessibility sweep first but found another session had just
+        recorded an identical clean reading on `main` (#5222 closed as
+        superseded), so did not duplicate it. Refreshed the published Pages
+        snapshot instead (`publish-branch.sh`, `pages_state.py --record`)
+        since it was stale, then picked up surface-budget.mjs's "204
+        ventures with 0 generic-method comparison pages" list for a
+        genuinely uncovered angle: drywall-bid-calculator had a named-product
+        page (Buildxact) and a pricing guide but no generic-method page, and
+        calc.mjs's own docstring already frames the gap ("a flat
+        price-per-square-foot cannot see that hanging is the cheap half").
+      - >-
+        Added vs-a-flat-price-per-square-foot.html: same net square footage
+        (1,954 sq ft) priced at Gypsum finish Level 1 vs. Level 5 using the
+        calculator's own shipped defaults -- 46.4 hours / $5,473.07 ($2.80/sq
+        ft) vs. 152.8 hours / $14,238.58 ($7.29/sq ft), with quoting the
+        Level 5 job at the Level 1 rate landing $5,063.48 below its own
+        break-even cost. Figures computed directly from calc.mjs rather than
+        by hand to avoid a rounding mismatch (caught one: 46.448 hours
+        rounds to 46.4, not 46.5, on the first draft -- fixed before commit).
+        Registered the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (names no vendor) and wired it into index.html and sitemap.xml.
+        `node --test` in the venture: 112/112.
+      - >-
+        This page's own wording ("vs. a flat price per square foot") turned
+        out to exactly match concrete-bid-calculator's existing page,
+        crossing front-door.mjs's two-venture mirroring threshold together
+        -- front-door.test.mjs's "every rendered per-product comparison page
+        is mounted by the kustomization" failed, naming
+        vs__flat-price-per-square-foot.html.gz as unmounted. Same shape
+        CLAUDE.md already records for equipment-rental-break-even (#5193):
+        confirmed on a stashed clean tree that the gap did not exist before
+        this page (front-door.test.mjs 115/115 on `main`), added the one
+        hand-kept mount line to gitops/prod/kustomization.yaml, reran clean
+        (115/115, then the full suite 1281/1281).
+      - >-
+        Fetched `main` twice more while working (it advanced ~10 commits
+        under the branch, five sessions active); no conflicts since this
+        branch had made no commits yet. `regen.mjs --verify`: current.
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `clauses.mjs drywall-bid-calculator`: all clean. Actions confirmed
+        starved (`ci_starvation.py --run 35878972111`: runner_id 0) before
+        relying on local verification instead of CI's red badge.
+    mrr_end: 0
   - venture: gig-driver-net-pay-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -37652,4 +37703,93 @@ entries:
         validate_workflows.py, validate_candidates.py,
         validate_doc_consistency.py, publish_surface.py --check: all
         clean. regen.mjs --verify current after regenerating.
+    mrr_end: 0
+  - venture: estate-sale-net-proceeds-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate opened PROCEED; the gh-pages snapshot was stale
+        (built from f8cfeb30, main at 41cc4b24), but a concurrent session
+        published from the same commit a few seconds into this session's
+        own publish-branch.sh run -- the push was rejected as
+        non-fast-forward, re-fetched, and pages_state.py --require-current
+        confirmed current with no further action needed. Reviewed open PRs
+        (#5216, #5221, neither a duplicate) and the owner decision queue
+        (17 items, none newly actionable) before picking work.
+      - >-
+        Added a guide page, why-estate-sale-fees-bite-harder-on-a-smaller-sale.html,
+        to the estate-sale-net-proceeds-calculator venture (surface-budget.mjs
+        showed it had a generic-method comparison page but 0 guide pages).
+        Worked example computed fresh from calc.mjs's own shipped arithmetic:
+        the same $950 flat fee stack (setup/processing/haul-away) is 7.92%
+        of a $12,000 sale and 47.50% of a $2,000 sale, and the tiered
+        commission's blended rate rises from 30.00% to 40.00% over the same
+        range -- both effects pushing total retained from 37.92% to 87.50%
+        as the sale shrinks. Linked from index.html, README.md, and the
+        sitemap; regenerated the front-door mirror (front-door-tools.mjs,
+        front-door.mjs) so the apex serves it too.
+      - >-
+        Hit the exact em-dash/FAQPage-JSON-LD divergence CLAUDE.md already
+        records against the asbestos-abatement guide page: literal "--" in
+        the JSON-LD answer text vs. &mdash; in the visible prose, caught by
+        platform/pages/faq-visible.test.mjs (not by this page's own test,
+        whose visible/JSON-LD comparison only normalized the visible side).
+        Fixed by using the em dash character directly in the JSON-LD in all
+        three places. `node --test` in the venture: 49/49 (53/53 including
+        faq-visible.test.mjs). Full `platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` suite: 1281/1281 after `regen.mjs`
+        (1275/1281 before, the 5 failures being the mirror staleness the
+        regen step exists to fix -- not a defect in main).
+        checklist_coverage.py and surface-budget.mjs --check: clean.
+    mrr_end: 0
+  - venture: actions-secrets-inherit-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture (#5234): a free, read-only CLI/browser tool
+        scanning GitHub Actions workflow YAML for two documented secrets:
+        inherit risks on a reusable-workflow call -- secrets: inherit handed
+        to a workflow hosted in a different repository, and secrets: inherit
+        on a job reachable from a pull_request_target/workflow_run trigger.
+        Neither pattern is read by any existing actions-* checker in this
+        portfolio (pinned-actions-check flags a mutable uses: ref
+        generically but knows nothing about secrets: inherit;
+        actions-secret-leak-check is about a secret already in scope
+        leaking out, not which workflow receives the whole set).
+        duplicate_check.py's closest other-venture match was
+        actions-cache-poisoning-check at 0.50 -- lexical overlap from the
+        shared trigger phrase, not the finding shape. Same shape as its
+        actions-* siblings: stdlib-only Python CLI + a browser-ported
+        classifier kept in lock-step via a byte-identical CLI/browser
+        parity test, disclaimers, opt-out usage counting, and full
+        discoverability. Scored in venture-scores.yaml (composite 6.0),
+        registered in publish-surface.yaml, usage.yaml, and its own CI
+        workflow.
+      - >-
+        Caught and fixed an em-dash vs. "--" FAQPage JSON-LD/visible-prose
+        divergence (faq-visible.test.mjs) and a crawlable-orphan finding
+        (siblings.test.mjs) by cross-linking from actions-secret-leak-check's
+        footer -- the same two failure shapes this file already records
+        against other comparison/guide pages landing the same week, now hit
+        by a from-scratch venture instead. Merged main in to resolve a
+        gitops/prod/front-door(-tools)/ mirror-directory conflict per
+        resolve-mirror-merge.sh's guidance (--ours as an interim step, then
+        regen.mjs from the merged sources).
+      - >-
+        Verified: node --test in the venture 25/25 (incl. parity test and a
+        live CLI run against this repo's own 381 workflow files, clean); all
+        27 platform/ci unittest modules; agent_review's test_review 21/21;
+        gitops/tests 613 passed/25 skipped (environmental); portfolio
+        ledger+scoring+router+usage+pipeline+infra pytest suites all green;
+        checklist_coverage.py, router/validate.py, score_ventures.py
+        --check, usage/validate_usage.py, publish_surface.py --check,
+        sync_tree_counts.py, regen.mjs --verify, clauses.mjs: all clean.
+        Full platform/marketing + platform/pages suite: 1281/1281 after the
+        FAQPage fix. Every check on the PR (15 check runs) confirmed
+        starved via ci_starvation.py (runner_id: 0 on each) before merging;
+        said so in one PR comment naming what was verified locally.
+        Published the gh-pages snapshot after merging and recorded
+        github-pages-branch-route as current.
     mrr_end: 0
