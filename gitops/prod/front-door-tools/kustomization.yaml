@@ -34,8 +34,8 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 134 files, 556431 bytes
-#   portfolio-front-tools-1: 101 files, 553908 bytes
-#   portfolio-front-tools-2: 149 files, 552535 bytes
+#   portfolio-front-tools-1: 101 files, 554088 bytes
+#   portfolio-front-tools-2: 150 files, 555944 bytes
 #   portfolio-front-tools-3: 133 files, 551720 bytes
 #   portfolio-front-tools-4: 139 files, 552262 bytes
 #   portfolio-front-tools-5: 126 files, 554271 bytes
@@ -281,6 +281,7 @@ configMapGenerator:
       - etsy-profit-calculator__summary.mjs.gz=etsy-profit-calculator__summary.mjs.gz
       - etsy-profit-calculator__to-where-to-sell.mjs.gz=etsy-profit-calculator__to-where-to-sell.mjs.gz
       - etsy-profit-calculator__usage.mjs.gz=etsy-profit-calculator__usage.mjs.gz
+      - etsy-profit-calculator__vs-a-spreadsheet.html.gz=etsy-profit-calculator__vs-a-spreadsheet.html.gz
       - etsy-profit-calculator__vs-etsys-listing-form-calculator.html.gz=etsy-profit-calculator__vs-etsys-listing-form-calculator.html.gz
       - etsy-profit-calculator__what-price-keeps-this-etsy-profit.html.gz=etsy-profit-calculator__what-price-keeps-this-etsy-profit.html.gz
       - walmart-marketplace-calculator__calc.mjs.gz=walmart-marketplace-calculator__calc.mjs.gz
@@ -312,12 +313,12 @@ configMapGenerator:
       - reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html.gz=reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html.gz
       - reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz=reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz
       - reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz
-      - reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz
       - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz
       - reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz=reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz
       - reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz=reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz
