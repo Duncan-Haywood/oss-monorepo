@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 135 files, 553544 bytes
 #   portfolio-front-tools-8: 121 files, 545639 bytes
 #   portfolio-front-tools-9: 114 files, 556011 bytes
-#   portfolio-front-tools-10: 116 files, 549930 bytes
+#   portfolio-front-tools-10: 117 files, 554442 bytes
 #   portfolio-front-tools-11: 126 files, 555491 bytes
 #   portfolio-front-tools-12: 123 files, 556530 bytes
 #   portfolio-front-tools-13: 134 files, 554347 bytes
@@ -1480,6 +1480,7 @@ configMapGenerator:
       - junk-removal-bid-calculator__index.html.gz=junk-removal-bid-calculator__index.html.gz
       - junk-removal-bid-calculator__share.mjs.gz=junk-removal-bid-calculator__share.mjs.gz
       - junk-removal-bid-calculator__usage.mjs.gz=junk-removal-bid-calculator__usage.mjs.gz
+      - junk-removal-bid-calculator__vs-a-flat-truck-fraction-rate.html.gz=junk-removal-bid-calculator__vs-a-flat-truck-fraction-rate.html.gz
       - junk-removal-bid-calculator__vs-jobber.html.gz=junk-removal-bid-calculator__vs-jobber.html.gz
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
       - k8s-deprecated-api-check__cli.mjs.gz=k8s-deprecated-api-check__cli.mjs.gz
