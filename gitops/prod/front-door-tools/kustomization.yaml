@@ -40,9 +40,9 @@
 #   portfolio-front-tools-4: 140 files, 554077 bytes
 #   portfolio-front-tools-5: 124 files, 553523 bytes
 #   portfolio-front-tools-6: 129 files, 555907 bytes
-#   portfolio-front-tools-7: 127 files, 552060 bytes
-#   portfolio-front-tools-8: 135 files, 556460 bytes
-#   portfolio-front-tools-9: 116 files, 549404 bytes
+#   portfolio-front-tools-7: 127 files, 556607 bytes
+#   portfolio-front-tools-8: 135 files, 549715 bytes
+#   portfolio-front-tools-9: 116 files, 552224 bytes
 #   portfolio-front-tools-10: 116 files, 552980 bytes
 #   portfolio-front-tools-11: 118 files, 556578 bytes
 #   portfolio-front-tools-12: 129 files, 549891 bytes
@@ -1042,6 +1042,7 @@ configMapGenerator:
       - deck-bid-calculator__index.html.gz=deck-bid-calculator__index.html.gz
       - deck-bid-calculator__share.mjs.gz=deck-bid-calculator__share.mjs.gz
       - deck-bid-calculator__usage.mjs.gz=deck-bid-calculator__usage.mjs.gz
+      - deck-bid-calculator__vs-a-flat-28-a-foot-estimate.html.gz=deck-bid-calculator__vs-a-flat-28-a-foot-estimate.html.gz
       - deck-bid-calculator__vs-quoteiq.html.gz=deck-bid-calculator__vs-quoteiq.html.gz
       - deck-staining-bid-calculator__calc.mjs.gz=deck-staining-bid-calculator__calc.mjs.gz
       - deck-staining-bid-calculator__how-much-to-charge-to-stain-a-deck.html.gz=deck-staining-bid-calculator__how-much-to-charge-to-stain-a-deck.html.gz
@@ -1145,12 +1146,12 @@ configMapGenerator:
       - dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz=dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz
       - duplicate-payment-audit__app.mjs.gz=duplicate-payment-audit__app.mjs.gz
       - duplicate-payment-audit__detect.mjs.gz=duplicate-payment-audit__detect.mjs.gz
-      - duplicate-payment-audit__export.mjs.gz=duplicate-payment-audit__export.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - duplicate-payment-audit__export.mjs.gz=duplicate-payment-audit__export.mjs.gz
       - duplicate-payment-audit__index.html.gz=duplicate-payment-audit__index.html.gz
       - duplicate-payment-audit__usage.mjs.gz=duplicate-payment-audit__usage.mjs.gz
       - duplicate-payment-audit__vs-a-spreadsheet.html.gz=duplicate-payment-audit__vs-a-spreadsheet.html.gz
@@ -1285,12 +1286,12 @@ configMapGenerator:
       - flat-roof-bid-calculator__index.html.gz=flat-roof-bid-calculator__index.html.gz
       - flat-roof-bid-calculator__usage.mjs.gz=flat-roof-bid-calculator__usage.mjs.gz
       - flat-roof-bid-calculator__vs-acculynx.html.gz=flat-roof-bid-calculator__vs-acculynx.html.gz
-      - fleet-repair-or-replace-planner__calc.mjs.gz=fleet-repair-or-replace-planner__calc.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - fleet-repair-or-replace-planner__calc.mjs.gz=fleet-repair-or-replace-planner__calc.mjs.gz
       - fleet-repair-or-replace-planner__index.html.gz=fleet-repair-or-replace-planner__index.html.gz
       - fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz=fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz
       - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
@@ -1370,7 +1371,6 @@ configMapGenerator:
       - gutter-cleaning-bid-calculator__share.mjs.gz=gutter-cleaning-bid-calculator__share.mjs.gz
       - gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz=gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz
       - gutter-cleaning-bid-calculator__usage.mjs.gz=gutter-cleaning-bid-calculator__usage.mjs.gz
-      - gutter-cleaning-bid-calculator__vs-a-flat-price-per-linear-foot.html.gz=gutter-cleaning-bid-calculator__vs-a-flat-price-per-linear-foot.html.gz
       - gutter-cleaning-bid-calculator__vs-jobber.html.gz=gutter-cleaning-bid-calculator__vs-jobber.html.gz
       - gutter-guard-bid-calculator__calc.mjs.gz=gutter-guard-bid-calculator__calc.mjs.gz
       - gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz=gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz
