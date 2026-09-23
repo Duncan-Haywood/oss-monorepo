@@ -702,6 +702,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which does name a product and carries its
   // own "not affiliated" clause.
   'duct-cleaning-bid-calculator/vs-a-flat-whole-house-special.html',
+  // Compares against "a flat $28-a-foot estimate" -- the per-square-foot
+  // rule of thumb every deck job is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-quoteiq.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'deck-bid-calculator/vs-a-flat-28-a-foot-estimate.html',
   // Compares against "a flat price per square foot" -- the per-square-foot
   // quoting habit homeowners and GCs already ask concrete contractors for,
   // not a company or product this could be mistaken for. The page names no
