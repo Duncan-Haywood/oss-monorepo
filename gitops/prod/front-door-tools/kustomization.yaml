@@ -33,13 +33,13 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 134 files, 554406 bytes
-#   portfolio-front-tools-1: 100 files, 554593 bytes
-#   portfolio-front-tools-2: 148 files, 553084 bytes
-#   portfolio-front-tools-3: 135 files, 556319 bytes
-#   portfolio-front-tools-4: 141 files, 550417 bytes
-#   portfolio-front-tools-5: 125 files, 554241 bytes
-#   portfolio-front-tools-6: 133 files, 554936 bytes
+#   portfolio-front-tools-0: 134 files, 551520 bytes
+#   portfolio-front-tools-1: 99 files, 554045 bytes
+#   portfolio-front-tools-2: 149 files, 555666 bytes
+#   portfolio-front-tools-3: 134 files, 552418 bytes
+#   portfolio-front-tools-4: 142 files, 555371 bytes
+#   portfolio-front-tools-5: 125 files, 556314 bytes
+#   portfolio-front-tools-6: 134 files, 555990 bytes
 #   portfolio-front-tools-7: 122 files, 556803 bytes
 #   portfolio-front-tools-8: 138 files, 555320 bytes
 #   portfolio-front-tools-9: 120 files, 554056 bytes
@@ -185,6 +185,7 @@ configMapGenerator:
       - str-host-payout-calculator__usage.mjs.gz=str-host-payout-calculator__usage.mjs.gz
       - str-host-payout-calculator__vs-airbnb-earnings-estimator.html.gz=str-host-payout-calculator__vs-airbnb-earnings-estimator.html.gz
       - str-host-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz=str-host-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz
+      - str-host-payout-calculator__vs-vrbo-payout-estimator.html.gz=str-host-payout-calculator__vs-vrbo-payout-estimator.html.gz
       - pool-route-pricing__calc.mjs.gz=pool-route-pricing__calc.mjs.gz
       - pool-route-pricing__how-much-to-charge-for-pool-service.html.gz=pool-route-pricing__how-much-to-charge-for-pool-service.html.gz
       - pool-route-pricing__index.html.gz=pool-route-pricing__index.html.gz
@@ -207,12 +208,12 @@ configMapGenerator:
       - ebay-fee-calculator__csv.mjs.gz=ebay-fee-calculator__csv.mjs.gz
       - ebay-fee-calculator__do-ebay-returns-wipe-the-profit.html.gz=ebay-fee-calculator__do-ebay-returns-wipe-the-profit.html.gz
       - ebay-fee-calculator__index.html.gz=ebay-fee-calculator__index.html.gz
-      - ebay-fee-calculator__is-an-ebay-store-worth-it.html.gz=ebay-fee-calculator__is-an-ebay-store-worth-it.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__is-an-ebay-store-worth-it.html.gz=ebay-fee-calculator__is-an-ebay-store-worth-it.html.gz
       - ebay-fee-calculator__is-ebay-authenticity-guarantee-worth-it.html.gz=ebay-fee-calculator__is-ebay-authenticity-guarantee-worth-it.html.gz
       - ebay-fee-calculator__is-ebay-managed-returns-worth-it.html.gz=ebay-fee-calculator__is-ebay-managed-returns-worth-it.html.gz
       - ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html.gz=ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html.gz
@@ -311,13 +312,13 @@ configMapGenerator:
       - reverb-fee-calculator__calc.mjs.gz=reverb-fee-calculator__calc.mjs.gz
       - reverb-fee-calculator__index.html.gz=reverb-fee-calculator__index.html.gz
       - reverb-fee-calculator__share.mjs.gz=reverb-fee-calculator__share.mjs.gz
-      - reverb-fee-calculator__should-i-bump-this-reverb-listing.html.gz=reverb-fee-calculator__should-i-bump-this-reverb-listing.html.gz
-      - reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html.gz=reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - reverb-fee-calculator__should-i-bump-this-reverb-listing.html.gz=reverb-fee-calculator__should-i-bump-this-reverb-listing.html.gz
+      - reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html.gz=reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html.gz
       - reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz=reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz
       - reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz
       - reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz
@@ -465,12 +466,12 @@ configMapGenerator:
       - cash-runway-planner__app.mjs.gz=cash-runway-planner__app.mjs.gz
       - cash-runway-planner__index.html.gz=cash-runway-planner__index.html.gz
       - cash-runway-planner__share.mjs.gz=cash-runway-planner__share.mjs.gz
-      - cash-runway-planner__vs-a-spreadsheet.html.gz=cash-runway-planner__vs-a-spreadsheet.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cash-runway-planner__vs-a-spreadsheet.html.gz=cash-runway-planner__vs-a-spreadsheet.html.gz
       - cash-runway-planner__vs-quickbooks-cash-flow-planner.html.gz=cash-runway-planner__vs-quickbooks-cash-flow-planner.html.gz
       - cash-runway-planner__when-will-i-run-out-of-cash.html.gz=cash-runway-planner__when-will-i-run-out-of-cash.html.gz
       - vendor-rate-break-even__LICENSE.gz=vendor-rate-break-even__LICENSE.gz
@@ -604,13 +605,13 @@ configMapGenerator:
       - actions-permissions-check__vs-openssf-scorecard.html.gz=actions-permissions-check__vs-openssf-scorecard.html.gz
       - actions-runner-starvation-check__add-a-starvation-guard-to-a-github-actions-workflow.html.gz=actions-runner-starvation-check__add-a-starvation-guard-to-a-github-actions-workflow.html.gz
       - actions-runner-starvation-check__classify.mjs.gz=actions-runner-starvation-check__classify.mjs.gz
-      - actions-runner-starvation-check__index.html.gz=actions-runner-starvation-check__index.html.gz
-      - actions-runner-starvation-check__usage.mjs.gz=actions-runner-starvation-check__usage.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-runner-starvation-check__index.html.gz=actions-runner-starvation-check__index.html.gz
+      - actions-runner-starvation-check__usage.mjs.gz=actions-runner-starvation-check__usage.mjs.gz
       - actions-runner-starvation-check__vs-rerunning-the-job.html.gz=actions-runner-starvation-check__vs-rerunning-the-job.html.gz
       - actions-runner-starvation-check__why-is-my-github-actions-check-red-in-seconds.html.gz=actions-runner-starvation-check__why-is-my-github-actions-check-red-in-seconds.html.gz
       - actions-secret-leak-check__classify.mjs.gz=actions-secret-leak-check__classify.mjs.gz
@@ -751,12 +752,12 @@ configMapGenerator:
       - asphalt-driveway-pave-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=asphalt-driveway-pave-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz=asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz
       - asphalt-sealcoat-bid-calculator__calc.mjs.gz=asphalt-sealcoat-bid-calculator__calc.mjs.gz
-      - asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz=asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz=asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz
       - asphalt-sealcoat-bid-calculator__index.html.gz=asphalt-sealcoat-bid-calculator__index.html.gz
       - asphalt-sealcoat-bid-calculator__share.mjs.gz=asphalt-sealcoat-bid-calculator__share.mjs.gz
       - asphalt-sealcoat-bid-calculator__usage.mjs.gz=asphalt-sealcoat-bid-calculator__usage.mjs.gz
@@ -881,12 +882,12 @@ configMapGenerator:
       - caption-quality-check__check.mjs.gz=caption-quality-check__check.mjs.gz
       - caption-quality-check__engine.mjs.gz=caption-quality-check__engine.mjs.gz
       - caption-quality-check__index.html.gz=caption-quality-check__index.html.gz
-      - caption-quality-check__usage.mjs.gz=caption-quality-check__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - caption-quality-check__usage.mjs.gz=caption-quality-check__usage.mjs.gz
       - caption-quality-check__vs-professional-caption-qc-review.html.gz=caption-quality-check__vs-professional-caption-qc-review.html.gz
       - caption-quality-check__why-caption-quality-matters.html.gz=caption-quality-check__why-caption-quality-matters.html.gz
       - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
