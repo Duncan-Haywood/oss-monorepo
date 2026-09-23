@@ -37,9 +37,9 @@
 #   portfolio-front-tools-1: 104 files, 556063 bytes
 #   portfolio-front-tools-2: 151 files, 556226 bytes
 #   portfolio-front-tools-3: 136 files, 555905 bytes
-#   portfolio-front-tools-4: 135 files, 553735 bytes
-#   portfolio-front-tools-5: 124 files, 553762 bytes
-#   portfolio-front-tools-6: 130 files, 554350 bytes
+#   portfolio-front-tools-4: 135 files, 553738 bytes
+#   portfolio-front-tools-5: 123 files, 555851 bytes
+#   portfolio-front-tools-6: 132 files, 556176 bytes
 #   portfolio-front-tools-7: 133 files, 555620 bytes
 #   portfolio-front-tools-8: 124 files, 539899 bytes
 #   portfolio-front-tools-9: 113 files, 545123 bytes
@@ -789,6 +789,7 @@ configMapGenerator:
       - basement-waterproofing-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=basement-waterproofing-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
       - basement-waterproofing-bid-calculator__vs-oblyss.html.gz=basement-waterproofing-bid-calculator__vs-oblyss.html.gz
       - biohazard-cleanup-bid-calculator__calc.mjs.gz=biohazard-cleanup-bid-calculator__calc.mjs.gz
+      - biohazard-cleanup-bid-calculator__how-much-does-biohazard-cleanup-cost.html.gz=biohazard-cleanup-bid-calculator__how-much-does-biohazard-cleanup-cost.html.gz
       - biohazard-cleanup-bid-calculator__index.html.gz=biohazard-cleanup-bid-calculator__index.html.gz
       - biohazard-cleanup-bid-calculator__share.mjs.gz=biohazard-cleanup-bid-calculator__share.mjs.gz
       - biohazard-cleanup-bid-calculator__usage.mjs.gz=biohazard-cleanup-bid-calculator__usage.mjs.gz
@@ -879,13 +880,13 @@ configMapGenerator:
       - cat-adjuster-fee-calculator__calc.mjs.gz=cat-adjuster-fee-calculator__calc.mjs.gz
       - cat-adjuster-fee-calculator__index.html.gz=cat-adjuster-fee-calculator__index.html.gz
       - cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz=cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz
-      - cat-adjuster-fee-calculator__share.mjs.gz=cat-adjuster-fee-calculator__share.mjs.gz
-      - cat-adjuster-fee-calculator__usage.mjs.gz=cat-adjuster-fee-calculator__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cat-adjuster-fee-calculator__share.mjs.gz=cat-adjuster-fee-calculator__share.mjs.gz
+      - cat-adjuster-fee-calculator__usage.mjs.gz=cat-adjuster-fee-calculator__usage.mjs.gz
       - cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz=cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz
       - cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz=cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz
       - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz

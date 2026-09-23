@@ -11,7 +11,11 @@ per-pound hazmat guess that quietly undercounts both PPE and disposal.**
 
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. The deterministic calculation works with no
-account, API key, upload, or paid dependency.
+account, API key, upload, or paid dependency. See
+[`vs-a-flat-rate-per-pound-quote.html`](vs-a-flat-rate-per-pound-quote.html)
+for the comparison against a flat day rate and a per-pound hazmat estimate, or
+[`how-much-does-biohazard-cleanup-cost.html`](how-much-does-biohazard-cleanup-cost.html)
+for why a small scene still costs close to a container's full price.
 
 ## Why "day rate plus a per-pound hazmat fee" undercharges
 
