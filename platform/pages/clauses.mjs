@@ -786,6 +786,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-buildertrend.html, which does name a product and carries its
   // own "not affiliated" clause.
   'change-order-margin-calculator/vs-a-rough-lump-sum.html',
+  // Compares against "doing it in a spreadsheet" -- a generic method every
+  // Shopify merchant already has, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // first paragraph says so explicitly.
+  'shopify-fee-calculator/vs-doing-it-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
