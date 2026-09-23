@@ -46,8 +46,8 @@
 #   portfolio-front-tools-10: 115 files, 551126 bytes
 #   portfolio-front-tools-11: 121 files, 556685 bytes
 #   portfolio-front-tools-12: 125 files, 547732 bytes
-#   portfolio-front-tools-13: 135 files, 556103 bytes
-#   portfolio-front-tools-14: 98 files, 544986 bytes
+#   portfolio-front-tools-13: 135 files, 556669 bytes
+#   portfolio-front-tools-14: 99 files, 549081 bytes
 #   portfolio-front-tools-15: 113 files, 543619 bytes
 #   portfolio-front-tools-16: 119 files, 557006 bytes
 #   portfolio-front-tools-17: 50 files, 269585 bytes
@@ -1900,6 +1900,7 @@ configMapGenerator:
       - security-camera-bid-calculator__index.html.gz=security-camera-bid-calculator__index.html.gz
       - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
       - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
+      - security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz=security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz
       - security-camera-bid-calculator__vs-d-tools.html.gz=security-camera-bid-calculator__vs-d-tools.html.gz
       - security-camera-bid-calculator__vs-housecall-pro.html.gz=security-camera-bid-calculator__vs-housecall-pro.html.gz
       - security-deposit-return-calculator__calculator.mjs.gz=security-deposit-return-calculator__calculator.mjs.gz
@@ -1919,12 +1920,12 @@ configMapGenerator:
       - security-txt-check__fetch-url.mjs.gz=security-txt-check__fetch-url.mjs.gz
       - security-txt-check__index.html.gz=security-txt-check__index.html.gz
       - security-txt-check__usage.mjs.gz=security-txt-check__usage.mjs.gz
-      - security-txt-check__vs-securitytxt-org-generator.html.gz=security-txt-check__vs-securitytxt-org-generator.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-txt-check__vs-securitytxt-org-generator.html.gz=security-txt-check__vs-securitytxt-org-generator.html.gz
       - security-txt-check__why-security-txt-expires.html.gz=security-txt-check__why-security-txt-expires.html.gz
       - self-storage-rate-increase-calculator__calc.mjs.gz=self-storage-rate-increase-calculator__calc.mjs.gz
       - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz

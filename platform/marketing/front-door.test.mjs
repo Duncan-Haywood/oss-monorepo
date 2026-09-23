@@ -1951,8 +1951,18 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
   assert.ok(names.length >= 16, `only ${names.length} keys parsed out of the ConfigMap block`);
 
   // Binary keys are counted base64'd, which is how kustomize stores them; text
-  // keys ride as-is under `data`.
-  const BINARY = /\.(png|ico|woff2?)$/;
+  // keys ride as-is under `data`. `.gz` joined this list only now: a gzip
+  // stream is essentially never valid UTF-8, so kustomize files every `.gz`
+  // key under `binaryData` the same as a PNG, and this test under-counted
+  // `catalog.json.gz`, `compare.html.gz` and `sitemap.xml.gz` by the 4/3
+  // base64 expansion for as long as it left them out — silently passing a
+  // total this ConfigMap's real, applied size could already have outgrown,
+  // which is exactly the gap
+  // `gitops/tests/test_manifests.py::test_generated_configmaps_stay_under_the_etcd_object_ceiling`
+  // measures correctly (it reads `raw.decode()` and falls back to base64 on
+  // `UnicodeDecodeError` rather than trusting a filename pattern) and this
+  // test did not.
+  const BINARY = /\.(png|ico|woff2?|gz)$/;
   let total = 0;
   for (const name of names) {
     const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
