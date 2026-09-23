@@ -1127,6 +1127,9 @@ workflows:
 - workflow: vinyl-liner-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: voiceover-project-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: vpat-acr-generator-ci.yml
   classification: none
   publishes: []

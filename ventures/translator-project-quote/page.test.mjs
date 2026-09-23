@@ -104,3 +104,15 @@ test('index links one hop to the notary-trip-quote sibling', () => {
     'index must link ../notary-trip-quote/ so crawlers reach the notary calculator in one hop',
   );
 });
+
+// Reciprocal of voiceover-project-rate-calculator/page.test.mjs's own
+// inbound-link assertion -- both price one solo language/audio professional's
+// project by usage/rush terms, just on opposite sides of written vs. recorded
+// work. Without this, a crawler entering here could not reach that tool.
+test('index links one hop to the voiceover-project-rate-calculator sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/voiceover-project-rate-calculator\/"/,
+    'index must link ../voiceover-project-rate-calculator/ so crawlers reach it in one hop',
+  );
+});
