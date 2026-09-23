@@ -3055,16 +3055,17 @@ test('a navigation that fails with nothing cached lands on the offline page', as
 
 test('the save-for-offline bundle covers every tool and only real files', async () => {
   const { outDir, surfaces, offline } = await site();
+  const bundled = new Set([...offline.shared, ...offline.categories.flatMap((c) => c.assets)]);
   for (const surface of surfaces) {
     assert.ok(
-      offline.bundle.includes(`${surface.slug}/index.html`),
+      bundled.has(`${surface.slug}/index.html`),
       `${surface.slug} would not be saved for offline use`,
     );
-    assert.ok(offline.bundle.includes(`${surface.slug}/`), 'both link forms are cached');
+    assert.ok(bundled.has(`${surface.slug}/`), 'both link forms are cached');
   }
 
   const missing = [];
-  for (const asset of offline.bundle) {
+  for (const asset of bundled) {
     if (asset.endsWith('/')) continue; // directory form of a page already asserted
     try {
       await fs.access(path.join(outDir, asset));
@@ -3075,93 +3076,126 @@ test('the save-for-offline bundle covers every tool and only real files', async 
   assert.deepEqual(missing, [], `the worker would fetch files that are not on the site: ${missing.join(', ')}`);
 });
 
-test('the offline bundle stays small enough to fetch on mobile data', async () => {
-  const { outDir, surfaces, offline } = await site();
-  let bytes = 0;
-  for (const asset of offline.bundle) {
-    if (asset.endsWith('/')) continue;
-    const buf = await fs.readFile(path.join(outDir, asset));
-    bytes += (await gzip(buf, { level: 9 })).length;
+test('every venture lands in exactly one category bundle', async () => {
+  // Partitioned by category rather than one bundle of every tool (see the
+  // size test below for why), so the one way this can go wrong that the
+  // coverage test above cannot see is a tool counted twice -- which would
+  // make two categories' "save this category" buttons each fetch it, or
+  // counted zero times under any category, which the test above already
+  // catches as a missing page.
+  const { surfaces, offline } = await site();
+  const seenIn = new Map();
+  for (const category of offline.categories) {
+    for (const asset of category.assets) {
+      if (!asset.endsWith('/index.html')) continue;
+      seenIn.set(asset, (seenIn.get(asset) ?? []).concat(category.id));
+    }
   }
-  assert.equal(bytes, offline.bundleBytes, 'addOfflineSupport reported a different gzipped total than a fresh count');
-  // Raw bytes stopped being the right proxy once the catalog passed ~180
-  // tools: it hit 16.8 MB against a 16 MB ceiling that was itself already a
-  // bump from an original 8 MB, and bumping the number a second time repeats
-  // the mistake instead of fixing it. What a phone actually pays for on
-  // mobile data is bytes over the wire, and every host this site is served
-  // from compresses this content in transit: GitHub Pages (Fastly) gzips
-  // text responses automatically, and gitops/prod/front-door/default.conf
-  // sets `gzip on` with text/css, application/javascript and text/javascript
-  // in `gzip_types` (text/html is gzipped by nginx regardless of that list).
-  // So this asserts on the same bytes a visitor's browser reports as
-  // "transferred" in its network panel, not the uncompressed size on disk.
-  //
-  // A *fixed* ceiling repeats that exact mistake a level up: this portfolio's
-  // whole point is to keep adding tools (CLAUDE.md's product-first default),
-  // each one adding its own scripts/styles to this bundle, so a constant
-  // byte count is guaranteed to need "just one more bump" again -- it did,
-  // from 8 MB to 16 MB to a gzip-based 8 MB, and then a fourth time hit 8.4
-  // MB against that same 8 MB ceiling at 338 tools (2026-09-23). What
-  // matters for "does this fetch reasonably on mobile data" is bytes *per
-  // tool*, not a total that mechanically grows with a healthy catalog.
-  // Measured the same day: 338 tools, 8.41 MB total, ~24.4 KB/tool for
-  // per-tool assets plus ~159 KB of fixed shared scripts/styles/icons --
-  // actually *lower* per-tool than the 2026-09-05 reading (174 tools, 5.2 MB,
-  // ~29.9 KB/tool), so the total grew from tool count, not from bloat. The
-  // budget below is linear in `surfaces.length` for that reason, with
-  // headroom above both readings so it does not need re-tuning on ordinary
-  // per-tool growth -- only a real regression (a shared asset or a single
-  // tool's bundle bloating well past historical norms) should ever trip it.
-  const fixedOverhead = 512 * 1024;
-  const perSurfaceBudget = 32 * 1024;
-  const budget = fixedOverhead + surfaces.length * perSurfaceBudget;
-  assert.ok(
-    bytes < budget,
-    `gzipped offline bundle is ${(bytes / 1e6).toFixed(2)} MB across ${surfaces.length} tools ` +
-      `(${(bytes / surfaces.length / 1024).toFixed(1)} KB/tool) -- budget is ${(budget / 1e6).toFixed(2)} MB`,
-  );
+  for (const surface of surfaces) {
+    const asset = `${surface.slug}/index.html`;
+    const foundIn = seenIn.get(asset) ?? [];
+    assert.equal(
+      foundIn.length,
+      1,
+      `${surface.slug} is bundled under ${JSON.stringify(foundIn)}, not exactly one category`,
+    );
+  }
 });
 
-test('the hub tells a visitor the real offline size, not a stale guess', async () => {
+test("a category's offline bundle stays small enough to fetch on mobile data", async () => {
+  // The whole-catalog version of this test used to sum every tool into one
+  // number, and that number had already forced this feature's byte ceiling
+  // to be raised once (8 MB to 16 MB, then switched to a gzipped 8 MB proxy)
+  // and hit that second ceiling too once the catalog passed ~340 tools --
+  // bumping the number a third time repeats the mistake instead of fixing
+  // it. What a phone actually pays for on mobile data is bytes over the
+  // wire, and every host this site is served from compresses this content in
+  // transit: GitHub Pages (Fastly) gzips text responses automatically, and
+  // gitops/prod/front-door/default.conf sets `gzip on` with text/css,
+  // application/javascript and text/javascript in `gzip_types` (text/html is
+  // gzipped by nginx regardless of that list). So this asserts on the same
+  // bytes a visitor's browser reports as "transferred" in its network panel,
+  // not the uncompressed size on disk -- now per category, which is bounded
+  // by how many tools share a niche rather than by the catalog's total size.
+  const { outDir, offline } = await site();
+  const gzipBytesOf = async (assets) => {
+    let bytes = 0;
+    for (const asset of assets) {
+      if (asset.endsWith('/')) continue;
+      const buf = await fs.readFile(path.join(outDir, asset));
+      bytes += (await gzip(buf, { level: 9 })).length;
+    }
+    return bytes;
+  };
+  const sharedBytes = await gzipBytesOf(offline.shared);
+  for (const category of offline.categories) {
+    const bytes = sharedBytes + (await gzipBytesOf(category.assets));
+    assert.equal(
+      bytes,
+      category.bundleBytes,
+      `addOfflineSupport reported a different gzipped total for ${category.id}`,
+    );
+    assert.ok(
+      bytes < 3 * 1024 * 1024,
+      `gzipped offline bundle for category ${category.id} is ${(bytes / 1e6).toFixed(1)} MB`,
+    );
+  }
+});
+
+test('the hub tells a visitor the real offline size per category, not a stale guess', async () => {
   // The button said "about 3 MB" from ~30 tools onward while the catalog
   // grew to 174 and the real (gzipped) fetch reached 5.2 MB -- a visitor on
   // limited mobile data, exactly who this feature is for, was told a number
-  // with no relationship to what they would actually pay. The label is now
-  // computed from the same gzipped bytes the test above measures, so it
-  // cannot drift from reality again.
+  // with no relationship to what they would actually pay. Each category's
+  // label is computed from the same gzipped bytes the test above measures,
+  // so it cannot drift from reality again -- and cannot drift the way the old
+  // single whole-catalog number did, either, since a category's own size
+  // moves only when its own tools change.
   const { offline } = await site();
   const hub = await read('index.html');
-  assert.ok(!hub.includes('{{OFFLINE_BUNDLE_SIZE}}'), 'the size placeholder was never patched in');
+  assert.ok(!/\{\{OFFLINE_BUNDLE_SIZE/.test(hub), 'a size placeholder was never patched in');
   assert.ok(!/about 3 MB/.test(hub), 'the old hardcoded size is still here');
-  const label = offlineBundleSizeLabel(offline.bundleBytes);
-  assert.ok(hub.includes(`about ${label}`), `hub does not show the real offline size (${label})`);
+  for (const category of offline.categories) {
+    const label = offlineBundleSizeLabel(category.bundleBytes);
+    assert.ok(
+      hub.includes(`about ${label}`),
+      `hub does not show the real offline size for ${category.id} (${label})`,
+    );
+  }
 });
 
-test('the saved catalogue fits in a browser origin cache quota', async () => {
+test('the saved category fits in a browser origin cache quota', async () => {
   const { outDir, offline } = await site();
-  let onDisk = 0;
-  for (const asset of offline.bundle) {
-    if (asset.endsWith('/')) continue;
-    onDisk += (await fs.stat(path.join(outDir, asset))).size;
-  }
+  const onDiskBytes = async (assets) => {
+    let bytes = 0;
+    for (const asset of assets) {
+      if (asset.endsWith('/')) continue;
+      bytes += (await fs.stat(path.join(outDir, asset))).size;
+    }
+    return bytes;
+  };
+  const sharedOnDisk = await onDiskBytes(offline.shared);
   // The companion to the transfer budget above, and the reason both exist:
   // moving that assertion to gzipped bytes was right, but it left the bundle
   // with no ceiling on uncompressed size at all, and the two are different
   // costs paid by different resources. Cache Storage keeps responses
-  // decompressed, so this is what the save-all button occupies of the
-  // origin's quota on the device -- a phone low on space can have the whole
-  // catalogue evicted, which is the one failure mode that would break the
-  // offline promise silently, on the jobsite, after the download succeeded.
+  // decompressed, so this is what saving a category occupies of the origin's
+  // quota on the device -- a phone low on space can have it evicted, which is
+  // the one failure mode that would break the offline promise silently, on
+  // the jobsite, after the download succeeded.
   //
   // Deliberately loose. Browsers grant an origin a share of free disk running
-  // to hundreds of MB, and at 16.8 MB the catalogue has room to roughly
-  // quadruple. This is a tripwire for a binary landing in the bundle by
+  // to hundreds of MB, and the largest category has room to grow several
+  // times over. This is a tripwire for a binary landing in a bundle by
   // accident -- an image, a font, a .zip -- which compresses badly enough to
   // show up here long before it moves the gzipped figure much.
-  assert.ok(
-    onDisk < 64 * 1024 * 1024,
-    `the saved catalogue would occupy ${(onDisk / 1e6).toFixed(1)} MB on the device`,
-  );
+  for (const category of offline.categories) {
+    const onDisk = sharedOnDisk + (await onDiskBytes(category.assets));
+    assert.ok(
+      onDisk < 16 * 1024 * 1024,
+      `saving category ${category.id} would occupy ${(onDisk / 1e6).toFixed(1)} MB on the device`,
+    );
+  }
 });
 
 test('the manifest is installable: real icons, standalone, scoped to the site', async () => {
@@ -3187,7 +3221,7 @@ test('the manifest is installable: real icons, standalone, scoped to the site', 
 
 test('the offline offer is honest and gates nothing', async () => {
   const hub = await read('index.html');
-  assert.match(hub, /Save all tools for offline/);
+  assert.match(hub, /Save this category for offline/);
   assert.match(hub, /Nothing is uploaded either way/);
   // Still no request about a visit leaving the device: the worker fetches
   // pages, and pages only.
@@ -3523,7 +3557,7 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
   const shared = await read('pf-jobs.js');
   assert.ok(shared.includes('var SLUG'), 'the shared script is not at the site root');
 
-  assert.ok(offline.bundle.includes('pf-jobs.js'),
+  assert.ok(offline.shared.includes('pf-jobs.js'),
     'a tool cached offline without it opens with no saved-bids band at all');
 
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
@@ -3579,7 +3613,7 @@ test('every stylesheet and script this build injects is one file, at the right d
   for (const [name, { attr, gate }] of Object.entries(assets)) {
     const body = await read(name);
     assert.ok(body.length > 400, `${name} was not written to the site root`);
-    assert.ok(offline.bundle.includes(name),
+    assert.ok(offline.shared.includes(name),
       `a tool cached offline without ${name} opens unstyled or without its band`);
 
     let carrying = 0;

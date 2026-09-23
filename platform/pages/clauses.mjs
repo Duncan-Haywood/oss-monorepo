@@ -1053,6 +1053,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. This page names no git-hosting
   // platform, IDE, or scanning tool.
   'dotenv-exposure-check/vs-checking-by-hand.html',
+  // Compares against "a flat rate per square foot" -- a generic pricing
+  // method every garage-floor coating contractor already has access to, not
+  // a company or product this could be mistaken for. Same reasoning as the
+  // other generic-method pages above (e.g. asphalt-driveway-pave-bid-
+  // calculator's flat-rate page). Distinct from this venture's own
+  // vs-coatingos.html, which compares against a named estimating product
+  // and already carries the "not affiliated" clause for that reason.
+  'epoxy-garage-floor-bid-calculator/vs-a-flat-rate-per-square-foot.html',
   // Compares against "a spreadsheet" -- a generic method every SaaS
   // operator already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-vendr.html and
