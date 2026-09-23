@@ -127,7 +127,14 @@ const only = onlySlugs();
 // action at all. That is `cash-runway-planner`, whose one-off payment rows have
 // an "Add another row" above the Forecast button. Anchored, so a compute
 // button that merely contains the word is still pressed.
-const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|^add another\b/i;
+//
+// `[+\s]*` in front of the anchor because 15 ventures spell the label
+// "+ Add another …" (docker-base-image-eol-check among them) — the leading
+// "+ " put "add another" one character past `^`, so the bare anchor let the
+// row-adder through as a candidate primary action after all, exactly the
+// false-NO-RESPONSE this exclusion exists to prevent, just for a differently
+// punctuated label than the one that motivated it.
+const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|^[+\s]*add another\b/i;
 
 // Several tools open on an empty form and offer their own worked example. That
 // button is the shortest path this product has to first value, so a sweep that
