@@ -15664,6 +15664,68 @@ ventures:
       two specific requests, not a full security assessment or a
       determination that the target is secure.
 
+  - slug: dotenv-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a dotenv file is exposed
+      is decided by a fixed line-shape ratio (does the body look like real
+      KEY=VALUE content) against the real HTTP response -- a factual,
+      deterministic classification, not a model judgment, and it never
+      claims a full security audit.
+    basis: >-
+      Screened 2026-09-23, the same session as git-exposure-check and the
+      same archetype: a zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.25 or below against the final description (real GET
+      requests to a site's root .env file path, verifying the response
+      body against the real KEY=VALUE line format) -- git-exposure-check
+      itself is the closest match, a different static-file exposure class
+      (git-internal plumbing, not an application's own secrets file), and
+      env-example-drift-check is next closest but is a local, zero-network
+      source linter that never fetches a URL or reads a real .env at all.
+      Autonomous ops 10 / gross margin 10: every request runs from the
+      visitor's own browser (when the target's CORS policy allows it) or
+      machine (for the CLI) against a site of their choosing, so serving
+      one more user costs a static file and needs no human review of any
+      output. Distribution 7: dotenv exposure is one of the most-cited web
+      misconfigurations in security research -- OWASP's own guidance on
+      sensitive data exposure names environment-file leakage explicitly,
+      it is a recurring HackerOne/Bugcrowd report category and a standard
+      dorking search term, and the exposure class predates and outlives
+      any single framework. Time to revenue 6, defensibility 2: donations-
+      only; a line-shape check and a name-pattern regex are genuinely easy
+      to reimplement, so defensibility rests only on the value-redaction
+      guarantee being correct and tested, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and the mitigation here is structurally stronger than any
+      sibling checker's needed to be, because the subject matter is
+      literally the secret rather than metadata about one: a response
+      body is parsed only to check its overall line shape and to extract
+      each line's KEY name, and the VALUE half of every line is discarded
+      the instant it is read -- it never appears in any return value,
+      report, JSON output, or rendered page, not truncated, not hashed,
+      not partially shown. analyze.test.mjs pins this directly: a test
+      builds a report against a worked example containing a literal fake
+      secret value and asserts the serialized report never contains that
+      string anywhere. Every request is GET only, and a response this
+      tool cannot classify (network error, CORS block, unexpected status)
+      is reported as an error, never folded into either "exposed" or
+      "blocked". Every page and the README carry an explicit "only test a
+      site you own or are authorised to test" caution.
+
   - slug: firebase-rules-check
     scores:
       ai_leverage: 1

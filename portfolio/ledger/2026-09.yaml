@@ -39057,3 +39057,155 @@ entries:
         (this clone was shallow at session start); checked open PRs (github
         MCP) for a colliding podcast niche and found none.
     mrr_end: 0
+  - venture: dotenv-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened, graduated, and built a new venture: a zero-dependency
+        browser tool + CLI that sends real GET requests to five well-known
+        dotenv paths (.env, .env.local, .env.production,
+        .env.production.local, .env.development.local) and classifies the
+        response body against the real KEY=VALUE line shape -- not just an
+        HTTP status -- to name whether a deployment is publicly serving its
+        own environment-variable secrets. Flags a likely-live-credential
+        exposure by variable NAME pattern (SECRET, TOKEN, PASSWORD,
+        API_KEY) at higher severity, and structurally never reads, stores,
+        or renders a variable's VALUE anywhere -- only its name -- since
+        the subject matter here is literally the secret rather than
+        metadata about one, unlike every prior checker in this family.
+        session_gate.py's PROCEED verdict named the build-now pipeline
+        empty; per DIRECTION.md a genuine new venture ranks first when
+        available.
+        First attempt collided: built the same "git exposure checker" idea
+        independently and concurrently with another session, which merged
+        first as PR #5300 (ventures/git-exposure-check) mid-build, and this
+        session's own working tree was silently synced to the new
+        origin/main, discarding the uncommitted local build. Verified the
+        collision (git log showed the merge commit), discarded the two
+        now-orphaned local files (a guide and a vs page with no venture
+        left to belong to) and their stale mirror artifacts, and picked a
+        genuinely different niche instead of re-deriving a duplicate --
+        per CLAUDE.md's Duplicate PRs section. Checked open PRs first and
+        found #5304 (graphql-introspection-exposure-check, open, unrelated
+        archetype) -- no collision on the niche actually chosen.
+        Screened per pipeline/README.md's "archetype itself" section (a
+        checker/CLI shape, not another trade-bid calculator):
+        duplicate_check.py scored every existing venture at 0.25 or below
+        against the final description -- git-exposure-check itself
+        closest (a different static-file exposure class: git-internal
+        plumbing, not an application's own secrets file), and
+        env-example-drift-check next closest but a local, zero-network
+        source linter that never fetches a URL or reads a real .env at
+        all. Nothing in screened-out.md covers dotenv files or
+        environment-variable exposure. Composite 6.375, floor 1
+        (ai_leverage), both gates well clear (5): liability_containment 7,
+        ethical_robustness 8 -- see candidates/dotenv-exposure-check.md
+        for the full write-up.
+        Built ventures/dotenv-exposure-check/: VENTURE.yaml, LICENSE,
+        README.md, probe.mjs (five capped GET requests against a
+        caller-given base URL), analyze.mjs (pure classification: a
+        response must be non-HTML and >=60% of its non-comment lines
+        KEY=VALUE shaped before anything is called exposed -- rejects a
+        200-status soft-404 page -- and the VALUE half of every line is
+        discarded the instant it is read, never returned, stored, or
+        rendered anywhere), check.mjs (CLI, exit 0/1), usage.mjs (opt-in
+        local counting, DNT/GPC honoured), index.html (live-fetch report
+        viewer plus a worked example, SoftwareApplication + FAQPage
+        JSON-LD, no-warranty/authorised-testing-only/nothing-uploaded/
+        values-never-shown disclaimers), a HowTo guide page on why dotenv
+        files end up in production, a vs-checking-by-hand comparison page
+        (added to clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT -- compares
+        against a manual habit, not a named product), robots.txt,
+        sitemap.xml. 55/55 tests pass across analyze/probe/check/usage/page
+        suites (network tests run against a real local loopback HTTP
+        server, never the internet); analyze.test.mjs includes a dedicated
+        test that serializes a report built from a worked example
+        containing a literal fake secret value and asserts the string
+        never appears anywhere in it, pinning the value-redaction
+        guarantee directly rather than leaving it an informal intention.
+        Registered: launched.mjs --write, publish_surface.py --write
+        (added dotenv-exposure-check-ci.yml, copied from
+        git-exposure-check-ci.yml), venture-scores.yaml (composite 6.0 on
+        the 6-dim scale, floor 1), candidates.yaml + candidates/
+        dotenv-exposure-check.md + README.md's ranked table. Filed into
+        build.mjs's existing "CI checks & developer gates" category (same
+        regex family as git-exposure-check/cors-misconfig-check) after the
+        first build.test.mjs run caught it landing in the catch-all and
+        pushing it to 6 tools (four pre-existing, unrelated tools plus this
+        one) -- fixed by adding the slug to the category's regex, not by
+        reorganising the unrelated pre-existing four. A second
+        build.test.mjs run then caught a real crawl-orphan (zero inbound
+        links to the new page) and a JSON-LD/visible-copy em-dash mismatch
+        on four FAQ answers -- both fixed: added a reciprocal link from
+        git-exposure-check's own footer (replacing a now-stale sentence
+        that said this exposure class "this portfolio does not yet
+        cover"), and corrected the four JSON-LD strings to match the
+        visible `--`/`—` punctuation exactly.
+        Second collision, discovered before pushing: three more sessions
+        merged guide/vs pages onto git-exposure-check (#5325, #5328,
+        #5331) and graphql-introspection-exposure-check graduated (#5304)
+        while this branch was being finished. Resolved with a real `git
+        merge origin/main` (not a rebase -- gitops/prod's binary mirror
+        conflicts have exactly one tool for that,
+        resolve-mirror-merge.sh, and it only runs on a merge; it refused
+        to touch anything outside its own generated-file scope, which
+        surfaced the four real code conflicts explicitly): build.mjs's
+        catch-all-category regex, clauses.mjs's exemption list,
+        gitops/tests/test_manifests.py's and
+        platform/privacy/optout-persistence.test.mjs's running-comment
+        counts, and ventures/git-exposure-check/index.html itself (which
+        auto-merged cleanly -- the other three sessions never touched the
+        footer paragraph this branch edited). Mirror binaries resolved by
+        checking out either side, then regenerating from the merged
+        sources (never hand-edited). Re-ran sync_tree_counts.py
+        (mirrored-tool count 337->338, opt-out-switch count 319->320 --
+        graphql-introspection-exposure-check accounted for the missing
+        increment neither side's branch had seen) and
+        gitops/ci/sync_readme_counts.py (runs-on counts 431/433/392 ->
+        432/434/393) against the fully merged tree, and regen.mjs three
+        more times (once per fix, verified current each time with
+        regen.mjs --verify).
+        Verified, on the final merged tree: node --test in the venture
+        55/55 (and 119/119 combined with git-exposure-check's own suite,
+        confirming the footer edit didn't break it). node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs:
+        1280/1281, one known pre-existing failure -- "the offline bundle
+        stays small enough to fetch on mobile data" (gzipped PWA cache is
+        8.4 MB against an 8 MB ceiling). Confirmed not caused by this
+        venture: its own HTML+mjs gzip to ~27 KB combined, and dozens of
+        comparison/guide pages from other concurrent sessions landed on
+        `main` during this same session window -- this is fleet-wide
+        cumulative growth tripping a shared budget, the same shape as the
+        mirror-headroom and catch-all-category guards elsewhere in this
+        checklist, not a regression this PR introduces. Not fixed here
+        (deciding what to exclude from the offline bundle is a dedicated
+        session's job, not a two-page venture's); flagged for whoever
+        picks it up next. node --test platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs platform/proposal/*.test.mjs:
+        243/243. python3 -m pytest gitops/tests -q: 637 passed, 1 skipped
+        (pre-existing, documented, unrelated). python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q: 446 passed. platform/ci
+        unittest sweep (27 modules) and agent_review/test_review: all
+        green. checklist_coverage.py, router/validate.py (345/345),
+        validate_doc_consistency.py, validate_candidates.py (55/55),
+        score_ventures.py --check (346/346), publish_surface.py --check,
+        front-door-tools.mjs --headroom (82.1% used, ~73 more tools of
+        headroom): all clean. Scoped
+        PLAYWRIGHT=$(npm root -g)/playwright/index.js python3
+        platform/ci/browser_checks.py --only dotenv-exposure-check: 7/8
+        checks passed (highlight skipped, no such feature promised -- not
+        a failure), including "3 pages, 2 viewports: no WCAG A/AA
+        violations" from axe-core and a full sweep/journey pass.
+        run_workflow_locally.py --for-changes: first attempt correctly
+        reported itself invalid ("UNSTABLE CHECKOUT: tracked files changed
+        while the sweep ran") because it overlapped this session's own
+        edits -- discarded per the tool's own instruction; re-run clean on
+        a settled checkout, 18/21 selected workflows passed, the other 3
+        correctly held (secret-reading/write jobs, by design). Checked
+        open PRs and recent main commits (github MCP + git log) three
+        times across the session -- before starting, after the first
+        collision, and again before pushing -- each time to confirm the
+        niche in progress was still unclaimed.
+    mrr_end: 0
