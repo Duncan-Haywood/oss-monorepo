@@ -101,6 +101,35 @@ export const CHANNEL_PRESETS = [
     listingRenewalDays: 0,
   },
   {
+    id: "mercari",
+    label: "Mercari",
+    note: "Mercari's current schedule (listings created or updated on or after January 6, 2025) charges a single 10% selling fee on the item price plus any buyer-paid shipping, with no separate payment processing fee -- a still-unedited older listing may instead be on the pre-2025 schedule, which `ventures/mercari-fee-calculator`'s own schedule comparison covers and this page does not model. Sell-through and days to sell are illustrative starting points, not a claim about Mercari velocity.",
+    // Matches ventures/mercari-fee-calculator's own SELLING_FEE_RATE (10%,
+    // current schedule, as of September 2026). Two tools in one portfolio
+    // printing different fee assumptions for the same marketplace is a
+    // credibility problem, so `channel-parity.test.mjs` asserts these stay
+    // equal by importing that calculator's own constant rather than
+    // restating it, the same rule the Reverb, TikTok Shop, Whatnot, Poshmark
+    // and StockX rows below follow.
+    commissionRate: 10,
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions. Mercari skews toward lower-priced,
+    // casual and used goods, so this starts a little above eBay's.
+    returnRate: 10,
+    returnShippingCost: 6,
+    resellableRate: 88,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: a lower average price point tends
+    // to move faster than a general marketplace listing of the same kind.
+    sellThroughPct: 55,
+    daysToSell: 18,
+    listingRenewalDays: 0,
+  },
+  {
     id: "reverb",
     label: "Reverb (musical gear)",
     note: "Off by default because it only applies to instruments and audio gear — turn it on if that is what you sell. Reverb bills the selling fee on the item price only (not on shipping charged) and payment processing separately, which is why the processor rate is not zero here the way it is for eBay. Sell-through and days to sell are illustrative starting points, not a claim about Reverb velocity.",
@@ -341,7 +370,7 @@ export const CHANNEL_PRESETS = [
   {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Mercari, Depop, GOAT, a craft fair, a wholesale account. Poshmark and StockX have their own rows above.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Depop, GOAT, a craft fair, a wholesale account. Mercari, Poshmark and StockX have their own rows above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,
