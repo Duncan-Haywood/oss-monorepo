@@ -33,9 +33,9 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 554688 bytes
-#   portfolio-front-tools-1: 104 files, 550542 bytes
-#   portfolio-front-tools-2: 150 files, 555027 bytes
+#   portfolio-front-tools-0: 133 files, 553416 bytes
+#   portfolio-front-tools-1: 104 files, 556936 bytes
+#   portfolio-front-tools-2: 151 files, 555426 bytes
 #   portfolio-front-tools-3: 135 files, 552696 bytes
 #   portfolio-front-tools-4: 134 files, 556034 bytes
 #   portfolio-front-tools-5: 127 files, 556872 bytes
@@ -180,6 +180,7 @@ configMapGenerator:
       - str-host-payout-calculator__share.mjs.gz=str-host-payout-calculator__share.mjs.gz
       - str-host-payout-calculator__usage.mjs.gz=str-host-payout-calculator__usage.mjs.gz
       - str-host-payout-calculator__vs-airbnb-earnings-estimator.html.gz=str-host-payout-calculator__vs-airbnb-earnings-estimator.html.gz
+      - str-host-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz=str-host-payout-calculator__vs-tracking-payouts-in-a-spreadsheet.html.gz
       - pool-route-pricing__calc.mjs.gz=pool-route-pricing__calc.mjs.gz
       - pool-route-pricing__how-much-to-charge-for-pool-service.html.gz=pool-route-pricing__how-much-to-charge-for-pool-service.html.gz
       - pool-route-pricing__index.html.gz=pool-route-pricing__index.html.gz
@@ -205,12 +206,12 @@ configMapGenerator:
       - ebay-fee-calculator__is-an-ebay-store-worth-it.html.gz=ebay-fee-calculator__is-an-ebay-store-worth-it.html.gz
       - ebay-fee-calculator__is-ebay-authenticity-guarantee-worth-it.html.gz=ebay-fee-calculator__is-ebay-authenticity-guarantee-worth-it.html.gz
       - ebay-fee-calculator__is-ebay-managed-returns-worth-it.html.gz=ebay-fee-calculator__is-ebay-managed-returns-worth-it.html.gz
-      - ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html.gz=ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html.gz=ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html.gz
       - ebay-fee-calculator__is-ebay-standard-envelope-worth-it.html.gz=ebay-fee-calculator__is-ebay-standard-envelope-worth-it.html.gz
       - ebay-fee-calculator__is-ebay-top-rated-plus-worth-it.html.gz=ebay-fee-calculator__is-ebay-top-rated-plus-worth-it.html.gz
       - ebay-fee-calculator__share.mjs.gz=ebay-fee-calculator__share.mjs.gz
@@ -314,12 +315,12 @@ configMapGenerator:
       - reverb-fee-calculator__usage.mjs.gz=reverb-fee-calculator__usage.mjs.gz
       - reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz=reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz
       - reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz=reverb-fee-calculator__vs-tracking-offers-in-a-spreadsheet.html.gz
-      - 3pl-quote-normalizer__LICENSE.gz=3pl-quote-normalizer__LICENSE.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - 3pl-quote-normalizer__LICENSE.gz=3pl-quote-normalizer__LICENSE.gz
       - 3pl-quote-normalizer__calc.mjs.gz=3pl-quote-normalizer__calc.mjs.gz
       - 3pl-quote-normalizer__compare.html.gz=3pl-quote-normalizer__compare.html.gz
       - 3pl-quote-normalizer__compare.mjs.gz=3pl-quote-normalizer__compare.mjs.gz
