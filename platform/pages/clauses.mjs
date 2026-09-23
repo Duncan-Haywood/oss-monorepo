@@ -860,6 +860,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (Etsy's own Profit Calculator) and carries its own "not affiliated"
   // clause.
   'etsy-profit-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $4/sq ft encapsulation special" -- a generic
+  // pricing habit every waterproofing contractor already meets, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor at all -- distinct from this venture's own vs-quoteiq.html,
+  // which does name a product and carries its own "not affiliated"
+  // clause. Same reasoning as the other vs-a-flat-*-special pages above.
+  'crawl-space-encapsulation-bid-calculator/vs-a-flat-4-dollar-sq-ft-special.html',
   // Compares against "a flat $3,999 house special" -- a generic postcard
   // pricing pattern painting companies of many different names advertise,
   // not one specific company or product this could be mistaken for. The
