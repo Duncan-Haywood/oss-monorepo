@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 123 files, 556530 bytes
 #   portfolio-front-tools-13: 134 files, 554347 bytes
 #   portfolio-front-tools-14: 98 files, 555926 bytes
-#   portfolio-front-tools-15: 114 files, 550796 bytes
+#   portfolio-front-tools-15: 115 files, 556084 bytes
 #   portfolio-front-tools-16: 103 files, 463050 bytes
 #   portfolio-front-tools-17: 49 files, 265801 bytes
 #
@@ -2055,6 +2055,7 @@ configMapGenerator:
       - stair-lift-bid-calculator__should-i-expedite-a-stair-lift-for-hospital-discharge.html.gz=stair-lift-bid-calculator__should-i-expedite-a-stair-lift-for-hospital-discharge.html.gz
       - stair-lift-bid-calculator__should-i-install-a-customer-supplied-stair-lift.html.gz=stair-lift-bid-calculator__should-i-install-a-customer-supplied-stair-lift.html.gz
       - stair-lift-bid-calculator__usage.mjs.gz=stair-lift-bid-calculator__usage.mjs.gz
+      - stair-lift-bid-calculator__vs-a-flat-rate-stair-lift-special.html.gz=stair-lift-bid-calculator__vs-a-flat-rate-stair-lift-special.html.gz
       - stair-lift-bid-calculator__vs-autovu.html.gz=stair-lift-bid-calculator__vs-autovu.html.gz
       - standby-generator-bid-calculator__calc.mjs.gz=standby-generator-bid-calculator__calc.mjs.gz
       - standby-generator-bid-calculator__how-much-to-charge.html.gz=standby-generator-bid-calculator__how-much-to-charge.html.gz
