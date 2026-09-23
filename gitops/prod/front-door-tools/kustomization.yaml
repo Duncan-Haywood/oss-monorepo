@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 118 files, 549352 bytes
 #   portfolio-front-tools-11: 112 files, 542336 bytes
 #   portfolio-front-tools-12: 128 files, 554697 bytes
-#   portfolio-front-tools-13: 131 files, 547363 bytes
+#   portfolio-front-tools-13: 132 files, 552110 bytes
 #   portfolio-front-tools-14: 109 files, 554229 bytes
 #   portfolio-front-tools-15: 105 files, 552983 bytes
 #   portfolio-front-tools-16: 127 files, 553796 bytes
@@ -1842,6 +1842,7 @@ configMapGenerator:
       - popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz=popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz
       - popcorn-ceiling-bid-calculator__index.html.gz=popcorn-ceiling-bid-calculator__index.html.gz
       - popcorn-ceiling-bid-calculator__usage.mjs.gz=popcorn-ceiling-bid-calculator__usage.mjs.gz
+      - popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
       - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz
       - poshmark-fee-calculator__calc.mjs.gz=poshmark-fee-calculator__calc.mjs.gz
       - poshmark-fee-calculator__how-much-does-poshmark-take.html.gz=poshmark-fee-calculator__how-much-does-poshmark-take.html.gz
