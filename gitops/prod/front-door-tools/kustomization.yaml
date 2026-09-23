@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 127 files, 556910 bytes
 #   portfolio-front-tools-13: 129 files, 556399 bytes
 #   portfolio-front-tools-14: 128 files, 555848 bytes
-#   portfolio-front-tools-15: 101 files, 549364 bytes
+#   portfolio-front-tools-15: 102 files, 552810 bytes
 #   portfolio-front-tools-16: 118 files, 554159 bytes
 #   portfolio-front-tools-17: 122 files, 549531 bytes
 #   portfolio-front-tools-18: 49 files, 266591 bytes
@@ -2113,6 +2113,7 @@ configMapGenerator:
       - siding-bid-calculator__usage.mjs.gz=siding-bid-calculator__usage.mjs.gz
       - siding-bid-calculator__vs-jobnimbus.html.gz=siding-bid-calculator__vs-jobnimbus.html.gz
       - sign-language-interpreter-rate-calculator__calc.mjs.gz=sign-language-interpreter-rate-calculator__calc.mjs.gz
+      - sign-language-interpreter-rate-calculator__how-much-should-i-charge-for-an-interpreting-assignment.html.gz=sign-language-interpreter-rate-calculator__how-much-should-i-charge-for-an-interpreting-assignment.html.gz
       - sign-language-interpreter-rate-calculator__index.html.gz=sign-language-interpreter-rate-calculator__index.html.gz
       - sign-language-interpreter-rate-calculator__usage.mjs.gz=sign-language-interpreter-rate-calculator__usage.mjs.gz
       - sitemap-lastmod-freshness-check__check.mjs.gz=sitemap-lastmod-freshness-check__check.mjs.gz
