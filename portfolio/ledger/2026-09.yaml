@@ -38560,3 +38560,94 @@ entries:
         21/21 pass (unaffected by this change; run per the starvation
         checklist). YAML-validated the workflow edit with `yaml.safe_load`.
     mrr_end: 0
+  - venture: firebase-rules-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `vs-requesting-the-url-by-hand.html`, this venture's first
+        generic-method comparison page (budget: 1, 0 used before this):
+        pasting a Realtime Database URL into a browser or curl-ing the
+        Firestore REST API by hand catches an obvious open root but pulls
+        real field values to prove it, can't tell a blocked path from a
+        genuinely empty one without reading the HTTP status, and gets the
+        Firestore endpoint's URL shape wrong on a first attempt. Wired into
+        `index.html`, `README.md`, and `sitemap.xml`; exempted from the
+        nominative-fair-use clause in `platform/pages/clauses.mjs` (names
+        no product). Picked this venture from `surface-budget.mjs`'s own
+        listing, filtered to the (small) set of ventures with zero
+        generic-method or named-product comparison pages, to avoid
+        duplicating the comparison-page work already landing from several
+        other concurrent sessions this session (`#5292`, `#5296`, `#5301`,
+        `#5307`, `#5308` all merged to `main` during this run).
+      - >-
+        First filename choice (`vs-checking-it-by-hand.html`) collided
+        with an unrelated existing page,
+        `agent-instructions-drift-check/vs-checking-it-by-hand.html`.
+        `front-door.test.mjs`'s "every rendered per-product comparison page
+        is mounted by the kustomization" test caught it: `front-door.mjs`
+        groups same-slug `vs-*.html` pages across ventures into a shared
+        cross-tool page requiring a hand-kept mount line in
+        `gitops/prod/kustomization.yaml`, which the first draft never got.
+        Renamed to the unique `vs-requesting-the-url-by-hand.html` instead
+        of hand-editing that mount line, since the two pages describe
+        different tools' own methods, not one shared comparison the
+        catalogue should merge -- `node --test
+        platform/marketing/front-door.test.mjs
+        platform/marketing/front-door-tools.test.mjs`: 216/216 after the
+        rename, and no `gitops/prod/kustomization.yaml` edit needed.
+      - >-
+        The scoped browser check (`browser_checks.py --only
+        firebase-rules-check`) then caught a second, real defect the
+        `node --test` suites cannot see: the new page's comparison table
+        scrolled the whole document sideways at a 360px viewport despite
+        being wrapped in `.pf-table-scroll` (the mechanism
+        `platform/pages/reflow.mjs` documents as fixing exactly this for
+        909 other pages). Bisected by hiding each top-level element in a
+        real headless Chromium rather than guessing from the table's own
+        width: hiding the table entirely left the document just as wide,
+        so the table was never the cause despite `sideways.mjs`'s own
+        diagnostic naming it as "widest: table". The actual cause was one
+        FAQ answer's unbroken path fragment
+        (`documents/(default)/documents/<collection>`, no spaces for the
+        line-breaking algorithm to use) forcing the paragraph, and with it
+        the document, wide. Fixed with `<wbr>` between path segments
+        (`wbr` is on `faq-visible.test.mjs`'s own inline-tag allowlist, so
+        it contributes no text and the JSON-LD-vs-visible-copy check stays
+        green) rather than rewording the sentence. Also shortened the
+        table's own cell copy while investigating, which was not the fix
+        but is a genuine improvement given the table's original width was
+        needlessly close to the 360px budget. Re-verified with the actual
+        checker, not just the isolated repro: `browser_checks.py --only
+        firebase-rules-check` went from `2 failed check(s)` (`sideways`,
+        and a since-unreproduced `journey`) to `7/8 passed, 1 skipped
+        (highlight -- not applicable, no picker)`.
+      - >-
+        Full verification after the fix, on a tree confirmed stable (no
+        concurrent edit) via `git status` before and after each sweep --
+        `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs`: 1281/1281 (first pass, before the
+        rename, showed a stale-mirror race from running `regen.mjs`
+        concurrently with an earlier `node --test` invocation of this same
+        suite -- re-ran clean once the two were sequenced, per CLAUDE.md's
+        own warning against exactly that race). `node --test
+        'ventures/firebase-rules-check/**/*.test.mjs'`: 56/56.
+        `checklist_coverage.py`, `sync_tree_counts.py --check`,
+        `node platform/pages/clauses.mjs`, `node
+        platform/pages/surface-budget.mjs --check`,
+        `python3 platform/ci/publish_surface.py --check`,
+        `node platform/marketing/regen.mjs --verify`: all clean.
+        `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped
+        (environmental, GitHub-hosted-runner-only) -- installed
+        `nginx-light` and `openssh-client` via `apt-get update && apt-get
+        install` first, per CLAUDE.md, clearing 24 of the 25 skips
+        `guard_state.py --require-runnable` had flagged fixable.
+        `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`:
+        446/446. All 20 `platform/ci`+`agent_review` unittest modules:
+        pass. `run_workflow_locally.py --for-changes`:
+        `portfolio-validate.yml` 70/70 run steps passed on a re-run taken
+        after the tree stopped changing (a first attempt, run while this
+        session was still editing files, correctly reported itself
+        `UNSTABLE CHECKOUT` and was discarded rather than trusted).
+    mrr_end: 0

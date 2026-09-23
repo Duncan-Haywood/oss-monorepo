@@ -994,6 +994,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
   'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
+  // Compares against "pasting a Realtime Database URL into a browser or
+  // curl-ing the Firestore REST API by hand" -- a generic manual habit any
+  // developer with the project ID already has, not a company or product
+  // this could be mistaken for. Same reasoning as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html exemption above.
+  'firebase-rules-check/vs-requesting-the-url-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
