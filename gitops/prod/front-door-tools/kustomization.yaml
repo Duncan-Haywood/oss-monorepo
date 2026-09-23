@@ -39,8 +39,8 @@
 #   portfolio-front-tools-3: 133 files, 551711 bytes
 #   portfolio-front-tools-4: 139 files, 556687 bytes
 #   portfolio-front-tools-5: 127 files, 551428 bytes
-#   portfolio-front-tools-6: 130 files, 556816 bytes
-#   portfolio-front-tools-7: 122 files, 547530 bytes
+#   portfolio-front-tools-6: 130 files, 556725 bytes
+#   portfolio-front-tools-7: 123 files, 551326 bytes
 #   portfolio-front-tools-8: 138 files, 554149 bytes
 #   portfolio-front-tools-9: 116 files, 555995 bytes
 #   portfolio-front-tools-10: 115 files, 555808 bytes
@@ -911,6 +911,7 @@ configMapGenerator:
       - certified-payroll-calculator__index.html.gz=certified-payroll-calculator__index.html.gz
       - certified-payroll-calculator__share.mjs.gz=certified-payroll-calculator__share.mjs.gz
       - certified-payroll-calculator__usage.mjs.gz=certified-payroll-calculator__usage.mjs.gz
+      - certified-payroll-calculator__vs-doing-it-by-hand.html.gz=certified-payroll-calculator__vs-doing-it-by-hand.html.gz
       - certified-payroll-calculator__vs-lcptracker.html.gz=certified-payroll-calculator__vs-lcptracker.html.gz
       - childcare-tuition-calculator__calc.mjs.gz=childcare-tuition-calculator__calc.mjs.gz
       - childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz=childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz
@@ -1015,12 +1016,12 @@ configMapGenerator:
       - cron-dst-drift-check__engine.mjs.gz=cron-dst-drift-check__engine.mjs.gz
       - cron-dst-drift-check__index.html.gz=cron-dst-drift-check__index.html.gz
       - cron-dst-drift-check__usage.mjs.gz=cron-dst-drift-check__usage.mjs.gz
-      - cron-dst-drift-check__vs-checking-a-dst-calendar-by-hand.html.gz=cron-dst-drift-check__vs-checking-a-dst-calendar-by-hand.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cron-dst-drift-check__vs-checking-a-dst-calendar-by-hand.html.gz=cron-dst-drift-check__vs-checking-a-dst-calendar-by-hand.html.gz
       - cron-dst-drift-check__why-cron-jobs-break-across-dst.html.gz=cron-dst-drift-check__why-cron-jobs-break-across-dst.html.gz
       - crown-molding-bid-calculator__calc.mjs.gz=crown-molding-bid-calculator__calc.mjs.gz
       - crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz=crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz
