@@ -467,7 +467,17 @@ const RELATIVE_SELF = relative(
 // throughout this list. Verified the way this file's error message
 // prescribes: exactly one added `usage.mjs`
 // (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 313;
+//
+// 313 -> 314: `graphql-introspection-exposure-check` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `graphql-introspection-exposure-check-usage` storage name). This branch
+// only ever knew its own predecessor's number (313) until this merge --
+// the same ordinary collision shape recorded throughout this list.
+// Verified the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/graphql-introspection-exposure-check/usage.mjs`)
+// and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 314;
 
 let counter = 0;
 function fixture(source) {
