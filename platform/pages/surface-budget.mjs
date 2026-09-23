@@ -94,6 +94,18 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'duplication does. Allowed at two, which still blocks a fourth. Folding them into one page is worth doing ' +
       'when someone next edits either.',
   },
+  'shopify-fee-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-23: two sessions each added a generic-method page for this venture within the same ' +
+      'window, #5200 ("vs. a flat card-fee guess", a mental-math estimate) and this session\'s own ' +
+      '"vs. doing it in a spreadsheet" (a hand-built formula). Both landed cleanly against an overlap check ' +
+      'that was correct when it ran -- the collision is the one surface-budget.mjs\'s own docstring already ' +
+      'describes for overtime-pay-calculator, from a different pair of angles: a merchant who never builds a ' +
+      'formula at all (guesses a flat rate) versus one who builds a formula and gets specific steps wrong ' +
+      '(the third-party transaction fee, plan allocation, target-margin and break-even algebra). Neither ' +
+      'duplicates the other\'s worked example or conclusion. Allowed at two, which still blocks a third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */
