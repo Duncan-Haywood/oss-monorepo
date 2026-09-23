@@ -93,3 +93,50 @@ test("the Keeper comparison page links back, names the incumbent honestly, and c
   assert.match(vsKeeper, /Best-effort hosting, no SLA/);
   assert.match(vsKeeper, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+test("index links the generic-method comparison page and the sitemap lists it too", () => {
+  const html = page("index.html");
+  const sitemap = page("sitemap.xml");
+  assert.match(html, /vs-flat-percentage-rule\.html/);
+  assert.match(sitemap, /vs-flat-percentage-rule\.html/);
+});
+
+test("the flat-percentage-rule comparison page links back, names no specific company or product, and carries the standard footer", () => {
+  const vsFlatRule = page("vs-flat-percentage-rule.html");
+  assert.match(vsFlatRule, /<a href="\.\/">/);
+  // Generic-method page: compares against a flat 25-30% set-aside habit,
+  // not a company or product this could be mistaken for -- so it carries
+  // no not-affiliated clause and no trademark (see clauses.mjs
+  // COMPARISON_DISCLAIMER_EXEMPT), and states no dollar figure.
+  const text = vsFlatRule.replace(/<[^>]+>/g, " ");
+  assert.doesNotMatch(text, /\$\d/);
+  assert.match(vsFlatRule, /No warranty/);
+  assert.match(vsFlatRule, /Best-effort hosting, no SLA/);
+  assert.match(vsFlatRule, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test("the flat-percentage-rule page does not disparage the flat-percentage habit", () => {
+  const text = page("vs-flat-percentage-rule.html").replace(/<[^>]+>/g, " ").toLowerCase();
+  for (const word of ["worse", "rip-off", "ripoff", "overpriced", "scam", "useless"]) {
+    assert.ok(!text.includes(word), `disparaging word on the page: ${word}`);
+  }
+});
+
+test("the flat-percentage-rule page adds no third-party script, font, stylesheet or network call", () => {
+  const html = page("vs-flat-percentage-rule.html");
+  assert.equal(/<script[^>]+src=/i.test(html), false);
+  assert.equal(/<link[^>]+href="https?:/i.test(html), false);
+  assert.equal(/@import|fonts\.googleapis|cdn\./i.test(html), false);
+});
+
+test("the flat-percentage-rule FAQPage schema matches the visible FAQ headings", () => {
+  const html = page("vs-flat-percentage-rule.html");
+  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, "no FAQPage schema found");
+  const schema = JSON.parse(match[1]);
+  assert.equal(schema["@type"], "FAQPage");
+  assert.ok(schema.mainEntity.length > 0);
+  for (const question of schema.mainEntity) {
+    assert.ok(html.includes(`<h3>${question.name}</h3>`), `FAQ schema question "${question.name}" has no matching <h3> on the page`);
+  }
+});

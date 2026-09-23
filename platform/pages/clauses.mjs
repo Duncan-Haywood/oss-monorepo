@@ -786,6 +786,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-buildertrend.html, which does name a product and carries its
   // own "not affiliated" clause.
   'change-order-margin-calculator/vs-a-rough-lump-sum.html',
+  // Compares against "setting aside a flat 25-30% of every payment" -- the
+  // savings-habit rule of thumb freelancers already hear, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-keeper.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'quarterly-estimated-tax-calendar/vs-flat-percentage-rule.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
