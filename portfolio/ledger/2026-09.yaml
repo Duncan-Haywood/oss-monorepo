@@ -37636,6 +37636,74 @@ entries:
         github-pages-branch-route reading per CLAUDE.md's standing job for
         any merge touching a served surface.
     mrr_end: 0
+  - venture: supabase-rls-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per DIRECTION.md's "fleet-parity trap"
+        section: with the marketing-surface budget already saturated
+        across the catalogue (checked via surface-budget.mjs -- no venture
+        has zero pages left to fill) and every cheap verification-only
+        avenue (node --test across all 325 existing ventures, the fresh
+        browser/contrast sweep another concurrent session had just
+        recorded, pages_state.py current) coming back clean, a new venture
+        with real channel evidence outranked adding a 2nd/3rd comparison
+        page to an already-covered venture. WebSearch surfaced a genuinely
+        current, well-documented niche: CVE-2025-48757 (170+ apps built
+        with AI app-builder platforms, most reported for Lovable, exposed
+        because generated Supabase tables shipped with Row Level Security
+        off), multiple dated 2026 guide/incident posts, and a named hosted
+        competitor (VibeAppScanner) building a paid response to the same
+        problem -- evidence of demand, not evidence the niche is unserved,
+        the same reading this portfolio already gives Corsy against
+        cors-misconfig-check. duplicate_check.py scored every existing
+        venture at 0.16 or below.
+      - >-
+        Shipped ventures/supabase-rls-check: a free browser tool + CLI
+        that reads a Supabase project's own PostgREST schema listing, then
+        sends one real, read-only GET per table using the anon key the
+        user provides, and names which tables return real rows to an
+        unauthenticated request. The browser page runs the actual check
+        itself (PostgREST answers with Access-Control-Allow-Origin: *,
+        unlike cors-misconfig-check's sibling shape where a forbidden
+        request header forces a CLI-only probe); probe.mjs and analyze.mjs
+        are shared unmodified between the page and the CLI. Liability was
+        the one dimension that could not just copy the sibling checkers'
+        posture -- this is the first one that reads real row data rather
+        than only headers or a manifest -- so it is scored at 6 rather
+        than the family's typical 7-8, with a named mitigation: GET only,
+        capped to one row per table, never rendering or storing actual row
+        values (only counts and column names), and any response the tool
+        can't classify is reported as an error rather than guessed at in
+        either direction. Full pipeline write-up at
+        portfolio/pipeline/candidates/supabase-rls-check.md; scored in
+        candidates.yaml and portfolio/scoring/venture-scores.yaml; filed
+        in the front-door's "CI checks & developer gates" category rather
+        than the catch-all, with a reciprocal link from
+        cors-misconfig-check closing the orphan gap
+        platform/pages/siblings.test.mjs guards against.
+      - >-
+        Verified locally rather than assuming CI: venture's own 54/54
+        tests; platform/marketing + platform/pages suites 1281/1281 (two
+        full runs, the first surfacing three real defects this session
+        fixed -- a JSON-LD/visible-text punctuation and wording mismatch
+        on the guide page, the new venture landing in the front-door
+        catch-all until build.mjs's category regex was extended, and a
+        crawlable-orphan gap until the reciprocal cors-misconfig-check
+        link was added); gitops/tests 637 passed/1 skipped after also
+        running sync_tree_counts.py and gitops/ci/sync_readme_counts.py
+        (both drifted from a concurrent venture graduating in the same
+        window); all 15 platform/ci unittest modules and agent_review
+        21/21; portfolio/{ledger,scoring,router,usage,pipeline} +
+        infra/tests 446 passed, after adding the venture-scores.yaml row
+        portfolio/router/allocate.py's merit scoring requires for every
+        VENTURE.yaml (the second of two real defects that pytest run
+        found); clauses.mjs, surface-budget.mjs, router/validate.py,
+        validate_workflows.py, validate_candidates.py,
+        validate_doc_consistency.py, publish_surface.py --check: all
+        clean. regen.mjs --verify current after regenerating.
+    mrr_end: 0
   - venture: estate-sale-net-proceeds-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -37859,4 +37927,49 @@ entries:
         artifact of the replay tool on this workflow, not a defect in this
         branch's files, none of which touch `platform/pages/build.mjs` or
         the Pages workflow.
+    mrr_end: 0
+  - venture: fireplace-insert-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >
+        Added vs-a-flat-2499-installed-special.html, a generic-method
+        comparison page (the venture had 0, room for 1 under
+        surface-budget.mjs's budget). The angle was already named in
+        calc.mjs's own file-header comment: a flat "$2,499 installed"
+        gas-insert special treats a small gas cassette with an existing
+        stub the same as a large wood insert needing a 30-foot liner, a
+        new hearth, and a two-story stack. Priced two of the venture's own
+        JOB_PRESETS at its shipped shop-rate defaults: the small-gas
+        preset the special is named for already walks away at $3,133.18
+        -- $634.18 above the $2,499 the special charges, before any
+        profit -- and the large-wood preset walks away at $10,120.40,
+        $7,621.40 above it. Linked from index.html's footer, listed in
+        sitemap.xml, registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (names no vendor). Merged origin/main
+        (4 concurrent commits, including #5236's crawl-space-encapsulation
+        comparison page) and resolved the generated front-door mirror
+        conflicts by regenerating from the merged sources rather than
+        picking a side, per resolve-mirror-merge.sh -- extended by hand to
+        cover both gitops/prod/front-door-tools/ and gitops/prod/front-door/,
+        since this merge's conflicts spanned both generator output
+        directories and the script only resolves the first.
+        `node --test` in the venture plus two sibling ventures pulled in
+        by the same merge: 299/299, including two tests pinning the four
+        dollar figures above directly against calc.mjs rather than only
+        against the page's own prose. Full platform/marketing/
+        platform/pages suite: 1281/1281 (first run caught the mirror
+        going stale for both this change and the already-merged #5240;
+        clean after regen.mjs). gitops/tests: 613 passed, 25 skipped
+        (environmental). All platform/ci unittest modules and
+        agent_review's test_review: clean. portfolio/ledger,
+        portfolio/scoring, portfolio/router, portfolio/usage,
+        portfolio/pipeline, infra/tests: 446 passed. All 8 standalone
+        validators portfolio-validate.yml runs that no test file imports
+        (router/validate.py, front-door-tools.mjs --headroom,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py,
+        score_ventures.py --check, validate_usage.py): clean.
+        checklist_coverage.py, clauses.mjs, surface-budget.mjs --check,
+        sync_tree_counts.py: all clean. PR #5249.
     mrr_end: 0
