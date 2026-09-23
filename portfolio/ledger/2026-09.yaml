@@ -37858,6 +37858,60 @@ entries:
         by regenerating from the merged sources rather than picking a side,
         per platform/marketing/resolve-mirror-merge.sh.
     mrr_end: 0
+  - venture: flat-roof-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, vs-a-flat-650-per-square-
+        special.html. surface-budget.mjs showed the venture at 0/1
+        generic-method comparison pages (only a named-product page,
+        vs-acculynx.html, and a pricing guide existed). calc.mjs's own
+        docstring and index.html's own shipped FAQ already name the "$650 a
+        square" coupon a competitor advertises, so this page builds the
+        worked-example angle directly from the venture's own two built-in
+        JOB_PRESETS: the 12-square TPO-45 recover on a one-story garage (the
+        preset labelled "the $650/square special") prices at $6,527.72 --
+        $543.98 per square, under the $650 headline once labor and margin
+        are counted -- while the 40.04-square TPO-80 commercial tear-off
+        with two polyiso layers, 80 lf of parapet, six drains, and four
+        HVAC curbs costs $47,934.71 to run before profit and prices at
+        $63,912.94. Quoting that job at the flat $650-a-square rate
+        reproduces $26,026.00, which is $21,908.71 below its own break-even
+        cost. All figures computed directly from calc.mjs via the same
+        membrane/scope/story/geometry kit logic index.html's own
+        applyJobPreset handler uses, so the page's own test pins them
+        against the calculator rather than only against its own prose.
+      - >-
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no
+        roofing company). Wired into index.html's hint line and
+        sitemap.xml.
+      - >-
+        regen.mjs --verify caught the front-door mirror already stale on
+        `main` *before* this change -- the prior merge (#5240,
+        exterior-painting-bid-calculator's comparison page) landed without
+        running regen.mjs, leaving 7 artifacts (including its own new vs-
+        page) unmirrored. Fixed both that pre-existing gap and this
+        venture's new page in one `regen.mjs` run; re-verified clean
+        afterward. No manual kustomization.yaml edit was needed -- this
+        page's wording did not cross front-door.mjs's two-venture mirroring
+        threshold the way drywall-bid-calculator's did in #5239.
+      - >-
+        Verified: node --test in the venture 138/138. Full platform/
+        marketing + platform/pages suite: 1281/1281. `python3 -m pytest
+        gitops/tests -q`: 637 passed, 1 skipped, after installing
+        nginx-light and openssh-client via `apt-get update && apt-get
+        install` per CLAUDE.md's own note about the missing `apt-get
+        update`. `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests
+        -q`: 446 passed. All 27 platform/ci unittest modules and
+        agent_review's test_review (21/21): clean. checklist_coverage.py,
+        sync_tree_counts.py, check_no_payment_code.py, and surface-
+        budget.mjs --check: clean. Confirmed ci_starvation.py against the
+        Portfolio validate run for the prior merge on `main` (run
+        35884984119: runner_id 0, 3s, no steps) before relying on this
+        local checklist rather than CI.
+    mrr_end: 0
   - venture: gutter-guard-bid-calculator
     agent_spend_usd: null
     human_hours: 0
