@@ -1067,6 +1067,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-storagetreasures.html, which names a specific marketplace and
   // already carries the "not affiliated" clause for that reason.
   'storage-auction-max-bid-calculator/vs-bidding-a-flat-percentage.html',
+  // Compares against "a spreadsheet" -- a generic method every contractor
+  // already has access to, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-levelset.html, which names
+  // Levelset/Procore and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other vs-spreadsheet pages above
+  // (e.g. saas-seat-true-up's).
+  'retainage-cashflow-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
