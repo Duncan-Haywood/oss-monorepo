@@ -2079,7 +2079,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # after a gym or studio's percentage or flat cost structure, with a
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
-    total = 325  # `infra/OWNER_CHECKLIST.md`'s own "N of the 325 tools" wording.
+    #
+    # 326 since this merge: `actions-secrets-inherit-check` graduated -- a
+    # browser-local and CLI checker for GitHub Actions `secrets: inherit`
+    # calls to an external reusable workflow or a fork-reachable job, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 326  # `infra/OWNER_CHECKLIST.md`'s own "N of the 326 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
