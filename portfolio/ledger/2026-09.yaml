@@ -36474,3 +36474,60 @@ entries:
         (runner_id: 0 across all 16 check runs), merged. Published the
         gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current.
+  - venture: dog-walking-route-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        surface-budget.mjs --for showed 0 generic-method comparison pages (a
+        vs-rover.html named-product page already shipped) and 1 guide, so
+        added vs-a-flat-per-walk-rate.html at the venture's own generic-method
+        budget (1). Names no company (a flat per-walk rate, not a
+        marketplace app), so exempted in COMPARISON_DISCLAIMER_EXEMPT in
+        platform/pages/clauses.mjs rather than carrying a not-affiliated
+        clause, same reasoning as the sibling vs-a-flat-per-vehicle-price.html
+        and vs-a-flat-per-breed-price.html exemptions. Worked-example table is
+        computed from calc.mjs's own shipped DEFAULTS, comparing the venture's
+        own stated $20-a-walk flat rate against a nearby stop (10 drive min,
+        4 mi) and a farther one (25 drive min, 12 mi): the flat rate clears
+        cost by $0.57 nearby but loses $10.79 on the farther stop, pinned by a
+        test that re-derives every figure from calc.mjs rather than
+        hard-coding them. Linked from index.html, listed in sitemap.xml.
+        `node --test` in the venture: 80/80. `node platform/pages/clauses.mjs
+        --all`: clean. `node platform/marketing/regen.mjs --verify`: current
+        (after regen.mjs -- ran three times across the session to absorb
+        main advancing by 6, then 9, then further commits mid-session;
+        resolved gitops/prod/front-door* and front-door-tools* conflicts each
+        time with regen.mjs after checking out --ours to clear the markers,
+        never by hand-picking a side, per platform/marketing/
+        resolve-mirror-merge.sh's own reasoning -- the front-door/ half of
+        the mirror isn't covered by that script, so it needed the same
+        checkout+regen treatment applied by hand). `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1281/1281,
+        run four times across the session (twice before the first push,
+        twice more after absorbing each subsequent main advance), always
+        clean. `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped,
+        run twice. `checklist_coverage.py`, all 15 platform/ci unittest
+        modules, agent_review's test_review (21/21), `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` (446 passed), and all 8
+        portfolio-validate.yml validators: clean. Also ran the whole-catalogue
+        browser/axe sweep (browser_checks.py --record, all 8 checks: sideways,
+        presets, roundtrip, highlight all `ok`) but it timed out mid-`contrast`
+        after 1900s against 1259 pages -- recording here rather than silently
+        dropping it, since the catalogue has grown past what a single
+        session's timeout budget can finish; a future session should resume
+        it with a longer budget or `--only` a narrower slice. Opened #5166;
+        main advanced twice more while landing it (merge conflicts in the
+        generated front-door mirror both times, resolved the same way each
+        time) before `ci_starvation.py`/`indexnow_state.py` confirmed Actions
+        starved (0 workflow runs dispatched on the PR at all, and the last 10
+        publish-pages-branch.yml runs all runner_id: 0) and it merged on the
+        local checklist. Published the gh-pages snapshot (publish-branch.sh,
+        #5172) and recorded github-pages-branch-route as current. Also fixed
+        two of my own commits' authorship/signature mid-session (a stray
+        `git filter-branch` first rewrote unrelated upstream commit hashes
+        too, even though their content was untouched -- reverted that via a
+        backup branch and redid it with git commit-tree/checkout on just the
+        two commits that needed it, verified byte-identical trees throughout
+        via git diff).
