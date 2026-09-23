@@ -1008,6 +1008,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
   'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
+  // Compares against "typing the URL into a browser tab and eyeballing the
+  // response" -- a manual habit every developer already has, not a company
+  // or product this could be mistaken for. This page names no git-hosting
+  // platform, IDE, or scanning tool.
+  'dotenv-exposure-check/vs-checking-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

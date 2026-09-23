@@ -287,14 +287,17 @@
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
   optional and never changes what the tool does.</p>
   <p>A publicly readable <code>.git</code> directory is one deployed-artifact secret exposure;
+  <a href="../dotenv-exposure-check/">Dotenv Exposure Checker</a> asks the same question of a
+  site's own <code>.env</code> file -- a different, and often more directly damaging, exposure
+  since a dotenv file holds live credentials rather than git-internal plumbing.
   <a href="../docker-build-secrets-check/">Docker Build Secrets Checker</a> asks the same "is a
   secret about to be shipped" question of a container image's build layers, and
   <a href="../env-example-drift-check/">.env.example Drift Checker</a> asks whether your example
   environment file has drifted from the variables your code actually reads (a different question
-  from whether a real <code>.env</code> is exposed, which this portfolio does not yet cover).
-  Once the repository itself is not exposed, <a href="../security-headers-check/">Security
-  Headers Checker</a> and <a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a>
-  cover two response-header evidence classes worth a pass on the same site.</p>
+  from whether a real <code>.env</code> is exposed). Once the repository itself is not exposed,
+  <a href="../security-headers-check/">Security Headers Checker</a> and
+  <a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a> cover two response-header
+  evidence classes worth a pass on the same site.</p>
 </footer>
 </body>
 </html>
