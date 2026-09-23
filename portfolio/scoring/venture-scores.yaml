@@ -15937,3 +15937,58 @@ ventures:
       finding, nothing is scraped, and the tool gets strictly more useful
       to more podcasters as it scales with no customer worse off because
       another one exists.
+  - slug: subdomain-takeover-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a finding is confirmed
+      is decided by matching a live HTTP response against a fixed
+      provider fingerprint table -- a factual, deterministic
+      classification that never escalates a DNS-only match to confirmed,
+      not a model judgment.
+    basis: >-
+      Screened 2026-09-23, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, source-map-leak-check).
+      duplicate_check.py scored every existing venture, screened-out row,
+      and pipeline candidate at 0.09 or below against the final
+      description (follows a hostname's real CNAME chain over public DNS,
+      matches the target against known takeover-prone providers, confirms
+      with a live fingerprinted GET) -- nothing in the tree covers DNS
+      CNAME chains, subdomain takeover, or dangling cloud-resource
+      pointers. Autonomous ops 10 / gross margin 10: every request runs
+      from the visitor's own browser (when CORS allows) or machine (for
+      the CLI) against a DNS resolver and hostname of their choosing, so
+      serving one more user costs a static file and needs no human review
+      of any output. Distribution 7: subdomain takeover is a standard,
+      recurring HackerOne/Bugcrowd report category and a common
+      penetration-test finding, and the exposure class (a decommissioned
+      cloud resource whose DNS record was never removed) predates and
+      outlives any single provider. Time to revenue 6, defensibility 2:
+      donations-only; a CNAME-pattern table and a body-fingerprint regex
+      are genuinely easy to reimplement, so defensibility rests only on
+      the provider table's own correctness and maintenance, not on any
+      moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never attempts to claim, register, or configure
+      anything at any provider -- detection and reporting only, every
+      request is a plain DNS lookup or GET, and a finding is only ever
+      reported "confirmed" when a live response matches a specific
+      provider's own fingerprint, never escalated from a DNS-only match
+      (which is reported separately, as "unconfirmed, worth a manual
+      look"). Ethically: read-only against public DNS and a hostname's
+      own HTTP response, no crawling, no enumeration of a domain's other
+      subdomains, and the report is explicit that a clean result describes
+      only the hostnames checked, not a full DNS-zone audit.
