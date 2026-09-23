@@ -1755,3 +1755,43 @@ candidates:
       posture as every sibling checker in this family.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: subdomain-takeover-check
+    name: Subdomain takeover checker
+    doc: candidates/subdomain-takeover-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/subdomain-takeover-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      A finding is only ever reported "confirmed" when both the DNS CNAME
+      target matches a known takeover-prone provider AND a live GET request
+      to the hostname returns that specific provider's own "nothing is
+      claimed at this name" fingerprint text -- a DNS-only match is reported
+      separately as "unconfirmed, worth a manual look" and never escalated,
+      pinned by a dedicated test ("classify never confirms a takeover from
+      DNS alone"), since a CNAME pointing at a takeover-prone provider is
+      not proof of anything on its own and most such CNAMEs are legitimate.
+      Every request is a plain DNS lookup or GET; the tool never attempts to
+      claim, register, or configure anything at any provider. It only
+      checks the exact hostnames given to it -- no DNS-zone enumeration, no
+      crawling. Explicit "only run this against a hostname you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family. Measure real user
+      reports before expanding the provider table, which would raise both
+      the liability surface (more fingerprints to keep accurate) and the
+      implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
