@@ -812,6 +812,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-buildertrend.html, which does name a product and carries its
   // own "not affiliated" clause.
   'change-order-margin-calculator/vs-a-rough-lump-sum.html',
+  // Compares against "a flat $180/sf special" -- the per-square-foot
+  // pricing habit every sunroom shop is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'sunroom-bid-calculator/vs-a-flat-180-per-square-foot-special.html',
   // Compares against "doing it in a spreadsheet" -- a generic method every
   // Shopify merchant already has, not a company or product this could be
   // mistaken for. The page names no spreadsheet application and its own
