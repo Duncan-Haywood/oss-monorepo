@@ -97,6 +97,10 @@
   as <code>git-dumper</code> or GitTools. Only point it at a system you own or are authorised to
   test.
 </p>
+<p class="status-note">
+  See <a href="vs-checking-the-url-by-hand.html">this checker vs. checking the URL by hand</a> --
+  the two ways a manual look gets it wrong.
+</p>
 
 <div class="card">
   <h2>1. Run the CLI against your site</h2>
@@ -286,6 +290,9 @@
   <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
   optional and never changes what the tool does.</p>
+  <p>Already found an exposure? <a href="how-to-fix-an-exposed-git-directory.html">How to fix a publicly
+  exposed .git directory</a> covers the order that limits damage first -- block access, assume
+  full-history exposure, rotate what was ever committed, then fix the deploy step itself.</p>
   <p>A publicly readable <code>.git</code> directory is one deployed-artifact secret exposure;
   <a href="../docker-build-secrets-check/">Docker Build Secrets Checker</a> asks the same "is a
   secret about to be shipped" question of a container image's build layers, and
