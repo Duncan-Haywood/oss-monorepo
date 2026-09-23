@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 326 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 327 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-23T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>GitHub Actions secrets: inherit Check — Reusable Workflow Secret Exposure</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-secrets-inherit-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-secrets-inherit-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and find every secrets: inherit call that hands your whole secret set to an external reusable workflow, or to a job a fork can trigger. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Docker Base Image EOL Check — Is Your FROM Line Still Supported?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/docker-base-image-eol-check/"/>
@@ -357,14 +366,5 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn&#39;t defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Backflow Test Fee Calculator — Multi-Device Job Quote, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backflow-test-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/backflow-test-fee-calculator</id>
-    <published>2026-09-16T00:00:00Z</published>
-    <updated>2026-09-16T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free backflow-preventer test fee calculator: per-device test fee with a multi-device discount, a per-device report-filing fee, a travel fee, and a retest fee for failed devices. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>

@@ -533,6 +533,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page names no vendor, competing calculator, or field-service platform
   // at all.
   'shop-rate-calculator/vs-guessing-your-burden-and-overhead.html',
+  // Compares against "eyeballing the commission split against the rent
+  // check" -- the chair-side napkin habit every stylist weighing a
+  // booth-rent offer already runs, not a company or product this could be
+  // mistaken for. The page names no salon-software platform or competing
+  // calculator at all -- distinct from this venture's own vs-vagaro.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'booth-rent-vs-commission/vs-guessing-which-pays-more.html',
   // Compares against "mentally adding a flat percentage" -- a rough mental
   // habit every auction bidder already does, not a company or product this
   // could be mistaken for. The page names no specific auction house or
@@ -853,6 +860,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (Etsy's own Profit Calculator) and carries its own "not affiliated"
   // clause.
   'etsy-profit-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $3,999 house special" -- a generic postcard
+  // pricing pattern painting companies of many different names advertise,
+  // not one specific company or product this could be mistaken for. The
+  // page names no painting company at all. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // automatic-driveway-gate-bid-calculator's vs-a-flat-4500-special.html).
+  'exterior-painting-bid-calculator/vs-a-flat-3999-house-special.html',
   // Compares against "the app's own earnings screen" -- a feature every
   // gig-delivery/rideshare platform has (DoorDash, Uber, Instacart, Lyft,
   // and others alike), not one specific company or product this could be
@@ -866,6 +880,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-jobber.html, which does name a product and
   // carries its own "not affiliated" clause.
   'walk-in-shower-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "a flat price per square foot" -- the generic pricing
+  // habit the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-buildxact.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'drywall-bid-calculator/vs-a-flat-price-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
