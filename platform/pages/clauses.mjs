@@ -184,6 +184,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. Same reasoning as the other vs-flat-day-rate
   // page above.
   'equipment-rental-break-even/vs-flat-day-rate.html',
+  // Compares against "the flat $10-per-1,000-followers rule" -- a pricing
+  // shortcut floated across influencer-marketing blogs and rate-card
+  // templates generally, not a company or product this could be mistaken
+  // for. The page names no specific source for the figure.
+  'brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html',
   // Compares against "eyeballing which box triggers the dimensional
   // penalty" -- a habit every shipper already has, not a company or
   // product this could be mistaken for. The page names no carrier tool.
