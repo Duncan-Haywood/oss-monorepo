@@ -36570,3 +36570,88 @@ entries:
         backup branch and redid it with git commit-tree/checkout on just the
         two commits that needed it, verified byte-identical trees throughout
         via git diff).
+  - venture: personal-trainer-package-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `session_gate.py` verdict PROCEED, build-now
+        pipeline queue empty (every scored candidate already graduated or
+        `probe`-pending an owner-gated channel), `allocate.py` named no
+        undeployed already-built candidate, and per DIRECTION.md's
+        2026-09-06 owner direction a genuine new niche outranks a parity
+        feature when there is no in-progress venture work. Screened
+        "personal trainer session package pricing, net of a gym/studio
+        commission or flat facility fee" through `duplicate_check.py`: top
+        match 0.42 (tutor-package-pricing-calculator), under the 0.45 review
+        bar. Deliberately reuses one mechanic from that closest sibling (a
+        package discount deeper than the no-show rate, with a makeup owed on
+        a miss, pays a worse effective hourly rate than pay-per-session) and
+        adds one tutoring has no equivalent of: a flat per-session venue fee
+        does not shrink with the trainer's own discount, so it erodes a
+        discounted package's per-session rate harder, in percentage terms,
+        than it erodes full price, while a percentage revenue-share cut
+        scales both models down proportionally and does not. Verified the
+        distinguishing arithmetic by hand before writing tests (a $12 flat
+        fee on a $75 rate vs. a $58 package-equivalent rate: 16% vs. 20.69%
+        of each), then confirmed calc.mjs reproduces it exactly. Shipped
+        with a reciprocal inbound sibling link from
+        tutor-package-pricing-calculator's own footer (siblings.mjs --check:
+        0 orphans, budget 0) rather than landing as a crawlable orphan.
+        Filed under the `solo-earner` category in build.mjs (one person
+        pricing their own labour, the same axis as
+        tutor-package-pricing-calculator and gig-driver-net-pay-calculator)
+        rather than the catch-all, which build.test.mjs's own bound would
+        have flagged at 6. Added a `venture-scores.yaml` row (composite
+        5.667, same six dimensions as tutor-package-pricing-calculator, both
+        gates pass) and bumped `SWITCHES_IN_THE_CATALOGUE` 306 -> 307 in
+        platform/privacy/optout-persistence.test.mjs for the new venture's
+        own opt-out switch, each with the derivation the guard's own error
+        message asks for. Disclaimer (no-warranty + no-SLA), privacy line,
+        sponsor link, and localStorage-only opt-outable usage counting
+        (`comparison_calculated`, `summary_copied`, `example_loaded`) are in
+        place; no `usage/usage.yaml` row added yet, matching
+        tutor-package-pricing-calculator's own precedent (not required by
+        `validate_usage.py`) until a real reading exists to record.
+        `node --test` in the venture: 41/41. `node platform/pages/clauses.mjs
+        personal-trainer-package-pricing-calculator`: clean (added
+        `vs-a-spreadsheet.html` to COMPARISON_DISCLAIMER_EXEMPT, a generic
+        spreadsheet comparison naming no competitor). Caught and fixed two
+        real defects before merging: the FAQPage JSON-LD used a literal `--`
+        where the visible page used the em-dash character
+        (`faq-visible.test.mjs` caught it on the first full local run), and
+        the new venture landed in the `more` catch-all category, tripping
+        `build.test.mjs`'s "catch-all holds only what no section claims"
+        bound (5 -> 6) until filed under `solo-earner` instead. `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1281/1281
+        clean after both fixes. `python3 -m pytest gitops/tests -q`: 634
+        passed, 1 skipped, 3 failed on the mirrored-tool-count and
+        `runs-on` README counts -- left for `sync_tree_counts.py` to fix
+        after this merges, per CLAUDE.md's "any constant that counts the
+        tree will be written by two branches at once" guidance, since the
+        counts are only knowable at the merge. `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed (after adding the
+        merit-score row; `test_score_ventures.py` and `test_allocate.py`
+        both failed on the missing row before that). `platform/ci` and
+        `platform/ci/agent_review` unittest suites: all green (`test_publish_surface.py`
+        failed once for the new workflow not yet in `publish-surface.yaml`;
+        fixed with `publish_surface.py --write`, classified `none`).
+        `checklist_coverage.py`: clean, venture glob reaches the new test
+        files. `regen.mjs --verify`: current (after `regen.mjs`, run twice
+        -- once for the new venture's own mirror shard, once more after the
+        `build.mjs`/`clauses.mjs` edits above changed what every mirrored
+        page's shared "N free tools" nav count reads, which is why the
+        regenerated diff touches ~1270 unrelated `.gz` files: a single
+        shared string in every page's boilerplate, not per-page drift).
+        Browser/axe checks scoped to the venture
+        (`browser_checks.py --only personal-trainer-package-pricing-calculator`,
+        Playwright 1.56.0 + axe-core installed via `npm install --no-save`):
+        7 of 8 ran and passed (sideways, presets, roundtrip, contrast,
+        optout, sweep, journey); `highlight` skipped correctly -- this
+        venture makes no highlight promise. `ci_starvation.py --run
+        35863781373` confirmed Actions starved (`runner_id: 0`) before
+        relying on the local checklist instead of CI. Ran
+        `run_workflow_locally.py --for-changes` twice (stale mid-session,
+        clean after the final `regen.mjs`): 18/20 selected workflow(s)
+        passed, `portfolio-validate.yml` 71/71 run steps.

@@ -204,6 +204,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
   'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every personal
+  // trainer already has, not a company or product this could be mistaken
+  // for. Same reasoning as the other vs-spreadsheet pages above.
+  'personal-trainer-package-pricing-calculator/vs-a-spreadsheet.html',
   // Compares against "dividing labor sales by labor hours off your own DMS
   // reports" -- the one line of arithmetic every shop owner can already run
   // against reports they have, not a company or product this could be
