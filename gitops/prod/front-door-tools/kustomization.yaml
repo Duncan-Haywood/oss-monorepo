@@ -44,13 +44,13 @@
 #   portfolio-front-tools-8: 138 files, 555320 bytes
 #   portfolio-front-tools-9: 120 files, 554056 bytes
 #   portfolio-front-tools-10: 117 files, 550275 bytes
-#   portfolio-front-tools-11: 117 files, 553964 bytes
-#   portfolio-front-tools-12: 127 files, 555774 bytes
-#   portfolio-front-tools-13: 128 files, 556155 bytes
+#   portfolio-front-tools-11: 117 files, 556541 bytes
+#   portfolio-front-tools-12: 127 files, 556910 bytes
+#   portfolio-front-tools-13: 129 files, 556399 bytes
 #   portfolio-front-tools-14: 128 files, 555848 bytes
 #   portfolio-front-tools-15: 101 files, 549364 bytes
 #   portfolio-front-tools-16: 118 files, 554159 bytes
-#   portfolio-front-tools-17: 121 files, 546119 bytes
+#   portfolio-front-tools-17: 122 files, 549531 bytes
 #   portfolio-front-tools-18: 49 files, 266591 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1660,12 +1660,13 @@ configMapGenerator:
       - mercari-fee-calculator__index.html.gz=mercari-fee-calculator__index.html.gz
       - mercari-fee-calculator__share.mjs.gz=mercari-fee-calculator__share.mjs.gz
       - mercari-fee-calculator__usage.mjs.gz=mercari-fee-calculator__usage.mjs.gz
-      - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
+      - mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz=mercari-fee-calculator__vs-doing-the-fee-math-yourself.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
       - merchant-feed-check__engine.mjs.gz=merchant-feed-check__engine.mjs.gz
       - merchant-feed-check__index.html.gz=merchant-feed-check__index.html.gz
       - merchant-feed-check__usage.mjs.gz=merchant-feed-check__usage.mjs.gz
@@ -1792,12 +1793,12 @@ configMapGenerator:
       - payment-reconciliation-workbench__export.mjs.gz=payment-reconciliation-workbench__export.mjs.gz
       - payment-reconciliation-workbench__index.html.gz=payment-reconciliation-workbench__index.html.gz
       - payment-reconciliation-workbench__reconcile.mjs.gz=payment-reconciliation-workbench__reconcile.mjs.gz
-      - payment-reconciliation-workbench__usage.mjs.gz=payment-reconciliation-workbench__usage.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - payment-reconciliation-workbench__usage.mjs.gz=payment-reconciliation-workbench__usage.mjs.gz
       - payment-reconciliation-workbench__vs-synder.html.gz=payment-reconciliation-workbench__vs-synder.html.gz
       - payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz=payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz
       - pdf-accessibility-tag-check__engine.mjs.gz=pdf-accessibility-tag-check__engine.mjs.gz
@@ -2343,6 +2344,7 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
       - voiceover-project-rate-calculator__calc.mjs.gz=voiceover-project-rate-calculator__calc.mjs.gz
+      - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
       - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
       - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
