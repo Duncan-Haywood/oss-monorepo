@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 323 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 324 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 323 of them — and
+Every tool in the collection is listed below — all 324 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -363,6 +363,7 @@ page that hosts it.
 
 - [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
 - [Android Data Safety Checker — permissions/SDKs vs Play Console declaration](https://marisstella.dev/tools/android-data-safety-check/): Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you've already declared in Play Console -- so a missed declaration doesn't cost you a policy warning or listing removal. Nothing is uploaded.
+- [Upwork vs. Fiverr Fee Calculator — What You Actually Keep](https://marisstella.dev/tools/freelance-platform-fee-calculator/): Free calculator comparing Upwork and Fiverr net payout for the same job price, after platform fees, withdrawal fees, and a tax reserve. Solve for the price to charge on either platform to hit a take-home goal.
 - [HOA Reserve Fund Calculator — Special Assessment Risk](https://marisstella.dev/tools/hoa-reserve-fund-calculator/): Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.
 - [Overtime Pay Calculator — Blended Rate for Two Pay Rates, Free](https://marisstella.dev/tools/overtime-pay-calculator/): Free overtime pay calculator: standard time-and-a-half for one hourly rate, plus the FLSA weighted-average (blended rate) calculator for a week worked at two or more different pay rates. Entirely client-side, nothing uploaded.
 - [World Clock & Daylight — Time, Sunrise, Sunset and Who's Awake](https://marisstella.dev/tools/world-clock-widget/): A free world clock that shows current local time, sunrise, sunset, daylight length and whether each city is awake — for as many cities as you like, side by side. Sunrise and sunset are computed in your browser from the US Naval Observatory almanac algorithm. No account, no upload, no API key.
