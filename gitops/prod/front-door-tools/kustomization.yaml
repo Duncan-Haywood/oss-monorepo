@@ -37,8 +37,8 @@
 #   portfolio-front-tools-1: 101 files, 554102 bytes
 #   portfolio-front-tools-2: 150 files, 555950 bytes
 #   portfolio-front-tools-3: 134 files, 556766 bytes
-#   portfolio-front-tools-4: 140 files, 553748 bytes
-#   portfolio-front-tools-5: 125 files, 549145 bytes
+#   portfolio-front-tools-4: 139 files, 556575 bytes
+#   portfolio-front-tools-5: 127 files, 551140 bytes
 #   portfolio-front-tools-6: 130 files, 542288 bytes
 #   portfolio-front-tools-7: 122 files, 556724 bytes
 #   portfolio-front-tools-8: 138 files, 555234 bytes
@@ -620,6 +620,7 @@ configMapGenerator:
       - actions-secrets-inherit-check__classify.mjs.gz=actions-secrets-inherit-check__classify.mjs.gz
       - actions-secrets-inherit-check__index.html.gz=actions-secrets-inherit-check__index.html.gz
       - actions-secrets-inherit-check__usage.mjs.gz=actions-secrets-inherit-check__usage.mjs.gz
+      - actions-secrets-inherit-check__vs-zizmor.html.gz=actions-secrets-inherit-check__vs-zizmor.html.gz
       - actions-secrets-inherit-check__what-is-github-actions-secrets-inherit.html.gz=actions-secrets-inherit-check__what-is-github-actions-secrets-inherit.html.gz
       - actions-self-hosted-exposure-check__classify.mjs.gz=actions-self-hosted-exposure-check__classify.mjs.gz
       - actions-self-hosted-exposure-check__index.html.gz=actions-self-hosted-exposure-check__index.html.gz
@@ -751,13 +752,13 @@ configMapGenerator:
       - asphalt-sealcoat-bid-calculator__calc.mjs.gz=asphalt-sealcoat-bid-calculator__calc.mjs.gz
       - asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz=asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz
       - asphalt-sealcoat-bid-calculator__index.html.gz=asphalt-sealcoat-bid-calculator__index.html.gz
-      - asphalt-sealcoat-bid-calculator__share.mjs.gz=asphalt-sealcoat-bid-calculator__share.mjs.gz
-      - asphalt-sealcoat-bid-calculator__usage.mjs.gz=asphalt-sealcoat-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - asphalt-sealcoat-bid-calculator__share.mjs.gz=asphalt-sealcoat-bid-calculator__share.mjs.gz
+      - asphalt-sealcoat-bid-calculator__usage.mjs.gz=asphalt-sealcoat-bid-calculator__usage.mjs.gz
       - asphalt-sealcoat-bid-calculator__vs-a-flat-per-square-foot-price.html.gz=asphalt-sealcoat-bid-calculator__vs-a-flat-per-square-foot-price.html.gz
       - asphalt-sealcoat-bid-calculator__vs-bitumio.html.gz=asphalt-sealcoat-bid-calculator__vs-bitumio.html.gz
       - atm-route-margin__calc.mjs.gz=atm-route-margin__calc.mjs.gz
