@@ -759,6 +759,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-moraware.html, which does name a product and carries
   // its own "not affiliated" clause.
   'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // a freelancer pricing the same job on both platforms already reaches
+  // for, not a company or product this could be mistaken for. The page
+  // names Upwork and Fiverr only as the two platforms this calculator's own
+  // arithmetic runs, the same way tiktok-shop-fee-calculator's spreadsheet
+  // page above names TikTok Shop, and its own footer says so explicitly.
+  'freelance-platform-fee-calculator/vs-tracking-it-in-a-spreadsheet.html',
   // Compares against "a rough lump sum" -- the round-number, eyeball-the-
   // takeoff habit contractors already price change orders with, not a
   // company or product this could be mistaken for. The page names no
