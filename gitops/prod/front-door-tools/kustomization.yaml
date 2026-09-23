@@ -38,9 +38,9 @@
 #   portfolio-front-tools-2: 151 files, 555426 bytes
 #   portfolio-front-tools-3: 135 files, 552696 bytes
 #   portfolio-front-tools-4: 134 files, 549229 bytes
-#   portfolio-front-tools-5: 125 files, 555772 bytes
-#   portfolio-front-tools-6: 129 files, 550610 bytes
-#   portfolio-front-tools-7: 134 files, 553743 bytes
+#   portfolio-front-tools-5: 124 files, 553781 bytes
+#   portfolio-front-tools-6: 130 files, 554039 bytes
+#   portfolio-front-tools-7: 135 files, 556871 bytes
 #   portfolio-front-tools-8: 123 files, 553241 bytes
 #   portfolio-front-tools-9: 116 files, 553147 bytes
 #   portfolio-front-tools-10: 114 files, 555073 bytes
@@ -871,6 +871,7 @@ configMapGenerator:
       - carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz=carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz
       - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
       - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
+      - carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz=carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
       - cat-adjuster-fee-calculator__calc.mjs.gz=cat-adjuster-fee-calculator__calc.mjs.gz
       - cat-adjuster-fee-calculator__index.html.gz=cat-adjuster-fee-calculator__index.html.gz
@@ -878,13 +879,13 @@ configMapGenerator:
       - cat-adjuster-fee-calculator__share.mjs.gz=cat-adjuster-fee-calculator__share.mjs.gz
       - cat-adjuster-fee-calculator__usage.mjs.gz=cat-adjuster-fee-calculator__usage.mjs.gz
       - cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz=cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz
-      - cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz=cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz
-      - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz=cat-adjuster-fee-calculator__vs-the-headline-per-claim-rate.html.gz
+      - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz
       - certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz=certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz
       - certified-payroll-calculator__index.html.gz=certified-payroll-calculator__index.html.gz
       - certified-payroll-calculator__share.mjs.gz=certified-payroll-calculator__share.mjs.gz
@@ -1013,12 +1014,12 @@ configMapGenerator:
       - cut-list-optimizer__usage.mjs.gz=cut-list-optimizer__usage.mjs.gz
       - cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz=cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz
       - deck-bid-calculator__calc.mjs.gz=deck-bid-calculator__calc.mjs.gz
-      - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz
       - deck-bid-calculator__index.html.gz=deck-bid-calculator__index.html.gz
       - deck-bid-calculator__share.mjs.gz=deck-bid-calculator__share.mjs.gz
       - deck-bid-calculator__usage.mjs.gz=deck-bid-calculator__usage.mjs.gz
