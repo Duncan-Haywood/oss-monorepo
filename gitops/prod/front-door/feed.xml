@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 335 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 337 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,24 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free calculator comparing Upwork and Fiverr net payout for the same job price, after platform fees, withdrawal fees, and a tax reserve. Solve for the price to charge on either platform to hit a take-home goal.</summary>
+  </entry>
+  <entry>
+    <title>Git Exposure Checker — is your .git directory publicly readable?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/git-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/git-exposure-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends two real requests to your site (.git/HEAD and .git/config), then paste the JSON here for a plain-English report on whether your .git directory is publicly exposed -- letting anyone reconstruct your full source history, including secrets removed in a later commit. Correctly tells a real exposure apart from a 200-status soft-404 page. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>GraphQL Introspection Exposure Checker — Is Your Schema Public?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/graphql-introspection-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/graphql-introspection-exposure-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query, mutation, and type name, including ones no client links to. Runs in your browser when the target&#39;s CORS policy allows it, or via a zero-dependency CLI. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Mercari Fee Calculator — What You Actually Keep After the 10% Fee</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free podcast sponsorship rate calculator. Enter your average downloads per episode, niche, and read type to get a price range for a pre-roll, mid-roll, and post-roll ad spot — based on commonly cited podcast-ad-market CPM benchmarks. No sign-up, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Propane Delivery Route Margin Calculator — Price Each Customer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/propane-delivery-route-margin/"/>
-    <id>tag:marisstella.dev,2026:tool/propane-delivery-route-margin</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent propane (LP gas) delivery route operators: find real annual profit per customer after the retail/wholesale price spread, the minimum-delivery fee on small fills, drive time and mileage, and tank rental and hazmat compliance cost, then see whether your whole route hits your income goal.</summary>
-  </entry>
-  <entry>
-    <title>QBI Deduction Calculator — Section 199A, 2025 &amp; 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/qbi-deduction-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/qbi-deduction-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the Section 199A qualified business income (QBI) deduction: applies the 20% deduction, the taxable-income threshold and phase-in range for 2025 and 2026 (including the OBBBA-widened 2026 range and new $400 minimum deduction), the specified-service-business (SSTB) phase-out, and the W-2 wage / UBIA limitation. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>

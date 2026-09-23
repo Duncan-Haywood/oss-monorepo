@@ -518,10 +518,16 @@ workflows:
 - workflow: gig-driver-net-pay-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: git-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
 - workflow: grant-reporting-tracker-ci.yml
+  classification: none
+  publishes: []
+- workflow: graphql-introspection-exposure-check-ci.yml
   classification: none
   publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml

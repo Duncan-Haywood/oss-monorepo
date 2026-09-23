@@ -973,6 +973,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-rfms.html, which does name a
   // product and carries its own "not affiliated" clause.
   'flooring-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "reading a page's view-source or devtools for SRI tags
+  // by eye" -- a manual method every developer already has access to, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-srihash.html, which does name a product (srihash.org)
+  // and carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-checking-it-by-hand / vs-reading-the-color-code-by-eye pages above.
+  'sri-check/vs-checking-tags-by-hand.html',
   // Compares against "a flat price per window" -- the generic postcard
   // pricing habit the trade is shopped on, not a company or product this
   // could be mistaken for. The page names no vendor or competing calculator
@@ -985,6 +992,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // calculator at all -- distinct from this venture's own vs-pestpac.html,
   // which does name a product and carries its own "not affiliated" clause.
   'pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html',
+  // Compares against doing Mercari fee math in your head -- a method every
+  // seller already has, not a company or product this could be mistaken
+  // for. Mercari itself is named only as the subject of the fee schedule
+  // both approaches compute against, the same way the tool's own index.html
+  // names it, and the page still carries its own "not affiliated" line.
+  // Same reasoning as the cat-adjuster and 1099k spreadsheet pages above.
+  'mercari-fee-calculator/vs-doing-the-fee-math-yourself.html',
   // Compares against "a flat $999 mold special" -- a generic postcard
   // pricing pattern mold remediation companies of many different names
   // advertise, not one specific company or product this could be mistaken
@@ -994,6 +1008,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
   'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
+  // Compares against "a spreadsheet" -- a generic method most filers who pay
+  // quarterly estimated tax more than once already build for themselves, not
+  // a company or product this could be mistaken for. The page names no
+  // spreadsheet vendor at all, same reasoning as osha-trir-dart-calculator's
+  // own vs-spreadsheet.html above -- distinct from this venture's own
+  // vs-keeper.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'quarterly-estimated-tax-calendar/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
