@@ -1,0 +1,36 @@
+name: mercari-fee-calculator
+description: A private browser calculator for Mercari sellers that prices one sale against Mercari's current US fee schedule -- a 10% selling fee on the item price plus any buyer-paid shipping, effective for listings created or updated on or after January 6, 2025, with no separate payment processing fee -- and against the legacy schedule (10% on the item price only, plus a 2.9% + $0.50 processing fee) that any older, unedited listing still runs, correctly excluding Mercari's separate 3.6% Buyer Protection Fee that the buyer pays and that never touches seller payout, plus profit after item and shipping-label cost, the item price needed to hit a target profit, and a side-by-side comparison of which schedule actually pays more on a given sale.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Mercari sellers will use a calculator that applies the current 10% fee to buyer-paid shipping rather than the item price alone, because the "10% flat fee, no more processing fee" headline from the January 2025 change hides that shipping now sits inside the fee base for the first time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers with listings from before January 6, 2025 will use the schedule comparison before deciding whether to edit an old listing, because which schedule pays more depends on how much of the price is buyer-paid shipping and is not obvious from either schedule's headline rate alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/Mercari, r/MercariSellers, and the search phrases "mercari fee calculator", "mercari selling fee", and "mercari fee calculator 2025" are a reachable, free channel -- measurable only once the tool is live in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified Mercari sellers run a real sale twice within 90 days of the tool being discoverable.
+  - Mercari changes the published schedule again and the calculator's fixed constants no longer match a real payout statement.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mercari-fee-calculator/
+  analytics: null
