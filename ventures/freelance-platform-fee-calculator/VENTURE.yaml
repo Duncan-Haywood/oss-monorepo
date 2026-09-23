@@ -1,0 +1,32 @@
+name: freelance-platform-fee-calculator
+description: Free browser calculator comparing Upwork and Fiverr net payout for the same job price, after each platform's fee, an optional flat withdrawal fee, and a self-employment tax reserve, plus a solver for the price needed on either platform to hit a take-home goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Freelancers deciding whether to post or price a job on Upwork vs. Fiverr will use a calculator that runs the same job price through both platforms' cuts side by side, because neither platform's own dashboard shows the other's numbers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Since Upwork replaced its fixed 20%/10%/5% tiers with a variable 0-15% per-contract fee in May 2025, searchers asking "how much does Upwork take" are underserved by pages still describing the old, retired formula.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Freelancers pricing a new job will also want to see the price needed on a given platform to hit a take-home goal, not just the payout on a price they already picked.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three freelancers use the calculator twice within 90 days.
+  - Freelancers report that Upwork's and Fiverr's own dashboards already answer this well enough, without changing which platform they list a job on.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-platform-fee-calculator/
+  analytics: null

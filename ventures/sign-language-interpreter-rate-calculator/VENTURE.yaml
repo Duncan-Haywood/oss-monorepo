@@ -1,0 +1,112 @@
+name: sign-language-interpreter-rate-calculator
+description: Free browser calculator that prices a single freelance/contract sign language (ASL) interpreting assignment from hours requested against a two-hour booking minimum, portal-to-portal travel time and mileage, an after-hours/weekend/holiday differential, and a team-interpreting flag for long legal/medical/mental-health bookings per RID's Standard Practice Paper guidance -- plus a tiered late-cancellation fee calculator -- entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a
+# creator/freelance-services pricing calculator for a niche the portfolio
+# does not otherwise serve (freelance sign language interpreters), built the
+# same session per portfolio/pipeline/README.md's archetype-saturation note
+# -- 141+ of ~338 ventures share the trade-bid-calculator shape and 38+
+# share the CI-checker shape, so this session weighed a distinct solo-
+# professional-services pricing angle (interpreting assignment economics)
+# rather than a 339th near-duplicate in an already-mined vertical. It is
+# closest in shape to the already-graduated notary-trip-quote and
+# court-reporter-transcript-calculator (same reasoning: a solo professional
+# turning time, travel, and a booking minimum into a customer-facing price)
+# but prices a structurally different kind of work -- an interpreting
+# assignment with its own minimum-booking convention, differential
+# structure, and (uniquely in this portfolio) a team-staffing decision
+# driven by cognitive-load guidance from the interpreting profession's own
+# standard-practice literature, not by area, page count, or word count.
+#
+# python3 portfolio/pipeline/duplicate_check.py against "Freelance sign
+# language (ASL) interpreter rate calculator: computes a defensible job
+# quote from hours booked, the 2-hour industry-standard minimum,
+# portal-to-portal travel time, after-hours/weekend differential, RID/NIC
+# certification premium, and late-cancellation fee policy, for VRI vs
+# onsite assignments, distributed via r/interpreters and RID community
+# discussion of rate-setting" scored nothing >= 0.45 (the "read this before
+# you write a candidate" bar) against any existing venture, pipeline
+# candidate, or screened-out row -- the closest matches were
+# no-show-fee-calculator (0.09), locksmith-bid-calculator (0.08), and
+# cnc-machining-quote-calculator (0.08), none of them the same product
+# shape (a no-show policy tool with no travel/minimum arithmetic, a trade
+# bid, a shop-quote calculator). Also checked directly: no venture directory
+# or screened-out.md row mentions "interpreter", "sign language", "ASL",
+# "Deaf", or "RID" for this audience -- the nearest venture directories by
+# name (court-reporter-transcript-calculator, notary-trip-quote) serve an
+# adjacent but distinct solo-legal-support-professional audience with their
+# own per-page/per-trip pricing conventions, not interpreting.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- output is a price *starting point* derived
+#     from commonly cited, adjustable industry conventions (a booking
+#     minimum, a travel-billing fraction, differential multipliers, a
+#     cancellation-tier schedule), explicitly framed as a basis for
+#     negotiation or an invoice draft, never a quote, guarantee, or
+#     valuation performed on the user's behalf. The team-interpreting
+#     guidance is surfaced as an informational finding the interpreter
+#     decides on, never applied automatically -- the tool never tells a
+#     user an assignment IS or IS NOT adequately staffed, only that RID's
+#     own published guidance names this shape of booking. Being wrong costs
+#     an interpreter a miscalibrated invoice or a missed reminder to
+#     mention team staffing in a negotiation, not a filing, a contract
+#     obligation, or a third party's money. No advice-of-record: the tool
+#     is not legal or medical advice about the underlying assignment, only
+#     a pricing calculator for the interpreting work itself, and the
+#     interpreter decides and negotiates their own booking terms.
+#   ethical_robustness: 8 -- deterministic arithmetic over adjustable
+#     benchmark multipliers and tiers, no dark patterns, no data collected
+#     server-side, does not get worse for users as traffic grows. Every
+#     input is a number the user already knows about their own booking
+#     (hours, rate, travel, notice given); nothing is scraped or inferred
+#     about a third party, a client, or a Deaf/hard-of-hearing consumer of
+#     the interpreting service. The team-interpreting finding actively
+#     favors interpreter wellbeing and service quality over a lower quote,
+#     which is the opposite of a business that gets worse for its
+#     downstream users (Deaf/HoH consumers relying on accurate
+#     interpretation) as it scales.
+#
+# Distribution: r/interpreters, RID's own membership forums and mentorship
+# discussions, and interpreting-focused Facebook groups and Discord servers
+# see "what should I charge" and "should this be a team assignment" as
+# recurring threads, especially from newer freelance and VRS/VRI-adjacent
+# interpreters moving into direct freelance booking. Search phrases with
+# real, recurring volume: "sign language interpreter rate calculator", "how
+# much do ASL interpreters charge", "interpreter cancellation fee policy",
+# "2 hour minimum sign language interpreter", "team interpreting guidelines".
+# The existing free reference points (RID's own Standard Practice Papers,
+# state-chapter rate surveys) are static documents a freelancer has to
+# interpret and do the arithmetic against by hand; this is an interactive
+# calculator with nothing to sign up for and nothing to cross-reference
+# manually.
+hypotheses:
+  - claim: A freelance sign language interpreter who lands here from a "how much to charge for interpreting" search or an r/interpreters thread will get an assignment fee they did not already have and use it to set or defend an invoice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Interpreters new to freelance/contract booking (a common transition point from staff or VRS-only work) will use the team-interpreting finding to remember to raise team staffing in a negotiation, rather than under-staffing a long, high-stakes assignment because nobody prompted them to consider it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sign-language-interpreter-rate-calculator/
+  analytics: null

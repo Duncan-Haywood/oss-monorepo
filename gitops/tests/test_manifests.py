@@ -2067,7 +2067,161 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 323 since this merge: `docker-base-image-eol-check` graduated -- a
     # browser-local and CLI checker for Dockerfile base-image end-of-life,
     # cross-linked with `docker-base-image-pin-check` from its first commit.
-    total = 323  # `infra/OWNER_CHECKLIST.md`'s own "N of the 323 tools" wording.
+    #
+    # 324 since this merge: `freelance-platform-fee-calculator` graduated --
+    # a browser-local calculator comparing Upwork's and Fiverr's net payout
+    # for the same job price, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    #
+    # 325 since this merge: `personal-trainer-package-pricing-calculator`
+    # graduated -- a browser-local calculator comparing a prepaid session
+    # package to pay-per-session pricing on net take-home pay per hour,
+    # after a gym or studio's percentage or flat cost structure, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    #
+    # 326 since this merge: `actions-secrets-inherit-check` graduated -- a
+    # browser-local and CLI checker for GitHub Actions `secrets: inherit`
+    # calls to an external reusable workflow or a fork-reachable job, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch was open before
+    # `osha-trir-dart-calculator` and `supabase-rls-check` landed, so it
+    # only ever knew its own predecessor's number (325) until this merge --
+    # the same ordinary collision shape recorded throughout this list.
+    #
+    # 326 since this merge: `actions-secrets-inherit-check` graduated
+    # concurrently -- a browser-local and CLI checker for GitHub Actions
+    # `secrets: inherit` calls to an external reusable workflow or a
+    # fork-reachable job, with a static `index.html` from its first commit,
+    # same shape as the rest of this running count. Both branches only ever
+    # knew their own predecessor's number (325) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    #
+    # 327 since this merge: `osha-trir-dart-calculator` graduated -- a
+    # browser-local calculator turning a company's own OSHA 300 log counts
+    # into its TRIR and DART rate against a target, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 328 since this merge: `supabase-rls-check` graduated concurrently -- a
+    # browser + CLI checker reading a Supabase project's own PostgREST
+    # schema listing and testing whether the anon key can read real rows
+    # from each table (the missing-Row-Level-Security exposure behind
+    # CVE-2025-48757), with a static `index.html` from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 329 since this merge: `source-map-leak-check` graduated -- a browser +
+    # CLI checker reading each script's own sourceMappingURL comment and
+    # fetching the referenced map to test whether a production source map
+    # is publicly readable, and whether it embeds full original source text
+    # or only file paths, with a static `index.html` from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (328, from `actions-secrets-inherit-
+    # check` alone) until this merge brought `osha-trir-dart-calculator` and
+    # `supabase-rls-check` in alongside it -- the same ordinary collision
+    # shape recorded throughout this list.
+    #
+    # 330 since this merge: `mercari-fee-calculator` graduated concurrently
+    # -- a browser-local calculator pricing a Mercari sale against the
+    # current (Jan 6, 2025) shipping-inclusive 10% fee schedule and the
+    # legacy item-price-only 10% + 2.9% + $0.50 schedule, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (327) until this merge -- the same ordinary collision shape
+    # recorded throughout this list.
+    #
+    # 331 since this merge: `sign-language-interpreter-rate-calculator`
+    # graduated -- a browser-local calculator pricing a single freelance/
+    # contract sign language interpreting assignment (hours against a
+    # two-hour booking minimum, portal-to-portal travel, an after-hours
+    # differential, and a team-interpreting flag for long legal/medical/
+    # mental-health bookings) plus a tiered late-cancellation fee
+    # calculator, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count. Recorded from
+    # `sync_tree_counts.py`'s own fresh measurement against the merged
+    # tree, not a hand sum.
+    #
+    # 332 since this merge: `turo-host-payout-calculator` also graduated,
+    # concurrently -- a browser-local calculator turning one Turo trip's
+    # price into a host payout under Turo's 2026 plan x booking-window
+    # earnings matrix, with a static `index.html` from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (330, before mercari-fee-calculator
+    # landed) until this merge -- the same ordinary collision shape
+    # recorded throughout this list, re-derived here by `sync_tree_counts.py`
+    # against the merged tree rather than by hand.
+    #
+    # 333 since this merge: `firebase-rules-check` also graduated,
+    # concurrently -- a browser + CLI checker sending real, read-only,
+    # unauthenticated requests to a Firebase project's Realtime Database (a
+    # shallow key listing) and named Firestore collections (one document
+    # max), testing whether an unauthenticated request returns real data --
+    # the default-open / left-in-test-mode security-rules exposure
+    # documented since Appthority's 2018 "Firebase mismanagement" report.
+    # Direct sibling of `supabase-rls-check`, same "default-open unless a
+    # rule locks it down" shape for a different backend, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (327, before `osha-trir-dart-calculator`, `supabase-rls-check`,
+    # `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
+    # landed) until this merge -- the same ordinary collision shape
+    # recorded throughout this list.
+    #
+    # 334 since this merge: `source-map-leak-check` also graduated,
+    # concurrently -- a browser + CLI checker reading each script's own
+    # trailing sourceMappingURL comment and naming which scripts have a
+    # publicly readable production source map, distinguishing one that
+    # embeds full original source text from one that exposes only file
+    # paths. Same "read what's actually there, name the exact evidence"
+    # checker shape as `cors-misconfig-check` and `supabase-rls-check`,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (327, before `osha-trir-dart-calculator`,
+    # `supabase-rls-check`, `mercari-fee-calculator`,
+    # `voiceover-project-rate-calculator`, and `turo-host-payout-calculator`
+    # landed) until this merge -- the same ordinary collision shape
+    # recorded throughout this list. Total re-derived here by
+    # `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    #
+    # 335 since this merge: `graphql-introspection-exposure-check` also
+    # graduated, concurrently -- a checker for GraphQL introspection left
+    # enabled in production, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count. This branch
+    # only ever knew its own predecessor's number (331) until this merge --
+    # the same ordinary collision shape recorded throughout this list,
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    #
+    # 336 since this merge: `podcast-feed-check` also graduated,
+    # concurrently -- a zero-dependency CLI + browser checker parsing a
+    # podcast's RSS 2.0 + iTunes/Podcast-namespace feed against Apple
+    # Podcasts' documented requirements and the RSS spec's RFC 822 pubDate
+    # format, with a static `index.html` from its first commit, same shape
+    # as the rest of this running count. This branch only ever knew its
+    # own predecessor's number (333, before `source-map-leak-check` and
+    # `sign-language-interpreter-rate-calculator` landed) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list, re-derived here by `sync_tree_counts.py` against the fully
+    # merged tree rather than by hand.
+    #
+    # 337 since this merge: `git-exposure-check` also graduated,
+    # concurrently -- a zero-dependency CLI + browser report viewer sending
+    # two real GET requests (.git/HEAD, .git/config) and classifying the
+    # response body against the exact grammar of a real git-internal file
+    # to detect a publicly exposed .git directory, distinguishing real
+    # exposure from a webserver that answers every path with 200 (a
+    # soft-404). Same "read what's actually there, name the exact evidence"
+    # checker shape as `cors-misconfig-check` and `security-headers-check`,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (332, before `sign-language-interpreter-rate-
+    # calculator`, `firebase-rules-check`, `source-map-leak-check`, and
+    # `podcast-feed-check` landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list. Total re-derived here
+    # by `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 337  # `infra/OWNER_CHECKLIST.md`'s own "N of the 337 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

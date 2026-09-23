@@ -388,7 +388,29 @@ const CATEGORY_RULES = [
     // question this section already answers for a resale seller. It sat in
     // the catch-all because its slug names a streaming platform, not a
     // storefront keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch)/.test(slug),
+    // `freelance-platform-fee-calculator` is the same platform-cut shape one
+    // further step removed again: Upwork and Fiverr take a percentage of a
+    // freelancer's job price the same way a resale marketplace takes a
+    // percentage of a sale price, and the reader deciding which of the two
+    // nets more is the same reader as `where-to-sell` and
+    // `marketplace-fee-compare` above, just pricing labor instead of an
+    // item. Its slug names neither platform first, so no storefront keyword
+    // above would have caught it and it would otherwise have swelled the
+    // catch-all.
+    // `turo-host-payout-calculator` is `str-host`'s exact sibling one asset
+    // class over: a Turo host comparing a plan/booking-window payout matrix
+    // on one trip is the same "price a program before you opt in" question
+    // as an Airbnb/Vrbo host comparing fee schedules on one stay. Its slug
+    // does not start with a marketplace keyword this rule already
+    // recognised, so it would otherwise have swelled the catch-all the way
+    // `str-host` itself once did.
+    // `mercari-fee-calculator` is the same single-channel fee-schedule shape
+    // as `poshmark` and `stockx` above — a shipping-inclusive percentage
+    // selling fee on one storefront, with an older schedule an unedited
+    // listing may still be running — and would otherwise sit in the
+    // catch-all for the same reason those two did: the slug names the
+    // storefront, not a marketplace keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',
@@ -604,12 +626,15 @@ const CATEGORY_RULES = [
     // rather than by judging the arrival alone, which is what
     // `build.test.mjs`'s bound asks for. Worth recording for whoever trips it
     // next, because the enumeration turned up one more that looks misfiled and
-    // was left alone deliberately: `android-data-safety-check` sits in the
+    // was left alone deliberately: `android-data-safety-check` sat in the
     // catch-all while its own `VENTURE.yaml` calls it "the direct Android-side
     // counterpart to `ios-privacy-manifest-check`", and that counterpart is
-    // filed under `ci`. Moving it would take the catch-all to 4, but it is
-    // another session's arrival from the same day and filing this one restored
-    // the bound on its own, so it is noted rather than moved.
+    // filed under `ci`. Moving it would have taken the catch-all to 4, but it
+    // was another session's arrival from the same day and filing this one
+    // restored the bound on its own, so it was noted rather than moved.
+    // Moved to `ci` on 2026-09-23 (see that section's own comment) when
+    // `voiceover-project-rate-calculator` needed the slot this note had been
+    // holding open.
     //
     // `staffing-markup-calculator` joined 2026-09-10 and is filed here on its
     // first commit rather than after a spell in the catch-all — which is what
@@ -765,8 +790,18 @@ const CATEGORY_RULES = [
     // customer/stop list and its own cost structure into route economics.
     // Not a trade bid (nothing priced by area or a construction job) and
     // not a marketplace fee.
+    // `sign-language-interpreter-rate-calculator` joined 2026-09-23, filed
+    // here on its first commit rather than left for a catch-all spell: a
+    // freelance/contract sign language interpreter turning an assignment's
+    // hours, a booking minimum, portal-to-portal travel, and an after-hours
+    // differential into a customer-facing fee is the same job as
+    // `notary-trip-quote` and `court-reporter-transcript-calculator` (which
+    // it links to, and which links back) — a solo professional turning
+    // time, travel, and a booking policy into a price. Not a trade bid
+    // (nothing priced by area or a construction job) and not a marketplace
+    // fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate)/.test(
         slug,
       ),
   },
@@ -906,10 +941,25 @@ const CATEGORY_RULES = [
     // different sections already. Slug ends in `-checker`, not any suffix
     // this rule already catches, so it is added by exact match rather than
     // widening the suffix list to a word this is the only user of.
+    // `osha-trir-dart-calculator` joined 2026-09-23, filed here on its
+    // first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. Its posture matches this
+    // section's blurb exactly: it turns a company's own OSHA 300 log
+    // counts into a TRIR/DART rate observation the safety coordinator acts
+    // on, and is explicit in its disclaimer and FAQ that it never decides
+    // whether a specific case is OSHA recordable or claims compliance with
+    // any OSHA rule. Not `trades`, even though its buyer is often a
+    // construction contractor: that section prices a bid, this one reports
+    // a compliance rate, the same buyer-vs-job distinction that keeps
+    // `real-estate-agent-photo-app` here rather than with the other
+    // real-estate tools. Slug ends in `-calculator`, not any suffix this
+    // rule already catches, so it is added by exact match rather than
+    // widening the suffix list to a word this is the only user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
-      || slug === '1099-k-threshold-checker',
+      || slug === '1099-k-threshold-checker'
+      || slug === 'osha-trir-dart-calculator',
   },
   {
     id: 'backoffice',
@@ -1684,8 +1734,71 @@ const CATEGORY_RULES = [
     // guard in `build.test.mjs` from tripping — a `docker-` prefix alone
     // isn't in this regex, so a new Dockerfile checker still needs its
     // exact slug added here.)
+    // `supabase-rls-check` joined 2026-09-23, filed here on its first commit
+    // rather than after a spell in the catch-all -- what `build.test.mjs`'s
+    // catch-all bound is for. Same browser-plus-CLI, "read what's actually
+    // there, name the exact evidence" shape as the rest of this section, run
+    // by a developer against their own project -- just for a Supabase
+    // project's live PostgREST schema and per-table read access instead of a
+    // source file, response header, or workflow YAML. It cross-links
+    // `cors-misconfig-check`, `security-headers-check`, and
+    // `dependency-confusion-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
+    // `firebase-rules-check` joined 2026-09-23, filed here on its first
+    // commit rather than after a spell in the catch-all -- same reasoning
+    // as `supabase-rls-check` immediately above: same browser-plus-CLI,
+    // "read what's actually there, name the exact evidence" shape, run by
+    // a developer against their own project -- just for a Firebase
+    // project's Realtime Database and named Firestore collections instead
+    // of a Supabase project's PostgREST schema. It cross-links
+    // `supabase-rls-check`, `cors-misconfig-check`, and
+    // `security-headers-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
+    //
+    // `source-map-leak-check` joined 2026-09-23 concurrently, same session
+    // as `supabase-rls-check`. Same "read what's actually there, name the
+    // exact evidence" checker shape again, for a different exposure class:
+    // whether a script's own trailing sourceMappingURL comment points at a
+    // publicly readable production source map, and whether that map embeds
+    // full original source text or only file paths. It cross-links
+    // `cors-misconfig-check`, `security-headers-check`, and
+    // `docker-build-secrets-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
+    //
+    // `android-data-safety-check` moved here 2026-09-23, restoring the bound
+    // `voiceover-project-rate-calculator`'s arrival (a creator/freelance
+    // pricing tool, no honest home in this section) tripped. The trades
+    // comment block above already named this exact move and deliberately
+    // deferred it -- its own `VENTURE.yaml` calls it "the direct Android-side
+    // counterpart to `ios-privacy-manifest-check`", which is filed here, and
+    // it is the same browser-plus-CLI "read a manifest you already have, name
+    // the exact undeclared category" shape as the rest of this section. Doing
+    // the move now is what that comment asked the next session that needed
+    // the slot to do, rather than raising the bound instead.
+    //
+    // `graphql-introspection-exposure-check` joined 2026-09-23, filed here on
+    // its first commit rather than left for a later move -- the same
+    // "read what's actually there, name the exact evidence" checker shape as
+    // `cors-misconfig-check`, `security-headers-check`, `supabase-rls-check`,
+    // `firebase-rules-check`, and `source-map-leak-check`, for a GraphQL
+    // endpoint's introspection exposure rather than a response header, a
+    // database table, or a source map. It cross-links `cors-misconfig-check`
+    // and `supabase-rls-check` as Related, reciprocally (a link added to
+    // `cors-misconfig-check`'s own footer, not just this one, so the pair
+    // closes the crawlable-orphan gap a new venture otherwise opens).
+    //
+    // `git-exposure-check` joined 2026-09-23, concurrently: the same "read
+    // what's actually there, name the exact evidence" shape as
+    // `cors-misconfig-check` and `security-headers-check` (two real GET
+    // requests, response classified against a fixed decision table), just
+    // reading a response body instead of headers. Its slug does not start
+    // with a keyword this rule already recognised, so it would otherwise
+    // have swelled the catch-all the way `supabase-rls-check` once did.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check)/.test(
         slug,
       ),
   },
@@ -1797,6 +1910,28 @@ const CATEGORY_RULES = [
     // and CPM market. Shipped with reciprocal inbound sibling links from
     // both of those ventures' first commits rather than landing in the
     // catch-all.
+    //
+    // `personal-trainer-package-pricing-calculator` joined 2026-09-23, found
+    // by enumerating the catch-all after this new venture pushed it to 6
+    // rather than by judging the arrival alone: an independent personal
+    // trainer deciding whether a discounted prepaid session package still
+    // pays as well per hour, net of a gym or studio's cut, as billing per
+    // session is the same move as `tutor-package-pricing-calculator`'s
+    // instructor -- one person pricing their own labour, not a business
+    // quoting a customer. Shipped with a reciprocal inbound sibling link
+    // from `tutor-package-pricing-calculator`'s own commit rather than
+    // landing as an orphan, which is also what keeps the catch-all inside
+    // the bound `build.test.mjs` puts on it.
+    // `podcast-feed-check` joined 2026-09-23, landing here rather than in the
+    // `ci` category above it: the axis this section groups on is the earner,
+    // not whether the tool is a calculator or a checker (already established
+    // by `affiliate-disclosure-checker`, which protects a blogger's own
+    // earned income the same shape as `ats-resume-checker` protects a job
+    // seeker's). A podcaster checking their own feed before publishing is
+    // protecting their show's reach the same way an affiliate blogger checks
+    // their own post before it costs them a disclosure violation -- and it
+    // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
+    // the same solo-earner audience.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1809,6 +1944,8 @@ const CATEGORY_RULES = [
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
+        'personal-trainer-package-pricing-calculator',
+        'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',

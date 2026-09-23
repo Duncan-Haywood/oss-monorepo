@@ -1,0 +1,95 @@
+name: turo-host-payout-calculator
+description: Free browser calculator for independent Turo hosts that turns one trip's price into an actual payout under Turo's 2026 plan x booking-window earnings matrix (Peace of Mind / Balanced / More Earnings, each split further by how far ahead the guest booked), compares the same trip across all three plans and all four booking windows, and projects a monthly/annual estimate from a stated trip frequency, entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a
+# marketplace/sharing-economy host-payout calculator for a platform the
+# portfolio does not otherwise serve (Turo car-sharing hosts), built the
+# same session per portfolio/pipeline/README.md's archetype-saturation note
+# -- the trade-bid-calculator, marketplace-fee-calculator, and dev-tooling-
+# checker shapes are each independently saturated (141+, 12+, and 38+
+# instances respectively as last counted), so this session weighed a
+# distinct sharing-economy/gig-platform host-payout angle rather than a
+# 339th near-duplicate in an already-mined vertical. It is closely modeled
+# on the already-graduated str-host-payout-calculator (same reasoning: a
+# platform fee/payout structure that just changed and left users doing the
+# arithmetic by hand) but prices a structurally different kind of asset
+# (a shared vehicle, not a room or house) against a structurally different
+# fee mechanism (a plan x booking-window matrix that locks at booking time,
+# not a single migrated percentage).
+#
+# python3 portfolio/pipeline/duplicate_check.py against "Turo host payout
+# calculator: net payout after Turo's tiered host commission (15/25/35/40%
+# based on protection plan), trip fees, and vehicle wear, compared across
+# protection plan tiers and against a direct/P2P rental" scored nothing >=
+# 0.45 (the "read this before you write a candidate" bar) against any
+# existing venture, pipeline candidate, or screened-out row -- the closest
+# match was str-host-payout-calculator itself (0.16), a different platform
+# and a different fee shape (single percentage vs. this venture's plan x
+# window matrix), not a near-duplicate. Also checked directly: no venture
+# directory or screened-out.md row mentions "turo", "car-shar", or
+# "getaround" for this audience.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- output is a payout *estimate* built from
+#     Turo's own documented, adjustable rate conventions, explicitly framed
+#     as a number to check against the host's own Turo Host Hub, never a
+#     guarantee of an actual payout or a determination made on the host's
+#     behalf. Being wrong costs a host a miscalibrated expectation on one
+#     trip, not a filing, a contract obligation, or a third party's money.
+#     No advice-of-record: Turo, not this tool, is the system of record for
+#     what a host is actually paid.
+#   ethical_robustness: 8 -- deterministic arithmetic over adjustable rate
+#     inputs, no dark patterns, no data collected server-side, does not get
+#     worse for users as traffic grows. Every input is a number the host
+#     already knows about their own trip; nothing is scraped or inferred
+#     about Turo, a guest, or a third party.
+#
+# Distribution: r/turo (~60k members) and Turo-host Facebook groups see
+# "how much does Turo actually take" and "which earnings plan should I pick"
+# threads regularly, sharpened by the 2026 restructuring itself -- hosts
+# migrated onto the new plan x booking-window structure no longer have a
+# stable mental model to reason from. Search phrases with real, recurring
+# volume (confirmed by multiple independent blog posts already ranking for
+# them, found during this session's research): "how much does turo take
+# from hosts 2026", "turo host payout calculator", "turo earnings plan
+# comparison", "turo peace of mind vs balanced vs more earnings". The
+# existing free reference points are Turo's own Host Hub, which only ever
+# shows one host's own live listings rather than letting a host compare
+# hypothetical trips across plans, and static blog explainers that state
+# the matrix but do not compute against a host's own numbers.
+hypotheses:
+  - claim: A Turo host who lands here from a "how much does Turo take" search or an r/turo thread will get a same-trip comparison across plans and booking windows they did not already have, and will use it to decide which earnings plan to pick or to understand a payout that surprised them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Hosts who migrated onto Turo's 2026 plan x booking-window structure will use the booking-window comparison specifically, because the old single-percentage mental model no longer predicts what a given trip actually pays.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The plan comparison's damage-responsibility-cap column changes which plan a host picks more often than the host-share percentage alone, because a higher share that raises real accident exposure is not free money.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+  - Turo's rate structure proves so far from what this calculator models (rebuilt again after this session) that hosts report the numbers as unusable without a data source this portfolio has no way to gather.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/turo-host-payout-calculator/
+  analytics: null

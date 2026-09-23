@@ -100,9 +100,19 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // every repository admin already has, not a company or product this
   // could be mistaken for.
   'branch-protection-drift-check/vs-manually-checking-settings.html',
+  // Compares against "opening devtools and checking by hand" -- a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for.
+  'source-map-leak-check/vs-checking-devtools-by-hand.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
+  // Compares against checking RLS in Supabase's own Table Editor and
+  // Advisor by hand -- the same platform's own built-in dashboard features,
+  // described only to explain what a manual look there does and does not
+  // tell you, not a separate company or product this could be mistaken
+  // for. Same shape as branch-protection-drift-check's exemption above.
+  'supabase-rls-check/vs-manually-checking-the-dashboard.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
@@ -151,6 +161,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // not a company or product this could be mistaken for. Same reasoning as
   // the other manual-method pages above.
   'ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html',
+  // Compares against "picking a resistor or capacitor from the parts bin"
+  // -- a manual component-selection habit every user of this calculator
+  // already has access to, not a company or product this could be
+  // mistaken for. Same reasoning as the other manual-method pages above,
+  // including this venture's own resistor-calculator sibling entry.
+  'ai-engineering-academy/rc-filter-calculator/vs-picking-a-component-from-the-parts-bin.html',
   // Compares against "a spreadsheet" -- a generic method every HOA board
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
@@ -163,6 +179,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "a flat day rate" -- a generic pricing method every
+  // small rental operator already knows, not a company or product this
+  // could be mistaken for. Same reasoning as the other vs-flat-day-rate
+  // page above.
+  'equipment-rental-break-even/vs-flat-day-rate.html',
   // Compares against "eyeballing which box triggers the dimensional
   // penalty" -- a habit every shipper already has, not a company or
   // product this could be mistaken for. The page names no carrier tool.
@@ -198,6 +219,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
   'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every personal
+  // trainer already has, not a company or product this could be mistaken
+  // for. Same reasoning as the other vs-spreadsheet pages above.
+  'personal-trainer-package-pricing-calculator/vs-a-spreadsheet.html',
   // Compares against "dividing labor sales by labor hours off your own DMS
   // reports" -- the one line of arithmetic every shop owner can already run
   // against reports they have, not a company or product this could be
@@ -223,6 +248,30 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // flat card is the right tool for a phone quote. Same reasoning as the
   // other generic-method pages above.
   'pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html',
+  // Compares against "a flat per-walk rate" -- the $20-a-walk pricing every
+  // independent dog walker or pet sitter already posts, not a company or
+  // product this could be mistaken for. The page names no marketplace app
+  // or competitor (the venture's own named-product comparison, vs-rover,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat rate is the right tool for advertising. Same reasoning as the other
+  // generic-method pages above.
+  'dog-walking-route-pricing/vs-a-flat-per-walk-rate.html',
+  // Compares against "a flat $4,500 automatic gate special" -- the published
+  // per-opening ad price every gate shop competes with, not a company or
+  // product this could be mistaken for. The page names no vendor or field-
+  // service platform (the venture's own named-product comparison, vs-jobber,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat special is the right tool for advertising. Same reasoning as the
+  // other generic-method pages above.
+  'automatic-driveway-gate-bid-calculator/vs-a-flat-4500-special.html',
+  // Compares against "a flat $1,200 installed" entry-door special -- the
+  // published per-opening ad price every entry-door shop competes with, not
+  // a company or product this could be mistaken for. The page names no
+  // vendor or field-service platform (the venture's own named-product
+  // comparison, vs-jobber, carries its own trademark disclaimer) and its
+  // copy opens by agreeing the flat special is the right tool for
+  // advertising. Same reasoning as the other generic-method pages above.
+  'entry-door-bid-calculator/vs-a-flat-1200-special.html',
   // Compares against "opening each marketplace's own fee calculator and
   // reconciling the answers" -- the method every multi-channel seller already
   // uses, not a company or product this could be mistaken for. It is the one
@@ -473,6 +522,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'depreciation-recapture-calculator/vs-doing-it-by-hand.html',
+  // Compares against "computing certified payroll overtime by hand or in a
+  // spreadsheet" -- a generic method every payroll admin on a Davis-Bacon
+  // job already has, not a company or product this could be mistaken for.
+  // Same reasoning as the other vs-doing-it-by-hand pages above.
+  'certified-payroll-calculator/vs-doing-it-by-hand.html',
   // Compares against "looking up the 1099-K threshold yourself" -- a search
   // or memory check every gig/marketplace seller already does, not a
   // company or product this could be mistaken for. The page names no
@@ -489,6 +543,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page names no vendor, competing calculator, or field-service platform
   // at all.
   'shop-rate-calculator/vs-guessing-your-burden-and-overhead.html',
+  // Compares against "eyeballing the commission split against the rent
+  // check" -- the chair-side napkin habit every stylist weighing a
+  // booth-rent offer already runs, not a company or product this could be
+  // mistaken for. The page names no salon-software platform or competing
+  // calculator at all -- distinct from this venture's own vs-vagaro.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'booth-rent-vs-commission/vs-guessing-which-pays-more.html',
   // Compares against "mentally adding a flat percentage" -- a rough mental
   // habit every auction bidder already does, not a company or product this
   // could be mistaken for. The page names no specific auction house or
@@ -506,6 +567,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // explicitly. Same reasoning as the reverb-fee-calculator spreadsheet
   // page above.
   'amazon-fba-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // every TikTok Shop seller pricing more than one organic/affiliate
+  // decision already reaches for, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // footer says so explicitly. Same reasoning as the reverb-fee-calculator
+  // and amazon-fba-calculator spreadsheet pages above.
+  'tiktok-shop-fee-calculator/vs-tracking-it-in-a-spreadsheet.html',
   // Compares against "tracking payouts in a spreadsheet" -- the generic
   // method every host comparing more than one channel already reaches for,
   // not a company or product this could be mistaken for. The page names
@@ -523,6 +591,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no vendor or competing
   // calculator at all.
   'artificial-turf-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat rate per square foot" -- a pricing habit every
+  // deck-staining shop is shopped against, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all (the venture's own named-product comparison, vs-joist, carries
+  // its own trademark disclaimer).
+  'deck-staining-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 
   // Compares against "a flat rate per yard" -- a generic quoting habit every
   // carpet installer meets, not a company or product this could be mistaken
@@ -578,6 +652,27 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which does name a product and carries its
   // own "not affiliated" clause.
   'home-elevator-bid-calculator/vs-a-flat-pneumatic-special.html',
+  // Compares against "a flat $3,499 installed" special -- the postcard
+  // walk-in tub price every bath remodeler and accessibility contractor is
+  // shopped against, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-housecall-pro.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'walk-in-tub-bid-calculator/vs-a-flat-installed-special.html',
+  // Compares against "a flat water heater special" -- the "$1,200 water
+  // heater installed" price every plumber and water-heater installer is
+  // shopped against, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-servicetitan.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html',
+  // Compares against "a flat per-window special" -- the "$250 a window
+  // installed" price every window-treatment shop is shopped against, not a
+  // company or product this could be mistaken for. The page names no vendor
+  // or competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'plantation-shutter-bid-calculator/vs-a-flat-per-window-special.html',
   // Compares against "a flat rate per square foot" -- the "$35 a square
   // foot installed" pricing habit every tile setter and kitchen remodeler
   // is shopped against, not a company or product this could be mistaken
@@ -585,6 +680,334 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // distinct from this venture's own vs-jobber.html, which does name a
   // product and carries its own "not affiliated" clause.
   'kitchen-tile-backsplash-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat per-square-foot price" -- the "35 cents a
+  // square foot" pricing habit every sealcoating contractor is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-bitumio.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html',
+  // Compares against "a bedroom-count quote" -- the "3 bedroom house"
+  // size-bracket pricing habit every local mover is shopped against, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-smartmoving.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'moving-bid-calculator/vs-a-bedroom-count-quote.html',
+  // Compares against "a flat rate repair price" -- the price-book-by-
+  // complaint habit every independent appliance repair technician is
+  // shopped against, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-housecall-pro.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'appliance-repair-quote-calculator/vs-a-flat-rate-repair-price.html',
+  // Compares against "a flat Saturday-special price" -- the flat per-unit
+  // event-day pricing habit every portable sanitation yard is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing platform at all -- distinct from this
+  // venture's own vs-servicecore.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'portable-restroom-event-quote/vs-a-flat-saturday-special-price.html',
+  // Compares against "a spreadsheet" -- the flat fee-percentage tracking
+  // habit every eBay seller already has, not a company or product this
+  // could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own
+  // vs-ebay-fee-calculator.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'ebay-fee-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat price per door" -- the per-door pricing habit
+  // every cabinet painter is shopped against, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all -- distinct from this venture's own vs-kickserv.html, which does
+  // name a product and carries its own "not affiliated" clause.
+  'cabinet-refinishing-bid-calculator/vs-a-flat-price-per-door.html',
+  // Compares against "a flat $199 house sweep special" -- the postcard
+  // chimney-sweep rate every sweep is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'chimney-sweep-bid-calculator/vs-a-flat-house-sweep-special.html',
+  // Compares against "a flat per-room special" -- the "3 bedrooms, $129"
+  // room-count pricing habit every carpet-cleaning technician is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-servicemonster.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'carpet-cleaning-bid-calculator/vs-a-flat-per-room-special.html',
+  // Compares against "watching your backup's exit code yourself" -- the
+  // cron-mail/systemd-status habit every operator running a scheduled
+  // backup already has, not a company or product this could be mistaken
+  // for. The page names no vendor or competing tool at all -- distinct
+  // from this venture's own vs-healthchecks.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'backup-verification-evidence/vs-checking-the-exit-code-yourself.html',
+  // Compares against "a flat price-per-foot" fence quote -- the "$35 a
+  // foot installed" per-foot pricing habit every fence contractor is
+  // shopped on, not a company or product this could be mistaken for. The
+  // page names no vendor or competing calculator at all -- distinct from
+  // this venture's own vs-fence-cloud.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'fence-bid-calculator/vs-a-flat-price-per-foot.html',
+  // Compares against "building your own cash-flow spreadsheet" -- the
+  // running-balance habit every small business owner already has, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing platform at all -- distinct from this venture's
+  // own vs-quickbooks-cash-flow-planner.html, which does name a product
+  // and carries its own "not affiliated" clause.
+  'cash-runway-planner/vs-a-spreadsheet.html',
+  // Compares against "a flat whole-house special" -- the "$99 whole-house"
+  // or "$299 after-coupon" rate every duct-cleaning company is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'duct-cleaning-bid-calculator/vs-a-flat-whole-house-special.html',
+  // Compares against "a flat $28-a-foot estimate" -- the per-square-foot
+  // rule of thumb every deck job is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-quoteiq.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'deck-bid-calculator/vs-a-flat-28-a-foot-estimate.html',
+  // Compares against "a flat price per square foot" -- the per-square-foot
+  // quoting habit homeowners and GCs already ask concrete contractors for,
+  // not a company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-stack.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'concrete-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat $99 dryer vent special" -- the coupon-page
+  // flat rate every dryer-vent tech is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-wepro.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'dryer-vent-bid-calculator/vs-a-flat-99-dollar-special.html',
+  // Compares against "a flat price per linear foot" -- the per-foot
+  // quoting habit gutter-cleaning companies are told to bid by, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-jobber.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'gutter-cleaning-bid-calculator/vs-a-flat-price-per-linear-foot.html',
+  // Compares against "a flat usage-fee percentage" -- the "just add 25%"
+  // round-number habit photographers already use when quoting usage
+  // rights, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-fotoquote.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'commercial-photo-license-calculator/vs-a-flat-usage-fee.html',
+  // Compares against "a flat $X/sq ft or $X/hole special" -- the coupon-rate
+  // habit lifting shops already get quoted against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-quoteiq.html, which does name a product and carries its own
+  // "not affiliated" clause.
+  'concrete-lifting-bid-calculator/vs-a-flat-rate-special.html',
+  // Compares against "a flat price per finished square foot" -- the
+  // per-square-foot pricing habit every countertop fabricator is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-moraware.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against a flat "2.9% + 30 cents" card-fee rule of thumb -- the
+  // generic processing-fee estimate every merchant already carries, not a
+  // company or product this could be mistaken for. The page names no
+  // processor or payment company at all, referring only to "Shopify
+  // Payments" (Shopify's own term) and "a third-party processor" generically
+  // -- distinct from this venture's own vs-beprofit.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'shopify-fee-calculator/vs-a-flat-card-fee-guess.html',
+  // Compares against "tracking it in a spreadsheet" -- the generic method
+  // a freelancer pricing the same job on both platforms already reaches
+  // for, not a company or product this could be mistaken for. The page
+  // names Upwork and Fiverr only as the two platforms this calculator's own
+  // arithmetic runs, the same way tiktok-shop-fee-calculator's spreadsheet
+  // page above names TikTok Shop, and its own footer says so explicitly.
+  'freelance-platform-fee-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "a rough lump sum" -- the round-number, eyeball-the-
+  // takeoff habit contractors already price change orders with, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-buildertrend.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'change-order-margin-calculator/vs-a-rough-lump-sum.html',
+  // Compares against "a flat $180/sf special" -- the per-square-foot
+  // pricing habit every sunroom shop is shopped against, not a company or
+  // product this could be mistaken for. The page names no vendor or
+  // competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'sunroom-bid-calculator/vs-a-flat-180-per-square-foot-special.html',
+  // Compares against "doing it in a spreadsheet" -- a generic method every
+  // Shopify merchant already has, not a company or product this could be
+  // mistaken for. The page names no spreadsheet application and its own
+  // first paragraph says so explicitly.
+  'shopify-fee-calculator/vs-doing-it-in-a-spreadsheet.html',
+  // Compares against "doing it by hand or in a spreadsheet" -- the generic
+  // method every service business already has, not a company or product
+  // this could be mistaken for. The page names no spreadsheet application,
+  // booking platform, or vendor at all -- distinct from this venture's own
+  // vs-square-appointments.html, which does name a product and carries its
+  // own "not affiliated" clause. Same reasoning as the other vs-doing-it-by-
+  // hand / vs-spreadsheet pages above.
+  'appointment-deposit-calculator/vs-doing-it-by-hand.html',
+  // Compares against "pricing tuition by hand or in a spreadsheet" -- the
+  // generic method every center director already has, not a company or
+  // product this could be mistaken for. The page names no spreadsheet
+  // application or childcare management platform at all -- distinct from
+  // this venture's own vs-procare.html, which does name a product and
+  // carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-doing-it-by-hand / vs-spreadsheet pages above.
+  'childcare-tuition-calculator/vs-doing-it-by-hand.html',
+  // Compares against "tracking orders in a spreadsheet" -- the generic
+  // method every Etsy seller already has, not a company or product this
+  // could be mistaken for. The page names no spreadsheet application or
+  // vendor at all -- distinct from this venture's own
+  // vs-etsys-listing-form-calculator.html, which does name a product
+  // (Etsy's own Profit Calculator) and carries its own "not affiliated"
+  // clause.
+  'etsy-profit-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $4/sq ft encapsulation special" -- a generic
+  // pricing habit every waterproofing contractor already meets, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor at all -- distinct from this venture's own vs-quoteiq.html,
+  // which does name a product and carries its own "not affiliated"
+  // clause. Same reasoning as the other vs-a-flat-*-special pages above.
+  'crawl-space-encapsulation-bid-calculator/vs-a-flat-4-dollar-sq-ft-special.html',
+  // Compares against "a flat $3,999 house special" -- a generic postcard
+  // pricing pattern painting companies of many different names advertise,
+  // not one specific company or product this could be mistaken for. The
+  // page names no painting company at all. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // automatic-driveway-gate-bid-calculator's vs-a-flat-4500-special.html).
+  'exterior-painting-bid-calculator/vs-a-flat-3999-house-special.html',
+  // Compares against "a flat $2,499 installed special" -- a generic
+  // postcard pricing pattern hearth/chimney shops of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no hearth shop at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'fireplace-insert-bid-calculator/vs-a-flat-2499-installed-special.html',
+  // Compares against "the app's own earnings screen" -- a feature every
+  // gig-delivery/rideshare platform has (DoorDash, Uber, Instacart, Lyft,
+  // and others alike), not one specific company or product this could be
+  // mistaken for. The page names no platform at all -- distinct from this
+  // venture's own vs-gridwise.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'gig-driver-net-pay-calculator/vs-the-apps-earnings-screen.html',
+  // Compares against tracking a tiled-shower bid in a spreadsheet -- the
+  // generic method, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-jobber.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'walk-in-shower-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "a flat price per square foot" -- the generic pricing
+  // habit the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-buildxact.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'drywall-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat $650 per square special" -- a generic postcard
+  // pricing pattern low-slope roofing companies of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no roofing company at all. Same reasoning as the
+  // other vs-a-flat-*-special pages already in the tree (e.g.
+  // exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'flat-roof-bid-calculator/vs-a-flat-650-per-square-special.html',
+  // Compares against "a flat price per square foot" -- a generic pricing
+  // habit popcorn ceiling removal is shopped on, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  // Same reasoning as the other generic-method pages above (e.g.
+  // drywall-bid-calculator's flat-rate page).
+  'popcorn-ceiling-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "a flat price per pier" -- the generic pricing habit
+  // the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-jobber.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'foundation-repair-bid-calculator/vs-a-flat-price-per-pier.html',
+  // Compares against "a flat $2,495 furnace special" -- a generic postcard
+  // pricing pattern HVAC companies of many different names advertise, not
+  // one specific company or product this could be mistaken for. The page
+  // names no HVAC company at all -- distinct from this venture's own
+  // vs-servicetitan.html, which does name a product and carries its own
+  // "not affiliated" clause. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'furnace-bid-calculator/vs-a-flat-2495-furnace-special.html',
+  // Compares against "a flat $8/ft leaf-filter special" -- a generic
+  // per-foot pricing habit the trade is shopped on, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html
+  // and vs-jobnimbus.html, which do name products and carry their own
+  // "not affiliated" clauses.
+  'gutter-guard-bid-calculator/vs-a-flat-8-per-foot-special.html',
+  // Compares against "a flat price per foot" -- the generic pricing habit
+  // the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-jobber.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'french-drain-bid-calculator/vs-a-flat-price-per-foot.html',
+  // Compares against "a spreadsheet" -- a generic method almost every EHS
+  // team already has, not a company or product this could be mistaken for.
+  // The page names no spreadsheet vendor at all, same reasoning as
+  // overtime-pay-calculator's own vs-spreadsheet.html above.
+  'osha-trir-dart-calculator/vs-spreadsheet.html',
+  // Compares against "a flat $4 a square foot installed" special -- a generic
+  // postcard pricing pattern excavation and landscape shops of many different
+  // names advertise for gravel driveways, not one specific company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-jobber.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  // Same reasoning as the other vs-a-flat-*-special pages already in the tree
+  // (e.g. exterior-painting-bid-calculator's vs-a-flat-3999-house-special.html).
+  'gravel-driveway-bid-calculator/vs-a-flat-4-per-square-foot-special.html',
+  // Compares against "a flat price per square foot" -- the generic pricing
+  // habit the trade is shopped on, not a company or product this could be
+  // mistaken for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-rfms.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'flooring-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "reading a page's view-source or devtools for SRI tags
+  // by eye" -- a manual method every developer already has access to, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-srihash.html, which does name a product (srihash.org)
+  // and carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-checking-it-by-hand / vs-reading-the-color-code-by-eye pages above.
+  'sri-check/vs-checking-tags-by-hand.html',
+  // Compares against "a flat price per window" -- the generic postcard
+  // pricing habit the trade is shopped on, not a company or product this
+  // could be mistaken for. The page names no vendor or competing calculator
+  // at all -- distinct from this venture's own vs-marketsharp.html, which
+  // does name a product and carries its own "not affiliated" clause.
+  'window-replacement-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "a flat quote by house size" -- the generic pricing
+  // habit pest control accounts are shopped on, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-pestpac.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'pest-control-bid-calculator/vs-a-flat-quote-by-house-size.html',
+  // Compares against doing Mercari fee math in your head -- a method every
+  // seller already has, not a company or product this could be mistaken
+  // for. Mercari itself is named only as the subject of the fee schedule
+  // both approaches compute against, the same way the tool's own index.html
+  // names it, and the page still carries its own "not affiliated" line.
+  // Same reasoning as the cat-adjuster and 1099k spreadsheet pages above.
+  'mercari-fee-calculator/vs-doing-the-fee-math-yourself.html',
+  // Compares against "a flat $999 mold special" -- a generic postcard
+  // pricing pattern mold remediation companies of many different names
+  // advertise, not one specific company or product this could be mistaken
+  // for. The page names no company at all -- distinct from this venture's
+  // own vs-xactimate.html, which does name a product and carries its own
+  // "not affiliated" clause. Same reasoning as the other
+  // vs-a-flat-*-special pages already in the tree (e.g.
+  // furnace-bid-calculator's vs-a-flat-2495-furnace-special.html).
+  'mold-remediation-bid-calculator/vs-a-flat-999-mold-special.html',
   // Compares against "viewing page source or DevTools and reading the
   // canonical tag by eye" -- a manual habit every developer and SEO
   // practitioner already has, not a company or product this could be

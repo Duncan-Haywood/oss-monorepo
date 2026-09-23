@@ -1547,3 +1547,173 @@ candidates:
     mitigation: Keep tip-occupation eligibility an explicit self-reported checkbox with an inline caveat rather than the tool making the determination against Treasury's published occupation list; keep MAGI a user-estimated input rather than derived from a full return; keep the overtime-premium-only rule (half the rate, not the full 1.5x) and the phase-out's round-up-to-the-next-$1,000 rule both stated more than once in visible copy, not only in the footer; and measure repeat use and organic referral traffic before adding state-conformity modeling or a fuller tax-return integration this v0 deliberately does not attempt.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: osha-trir-dart-calculator
+    name: OSHA TRIR & DART rate calculator
+    doc: candidates/osha-trir-dart-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/osha-trir-dart-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and never let it decide whether a specific case is OSHA recordable or claim a company is compliant with any OSHA rule -- recordability stays the employer's own judgment call against 29 CFR 1904.7, explicit in the disclaimer and FAQ; the injury-free-hours-to-target figure is framed as a planning number, never as advice to under-report a case to keep the rate low; measure repeat use and organic search demand before adding any per-period history, CSV import, or multi-period trend feature this v0 deliberately does not attempt.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: supabase-rls-check
+    name: Supabase RLS exposure checker
+    doc: candidates/supabase-rls-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/supabase-rls-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.25
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep the check strictly read-only and conservative -- every request is
+      GET, capped to one row via a Range header, and the tool never attempts
+      a write/update/delete even as a secondary "is this also writable"
+      test, which would materially raise both the liability and the
+      implementation surface. Never render or store actual row values in
+      the report; show only row counts, exact counts, and column names,
+      never field values, so a "clean" demonstration of exposure never
+      becomes a bulk data-viewing tool in its own right. A response this
+      tool cannot classify (a network error, an unexpected status) is
+      reported as an error, never silently folded into either "exposed" or
+      "blocked" -- guessing in either direction would be worse than an
+      honest "could not confirm." Measure real user reports before
+      expanding scope into authenticated-role testing, storage buckets, or
+      Edge Functions, each of which would need its own liability read
+      rather than inheriting this one's.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: git-exposure-check
+    name: Git exposure checker
+    doc: candidates/git-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/git-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Only two paths are ever requested (.git/HEAD, .git/config), each
+      capped at 8KB of body read, and the tool never requests packed
+      objects, the index, or reflog data -- if HEAD or config is exposed,
+      the rest almost always is too, and naming that inference in the
+      report is enough without this tool performing the actual bulk
+      extraction an authorised tester's own git-dumper/GitTools run would.
+      Classification requires the response BODY to match the exact grammar
+      of a real git-internal file, not just a 200 status, specifically to
+      avoid a false positive against a server that answers every path with
+      a 200-status "soft 404" page -- pinned by a dedicated test case.
+      Measure real user reports before expanding the probe set past these
+      two files, which would raise both the liability and the
+      implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: firebase-rules-check
+    name: Firebase security rules exposure checker
+    doc: candidates/firebase-rules-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/firebase-rules-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep the check strictly read-only and conservative -- the Realtime
+      Database probe uses shallow=true (child key names only, never field
+      values) and the Firestore probe is capped to one document per
+      collection via pageSize=1, and the tool never attempts a
+      write/update/delete even as a secondary "is this also writable"
+      test. Never render or store actual field values in the report; show
+      only Realtime Database key names and Firestore field *names*, never
+      values, so a "clean" demonstration of exposure never becomes a bulk
+      data-viewing tool in its own right. A response this tool cannot
+      classify (a network error, an unexpected status) is reported as an
+      error, never silently folded into either "exposed" or "blocked" --
+      guessing in either direction would be worse than an honest "could
+      not confirm." Measure real user reports before expanding scope into
+      Cloud Storage bucket rules or Cloud Functions, each of which would
+      need its own liability read rather than inheriting this one's.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: source-map-leak-check
+    name: Source map leak checker
+    doc: candidates/source-map-leak-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/source-map-leak-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep every request GET-only and read the map's own JSON only for
+      structural fields (sources, sourcesContent presence, counts) -- never
+      render or store the actual decoded source text server-side, and never
+      write, submit, or otherwise modify anything on the target. Cap the
+      number of bytes read per script/map file so a run cannot be turned
+      into an unbounded download. A response this tool cannot classify (a
+      network error, a browser CORS block, an unexpected status) is
+      reported as an error, never silently folded into either "exposed" or
+      "safe" -- guessing in either direction would be worse than an honest
+      "could not confirm." Explicit "only test a site you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

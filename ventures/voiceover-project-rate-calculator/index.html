@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Voice-Over Project Rate Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute, scaled by usage/licensing term (internal, web, broadcast, buyout) — or price an audiobook per finished hour from manuscript word count. No sign-up, nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Voice-Over Project Rate Calculator — free, no sign-up">
+  <meta property="og:description" content="Turn a script's word count or an audiobook manuscript's length into a defensible project rate, scaled by usage term. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Voice-Over Project Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a voice-over project rate two ways: a script-based project (commercial, e-learning, IVR, explainer, animation) priced per word or per finished minute and scaled by usage/licensing term (internal, web, regional broadcast, national broadcast, full buyout), with optional rush and exclusivity add-ons; and an audiobook priced per finished hour, estimated from manuscript word count. Entirely client-side; nothing is uploaded.","featureList":"per-word and per-finished-minute script pricing, usage/licensing term multiplier, rush and exclusivity add-ons, audiobook per-finished-hour pricing from manuscript word count, separate editing/proofing/mastering fee"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a voice-over project?","acceptedAnswer":{"@type":"Answer","text":"It depends on the script's length, how you price it (per word or per finished minute), and — critically — how the buyer plans to use the recording. This calculator applies commonly cited voice-over rate-guide conventions: a base fee from length and rate, then a usage/licensing multiplier for internal-only use, unrestricted web use, regional broadcast, national broadcast, or a full buyout."}},{"@type":"Question","name":"Why does the usage term change the price so much?","acceptedAnswer":{"@type":"Answer","text":"A script recorded for one company's internal training video is worth far less to the buyer than the same script running as a national television commercial for a year — the recording is identical, but what the buyer is licensing is completely different. Voice-over rate guides price usage in tiers for exactly this reason, and a narrator who quotes one flat rate regardless of usage is leaving money on the table for broadcast and buyout work."}},{"@type":"Question","name":"Why is an audiobook priced differently, per finished hour instead of per word?","acceptedAnswer":{"@type":"Answer","text":"Per-finished-hour (PFH) pricing is the audiobook industry's own convention, most visibly used by ACX. A finished hour is the length of the produced, edited audio a listener hears — not the raw word count or the time it took to record it — so this calculator estimates finished hours from manuscript word count using a commonly cited words-per-finished-hour conversion, then prices against that estimate."}},{"@type":"Question","name":"Is this a quote I can send a client, or a guarantee of what I'll be paid?","acceptedAnswer":{"@type":"Answer","text":"No. It is a starting point for your own negotiation based on general rate-guide conventions, not a quote, guarantee, or valuation performed on your behalf. Actual rates vary by your experience, demo quality, niche demand, and what a specific buyer is willing to pay for a specific project."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c1a22; background: #f2f1f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #38306b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #38306b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b4a58; }
+    .card { background: #fff; border: 1px solid #d9d5e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #38306b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.checkbox { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-top: 16px; }
+    label.checkbox input { width: auto; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #bdb6da; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    fieldset { border: 1px solid #e4e0f2; border-radius: 10px; margin: 16px 0 0; padding: 6px 14px 14px; }
+    legend { font-size: .8rem; font-weight: 700; color: #5b4fa8; padding: 0 6px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4a3d9e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ece9f7; color: #38306b; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece9f7; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b4a58; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece9f7; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #ece5f7; color: #5b4fa8; }
+    .stats { font-size: .85rem; color: #4b4a58; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d5e8; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VOICE-OVER PROJECT RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for a voice-over project?</h1>
+    <p>Choose a project type below. A <strong>script-based project</strong>
+    (commercial, e-learning/corporate narration, IVR/telephony, explainer,
+    animation) prices per word or per finished minute, scaled by the
+    usage/licensing term the buyer wants. An <strong>audiobook</strong> prices
+    per finished hour, estimated from your manuscript's word count — the
+    convention audiobook platforms like ACX use.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Quoting a written translation instead of a recorded script? See the <a href="../translator-project-quote/">translator project quote calculator</a> for per-word, fuzzy-match, and rush pricing on that kind of language work.</p>
+    <p class="note"><a href="how-much-should-i-charge-for-a-voice-over-project.html">How much should I charge for a voice-over project?</a> &mdash; the usage-term multiplier and audiobook PFH pricing worked through on real numbers.</p>
+  </header>
+
+  <section class="card">
+    <h2>Project type</h2>
+    <label for="project-type">What are you pricing?</label>
+    <select id="project-type">
+      <option value="script">Script-based project (commercial, e-learning, IVR, explainer, animation)</option>
+      <option value="audiobook">Audiobook narration</option>
+    </select>
+
+    <fieldset id="script-fields">
+      <legend>Script details</legend>
+      <div class="grid">
+        <div>
+          <label for="word-count">Script word count</label>
+          <input type="number" id="word-count" min="0" step="1" placeholder="e.g. 150">
+        </div>
+        <div>
+          <label for="words-per-minute">Read pace (words per minute)</label>
+          <input type="number" id="words-per-minute" min="1" step="1" value="150">
+        </div>
+        <div>
+          <label for="pricing-method">Pricing method</label>
+          <select id="pricing-method">
+            <option value="perWord">Per word</option>
+            <option value="perFinishedMinute">Per finished minute</option>
+          </select>
+        </div>
+        <div>
+          <label for="rate">Your base rate (per word or per finished minute)</label>
+          <input type="number" id="rate" min="0" step="0.01" placeholder="e.g. 0.30">
+        </div>
+        <div>
+          <label for="usage-term">Usage / licensing term</label>
+          <select id="usage-term">
+            <option value="internal">Internal / training use only</option>
+            <option value="web" selected>Web / unrestricted digital use</option>
+            <option value="broadcast_regional">Regional broadcast (radio or TV)</option>
+            <option value="broadcast_national">National broadcast (radio or TV)</option>
+            <option value="buyout">Full buyout (all media, in perpetuity)</option>
+          </select>
+        </div>
+        <div>
+          <label for="extra-revisions">Extra revision rounds (beyond what's included)</label>
+          <input type="number" id="extra-revisions" min="0" step="1" value="0">
+        </div>
+        <div>
+          <label for="extra-revision-fee">Fee per extra revision round</label>
+          <input type="number" id="extra-revision-fee" min="0" step="1" value="0">
+        </div>
+      </div>
+      <label class="checkbox"><input type="checkbox" id="rush"> Rush turnaround (adds a 50% surcharge)</label>
+      <label class="checkbox"><input type="checkbox" id="exclusive"> Category exclusivity requested (adds a 25% add-on)</label>
+    </fieldset>
+
+    <fieldset id="audiobook-fields" hidden>
+      <legend>Audiobook details</legend>
+      <div class="grid">
+        <div>
+          <label for="ab-word-count">Manuscript word count</label>
+          <input type="number" id="ab-word-count" min="0" step="1" placeholder="e.g. 75000">
+        </div>
+        <div>
+          <label for="words-per-finished-hour">Words per finished hour (conversion)</label>
+          <input type="number" id="words-per-finished-hour" min="1" step="1" value="9300">
+        </div>
+        <div>
+          <label for="rate-per-finished-hour">Your rate per finished hour</label>
+          <input type="number" id="rate-per-finished-hour" min="0" step="1" placeholder="e.g. 250">
+        </div>
+        <div>
+          <label for="epm-rate-per-finished-hour">Editing/proofing/mastering rate per finished hour (0 if included)</label>
+          <input type="number" id="epm-rate-per-finished-hour" min="0" step="1" value="0">
+        </div>
+      </div>
+    </fieldset>
+
+    <p>
+      <button type="button" id="calculate">Calculate my rate</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter your numbers above and click Calculate my rate.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Suggested project rate</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <tbody id="result-body"></tbody>
+    </table>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies commonly cited voice-over rate-guide conventions —
+    per-word or per-finished-minute base pricing, tiered usage/licensing
+    multipliers, a standard rush surcharge, and the ACX-style per-finished-hour
+    audiobook convention — to the numbers you enter. It does <strong>not</strong>
+    know your specific niche's current market, your own demo quality and
+    track record, or what a specific buyer is willing to pay for this exact
+    project. Treat the output as a starting point for a negotiation, never a
+    quote, guarantee, or valuation performed on your behalf.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a voice-over project?</h3>
+    <p>It depends on the script's length, how you price it (per word or per finished minute), and — critically — how the buyer plans to use the recording. This calculator applies commonly cited voice-over rate-guide conventions: a base fee from length and rate, then a usage/licensing multiplier for internal-only use, unrestricted web use, regional broadcast, national broadcast, or a full buyout.</p>
+    <h3>Why does the usage term change the price so much?</h3>
+    <p>A script recorded for one company's internal training video is worth far less to the buyer than the same script running as a national television commercial for a year — the recording is identical, but what the buyer is licensing is completely different. Voice-over rate guides price usage in tiers for exactly this reason, and a narrator who quotes one flat rate regardless of usage is leaving money on the table for broadcast and buyout work.</p>
+    <h3>Why is an audiobook priced differently, per finished hour instead of per word?</h3>
+    <p>Per-finished-hour (PFH) pricing is the audiobook industry's own convention, most visibly used by ACX. A finished hour is the length of the produced, edited audio a listener hears — not the raw word count or the time it took to record it — so this calculator estimates finished hours from manuscript word count using a commonly cited words-per-finished-hour conversion, then prices against that estimate.</p>
+    <h3>Is this a quote I can send a client, or a guarantee of what I'll be paid?</h3>
+    <p>No. It is a starting point for your own negotiation based on general rate-guide conventions, not a quote, guarantee, or valuation performed on your behalf. Actual rates vary by your experience, demo quality, niche demand, and what a specific buyer is willing to pay for a specific project.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own project terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>quote-calculated</code>, <code>example-loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeProjectQuote, computeAudiobookQuote, USAGE_TERM_LABELS } from "./calc.mjs";
+    import { recordEvent, usageAllowed, toggleUsage } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      projectType: $("#project-type"),
+      scriptFields: $("#script-fields"),
+      audiobookFields: $("#audiobook-fields"),
+      wordCount: $("#word-count"),
+      wordsPerMinute: $("#words-per-minute"),
+      pricingMethod: $("#pricing-method"),
+      rate: $("#rate"),
+      usageTerm: $("#usage-term"),
+      rush: $("#rush"),
+      exclusive: $("#exclusive"),
+      extraRevisions: $("#extra-revisions"),
+      extraRevisionFee: $("#extra-revision-fee"),
+      abWordCount: $("#ab-word-count"),
+      wordsPerFinishedHour: $("#words-per-finished-hour"),
+      ratePerFinishedHour: $("#rate-per-finished-hour"),
+      epmRate: $("#epm-rate-per-finished-hour"),
+      status: $("#status"),
+      reportCard: $("#report-card"),
+      stats: $("#stats"),
+      resultBody: $("#result-body"),
+      findings: $("#findings"),
+    };
+
+    function money(n) {
+      const format = (n) => `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = "";
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function updateVisibleFields() {
+      const isAudiobook = els.projectType.value === "audiobook";
+      els.scriptFields.hidden = isAudiobook;
+      els.audiobookFields.hidden = !isAudiobook;
+    }
+
+    function runScriptQuote() {
+      const input = {
+        wordCount: Number(els.wordCount.value),
+        wordsPerMinute: Number(els.wordsPerMinute.value),
+        pricingMethod: els.pricingMethod.value,
+        rate: Number(els.rate.value),
+        usageTerm: els.usageTerm.value,
+        rush: els.rush.checked,
+        exclusive: els.exclusive.checked,
+        extraRevisions: Number(els.extraRevisions.value),
+        extraRevisionFee: Number(els.extraRevisionFee.value),
+      };
+      const result = computeProjectQuote(input);
+      els.stats.textContent = `${result.finishedMinutes.toLocaleString()} estimated finished minute(s) of audio at the read pace entered above.`;
+      els.resultBody.innerHTML = `
+        <tr><td>Base fee (before usage term)</td><td class="price">${money(result.baseFee)}</td></tr>
+        <tr><td>Usage term (${USAGE_TERM_LABELS[input.usageTerm] ?? "Web / unrestricted digital use"})</td><td class="price">×${result.usageMultiplier}</td></tr>
+        <tr><td>License fee (base × usage × rush × exclusivity)</td><td class="price">${money(result.licenseFee)}</td></tr>
+        <tr><td>Extra revision rounds (${result.revisionRounds})</td><td class="price">${money(result.revisionFee)}</td></tr>
+        <tr><td><strong>Suggested project rate</strong></td><td class="price">${money(result.total)}</td></tr>`;
+      renderFindings(result.findings);
+    }
+
+    function runAudiobookQuote() {
+      const input = {
+        wordCount: Number(els.abWordCount.value),
+        wordsPerFinishedHour: Number(els.wordsPerFinishedHour.value),
+        ratePerFinishedHour: Number(els.ratePerFinishedHour.value),
+        epmRatePerFinishedHour: Number(els.epmRate.value),
+      };
+      const result = computeAudiobookQuote(input);
+      els.stats.textContent = `${result.finishedHours.toLocaleString()} estimated finished hour(s), at the words-per-finished-hour conversion entered above.`;
+      els.resultBody.innerHTML = `
+        <tr><td>Narration fee (finished hours × your rate)</td><td class="price">${money(result.narrationFee)}</td></tr>
+        <tr><td>Editing / proofing / mastering fee</td><td class="price">${money(result.epmFee)}</td></tr>
+        <tr><td><strong>Suggested project rate</strong></td><td class="price">${money(result.total)}</td></tr>
+        <tr><td>Effective rate per manuscript word</td><td class="price">${money(result.effectivePerWord)}</td></tr>`;
+      renderFindings(result.findings);
+    }
+
+    function runCalculate() {
+      if (els.projectType.value === "audiobook") {
+        runAudiobookQuote();
+      } else {
+        runScriptQuote();
+      }
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      recordEvent("quote-calculated");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    els.projectType.addEventListener("change", updateVisibleFields);
+
+    $("#calculate").addEventListener("click", () => {
+      const isAudiobook = els.projectType.value === "audiobook";
+      const missing = isAudiobook
+        ? (!els.abWordCount.value || !els.ratePerFinishedHour.value)
+        : (!els.wordCount.value || !els.rate.value);
+      if (missing) {
+        els.status.innerHTML = `<span class="error">Enter a word count and a rate above first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.projectType.value = "script";
+      updateVisibleFields();
+      els.wordCount.value = "150";
+      els.wordsPerMinute.value = "150";
+      els.pricingMethod.value = "perWord";
+      els.rate.value = "0.30";
+      els.usageTerm.value = "web";
+      els.rush.checked = false;
+      els.exclusive.checked = false;
+      els.extraRevisions.value = "0";
+      els.extraRevisionFee.value = "0";
+      runCalculate();
+      recordEvent("example-loaded");
+      els.status.textContent = "Worked example: a 150-word e-learning script priced per word for unrestricted web use.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.wordCount.value = "";
+      els.rate.value = "";
+      els.abWordCount.value = "";
+      els.ratePerFinishedHour.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter your numbers above and click Calculate my rate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      toggleUsage(false);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (!usageAllowed()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+
+    updateVisibleFields();
+  </script>
+</body>
+</html>

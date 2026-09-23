@@ -306,7 +306,13 @@
   covers a different tag-and-response evidence class again -- a stale CDN hash rather than a
   reflected CORS origin -- and <a href="../security-headers-check/">Security Headers checker</a>
   covers a third response-header evidence class: clickjacking protection and
-  Content-Security-Policy strength rather than a reflected <code>Origin</code>.</p>
+  Content-Security-Policy strength rather than a reflected <code>Origin</code>, and
+  <a href="../supabase-rls-check/">Supabase RLS exposure checker</a> covers a database-level
+  access-control evidence class again -- whether a table returns real rows, not a response
+  header at all, and
+  <a href="../graphql-introspection-exposure-check/">GraphQL introspection exposure checker</a>
+  covers a schema-enumeration evidence class again -- whether an unauthenticated introspection
+  query reveals the full query/mutation surface, not a response header or a database table.</p>
 </footer>
 </body>
 </html>

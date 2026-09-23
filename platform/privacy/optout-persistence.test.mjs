@@ -398,7 +398,158 @@ const RELATIVE_SELF = relative(
 //
 // 304 -> 305: `docker-base-image-eol-check` graduated, adding one
 // `usage.mjs` following the same opt-out pattern as its siblings.
-const SWITCHES_IN_THE_CATALOGUE = 305;
+//
+// 305 -> 306: `freelance-platform-fee-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings. Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/freelance-platform-fee-calculator/usage.mjs`) and
+// no deletions.
+//
+// 306 -> 307: `personal-trainer-package-pricing-calculator` graduated,
+// adding one `usage.mjs` following the same opt-out pattern as its
+// siblings (`usageOptedOut`/`setUsageOptOut` gating `record`/`readUsage`
+// the same way `tutor-package-pricing-calculator`'s does). Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/personal-trainer-package-pricing-calculator/usage.mjs`) and no
+// deletions.
+//
+// 307 -> 308: `actions-secrets-inherit-check` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its `actions-*`
+// siblings (`usageOptedOut`/`setUsageOptOut` gating `record`/`readUsage`
+// the same way `actions-cache-poisoning-check`'s does). Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/actions-secrets-inherit-check/usage.mjs`) and no deletions.
+// This branch was open before `osha-trir-dart-calculator` and
+// `supabase-rls-check` landed, so it only ever knew its own predecessor's
+// number (307) until this merge -- the same ordinary collision shape
+// recorded throughout this list.
+//
+// 308 -> 309: `osha-trir-dart-calculator` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its siblings (`readOptOut`/
+// `writeOptOut` gating `recordUsage`). Verified the way this file's error
+// message prescribes: exactly one added `usage.mjs`
+// (`ventures/osha-trir-dart-calculator/usage.mjs`) and no deletions.
+//
+// 309 -> 310: `supabase-rls-check` graduated concurrently, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings. Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/supabase-rls-check/usage.mjs`) and no deletions.
+// This branch only ever knew its own predecessor's number (307) until
+// this merge -- the same ordinary collision shape recorded throughout
+// this list.
+//
+// 310 -> 311: `source-map-leak-check` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its sibling checkers
+// (`usageOptedOut`/`setUsageOptOut`-equivalent gating via `readOptOut`/
+// `writeOptOut` in `recordUsage`, same as `supabase-rls-check`'s). This
+// branch only ever knew its own predecessor's number (310, counting only
+// `actions-secrets-inherit-check`) until this merge brought
+// `osha-trir-dart-calculator` and `supabase-rls-check` in alongside it --
+// the same ordinary collision shape recorded throughout this list.
+//
+// 311 -> 312: `mercari-fee-calculator` graduated concurrently, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `mercari-fee-calculator-usage` storage name). Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/mercari-fee-calculator/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309) until this
+// merge -- the same ordinary collision shape recorded throughout this list.
+//
+// 312 -> 313: `voiceover-project-rate-calculator` graduated concurrently
+// with both above, adding one `usage.mjs` following the same opt-out
+// pattern as its siblings (`usageAllowed`/`toggleUsage` gating
+// `recordEvent` the same way `locksmith-bid-calculator`'s does). This
+// branch only ever knew its own predecessor's number (308, before the
+// osha-trir-dart-calculator/supabase-rls-check pair landed) until this
+// merge -- the same collision shape as the entry immediately above.
+// Verified the way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/voiceover-project-rate-calculator/usage.mjs`) and
+// no deletions.
+//
+// 312 -> 313: `sign-language-interpreter-rate-calculator` graduated, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent`, the same shape as
+// `voiceover-project-rate-calculator`'s, which it is modeled on). Verified
+// the way this file's error message prescribes: exactly one added
+// `usage.mjs`
+// (`ventures/sign-language-interpreter-rate-calculator/usage.mjs`) and no
+// deletions.
+//
+// 313 -> 314: `turo-host-payout-calculator` also graduated, concurrently,
+// adding one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent` the same way
+// `voiceover-project-rate-calculator`'s does). This branch only ever knew
+// its own predecessor's number (312, before `mercari-fee-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/turo-host-payout-calculator/usage.mjs`) and no deletions.
+//
+// 314 -> 315: `firebase-rules-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// `supabase-rls-check`'s. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/firebase-rules-check/usage.mjs`) and no deletions. This
+// branch only ever knew its own predecessor's number (309, before
+// `osha-trir-dart-calculator`, `supabase-rls-check`,
+// `mercari-fee-calculator`, and `voiceover-project-rate-calculator`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list.
+//
+// 314 -> 315: `podcast-feed-check` graduated (this branch), adding one
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// `redirect-chain-check`'s. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/podcast-feed-check/usage.mjs`) and no deletions. This branch
+// only ever knew its own predecessor's number (312, before
+// `turo-host-payout-calculator` and `firebase-rules-check` landed) until
+// this merge -- the same ordinary collision shape recorded throughout
+// this list.
+//
+// 315 -> 316: `source-map-leak-check` also graduated, concurrently, adding
+// one `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// its checker siblings. Verified the way this file's error message
+// prescribes: exactly one added `usage.mjs`
+// (`ventures/source-map-leak-check/usage.mjs`) and no deletions. That
+// branch only ever knew its own predecessor's number (309, before
+// `osha-trir-dart-calculator`, `supabase-rls-check`,
+// `mercari-fee-calculator`, `voiceover-project-rate-calculator`, and
+// `turo-host-payout-calculator` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list. Total
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
+//
+// 316 -> 317: `graphql-introspection-exposure-check` also graduated,
+// concurrently, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its checker siblings, keyed under
+// its own `graphql-introspection-exposure-check-usage` storage name. This
+// branch only ever knew its own predecessor's number (313) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Verified the way this file's error message prescribes: exactly
+// one added `usage.mjs`
+// (`ventures/graphql-introspection-exposure-check/usage.mjs`) and no
+// deletions.
+//
+// 317 -> 318: `podcast-feed-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its checker siblings. That
+// branch's own comment read this as a no-op against its own predecessor
+// number, which was wrong once merged with this branch's own addition --
+// re-derived here by `sync_tree_counts.py` against the fully merged tree
+// (and its regenerated mirror) rather than trusted from either branch's
+// arithmetic.
+//
+// 318 -> 319: `git-exposure-check` also graduated, concurrently on
+// `origin/main`, adding one `usage.mjs` following the same
+// `readOptOut`/`writeOptOut` pattern as its siblings, keyed under its own
+// `git-exposure-check-usage` storage name. This branch only ever knew its
+// own predecessor's number (313, before `firebase-rules-check`,
+// `source-map-leak-check`, and `podcast-feed-check` landed) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list. Total re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 319;
 
 let counter = 0;
 function fixture(source) {

@@ -6534,6 +6534,34 @@ products:
           watching -- whether a visitor who tried the worked example came
           back to check their own workflows.
 
+  - slug: actions-secrets-inherit-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool scanning GitHub Actions
+          workflow YAML for two secrets: inherit risks on a
+          reusable-workflow call -- secrets: inherit handed to a workflow
+          hosted in a different repository, and secrets: inherit on a job
+          reachable from a pull_request_target/workflow_run trigger.
+          Direct sibling of actions-cache-poisoning-check,
+          actions-secret-leak-check and pinned-actions-check, closing a gap
+          none of those three cover (none of them read secrets: inherit at
+          all). `live_url_visitors` is null, not zero -- see the standing
+          note on this route elsewhere in this file; nobody has measured
+          yet. Named channel to watch: r/devops, r/github, and GitHub's own
+          Security Lab / community discussions, the same channel the rest
+          of this portfolio's actions-* family targets. `check_run`
+          against `example_loaded` is the signal worth watching -- whether
+          a visitor who tried the worked example came back to check their
+          own workflows.
+
   - slug: twitch-payout-calculator
     surface: github-pages
     readings:
@@ -6764,3 +6792,160 @@ products:
           signal in this venture that anyone acted on the lever rather than
           looking at it. If the two ever diverge sharply, the lever copy is
           what to change.
+  - slug: freelance-platform-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          comparison_calculated: 0
+          target_solved: 0
+          summary_copied: 0
+          share_link_copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit. The
+          visitor signal is null rather than zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counters are opt-out and never leave the device --
+          nobody has measured, which is not the same as having measured
+          nothing. The event counts are genuine zeros for a venture
+          published minutes ago. `target_solved` is the one worth watching:
+          the main comparison only requires reading a job price someone
+          already has, but solving for a target take-home means a visitor is
+          actively pricing a new job around the calculator's numbers rather
+          than checking one they already quoted.
+
+  - slug: mercari-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          schedules_compared: 0
+          numbers_saved: 0
+          link_copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/mercari-fee-calculator/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `schedules_compared` is the one worth
+          watching: it is the feature this venture's write-up bets on, since
+          it answers a question (does editing an old listing actually help)
+          neither schedule's headline rate answers on its own.
+  - slug: osha-trir-dart-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          rate_calculated: 0
+          target_dilution_shown: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/osha-trir-dart-calculator/`) from its first commit, so
+          unlike most rows here it has never been an instrumented-but-
+          unreachable product. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Counts honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
+  - slug: voiceover-project-rate-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          quote-calculated: 0
+          example-loaded: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit. The
+          visitor signal is null rather than zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counters are opt-out and never leave the device --
+          nobody has measured, which is not the same as having measured
+          nothing. The event counts are genuine zeros for a venture
+          published minutes ago.
+  - slug: sign-language-interpreter-rate-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          quote-calculated: 0
+          cancellation-calculated: 0
+          example-loaded: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit. The
+          visitor signal is null rather than zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. The event counts are genuine zeros for a venture
+          published minutes ago.
+  - slug: firebase-rules-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool sending real, read-only,
+          unauthenticated requests to a Firebase project's Realtime
+          Database (shallow key listing) and named Firestore collections
+          (one document max), naming which paths return real data with no
+          login. Direct sibling of supabase-rls-check -- same "default-open
+          unless a rule locks it down" shape for a different backend.
+          `live_url_visitors` is null, not zero -- see the standing note on
+          this route elsewhere in this file; nobody has measured, which is
+          not the same as having measured nothing.
+  - slug: graphql-introspection-exposure-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          browser_check_run: 0
+          pasted_check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit. The
+          visitor signal is null rather than zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counters are opt-out and never leave the device --
+          nobody has measured, which is not the same as having measured
+          nothing. The event counts are genuine zeros for a venture
+          published minutes ago.
+
+  - slug: podcast-feed-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/podcast-feed-check/`) from
+          its first commit. The visitor signal is null rather than zero for
+          the same reason as every other row here: GitHub Pages exposes no
+          server-side analytics and the local counters are opt-out and never
+          leave the device, so nobody has measured yet -- that is not the
+          same as having measured nothing. `check_run` is the one worth
+          watching: a visitor who only ever loads the worked example
+          (`example_loaded`) never checked their own feed.
