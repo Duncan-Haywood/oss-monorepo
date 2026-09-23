@@ -169,6 +169,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "a flat day rate" -- a generic pricing method every
+  // small rental operator already knows, not a company or product this
+  // could be mistaken for. Same reasoning as the other vs-flat-day-rate
+  // page above.
+  'equipment-rental-break-even/vs-flat-day-rate.html',
   // Compares against "eyeballing which box triggers the dimensional
   // penalty" -- a habit every shipper already has, not a company or
   // product this could be mistaken for. The page names no carrier tool.
@@ -237,6 +242,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // flat rate is the right tool for advertising. Same reasoning as the other
   // generic-method pages above.
   'dog-walking-route-pricing/vs-a-flat-per-walk-rate.html',
+  // Compares against "a flat $4,500 automatic gate special" -- the published
+  // per-opening ad price every gate shop competes with, not a company or
+  // product this could be mistaken for. The page names no vendor or field-
+  // service platform (the venture's own named-product comparison, vs-jobber,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat special is the right tool for advertising. Same reasoning as the
+  // other generic-method pages above.
+  'automatic-driveway-gate-bid-calculator/vs-a-flat-4500-special.html',
   // Compares against "opening each marketplace's own fee calculator and
   // reconciling the answers" -- the method every multi-channel seller already
   // uses, not a company or product this could be mistaken for. It is the one

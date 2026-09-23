@@ -36901,12 +36901,169 @@ entries:
         --only agent-permission-config-check`: sideways, presets,
         roundtrip, contrast, optout, sweep, and journey all ok; highlight
         skipped as not applicable to this venture (it makes no highlight
-        promise). `run_workflow_locally.py --for-changes` run clean on the
-        merged, post-sync-fix tree (a first attempt raced the merge and was
-        correctly discarded by the tool's own unstable-checkout guard --
-        HEAD moved mid-run -- rather than trusting a result computed
-        against a moving target). regen.mjs --verify: current.
+        promise). `run_workflow_locally.py --for-changes` was run twice: a
+        first attempt raced the merge and was correctly discarded by the
+        tool's own unstable-checkout guard (HEAD moved mid-run); a second
+        attempt was itself still completing (a single-core sandbox, and
+        `main` kept advancing underneath it) when `git fetch` found four
+        more merges landed, so this entry relies on the direct `node
+        --test`/`pytest` suites above -- which cover the same assertions
+        the workflow's steps run -- rather than waiting further on the
+        sweep. regen.mjs --verify: current after each of two merges.
         Actions confirmed starved this session
         (`ci_starvation.py --run 35863781373`: never got a runner), so
         every line above was run locally rather than trusted from a red or
-        absent check.
+        absent check. `main` advanced twice more while this session ran
+        (#5188's FreshBooks page, then #5190/#5192/#5193's comparison
+        pages and their ledger/infra_state follow-ups); merged both times,
+        resolving the generated front-door mirror's binary .gz conflicts
+        by re-running regen.mjs (never hand-picking a side) and, the
+        second time, an append-only portfolio/ledger/2026-09.yaml conflict
+        (both sides had appended new entries at the same point -- kept
+        both, in full, by hand rather than picking a side).
+    mrr_end: 0
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a third comparison page, vs-freshbooks.html (already carried
+        vs-quickbooks-online-invoicing.html and vs-spreadsheet.html;
+        named-product comparisons are unbudgeted per surface-budget.mjs,
+        which confirmed the venture at 0/1 generic-method pages used).
+        Followed the same nominative-fair-use discipline as the existing
+        QuickBooks page: FreshBooks' pricing page is not reachable from
+        this session (proxied egress), so no dollar figure for FreshBooks
+        appears anywhere on the page -- only well-documented, non-numeric
+        identity facts, plus the full no-warranty and "not affiliated"
+        disclaimers. `node --test` in the venture: 118/118.
+        `platform/marketing`/`platform/pages` suite: 1281/1281, then
+        1399/1399 including the venture's own suite after a second
+        regen.mjs pass (main advanced twice underneath the branch while
+        it was open -- once with a #5176-era mirror shard, once with a
+        ledger-only commit; resolved the generated-file conflicts by
+        taking either side then re-running regen.mjs rather than
+        hand-picking, per resolve-mirror-merge.sh's guidance for the
+        front-door.mjs-produced files it does not itself cover).
+        clauses.mjs, surface-budget.mjs --check, checklist_coverage.py,
+        check_ledger_only.py: all clean. Confirmed every check on the PR
+        starved via ci_starvation.py (runner_id 0, 3s, no steps across
+        all 7 jobs) before merging (#5188). Published the gh-pages
+        snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current (#5189).
+      - >-
+        Earlier in the session, also caught and attempted to fix a stale
+        front-door mirror left by #5175/#5166 (regen.mjs --verify showed
+        5 artifacts out of date); a concurrent session had already landed
+        the identical fix, so both resulting PRs (#5178, #5179) were
+        correctly closed as duplicates once verified against current
+        `main` -- no harm done, and it confirmed the repo's duplicate-PR
+        handling is working.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled brief was generic ("continue work ... develop, deploy,
+        market, sell and support revenue generating software products").
+        `session_gate.py`: PROCEED (0% meta-work share, build-now pipeline
+        empty). Checked open PRs first (2 open, both real shipped comparison
+        pages on different ventures, no overlap) and `usage_state.py`
+        (still `never-measured` fleet-wide, so no signal-driven product to
+        prioritize) and `pages_state.py` (`deployed: served`,
+        `current`) before picking work, per `DIRECTION.md`'s ordering.
+      - >-
+        A background agent's read of recent `main` history found the
+        comparison-page pattern saturating (15+ landed in the visible
+        window) with both existing prototype-stage router top candidates
+        (`reverb-fee-calculator`, `where-to-sell-calculator`) already
+        feature-complete for their stated hypotheses (every named
+        sub-question already has its own dedicated page; the cross-tool
+        handoff both hypotheses call out is already wired both directions
+        and covered by `to-where-to-sell.test.mjs`). Chose not to add a
+        16th comparison page and instead ran the whole-catalogue
+        browser/accessibility sweep, which `browser_state.py` showed
+        `STALE` on all 8 checks since the last comparison-page merges
+        touched `platform/pages/clauses.mjs` -- the highest-value
+        under-run guard per this ledger's own history (the one other cold
+        run found 48 critical axe violations across live products).
+      - >-
+        `npm install --no-save playwright@1.56.0 axe-core` (both in one
+        command, per `CLAUDE.md`'s own warning about the two traps in that
+        line), then `browser_checks.py --record` against a fresh build:
+        1,268 pages / 331 tools / 2 viewports, all 8 checks (sideways,
+        presets, roundtrip, highlight, contrast, optout, sweep, journey)
+        passed clean -- no WCAG A/AA violations, no dead share/comparison
+        links, no sideways scroll at 375px, no console/resource errors,
+        every opt-out choice remembered, the full backup/restore/revision
+        customer journey intact. Recorded at `cec83257`. `main` advanced
+        twice more with unrelated comparison-page merges while this ran;
+        merged clean (no conflicts) and re-verified `regen.mjs --verify`
+        current and `test_browser_state` 63/63 afterward, so the new
+        reading still reflects the tree it was measured against even
+        though the fleet's `STALE` classifier will flag it again on the
+        next content merge, as designed.
+      - >-
+        `ci_starvation.py --run 35869291730` (the most recent `main` push,
+        `portfolio-validate.yml`) confirmed `runner_id: 0` -- Actions is
+        starved again right now, so this and the other recent red checks
+        on `main` are not real failures. No product defect found to fix
+        this pass; recording the clean sweep is the shipped outcome.
+    mrr_end: 0
+  - venture: automatic-driveway-gate-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, vs-a-flat-4500-special.html,
+        against the "$4,500 automatic gate" ad price the venture's own
+        meta description and calc.mjs comments already referenced
+        (surface-budget.mjs confirmed the venture at 0/1 generic-method
+        pages used; its existing vs-jobber.html is a named-product page and
+        unbudgeted). Worked example from calc.mjs's own two built-in
+        JOB_PRESETS (the "cheap special" and "where the special loses"
+        jobs) priced at the shipped index.html shop-rate defaults ($42/hr
+        wage, 32% burden, $285 travel, 16% overhead, 28% margin, $125
+        permit): the cheapest job in the catalogue already totals
+        $4,684.02 before profit, $184.02 over the flat $4,500 special, and
+        the harder preset totals $14,716.71, $10,216.71 over it. Registered
+        the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no
+        vendor). `node --test` in the venture: 135/135. Caught a real
+        authoring bug via faq-visible.test.mjs before push: the new page's
+        JSON-LD FAQ answers used a literal `--` where the visible prose
+        used `&mdash;`, so the schema and the rendered text diverged --
+        fixed to match, same defect this ledger already recorded against
+        freelance-platform-fee-calculator's page days earlier.
+        `platform/marketing`/`platform/pages` suite: 1281/1281, run three
+        times as `main` advanced underneath the branch (dryer-vent-bid-
+        calculator's, change-order-margin-calculator's, and freelance-
+        platform-fee-calculator's comparison pages, then invoice-payment-
+        terms-calculator's), each a front-door-tools/ mirror-shard or
+        front-door/ conflict resolved via resolve-mirror-merge.sh plus a
+        second regen.mjs pass for the files that script does not itself
+        cover. Also caught and fixed a git-shallow-history artifact this
+        file already warns about: a first `git fetch origin main` without
+        `--unshallow` left the repo shallow enough that `git rebase
+        origin/main` reported "Rebasing (1/6011)" and hit spurious add/add
+        conflicts on unrelated root files; re-running `git fetch
+        --unshallow origin main` (naming the ref, per this file's own
+        guidance) fixed it before any of those conflicts were touched by
+        hand. `python3 -m pytest gitops/tests -q`: 637 passed, 1 skipped
+        (environmental) after installing nginx-light/openssh-client via
+        `apt-get update && apt-get install`. `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q`: 446 passed. checklist_coverage.py
+        and sync_tree_counts.py: clean, no drift. All platform/ci unittest
+        modules and agent_review's test_review (21/21): clean.
+        guard_state.py --require-runnable: clean once nginx/ssh-keygen were
+        installed. run_workflow_locally.py --for-changes: 7/11 selected
+        workflows passed; the rest need GitHub-hosted-runner-only
+        credentials this sandbox does not have (Argo/Hetzner preflight,
+        agent-cross-review, Pages deploy/publish). Confirmed every check on
+        the PR starved via ci_starvation.py (runner_id 0, 3-4s, no steps
+        across all 21 check runs) before squash-merging (#5192). Refreshed
+        the gh-pages snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current earlier in the session, before
+        this venture's own change; refreshing again after this merge below.
+    mrr_end: 0
