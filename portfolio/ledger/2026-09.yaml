@@ -36469,3 +36469,47 @@ entries:
         full customer-journey narrative, sitemap and 404 checks pass) — and
         recorded it with `--record`, so `browser_state.py` now reads current
         for the whole catalogue instead of stale.
+  - venture: countertop-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        #5157 (deck-bid-calculator) and #5153 (concrete-bid-calculator) were
+        already claimed for the same generic-method comparison-page pattern;
+        surveyed surface-budget.mjs --check for other ventures at 0/1 and
+        picked countertop-bid-calculator (not touched in git log -30 or any
+        open PR). surface-budget.mjs --for confirmed 0 generic-method pages
+        (one named-product page, vs-moraware.html, already shipped). Added
+        vs-a-flat-price-per-square-foot.html: the angle is the venture's own
+        stated hypothesis in VENTURE.yaml (a flat price-per-finished-sq-ft
+        rule of thumb cannot see that a 28 sq ft waterfall island is a
+        different job from a 40 sq ft galley). Worked-example table is
+        computed from calc.mjs's own shipped JOB_PRESETS and index.html's own
+        shipped shop-rate defaults against a $60/sq ft flat quote (galley
+        covers with $612.45 to spare; the venture's own default L-kitchen
+        job is short $539.07; the "slab trap" waterfall preset is short
+        $1,767.95), pinned by a test that re-derives the figures from
+        calc.mjs rather than hard-coding them. Added to
+        COMPARISON_DISCLAIMER_EXEMPT in platform/pages/clauses.mjs (generic
+        method, no competitor named). Caught and fixed a real bug before
+        merging: the FAQPage JSON-LD used a literal `--` and single quotes
+        where the visible page used the em-dash entity and double quotes;
+        faq-visible.test.mjs caught the mismatch on the first full local run,
+        fixed to match verbatim, re-verified clean. `node --test` in the
+        venture: 121/121. `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs`: 1281/1281 (clean, after the fix).
+        `python3 -m pytest gitops/tests -q`: 613 passed, 25 skipped.
+        `python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q`: 446 passed.
+        platform/ci and platform/ci/agent_review unittest suites: all green.
+        checklist_coverage.py and sync_tree_counts.py clean.
+        check_venture_regression.py: no live venture disappears.
+        regen.mjs --verify: current (after regen.mjs, run twice more to
+        absorb #5157/#5161/#5163 and then #5167 merging to main mid-session
+        -- resolved gitops/prod/front-door* conflicts with
+        resolve-mirror-merge.sh + regen.mjs, and platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT by hand, concatenation only). Opened
+        #5169, confirmed every check starved via ci_starvation.py
+        (runner_id: 0 across all 16 check runs), merged. Published the
+        gh-pages snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current.

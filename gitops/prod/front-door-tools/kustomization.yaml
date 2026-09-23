@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 140 files, 554077 bytes
 #   portfolio-front-tools-5: 124 files, 553523 bytes
 #   portfolio-front-tools-6: 130 files, 549117 bytes
-#   portfolio-front-tools-7: 122 files, 551874 bytes
+#   portfolio-front-tools-7: 123 files, 556642 bytes
 #   portfolio-front-tools-8: 138 files, 548824 bytes
 #   portfolio-front-tools-9: 116 files, 554349 bytes
 #   portfolio-front-tools-10: 114 files, 555525 bytes
@@ -1116,6 +1116,7 @@ configMapGenerator:
       - dog-walking-route-pricing__index.html.gz=dog-walking-route-pricing__index.html.gz
       - dog-walking-route-pricing__share.mjs.gz=dog-walking-route-pricing__share.mjs.gz
       - dog-walking-route-pricing__usage.mjs.gz=dog-walking-route-pricing__usage.mjs.gz
+      - dog-walking-route-pricing__vs-a-flat-per-walk-rate.html.gz=dog-walking-route-pricing__vs-a-flat-per-walk-rate.html.gz
       - dog-walking-route-pricing__vs-rover.html.gz=dog-walking-route-pricing__vs-rover.html.gz
       - drone-mapping-job-calculator__calc.mjs.gz=drone-mapping-job-calculator__calc.mjs.gz
       - drone-mapping-job-calculator__how-much-to-charge-for-drone-mapping.html.gz=drone-mapping-job-calculator__how-much-to-charge-for-drone-mapping.html.gz
