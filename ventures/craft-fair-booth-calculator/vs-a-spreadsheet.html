@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Craft Fair Booth Calculator vs a Spreadsheet or Gut Math</title>
+<meta name="description" content="The gut check every maker does in their head — sales minus booth fee — leaves out materials, card fees, every other fixed cost of the day, and your own hours. Worked through this calculator's own default event, that gut check overstates the day by hundreds of dollars.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-a-spreadsheet.html">
+<meta property="og:title" content="Craft Fair Booth Calculator vs a Spreadsheet or Gut Math">
+<meta property="og:description" content="Sales minus booth fee is not profit. See what a quick mental subtraction misses, worked through one real event.">
+<meta property="og:type" content="article">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \"sales minus booth fee\" get wrong?","acceptedAnswer":{"@type":"Answer","text":"It counts gross sales as if every dollar were kept. In reality, materials already spent on what sold and the card processor's cut both come out of that dollar before anything is left, and the booth fee is only one of several costs paid before a single sale — the jury fee, mileage, lodging, parking, and display all belong in the same bucket. A quick mental subtraction misses all of that, and it counts none of the maker's own hours at all."}},{"@type":"Question","name":"Why does a spreadsheet total still miss the real answer?","acceptedAnswer":{"@type":"Answer","text":"A one-line spreadsheet usually stops at cash left over, which answers whether the day covered its bills but not whether it paid the maker anything for their time. On this calculator's own default event, cash left over is $645.34 — a day that looks clearly profitable — but once prep, travel, setup, teardown, and selling hours are valued at even a modest $25/hour, the day actually falls $4.66 short of that rate. A spreadsheet that never enters an hourly figure cannot show that."}},{"@type":"Question","name":"Why does a per-transaction card fee matter more than the percentage suggests?","acceptedAnswer":{"@type":"Answer","text":"A processor's fixed fee is charged per sale, not per dollar, so it only becomes a rate once divided by what a typical sale is worth. Ten cents on a $6 sticker is a much bigger bite than ten cents on an $80 print, and a headline \"2.6% + 10c\" hides that difference completely — a spreadsheet with one blended fee percentage cannot see it either, unless it is built to divide the fixed fee by the average order value the way this calculator does."}},{"@type":"Question","name":"Does this calculator store or upload anything I type?","acceptedAnswer":{"@type":"Answer","text":"No. Every field runs in your browser and nothing survives closing the tab. The only way figures leave the device is the shareable link you choose to copy, which carries them in the URL fragment — a part of the address a browser never sends to a server."}}]}</script>
+<style>
+:root{font:16px/1.6 system-ui,sans-serif;color:#1d2333;background:#f4f6fb}body{max-width:760px;margin:auto;padding:28px 18px}h1{font-size:clamp(1.8rem,5vw,2.7rem);line-height:1.05;letter-spacing:-.04em}h2{margin-top:2rem;font-size:1.15rem}table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}th,td{border:1px solid #d9e0ef;padding:8px 10px;text-align:left;vertical-align:top}th{background:#eaeffa}.cta{background:#1f2b4d;color:#fff;border-radius:14px;padding:18px 20px;margin:1.6rem 0}.cta a{color:#fff}.note{font-size:.85rem;color:#55607a}footer{margin-top:2.5rem;font-size:.85rem;border-top:1px solid #d9e0ef;padding-top:1rem}
+</style></head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>Craft fair booth calculator vs a spreadsheet or gut math</h1>
+<p>Most makers already do a version of this in their head before they apply: sales minus the booth fee. It is fast, and it is wrong in the same direction every time, because it treats the booth fee as the only cost and gross sales as if every dollar of them were kept.</p>
+
+<h2>The gut check, and what it leaves out</h2>
+<table>
+<tr><th></th><th>Sales minus booth fee</th><th>This calculator</th></tr>
+<tr><th>Materials in what sold</th><td>Not counted</td><td>Counted, as a percent of the retail price of what actually sold — not of the whole table brought</td></tr>
+<tr><th>Card processing</th><td>Not counted</td><td>Counted as both a percentage and a per-transaction fixed fee, converted to a rate using your average order value</td></tr>
+<tr><th>Jury fee, mileage, lodging, parking, display</th><td>Not counted — only the booth fee is</td><td>All counted as fixed cost paid before a single sale</td></tr>
+<tr><th>Your own hours</th><td>Not counted at all</td><td>Valued at the hourly rate you set, across prep, travel, setup, teardown, and selling</td></tr>
+<tr><th>Unsold stock</th><td>Usually either ignored or, worse, charged whole against the day</td><td>Left out of the event entirely — it is inventory carried to the next show, not a cost of this one</td></tr>
+</table>
+
+<h2>One event, two answers</h2>
+<p>Take this calculator's own default event: a $250 booth, $25 jury fee, a 90-mile round trip, $1,500 in expected sales, 30% materials, and a mixed cash/card till. The gut check says:</p>
+<table>
+<tr><th>Sales minus booth fee</th><td>$1,500 &minus; $250 = <strong>$1,250 "profit"</strong></td></tr>
+</table>
+<p>Run the same event through every cost actually paid, and the answer looks nothing like that:</p>
+<table>
+<tr><th>Fixed cost paid before any sale (booth, jury fee, mileage, parking, display)</th><td>$370.30</td></tr>
+<tr><th>Materials and card fees out of $1,500 in sales</th><td>$854.66</td></tr>
+<tr><th>Cash left over</th><td>$645.34</td></tr>
+<tr><th>26 committed hours (prep, travel, setup/teardown, selling) at $25/hr</th><td>$650.00</td></tr>
+<tr><th>Left after paying yourself</th><td><strong>&minus;$4.66</strong></td></tr>
+</table>
+<p>The day still clears its bills by a wide margin, which is exactly the kind of result a "sales minus booth fee" gut check reads as a clear win. Once the maker's own time is priced at a modest $25 an hour, the same day comes out four dollars and change short of that rate. Neither number is wrong — they answer different questions — but only one of them is the one a spreadsheet line usually shows.</p>
+
+<h2>Where a spreadsheet gets unsold stock backwards</h2>
+<p>The other place a quick spreadsheet goes wrong is unsold stock, and it goes wrong in either direction. Some makers ignore it entirely, which silently overstates how much the event actually cost to attend if a large share of the table came home. Others swing the other way and charge the whole table's materials against one weekend, which is how a perfectly fine market gets recorded as a loss — the candles that did not sell are still in the van, not gone. This calculator asks what you are bringing at retail only to report the break-even as a sell-through percentage, so you can see what share of the table has to move without charging the unsold remainder against the day at all.</p>
+
+<div class="cta"><p><strong>Run your own numbers.</strong> <a href="./">Open the calculator</a> — no account, no upload, nothing kept. Or start with the method: <a href="./how-much-do-you-need-to-sell-at-a-craft-fair.html">how much you need to sell at a craft fair to break even</a>.</p></div>
+
+<h2>Common questions</h2>
+<h3>What does "sales minus booth fee" get wrong?</h3>
+<p>It counts gross sales as if every dollar were kept. In reality, materials already spent on what sold and the card processor's cut both come out of that dollar before anything is left, and the booth fee is only one of several costs paid before a single sale — the jury fee, mileage, lodging, parking, and display all belong in the same bucket. A quick mental subtraction misses all of that, and it counts none of the maker's own hours at all.</p>
+<h3>Why does a spreadsheet total still miss the real answer?</h3>
+<p>A one-line spreadsheet usually stops at cash left over, which answers whether the day covered its bills but not whether it paid the maker anything for their time. On this calculator's own default event, cash left over is $645.34 — a day that looks clearly profitable — but once prep, travel, setup, teardown, and selling hours are valued at even a modest $25/hour, the day actually falls $4.66 short of that rate. A spreadsheet that never enters an hourly figure cannot show that.</p>
+<h3>Why does a per-transaction card fee matter more than the percentage suggests?</h3>
+<p>A processor's fixed fee is charged per sale, not per dollar, so it only becomes a rate once divided by what a typical sale is worth. Ten cents on a $6 sticker is a much bigger bite than ten cents on an $80 print, and a headline "2.6% + 10c" hides that difference completely — a spreadsheet with one blended fee percentage cannot see it either, unless it is built to divide the fixed fee by the average order value the way this calculator does.</p>
+<h3>Does this calculator store or upload anything I type?</h3>
+<p>No. Every field runs in your browser and nothing survives closing the tab. The only way figures leave the device is the shareable link you choose to copy, which carries them in the URL fragment — a part of the address a browser never sends to a server.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>The worked figures above come directly from this calculator's own default inputs and its own arithmetic — nothing here is a claim about what your event will return.</p>
+<p>Already tracking cost of goods properly? See <a href="vs-craftybase.html">this calculator vs Craftybase</a> for how a one-page go/no-go differs from ongoing inventory bookkeeping.</p>
+<p>MIT licensed. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</body></html>
