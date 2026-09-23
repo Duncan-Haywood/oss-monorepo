@@ -1048,6 +1048,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "pasting an introspection query into GraphiQL, Postman,
+  // or curl" -- a generic manual habit every GraphQL developer already has
+  // (every server ships a playground that runs the identical query), not a
+  // company or product this could be mistaken for. Same reasoning as this
+  // file's own git-exposure-check/vs-checking-the-url-by-hand.html entry
+  // above.
+  'graphql-introspection-exposure-check/vs-checking-introspection-by-hand.html',
   // Compares against "doing the math yourself" -- a generic method (adding
   // up wall-clock minutes by hand) every repository maintainer already
   // does, not a company or product this could be mistaken for. Distinct
@@ -1134,6 +1141,19 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // names Toast and already carries the "not affiliated" clause for that
   // reason. Same reasoning as the other vs-spreadsheet pages above.
   'delivery-app-margin-calculator/vs-a-spreadsheet.html',
+  // Compares against "sales minus booth fee" mental math or a one-line
+  // spreadsheet -- a generic gut check every maker already does, not a
+  // company or product this could be mistaken for. The page names no
+  // spreadsheet application or bookkeeping tool. Distinct from this
+  // venture's own vs-craftybase.html, which names a specific product and
+  // already carries the "not affiliated" clause for that reason.
+  'craft-fair-booth-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat rate per acre" -- the per-acre mowing rate
+  // every lawn-care operator is shopped against, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-lmn.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
