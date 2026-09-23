@@ -874,6 +874,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-*-special pages already in the tree (e.g.
   // automatic-driveway-gate-bid-calculator's vs-a-flat-4500-special.html).
   'exterior-painting-bid-calculator/vs-a-flat-3999-house-special.html',
+  // Compares against "a flat $4.50-a-foot special" -- a generic truck-wrap
+  // pricing habit gutter shops of many different names advertise, not one
+  // specific company or product this could be mistaken for. The page names
+  // no gutter company or CRM at all -- distinct from this venture's own
+  // vs-jobnimbus.html, which does name a product and carries its own
+  // "not affiliated" clause. Same reasoning as the other vs-a-flat-*-special
+  // pages already in the tree.
+  'gutter-install-bid-calculator/vs-a-flat-4-50-per-foot-special.html',
   // Compares against "the app's own earnings screen" -- a feature every
   // gig-delivery/rideshare platform has (DoorDash, Uber, Instacart, Lyft,
   // and others alike), not one specific company or product this could be
