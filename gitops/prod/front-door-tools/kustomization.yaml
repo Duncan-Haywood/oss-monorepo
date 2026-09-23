@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 134 files, 556431 bytes
 #   portfolio-front-tools-1: 101 files, 553906 bytes
 #   portfolio-front-tools-2: 149 files, 552541 bytes
-#   portfolio-front-tools-3: 133 files, 551711 bytes
+#   portfolio-front-tools-3: 134 files, 556624 bytes
 #   portfolio-front-tools-4: 139 files, 556687 bytes
 #   portfolio-front-tools-5: 127 files, 551428 bytes
 #   portfolio-front-tools-6: 130 files, 556816 bytes
@@ -508,6 +508,7 @@ configMapGenerator:
       - booth-rent-vs-commission__index.html.gz=booth-rent-vs-commission__index.html.gz
       - booth-rent-vs-commission__payroll.mjs.gz=booth-rent-vs-commission__payroll.mjs.gz
       - booth-rent-vs-commission__usage.mjs.gz=booth-rent-vs-commission__usage.mjs.gz
+      - booth-rent-vs-commission__vs-guessing-which-pays-more.html.gz=booth-rent-vs-commission__vs-guessing-which-pays-more.html.gz
       - booth-rent-vs-commission__vs-vagaro.html.gz=booth-rent-vs-commission__vs-vagaro.html.gz
       - sponsor-ready__app.js.gz=sponsor-ready__app.js.gz
       - sponsor-ready__github-sponsors-readiness-checklist.html.gz=sponsor-ready__github-sponsors-readiness-checklist.html.gz
