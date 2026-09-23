@@ -34,10 +34,10 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 133 files, 551876 bytes
-#   portfolio-front-tools-1: 102 files, 556731 bytes
-#   portfolio-front-tools-2: 151 files, 556969 bytes
-#   portfolio-front-tools-3: 136 files, 554827 bytes
-#   portfolio-front-tools-4: 135 files, 539761 bytes
+#   portfolio-front-tools-1: 101 files, 553909 bytes
+#   portfolio-front-tools-2: 152 files, 556723 bytes
+#   portfolio-front-tools-3: 134 files, 550565 bytes
+#   portfolio-front-tools-4: 138 files, 551377 bytes
 #   portfolio-front-tools-5: 121 files, 544136 bytes
 #   portfolio-front-tools-6: 129 files, 550240 bytes
 #   portfolio-front-tools-7: 127 files, 556011 bytes
@@ -302,6 +302,7 @@ configMapGenerator:
       - tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz=tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz
       - tiktok-shop-fee-calculator__usage.mjs.gz=tiktok-shop-fee-calculator__usage.mjs.gz
       - tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz=tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz
+      - tiktok-shop-fee-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=tiktok-shop-fee-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz=tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz
       - reverb-fee-calculator__calc.mjs.gz=reverb-fee-calculator__calc.mjs.gz
       - reverb-fee-calculator__index.html.gz=reverb-fee-calculator__index.html.gz
@@ -311,13 +312,13 @@ configMapGenerator:
       - reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz=reverb-fee-calculator__should-i-consign-this-reverb-listing.html.gz
       - reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html.gz
       - reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz=reverb-fee-calculator__should-i-include-shipping-on-reverb.html.gz
-      - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz
-      - reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz=reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz
+      - reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz=reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz
       - reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz=reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz
       - reverb-fee-calculator__to-where-to-sell.mjs.gz=reverb-fee-calculator__to-where-to-sell.mjs.gz
       - reverb-fee-calculator__usage.mjs.gz=reverb-fee-calculator__usage.mjs.gz
@@ -468,12 +469,12 @@ configMapGenerator:
       - vendor-rate-break-even__vs-crest-capital.html.gz=vendor-rate-break-even__vs-crest-capital.html.gz
       - music-lesson-break-even__calc.mjs.gz=music-lesson-break-even__calc.mjs.gz
       - music-lesson-break-even__how-to-price-music-lessons.html.gz=music-lesson-break-even__how-to-price-music-lessons.html.gz
-      - music-lesson-break-even__index.html.gz=music-lesson-break-even__index.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - music-lesson-break-even__index.html.gz=music-lesson-break-even__index.html.gz
       - music-lesson-break-even__share.mjs.gz=music-lesson-break-even__share.mjs.gz
       - music-lesson-break-even__usage.mjs.gz=music-lesson-break-even__usage.mjs.gz
       - music-lesson-break-even__vs-mymusicstaff.html.gz=music-lesson-break-even__vs-mymusicstaff.html.gz
@@ -607,14 +608,14 @@ configMapGenerator:
       - actions-transitive-pin-check__analyze.mjs.gz=actions-transitive-pin-check__analyze.mjs.gz
       - actions-transitive-pin-check__check.mjs.gz=actions-transitive-pin-check__check.mjs.gz
       - actions-transitive-pin-check__classify.mjs.gz=actions-transitive-pin-check__classify.mjs.gz
-      - actions-transitive-pin-check__index.html.gz=actions-transitive-pin-check__index.html.gz
-      - actions-transitive-pin-check__usage.mjs.gz=actions-transitive-pin-check__usage.mjs.gz
-      - actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz=actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-transitive-pin-check__index.html.gz=actions-transitive-pin-check__index.html.gz
+      - actions-transitive-pin-check__usage.mjs.gz=actions-transitive-pin-check__usage.mjs.gz
+      - actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz=actions-transitive-pin-check__vs-manually-checking-nested-references.html.gz
       - actions-transitive-pin-check__what-is-a-transitive-github-actions-dependency.html.gz=actions-transitive-pin-check__what-is-a-transitive-github-actions-dependency.html.gz
       - ada-title-ii-evidence__calc.mjs.gz=ada-title-ii-evidence__calc.mjs.gz
       - ada-title-ii-evidence__deadline.html.gz=ada-title-ii-evidence__deadline.html.gz
