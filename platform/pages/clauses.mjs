@@ -585,6 +585,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-housecall-pro.html, which does name a
   // product and carries its own "not affiliated" clause.
   'walk-in-tub-bid-calculator/vs-a-flat-installed-special.html',
+  // Compares against "a flat rate per square foot" -- the "$35 a square
+  // foot installed" pricing habit every tile setter and kitchen remodeler
+  // is shopped against, not a company or product this could be mistaken
+  // for. The page names no vendor or competing calculator at all --
+  // distinct from this venture's own vs-jobber.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'kitchen-tile-backsplash-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
