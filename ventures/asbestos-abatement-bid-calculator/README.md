@@ -11,7 +11,10 @@ similar job.
 
 Open `index.html` directly, or serve this directory with
 `python3 -m http.server`. See [`vs-a-flat-rate-per-square-foot.html`](vs-a-flat-rate-per-square-foot.html)
-for the worked-example comparison against a flat per-square-foot quote. Run the tests with:
+for the worked-example comparison against a flat per-square-foot quote, or
+[`how-much-does-asbestos-abatement-cost.html`](how-much-does-asbestos-abatement-cost.html)
+for why the same square footage prices so differently by containment class.
+Run the tests with:
 
 ```
 node --test ventures/asbestos-abatement-bid-calculator/*.test.mjs
