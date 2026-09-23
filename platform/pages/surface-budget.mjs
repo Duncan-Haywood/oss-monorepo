@@ -106,6 +106,19 @@ export const GENERIC_BUDGET_OVERRIDES = {
       '(the third-party transaction fee, plan allocation, target-margin and break-even algebra). Neither ' +
       'duplicates the other\'s worked example or conclusion. Allowed at two, which still blocks a third.',
   },
+  'sign-language-interpreter-rate-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-23: two sessions each added a generic-method page for this venture within the same ' +
+      'window, this session\'s own "vs. a spreadsheet" (a formula-builder who already has hours and a rate in a ' +
+      'sheet) and #5368\'s "vs. a flat fee per assignment" (an interpreter who skips arithmetic entirely and ' +
+      'quotes a memorized number). Both landed cleanly against an overlap check that was correct when it ran -- ' +
+      'the same collision shape surface-budget.mjs\'s own docstring already describes for overtime-pay-calculator ' +
+      'and shopify-fee-calculator, from a third pair of angles: a spreadsheet formula misses the booking minimum, ' +
+      'the differential, and the team-interpreting recommendation the same way a flat memorized fee misses travel, ' +
+      'an evening differential, and that same team-interpreting recommendation -- but neither page\'s worked ' +
+      'example or conclusion duplicates the other\'s. Allowed at two, which still blocks a third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */

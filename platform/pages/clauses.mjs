@@ -1081,6 +1081,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every freelance
+  // interpreter already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every rental
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-booqable.html and
+  // vs-inflatableoffice.html, which name specific rental platforms and
+  // already carry the "not affiliated" clause for that reason. Same
+  // reasoning as the other vs-spreadsheet pages above.
+  'bounce-house-rental-calculator/vs-a-spreadsheet.html',
   // Compares against "reading the concentrate label's sticker price as the
   // diluted product's cost" -- a generic pricing habit every janitorial
   // operator already has, not a company or product this could be mistaken
@@ -1102,6 +1113,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that reason. Same reasoning as the other vs-spreadsheet pages above
   // (e.g. saas-seat-true-up's).
   'retainage-cashflow-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $4.50-a-foot installed special" -- the
+  // published per-foot ad rate every gutter shop competes with, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or field-service platform (the venture's own named-product
+  // comparison, vs-jobnimbus, carries its own trademark disclaimer) and its
+  // copy opens by agreeing the flat special is the right tool for
+  // advertising. Same reasoning as automatic-driveway-gate-bid-calculator's
+  // vs-a-flat-4500-special.html and entry-door-bid-calculator's
+  // vs-a-flat-1200-special.html above.
+  'gutter-install-bid-calculator/vs-a-flat-per-foot-special.html',
   // Compares against "a flat fee per assignment" -- a generic pricing habit
   // every freelance interpreter already has access to (a memorized number
   // quoted for most bookings), not a company or product this could be
