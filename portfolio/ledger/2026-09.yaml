@@ -37390,3 +37390,54 @@ entries:
         venture, so the mirrored-tool count is unaffected).
         `check_ledger_only.py`: not tripped (5 files outside ledger prose).
     mrr_end: 0
+  - venture: drywall-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED; build-now pipeline empty and
+        router/allocate.py's top-ranked tasks all needed real customer
+        contact this session cannot manufacture. Ran the full whole-catalogue
+        browser/accessibility sweep first but found another session had just
+        recorded an identical clean reading on `main` (#5222 closed as
+        superseded), so did not duplicate it. Refreshed the published Pages
+        snapshot instead (`publish-branch.sh`, `pages_state.py --record`)
+        since it was stale, then picked up surface-budget.mjs's "204
+        ventures with 0 generic-method comparison pages" list for a
+        genuinely uncovered angle: drywall-bid-calculator had a named-product
+        page (Buildxact) and a pricing guide but no generic-method page, and
+        calc.mjs's own docstring already frames the gap ("a flat
+        price-per-square-foot cannot see that hanging is the cheap half").
+      - >-
+        Added vs-a-flat-price-per-square-foot.html: same net square footage
+        (1,954 sq ft) priced at Gypsum finish Level 1 vs. Level 5 using the
+        calculator's own shipped defaults -- 46.4 hours / $5,473.07 ($2.80/sq
+        ft) vs. 152.8 hours / $14,238.58 ($7.29/sq ft), with quoting the
+        Level 5 job at the Level 1 rate landing $5,063.48 below its own
+        break-even cost. Figures computed directly from calc.mjs rather than
+        by hand to avoid a rounding mismatch (caught one: 46.448 hours
+        rounds to 46.4, not 46.5, on the first draft -- fixed before commit).
+        Registered the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (names no vendor) and wired it into index.html and sitemap.xml.
+        `node --test` in the venture: 112/112.
+      - >-
+        This page's own wording ("vs. a flat price per square foot") turned
+        out to exactly match concrete-bid-calculator's existing page,
+        crossing front-door.mjs's two-venture mirroring threshold together
+        -- front-door.test.mjs's "every rendered per-product comparison page
+        is mounted by the kustomization" failed, naming
+        vs__flat-price-per-square-foot.html.gz as unmounted. Same shape
+        CLAUDE.md already records for equipment-rental-break-even (#5193):
+        confirmed on a stashed clean tree that the gap did not exist before
+        this page (front-door.test.mjs 115/115 on `main`), added the one
+        hand-kept mount line to gitops/prod/kustomization.yaml, reran clean
+        (115/115, then the full suite 1281/1281).
+      - >-
+        Fetched `main` twice more while working (it advanced ~10 commits
+        under the branch, five sessions active); no conflicts since this
+        branch had made no commits yet. `regen.mjs --verify`: current.
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `clauses.mjs drywall-bid-calculator`: all clean. Actions confirmed
+        starved (`ci_starvation.py --run 35878972111`: runner_id 0) before
+        relying on local verification instead of CI's red badge.
+    mrr_end: 0
