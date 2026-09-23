@@ -1728,37 +1728,6 @@ test('a fragment with no body is left alone rather than corrupted', () => {
   assert.equal(injectChrome(fragment, { slug: 'x', toRoot: '../', total: 2, related: [] }), fragment);
 });
 
-test('a JSON-LD string quoting a literal <body> tag does not steal the nav/footer splice', () => {
-  // git-exposure-check's own soft-404 guide quotes `<html><body>404 Not
-  // Found</body></html>` as an example of a fake response body, inside a
-  // FAQPage JSON-LD block that sits in <head>, ahead of the page's real
-  // <body>. A naive `html.match(/<body[^>]*>/i)` finds that quoted text
-  // first and splices the nav/footer into the middle of the JSON string
-  // instead of onto the page -- corrupting the JSON-LD and leaving the real
-  // page with no way back to the rest of the site.
-  const page = [
-    '<html><head>',
-    '<script type="application/ld+json">',
-    '{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"q",',
-    '"acceptedAnswer":{"@type":"Answer",',
-    '"text":"A fake response looks like <html><body>404 Not Found</body></html>."}}]}',
-    '</script>',
-    '</head><body><h1>Tool</h1></body></html>',
-  ].join('\n');
-
-  const wrapped = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
-
-  const scriptBody = wrapped.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1];
-  assert.doesNotThrow(() => JSON.parse(scriptBody), 'the JSON-LD block must stay valid JSON');
-
-  assert.equal(wrapped.match(/<nav class="pf-chrome pf-chrome-top"/g).length, 1);
-  assert.equal(wrapped.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
-  // The nav must land on the real body, right after the visible <h1>'s tag,
-  // not inside the JSON-LD string that merely mentions "<body>".
-  assert.ok(/<h1>Tool<\/h1>/.test(wrapped));
-  assert.ok(wrapped.indexOf('pf-chrome-top') > wrapped.indexOf('</script>'));
-});
-
 // ---------------------------------------------------------------------------
 // Discovery tags
 // ---------------------------------------------------------------------------
@@ -2080,6 +2049,37 @@ test('a lone tool advertises no siblings and still renders', () => {
   });
   assert.ok(!html.includes('<ul>'), 'no empty list is emitted');
   assert.ok(html.includes('data-pf-to="hub"'));
+});
+
+// Found 2026-09-23 on `git-exposure-check`'s own
+// "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html": its FAQPage
+// JSON-LD quotes a literal example error page, `<html><body>404 Not
+// Found</body></html>`, to explain what a soft-404 false positive looks like.
+// The old implementation found the real body tag with
+// `html.match(/<body[^>]*>/i)` -- the *first* textual match anywhere in the
+// document -- and then inserted the top bar and footer with
+// `html.replace(bodyOpen[0], ...)`, which also replaces by content rather
+// than position. Both found the fake `<body>`/`</body>` inside the head's own
+// JSON-LD first, since it appears earlier in the string than the real tag,
+// and spliced the chrome markup into the middle of a JSON string. It blocked
+// `publish-branch.sh`'s own build-artifact check the day this was found.
+test('a page quoting a literal <body>/</body> example in its own head is not corrupted', () => {
+  const html =
+    '<html><head><script type="application/ld+json">' +
+    '{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"q",' +
+    '"acceptedAnswer":{"@type":"Answer","text":"looks like <html><body>404 Not Found</body></html>"}}]}' +
+    '</script></head><body>real content</body></html>';
+  const out = injectChrome(html, { slug: 'x', toRoot: '../', total: 3, related: [] });
+
+  const scriptMatch = out.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(scriptMatch, 'the original JSON-LD block is still present');
+  assert.doesNotThrow(() => JSON.parse(scriptMatch[1]), 'the JSON-LD was not corrupted by chrome injection');
+
+  // The chrome markup landed in the real body, not spliced into the example
+  // string sitting ahead of it.
+  assert.doesNotMatch(scriptMatch[1], /pf-chrome/);
+  assert.match(out, /real content[\s\S]*pf-chrome-foot/);
+  assert.match(out, /pf-chrome-top[\s\S]*real content/);
 });
 
 // The clause is injected rather than required of each venture because the
