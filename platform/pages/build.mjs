@@ -1693,8 +1693,23 @@ const CATEGORY_RULES = [
     // guard in `build.test.mjs` from tripping — a `docker-` prefix alone
     // isn't in this regex, so a new Dockerfile checker still needs its
     // exact slug added here.)
+    //
+    // `agent-permission-config-check` joined 2026-09-23, beside
+    // `agent-instructions-drift-check`. Same browser-local-plus-CLI shape,
+    // run by a developer against a config file they already have
+    // (Claude Code's settings.json / an mcpServers block instead of
+    // AGENTS.md/CLAUDE.md), reporting mechanical shape matches (an
+    // allow-all Bash rule, a plain-http MCP url, a hardcoded-looking
+    // secret) rather than a determination -- and it landed here for the
+    // same reason `license-drift-check` did: its slug starts a new family
+    // the prefix list above did not name, not a defect in the rule. It
+    // cross-links `agent-instructions-drift-check` and
+    // `mcp-supply-chain-watch` as Related, closing the crawlable-orphan gap
+    // a new venture with no existing sibling otherwise opens, and is also
+    // what keeps the catch-all guard in `build.test.mjs` from tripping.
+    // Listed by exact slug, same reason as its neighbors.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|agent-permission-config-check)/.test(
         slug,
       ),
   },

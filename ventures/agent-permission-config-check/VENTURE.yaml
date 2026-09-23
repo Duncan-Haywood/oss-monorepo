@@ -1,0 +1,81 @@
+name: agent-permission-config-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that statically lints an AI-coding-agent''s permission and MCP-server configuration -- Claude Code''s `.claude/settings.json` (`permissions.allow`/`.deny`/`.ask`) and the `mcpServers` block shared, in the same JSON shape, by `.mcp.json`, `.cursor/mcp.json`, and `.vscode/mcp.json` -- for a blanket `Bash` allow-all rule, an unscoped destructive-command allow with no matching deny rule, an MCP server reached over plain `http://`, and a hardcoded-looking secret in a server''s `env`/`headers` instead of an environment-variable reference. Never launches a server''s command, never contacts a server''s URL, and never verifies a flagged value is a real credential -- a static shape-matcher, not a runtime guard or a certification of safety.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, chosen deliberately over a 300th <trade>-bid-calculator
+# and over a 39th generic misconfiguration checker: portfolio/pipeline/
+# README.md's "archetype itself" section flags both shapes as needing a
+# genuinely new angle, not just a new niche, to count as evidence of novelty
+# on their own. This is a new *object* to check (an AI-coding-agent's own
+# permission/MCP config), not a new instance of an existing check -- and a
+# different object from this repo's two existing AI-agent-tooling ventures:
+# `agent-instructions-drift-check` checks whether AGENTS.md/CLAUDE.md still
+# matches what the repo has (documentation, not permissions); `mcp-supply-
+# chain-watch` monitors an already-connected remote MCP server's own tool
+# schema for change over time (an ongoing external-drift feed, not a
+# one-time local-config lint).
+#
+# duplicate_check.py (run 2026-09-23) scored every existing venture,
+# screened-out row, and pipeline candidate against this idea's description at
+# or below 0.15 -- nowhere near the 0.45 read-this-first bar. Closest by eye:
+# agent-instructions-drift-check (0.15, different object as above),
+# security-txt-check / redirect-chain-check / terraform-plan-secret-exposure-
+# check (0.10-0.13, same "deterministic static config check" shape, none of
+# them read a Claude Code or MCP config), and mcp-supply-chain-watch (0.08,
+# different question as above). screened-out.md's "coi-compliance-tracker"
+# and "agent observability platform" rows are unrelated businesses (insurance
+# certificate tracking; a hosted runtime-telemetry platform), not this.
+#
+# Distribution channel, named and checkable without guessing: Claude Code's
+# `permissions` block and the `mcpServers` JSON shape became a real,
+# multi-vendor convention across AI coding agents through 2025-2026 (Claude
+# Code, Cursor, and VS Code's Copilot agent mode all read a project-level MCP
+# server config in the same {mcpServers: {name: {command|url, args, env,
+# headers}}} shape) -- the same platform-migration pattern
+# PRODUCT_PLAYBOOK.md points at ("a platform migration nobody has shipped the
+# boring tool for yet"), and the same pattern agent-instructions-drift-check
+# already used successfully for the instruction-file half of this same
+# convention shift. Searchable channels with real, current thread volume:
+# developer communities actively discussing agent tool permissions and MCP
+# server security day to day -- r/ClaudeAI, r/cursor, r/ChatGPTCoding, Hacker
+# News threads on "vibe coding" and agent security, and the growing set of
+# blog posts and vendor docs (Anthropic's own Claude Code documentation,
+# GitHub's MCP security guidance) warning specifically against a blanket
+# Bash allow and against hardcoding MCP credentials -- both concerns this
+# tool checks mechanically rather than by reminder. A developer who has just
+# been warned against exactly this in a blog post or a docs page is the
+# first visitor this targets, searching "claude code settings.json security"
+# or "mcp server permissions checker".
+hypotheses:
+  - claim: A developer who has read a warning against a blanket Bash allow-all rule (in Anthropic's own docs, a blog post, or a community thread) will paste their own .claude/settings.json into the browser page or run the CLI against it, see the finding named concretely, and either narrow the rule or add it to CI so a future widening is caught on the same PR.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team that onboarded an MCP server by copying a config from documentation or a colleague (commonly leaving a hardcoded API key or an http:// URL in place) will find this tool via search or a developer-community thread about MCP security, run it once, and rotate the exposed credential before it reaches a shared or committed file.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only JSON pasted in
+  # the visitor's own browser (never uploaded), and the CLI reads only local
+  # files it is pointed at, plus a local `git ls-files` check, with no
+  # network call at all. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/agent-permission-config-check/
+  analytics: null

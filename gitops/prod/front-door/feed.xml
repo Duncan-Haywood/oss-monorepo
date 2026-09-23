@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 324 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 325 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-23T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>AI Agent Permission Config Check — Claude Code &amp; MCP Settings Linter</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-permission-config-check/"/>
+    <id>tag:marisstella.dev,2026:tool/agent-permission-config-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your Claude Code .claude/settings.json or an .mcp.json / .cursor/mcp.json / .vscode/mcp.json MCP-server config and see every blanket Bash allow-all rule, unscoped destructive-command allow with no matching deny, plain-http MCP server URL, and hardcoded-looking secret in a committed env/header value. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Docker Base Image EOL Check — Is Your FROM Line Still Supported?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/docker-base-image-eol-check/"/>
@@ -357,14 +366,5 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for bridal hair and makeup artists: price the bride, bridal party, hair-only, makeup-only, and kids&#39; services, apply an early-start fee and travel, top up to your service minimum, and check whether the group fits in one artist&#39;s schedule before the ceremony — or needs a second artist billed and paid as its own line item.</summary>
-  </entry>
-  <entry>
-    <title>Commissary Kitchen Cost Split Calculator — Bill Tenants Fairly</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commissary-kitchen-cost-split-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/commissary-kitchen-cost-split-calculator</id>
-    <published>2026-09-16T00:00:00Z</published>
-    <updated>2026-09-16T00:00:00Z</updated>
-    <category term="Restaurant, bar &amp; food truck pricing"/>
-    <summary type="text">Free calculator for commissary/shared-kitchen operators: split pooled monthly costs (rent, utilities, trash, cleaning, pest control, insurance) fairly among multiple food-truck tenants by hours booked and storage used, instead of splitting evenly, and get an itemized bill for each tenant.</summary>
   </entry>
 </feed>

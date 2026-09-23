@@ -752,6 +752,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-moraware.html, which does name a product and carries
   // its own "not affiliated" clause.
   'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against "opening settings.json or an mcpServers block and
+  // reading it by eye before committing" -- a generic manual habit every
+  // developer and reviewer already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as
+  // agent-instructions-drift-check/vs-checking-it-by-hand.html above.
+  'agent-permission-config-check/vs-manual-config-review.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

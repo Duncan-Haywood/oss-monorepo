@@ -15051,3 +15051,75 @@ ventures:
       reserve is labelled arithmetic on a percentage the freelancer
       supplies, not a tax calculation, and nothing entered leaves the
       browser.
+
+  - slug: agent-permission-config-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a permission config
+      contains a Bash allow-all rule, an unscoped destructive-command
+      allow, a plain-http MCP url, or a hardcoded-looking secret is decided
+      by regex/shape matching against the parsed JSON -- never a model
+      judgment, and it never claims to verify whether a flagged value is a
+      real, live credential.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a static linter for an AI-coding-agent's own
+      permission and MCP-server configuration (Claude Code's
+      settings.json permissions.allow/deny/ask, and the mcpServers block
+      shared by .mcp.json/.cursor/mcp.json/.vscode/mcp.json), distinct
+      from this portfolio's other two AI-agent-tooling ventures:
+      agent-instructions-drift-check checks whether AGENTS.md/CLAUDE.md
+      still matches what the repo has (documentation, not permissions);
+      mcp-supply-chain-watch monitors an already-connected remote MCP
+      server's own tool schema for change over time (an ongoing external
+      feed, not a one-time local-config lint). duplicate_check.py scored
+      every existing venture, screened-out row, and pipeline candidate at
+      or below 0.16 against the final description (closest:
+      agent-instructions-drift-check, a different object as above; the
+      venture's own self-match after graduation scored 0.99), well under
+      the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses pasted
+      JSON entirely client-side (nothing uploaded), and the CLI reads only
+      local config files it is pointed at plus a local git ls-files call,
+      so serving one more user costs a static file.
+      Distribution 5, same level and same reasoning as
+      agent-instructions-drift-check: the permissions/mcpServers JSON
+      shape became a real, multi-vendor convention across AI coding agents
+      through 2025-2026 (Claude Code, Cursor, and VS Code's Copilot agent
+      mode all read a project-level MCP server config in the same shape),
+      and community discussion of agent tool-permission risk (r/ClaudeAI,
+      r/cursor, r/ChatGPTCoding, Hacker News threads on "vibe coding"
+      security) and vendor security guidance against exactly a blanket
+      Bash allow and hardcoded MCP credentials are real and current --
+      scored moderately because no search-volume tool confirmed magnitude
+      and, unlike the sibling venture, this portfolio's own CLAUDE.md does
+      not yet document an internal incident of this specific shape.
+      Time to revenue 5, defensibility 3: donations-only; the underlying
+      techniques (rule-string shape matching, known-token-prefix
+      detection) are individually well-trodden, so defensibility rests on
+      the specific combination -- scoped to this exact multi-vendor config
+      shape -- rather than on being hard to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads only the JSON config text the user supplies
+      (pasted, or a local file via the CLI) and a local, read-only git
+      tracking check on that same file; it never launches a server's
+      command, never contacts a server's url, and never sends a flagged
+      value anywhere to verify it is a real credential. Ethically:
+      donations-only with no per-use fee, so there is no direction in
+      which the tool profits from over- or under-reporting a finding, and
+      every finding message names its own confidence (a known token-prefix
+      match vs. a generic shape match) rather than presenting a guess as a
+      certainty.

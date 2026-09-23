@@ -6787,3 +6787,33 @@ products:
           already has, but solving for a target take-home means a visitor is
           actively pricing a new job around the calculator's numbers rather
           than checking one they already quoted.
+  - slug: agent-permission-config-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-23
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool statically linting an
+          AI-coding-agent's permission and MCP-server configuration (Claude
+          Code's settings.json permissions.allow/deny/ask, and the
+          mcpServers block shared by .mcp.json/.cursor/mcp.json/
+          .vscode/mcp.json) for a blanket Bash allow-all rule, an unscoped
+          destructive-command allow with no matching deny, a plain-http MCP
+          server url, and a hardcoded-looking secret. `live_url_visitors` is
+          null and not zero, deliberately -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in and off by
+          default, so nobody has measured yet. Named channel to watch:
+          developers who have read a warning against a blanket Bash allow
+          or a hardcoded MCP credential (Anthropic's own Claude Code docs,
+          a blog post, r/ClaudeAI, r/cursor, r/ChatGPTCoding, Hacker News
+          "vibe coding" security threads) searching for a way to check
+          their own config, and any repository wiring cli.mjs into its own
+          CI. `check_run` against `example_loaded` is the reading worth
+          watching, the same discrimination as its sibling
+          agent-instructions-drift-check: a visitor who only ever loads the
+          worked example has not brought their own config to it.
