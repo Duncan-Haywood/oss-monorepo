@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 325 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 326 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free calculator for independent personal trainers: compares a discounted prepaid session package against pay-per-session pricing on net take-home pay per hour, after your gym or studio&#39;s percentage cut or flat facility fee — not just revenue. A flat per-session fee erodes a discounted package harder than it erodes full price, and a makeup-owed policy can turn a package&#39;s guaranteed revenue into a worse hourly rate. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Supabase RLS Exposure Checker — Is Your Anon Key Reading Real Rows?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/supabase-rls-check/"/>
+    <id>tag:marisstella.dev,2026:tool/supabase-rls-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free, in-browser tool: paste your Supabase project URL and anon key, and it sends a real read-only request to every table it can see, naming which ones return real rows to an unauthenticated request -- the CVE-2025-48757 missing-RLS exposure class. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Dimensional Weight Calculator</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free backflow-preventer test fee calculator: per-device test fee with a multi-device discount, a per-device report-filing fee, a travel fee, and a retest fee for failed devices. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Bridal Hair &amp; Makeup Pricing Calculator — Total, Balance Due &amp; Assistant Check</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bridal-hair-makeup-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/bridal-hair-makeup-pricing-calculator</id>
-    <published>2026-09-16T00:00:00Z</published>
-    <updated>2026-09-16T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for bridal hair and makeup artists: price the bride, bridal party, hair-only, makeup-only, and kids&#39; services, apply an early-start fee and travel, top up to your service minimum, and check whether the group fits in one artist&#39;s schedule before the ceremony — or needs a second artist billed and paid as its own line item.</summary>
   </entry>
 </feed>

@@ -412,7 +412,12 @@ const RELATIVE_SELF = relative(
 // this file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/personal-trainer-package-pricing-calculator/usage.mjs`) and no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 307;
+//
+// 307 -> 308: `supabase-rls-check` graduated, adding one `usage.mjs`
+// following the same opt-out pattern as its siblings. Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/supabase-rls-check/usage.mjs`) and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 308;
 
 let counter = 0;
 function fixture(source) {

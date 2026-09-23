@@ -2079,7 +2079,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # after a gym or studio's percentage or flat cost structure, with a
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
-    total = 325  # `infra/OWNER_CHECKLIST.md`'s own "N of the 325 tools" wording.
+    #
+    # 326 since this merge: `supabase-rls-check` graduated -- a browser +
+    # CLI checker reading a Supabase project's own PostgREST schema listing
+    # and testing whether the anon key can read real rows from each table
+    # (the missing-Row-Level-Security exposure behind CVE-2025-48757), with
+    # a static `index.html` from its first commit, same shape as the rest
+    # of this running count.
+    total = 326  # `infra/OWNER_CHECKLIST.md`'s own "N of the 326 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1055,6 +1055,9 @@ workflows:
 - workflow: sunroom-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: supabase-rls-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: tender-bid-readiness-ci.yml
   classification: none
   publishes: []
