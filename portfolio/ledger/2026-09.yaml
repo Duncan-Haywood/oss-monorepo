@@ -36749,3 +36749,43 @@ entries:
         ci_starvation.py (runner_id 0, 2-4s, no steps) before merging (#5183).
         Published the gh-pages snapshot (publish-branch.sh) and recorded
         github-pages-branch-route as current.
+  - venture: freelance-platform-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a second comparison page, vs-tracking-it-in-a-spreadsheet.html
+        (surface-budget.mjs still showed 0/1 generic-method pages used;
+        #5176's own vs-checking-each-platforms-fee-page-separately.html
+        lands as a named-product page instead, since it names Upwork's and
+        Fiverr's own fee pages). Worked examples from calc.mjs's
+        comparePlatforms, pinned by the page's own test: a $1,200 job at
+        Upwork's quoted 8% vs. Fiverr's flat 20% (25% tax reserve) nets
+        $828.00 vs. $717.75, a $110.25 gap; a $500 job wanting $400
+        take-home on Upwork at a 15% quoted fee needs a $627.45 price via
+        the backward solve. `node --test` in the venture: 51/51, then
+        100/100 after absorbing #5176's own page in the same venture.
+        faq-visible.test.mjs caught a real authoring bug before push: the
+        new page's JSON-LD FAQ answers used a literal `--` where the
+        visible prose used `&mdash;`, so the schema and the rendered text
+        diverged -- fixed to match. Full `platform/marketing`/
+        `platform/pages` suite: 1281/1281, run twice (once after absorbing
+        #5176 and commercial-photo-license-calculator's comparison page,
+        once after absorbing dryer-vent-bid-calculator's and
+        change-order-margin-calculator's, each a separate mirror-shard/
+        clauses.mjs conflict resolved via regen.mjs). `python3 -m pytest
+        gitops/tests -q`: 613 passed, 25 skipped (known nginx/ssh-key-binary
+        skips). `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`:
+        446 passed. checklist_coverage.py, surface-budget.mjs --check,
+        router/validate.py, validate_candidates.py, validate_doc_consistency.py,
+        validate_probe_index.py, score_ventures.py --check,
+        usage/validate_usage.py, check_ledger_only.py, check_direction_only.py:
+        all clean. All platform/ci unittest modules and agent_review's
+        test_review (21/21): clean. Opened #5184; no check run ever
+        registered on the PR after several minutes of polling (0/0 on
+        get_check_runs), consistent with the starvation this fleet has
+        recorded repeatedly this week -- verified locally per the checklist
+        instead of waiting further, and squash-merged. Published the
+        gh-pages snapshot (publish-branch.sh) and recorded
+        github-pages-branch-route as current.
