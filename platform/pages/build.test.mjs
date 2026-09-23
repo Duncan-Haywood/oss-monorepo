@@ -1723,6 +1723,29 @@ test('wrapping a page twice does not stack two navigation bars', () => {
   assert.equal(once.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
 });
 
+test('a quoted "<body>...</body>" inside a script does not fool the chrome injector', () => {
+  // git-exposure-check's own soft-404 guide (2026-09-23): the FAQ answer
+  // explains what a fake .git exposure looks like by quoting the literal
+  // markup, inside a <script type="application/ld+json"> block in <head>,
+  // before the page's real <body>. A raw regex over the whole document
+  // matched that quoted tag first and spliced the nav/footer/JSON-LD
+  // breadcrumb into the middle of the JSON string, corrupting it.
+  const page =
+    '<html><head><script type="application/ld+json">' +
+    '{"a":"an error page such as <html><body>404 Not Found</body></html>"}' +
+    '</script></head><body><h1>Tool</h1></body></html>';
+  const out = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+
+  const scripts = [...out.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)];
+  assert.ok(scripts.length > 0, 'the page still carries its JSON-LD');
+  for (const [, json] of scripts) JSON.parse(json); // throws if any block is corrupted
+
+  assert.equal(out.match(/<nav class="pf-chrome pf-chrome-top"/g)?.length, 1);
+  assert.equal(out.match(/<aside class="pf-chrome pf-chrome-foot"/g)?.length, 1);
+  // The real body still holds the venture's own markup, untouched.
+  assert.ok(/<h1>Tool<\/h1>/.test(out));
+});
+
 test('a fragment with no body is left alone rather than corrupted', () => {
   const fragment = '<div>partial</div>';
   assert.equal(injectChrome(fragment, { slug: 'x', toRoot: '../', total: 2, related: [] }), fragment);
