@@ -1335,6 +1335,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-a-spreadsheet pages above.
   'ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $499 delivery and setup special" -- a generic
+  // advertised price every spa dealer is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which names a specific field-service platform and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other flat-rate generic-method pages above (e.g.
+  // well-pump-bid-calculator's).
+  'hot-tub-bid-calculator/vs-a-flat-499-setup-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
