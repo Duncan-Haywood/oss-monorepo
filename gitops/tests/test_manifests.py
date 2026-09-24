@@ -2413,18 +2413,28 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # entries above -- the second write is a no-op once the first is
     # already committed.
     #
-    # 354 on this merge: `k8s-resource-limits-check` also graduates -- a
+    # 354 on this merge: `economic-nexus-threshold-tracker` also
+    # graduated -- a zero-dependency browser tracker letting a
+    # multi-state online seller enter trailing-12-month sales by state
+    # and flag which states' economic-nexus sales-tax-registration
+    # thresholds they've crossed, against each state's own published
+    # revenue figure ($100k/$250k/$500k) and, where the state pairs one
+    # on, its transaction-count test (AND or OR). Static `index.html`
+    # from its first commit, same shape as the rest of this running
+    # count.
+    #
+    # 355 on this merge: `k8s-resource-limits-check` also graduates -- a
     # zero-dependency browser + CLI checker that reads Kubernetes workload
     # YAML and reports every container missing a memory limit, memory
     # request, CPU request, or ephemeral-storage limit, plus any request set
     # above its own limit. This branch only ever knew its own predecessor's
-    # number (349, before any of the four merges above landed) until this
+    # number (349, before any of the five merges above landed) until this
     # merge -- the same ordinary collision shape recorded throughout this
     # list. Static `index.html` from its first commit, same shape as the
     # rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 354  # `infra/OWNER_CHECKLIST.md`'s own "N of the 354 tools" wording.
+    total = 355  # `infra/OWNER_CHECKLIST.md`'s own "N of the 355 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

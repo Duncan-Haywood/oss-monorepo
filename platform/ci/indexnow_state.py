@@ -16,13 +16,23 @@ It has never fired. Measured 2026-09-11, and the shape of the failure is why
 this file exists rather than another paragraph of prose:
 
   - `platform/pages/publish-branch.sh` announces in `announce_to_indexnow`,
-    inside its PUSH=1 branch. Every publish takes that branch — and every one
-    of them runs in an agent sandbox, whose egress proxy answers `403 to
-    CONNECT` for `api.indexnow.org`. It exits `EXIT_NO_EGRESS`, correctly,
-    having announced nothing.
+    inside its PUSH=1 branch. Every publish takes that branch — and through
+    2026-09-11, every one of them ran in an agent sandbox whose egress proxy
+    answered `403 to CONNECT` for `api.indexnow.org`, exiting
+    `EXIT_NO_EGRESS`, correctly, having announced nothing.
   - `.github/workflows/publish-pages-branch.yml` runs on a runner, which has
     real egress — but every one of its runs since IndexNow landed in #4366 came
     back `runner_id: 0` in 3-5 seconds. Starved. Not one executed a step.
+
+CORRECTED 2026-09-24: the by-hand route's egress is not uniformly blocked.
+A scheduled session's `publish-branch.sh` run reached `api.indexnow.org` and
+got a real `200` (1557 URLs submitted), which the two paragraphs above would
+have called impossible. This tool's own `never` verdict is unaffected by that
+run and stays accurate on its own terms — it reads only
+`publish-pages-branch.yml`'s workflow run history, which this by-hand
+submission never touched — but the *reasoning* above ("every one of them runs
+in an agent sandbox [that 403s]") no longer holds as a universal claim. Read
+it as the common case through that date, not a guarantee for every session.
 
 So the route with egress never ran, and the route that ran had no egress, and
 **nothing anywhere said so**. A submission leaves no trace in the tree: there
@@ -503,12 +513,15 @@ def _next_step(state):
             "unreadable state as an unannounced one."
         )
     return (
-        "Announce from a host with real egress -- a GitHub Actions runner, or the "
-        "Hetzner box once host mode is installed. An agent sandbox cannot: its proxy "
-        "403s api.indexnow.org. The command is "
-        f"`node platform/marketing/indexnow.mjs --submit --ref {SERVING_BRANCH}`, and "
-        f"{PUBLISH_WORKFLOW} runs exactly that on every merge to main once a runner is "
-        "available again."
+        "Try it by hand first, even from an agent sandbox: its proxy usually "
+        "403s api.indexnow.org, but not always (a 200 was observed from one "
+        "on 2026-09-24), this tool cannot see a by-hand submission either "
+        "way, and a failed attempt costs one command. The command is "
+        f"`node platform/marketing/indexnow.mjs --submit --ref {SERVING_BRANCH}`. "
+        "Otherwise announce from a host with real egress -- a GitHub Actions "
+        f"runner, or the Hetzner box once host mode is installed. {PUBLISH_WORKFLOW} "
+        "runs the same command on every merge to main once a runner is available "
+        "again."
     )
 
 
