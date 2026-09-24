@@ -1027,9 +1027,21 @@ const CATEGORY_RULES = [
     // compliance evidence record, and this category's own test ran before
     // that one's and won on prefix order. `backup-verification-evidence`
     // is still the only venture the narrower prefix needs to reach.
+    //
+    // `salary-range-posting-check` joined 2026-09-24, filed here on its
+    // first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. It is the same shape as
+    // `call-recording-consent-check` right above: a US-jurisdiction legal
+    // reference table plus a text scan, with every page stating it is not
+    // legal advice and not a compliance determination -- this section's
+    // exact "produce a dated observation you act on, never a determination
+    // made on your behalf" posture. Slug ends in `-check`, which the `ci`
+    // category's own rule does not claim (that rule is an explicit prefix
+    // list, not a `-check$` suffix), so it is added here by prefix rather
+    // than widening any suffix rule to a word this is the only user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
+      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator',
   },

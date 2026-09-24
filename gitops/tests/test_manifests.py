@@ -2401,6 +2401,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `sitemap.xml`, and this branch's own `about.html`) to buy back
     # etcd-object headroom -- see `llmsStoredKey` and `aboutStoredKey` in
     # `platform/marketing/front-door.mjs`.
+    #
+    # 353 on this merge: `salary-range-posting-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser + CLI tool that
+    # scans pasted job-posting text for a stated dollar range and
+    # cross-references a chosen set of US states against a fixed table of
+    # which ones currently require a posted pay range. Static `index.html`
+    # from its first commit, same shape as the rest of this running count.
+    # That merge separately, and independently, also gzip-compressed
+    # `llms.txt` for the identical etcd-headroom reason as the merge two
+    # entries above -- the second write is a no-op once the first is
+    # already committed.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
     total = 352  # `infra/OWNER_CHECKLIST.md`'s own "N of the 352 tools" wording.

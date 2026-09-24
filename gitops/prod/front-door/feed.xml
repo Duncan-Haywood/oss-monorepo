@@ -89,6 +89,15 @@
     <summary type="text">Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.</summary>
   </entry>
   <entry>
+    <title>Salary Range Posting Check — Does Your Job Ad Have One?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salary-range-posting-check/"/>
+    <id>tag:marisstella.dev,2026:tool/salary-range-posting-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range, and which of those states currently require one by law, with the effective date and size threshold cited. Free, runs entirely in your browser — not legal advice.</summary>
+  </entry>
+  <entry>
     <title>Skill Manifest Check — lint a SKILL.md before it ships</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/skill-manifest-check/"/>
     <id>tag:marisstella.dev,2026:tool/skill-manifest-check</id>

@@ -680,7 +680,11 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` (`ventures/skill-manifest-check/usage.mjs`), no deletions --
 // the same-commit link added to `mcp-config-risk-check`'s footer reuses
 // that venture's own existing switch rather than adding a new one.
-const SWITCHES_IN_THE_CATALOGUE = 334;
+//
+// 334 -> 335: `salary-range-posting-check` also graduated, concurrently
+// on `main` -- adding one more `usage.mjs`
+// (`ventures/salary-range-posting-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 335;
 
 let counter = 0;
 function fixture(source) {
