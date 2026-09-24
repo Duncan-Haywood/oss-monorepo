@@ -1148,6 +1148,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // calculator at all -- distinct from this venture's own vs-lmn.html,
   // which does name a product and carries its own "not affiliated" clause.
   'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
+  // Compares against sending a single crafted curl request and reading the
+  // response by eye -- a manual habit every developer testing CORS already
+  // has, not a company or product this could be mistaken for. The page
+  // does cross-link to this venture's own vs-burp-suite.html, which does
+  // name a product and carries its own "not affiliated" clause.
+  'cors-misconfig-check/vs-checking-cors-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
