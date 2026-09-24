@@ -5,6 +5,34 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        `browser_state.py` reported all 8 whole-catalogue checks
+        (sideways, presets, roundtrip, highlight, contrast, optout, sweep,
+        journey) STALE at 4bddefe8 -- builder/front-door files had moved
+        since the last recorded pass on 2026-09-17. Installed
+        `playwright@1.56.0` + `axe-core` (`npm install --no-save`, matching
+        the preinstalled Chromium build 1194) and ran the full sweep via
+        `python3 platform/ci/browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey`.
+        First attempt was killed by an artificial 1900s wrapper timeout
+        mid-`contrast`; re-ran with a 10800s ceiling and it completed.
+      - >-
+        Result: all 8 checks passed clean against 1385 pages at `6fd43e1c`
+        -- in particular `contrast` (axe-core, WCAG A/AA) found zero
+        violations across 1383 pages x 2 viewports, unlike the 2026-09-06
+        run that found 48 critical `label` violations. No defect to fix
+        this time; recorded the passing reading to
+        `platform/ci/browser_state.json` so the next session does not
+        re-run an unnecessary 45-60 minute sweep. Also confirmed before
+        starting: `pages_state.py` current/served, `regen.mjs --verify`
+        clean, `usage_state.py`/`indexnow_state.py` unchanged (still
+        never-measured / runner-blocked, nothing new), no open PRs to
+        duplicate, `session_gate.py` PROCEED.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         `main` was red and had been since #4573 merged that morning. Found by
         `run_workflow_locally.py --tree` (the line CLAUDE.md added on
         2026-09-07 for exactly this, and the only one that asks "is `main`
