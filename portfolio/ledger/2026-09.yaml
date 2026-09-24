@@ -41991,3 +41991,67 @@ entries:
         front-door-tools.mjs --headroom, and the ledger/scoring/router/usage/
         pipeline/infra pytest suite (446 passed) all clean.
     mrr_end: 0
+  - venture: security-headers-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. checking headers by eye
+        in DevTools" -- one of 88 ventures at 0/1 on the generic-method
+        budget per surface-budget.mjs at the time (the treadmill several
+        other sessions were also working the same afternoon). Distinct from
+        this venture's own vs-securityheaders.html, which names a real
+        hosted scanner (securityheaders.com) and carries the trademark
+        disclaimer; the new page compares against the manual DevTools
+        Network-tab habit every web developer already has, so it is
+        registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT instead.
+        Content follows the venture's own README: the value isn't reading
+        four header names (DevTools already shows those), it's applying the
+        CSP frame-ancestors/default-src fallback rule correctly and knowing
+        that X-Frame-Options: ALLOW-FROM is silently dead in every current
+        browser. Linked from index.html's footer, added to sitemap.xml,
+        page.test.mjs assertions added for the new page's FAQPage JSON-LD,
+        disclaimer, and back-link.
+      - >-
+        Found and fixed forward two pre-existing defects while shipping
+        this, both from the same cause: eight or more sessions merging
+        comparison-page PRs to main inside the same hour. First, regen.mjs
+        --verify showed 45 front-door mirror artifacts already stale on
+        `main` before this branch's own change (other sessions' merges that
+        landed without a regen run) -- fixed with `node
+        platform/marketing/regen.mjs`, per CLAUDE.md's documented
+        mirror-staleness failure mode. Second, front-door.test.mjs caught
+        that the new page's .gz file was written by the generators but
+        never mounted in the hand-maintained gitops/prod/kustomization.yaml
+        (regen.mjs's two generators don't touch that top-level file) --
+        would have shipped the page generated but dark. Both fixed forward
+        in separate commits before merging.
+      - >-
+        Merged origin/main into this branch four times over the session as
+        eight-plus concurrent sessions kept advancing it; each merge
+        conflicted in the front-door mirror's binary .gz files (expected --
+        front-door-tools.mjs packs shards sequentially, so any two branches
+        adding a page always conflict there) and was resolved by
+        regenerating from the merged sources, matching
+        platform/marketing/resolve-mirror-merge.sh's guidance for the part
+        of the mirror it covers and the same technique by hand for
+        gitops/prod/front-door/, which is outside that script's scope
+        (front-door.mjs's own output, not front-door-tools.mjs's).
+      - >-
+        Verified locally (Actions confirmed starved -- ci_starvation.py on
+        the latest portfolio-validate.yml push run: runner_id 0, 3s, no
+        steps): venture's own suite 66/66, full platform/marketing +
+        platform/pages suite 1290/1290 clean after the two fixes above,
+        gitops/tests 637 passed/1 skipped (nginx and openssh-client
+        installed first, dropping 25 environmental skips to 1),
+        checklist_coverage.py, sync_tree_counts.py, score_ventures.py
+        --check, router/validate.py, usage/validate_usage.py,
+        pipeline/validate_doc_consistency.py, pipeline/validate_candidates.py,
+        pipeline/probes/validate_probe_index.py, pipeline/score_sensitivity.py,
+        the 15 platform/ci unittest modules, agent_review's test_review,
+        the ledger/scoring/router/usage/pipeline/infra pytest suite (446
+        passed), platform/proposal (101/101), platform/privacy +
+        platform/webcheck (142/142), and run_workflow_locally.py --tree
+        (9/9 selected workflows, 70/70 run steps in portfolio-validate.yml)
+        all clean -- main itself was genuinely green, not just starved.
+    mrr_end: 0
