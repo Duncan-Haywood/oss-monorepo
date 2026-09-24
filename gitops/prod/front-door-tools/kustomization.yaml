@@ -40,18 +40,18 @@
 #   portfolio-front-tools-4: 145 files, 553652 bytes
 #   portfolio-front-tools-5: 121 files, 556896 bytes
 #   portfolio-front-tools-6: 137 files, 548229 bytes
-#   portfolio-front-tools-7: 119 files, 551146 bytes
+#   portfolio-front-tools-7: 120 files, 555012 bytes
 #   portfolio-front-tools-8: 136 files, 555696 bytes
 #   portfolio-front-tools-9: 125 files, 552312 bytes
 #   portfolio-front-tools-10: 122 files, 554435 bytes
 #   portfolio-front-tools-11: 115 files, 554479 bytes
 #   portfolio-front-tools-12: 123 files, 552042 bytes
-#   portfolio-front-tools-13: 132 files, 553648 bytes
-#   portfolio-front-tools-14: 132 files, 555117 bytes
-#   portfolio-front-tools-15: 102 files, 554786 bytes
+#   portfolio-front-tools-13: 131 files, 555843 bytes
+#   portfolio-front-tools-14: 133 files, 555600 bytes
+#   portfolio-front-tools-15: 103 files, 556430 bytes
 #   portfolio-front-tools-16: 117 files, 553860 bytes
 #   portfolio-front-tools-17: 129 files, 551832 bytes
-#   portfolio-front-tools-18: 80 files, 376661 bytes
+#   portfolio-front-tools-18: 81 files, 381183 bytes
 #   portfolio-front-tools-19: 49 files, 268894 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1129,6 +1129,7 @@ configMapGenerator:
       - deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz=deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz
       - depreciation-recapture-calculator__calc.mjs.gz=depreciation-recapture-calculator__calc.mjs.gz
       - depreciation-recapture-calculator__index.html.gz=depreciation-recapture-calculator__index.html.gz
+      - depreciation-recapture-calculator__is-1031-boot-taxed-at-my-average-rate.html.gz=depreciation-recapture-calculator__is-1031-boot-taxed-at-my-average-rate.html.gz
       - depreciation-recapture-calculator__share.mjs.gz=depreciation-recapture-calculator__share.mjs.gz
       - depreciation-recapture-calculator__usage.mjs.gz=depreciation-recapture-calculator__usage.mjs.gz
       - depreciation-recapture-calculator__vs-doing-it-by-hand.html.gz=depreciation-recapture-calculator__vs-doing-it-by-hand.html.gz
@@ -1869,6 +1870,7 @@ configMapGenerator:
       - pdf-accessibility-tag-check__pdf-parser.mjs.gz=pdf-accessibility-tag-check__pdf-parser.mjs.gz
       - pdf-accessibility-tag-check__usage.mjs.gz=pdf-accessibility-tag-check__usage.mjs.gz
       - pdf-accessibility-tag-check__vs-uploading-to-an-online-checker.html.gz=pdf-accessibility-tag-check__vs-uploading-to-an-online-checker.html.gz
+      - pdf-accessibility-tag-check__why-does-my-pdf-fail-when-it-looks-fine.html.gz=pdf-accessibility-tag-check__why-does-my-pdf-fail-when-it-looks-fine.html.gz
       - pergola-bid-calculator__calc.mjs.gz=pergola-bid-calculator__calc.mjs.gz
       - pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz=pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz
       - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
@@ -1925,13 +1927,13 @@ configMapGenerator:
       - podcast-feed-check__why-podcast-feeds-fail-validation.html.gz=podcast-feed-check__why-podcast-feeds-fail-validation.html.gz
       - podcast-sponsorship-rate-calculator__calculator.mjs.gz=podcast-sponsorship-rate-calculator__calculator.mjs.gz
       - podcast-sponsorship-rate-calculator__index.html.gz=podcast-sponsorship-rate-calculator__index.html.gz
-      - podcast-sponsorship-rate-calculator__share.mjs.gz=podcast-sponsorship-rate-calculator__share.mjs.gz
-      - podcast-sponsorship-rate-calculator__usage.mjs.gz=podcast-sponsorship-rate-calculator__usage.mjs.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - podcast-sponsorship-rate-calculator__share.mjs.gz=podcast-sponsorship-rate-calculator__share.mjs.gz
+      - podcast-sponsorship-rate-calculator__usage.mjs.gz=podcast-sponsorship-rate-calculator__usage.mjs.gz
       - podcast-sponsorship-rate-calculator__vs-a-flat-industry-average-cpm.html.gz=podcast-sponsorship-rate-calculator__vs-a-flat-industry-average-cpm.html.gz
       - podcast-sponsorship-rate-calculator__vs-podcorn.html.gz=podcast-sponsorship-rate-calculator__vs-podcorn.html.gz
       - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
@@ -2063,12 +2065,12 @@ configMapGenerator:
       - retaining-wall-bid-calculator__share.mjs.gz=retaining-wall-bid-calculator__share.mjs.gz
       - retaining-wall-bid-calculator__usage.mjs.gz=retaining-wall-bid-calculator__usage.mjs.gz
       - retaining-wall-bid-calculator__vs-aspire.html.gz=retaining-wall-bid-calculator__vs-aspire.html.gz
-      - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
       - sbom-diff-check__index.html.gz=sbom-diff-check__index.html.gz
       - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
       - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
@@ -2500,6 +2502,7 @@ configMapGenerator:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
+      - well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz=well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz
       - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - whatnot-seller-payout__calc.mjs.gz=whatnot-seller-payout__calc.mjs.gz
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
