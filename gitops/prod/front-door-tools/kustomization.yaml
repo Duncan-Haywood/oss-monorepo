@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 115 files, 556697 bytes
 #   portfolio-front-tools-12: 120 files, 556091 bytes
 #   portfolio-front-tools-13: 124 files, 555334 bytes
-#   portfolio-front-tools-14: 131 files, 550253 bytes
+#   portfolio-front-tools-14: 132 files, 555590 bytes
 #   portfolio-front-tools-15: 131 files, 551708 bytes
 #   portfolio-front-tools-16: 100 files, 556528 bytes
 #   portfolio-front-tools-17: 117 files, 552935 bytes
@@ -2004,6 +2004,7 @@ configMapGenerator:
       - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
       - pergola-bid-calculator__share.mjs.gz=pergola-bid-calculator__share.mjs.gz
       - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
+      - pergola-bid-calculator__vs-a-flat-45-per-square-foot-special.html.gz=pergola-bid-calculator__vs-a-flat-45-per-square-foot-special.html.gz
       - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
       - personal-trainer-package-pricing-calculator__calc.mjs.gz=personal-trainer-package-pricing-calculator__calc.mjs.gz
       - personal-trainer-package-pricing-calculator__how-to-price-a-personal-training-package.html.gz=personal-trainer-package-pricing-calculator__how-to-price-a-personal-training-package.html.gz
