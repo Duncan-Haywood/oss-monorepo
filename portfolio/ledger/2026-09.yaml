@@ -41238,3 +41238,66 @@ entries:
         one fleet-wide accessibility re-verification. Portfolio-wide
         revenue and confirmed-visitor counts remain at zero.
     mrr_end: 0
+  - venture: salary-range-posting-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a free, zero-dependency CLI +
+        browser tool that scans pasted job-posting text for a stated
+        dollar range and cross-references a chosen set of US states
+        against a fixed table of the 14 jurisdictions that currently
+        require a posted pay range in the ad itself, citing the law,
+        effective date, and employer-size threshold. Follows
+        call-recording-consent-check's liability-mitigation posture: heavy
+        disclosure of scope (excludes disclose-at-a-different-point laws
+        and city/county ordinances) and confidence (thresholds not fully
+        certain are marked "commonly reported" rather than asserted).
+        Channel: a real, named, fast-growing compliance search topic (14
+        states now covered, up from 4 in 2021; Virginia and Maine add a
+        requirement in July 2026), verified via live web search since the
+        topic is outside training-data currency. duplicate_check.py: no
+        match >= 0.15. Full test coverage (67 assertions across
+        engine/cli/usage/share/page), category evidence, cross-linked
+        reciprocally with call-recording-consent-check, deployed to the
+        published site (PR #5671).
+      - >-
+        Along the way, independently discovered and fixed a real
+        regression: two ventures graduating in the same merge window took
+        the portfolio-front-html ConfigMap over its etcd-budget CI guard.
+        Applied the proven sitemap.xml/catalog.json gzip-storage mechanism
+        to llms.txt. A concurrent session on main shipped the identical
+        fix moments later (same function name, same approach); reconciled
+        by taking main's version during merge rather than restating a
+        duplicate. Portfolio-wide revenue and confirmed-visitor counts
+        remain at zero.
+    mrr_end: 0
+  - venture: helm-values-schema-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-checking-it-by-eye.html, a generic-method comparison page
+        ("vs. eyeballing values.yaml against the schema") -- the venture
+        previously had only a named-product comparison (vs-helm-lint.html).
+      - >-
+        Independently hit and fixed the same etcd-budget overflow the
+        skill-manifest-check entry above describes in full (gzipping
+        llms.txt): this branch's own page pushed portfolio-front-html over
+        the 943,718-byte budget, confirmed against main's own tip in a
+        worktree first to rule out a pre-existing regression. While
+        preparing that fix, main independently gained the identical one via
+        #5667 a few minutes ahead of this PR; resolved on merge by taking
+        main's implementation whole rather than reconciling two copies of
+        the same mechanism -- recorded here mainly as a second, independent
+        confirmation of the same root cause and fix.
+      - >-
+        Verified locally (Actions starved on this PR's own check, confirmed
+        via ci_starvation.py): the venture's own 44-assertion suite,
+        clauses.mjs, faq-coverage.mjs (349/349), faq-duplicate.mjs,
+        surface-budget.mjs --check, checklist_coverage.py, regen.mjs
+        --verify clean, platform/marketing + platform/pages suite
+        (1289/1289), gitops/tests (637 passed, 1 skipped -- environmental),
+        and the 27-module platform/ci unittest suite. Squash-merged as
+        #5668.
+    mrr_end: 0

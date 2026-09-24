@@ -1861,6 +1861,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // advertised rate any auto-glass shop already runs, not a company or
   // product this could be mistaken for.
   'auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html',
+  // Compares against "a flat rate per linear foot" -- the generic
+  // per-foot quoting habit hardscape and retaining-wall contractors are
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-aspire.html, which names Aspire
+  // specifically and already carries the trademark disclaimer.
+  'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
