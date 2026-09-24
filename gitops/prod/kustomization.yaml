@@ -111,7 +111,21 @@ configMapGenerator:
       - feed.xml=front-door/feed.xml
       # `llms.txt`, the AI-discovery counterpart to the feed. Same reason again
       # for riding here: a well-known path has to resolve at the document root.
-      - llms.txt=front-door/llms.txt
+      #
+      # **Stored gzipped**, same reason and same mechanism as `sitemap.xml.gz`
+      # above: it is prose that grows with the catalogue, gaining ~500 bytes
+      # with every venture that ships a page, and it was the next key over the
+      # 943,718-byte budget in `gitops/tests/test_manifests.py` after the
+      # sitemap. See `llmsStoredKey` in `platform/marketing/front-door.mjs`.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64. The URL is unchanged: nginx still answers
+      # `/llms.txt`, via `gzip_static always; gunzip on;` and *no* `try_files`,
+      # for the identical reason `sitemap.xml`'s entry above gives — `try_files`
+      # stats the uncompressed name and there is no longer a plain sibling on
+      # disk. The `location = /llms.txt` block in `front-door/default.conf`
+      # carries the long version of that trap.
+      - llms.txt.gz=front-door/llms.txt.gz
       # `catalog.json`, the structured counterpart to `llms.txt` — the same
       # tools as JSON for a client that filters rather than reads. Same reason
       # again for riding here, with one extra: `llms.txt` above links it, so

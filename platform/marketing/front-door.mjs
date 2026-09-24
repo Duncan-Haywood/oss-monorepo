@@ -544,8 +544,49 @@ export const EMPTY_FEED_UPDATED = '2026-08-28T00:00:00Z';
 /** The well-known path a model fetches without having to discover it first. */
 export const LLMS_FILE = 'llms.txt';
 
-/** Where `--write` puts it, beside the page it describes. */
-export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', LLMS_FILE);
+/**
+ * The ConfigMap key it is stored under, gzipped — see `COMPRESSED_SUFFIX`.
+ *
+ * `catalogStoredKey`'s own doc comment named `sitemap.xml` and `llms.txt`
+ * (106,635 bytes the day `catalog.json` was compressed) as the next two keys
+ * over this same threshold, left plain deliberately "one at a time and
+ * against a measurement". `sitemap.xml` joined on 2026-09-23; this is the
+ * next one, at 145,949 bytes and still growing ~500 bytes with every venture
+ * that ships a page, the day `water-softener-bid-calculator` gaining a
+ * generic-method comparison page took `portfolio-front-html` to 944,015
+ * bytes against the 943,718-byte budget — and the object was already 177
+ * bytes over that budget on `main` before this page existed, so any PR
+ * landing any page at all would have tripped it.
+ *
+ * Unlike the sitemap's almost-pure `<url><loc>` structure, this file is prose
+ * — titles and descriptions in sentences — so it compresses less dramatically,
+ * but still enough to matter: gzip -9 took it well under half its plain size.
+ *
+ * The *URL* is unchanged and stays `/llms.txt` — `LLMS_FILE` is what the front
+ * page and `catalog.json` link, and a well-known path is not something to
+ * move to save bytes. Only the stored key changes.
+ */
+export const llmsStoredKey = () => `${LLMS_FILE}${COMPRESSED_SUFFIX}`;
+
+/**
+ * Where `--write` puts it, beside the page it describes.
+ *
+ * The suffix is spelled out rather than taken from `COMPRESSED_SUFFIX`, for
+ * the same reason `CATALOG_OUTPUT_FILE` and `SITEMAP_OUTPUT_FILE` spell it
+ * out: `COMPRESSED_SUFFIX` is declared several hundred lines below this, and
+ * a `const` is hoisted into the temporal dead zone, not initialised, so a
+ * forward reference here would throw at module load rather than read as a
+ * stale copy. `llmsStoredKey()` above is the accessor that does use the
+ * constant, and `front-door.test.mjs` asserts the two agree so this literal
+ * cannot drift.
+ */
+export const LLMS_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  `${LLMS_FILE}.gz`,
+);
 
 /** The structured half of the same handshake. See `renderFrontDoorCatalog`. */
 export const CATALOG_FILE = 'catalog.json';
@@ -1291,11 +1332,13 @@ export const COMPARE_KEY = 'compare.html';
  * rather than as an exception to it — it grows with the catalogue, and by then
  * it was both the largest key in the object and the one that took it over
  * budget. See `catalogStoredKey` for the measurement. `sitemap.xml` (113,830
- * bytes) and `llms.txt` (106,635) are the next two by the same test and are
- * deliberately left plain for now: one key bought roughly thirty ventures of
- * headroom, and compressing a well-known path is a change to how nginx
- * answers it, so it is worth doing one at a time and against a measurement
- * rather than all three on the strength of the first one working.
+ * bytes that day) joined on 2026-09-23, the next key by the same test to take
+ * the object over budget, at a ninth its plain size once gzipped. `llms.txt`
+ * (145,949 bytes) joined next for the identical reason — see `llmsStoredKey`
+ * for that measurement. Each joined one at a time, against a measurement,
+ * rather than pre-emptively: compressing a well-known path is a change to how
+ * nginx answers it, worth doing only once it is the key actually doing the
+ * tripping.
  *
  * nginx serves them with `gzip_static always; gunzip on;`, reached by a
  * `rewrite`, never a `try_files`. That is not style: `try_files` stats the
@@ -2874,8 +2917,14 @@ if (isMain) {
     // And once more: `llms.txt` lists the same mirrored tools the page and the
     // feed do, so a run that wrote one without the others would publish three
     // documents disagreeing about what this host serves.
-    await fs.writeFile(LLMS_OUTPUT_FILE, llms);
-    console.log(`wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${llms.length} bytes)`);
+    // Gzipped, unlike the two writes above it: this is the key `sitemapStoredKey`
+    // named as the next one over the etcd budget by this same test. See
+    // `llmsStoredKey`. The URL is still `/llms.txt`.
+    const storedLlms = compress(llms);
+    await fs.writeFile(LLMS_OUTPUT_FILE, storedLlms);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${storedLlms.length} bytes, ${llms.length} uncompressed)`,
+    );
     // And once more, with one extra edge: `llms.txt` now *links* this file, so
     // a run that wrote the one without the other would publish a document
     // pointing a model at a path this host answers with the front page.
@@ -2965,10 +3014,13 @@ if (isMain) {
     // `location = /catalog.json` block's own `root`, so a regeneration that
     // stopped writing the compressed copy would go on serving a frozen
     // catalogue -- 200s, valid JSON, quietly describing a catalogue that has
-    // moved on. `SITEMAP_FILE` joins on 2026-09-23 for the identical reason,
+    // moved on. `SITEMAP_FILE` joined on 2026-09-23 for the identical reason,
     // one key over: a plain `sitemap.xml` left beside the new `.gz` would
     // keep answering `/sitemap.xml` with a sitemap that stopped growing.
-    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
+    // `LLMS_FILE` joins for the same reason again, one key further: a plain
+    // `llms.txt` left beside the new `.gz` would keep answering `/llms.txt`
+    // with a catalogue frozen at whatever size it was compressed.
+    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, LLMS_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
       const file = path.join(path.dirname(OUTPUT_FILE), stale);
       if (await fs.stat(file).then(() => true, () => false)) {
         await fs.rm(file);
