@@ -1207,6 +1207,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-checking-*-by-hand pages above (e.g.
   // graphql-introspection-exposure-check's).
   'actions-injection-check/vs-checking-a-workflow-by-hand.html',
+  // Compares against "a flat installed price per square foot" -- a generic
+  // pricing habit every shed dealer already shops against (the "$X.XX
+  // installed" Facebook-special quote), not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html, which
+  // names a specific field-service platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-a-flat-rate-per-square-foot pages above (e.g.
+  // artificial-turf-bid-calculator's).
+  'shed-install-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "opening each base image's own release page by hand" --
   // a manual lookup habit every Dockerfile author already has, not a
   // company or product this could be mistaken for. Distinct from this
@@ -1222,6 +1231,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "ranking route locations by withdrawal count" -- a
+  // habit every ATM route operator already has from a monthly transaction
+  // report, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-atm-depot.html, which names a specific
+  // equipment/processing vendor and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other generic-method pages
+  // above.
+  'atm-route-margin/vs-ranking-by-transaction-count.html',
   // Compares against "running dig by hand" -- a manual DNS lookup habit
   // every developer and admin already has, not a company or product this
   // could be mistaken for. Distinct from this venture's own
@@ -1269,6 +1286,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // podcaster can settle into, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'podcast-sponsorship-rate-calculator/vs-a-flat-cpm-for-every-slot.html',
+  // Compares against "planning cuts by hand" -- a manual layout habit every
+  // woodworking or sign shop already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-opticutter-and-cutlist-optimizer.html, which names two specific
+  // hosted services and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other generic-method pages above.
+  'cut-list-optimizer/vs-planning-cuts-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
