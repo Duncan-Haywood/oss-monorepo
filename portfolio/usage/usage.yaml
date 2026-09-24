@@ -6970,3 +6970,21 @@ products:
           having measured nothing. `campaign_calculated` is the one worth
           watching: `pledge_calculated` alone means a visitor only checked
           one reward tier, not a whole campaign estimate.
+  - slug: salary-range-posting-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          posting_scanned: 0
+          link_shared: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/salary-range-posting-check/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `posting_scanned` is the one worth
+          watching.

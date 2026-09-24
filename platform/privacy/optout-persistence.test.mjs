@@ -654,7 +654,9 @@ const RELATIVE_SELF = relative(
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
 // `auto-glass-bid-usage` storage name). Exactly one added `usage.mjs`
 // (`ventures/auto-glass-bid-calculator/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 331;
+// 2026-09-24: +1, `ventures/salary-range-posting-check/usage.mjs` (new
+// venture graduated this session), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 332;
 
 let counter = 0;
 function fixture(source) {
