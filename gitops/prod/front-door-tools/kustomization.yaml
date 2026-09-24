@@ -43,8 +43,8 @@
 #   portfolio-front-tools-7: 122 files, 556191 bytes
 #   portfolio-front-tools-8: 138 files, 555334 bytes
 #   portfolio-front-tools-9: 122 files, 554262 bytes
-#   portfolio-front-tools-10: 121 files, 554715 bytes
-#   portfolio-front-tools-11: 116 files, 552031 bytes
+#   portfolio-front-tools-10: 121 files, 554941 bytes
+#   portfolio-front-tools-11: 117 files, 555950 bytes
 #   portfolio-front-tools-12: 126 files, 556138 bytes
 #   portfolio-front-tools-13: 125 files, 552317 bytes
 #   portfolio-front-tools-14: 135 files, 556110 bytes
@@ -1495,6 +1495,7 @@ configMapGenerator:
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
       - hoa-reserve-fund-calculator__vs-spreadsheet.html.gz=hoa-reserve-fund-calculator__vs-spreadsheet.html.gz
+      - hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz=hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz
       - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
       - holiday-light-bid-calculator__index.html.gz=holiday-light-bid-calculator__index.html.gz
@@ -1539,12 +1540,12 @@ configMapGenerator:
       - hreflang-reciprocity-check__index.html.gz=hreflang-reciprocity-check__index.html.gz
       - hreflang-reciprocity-check__usage.mjs.gz=hreflang-reciprocity-check__usage.mjs.gz
       - hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz=hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz
-      - hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz=hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz=hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz
       - ice-dam-removal-bid-calculator__calc.mjs.gz=ice-dam-removal-bid-calculator__calc.mjs.gz
       - ice-dam-removal-bid-calculator__index.html.gz=ice-dam-removal-bid-calculator__index.html.gz
       - ice-dam-removal-bid-calculator__share.mjs.gz=ice-dam-removal-bid-calculator__share.mjs.gz
