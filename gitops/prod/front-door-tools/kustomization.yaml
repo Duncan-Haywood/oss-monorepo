@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 129 files, 542375 bytes
 #   portfolio-front-tools-7: 128 files, 554478 bytes
 #   portfolio-front-tools-8: 127 files, 556279 bytes
-#   portfolio-front-tools-9: 139 files, 552523 bytes
+#   portfolio-front-tools-9: 140 files, 555944 bytes
 #   portfolio-front-tools-10: 120 files, 555187 bytes
 #   portfolio-front-tools-11: 119 files, 542713 bytes
 #   portfolio-front-tools-12: 120 files, 556361 bytes
@@ -1308,6 +1308,7 @@ configMapGenerator:
       - economic-nexus-threshold-tracker__calc.mjs.gz=economic-nexus-threshold-tracker__calc.mjs.gz
       - economic-nexus-threshold-tracker__index.html.gz=economic-nexus-threshold-tracker__index.html.gz
       - economic-nexus-threshold-tracker__vs-paid-nexus-monitoring-software.html.gz=economic-nexus-threshold-tracker__vs-paid-nexus-monitoring-software.html.gz
+      - economic-nexus-threshold-tracker__vs-tracking-it-in-a-spreadsheet.html.gz=economic-nexus-threshold-tracker__vs-tracking-it-in-a-spreadsheet.html.gz
       - economic-nexus-threshold-tracker__why-does-economic-nexus-differ-by-state.html.gz=economic-nexus-threshold-tracker__why-does-economic-nexus-differ-by-state.html.gz
       - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
       - egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz=egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz
