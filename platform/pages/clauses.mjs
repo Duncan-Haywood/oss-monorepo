@@ -1166,6 +1166,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // calculator at all -- distinct from this venture's own vs-lmn.html,
   // which does name a product and carries its own "not affiliated" clause.
   'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
+  // Compares against "a flat monthly fee" -- the round, competitor-matched
+  // maintenance-plan price every HVAC contractor is shopped against, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or field-service platform at all -- distinct from this
+  // venture's own vs-servicetitan.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'hvac-maintenance-contract-calculator/vs-a-flat-monthly-fee.html',
   // Compares against "a spreadsheet" -- a generic method every decoration
   // shop already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-printavo.html, which
