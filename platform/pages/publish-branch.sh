@@ -168,10 +168,22 @@ resolve_cname() {
 # By the time this runs the force-push has already succeeded and the site is
 # live. Failing the script here would report a *successful deploy* as a failure
 # -- and the most likely reason to fail is that the host has no egress to
-# api.indexnow.org, which is true of every agent session sandbox and is not a
-# defect in anything. So this reports and returns 0. What it must not do is
-# report *nothing*: the announcement is loud either way, which is the whole
-# point of moving it out of prose.
+# api.indexnow.org, which was true of every agent session sandbox tested
+# through 2026-09-11 and is not a defect in anything. So this reports and
+# returns 0. What it must not do is report *nothing*: the announcement is loud
+# either way, which is the whole point of moving it out of prose.
+#
+# CORRECTED 2026-09-24: "every agent session sandbox" was an overclaim. A
+# scheduled session's run of this exact script reached api.indexnow.org and
+# got a real 200 (1557 URLs, `POST https://api.indexnow.org/indexnow -> 200`),
+# where every prior reading through 2026-09-11 had gotten a 403 at CONNECT.
+# Egress policy is evidently per-session-type or per-environment rather than a
+# fixed property of "an agent sandbox" -- so treat the 403 as the common case
+# to plan around, not a guarantee, and keep trying this route rather than
+# assuming it is dead. `indexnow_state.py` still reports `never` after this,
+# because it reads only GitHub workflow run history and has no way to record
+# a by-hand submission -- that gap is real and is not what this correction
+# is about.
 #
 # `INDEXNOW=0` skips it, for a publish you deliberately do not want announced
 # (a rollback, or a snapshot you are about to replace).

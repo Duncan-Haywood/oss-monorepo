@@ -41769,3 +41769,91 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: pergola-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED. Started on the front-door etcd-budget
+        failure (portfolio-front-html over its 943,718-byte test budget),
+        but two concurrent sessions independently shipped the identical
+        fix (gzip llms.txt, #5668 and #5671) before this branch could push
+        -- confirmed by diffing against origin/main rather than assuming,
+        and the redundant branch was discarded without opening a PR.
+      - >-
+        Re-pointed the session at the fleet-wide browser/accessibility
+        sweep instead (platform/ci/browser_checks.py --record, all 8
+        checks, ~35 minutes, run for the first time since build.mjs and
+        clauses.mjs last changed per browser_state.py). It found one real
+        WCAG AA violation: `.thin` on
+        vs-a-flat-45-per-square-foot-special.html rendered at 4.48:1
+        against its #eef2f7 background, below the 4.5:1 floor for bold
+        11pt text -- the two "... short of target" margin-warning cells,
+        illegible to low-vision readers and unreliable for anything that
+        infers state from computed contrast.
+      - >-
+        Darkened #8a6a1f to #6c5318 (same amber hue, 6.47:1, past
+        .healthy's own 5.81:1) and regenerated the front-door mirror in
+        the same commit. Verified with a targeted re-run
+        (browser_checks.py --only pergola-bid-calculator --checks
+        contrast: 0 violations, was 2), the venture's own suite (118/118),
+        regen.mjs --verify, checklist_coverage.py, sync_tree_counts.py,
+        and the etcd/mirror-ceiling pytest cases. Squash-merged as #5695;
+        CI showed starved (runner_id: 0, 3-13s, confirmed with
+        ci_starvation.py on four jobs) rather than red. Republished the
+        GitHub Pages branch snapshot after merge and recorded the reading.
+        The other 7 browser checks (sideways, presets, roundtrip,
+        highlight, optout, sweep, journey) all passed clean across the
+        full 1500+-page catalogue -- recorded via --record so
+        browser_state.py stops reporting them stale. Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED. Reviewed the open-PR queue first (3 open,
+        all agent-authored): PR #5689 (siding-bid-calculator comparison page)
+        had a merge conflict against main from concurrent activity; began
+        rebasing and verifying it in a worktree, but the PR's own originating
+        session pushed an updated merge and merged it first, so that work was
+        discarded as a duplicate per CLAUDE.md's "Duplicate PRs" guidance
+        rather than raced or pushed over. PRs #5679 and #5692 were left alone
+        for the same reason -- both are large (1500+ changed files, mostly
+        the generated front-door mirror) and their own sessions were still
+        actively pushing to them.
+      - >-
+        pages_state.py showed the gh-pages snapshot stale (built from
+        e124614e/f608fc01 while main had moved 5-6 commits ahead). Ran
+        CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+        from a clean worktree of origin/main to refresh it -- pushed
+        332cc1e1, confirmed served by GitHub's managed Pages builder (run
+        36033755276).
+      - >-
+        That run's IndexNow submission (node platform/marketing/indexnow.mjs
+        --submit, invoked by publish-branch.sh) returned HTTP 200 from
+        api.indexnow.org with 1557 URLs, submitted from this session's
+        sandbox. This contradicts the standing claim in CLAUDE.md and
+        indexnow_state.py's own code comments that an agent sandbox's egress
+        proxy 403s that host -- worth a fresh look, since indexnow_state.py
+        only reads GitHub workflow run history and has no way to record a
+        by-hand submission, so it still reports "never" even after this one
+        succeeded. Not verified whether the submission actually registered
+        with Bing/Yandex beyond the 200 response; flagging as observed
+        rather than as confirmed indexing.
+      - >-
+        By the time the publish finished, main had already moved one more
+        commit ahead (pergola-bid-calculator comparison page), which is the
+        ordinary case at this session's concurrency level -- left for the
+        next session or scheduled run to catch, rather than chasing a moving
+        target repeatedly in one session.
+      - >-
+        Left the owner's decision queue untouched: every top item
+        (hetzner-ssh-key-is-a-public-key, payout-rail, funding-sponsors-live,
+        print-atelier-stripe-checkout, pages-custom-domain) is genuinely
+        owner-blocked (credentials, money decisions, or a DNS panel this
+        session cannot reach) and none had new information to add this
+        session.
+    mrr_end: 0

@@ -686,7 +686,17 @@ const RELATIVE_SELF = relative(
 // that venture's existing switch rather than adding a new one -- that is
 // true of the footer *link*, not of this switch count, which reflects
 // skill-manifest-check's own separate, additional `usage.mjs`.)
-const SWITCHES_IN_THE_CATALOGUE = 335;
+//
+// 335 -> 336: another concurrent branch merge -- `depop-fee-calculator`
+// also graduated, adding one `usage.mjs` following the same opt-out
+// pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `depop-fee-calculator-usage` storage
+// name). This branch only ever knew its own predecessor's number (335,
+// before `depop-fee-calculator` landed on the other side) until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list, five concurrent graduations wide this time. Exactly one added
+// `usage.mjs` (`ventures/depop-fee-calculator/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 336;
 
 let counter = 0;
 function fixture(source) {

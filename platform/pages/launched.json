@@ -96,6 +96,7 @@
     "dental-ppo-writeoff-calculator": "2026-09-11",
     "dependency-confusion-check": "2026-09-07",
     "deploy-concurrency-check": "2026-09-17",
+    "depop-fee-calculator": "2026-09-24",
     "depreciation-recapture-calculator": "2026-09-17",
     "dns-configuration-evidence": "2026-08-24",
     "docker-base-image-eol-check": "2026-09-23",

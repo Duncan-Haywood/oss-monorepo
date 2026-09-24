@@ -2414,9 +2414,24 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # trigger reliably, overlapping triggers between two or more pasted
     # skills, and a body-size context-budget caution. Static `index.html`
     # from its first commit, same shape as the rest of this running count.
+    #
+    # 354 on this merge: `depop-fee-calculator` also graduated, concurrently
+    # on `main` -- a zero-dependency browser calculator pricing a Depop sale
+    # against the 0%-selling-fee-plus-processing schedule US and UK sellers
+    # now run, the older flat 10% schedule still used elsewhere, and the
+    # Boosted Listings surcharge, keeping the buyer-paid Marketplace fee
+    # separate from seller payout. This branch only ever knew its own
+    # predecessor's number (353, before `depop-fee-calculator` landed on the
+    # other side) until this merge -- the same ordinary collision shape
+    # recorded throughout this list, five concurrent graduations wide this
+    # time. Static `index.html` from its first commit, same shape as the
+    # rest of this running count. That merge separately, and independently,
+    # also gzip-compressed `llms.txt` for the identical etcd-headroom reason
+    # as the merge two entries above -- the second write is a no-op once
+    # the first is already committed.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 353  # `infra/OWNER_CHECKLIST.md`'s own "N of the 353 tools" wording.
+    total = 354  # `infra/OWNER_CHECKLIST.md`'s own "N of the 354 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
