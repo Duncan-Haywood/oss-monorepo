@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 126 files, 546408 bytes
 #   portfolio-front-tools-10: 119 files, 555108 bytes
 #   portfolio-front-tools-11: 116 files, 554126 bytes
-#   portfolio-front-tools-12: 124 files, 552205 bytes
+#   portfolio-front-tools-12: 125 files, 556869 bytes
 #   portfolio-front-tools-13: 127 files, 545486 bytes
 #   portfolio-front-tools-14: 133 files, 556167 bytes
 #   portfolio-front-tools-15: 103 files, 555414 bytes
@@ -1768,6 +1768,7 @@ configMapGenerator:
       - no-show-fee-calculator__usage.mjs.gz=no-show-fee-calculator__usage.mjs.gz
       - no-show-fee-calculator__vs-acuity-scheduling.html.gz=no-show-fee-calculator__vs-acuity-scheduling.html.gz
       - no-tax-on-tips-overtime-calculator__calc.mjs.gz=no-tax-on-tips-overtime-calculator__calc.mjs.gz
+      - no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz=no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz
       - no-tax-on-tips-overtime-calculator__index.html.gz=no-tax-on-tips-overtime-calculator__index.html.gz
       - no-tax-on-tips-overtime-calculator__usage.mjs.gz=no-tax-on-tips-overtime-calculator__usage.mjs.gz
       - no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz=no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz
