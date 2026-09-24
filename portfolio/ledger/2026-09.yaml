@@ -41460,3 +41460,51 @@ entries:
         portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
         portfolio/pipeline infra/tests -q` all clean.
     mrr_end: 0
+  - venture: auto-glass-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-249-windshield-coupon.html, a generic-method
+        comparison page ("vs. a flat $249 windshield coupon") -- the
+        venture showed 0/1 on its generic-method budget. calc.mjs's own
+        JOB_PRESETS[0] is literally labelled "the $249 coupon job";
+        selected via surface-budget.mjs's 0-generic-method ventures
+        intersected with router/allocate.py's merit ranking.
+      - >-
+        Worked examples pinned against calc.mjs at the form's own defaults
+        ($28 wage, 22% burden, 14% overhead, 32% target margin): the
+        coupon's own named job (economy aftermarket glass, no ADAS,
+        in-shop) already costs $428.77 to run, so the $249 coupon is
+        $179.77 under that job's own break-even cost before overhead or
+        margin ever apply -- sharper than a margin story. The shortfall
+        against a mobile job with static-and-dynamic ADAS calibration
+        priced (OEM glass, camera and radar both on the glass) grows to
+        $1,017.70.
+      - >-
+        The full platform/marketing + platform/pages suite (not this
+        venture's own scoped tests) caught a real bug the venture's own
+        109-assertion suite missed: 4 of 5 FAQPage JSON-LD answers used a
+        literal "--" where the visible prose renders "&mdash;" as an em
+        dash. faq-visible.test.mjs correctly failed on the mismatch; fixed
+        to match verbatim in a follow-up commit before merging.
+      - >-
+        Hit the generated front-door mirror's sequential-packing merge
+        conflict three times while main absorbed several sibling PRs
+        during this session (per session_gate.py's concurrent-session
+        signal); resolved each time with resolve-mirror-merge.sh's
+        approach plus a full regen.mjs run against the merged tree,
+        verified clean with --verify each time.
+      - >-
+        Verified locally (Actions starved for the session, confirmed via
+        ci_starvation.py on every failing check -- runner_id: 0, 3-4s, no
+        steps): the venture's own 109-assertion suite, faq-visible.test.mjs
+        and clauses.test.mjs, checklist_coverage.py, surface-budget.mjs
+        --check, regen.mjs --verify clean, the platform/marketing +
+        platform/pages suite (1289/1289), gitops/tests pytest (613 passed,
+        25 skipped -- environmental), platform/ci unittest (27/27), and
+        portfolio/ledger + scoring + router + usage + pipeline + infra/tests
+        pytest (446 passed). Posted the starvation diagnosis and re-ran the
+        starved checks once per CLAUDE.md's drive-to-green checklist before
+        squash-merging as #5674.
+    mrr_end: 0
