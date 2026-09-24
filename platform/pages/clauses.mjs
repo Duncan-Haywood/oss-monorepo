@@ -1714,6 +1714,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "a flat pump-swap special" -- the generic coupon
+  // pricing ($X, any sump pump, done) that swap specials are shopped
+  // against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-servicetitan.html, which names
+  // ServiceTitan specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
