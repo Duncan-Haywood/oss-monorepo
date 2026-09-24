@@ -1,0 +1,43 @@
+name: employee-cost-calculator
+description: >-
+  A private browser calculator that compares the fully-loaded cost of a W-2
+  employee against a 1099 contractor for the same role: wages plus employer
+  FICA, FUTA and SUTA charged against their wage bases rather than as flat
+  percentages, workers' comp, PTO accrual, retirement match, health
+  insurance and payroll admin on the employee side, against rate, hours,
+  filing admin and one-time setup on the contractor side. It reports the
+  ongoing annual and year-one cost of each, the cost per hour, and the
+  contractor hourly rate at which the two cost the same — while explicitly
+  disclaiming that it never determines, or bears on, which classification a
+  worker should legally hold.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: A small business owner deciding whether to bring a role in-house will underestimate the employer burden on top of a wage — FICA, FUTA/SUTA, workers' comp, PTO and benefits routinely add 20-35% on top of wages — because every rate they would need to add it up correctly sits in a different document (a rate notice, a policy declaration, a benefits quote) and nothing prompts them to combine all of them before comparing to a contractor's quoted rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The FUTA/SUTA wage-base cap is the single most surprising number in this arithmetic to someone pricing a role by hand — a full-time hire clears both bases well before year-end, so the effective burden rate for the rest of the year is lower than a flat "burden %" rule of thumb implies, and seeing that arithmetic explicitly (rather than as a black-box percentage) is what makes the tool worth returning to for a second role at a different wage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Separating the "ongoing annual cost" from the "year-one cost" (which adds one-time recruiting/onboarding) is what makes the comparison honest for an owner planning a multi-year budget rather than just this year's hiring decision, and its absence from generic "cost of an employee" calculators is a real gap this tool closes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three small-business owners run a comparison twice within 90 days.
+  - Owners report that the employer-burden inputs demand figures they do not have to hand (a state rate notice, a workers' comp declaration, a benefits quote), so the tool cannot be completed without an accountant or broker doing the lookup for them.
+  - Visitors consistently misread the tool as a worker-classification determination despite the disclaimer, which would be a liability regression rather than a usage problem and requires strengthening the disclaimer or narrowing the framing, not more features.
+  - The figures it produces are rejected as too far from what owners actually see on payroll statements, so the arithmetic is not trusted enough to act on.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/employee-cost-calculator/
+  analytics: null
