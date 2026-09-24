@@ -524,6 +524,94 @@ test('the Aspire comparison page FAQPage JSON-LD matches the visible copy verbat
 // Found by platform/pages/roundtrip.mjs: a recipient opening a shared link saw
 // a scope of work for a different acreage and density than the sender's own
 // figures, under a headline price that matched to the cent.
+test('index links the flat-price-per-acre comparison page and the sitemap lists it too', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(html, /vs-a-flat-price-per-acre\.html/);
+  assert.match(sitemap, /vs-a-flat-price-per-acre\.html/);
+});
+
+test('the flat-price-per-acre comparison page links back, carries the required clauses, and names no competitor', () => {
+  const vsFlatRate = readFileSync(join(HERE, 'vs-a-flat-price-per-acre.html'), 'utf8');
+  assert.match(vsFlatRate, /<a href="index\.html">/);
+  assert.match(vsFlatRate, /No warranty/);
+  assert.match(vsFlatRate, /Best-effort hosting, no SLA/);
+  assert.match(vsFlatRate, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(vsFlatRate, /href="LICENSE"/);
+  // Generic-method page: it names no competitor, so it carries no
+  // "not affiliated" clause -- see its entry in clauses.mjs's
+  // COMPARISON_DISCLAIMER_EXEMPT.
+  assert.doesNotMatch(vsFlatRate, /not affiliated/i);
+  for (const sibling of ['how-much-to-charge-for-forestry-mulching.html', 'vs-aspire.html']) {
+    assert.ok(vsFlatRate.includes(sibling), `${sibling} is not reachable from the flat-rate comparison page`);
+  }
+});
+
+test("the flat-price-per-acre page's worked example matches calc.mjs's own arithmetic", () => {
+  const vsFlatRate = readFileSync(join(HERE, 'vs-a-flat-price-per-acre.html'), 'utf8');
+  const base = {
+    headWidthFt: 6,
+    advanceFtPerMin: 42,
+    passes: 1,
+    cuttingEfficiencyPct: 70,
+    terrainFactorPct: 90,
+    workHoursPerDay: 8,
+    mobilizationTrips: 1,
+    mobilizationHoursEach: 1.5,
+    mobilizationMilesEach: 60,
+    truckCostPerMile: 2.5,
+    otherCosts: 0,
+    targetMarginPct: 30,
+    operatorWagePerHour: 35,
+    fuelGallonsPerHour: 6,
+    fuelPricePerGallon: 4,
+    toothSetCost: 4500,
+    toothSetLifeHours: 300,
+    maintenancePerHour: 15,
+    machinePaymentMonthly: 3500,
+    insuranceAnnual: 6000,
+    billableHoursPerMonth: 80,
+  };
+  const bigJob = priceJob({ ...base, acres: 5 });
+  const smallJob = priceJob({ ...base, acres: 0.75 });
+  const flatRevenue = bigJob.pricePerAcre * smallJob.acres;
+  const flatProfit = flatRevenue - smallJob.totalCost;
+  const expectedProfit = smallJob.price - smallJob.totalCost;
+  const shortfall = expectedProfit - flatProfit;
+
+  assert.equal(money(bigJob.totalCost), '$3,380.69');
+  assert.equal(money(bigJob.price), '$4,829.56');
+  assert.equal(money(bigJob.pricePerAcre), '$965.91');
+  assert.equal((bigJob.mobilizationShareOfPrice * 100).toFixed(1), '4.2');
+  assert.equal(money(smallJob.totalCost), '$679.23');
+  assert.equal(money(smallJob.price), '$970.33');
+  assert.equal((smallJob.mobilizationShareOfPrice * 100).toFixed(1), '20.9');
+  assert.equal(money(flatRevenue), '$724.43');
+  assert.equal(money(flatProfit), '$45.21');
+  assert.equal(money(expectedProfit), '$291.10');
+  assert.equal(money(shortfall), '$245.89');
+
+  for (const figure of [
+    '$3,380.69', '$4,829.56', '$965.91', '4.2%',
+    '$679.23', '$970.33', '20.9%',
+    '$724.43', '$45.21', '6.2% margin', '$291.10', '$245.89',
+  ]) {
+    assert.ok(vsFlatRate.includes(figure), `worked-example figure missing from the flat-rate comparison page: ${figure}`);
+  }
+});
+
+test("the flat-price-per-acre page's FAQ schema is visible copy", () => {
+  const vsFlatRate = readFileSync(join(HERE, 'vs-a-flat-price-per-acre.html'), 'utf8');
+  const block = vsFlatRate.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(block, 'no FAQPage JSON-LD found on the flat-rate comparison page');
+  const faq = JSON.parse(block[1]);
+  assert.equal(faq['@type'], 'FAQPage');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const entry of faq.mainEntity) {
+    assert.ok(vsFlatRate.includes(`<h3>${entry.name}</h3>`), `FAQ question has no matching <h3>: ${entry.name}`);
+    assert.ok(vsFlatRate.includes(entry.acceptedAnswer.text), `answer not found verbatim: ${entry.acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
+
 test('opening a shared link regenerates proposalScope from the restored figures, not the page defaults', () => {
   const restoreBlock = html.slice(html.indexOf('const incomingJob ='), html.indexOf('</script>', html.indexOf('const incomingJob =')));
   assert.match(restoreBlock, /for \(const \[id, value\] of Object\.entries\(incomingJob\)\)/);

@@ -1335,6 +1335,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-a-spreadsheet pages above.
   'ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat price per acre" -- a pricing method every
+  // mulching or land-clearing operator already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-aspire.html, which names a specific business-management platform
+  // and already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other flat-rate generic-method pages above (e.g.
+  // window-cleaning-bid-calculator's and well-pump-bid-calculator's).
+  'forestry-mulching-bid-calculator/vs-a-flat-price-per-acre.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
