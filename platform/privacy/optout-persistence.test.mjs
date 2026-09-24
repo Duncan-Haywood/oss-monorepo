@@ -586,13 +586,25 @@ const RELATIVE_SELF = relative(
 // (`ventures/cloud-bucket-exposure-check/usage.mjs`) beyond the merge base,
 // no deletions.
 //
-// 323 -> 324 on 2026-09-24: `backup-file-exposure-check` graduated, adding
-// one `usage.mjs` following the same opt-out pattern as its siblings
-// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
-// `backup-file-exposure-check-usage` storage name). Exactly one added
-// `usage.mjs` (`ventures/backup-file-exposure-check/usage.mjs`), no
+// 323 -> 324 on 2026-09-24: `window-tinting-bid-calculator` graduated,
+// adding one `usage.mjs` following the same `usageAllowed`/`toggleUsage`
+// opt-out pattern as its siblings (`land-survey-bid-calculator`,
+// `biohazard-cleanup-bid-calculator`), keyed under its own
+// `window-tinting-bid-calculator-usage` storage name. Exactly one added
+// `usage.mjs` (`ventures/window-tinting-bid-calculator/usage.mjs`), no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 324;
+//
+// 324 -> 325 on 2026-09-24: `backup-file-exposure-check` also graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `backup-file-exposure-check-usage`
+// storage name). This branch only ever knew its own predecessor's number
+// (323, before `window-tinting-bid-calculator` landed) until this merge --
+// the same ordinary collision shape recorded throughout this list.
+// Verified the way this file's error message prescribes: exactly one
+// added `usage.mjs` (`ventures/backup-file-exposure-check/usage.mjs`)
+// beyond the merge base, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 325;
 
 let counter = 0;
 function fixture(source) {

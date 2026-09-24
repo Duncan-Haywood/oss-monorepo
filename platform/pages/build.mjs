@@ -2764,7 +2764,11 @@ const SUBCATEGORY_RULES = {
       // hazard-removal or remediation job (containment, protective
       // procedures, testing/monitoring, special disposal) rather than an
       // installed product or a takeoff.
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
+      // `window-tinting` joins beside `vehicle-wrap` and `mobile-detailing`:
+      // it applies a film treatment to a vehicle's own surface rather than
+      // installing or replacing a fixed building product, the same "vehicle
+      // care/treatment" shape this group already groups those two under.
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|window-tinting|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
     },
     {
       id: 'trades-roof',
