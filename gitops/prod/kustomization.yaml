@@ -288,6 +288,7 @@ configMapGenerator:
       - vs__doing-the-math-yourself.html.gz=front-door/vs__doing-the-math-yourself.html.gz
       - vs__checking-by-hand.html.gz=front-door/vs__checking-by-hand.html.gz
       - vs__flat-per-acre-quote.html.gz=front-door/vs__flat-per-acre-quote.html.gz
+      - vs__reading-a-dockerfile-by-hand.html.gz=front-door/vs__reading-a-dockerfile-by-hand.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
