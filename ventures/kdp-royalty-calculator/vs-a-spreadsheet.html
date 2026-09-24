@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KDP Royalty Calculator vs a Spreadsheet</title>
+  <meta name="description" content="A royalty-tracking spreadsheet can total ebook, paperback, and Kindle Unlimited income if every cell is filled in. It usually charges a flat 70% or a rounded print-cost guess instead of the delivery fee and the per-page formula KDP actually applies -- both quiet, both in the same direction: they overstate how much the exclusive path pays.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://example.invalid/kdp-royalty-calculator/vs-a-spreadsheet.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="KDP Royalty Calculator vs a Spreadsheet">
+  <meta property="og:description" content="A spreadsheet can total ebook, paperback, and KU royalty and still charge a flat 70% instead of 70% minus the delivery fee, and a rounded print-cost guess instead of KDP's fixed-plus-per-page formula -- both errors overstate the exclusive path the same direction.">
+  <meta property="og:url" content="https://example.invalid/kdp-royalty-calculator/vs-a-spreadsheet.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why isn't the 70% royalty plan just 70% of list price?","acceptedAnswer":{"@type":"Answer","text":"KDP's 70% plan subtracts a delivery fee based on the ebook's file size before paying the royalty -- a flat 15 cents per megabyte in most marketplaces. A spreadsheet that multiplies list price by 0.7 and stops there skips that subtraction every time, so it overstates every single ebook sale by the same fixed amount."}},{"@type":"Question","name":"Why does a rounded print-cost guess matter for paperback royalty?","acceptedAnswer":{"@type":"Answer","text":"KDP's print cost is a fixed charge plus a per-page rate, so it scales with page count rather than holding still. A spreadsheet that budgets a single rounded number -- picked once and reused for every title -- misses that scaling, and on a longer book the gap between the guess and the real formula can run several dollars a copy."}},{"@type":"Question","name":"Do both shortcuts push the exclusive-versus-wide decision the same way?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is what makes them easy to miss: both quietly overstate what the exclusive-plus-KU path pays, which makes staying exclusive look better than it is relative to going wide. Neither shortcut touches the wide-distribution side of the comparison at all, so the two totals get pulled toward the wrong conclusion in the same direction rather than in ways that might cancel out."}},{"@type":"Question","name":"Does this calculator store or upload anything I type?","acceptedAnswer":{"@type":"Answer","text":"No. Every field runs in your browser and nothing is uploaded."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #12594a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    .lede { font-size: 1.03rem; max-width: 66ch; color: #3a4a44; }
+    section { background: #fffef8; border: 1px solid #d8d2c4; border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    h2 { margin-top: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: #fffef8; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8d2c4; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c554d; }
+    .note { font-size: .85rem; color: #5c554d; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5c554d; }
+    footer p { margin: .6rem 0; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; KDP royalty calculator</a></p>
+  <header>
+    <h1>This calculator vs. a spreadsheet</h1>
+    <p class="lede">A royalty-tracking spreadsheet can total ebook, paperback, and Kindle Unlimited income correctly if every cell is filled in. What it usually charges instead of the real numbers is a flat 70% for every ebook sale and a rounded print-cost guess for every paperback -- and both shortcuts overstate the exclusive path the same direction, so a spreadsheet's own totals can quietly favor staying exclusive over a wide-distribution window that actually pays more.</p>
+  </header>
+
+  <section>
+    <h2>What a royalty spreadsheet tracks, and what it rounds off</h2>
+    <table>
+      <thead><tr><th scope="col"></th><th scope="col">A royalty-tracking spreadsheet</th><th scope="col">This calculator</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Ebook 70% royalty</th><td>List price &times; 0.7, most of the time</td><td>List price &times; 0.7 minus the delivery fee (file size &times; per-MB rate), every time</td></tr>
+        <tr><th scope="row">Paperback print cost</th><td>One rounded number, reused for every title</td><td>A fixed charge plus a per-page rate, computed from this book's own page count and ink</td></tr>
+        <tr><th scope="row">KU page-read income</th><td>A cell most authors already track</td><td>Reads &times; the per-page KENP rate, same formula</td></tr>
+        <tr><th scope="row">Exclusive vs. wide, same 90-day window</th><td>Two totals someone builds by hand</td><td>Computed from the same inputs on both sides, so nothing gets added to one side by mistake</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Two rounding habits, one direction</h2>
+    <p>Take this calculator's own default title: a $4.99 ebook (2&nbsp;MB, 70% plan, 80 paid sales), a $14.99, 280-page black-and-white paperback (20 sales), 12,000 KU page reads, plus 40 other-store ebook sales and 10 Ingram paperbacks for the wide side of the comparison.</p>
+    <p><strong>The ebook side.</strong> A flat 70% reports $3.4930 per sale. KDP actually pays list price &times; 0.7 minus the file's delivery fee (2&nbsp;MB &times; $0.15/MB), which is $3.1930 -- thirty cents less, on every one of the 80 sales:</p>
+    <table>
+      <tr><th scope="row">Flat 70% (no delivery fee)</th><td>$3.4930/sale &times; 80 = $279.44</td></tr>
+      <tr><th scope="row">This calculator (70% minus delivery)</th><td>$3.1930/sale &times; 80 = $255.44</td></tr>
+      <tr><th scope="row">Overstated by</th><td>$24.00</td></tr>
+    </table>
+    <p><strong>The paperback side.</strong> A rounded "about $2 to print" guess is common shorthand. This 280-page book's real KDP print cost is a $0.85 fixed charge plus $0.012 a page -- $4.21, more than double the guess -- so the $2 shortcut overstates every paperback's royalty by $2.21:</p>
+    <table>
+      <tr><th scope="row">Rounded $2.00 print-cost guess</th><td>$6.9940/copy &times; 20 = $139.88</td></tr>
+      <tr><th scope="row">This calculator ($0.85 + $0.012 &times; 280 pages = $4.21)</th><td>$4.7840/copy &times; 20 = $95.68</td></tr>
+      <tr><th scope="row">Overstated by</th><td>$44.20</td></tr>
+    </table>
+    <p>Neither shortcut touches the wide-distribution total at all -- both only inflate the exclusive side. Added together they overstate the 90-day exclusive total by $68.20, on a real gap of $85.94 in wide distribution's favor:</p>
+    <table>
+      <tr><th scope="row">This calculator: exclusive</th><td>$405.12</td></tr>
+      <tr><th scope="row">This calculator: wide</th><td>$491.06 &mdash; wins by $85.94</td></tr>
+      <tr><th scope="row">Spreadsheet with both shortcuts: exclusive</th><td>$473.32</td></tr>
+      <tr><th scope="row">Spreadsheet's apparent gap</th><td>wide wins by only $17.74 &mdash; 79% of the real margin quietly erased</td></tr>
+    </table>
+    <p>The book did not change. Two rounding habits that each look harmless on their own closed most of the distance between "wide clearly wins" and "close enough to keep guessing" -- on a title where the real numbers say the decision is not close at all.</p>
+    <p class="note">Open the <a href="./">KDP royalty calculator</a> to run this on your own numbers, read <a href="should-i-enroll-this-book-in-kindle-unlimited.html">should I enroll this book in Kindle Unlimited?</a> for the KU-page-reads walkthrough, or see <a href="vs-amazon-kdp-royalty-calculator.html">this calculator vs. Amazon's own KDP royalty calculator</a> if you want KDP's live print preview for one format instead.</p>
+  </section>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>Why isn't the 70% royalty plan just 70% of list price?</h3>
+    <p>KDP's 70% plan subtracts a delivery fee based on the ebook's file size before paying the royalty -- a flat 15 cents per megabyte in most marketplaces. A spreadsheet that multiplies list price by 0.7 and stops there skips that subtraction every time, so it overstates every single ebook sale by the same fixed amount.</p>
+    <h3>Why does a rounded print-cost guess matter for paperback royalty?</h3>
+    <p>KDP's print cost is a fixed charge plus a per-page rate, so it scales with page count rather than holding still. A spreadsheet that budgets a single rounded number -- picked once and reused for every title -- misses that scaling, and on a longer book the gap between the guess and the real formula can run several dollars a copy.</p>
+    <h3>Do both shortcuts push the exclusive-versus-wide decision the same way?</h3>
+    <p>Yes, and that is what makes them easy to miss: both quietly overstate what the exclusive-plus-KU path pays, which makes staying exclusive look better than it is relative to going wide. Neither shortcut touches the wide-distribution side of the comparison at all, so the two totals get pulled toward the wrong conclusion in the same direction rather than in ways that might cancel out.</p>
+    <h3>Does this calculator store or upload anything I type?</h3>
+    <p>No. Every field runs in your browser and nothing is uploaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon's own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Verify every rate against Amazon's own KDP royalty help and your current royalty reports before relying on it.</p>
+    <p>The worked figures above come directly from this calculator's own default inputs, with a flat-70% and a flat-$2-print-cost figure computed by hand for comparison -- nothing here is a claim about what your own title will earn.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. <a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a>.</p>
+  </footer>
+</body>
+</html>
