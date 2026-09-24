@@ -2350,9 +2350,20 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `mcp-supply-chain-watch` (which diffs two captured manifests over
     # time). Static `index.html` from its first commit, same shape as the
     # rest of this running count.
+    #
+    # 348 on this merge: `kickstarter-fee-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator
+    # pricing a Kickstarter campaign's net payout after the 5% platform
+    # fee and per-pledge payment processing, and why more, smaller pledges
+    # keep less of an identical total raised than fewer, larger ones. This
+    # branch only ever knew its own predecessor's number (346, before
+    # `mcp-config-risk-check` landed) until this merge -- the same
+    # ordinary collision shape recorded throughout this list. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 347  # `infra/OWNER_CHECKLIST.md`'s own "N of the 347 tools" wording.
+    total = 348  # `infra/OWNER_CHECKLIST.md`'s own "N of the 348 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1722,6 +1722,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // as cache-control-check's vs-checking-headers-by-eye-in-devtools.html
   // and source-map-leak-check's vs-checking-devtools-by-hand.html above.
   'redirect-chain-check/vs-checking-a-chain-by-hand.html',
+  // Compares against "averaging margins in a spreadsheet" -- the generic
+  // =AVERAGE() formula an operator builds by hand, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-marginedge.html, which names MarginEdge specifically and already
+  // carries the trademark disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'menu-engineering-calculator/vs-averaging-margins-in-a-spreadsheet.html',
+  // Compares against "a flat per-room rate" -- the generic quoting habit
+  // ("$X a room, however long it takes") every independent home stager is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-hutch.html and vs-honeybook.html,
+  // which name real products and already carry the trademark disclaimer.
+  // Same reasoning as the other generic-method pages above.
+  'home-staging-bid-calculator/vs-a-flat-per-room-rate.html',
   // Compares against "reading a Dockerfile by hand" -- a manual review habit
   // every Dockerfile author already has, not a company or product this could
   // be mistaken for. Distinct from this venture's own vs-gitleaks.html, which
@@ -1748,6 +1762,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-singleops.html, which names SingleOps specifically and already
   // carries the trademark disclaimer.
   'tree-service-bid-calculator/vs-a-flat-per-inch-rate.html',
+  // Compares against "a flat rate per lineal foot" -- the generic "$X a
+  // lineal foot" quoting habit ramp builders are shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html, which names Jobber specifically and
+  // already carries the trademark disclaimer.
+  'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

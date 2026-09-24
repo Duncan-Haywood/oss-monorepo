@@ -638,7 +638,17 @@ const RELATIVE_SELF = relative(
 // (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
 // own `mcp-config-risk-check:usage` storage name). Exactly one added
 // `usage.mjs` (`ventures/mcp-config-risk-check/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 329;
+//
+// 329 -> 330: `kickstarter-fee-calculator` also graduated, concurrently
+// on `main` -- adding one `usage.mjs` following the same opt-out pattern
+// as its siblings (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed
+// under its own `kickstarter-fee-calculator-usage` storage name). This
+// branch only ever knew its own predecessor's number (328, before
+// `mcp-config-risk-check` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Exactly one added
+// `usage.mjs` (`ventures/kickstarter-fee-calculator/usage.mjs`), no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 330;
 
 let counter = 0;
 function fixture(source) {
