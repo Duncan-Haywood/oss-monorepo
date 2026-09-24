@@ -121,6 +121,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // tell you, not a separate company or product this could be mistaken
   // for. Same shape as branch-protection-drift-check's exemption above.
   'supabase-rls-check/vs-manually-checking-the-dashboard.html',
+  // Compares against "eyeballing two CI console logs" -- a manual habit
+  // every developer reaching for this tool already has, not a company or
+  // product this could be mistaken for. Same shape as
+  // branch-protection-drift-check's exemption above.
+  'flaky-test-finder/vs-eyeballing-two-ci-logs-by-hand.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
@@ -1439,6 +1444,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against a flat "$2 a square foot" interior painting bid -- a
+  // generic advertised pricing habit the trade is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-paintscout.html, which names a specific
+  // business-management platform and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other flat-rate
+  // generic-method pages above (e.g. mini-split-bid-calculator's).
+  'painting-bid-calculator/vs-a-flat-2-per-square-foot-bid.html',
   // Compares against "a flat burden-percentage rule of thumb" -- a generic
   // budgeting habit ("add 20-30% on top of wages") every small business
   // owner already has, not a company or product this could be mistaken
