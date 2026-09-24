@@ -33,28 +33,28 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 139 files, 557040 bytes
-#   portfolio-front-tools-1: 98 files, 550670 bytes
-#   portfolio-front-tools-2: 144 files, 548290 bytes
-#   portfolio-front-tools-3: 134 files, 556324 bytes
+#   portfolio-front-tools-0: 139 files, 557037 bytes
+#   portfolio-front-tools-1: 98 files, 550665 bytes
+#   portfolio-front-tools-2: 144 files, 548292 bytes
+#   portfolio-front-tools-3: 134 files, 556340 bytes
 #   portfolio-front-tools-4: 140 files, 550018 bytes
-#   portfolio-front-tools-5: 122 files, 554036 bytes
-#   portfolio-front-tools-6: 133 files, 556270 bytes
-#   portfolio-front-tools-7: 132 files, 556225 bytes
-#   portfolio-front-tools-8: 126 files, 554833 bytes
-#   portfolio-front-tools-9: 140 files, 556037 bytes
-#   portfolio-front-tools-10: 120 files, 555247 bytes
-#   portfolio-front-tools-11: 119 files, 542704 bytes
-#   portfolio-front-tools-12: 120 files, 551319 bytes
-#   portfolio-front-tools-13: 118 files, 548350 bytes
-#   portfolio-front-tools-14: 128 files, 543948 bytes
-#   portfolio-front-tools-15: 127 files, 554393 bytes
-#   portfolio-front-tools-16: 130 files, 549645 bytes
-#   portfolio-front-tools-17: 102 files, 551167 bytes
-#   portfolio-front-tools-18: 120 files, 553687 bytes
-#   portfolio-front-tools-19: 125 files, 549657 bytes
-#   portfolio-front-tools-20: 76 files, 367086 bytes
-#   portfolio-front-tools-21: 50 files, 264284 bytes
+#   portfolio-front-tools-5: 122 files, 554074 bytes
+#   portfolio-front-tools-6: 133 files, 556324 bytes
+#   portfolio-front-tools-7: 132 files, 556228 bytes
+#   portfolio-front-tools-8: 126 files, 554856 bytes
+#   portfolio-front-tools-9: 140 files, 556092 bytes
+#   portfolio-front-tools-10: 120 files, 555226 bytes
+#   portfolio-front-tools-11: 119 files, 542709 bytes
+#   portfolio-front-tools-12: 120 files, 551328 bytes
+#   portfolio-front-tools-13: 119 files, 556322 bytes
+#   portfolio-front-tools-14: 130 files, 549880 bytes
+#   portfolio-front-tools-15: 127 files, 554483 bytes
+#   portfolio-front-tools-16: 130 files, 549636 bytes
+#   portfolio-front-tools-17: 102 files, 551111 bytes
+#   portfolio-front-tools-18: 120 files, 553627 bytes
+#   portfolio-front-tools-19: 125 files, 549829 bytes
+#   portfolio-front-tools-20: 76 files, 367095 bytes
+#   portfolio-front-tools-21: 50 files, 264322 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1877,6 +1877,9 @@ configMapGenerator:
       - mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz=mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz
       - mcp-supply-chain-watch__vs-snyk.html.gz=mcp-supply-chain-watch__vs-snyk.html.gz
       - mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz=mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz
+      - mega-backdoor-roth-calculator__calc.mjs.gz=mega-backdoor-roth-calculator__calc.mjs.gz
+      - mega-backdoor-roth-calculator__index.html.gz=mega-backdoor-roth-calculator__index.html.gz
+      - mega-backdoor-roth-calculator__which-conversion-cadence-should-i-use.html.gz=mega-backdoor-roth-calculator__which-conversion-cadence-should-i-use.html.gz
       - menu-engineering-calculator__calc.mjs.gz=menu-engineering-calculator__calc.mjs.gz
       - menu-engineering-calculator__how-menu-engineering-works.html.gz=menu-engineering-calculator__how-menu-engineering-works.html.gz
       - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
@@ -1925,13 +1928,13 @@ configMapGenerator:
       - mold-remediation-bid-calculator__usage.mjs.gz=mold-remediation-bid-calculator__usage.mjs.gz
       - mold-remediation-bid-calculator__vs-a-flat-999-mold-special.html.gz=mold-remediation-bid-calculator__vs-a-flat-999-mold-special.html.gz
       - mold-remediation-bid-calculator__vs-xactimate.html.gz=mold-remediation-bid-calculator__vs-xactimate.html.gz
-      - moving-bid-calculator__calc.mjs.gz=moving-bid-calculator__calc.mjs.gz
-      - moving-bid-calculator__how-much-to-charge.html.gz=moving-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - moving-bid-calculator__calc.mjs.gz=moving-bid-calculator__calc.mjs.gz
+      - moving-bid-calculator__how-much-to-charge.html.gz=moving-bid-calculator__how-much-to-charge.html.gz
       - moving-bid-calculator__index.html.gz=moving-bid-calculator__index.html.gz
       - moving-bid-calculator__usage.mjs.gz=moving-bid-calculator__usage.mjs.gz
       - moving-bid-calculator__vs-a-bedroom-count-quote.html.gz=moving-bid-calculator__vs-a-bedroom-count-quote.html.gz

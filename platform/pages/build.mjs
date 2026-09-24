@@ -1190,6 +1190,19 @@ const CATEGORY_RULES = [
       // federal-tax consequence of the same S-corp/pass-through income, one
       // on the deduction side and one on the salary-vs-distribution split
       // that feeds it.
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, filed here rather
+      // than left in the catch-all (where this session found it after it had
+      // pushed the catch-all to 6, past `build.test.mjs`'s bound of 5): a
+      // downstream tax-advantaged-savings decision on income already
+      // earned -- the same axis as `qbi-deduction-calculator` and
+      // `no-tax-on-tips-overtime-calculator` above it in this rule, just
+      // computing after-tax 401(k) contribution headroom under the IRS
+      // 415(c) overall-additions limit instead of a deduction. Not
+      // `solo-earner` (this runs on a W-2 already received, not labour
+      // priced before a sale). It cross-links `qbi-deduction-calculator`
+      // as a sibling (reciprocally, in the same commit) -- both are a
+      // federal-tax-code decision an individual makes about income already
+      // on the books.
       // `auto-loan-interest-deduction-calculator` joined 2026-09-24,
       // concurrently, filed here on its first commit rather than after a
       // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is
@@ -1218,7 +1231,7 @@ const CATEGORY_RULES = [
       // as a sibling: same section of the tipped-wage workforce, a
       // different obligation (a federal income-tax deduction there, a
       // federal wage-and-hour rule here).
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|mega-backdoor-roth-calculator)/.test(slug),
   },
   {
     id: 'ci',

@@ -17350,3 +17350,65 @@ ventures:
       debugging session, no affiliate link, no referral fee,
       donations-only, and it does not scan, fingerprint, or contact any
       third-party system or agent runtime.
+  - slug: mega-backdoor-roth-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 4
+    composite: 4.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against a published, dated table of IRS dollar limits --
+      an age-band lookup plus a subtraction, never an inference step.
+      time_to_revenue ties it at 1: donations-only, same as every other
+      venture in this file with no paid tier.
+    basis: >-
+      Screened 2026-09-24. duplicate_check.py against the final
+      description scored every venture, screened-out row, ai-first-markets
+      idea, and pipeline candidate at or below 0.13 -- no existing venture
+      or candidate addresses 401(k) after-tax/415(c) headroom, and this is
+      a distinct audience (individual retirement savers) and domain
+      (personal-finance tax arithmetic) from the portfolio's two saturated
+      archetypes (trade bid calculators, marketplace seller fee
+      calculators). Distribution 4, not the usual 6: WebSearch/WebFetch
+      2026-09-24 found real, recurring demand (a dedicated Bogleheads wiki
+      page plus several long-running forum threads on this exact
+      mechanic) but also confirmed this niche is contested -- at least six
+      competing free calculators (Richify, Taxstra, RothRoom, FinancialAHA,
+      401lcalculator, slpwealth) already target the phrase. Fetching
+      Richify's live calculator directly found a real, narrower
+      differentiation this tool has and it does not: actual-YTD-paystub
+      inputs rather than a projected salary percentage, a per-paycheck
+      contribution target, and a plan-specific after-tax percentage cap
+      modeled separately from the IRS limit -- a genuine edge, not an
+      uncontested channel, hence the lower distribution score than this
+      portfolio's other reference-table calculators. Defensibility 2: the
+      limit table and arithmetic are easy to reproduce, same class as this
+      portfolio's other tax-arithmetic calculators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every dollar input is a figure the saver already has from
+      their own paystub or plan portal; output is a headroom and
+      per-paycheck number to verify, never a filed contribution election
+      or a plan-compliance determination. Every page states plainly that
+      most 401(k) plans do not offer after-tax contributions or in-plan
+      Roth conversion at all, and directs the saver to their plan document
+      and a qualified tax preparer -- same shape and gate class as the
+      sibling depreciation-recapture-calculator and
+      qbi-deduction-calculator. IRS figures are compiled from secondary
+      sources (two independent summaries of IRS Notice 2024-80 and Notice
+      2025-67 that agreed on every figure), not the primary notices
+      themselves, and the page says so.
+      Ethics: strictly beneficial as it scales -- helps a saver use
+      tax-advantaged room the law already grants them correctly, never
+      toward evading an obligation, no personal or scraped data, no
+      referral fee or affiliate link to any of the competing calculators
+      or plan providers named in the research above.
