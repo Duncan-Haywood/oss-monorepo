@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 342 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 343 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents. Get the free CLI for the live check: does this name exist on the registry at all, and if it does, was it published suspiciously recently? No account, no upload.</summary>
+  </entry>
+  <entry>
+    <title>Window Tinting Bid Calculator — Auto Tint Job Pricing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/window-tinting-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/window-tinting-bid-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free bid calculator for independent auto window tinting installers: price a vehicle film job by which windows are being tinted, film tier, waste factor, and old-tint removal — then see the gap against a flat per-vehicle price for the same job.</summary>
   </entry>
   <entry>
     <title>GitHub Actions secrets: inherit Check — Reusable Workflow Secret Exposure</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Helm chart&#39;s values.yaml and its values.schema.json and get a deterministic report of every field values.yaml sets that the schema does not declare (Helm&#39;s template engine never errors on this -- it silently returns no value), every schema-required field missing from values.yaml, and every type, enum, or min/max mismatch. Free, runs entirely in your browser, no Helm binary needed, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Import Landed Cost Calculator — Duty, Tariff &amp; Customs Fee Breakdown</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/import-landed-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/import-landed-cost-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free landed cost calculator for small e-commerce importers: enter your item cost, freight, duty rate, and Section 301/supplemental tariff rate to see total landed cost, cost per unit, and your real tariff burden as a percent of the invoice price — with Merchandise Processing Fee and Harbor Maintenance Fee priced from CBP&#39;s published schedule.</summary>
   </entry>
 </feed>
