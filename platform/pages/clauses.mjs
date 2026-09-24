@@ -279,6 +279,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. The page names no
   // specific tax-prep company or competing calculator at all.
   'qbi-deduction-calculator/vs-doing-the-worksheet-by-hand.html',
+  // Compares against "estimating the senior deduction by hand" -- a generic
+  // method every filer already has, not a company or product this could be
+  // mistaken for. The page names no specific tax-prep company or competing
+  // calculator at all.
+  'senior-deduction-calculator/vs-estimating-the-deduction-by-hand.html',
   // Compares against "a spreadsheet" -- a generic method every tutor already
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
@@ -1991,6 +1996,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "a plain DNS lookup" (dig, or any generic online CAA
+  // record viewer) -- a manual method and a genre of interchangeable free
+  // utilities, not one specific company or product this could be mistaken
+  // for. The page names no specific lookup tool or brand.
+  'caa-record-check/vs-a-plain-dns-lookup.html',
   // Compares against "assembling a press kit by hand in a document editor"
   // -- a generic class of tool (word processors, slide decks) any artist
   // already has access to, not a company or product this could be mistaken
@@ -2061,6 +2071,50 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-voices-com.html, which names a real marketplace and already carries
   // the trademark disclaimer.
   'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
+  // Compares against "working out your 415(c) after-tax headroom by hand in a
+  // spreadsheet or from memory" -- a generic method every saver evaluating
+  // this strategy already has access to, not a company or product this could
+  // be mistaken for. The page's own footer says so explicitly ("names no
+  // specific plan provider"). Same reasoning as the other vs-doing-it-by-hand
+  // / vs-a-spreadsheet pages above (e.g. depreciation-recapture-calculator's).
+  'mega-backdoor-roth-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out a Trump Account's growth and withdrawal
+  // tax by hand -- a generic method every parent evaluating one already has
+  // access to, not a company or product this could be mistaken for. Names
+  // no vendor, brokerage, or 529 plan provider. Same reasoning as
+  // mega-backdoor-roth-calculator's own vs-doing-the-math-by-hand.html
+  // right above.
+  'trump-account-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against "assembling one by hand in a document editor" -- a
+  // generic method (a word processor or slide deck) every creator already
+  // has access to, not a company or product this could be mistaken for.
+  // The page's own footer says so explicitly ("names no specific document
+  // editor, product, or company"). This venture's own vs-kitly.html names
+  // a real platform and already carries the trademark disclaimer
+  // separately; the two comparison pages are deliberately different
+  // classes, same shape as epk-generator's own by-hand page.
+  'influencer-media-kit-generator/vs-assembling-one-by-hand.html',
+  // Compares against "picking a round salary number" -- the manual habit
+  // every S-corp owner without a paid report already has (a figure that
+  // sounds reasonable, matches a peer, or rolls last year's number forward),
+  // not a company or product this could be mistaken for. The page's own
+  // "Common questions" section says so explicitly. Distinct from this
+  // venture's own vs-rcreports-and-a-paid-valuation-report.html, which names
+  // RCReports specifically and already carries the trademark disclaimer.
+  's-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html',
+  // Compares against "a flat $2,999 special" -- the water-surface pricing
+  // habit every vinyl-liner crew is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
+  // Compares against "manually checking each exports target by eye" -- the
+  // habit every package.json author already has, not a company or product
+  // this could be mistaken for. The page's own first paragraph says so
+  // ("Names no specific product or company") and its own test pins that
+  // sentence, same shape as branch-protection-drift-check's and
+  // source-map-leak-check's by-hand pages above.
+  'package-exports-drift-check/vs-manually-checking-exports-targets.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

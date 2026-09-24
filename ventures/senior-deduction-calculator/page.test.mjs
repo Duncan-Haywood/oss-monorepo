@@ -82,6 +82,11 @@ test("index links one hop to both sibling OBBBA deduction calculators", () => {
     /href="\.\.\/no-tax-on-tips-overtime-calculator\/"/,
     'index must link ../no-tax-on-tips-overtime-calculator/ so crawlers reach the sibling deduction calculator in one hop',
   );
+  assert.match(
+    html,
+    /href="\.\.\/mega-backdoor-roth-calculator\/"/,
+    'index must link ../mega-backdoor-roth-calculator/ so crawlers reach the sibling 401(k) calculator in one hop',
+  );
 });
 
 test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
@@ -97,4 +102,13 @@ test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
   const app = parsed.find((p) => p["@type"] === "SoftwareApplication");
   assert.ok(app, "missing SoftwareApplication JSON-LD on index");
   assert.equal(app.offers.price, "0");
+});
+
+test("index links one hop to the mega-backdoor-roth-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/mega-backdoor-roth-calculator\/"/,
+    "index must link ../mega-backdoor-roth-calculator/ so crawlers reach the sibling retirement calculator in one hop",
+  );
 });

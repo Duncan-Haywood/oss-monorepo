@@ -473,7 +473,14 @@ const CATEGORY_RULES = [
     // still run — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a
     // marketplace keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop)/.test(slug),
+    // `facebook-marketplace-fee-calculator` is the same single-channel
+    // fee-schedule shape as `depop` and `mercari` above — a shipped-vs-local
+    // split with a minimum-fee floor on one storefront — and its slug
+    // starts with the storefront name plus "-marketplace-fee", which the
+    // bare `marketplace-fee-compare` alternative does not prefix-match, so
+    // it would otherwise sit in the catch-all for the same reason those two
+    // did.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
@@ -1190,6 +1197,19 @@ const CATEGORY_RULES = [
       // federal-tax consequence of the same S-corp/pass-through income, one
       // on the deduction side and one on the salary-vs-distribution split
       // that feeds it.
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, filed here rather
+      // than left in the catch-all (where this session found it after it had
+      // pushed the catch-all to 6, past `build.test.mjs`'s bound of 5): a
+      // downstream tax-advantaged-savings decision on income already
+      // earned -- the same axis as `qbi-deduction-calculator` and
+      // `no-tax-on-tips-overtime-calculator` above it in this rule, just
+      // computing after-tax 401(k) contribution headroom under the IRS
+      // 415(c) overall-additions limit instead of a deduction. Not
+      // `solo-earner` (this runs on a W-2 already received, not labour
+      // priced before a sale). It cross-links `qbi-deduction-calculator`
+      // as a sibling (reciprocally, in the same commit) -- both are a
+      // federal-tax-code decision an individual makes about income already
+      // on the books.
       // `auto-loan-interest-deduction-calculator` joined 2026-09-24,
       // concurrently, filed here on its first commit rather than after a
       // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is
@@ -1219,10 +1239,21 @@ const CATEGORY_RULES = [
       // different obligation (a federal income-tax deduction there, a
       // federal wage-and-hour rule here).
       //
-      // `senior-deduction-calculator` joined 2026-09-24, filed here on its
-      // first commit rather than after a spell in the catch-all -- same
-      // "new-for-2025 OBBBA federal deduction" axis as
-      // `auto-loan-interest-deduction-calculator` and
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, concurrently on
+      // `main` while a sibling session's branch was in flight -- filed here
+      // rather than left in the catch-all (`build.test.mjs`'s bound is what
+      // that guard is for). Same "IRS dollar-limit lookup against a filer's
+      // own numbers" axis as `qbi-deduction-calculator` and
+      // `depreciation-recapture-calculator` right above it in this rule --
+      // after-tax 401(k)/415(c) headroom instead of a deduction, but the
+      // same shape: a published, dated table plus arithmetic on figures the
+      // saver already has, never a filed election or plan-compliance
+      // determination.
+      //
+      // `senior-deduction-calculator` joined 2026-09-24, concurrently on
+      // `main` too, filed here on its first commit rather than after a
+      // spell in the catch-all -- same "new-for-2025 OBBBA federal
+      // deduction" axis as `auto-loan-interest-deduction-calculator` and
       // `no-tax-on-tips-overtime-calculator` right above it in this rule,
       // just the age-65 bonus deduction instead of vehicle-loan interest or
       // tips/overtime pay. It cross-links both of those siblings: all three
@@ -1230,7 +1261,26 @@ const CATEGORY_RULES = [
       // the same season, and all three disagree on married-filing-separately
       // treatment in ways worth a reader hitting explicitly rather than
       // assuming one rule generalizes to the others.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator)/.test(slug),
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, concurrently --
+      // the same "personal-finance tax arithmetic against a published,
+      // dated federal limit table" axis as `senior-deduction-calculator`
+      // and `auto-loan-interest-deduction-calculator` right above it, just
+      // an after-tax 401(k)/IRS 415(c) headroom lookup rather than a
+      // deduction. Its slug names neither a bid, a fee, nor an OBBBA
+      // deduction, so no keyword above would have caught it and it would
+      // otherwise have swollen the catch-all past its bound of 5.
+      //
+      // `trump-account-calculator` joined 2026-09-24, concurrently on
+      // `main` too, filed here on its first commit rather than after a
+      // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is
+      // for. Same "IRS dollar-limit lookup against a filer's own numbers"
+      // axis as `mega-backdoor-roth-calculator` right above it in this rule
+      // -- a published, dated contribution cap plus arithmetic on figures
+      // the saver already has, never a filed election or plan-compliance
+      // determination -- just for a federal child savings account (26
+      // U.S.C. 530A) instead of a 401(k)'s after-tax bucket. It cross-links
+      // `mega-backdoor-roth-calculator` as its nearest sibling.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -2062,19 +2112,58 @@ const CATEGORY_RULES = [
     // rather than after a spell in the catch-all -- `build.test.mjs`'s bound
     // is why: it would otherwise have been the sixth tool in `more`.
     //
+    // `caa-record-check` joined 2026-09-24, the same day: same
+    // read-a-domain's-own-public-DNS-records shape as `email-auth-check`
+    // above it -- a zero-dependency CLI plus a matching browser page, live
+    // DNS-over-HTTPS lookups only, nothing uploaded -- just for the CAA
+    // record set governing certificate-authority issuance (RFC 8659's
+    // tree-walk, the issuewild fallback, the critical-unknown-tag block)
+    // instead of SPF/DKIM/DMARC/BIMI mail authentication. Its footer already
+    // cross-links `email-auth-check`, `security-headers-check`, and
+    // `subdomain-takeover-check` (the latter reciprocally, in the same
+    // commit) as Related. Filed here on its first commit rather than after a
+    // spell in the catch-all -- `build.test.mjs`'s bound is why: it would
+    // otherwise have been the sixth tool in `more`.
+    //
     // `claude-code-settings-check` joined 2026-09-24, the same day: same
-    // audience-hardening-their-own-AI-agent-setup shape as the three above
-    // it, a fourth angle on the same file class -- not a launch config
+    // audience-hardening-their-own-AI-agent-setup shape as
+    // `mcp-config-risk-check`, `hidden-unicode-check`, and
+    // `skill-manifest-check` above it, a fourth angle on the same file class
+    // -- not a launch config, a hidden-character scan, or a skill manifest,
+    // but Claude Code's own settings.json: a hook matcher regex that fails
+    // to compile, a hook with no command, a permission rule with unbalanced
+    // parentheses, and a rule that contradicts itself between settings.json
+    // and settings.local.json. Its footer already cross-links all three
+    // siblings as Related (reciprocally, in the same commit). Filed here on
+    // its first commit rather than after a spell in the catch-all, the same
+    // lesson.
+    //
+    // `claude-skill-scaffold-generator` joined 2026-09-24, the same day:
+    // the generator half of the pair skill-manifest-check started as the
+    // checker half -- skill-manifest-check validates an existing SKILL.md;
+    // this tool produces a starting one from a plain-language description,
+    // flagging a non-slug name, a first-person description, and a missing
+    // trigger condition before the file exists. Its footer cross-links
+    // skill-manifest-check, claude-code-settings-check, and
+    // mcp-config-risk-check (reciprocally, in the same commit). Filed here
+    // on its first commit rather than after a spell in the catch-all, the
+    // same lesson.
+    //
+    // `claude-code-subagent-check` joined 2026-09-24, extending the same
+    // cluster with the one Claude Code AI-agent-tooling file the four above
+    // it leave unchecked: a subagent definition (.claude/agents/*.md) --
+    // not a skill manifest (skill-manifest-check has no tools/model fields
+    // and is loaded by name, not matched for delegation), a launch config
     // (mcp-config-risk-check), a hidden-character scan (hidden-unicode-
-    // check), or a skill manifest (skill-manifest-check), but Claude Code's
-    // own settings.json: a hook matcher regex that fails to compile, a hook
-    // with no command, a permission rule with unbalanced parentheses, and a
-    // rule that contradicts itself between settings.json and settings.local
-    // .json. Its footer already cross-links all three siblings as Related
+    // check), or Claude Code's own settings.json (claude-code-settings-
+    // check). Checks: a malformed/mismatched name, a description too vague
+    // for reliable orchestrator delegation, a malformed tools list, an
+    // unrecognized model alias, and a missing/near-empty system prompt.
+    // Its footer already cross-links all four siblings as Related
     // (reciprocally, in the same commit). Filed here on its first commit
     // rather than after a spell in the catch-all, the same lesson.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|claude-code-settings-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check)/.test(
         slug,
       ),
   },
@@ -2208,6 +2297,34 @@ const CATEGORY_RULES = [
     // their own post before it costs them a disclosure violation -- and it
     // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
     // the same solo-earner audience.
+    //
+    // `overtime-pay-calculator` and `voiceover-project-rate-calculator` both
+    // joined 2026-09-24, found by enumerating the catch-all after a batch of
+    // concurrent merges pushed it to 6 rather than by judging either arrival
+    // alone (two sessions independently reached `voiceover-project-rate-
+    // calculator` the same way; this is the merged reasoning for both).
+    // `voiceover-project-rate-calculator` is the clearest kind of member
+    // here: a freelance voice-over artist turning their own script word
+    // count and the buyer's intended usage into a defensible project rate
+    // is the same move as `tutor-package-pricing-calculator`'s instructor
+    // and `cat-adjuster-fee-calculator`'s adjuster -- one person pricing
+    // their own labour from their own inputs, not a business quoting a
+    // customer. `overtime-pay-calculator` fits the other half of this
+    // section's blurb, "priced or checked": an hourly employee checking
+    // whether their own paycheck's blended overtime rate was computed
+    // correctly is the same shape as `ats-resume-checker`'s job seeker and
+    // `gig-driver-net-pay-calculator`'s gig driver checking what a shift
+    // actually netted -- one person verifying what their own labour earned
+    // them, not a business quoting a customer. (It also serves payroll
+    // admins checking the same arithmetic for someone else, which is why it
+    // is not a pure fit the way the others are -- but the individual-employee
+    // audience is the one no other section covers.) The other two arrivals
+    // in that same catch-all reading, `hoa-reserve-fund-calculator` (a board
+    // treasurer's reserve-fund planning -- no customer quote, no individual
+    // earner) and `world-clock-widget` (a general-purpose utility, not a
+    // pricing or income question at all), share no axis with this section or
+    // each other, so they stay in the catch-all rather than being forced in
+    // here.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -2220,11 +2337,13 @@ const CATEGORY_RULES = [
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
+        'overtime-pay-calculator',
         'personal-trainer-package-pricing-calculator',
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',
+        'voiceover-project-rate-calculator',
       ].includes(slug),
   },
 ];

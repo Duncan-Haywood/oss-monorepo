@@ -212,6 +212,9 @@ workflows:
 - workflow: browser-checks-ci.yml
   classification: none
   publishes: []
+- workflow: caa-record-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cabinet-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -269,7 +272,13 @@ workflows:
 - workflow: claude-code-settings-check-ci.yml
   classification: none
   publishes: []
+- workflow: claude-code-subagent-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
+  classification: none
+  publishes: []
+- workflow: claude-skill-scaffold-generator-ci.yml
   classification: none
   publishes: []
 - workflow: cleaning-dilution-calculator-ci.yml
@@ -477,6 +486,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: exterior-painting-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: facebook-marketplace-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: faire-wholesale-calculator-ci.yml
@@ -1176,6 +1188,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tree-service-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: trump-account-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tuckpointing-bid-calculator-ci.yml
