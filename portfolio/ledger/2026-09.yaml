@@ -43260,3 +43260,68 @@ entries:
         own -- see its VENTURE.yaml `channel_notes` for the named
         first-visitor channels.
     mrr_end: 0
+  - venture: claude-skill-scaffold-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Landed PR #5764 (claude-skill-scaffold-generator, plus
+        senior-deduction-calculator riding the same merge) after three
+        rounds of concurrent-merge collisions on the same PR branch during a
+        session where the fleet was merging roughly one PR every few
+        minutes: round 1 merged `main` forward through
+        mega-backdoor-roth-calculator and senior-deduction-calculator;
+        round 2 discovered a competing session had independently pushed its
+        own merge to the same PR branch (an older, incomplete resolution
+        missing senior-deduction-calculator entirely) and reconciled the two
+        rather than force-pushing over it; round 3 merged a further `main`
+        advance that added claude-code-subagent-check, whose own count-sync
+        and sibling-link comments collided with this branch's in the same
+        shape CLAUDE.md already documents, resolved by combining both
+        additions' running-comment entries rather than picking a side
+        (362 -> 363 mirrored tools, 341 -> 342 opt-out switches, both
+        verified against the actual merged tree via `sync_tree_counts.py`
+        rather than by hand).
+      - >-
+        Along the way, found and fixed a real, pre-existing FAQPage
+        JSON-LD/visible-copy divergence in `mega-backdoor-roth-calculator`
+        (straight `--` in the JSON-LD text vs. the page's own em-dash),
+        the same defect class CLAUDE.md already records against other
+        ventures -- caught by `platform/pages/faq-visible.test.mjs`, fixed
+        by regenerating the text to match, verified via the venture's own
+        suite plus the three FAQ-related suites (43/43).
+      - >-
+        Verified before each of the three merge commits: `regen.mjs
+        --verify` clean, `checklist_coverage.py` clean,
+        `sync_tree_counts.py` clean, `siblings.mjs --check` (0 orphans),
+        `score_ventures.py --check`, `router/validate.py`,
+        `publish_surface.py --check`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_probe_index.py`, the affected
+        ventures' own suites, the full `platform/marketing` +
+        `platform/pages` suites (1290/1290 after the FAQ fix, confirmed via
+        a targeted rerun since a full combined run under heavy concurrent
+        CPU load took 30+ minutes), `gitops/tests` (613 passed/25 skipped),
+        every `platform/ci` unittest module (27/27, after apt-installing
+        `python3-pytest`), and `portfolio/ledger` + `scoring` + `router` +
+        `usage` + `pipeline` + `infra/tests` pytest (446 passed). Squash-
+        merged via the GitHub API (this repo disallows merge commits).
+      - >-
+        The first post-merge Pages-snapshot rebuild
+        (`platform/pages/publish-branch.sh`) then caught a second real,
+        separate defect the merge itself didn't introduce: on
+        `claude-skill-scaffold-generator`'s own page, `.summary` set
+        `display:flex` unconditionally, which outranks the browser's
+        `[hidden]{display:none}`, so the summary panel rendered even while
+        `hidden`. Fixed and shipped separately as PR #5784
+        (`.summary[hidden]{display:none}`), squash-merged after the
+        venture's own suite (42/42) passed, then republished the Pages
+        snapshot so the live artifact (`gh-pages`, currently the catalogue's
+        only confirmed-public route per `pages_state.py`) carries the fix
+        rather than shipping it to `main` alone.
+      - >-
+        Also refreshed the published `gh-pages` snapshot twice more this
+        session as it aged behind `main` from concurrent fleet merges
+        (`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-
+        branch.sh`), each time confirmed current via `pages_state.py
+        --require-current`.
+    mrr_end: 0
