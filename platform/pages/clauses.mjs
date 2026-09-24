@@ -202,6 +202,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every bar or
+  // beverage program already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  // Distinct from this venture's own vs-binwise.html and vs-wisk.html,
+  // which name real inventory platforms and carry the trademark disclaimer.
+  'pour-cost-calculator/vs-a-spreadsheet.html',
+  // Compares against scoring each job on a 1-10 scale -- a generic ranking
+  // habit any contractor already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html,
+  // which names Jobber specifically and carries the trademark disclaimer.
+  'which-job-first/vs-scoring-every-job-out-of-ten.html',
   // Compares against "multiplying filament cost by three" -- a pricing
   // habit passed around among makers, not a company or product this could
   // be mistaken for. The page names no vendor at all.
@@ -685,6 +696,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own footer says so explicitly. Same reasoning as the
   // amazon-fba-calculator and reverb-fee-calculator spreadsheet pages above.
   'basement-finishing-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
+  // Compares against "tracking thresholds in a spreadsheet" -- the generic
+  // method every seller doing this by hand already reaches for, not a
+  // company or product this could be mistaken for. The page names no
+  // spreadsheet application or competing tracker; the sibling
+  // vs-paid-nexus-monitoring-software.html on the same venture already names
+  // Avalara/TaxJar and carries the not-affiliated clause for that page.
+  'economic-nexus-threshold-tracker/vs-tracking-it-in-a-spreadsheet.html',
   // Compares against "a flat installed price" -- the "$249 installed"
   // special this venture's own calc.mjs docstring and hypotheses already
   // describe, a generic quoting habit every plumber is shopped on, not a
@@ -1973,6 +1991,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "quoting one flat seasonal rate for every driveway
+  // from memory" -- a pricing habit any snow contractor already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-aspire.html, which names Aspire specifically and
+  // already carries the trademark disclaimer.
+  'snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html',
+  // Compares against "quoting one flat project rate regardless of usage" --
+  // a pricing habit any freelance narrator already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-voices-com.html, which names a real marketplace and already carries
+  // the trademark disclaimer.
+  'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
