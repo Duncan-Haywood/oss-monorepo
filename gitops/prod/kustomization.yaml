@@ -109,23 +109,21 @@ configMapGenerator:
       # at one `mountPath`. Text, so it lands in `data`. A few kilobytes
       # against a 1 MiB object ceiling.
       - feed.xml=front-door/feed.xml
-      # `llms.txt`, the AI-discovery counterpart to the feed. Same reason again
-      # for riding here: a well-known path has to resolve at the document root.
+      # `llms.txt`, the AI-discovery counterpart to the feed.
       #
-      # **Stored gzip-only since 2026-09-24**, same reason and same mechanism
-      # as `catalog.json.gz` and `sitemap.xml.gz` below: it does not grow as
-      # predictably as either, but a `retaining-wall-bid-calculator`
-      # comparison page took this object to 943,779 bytes against the
-      # 943,718-byte budget in `gitops/tests/test_manifests.py` that day (over
-      # by 61), and by then this was the largest plain key left in the
-      # ConfigMap at 145,949 bytes. gzip -9 took it to about 43.5 KB, before
-      # the 4/3 base64 expansion `binaryData` imposes.
-      # See `llmsStoredKey` in `platform/marketing/front-door.mjs`.
+      # **Stored gzipped since 2026-09-24**, same reason and same mechanism as
+      # `sitemap.xml.gz` above and `catalog.json.gz` below: it is one of the
+      # keys that grows with the catalogue, and it was the key that took the
+      # object over the 943,718-byte budget in
+      # `gitops/tests/test_manifests.py` that day (945,297 bytes, over by
+      # 1,579 — measured with `main` itself already 109 bytes over budget
+      # before this session's venture existed). See `llmsStoredKey` in
+      # `platform/marketing/front-door.mjs`.
       #
       # A `.gz` key is not valid UTF-8, so kustomize files it under
       # `binaryData` as base64. The URL is unchanged: nginx still answers
       # `/llms.txt`, via `gzip_static always; gunzip on;` and *no*
-      # `try_files`, for the identical reason `catalog.json`'s entry below
+      # `try_files`, for the identical reason `sitemap.xml`'s entry above
       # gives — `try_files` stats the uncompressed name and there is no
       # longer a plain sibling on disk. The `location = /llms.txt` block in
       # `front-door/default.conf` carries the long version of that trap.

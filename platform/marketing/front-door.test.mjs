@@ -1456,43 +1456,12 @@ test('llms.txt claims a wider collection only while one actually exists', () => 
   }
 });
 
-/**
- * The committed llms.txt, inflated.
- *
- * Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in `front-door.mjs`),
- * so every assertion below reads it through here rather than as UTF-8. Reading
- * the `.gz` bytes as text would not throw — it would produce mojibake that
- * fails every assertion below with a message about missing markdown, which
- * reads like a corrupt generator rather than like a test that has not caught
- * up with how the key is stored.
- */
-async function readCommittedLlms() {
-  return zlib.gunzipSync(await fs.readFile(LLMS_OUTPUT_FILE)).toString('utf8');
-}
-
-test('the stored llms.txt key agrees with the compression suffix constant', () => {
-  // `LLMS_OUTPUT_FILE` spells `.gz` literally, because `COMPRESSED_SUFFIX` is
-  // declared below it and a forward reference would be a TDZ error at module
-  // load. This is the assertion that comment promises, so the literal cannot
-  // drift from the constant the rest of the mechanism uses.
-  assert.equal(llmsStoredKey(), `${LLMS_FILE}${COMPRESSED_SUFFIX}`);
-  assert.equal(path.basename(LLMS_OUTPUT_FILE), llmsStoredKey());
-});
-
-test('no plain llms.txt is left beside the compressed key', async () => {
-  // The stale-sibling trap, asserted rather than trusted to the sweep in
-  // `front-door.mjs`: `location = /llms.txt`'s own `root` would still find a
-  // plain file, so a regeneration that stopped writing the `.gz` would go on
-  // serving a frozen document under a 200 for as long as anybody looked.
-  const plain = path.join(path.dirname(LLMS_OUTPUT_FILE), LLMS_FILE);
-  assert.equal(
-    await fs.stat(plain).then(() => true, () => false),
-    false,
-    `${LLMS_FILE} must not exist beside its .gz — front-door.mjs sweeps it`,
-  );
-});
-
 test('the committed llms.txt matches what this generator produces', async () => {
+  // Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in
+  // `front-door.mjs`), so this reads it through `readCommittedLlms` rather
+  // than as UTF-8 — see that helper's own doc comment for why reading the
+  // `.gz` bytes as text would not throw but would compare mojibake to plain
+  // text and fail for the wrong reason.
   const { llms } = await buildFrontDoor();
   assert.equal(
     await readCommittedLlms(),
@@ -1550,7 +1519,7 @@ test('nginx answers /llms.txt as markdown-ish text, with the encoding declared',
   // Stored gzip-only since 2026-09-24, so this block is served out of the
   // content phase by `gzip_static` rather than resolved in the rewrite phase
   // by `try_files`. Both halves are asserted, for the identical reason the
-  // `/catalog.json` block's own test above gives.
+  // `/sitemap.xml` and `/catalog.json` blocks' own tests give.
   assert.ok(
     !/try_files/.test(block[0]),
     'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
@@ -1568,12 +1537,33 @@ test('the committed llms.txt is the file that block promises to serve', async ()
   // The encoding claim above is only true if the bytes really are UTF-8, and
   // the em-dash count is what makes the charset load-bearing rather than
   // decorative — if a future edit made this file ASCII the directive would be
-  // harmless but the comment beside it would be wrong. Checked against the
-  // decompressed text: `gunzip on` is what hands a client back exactly this,
-  // encoding included, not the gzip bytes on disk.
+  // harmless but the comment beside it would be wrong. Read through
+  // `readCommittedLlms` since the committed key is gzipped, not plain text.
   const txt = await readCommittedLlms();
   const nonAscii = [...txt].filter((c) => c.codePointAt(0) > 127);
   assert.ok(nonAscii.length > 0, 'if this file is ever pure ASCII, drop the charset comment with it');
+});
+
+test('the stored llms.txt key agrees with the compression suffix constant', () => {
+  // `LLMS_OUTPUT_FILE` spells `.gz` literally, because `COMPRESSED_SUFFIX` is
+  // declared below it and a forward reference would be a TDZ error at module
+  // load. This is the assertion that comment promises, so the literal cannot
+  // drift from the constant the rest of the mechanism uses.
+  assert.equal(llmsStoredKey(), `${LLMS_FILE}${COMPRESSED_SUFFIX}`);
+  assert.equal(path.basename(LLMS_OUTPUT_FILE), llmsStoredKey());
+});
+
+test('no plain llms.txt is left beside the compressed key', async () => {
+  // The stale-sibling trap, asserted rather than trusted to the sweep in
+  // `front-door.mjs`: `location = /llms.txt`'s own `root` would still find a
+  // plain file, so a regeneration that stopped writing the `.gz` would go on
+  // serving a frozen document under a 200 for as long as anybody looked.
+  const plain = path.join(path.dirname(LLMS_OUTPUT_FILE), LLMS_FILE);
+  assert.equal(
+    await fs.stat(plain).then(() => true, () => false),
+    false,
+    `${LLMS_FILE} must not exist beside its .gz — front-door.mjs sweeps it`,
+  );
 });
 
 test('llms.txt rides in the ConfigMap that mounts at the document root', async () => {
@@ -1905,6 +1895,17 @@ test('catalog.json rides in the ConfigMap that mounts at the document root', asy
  */
 async function readCommittedSitemap() {
   return zlib.gunzipSync(await fs.readFile(SITEMAP_OUTPUT_FILE)).toString('utf8');
+}
+
+/**
+ * The committed llms.txt, inflated.
+ *
+ * Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in `front-door.mjs`),
+ * so every assertion below reads it through here rather than as UTF-8, for
+ * the identical reason `readCommittedSitemap` above does.
+ */
+async function readCommittedLlms() {
+  return zlib.gunzipSync(await fs.readFile(LLMS_OUTPUT_FILE)).toString('utf8');
 }
 
 test('the stored sitemap key agrees with the compression suffix constant', () => {
