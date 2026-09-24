@@ -38,8 +38,8 @@
 #   portfolio-front-tools-2: 146 files, 554727 bytes
 #   portfolio-front-tools-3: 132 files, 550434 bytes
 #   portfolio-front-tools-4: 145 files, 553590 bytes
-#   portfolio-front-tools-5: 121 files, 556063 bytes
-#   portfolio-front-tools-6: 135 files, 549922 bytes
+#   portfolio-front-tools-5: 121 files, 556600 bytes
+#   portfolio-front-tools-6: 136 files, 553894 bytes
 #   portfolio-front-tools-7: 122 files, 556312 bytes
 #   portfolio-front-tools-8: 136 files, 554566 bytes
 #   portfolio-front-tools-9: 124 files, 543567 bytes
@@ -780,6 +780,7 @@ configMapGenerator:
       - atm-route-margin__is-this-atm-placement-worth-it.html.gz=atm-route-margin__is-this-atm-placement-worth-it.html.gz
       - atm-route-margin__share.mjs.gz=atm-route-margin__share.mjs.gz
       - atm-route-margin__usage.mjs.gz=atm-route-margin__usage.mjs.gz
+      - atm-route-margin__vs-a-spreadsheet.html.gz=atm-route-margin__vs-a-spreadsheet.html.gz
       - atm-route-margin__vs-atm-depot.html.gz=atm-route-margin__vs-atm-depot.html.gz
       - ats-resume-checker__checker.mjs.gz=ats-resume-checker__checker.mjs.gz
       - ats-resume-checker__index.html.gz=ats-resume-checker__index.html.gz
@@ -877,12 +878,12 @@ configMapGenerator:
       - cabinet-refinishing-bid-calculator__usage.mjs.gz=cabinet-refinishing-bid-calculator__usage.mjs.gz
       - cabinet-refinishing-bid-calculator__vs-a-flat-price-per-door.html.gz=cabinet-refinishing-bid-calculator__vs-a-flat-price-per-door.html.gz
       - cabinet-refinishing-bid-calculator__vs-kickserv.html.gz=cabinet-refinishing-bid-calculator__vs-kickserv.html.gz
-      - cache-control-check__analyze.mjs.gz=cache-control-check__analyze.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cache-control-check__analyze.mjs.gz=cache-control-check__analyze.mjs.gz
       - cache-control-check__check.mjs.gz=cache-control-check__check.mjs.gz
       - cache-control-check__index.html.gz=cache-control-check__index.html.gz
       - cache-control-check__probe.mjs.gz=cache-control-check__probe.mjs.gz
