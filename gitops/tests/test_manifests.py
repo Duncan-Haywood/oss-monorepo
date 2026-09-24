@@ -2433,13 +2433,28 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # list. Static `index.html` from its first commit, same shape as the
     # rest of this running count.
     #
-    # 356 on this merge: `auto-loan-interest-deduction-calculator` also
-    # graduates -- a browser calculator for the new federal "qualified
-    # passenger vehicle loan interest" deduction (One Big Beautiful Bill
-    # Act, tax years 2025-2028). Static `index.html` from its first
-    # commit, same shape as the rest of this running count.
+    # 356 on this merge: `s-corp-reasonable-compensation-calculator` also
+    # graduates -- a zero-dependency browser calculator for single-
+    # shareholder S-corp owners that compares a planned W-2 salary against
+    # a comparable-wage figure the owner supplies, using the IRS's actual
+    # multi-factor reasonable-compensation test, reports the FICA-tax cost
+    # of closing the gap, and prints a nine-factor documentation checklist.
+    # Static `index.html` from its first commit, same shape as the rest of
+    # this running count.
     #
-    # 357 on this merge: `tip-pool-compliance-calculator` also graduated,
+    # 357 on this merge: `auto-loan-interest-deduction-calculator` also
+    # graduated, concurrently -- a browser-local calculator for the new
+    # federal "qualified passenger vehicle loan interest" deduction (OBBBA,
+    # tax years 2025-2028). This branch only ever knew its own predecessor's
+    # number (356, from the graduation two entries above) until this merge --
+    # the same ordinary collision shape recorded throughout this list; a
+    # sibling branch independently reached the same 357 and the same
+    # narration one merge later (#5733), which is why this entry is the one
+    # that survived reconciling the two.
+    # Static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    #
+    # 358 on this merge: `tip-pool-compliance-calculator` also graduated,
     # concurrently on `main` -- a zero-dependency browser calculator for
     # restaurant/bar owners that checks a mandatory tip pool against the
     # two federal FLSA tip-pooling rules (a manager/supervisor is never
@@ -2448,12 +2463,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # violation creates. Static `index.html` and a
     # `vs-guessing-from-a-staff-meeting.html` comparison page, both from
     # their first commit, same shape as the rest of this running count.
-    # This branch only ever knew its own predecessor's number (356) until
+    # This branch only ever knew its own predecessor's number (357) until
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 357  # `infra/OWNER_CHECKLIST.md`'s own "N of the 357 tools" wording.
+    total = 358  # `infra/OWNER_CHECKLIST.md`'s own "N of the 358 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
