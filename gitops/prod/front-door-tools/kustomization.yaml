@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 120 files, 548236 bytes
 #   portfolio-front-tools-8: 134 files, 551035 bytes
 #   portfolio-front-tools-9: 126 files, 551274 bytes
-#   portfolio-front-tools-10: 122 files, 552501 bytes
+#   portfolio-front-tools-10: 122 files, 552475 bytes
 #   portfolio-front-tools-11: 117 files, 553094 bytes
 #   portfolio-front-tools-12: 117 files, 554567 bytes
 #   portfolio-front-tools-13: 131 files, 550619 bytes
@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 113 files, 554045 bytes
 #   portfolio-front-tools-17: 125 files, 554334 bytes
 #   portfolio-front-tools-18: 115 files, 520909 bytes
-#   portfolio-front-tools-19: 49 files, 266091 bytes
+#   portfolio-front-tools-19: 50 files, 270558 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2586,6 +2586,7 @@ configMapGenerator:
       - window-tinting-bid-calculator__calc.mjs.gz=window-tinting-bid-calculator__calc.mjs.gz
       - window-tinting-bid-calculator__index.html.gz=window-tinting-bid-calculator__index.html.gz
       - window-tinting-bid-calculator__usage.mjs.gz=window-tinting-bid-calculator__usage.mjs.gz
+      - window-tinting-bid-calculator__vs-a-flat-per-vehicle-tint-price.html.gz=window-tinting-bid-calculator__vs-a-flat-per-vehicle-tint-price.html.gz
       - wordpress-plugin-review-check__check.mjs.gz=wordpress-plugin-review-check__check.mjs.gz
       - wordpress-plugin-review-check__index.html.gz=wordpress-plugin-review-check__index.html.gz
       - wordpress-plugin-review-check__scan.mjs.gz=wordpress-plugin-review-check__scan.mjs.gz

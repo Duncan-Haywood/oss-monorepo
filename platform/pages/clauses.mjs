@@ -1405,6 +1405,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against a posted "$180 sedan / $220 SUV" flat per-vehicle tint
+  // price -- a generic advertised pricing habit the trade is shopped
+  // against, not a company or product this could be mistaken for. This
+  // venture carries no other vs-*.html page, so there is no named-product
+  // comparison to distinguish it from.
+  'window-tinting-bid-calculator/vs-a-flat-per-vehicle-tint-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
