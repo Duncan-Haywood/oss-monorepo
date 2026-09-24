@@ -180,6 +180,7 @@
     "job-margin-variance": "2026-08-26",
     "junk-removal-bid-calculator": "2026-08-26",
     "k8s-deprecated-api-check": "2026-09-17",
+    "k8s-resource-limits-check": "2026-09-24",
     "k8s-rollout-safety-check": "2026-09-11",
     "kdp-royalty-calculator": "2026-09-07",
     "kickstarter-fee-calculator": "2026-09-24",

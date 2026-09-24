@@ -41045,3 +41045,96 @@ entries:
         trustworthy browser_state.json reading for the next session's
         freshness check to build on.
     mrr_end: 0
+  - venture: k8s-resource-limits-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free CLI + browser checker that reads Kubernetes
+        workload YAML (Pod, Deployment, StatefulSet, DaemonSet, ReplicaSet,
+        Job, CronJob) and reports every container missing a memory limit,
+        memory request, CPU request, or ephemeral-storage limit, plus a
+        request set above its own limit (which the API server rejects
+        outright). A set CPU limit is reported informational rather than a
+        problem, because it is a real trade-off (CFS quota throttling can
+        trigger even on an idle node, tracked upstream as
+        kubernetes/kubernetes#67577) rather than an obvious gap.
+
+        Screened per portfolio/pipeline/README.md: duplicate_check.py top
+        match 0.13 (k8s-rollout-safety-check) well under the 0.45 bar,
+        confirmed by reading that venture's own CHECKS list directly -- it
+        never reads resources.requests/limits. Filed in the `ci` category
+        beside k8s-deprecated-api-check, k8s-rollout-safety-check, and
+        helm-values-schema-check, same "read what is actually there, never
+        fetch" shape. Scored in portfolio/scoring/venture-scores.yaml
+        (composite 6.0, both liability/ethics gates pass) with a real
+        competing tool named for the first time in this family -- Fairwinds'
+        Polaris, verified via web search (fairwinds.com/polaris,
+        github.com/FairwindsOps/polaris) before vs-polaris.html was written
+        against it, per the same "no unverifiable claim about a named
+        product" discipline every other vs-* page in this repo uses.
+
+        Ships all five required elements per PRODUCT_PLAYBOOK.md section 5:
+        LICENSE (MIT), the no-warranty/no-SLA disclaimer, an honest
+        everything-client-side privacy line, opt-out local usage counting,
+        and the discoverability checklist (JSON-LD SoftwareApplication +
+        FAQPage, sitemap, robots.txt, Open Graph, launched.json entry, a
+        per-venture CI workflow registered via publish_surface.py --write).
+        Closed its own sibling-links orphan (platform/pages/siblings-budget.json's
+        orphanBudget: 0) by cross-linking k8s-deprecated-api-check's index.html
+        and page.test.mjs in the same commit, and added the new slug to
+        build.mjs's `ci`-category regex with the required explanatory
+        comment -- both steps this file's own history records as easy to
+        miss on a new venture's first commit.
+
+        Also caught and fixed two real, pre-existing defects unrelated to
+        this venture, found while running the starvation checklist: (1)
+        #5634's own compare-product mirror group (vs-a-flat-rate-per-lineal-
+        foot.html) was never mounted in gitops/prod/kustomization.yaml,
+        confirmed pre-existing via `git stash` against a clean checkout of
+        main (front-door.test.mjs: 114/115 before the one-line fix, 115/115
+        after) -- fixed, then discovered already independently fixed by a
+        concurrent session (#5640) before this branch could push, so that
+        specific fix was dropped to avoid reverting/duplicating it. (2) this
+        venture's own first-draft FAQPage JSON-LD used literal "--" where
+        the visible answer paragraphs render an em dash via `&mdash;`,
+        which platform/pages/faq-visible.test.mjs's whole-portfolio scan
+        would have flagged; fixed before commit.
+
+        This venture's own addition to gitops/prod/'s portfolio-front-html
+        ConfigMap initially pushed it 11 bytes over
+        gitops/tests/test_manifests.py's etcd-object-ceiling budget (90% of
+        etcd's 1 MiB cap) -- caught by that test, not discovered live.
+        Shortened this venture's own `<title>` (the string the front-door
+        category card renders verbatim) by 16 characters to clear it,
+        rather than touching any other venture's content. Recorded here
+        because the margin left in that ConfigMap is now measured at zero
+        for whichever venture lands next with a title this shape's card
+        renders twice (once on the apex index, once on its category page)
+        -- the next session adding a `ci`-category tool with a long title
+        should expect this test to fail and know why.
+
+        Test plan: node --test 'ventures/k8s-resource-limits-check/**/*.test.mjs'
+        (68/68); node --test 'ventures/k8s-deprecated-api-check/**/*.test.mjs'
+        (48/48, after the sibling-link addition); node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs (1287/1287,
+        after regen.mjs and launched.mjs --write); node platform/marketing/regen.mjs --verify
+        (clean); python3 platform/ci/checklist_coverage.py (clean); python3 -m
+        pytest gitops/tests -q (631 passed, 7 skipped -- environmental,
+        missing nginx/openssh binaries); (cd platform/ci && for m in
+        test_*.py; do python3 -m unittest "${m%.py}"; done) all 15 modules
+        pass, after publish_surface.py --write registered the new CI
+        workflow (classified `none`) and gitops/ci/sync_readme_counts.py
+        repaired the runs-on count the new workflow moved; (cd
+        platform/ci/agent_review && python3 -m unittest test_review) 21/21;
+        python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q (446 passed);
+        python3 platform/ci/browser_checks.py --only k8s-resource-limits-check
+        (7/8 checks passed, 1 skipped -- highlight, missing dependency,
+        not applicable to this venture's own coverage); node
+        platform/pages/siblings.mjs --check (0 orphans, within budget).
+        Actions runners were starved for the duration of this session
+        (ci_starvation.py confirmed runner_id: 0 on recent portfolio-validate.yml
+        runs), so the above local runs are this change's verification per
+        CLAUDE.md's starvation checklist.
+    mrr_end: 0

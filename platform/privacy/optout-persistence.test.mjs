@@ -654,7 +654,14 @@ const RELATIVE_SELF = relative(
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
 // `auto-glass-bid-usage` storage name). Exactly one added `usage.mjs`
 // (`ventures/auto-glass-bid-calculator/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 331;
+//
+// 331 -> 332: `k8s-resource-limits-check` also graduated -- adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `k8s-resource-limits-check-usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/k8s-resource-limits-check/usage.mjs`), no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 332;
 
 let counter = 0;
 function fixture(source) {
