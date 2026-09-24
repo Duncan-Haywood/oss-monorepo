@@ -2208,6 +2208,31 @@ const CATEGORY_RULES = [
     // their own post before it costs them a disclosure violation -- and it
     // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
     // the same solo-earner audience.
+    //
+    // `overtime-pay-calculator` and `voiceover-project-rate-calculator` both
+    // joined 2026-09-24, found by enumerating the catch-all after a batch of
+    // concurrent merges pushed it to 6 rather than by judging either arrival
+    // alone. `voiceover-project-rate-calculator` is the clearest kind of
+    // member here: a freelance voice-over artist turning their own script
+    // word count into a defensible project rate is the same move as
+    // `tutor-package-pricing-calculator`'s instructor and
+    // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
+    // own labour. `overtime-pay-calculator` fits the other half of this
+    // section's blurb, "priced or checked": an hourly employee checking
+    // whether their own paycheck's blended overtime rate was computed
+    // correctly is the same shape as `ats-resume-checker`'s job seeker and
+    // `gig-driver-net-pay-calculator`'s gig driver checking what a shift
+    // actually netted -- one person verifying what their own labour earned
+    // them, not a business quoting a customer. (It also serves payroll
+    // admins checking the same arithmetic for someone else, which is why it
+    // is not a pure fit the way the others are -- but the individual-employee
+    // audience is the one no other section covers.) The other two arrivals
+    // in that same catch-all reading, `hoa-reserve-fund-calculator` (a board
+    // treasurer's reserve-fund planning -- no customer quote, no individual
+    // earner) and `world-clock-widget` (a general-purpose utility, not a
+    // pricing or income question at all), share no axis with this section or
+    // each other, so they stay in the catch-all rather than being forced in
+    // here.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -2220,11 +2245,13 @@ const CATEGORY_RULES = [
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
+        'overtime-pay-calculator',
         'personal-trainer-package-pricing-calculator',
         'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',
+        'voiceover-project-rate-calculator',
       ].includes(slug),
   },
 ];
