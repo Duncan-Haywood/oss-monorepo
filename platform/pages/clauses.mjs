@@ -205,6 +205,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // payroll admin already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
   'overtime-pay-calculator/vs-spreadsheet.html',
+  // Compares against "comparing effective rates" -- the standard rate-
+  // shopping advice every merchant-services guide recommends, not a company
+  // or product this could be mistaken for. The page names no processor and
+  // its own test asserts that.
+  'card-processing-fee-audit/vs-comparing-effective-rates.html',
   // Compares against "doing the blended-rate arithmetic by hand or in a
   // spreadsheet" -- a generic method every payroll admin already has, not a
   // company or product this could be mistaken for. Same reasoning as the
@@ -1135,6 +1140,19 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
+  // Compares against "a flat price per shirt" -- a generic pricing habit
+  // every apparel decorator already has access to (one per-piece quote
+  // regardless of placement count), not a company or product this could be
+  // mistaken for. The page names no vendor, platform, or shop-management
+  // tool; vs-printavo.html already carries this venture's one
+  // named-competitor comparison and its own trademark disclaimer.
+  'apparel-decoration-price-calculator/vs-a-flat-price-per-shirt.html',
+  // Compares against "a spreadsheet" -- a generic method every restaurant
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-toast.html, which
+  // names Toast and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as the other vs-spreadsheet pages above.
+  'delivery-app-margin-calculator/vs-a-spreadsheet.html',
   // Compares against "sales minus booth fee" mental math or a one-line
   // spreadsheet -- a generic gut check every maker already does, not a
   // company or product this could be mistaken for. The page names no
@@ -1155,6 +1173,21 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-servicetitan.html, which does name a product and
   // carries its own "not affiliated" clause.
   'hvac-maintenance-contract-calculator/vs-a-flat-monthly-fee.html',
+  // Compares against "a spreadsheet" -- a generic method every decoration
+  // shop already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-printavo.html, which
+  // names a specific shop-management platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-spreadsheet pages above (e.g. bounce-house-rental-calculator's).
+  'apparel-decoration-price-calculator/vs-a-spreadsheet.html',
+  // Compares against "reading the workflow file by hand" -- a manual
+  // review habit every GitHub Actions user already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names a specific open-source tool and already
+  // carries the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-checking-*-by-hand pages above (e.g.
+  // graphql-introspection-exposure-check's).
+  'actions-injection-check/vs-checking-a-workflow-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
