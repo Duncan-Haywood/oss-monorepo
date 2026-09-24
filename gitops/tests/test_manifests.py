@@ -2414,7 +2414,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # already committed.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 352  # `infra/OWNER_CHECKLIST.md`'s own "N of the 352 tools" wording.
+    total = 353  # `infra/OWNER_CHECKLIST.md`'s own "N of the 353 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
