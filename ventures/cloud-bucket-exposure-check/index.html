@@ -103,6 +103,12 @@
   listable bucket? <a href="how-to-fix-a-publicly-listable-bucket.html">How to fix it</a>, per
   provider.
 </p>
+<p class="status-note">
+  A clean report here only covers listing. See
+  <a href="public-listing-vs-public-read.html">public listing vs. public read</a> for why a bucket
+  can still hand out object content even when this checker reports it private, and the exact
+  setting that closes each on S3, GCS, and Azure.
+</p>
 
 <div class="card">
   <h2>1. Run the CLI against your bucket</h2>
