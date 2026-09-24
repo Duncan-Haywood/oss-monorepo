@@ -41592,6 +41592,59 @@ entries:
         (pages_state.py --record) and confirmed sync_tree_counts.py agrees
         after merge.
     mrr_end: 0
+  - venture: hidden-unicode-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED. First attempted a comparison page for
+        auto-glass-bid-calculator (0/1 generic-method budget at the time);
+        a concurrent session merged the identical idea first (#5674,
+        vs-a-flat-249-windshield-coupon.html, with worked examples pinned
+        against calc.mjs -- a stronger page than the one in progress here),
+        so that work was discarded rather than pushed as a duplicate.
+        Re-picked from a less-contested lane: a checker-tool venture
+        (hidden-unicode-check) rather than another trade bid-calculator,
+        since the fleet's comparison-page activity this session was
+        concentrated almost entirely on the latter.
+      - >-
+        Added vs-reading-the-file-by-hand.html: fills the venture's 0/1
+        generic-method budget (surface-budget.mjs), following the
+        established vs-reading-*-by-hand pattern (docker-build-secrets-
+        check, sql-migration-lock-check). Contrasts what a careful manual
+        read can and cannot catch against invisible/bidi Unicode
+        characters that are defined by the standard to render as nothing
+        or to reorder what renders -- not a case of a reviewer missing
+        something, but a class of defect no reading strategy can surface.
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked
+        from index.html's footer, added to sitemap.xml, and updated
+        page.test.mjs's hardcoded sitemap-coverage assertion.
+      - >-
+        Two further collisions surfaced mid-session and were merged in
+        rather than causing rework: a concurrent session's already-merged
+        fix for a real pre-existing CI failure (skill-manifest-check
+        missing its venture-scores.yaml row) was pulled in via `git merge`
+        instead of re-deriving the same fix, and a second concurrent
+        session's structured-data-drift-check comparison page collided in
+        clauses.mjs's exemption list and in the generated front-door
+        mirror's binary shards -- resolved via
+        platform/marketing/resolve-mirror-merge.sh for the mirror and a
+        straightforward additive merge for the source list, then
+        `regen.mjs` re-run to make the merged tree authoritative rather
+        than picking either branch's stale copy.
+      - >-
+        Verified on the final merged tree: the venture's own suite plus
+        structured-data-drift-check's (95/95), checklist_coverage.py,
+        surface-budget.mjs --check, regen.mjs --verify clean, the
+        platform/marketing + platform/pages suite (1289/1289, run twice
+        across two merges), gitops/tests (613 passed/25 skipped), and
+        portfolio/ledger + scoring + router + usage + pipeline +
+        infra/tests pytest (446 passed, run twice). Republished the
+        GitHub Pages branch snapshot earlier in the session (one merge
+        behind main at the time) and recorded the reading. Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.
+    mrr_end: 0
   - venture: affiliate-disclosure-checker
     agent_spend_usd: null
     human_hours: 0
