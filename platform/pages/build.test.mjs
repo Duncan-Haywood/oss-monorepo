@@ -21,6 +21,7 @@ import {
   stepAllowsDecimals,
   buildSite,
   categoryFor,
+  DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
   injectFavicon,
@@ -253,12 +254,19 @@ test('no test payload, CLI source, or repo bookkeeping is published', async () =
   // `freelance-retainer-calculator/test_app.mjs` shipped to the public site
   // while the test that exists to catch exactly this stayed green. Match the
   // other spellings too, so the next venture that invents one is caught.
+  // `DOWNLOADABLE_CLI_FILES` publishes exactly these `.py` paths on purpose --
+  // the one file each of these 18 ventures' own page offers as a same-origin
+  // download, not leaked CLI source. Everything else ending in `.py` still
+  // should not be on the public site.
+  const downloadable = new Set(
+    Object.entries(DOWNLOADABLE_CLI_FILES).flatMap(([slug, names]) => names.map((name) => `${slug}/${name}`)),
+  );
   const leaked = files.filter(
     (f) =>
       /(^|[./])test\.(mjs|js|py)$/.test(f) ||
       /(^|\/)test_/.test(f) ||
       /_test\.(mjs|js|py)$/.test(f) ||
-      f.endsWith('.py') ||
+      (f.endsWith('.py') && !downloadable.has(f)) ||
       f.endsWith('VENTURE.yaml') ||
       f.endsWith('README.md') ||
       f.includes('node_modules'),
@@ -4614,6 +4622,33 @@ test('no link to a published venture is repaired out to the private repository',
   }
 
   assert.deepEqual(offenders, [], `links sent off-site to a private repo: ${offenders.slice(0, 8).join(', ')}`);
+});
+
+test('every DOWNLOADABLE_CLI_FILES entry is published, and no page still links off-site for it', async () => {
+  // `.py` is a NON_WEB_EXTENSIONS extension, so `copyTree` never publishes it;
+  // 18 ventures offer a specific `.py` CLI as a same-origin download anyway,
+  // and `DOWNLOADABLE_CLI_FILES` is what makes that file the one exception.
+  // Both halves of the fix are asserted here: the file actually ships, and no
+  // page was left pointing at the private-repo blob URL for it (the previous
+  // test above only catches an accidental off-site link to something that
+  // WAS published -- a link to something genuinely unpublished, like these
+  // files used to be, reads as "correct" to that test).
+  const { outDir } = await site();
+
+  for (const [slug, files] of Object.entries(DOWNLOADABLE_CLI_FILES)) {
+    for (const name of files) {
+      await fs.access(path.join(outDir, slug, name));
+
+      for (const file of await listFiles(path.join(outDir, slug))) {
+        if (!file.endsWith('.html')) continue;
+        const html = await fs.readFile(file, 'utf8');
+        assert.ok(
+          !html.includes(`${SOURCE_URL_PREFIX}ventures/${slug}/${name}`),
+          `${path.relative(outDir, file)} still links ${name} off-site to the private repo`,
+        );
+      }
+    }
+  }
 });
 
 // ---------------------------------------------------------------------------
