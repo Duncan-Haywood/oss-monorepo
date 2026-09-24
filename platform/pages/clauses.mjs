@@ -2101,6 +2101,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-jobber.html, which does name a product and carries its own "not
   // affiliated" clause.
   'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
+  // Compares against "manually checking each exports target by eye" -- the
+  // habit every package.json author already has, not a company or product
+  // this could be mistaken for. The page's own first paragraph says so
+  // ("Names no specific product or company") and its own test pins that
+  // sentence, same shape as branch-protection-drift-check's and
+  // source-map-leak-check's by-hand pages above.
+  'package-exports-drift-check/vs-manually-checking-exports-targets.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
