@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 138 files, 541801 bytes
 #   portfolio-front-tools-10: 119 files, 549775 bytes
 #   portfolio-front-tools-11: 119 files, 556069 bytes
-#   portfolio-front-tools-12: 122 files, 551776 bytes
+#   portfolio-front-tools-12: 123 files, 556440 bytes
 #   portfolio-front-tools-13: 118 files, 545902 bytes
 #   portfolio-front-tools-14: 128 files, 544004 bytes
 #   portfolio-front-tools-15: 127 files, 554443 bytes
@@ -1715,6 +1715,7 @@ configMapGenerator:
       - influencer-media-kit-generator__prefill.mjs.gz=influencer-media-kit-generator__prefill.mjs.gz
       - influencer-media-kit-generator__state.mjs.gz=influencer-media-kit-generator__state.mjs.gz
       - influencer-media-kit-generator__usage.mjs.gz=influencer-media-kit-generator__usage.mjs.gz
+      - influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz=influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz
       - influencer-media-kit-generator__vs-kitly.html.gz=influencer-media-kit-generator__vs-kitly.html.gz
       - influencer-media-kit-generator__what-is-a-media-kit.html.gz=influencer-media-kit-generator__what-is-a-media-kit.html.gz
       - interior-door-bid-calculator__calc.mjs.gz=interior-door-bid-calculator__calc.mjs.gz
