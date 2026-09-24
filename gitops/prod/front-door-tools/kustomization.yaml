@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 139 files, 519635 bytes
+#   portfolio-front-tools-0: 140 files, 524145 bytes
 #   portfolio-front-tools-1: 91 files, 550859 bytes
 #   portfolio-front-tools-2: 145 files, 556721 bytes
 #   portfolio-front-tools-3: 132 files, 555602 bytes
@@ -153,6 +153,7 @@ configMapGenerator:
       - appliance-repair-quote-calculator__usage.mjs.gz=appliance-repair-quote-calculator__usage.mjs.gz
       - appliance-repair-quote-calculator__vs-a-flat-rate-repair-price.html.gz=appliance-repair-quote-calculator__vs-a-flat-rate-repair-price.html.gz
       - appliance-repair-quote-calculator__vs-housecall-pro.html.gz=appliance-repair-quote-calculator__vs-housecall-pro.html.gz
+      - appliance-repair-quote-calculator__vs-jobber.html.gz=appliance-repair-quote-calculator__vs-jobber.html.gz
       - hvac-maintenance-contract-calculator__calc.mjs.gz=hvac-maintenance-contract-calculator__calc.mjs.gz
       - hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html.gz=hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html.gz
       - hvac-maintenance-contract-calculator__index.html.gz=hvac-maintenance-contract-calculator__index.html.gz
