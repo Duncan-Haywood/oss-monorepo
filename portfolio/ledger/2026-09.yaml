@@ -40021,3 +40021,61 @@ entries:
         steps on the latest main push), so verification ran locally per
         CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: food-truck-event-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Filled the venture's 0/1 generic-method comparison-page budget
+        (surface-budget.mjs --for food-truck-event-margin-calculator) with
+        vs-a-flat-per-guest-price.html. The venture's own README already
+        frames the underlying defect ("a per-head price is the wrong number
+        to build a quote from") but had no dedicated comparison page arguing
+        it against a concrete pair of bookings. Grounded entirely in
+        calculateQuote(): a per-guest rate derived from the calculator's own
+        default 100-guest, 40-minute-round-trip booking ($15.09/guest,
+        exactly reproducing that booking's own $1,509.29 price) applied to a
+        smaller 40-guest booking with a 2.5-hour round trip and its own $75
+        event permit quotes $603.72 -- $464.26 below that booking's own
+        $1,067.97 break-even cost, before a dollar of profit, and $921.96
+        below the calculator's own $1,525.67 bid price. Every figure in the
+        page is asserted against calc.mjs in a new test file, not
+        transcribed. Linked from index.html, added to sitemap.xml, and
+        registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no marketplace or competing
+        calculator -- distinct from this venture's own vs-roaminghunger.html,
+        which does and separately carries the trademark disclaimer).
+        Regenerated the front-door mirror so the apex serves the new page.
+      - >-
+        Verified: ventures/food-truck-event-margin-calculator suite 77/77;
+        platform/pages/faq-visible.test.mjs and faq-duplicate.mjs clean (1399
+        pages, no duplicate FAQ questions); platform/pages/clauses.mjs clean;
+        surface-budget.mjs --check clean (no venture over budget);
+        checklist_coverage.py and sync_tree_counts.py clean; regen.mjs
+        --verify clean after regen; platform/marketing + platform/pages
+        suite 1286/1286 (the mirror-capacity warning a concurrent PR flagged
+        earlier this session is resolved -- #5500 raised the ceiling before
+        this branch was built); platform/proposal + platform/privacy +
+        platform/webcheck 243/243; portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446/446; gitops/tests
+        637 passed/1 skipped (nginx-light installed, environmental skip
+        documented); platform/ci unittest (all modules) + agent_review's
+        test_review clean. Scoped browser/accessibility check via
+        browser_checks.py --only food-truck-event-margin-calculator: 7/8
+        passed (contrast/optout/sweep/roundtrip/sideways/presets clean, no
+        WCAG violations; highlight skipped, missing dependency, not a
+        failure); the whole-site journey check failed once on
+        `requestfailed: .../icon-192.png`, the exact race journey.mjs's own
+        code comment already documents from 2026-09-09 (a 404 page's icon
+        request cancelled by the next navigation, attributed to the wrong
+        step) -- re-ran alone and it passed clean (0 failed, 0 errors),
+        confirming the flake rather than a regression from this one-page
+        change. CI confirmed starved this session (ci_starvation.py --run
+        35962212138 and others: runner_id 0, 3s, no steps), so verification
+        ran locally per CLAUDE.md's starvation checklist. Also found and
+        confirmed moot in passing: PR #5497 (a different venture's guide
+        page) had a generated-mirror merge conflict against main; by the
+        time this session finished resolving it in a scratch worktree, a
+        concurrent session had already pushed the same resolution and
+        merged the PR -- no push made, no duplicate work landed.
+    mrr_end: 0

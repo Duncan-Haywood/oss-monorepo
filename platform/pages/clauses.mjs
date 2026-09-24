@@ -1490,6 +1490,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against "a flat per-guest price" -- dividing a past booking's
+  // total by its own headcount and reusing the result as a rate, a pricing
+  // habit every operator already reaches for, not a company or product
+  // this could be mistaken for. The page names no marketplace or
+  // competing calculator (distinct from this venture's own
+  // vs-roaminghunger.html, which does and already carries the trademark
+  // disclaimer for that reason).
+  'food-truck-event-margin-calculator/vs-a-flat-per-guest-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
