@@ -1996,6 +1996,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // utilities, not one specific company or product this could be mistaken
   // for. The page names no specific lookup tool or brand.
   'caa-record-check/vs-a-plain-dns-lookup.html',
+  // Compares against "a flat $8,000 generator special" -- the postcard/
+  // search-result pricing habit every generator installer is shopped
+  // against, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-servicetitan.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'standby-generator-bid-calculator/vs-a-flat-8000-generator-special.html',
   // Compares against "tracking Depop sales in a spreadsheet" -- a generic
   // method every Depop seller already has access to, not a company or
   // product this could be mistaken for. The page's own footer says so
