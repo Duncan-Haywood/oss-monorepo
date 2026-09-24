@@ -1789,6 +1789,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-jobtread.html, which names JobTread specifically and already
   // carries the trademark disclaimer.
   'contractor-bid-readiness/vs-a-sticky-note-checklist.html',
+  // Compares against "picking a rate off the going local price" -- the
+  // generic habit of copying a nearby studio's posted per-lesson price, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-mymusicstaff.html, which names My Music Staff
+  // specifically and already carries the trademark disclaimer.
+  'music-lesson-break-even/vs-picking-a-rate-off-the-going-local-price.html',
   // Compares against "grepping the codebase by hand" -- a manual audit
   // habit any developer already has, not a company or product this could
   // be mistaken for. Distinct from this venture's own vs-dotenv-linter.html,
