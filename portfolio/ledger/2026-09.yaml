@@ -40962,3 +40962,33 @@ entries:
         `portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
         portfolio/pipeline infra/tests` (pytest) all green.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the whole-catalogue Playwright/axe-core browser and
+        accessibility sweep (browser_state.py had it recorded STALE --
+        builder files had moved since the last reading). Installed
+        playwright@1.56.0 + axe-core (one npm install, both packages in the
+        same command per CLAUDE.md's documented trap). First run found a
+        real WCAG AA violation: 18 instances of insufficient color contrast
+        (3.02:1, needs 4.5:1) on llm-api-pricing-calculator's .example hint
+        text -- a bug in this session's own earlier-shipped venture. Before
+        pushing a fix, a concurrent session independently found and merged
+        the same fix (#5627, effectively identical: same property, an
+        equivalent passing gray). Confirmed via diff and discarded the
+        duplicate local change rather than re-fixing what was already fixed,
+        then re-synced to main and re-ran the full sweep clean: all 8 checks
+        (sideways, presets, roundtrip, highlight, contrast, optout, sweep,
+        journey) passed -- 1519 sitemap URLs resolve, 355 tools answered
+        with no console/resource errors, 0 WCAG A/AA violations across the
+        catalogue. Recorded into platform/ci/browser_state.json (PR #5648).
+      - >-
+        Net outcome: the fleet's accessibility/correctness posture was
+        independently re-verified clean at a commit past the last recorded
+        reading, one real defect was confirmed already fixed by a sibling
+        session rather than duplicated, and the catalogue now has a current,
+        trustworthy browser_state.json reading for the next session's
+        freshness check to build on.
+    mrr_end: 0
