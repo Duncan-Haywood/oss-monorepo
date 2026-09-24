@@ -39611,6 +39611,124 @@ entries:
         addition that touches the builder -- a full ~25 minute
         whole-catalogue run is a separate task, not this session's.
     mrr_end: 0
+  - venture: str-occupancy-tax-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated ventures/str-occupancy-tax-calculator: a free browser
+        calculator for short-term rental hosts splitting one stay's
+        occupancy tax into up to four named layers (state, county, city,
+        special district) plus a flat per-night fee, reporting which
+        layers a platform's (Airbnb/Vrbo) collection agreement already
+        remits versus the dollar amount left for the host to self-file
+        directly. Distribution channel named per DIRECTION.md's graduation
+        condition: "airbnb occupancy tax calculator", "vrbo tax by
+        county", and "short term rental tax I owe" are real high-intent
+        searches with no existing free tool answering the specific
+        "which layer is on me" question -- general occupancy-tax guides
+        answer "what rate applies" and platform help pages answer "does
+        the platform collect in my state", neither computes the per-layer
+        dollar split a host can act on. duplicate_check.py scored every
+        existing venture, screened-out row, and pipeline candidate at
+        0.16 or below (str-host-payout-calculator closest, a different
+        question -- payout fees across channels, not tax remittance)
+        against a 0.45 read-this-first bar.
+      - >-
+        No rate table ships -- every tax rate and platform-collection
+        percentage is a host-supplied input, for the same reason the
+        portfolio's IFTA fuel-tax calculator ships no fuel-tax table.
+        Liability containment 8, ethical robustness 9 (both gates pass;
+        candidates.yaml composite 6.875, floor 1 on ai_leverage, same
+        deliberate floor every deterministic calculator here carries).
+      - >-
+        Registered: launched.mjs --write (342 tools at commit time),
+        publish_surface.py --write (new test-only CI workflow, publishes
+        none), venture-scores.yaml (6-dim composite 6.333, floor 1,
+        both gates pass), candidates.yaml + write-up
+        (candidates/str-occupancy-tax-calculator.md) + README.md's ranked
+        table (inserted as row 25 by composite 6.875, renumbering rows
+        25-57 to 26-58; validate_doc_consistency.py and
+        validate_candidates.py both clean).
+      - >-
+        Filed into build.mjs's `marketplace` category by broadening the
+        existing `str-host` slug match to `str-` (str-host-payout-calculator's
+        exact sibling on the other side of the same booking: what a host
+        owes rather than what a host is paid) -- the venture would
+        otherwise have swelled the catch-all to 6 tools, which
+        build.test.mjs bounds at 5. Added a reciprocal footer link from
+        str-host-payout-calculator, closing the crawlable-orphan pair
+        siblings.mjs flagged (siblings.test.mjs's committed-budget check
+        confirmed 0 orphans after).
+      - >-
+        Mid-build, `git fetch origin main` picked up `backup-file-exposure-check`
+        (#5450, merged before this branch's base) plus several concurrent
+        comparison-page PRs. Merged origin/main into the branch; the only
+        real conflicts were the hand-maintained running-comment counts in
+        gitops/tests/test_manifests.py and
+        platform/privacy/optout-persistence.test.mjs, where this branch and
+        `main` had each independently bumped the same total from the same
+        base (341/323) -- resolved by keeping both graduations' entries
+        and the correct merged total (343 mirrored tools, 325 opt-out
+        switches), then re-ran sync_tree_counts.py and
+        gitops/ci/sync_readme_counts.py against the fully merged tree
+        (confirmed the derived totals independently) and regen.mjs (never
+        hand-edited the generated mirror), verified with regen.mjs
+        --verify afterward.
+      - >-
+        CI confirmed starved this session (ci_starvation.py --run
+        35953237747, runner_id 0, 3s, no steps, on a push to main before
+        this branch was built). Verified locally, on the final merged
+        tree: venture's own suite 46/46. node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs: found 4
+        real failures caused by this venture, fixed rather than waived --
+        (1) JSON-LD FAQ text used plain `--`/straight quotes where the
+        visible copy used typographic em-dash/curly punctuation
+        (faq-visible.test.mjs); (2) the venture landed in the catch-all
+        category, pushing it to 6 (build.test.mjs's bound is 5), fixed
+        by the `marketplace` category broadening above rather than by
+        raising the bound; (3) the reciprocal-link orphan (siblings.test.mjs)
+        above. All three re-verified green after the fix, and the venture's
+        own 46/46 re-run clean throughout. One separate failure was NOT
+        this venture's and was left as-is: front-door-tools.test.mjs's
+        mirror-headroom check crossed its 85% warn ratio to 85.0% with
+        0 recoverable duplicate bytes -- this venture's own mirrored
+        bytes are ~21 KB against a 12 MiB ceiling (0.17%), so the
+        crossing is fleet-wide cumulative growth from today's concurrent
+        graduations, not this venture. The file's own comment explicitly
+        says a third raise of `MIRROR_BYTE_CEILING` is not the fix (the
+        first two are already spent) and points at the `portfolio-site-repo`
+        seal or `gitops/prod/host/` instead, both owner/infra decisions
+        already queued -- flagged for whoever picks up mirror capacity
+        next rather than widened here.
+      - >-
+        Full checklist, after the fixes above: gitops/tests 613/613 (25
+        skipped before installing nginx-light + openssh-client per
+        CLAUDE.md's documented `apt-get update &&` workaround, 0 skipped
+        after, 1 pre-existing unrelated skip remained -- same shape the
+        checklist's own guard_state.py section documents).
+        gitops/ci/sync_readme_counts.py: runs-on count 437/439 across 398
+        workflows (this venture's new CI workflow). ledger/scoring/router/
+        usage/pipeline pytest: 446 passed. platform/ci unittest (27
+        modules) + agent_review/test_review: all green. platform/privacy +
+        platform/webcheck: 142/142. platform/proposal: 101/101.
+        checklist_coverage.py, router/validate.py (350 VENTURE.yaml),
+        validate_doc_consistency.py (58 candidates), validate_candidates.py
+        (58/58), score_ventures.py --check (351 scores), usage/validate_usage.py
+        (284 products, 470 readings, no entry added yet -- no reading
+        exists), probes/validate_probe_index.py, score_sensitivity.py,
+        publish_surface.py --check, guard_state.py --require-runnable
+        (clean after the nginx/ssh install, only the one genuinely
+        environmental skip remaining): all clean. regen.mjs --verify
+        clean after every registration step. Not run to completion:
+        run_workflow_locally.py --for-changes and the browser/contrast
+        sweep (npm install cost, out of scope for a two-page venture
+        already fully covered by the suites above); browser_state.py's
+        last full-catalogue reading (02e250cf, this session's merge base)
+        predates this venture and will show STALE for it until a
+        dedicated ~25-30 minute sweep picks it up, per the same pattern
+        recorded on prior venture additions.
+    mrr_end: 0
   - venture: hardwood-refinishing-bid-calculator
     agent_spend_usd: null
     human_hours: 0

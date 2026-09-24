@@ -33,26 +33,26 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 137 files, 542974 bytes
-#   portfolio-front-tools-1: 97 files, 554650 bytes
-#   portfolio-front-tools-2: 146 files, 554628 bytes
-#   portfolio-front-tools-3: 133 files, 554402 bytes
-#   portfolio-front-tools-4: 145 files, 553656 bytes
-#   portfolio-front-tools-5: 121 files, 555998 bytes
-#   portfolio-front-tools-6: 137 files, 552916 bytes
-#   portfolio-front-tools-7: 120 files, 548236 bytes
-#   portfolio-front-tools-8: 134 files, 551035 bytes
-#   portfolio-front-tools-9: 126 files, 551274 bytes
-#   portfolio-front-tools-10: 122 files, 552475 bytes
-#   portfolio-front-tools-11: 118 files, 556974 bytes
-#   portfolio-front-tools-12: 117 files, 550610 bytes
+#   portfolio-front-tools-0: 137 files, 543045 bytes
+#   portfolio-front-tools-1: 97 files, 554617 bytes
+#   portfolio-front-tools-2: 146 files, 554624 bytes
+#   portfolio-front-tools-3: 133 files, 554399 bytes
+#   portfolio-front-tools-4: 145 files, 553650 bytes
+#   portfolio-front-tools-5: 121 files, 556000 bytes
+#   portfolio-front-tools-6: 137 files, 552908 bytes
+#   portfolio-front-tools-7: 120 files, 548202 bytes
+#   portfolio-front-tools-8: 134 files, 551040 bytes
+#   portfolio-front-tools-9: 126 files, 551271 bytes
+#   portfolio-front-tools-10: 122 files, 552459 bytes
+#   portfolio-front-tools-11: 118 files, 556973 bytes
+#   portfolio-front-tools-12: 117 files, 550574 bytes
 #   portfolio-front-tools-13: 131 files, 554136 bytes
-#   portfolio-front-tools-14: 133 files, 553630 bytes
-#   portfolio-front-tools-15: 108 files, 551537 bytes
-#   portfolio-front-tools-16: 113 files, 548870 bytes
-#   portfolio-front-tools-17: 122 files, 551051 bytes
-#   portfolio-front-tools-18: 119 files, 536404 bytes
-#   portfolio-front-tools-19: 49 files, 266091 bytes
+#   portfolio-front-tools-14: 133 files, 553574 bytes
+#   portfolio-front-tools-15: 108 files, 551573 bytes
+#   portfolio-front-tools-16: 113 files, 548867 bytes
+#   portfolio-front-tools-17: 123 files, 556885 bytes
+#   portfolio-front-tools-18: 123 files, 551901 bytes
+#   portfolio-front-tools-19: 49 files, 266011 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2330,6 +2330,11 @@ configMapGenerator:
       - storage-auction-max-bid-calculator__usage.mjs.gz=storage-auction-max-bid-calculator__usage.mjs.gz
       - storage-auction-max-bid-calculator__vs-bidding-a-flat-percentage.html.gz=storage-auction-max-bid-calculator__vs-bidding-a-flat-percentage.html.gz
       - storage-auction-max-bid-calculator__vs-storagetreasures.html.gz=storage-auction-max-bid-calculator__vs-storagetreasures.html.gz
+      - str-occupancy-tax-calculator__calc.mjs.gz=str-occupancy-tax-calculator__calc.mjs.gz
+      - str-occupancy-tax-calculator__index.html.gz=str-occupancy-tax-calculator__index.html.gz
+      - str-occupancy-tax-calculator__share.mjs.gz=str-occupancy-tax-calculator__share.mjs.gz
+      - str-occupancy-tax-calculator__usage.mjs.gz=str-occupancy-tax-calculator__usage.mjs.gz
+      - str-occupancy-tax-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=str-occupancy-tax-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
@@ -2416,15 +2421,15 @@ configMapGenerator:
       - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
       - turo-host-payout-calculator__calc.mjs.gz=turo-host-payout-calculator__calc.mjs.gz
       - turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz=turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz
-      - turo-host-payout-calculator__index.html.gz=turo-host-payout-calculator__index.html.gz
-      - turo-host-payout-calculator__usage.mjs.gz=turo-host-payout-calculator__usage.mjs.gz
-      - turo-host-payout-calculator__vs-a-spreadsheet.html.gz=turo-host-payout-calculator__vs-a-spreadsheet.html.gz
-      - tutor-package-pricing-calculator__calc.mjs.gz=tutor-package-pricing-calculator__calc.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - turo-host-payout-calculator__index.html.gz=turo-host-payout-calculator__index.html.gz
+      - turo-host-payout-calculator__usage.mjs.gz=turo-host-payout-calculator__usage.mjs.gz
+      - turo-host-payout-calculator__vs-a-spreadsheet.html.gz=turo-host-payout-calculator__vs-a-spreadsheet.html.gz
+      - tutor-package-pricing-calculator__calc.mjs.gz=tutor-package-pricing-calculator__calc.mjs.gz
       - tutor-package-pricing-calculator__index.html.gz=tutor-package-pricing-calculator__index.html.gz
       - tutor-package-pricing-calculator__usage.mjs.gz=tutor-package-pricing-calculator__usage.mjs.gz
       - tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz=tutor-package-pricing-calculator__vs-a-spreadsheet.html.gz

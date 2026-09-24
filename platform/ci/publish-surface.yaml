@@ -1073,6 +1073,9 @@ workflows:
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-occupancy-tax-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: structured-data-drift-check-ci.yml
   classification: none
   publishes: []
