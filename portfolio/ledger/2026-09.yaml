@@ -39853,3 +39853,70 @@ entries:
         running unbounded, the same call `backup-file-exposure-check`'s
         entry above records for the identical reason.
     mrr_end: 0
+  - venture: employee-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        `vs-a-1.3x-burden-rule-of-thumb.html`, to this venture (graduated two
+        commits earlier this same day). Targets the "employer burden is
+        1.25x-1.4x salary" multiplier that hiring guides repeat, and shows on
+        the calculator's own worked example ($28/hr, 40hr/wk, 52wk/yr) where
+        it goes wrong: the rule usually blends one-time onboarding cost into
+        an annual figure the multiplier implies recurs every year ($75,712
+        vs. this tool's $73,845.38 ongoing / $75,045.38 year-one), and it
+        prices FUTA/SUTA as flat percentages rather than the wage-base-capped
+        taxes `calc.mjs` already models. `surface-budget.mjs --for
+        employee-cost-calculator` confirmed room (0/1 generic-method pages
+        used); `--check` afterward: no venture over budget.
+        `platform/pages/faq-visible.test.mjs` caught a real authoring bug on
+        first run -- the FAQPage JSON-LD used literal `--` where the visible
+        prose used `&mdash;`, so the two diverged and the test correctly
+        flagged the page as not carrying its own JSON-LD copy verbatim;
+        fixed by matching the em dash in both. `platform/pages/clauses.mjs`
+        flagged the page as missing a not-affiliated clause because it is a
+        `vs-` page; added it to `COMPARISON_DISCLAIMER_EXEMPT` with a
+        comment, the same way `storage-auction-max-bid-calculator`'s
+        equivalent generic-rule-of-thumb page is exempted -- the page names
+        no vendor, guide, or publisher, only a widely circulated multiplier.
+        `node platform/marketing/regen.mjs --verify` correctly reported the
+        mirror stale after the page and after each of the two fixes above (a
+        content change without a re-run of `regen.mjs` would have shipped a
+        page whose own sitemap advertises a URL the apex mirror still serves
+        pre-fix); `regen.mjs` re-run and `--verify` clean each time.
+
+        Validation: venture's own suite (`calc.test.mjs`, `page.test.mjs`,
+        `usage.test.mjs`) 41/41. `platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` full run: 1285/1286 after the two fixes
+        above, the one remaining failure being the pre-existing,
+        already-on-`main` issue investigated below (an initial run before
+        the fixes showed 4 failures: the 2 real defects this entry
+        describes, plus a stale-mirror artifact from before `regen.mjs` was
+        re-run, plus the pre-existing failure).
+        `gitops/tests` (pytest, installed via
+        `apt-get install python3-pytest`) 613 passed, 25 skipped
+        (environmental -- nginx-dependent tests, binary not installed this
+        session). `surface-budget.mjs --check` clean.
+
+        Surfaced, not caused by this change and not fixed here:
+        `platform/marketing/front-door-tools.test.mjs`'s "the real mirror is
+        under the warn ratio" check is red on `main` itself. Verified by
+        temporarily removing this session's two new files (the venture page
+        and its mirror artifact) and rerunning against an otherwise-clean
+        `origin/main` checkout: still `85.5% of its ceiling, over the 85%
+        warn ratio -- 0 bytes are recoverable duplicates` -- identical
+        reading with or without this change, so the crossing is upstream
+        volume (the many comparison/proposal-panel pages merged across main
+        today) hitting `MIRROR_BYTE_CEILING` (12 MiB, warn at 85%), not this
+        page. `dedupeMirror` already recovers all identical-content
+        duplicates (0 recoverable), so per the constant's own comment this
+        is "genuine growth" needing an architectural remedy (trim
+        `STARTER_SET` or deliberately raise the ceiling) rather than a
+        one-line fix -- worth a session's full attention before the fleet's
+        ordinary daily page additions hit the hard 100% ceiling, which
+        `buildMirror` throws on and which blocks every future venture-page
+        PR portfolio-wide (`portfolio-validate.yml` runs this generator on
+        every one). Not filed as an owner-blocked ask: no credential is
+        needed, it is a code/curation decision the fleet can make itself.
+    mrr_end: 0

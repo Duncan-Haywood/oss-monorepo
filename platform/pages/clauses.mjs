@@ -1417,6 +1417,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against the "1.25x-1.4x salary" burden rule of thumb that
+  // hiring guides generally repeat -- a widely circulated multiplier, not
+  // one specific company or product this could be mistaken for. The page
+  // names no vendor, guide, or publisher.
+  'employee-cost-calculator/vs-a-1.3x-burden-rule-of-thumb.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

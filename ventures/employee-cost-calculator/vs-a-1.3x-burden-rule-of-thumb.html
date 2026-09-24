@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. the "1.25x-1.4x salary" burden rule of thumb</title>
+<meta name="description" content="Every hiring guide repeats a version of the same shortcut: an employee costs 1.25 to 1.4 times their base wage, all in. That single multiplier blends one-time hiring cost into a number you are told to expect every year, and hides that FUTA and SUTA are capped taxes, not flat percentages. Free calculator, no account, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-a-1.3x-burden-rule-of-thumb.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. the &quot;1.25x-1.4x salary&quot; burden rule of thumb">
+<meta property="og:description" content="The 1.25x-1.4x-of-salary rule most hiring guides repeat blends a one-time hiring cost into an annual number and treats FUTA/SUTA as flat percentages instead of capped taxes. Here is exactly where it goes wrong, and what this calculator prices instead.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does the 1.25x-1.4x salary rule actually get wrong?","acceptedAnswer":{"@type":"Answer","text":"Two things. Most versions of the rule are built to include recruiting and onboarding cost inside the same annual multiplier as ongoing burden, so a business reads it as \"this role costs 1.3x salary every year\" when part of that multiplier is a one-time cost that should only hit year one. And the rule prices FUTA and SUTA as if they were flat percentages of full-year wages, when both are actually charged only up to a wage base ($7,000 federally for FUTA, a state-set amount for SUTA) — so a full-time role clears both caps early in the year and the true burden percentage for the rest of it is lower than a flat-rate guess assumes."}},{"@type":"Question","name":"How close does a 1.3x multiplier actually land, on a real example?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own default worked example — a $28/hour, 40-hour, 52-week role with typical small-business tax and benefit rates — a 1.3x rule of thumb applied to the $58,240 in annual wages says the role costs $75,712 a year, every year. This calculator's itemized math puts the ongoing annual cost at $73,845.38 (about 1.268x wages) and the year-one cost, including the $1,200 one-time onboarding this example assumes, at $75,045.38. The rule's \"every year\" number is closer to this tool's year-one number than to what the role actually costs in year two and after."}},{"@type":"Question","name":"Does the rule of thumb help at all when comparing to a contractor?","acceptedAnswer":{"@type":"Answer","text":"Not much, because a single employee-side multiplier has nothing to compare it against. It tells you what the role costs loaded, but not the contractor hourly rate at which hiring stops being the cheaper option. This calculator reports that break-even rate directly — $35.47/hour on the default example — next to the employee's own fully-loaded hourly cost, so the two sides are answered by the same arithmetic instead of one side by a rule of thumb and the other by whatever rate a contractor quotes."}},{"@type":"Question","name":"Is a 1.25x-1.4x multiplier ever a reasonable number to use?","acceptedAnswer":{"@type":"Answer","text":"As a first, thirty-second sanity check on a back-of-envelope budget, yes — it is a reasonable range for many roles precisely because burden usually falls somewhere inside it. What it cannot do is tell you which part of the multiplier is one-time versus recurring, whether your state's SUTA wage base and rate push you toward the top or bottom of that range, or what a specific contractor's rate would need to be to actually save money. This calculator does not replace the range with a different flat number; it itemizes FICA, capped FUTA, capped SUTA, workers' comp, PTO accrual, retirement match, health insurance, and payroll admin separately, from your own rates, and reports ongoing and year-one costs as two different figures."}}]}</script>
+<style>
+:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1e2126;background:#eef1f6}
+body{max-width:900px;margin:0 auto;padding:1.5rem}
+a{color:#1f4a8c;overflow-wrap:anywhere}
+.eyebrow{font-weight:700}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:28ch;letter-spacing:-.04em}
+.lede{font-size:1.05rem;max-width:64ch;color:#4d5a6b}
+section{background:#f9fbfd;border:1px solid #ccd6e6;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #0d2a5c0d;margin:1rem 0}
+h2{margin-top:0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ccd6e6;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4d5a6b}
+.fine,.note{font-size:.88rem;color:#4d5a6b}
+footer{color:#4d5a6b;font-size:.86rem}
+footer a{color:#1f4a8c}
+footer p{margin:.6rem 0}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Employee vs. Contractor Cost Calculator</a></p>
+<header>
+<h1>This calculator vs. the "1.25x-1.4x salary" burden rule of thumb</h1>
+<p class="lede">Nearly every hiring guide repeats a version of the same shortcut: budget 1.25 to 1.4 times a role's base salary to cover the fully-loaded cost of an employee. That single multiplier usually blends a one-time hiring cost into a number you are told to expect every year, and treats FUTA and SUTA as flat percentages instead of the capped taxes they actually are. This page shows exactly where it goes wrong, with the calculator's own worked example.</p>
+</header>
+<section>
+<h2>Where the multiplier breaks down</h2>
+<p>
+  A flat burden multiplier is popular for the same reason a percentage rule
+  is popular anywhere else: it needs almost nothing to apply, just a salary
+  number and a range to guess inside. That convenience is exactly why it
+  misses two things that do not scale the way a single multiplier assumes.
+</p>
+<p>
+  <strong>It usually bakes a one-time cost into an annual rate.</strong>
+  Most versions of the 1.25x-1.4x range are built by hiring guides to
+  include recruiting, background checks, and onboarding time alongside
+  ongoing burden &mdash; so a business reads "1.3x salary" as what the role
+  costs every year, when part of that number should only apply once, in
+  year one. Every year after that, the real cost is lower than the rule
+  implies.
+</p>
+<p>
+  <strong>FUTA and SUTA are not flat percentages of wages.</strong> Both are
+  charged only on wages up to a wage base &mdash; $7,000 federally for FUTA,
+  a state-set amount for SUTA &mdash; so a full-time role clears both caps
+  early in the year and owes no more of either tax on the wages after that.
+  A flat multiplier has no wage base built in at all, so it either
+  overstates the tax on a well-paid role or understates it on a
+  lower-paid one, and there is no way to tell which from the multiplier
+  alone.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">On the default worked example ($28/hr, 40 hrs/wk, 52 wks/yr &mdash; $58,240 in annual wages)</th><th scope="col">Annual cost</th></tr></thead>
+<tbody>
+<tr><td>1.3x-salary rule of thumb (midpoint of the commonly cited 1.25x-1.4x range)</td><td>$75,712 &mdash; presented as every year</td></tr>
+<tr><td>This calculator's ongoing annual cost (itemized burden, no one-time cost)</td><td>$73,845.38 &mdash; about 1.268x wages</td></tr>
+<tr><td>This calculator's year-one cost (ongoing plus the $1,200 onboarding this example assumes)</td><td>$75,045.38</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What's 1.25 to 1.4 times this role's salary?</td><td>Either one &mdash; that arithmetic is one multiplication.</td></tr>
+<tr><td>Does that number already separate one-time hiring cost from what the role costs every year after?</td><td>This calculator &mdash; ongoing and year-one are reported as two different figures, never blended into one rate.</td></tr>
+<tr><td>Does it account for FUTA and SUTA being capped at a wage base rather than flat percentages?</td><td>This calculator &mdash; both taxes are applied to <code>min(wages, wage base)</code>, using your own state's rate and base.</td></tr>
+<tr><td>What contractor hourly rate would actually cost the same as hiring?</td><td>This calculator &mdash; a separate break-even rate ($35.47/hr on the default example), not a second guess bolted onto the multiplier.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No, on either &mdash; but a multiplier needs no tool at all, and gives you no way to check it against your own state's actual rates.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A rule of thumb is a reasonable first sanity check when you have no
+  calculator and thirty seconds before a budget meeting. This page is not an
+  argument against having a fast number in your head &mdash; it is that the
+  fast number bundles a one-time cost into a recurring one and skips the
+  wage-base cap entirely, and only the itemized math tells you by how much
+  that matters for a specific role.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What does the 1.25x-1.4x salary rule actually get wrong?</h3>
+<p>Two things. Most versions of the rule are built to include recruiting and onboarding cost inside the same annual multiplier as ongoing burden, so a business reads it as "this role costs 1.3x salary every year" when part of that multiplier is a one-time cost that should only hit year one. And the rule prices FUTA and SUTA as if they were flat percentages of full-year wages, when both are actually charged only up to a wage base ($7,000 federally for FUTA, a state-set amount for SUTA) &mdash; so a full-time role clears both caps early in the year and the true burden percentage for the rest of it is lower than a flat-rate guess assumes.</p>
+<h3>How close does a 1.3x multiplier actually land, on a real example?</h3>
+<p>On this calculator's own default worked example &mdash; a $28/hour, 40-hour, 52-week role with typical small-business tax and benefit rates &mdash; a 1.3x rule of thumb applied to the $58,240 in annual wages says the role costs $75,712 a year, every year. This calculator's itemized math puts the ongoing annual cost at $73,845.38 (about 1.268x wages) and the year-one cost, including the $1,200 one-time onboarding this example assumes, at $75,045.38. The rule's "every year" number is closer to this tool's year-one number than to what the role actually costs in year two and after.</p>
+<h3>Does the rule of thumb help at all when comparing to a contractor?</h3>
+<p>Not much, because a single employee-side multiplier has nothing to compare it against. It tells you what the role costs loaded, but not the contractor hourly rate at which hiring stops being the cheaper option. This calculator reports that break-even rate directly &mdash; $35.47/hour on the default example &mdash; next to the employee's own fully-loaded hourly cost, so the two sides are answered by the same arithmetic instead of one side by a rule of thumb and the other by whatever rate a contractor quotes.</p>
+<h3>Is a 1.25x-1.4x multiplier ever a reasonable number to use?</h3>
+<p>As a first, thirty-second sanity check on a back-of-envelope budget, yes &mdash; it is a reasonable range for many roles precisely because burden usually falls somewhere inside it. What it cannot do is tell you which part of the multiplier is one-time versus recurring, whether your state's SUTA wage base and rate push you toward the top or bottom of that range, or what a specific contractor's rate would need to be to actually save money. This calculator does not replace the range with a different flat number; it itemizes FICA, capped FUTA, capped SUTA, workers' comp, PTO accrual, retirement match, health insurance, and payroll admin separately, from your own rates, and reports ongoing and year-one costs as two different figures.</p>
+<p class="note">
+  Open the <a href="./">Employee vs. Contractor Cost Calculator</a> to price your own role.
+</p>
+</section>
+<footer>
+<h2>Disclaimer</h2>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it does not determine, and is not evidence toward, whether any worker should be classified as a W-2 employee or a 1099 independent contractor. It is arithmetic on the numbers you type. Verify every rate against your own state's requirements and a qualified accountant or employment attorney before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+<p class="support">Free and open source. If it saves you a spreadsheet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
