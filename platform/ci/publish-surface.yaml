@@ -263,6 +263,9 @@ workflows:
 - workflow: cleaning-dilution-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cloud-bucket-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []

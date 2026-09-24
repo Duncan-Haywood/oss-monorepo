@@ -133,6 +133,21 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'formula with specific, identified defects. Neither page\'s worked example or conclusion duplicates the ' +
       'other\'s. Allowed at two, which still blocks a third.',
   },
+  'atm-route-margin': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added this venture\'s first generic-method page within the same ' +
+      'window, #5410\'s "vs. a spreadsheet" (an operator who already builds a per-location formula but has no ' +
+      'cell that charges vault cash a cost of capital, since that cost never arrives as a bill) and this ' +
+      'session\'s own "vs. ranking your route by transaction count" (an operator who skips the formula entirely ' +
+      'and sorts locations by withdrawal count, which cannot distinguish a profitable placement from a losing ' +
+      'one at the identical transaction count). Both landed cleanly against an overlap check that was correct ' +
+      'when it ran -- the same collision shape surface-budget.mjs\'s own docstring already describes for ' +
+      'overtime-pay-calculator, shopify-fee-calculator, sign-language-interpreter-rate-calculator and ' +
+      'apparel-decoration-price-calculator, from a fifth pair of angles: a spreadsheet formula with one specific ' +
+      'missing cost versus no formula at all. Neither page\'s worked example or conclusion duplicates the ' +
+      'other\'s. Allowed at two, which still blocks a third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */
