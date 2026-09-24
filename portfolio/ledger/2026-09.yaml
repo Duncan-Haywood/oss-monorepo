@@ -41733,3 +41733,68 @@ entries:
         session cannot reach) and none had new information to add this
         session.
     mrr_end: 0
+  - venture: actions-permissions-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED (0% meta-work share, build-now pipeline
+        empty). Checked open PRs first: #5689 (siding-bid-calculator
+        comparison page) was mid-merge-conflict with a sibling comparison
+        page that had just landed (#5691); rebased it, resolved the
+        generated-artifact conflicts with regen.mjs, and ran the starvation
+        checklist, but the PR's own originating session pushed an equivalent
+        resolution and merged first, so that work was dropped as a duplicate
+        per CLAUDE.md's "Duplicate PRs" guidance. #5679 (depop-fee-calculator)
+        merged the same way shortly after, on its own.
+      - >-
+        Picked a fresh, uncontested lane instead of re-attempting a bid-
+        calculator comparison page (the fleet's concurrent activity that
+        session was concentrated there): surface-budget.mjs listed 90
+        ventures at 0/1 generic-method comparison pages, none named in any
+        open PR. Added actions-permissions-check/vs-reading-the-workflow-
+        yaml-by-hand.html, contrasting the checker against manually auditing
+        workflow YAML for missing/write-all permissions grants -- the real
+        gap is that GitHub Actions permissions inheritance is silent (a job
+        with no permissions: key inherits the workflow's, or the repository's
+        undocumented ambient default, and no YAML file states that default),
+        which makes an exhaustive multi-job, multi-file manual audit
+        unreliable in a way a mechanical scan is not.
+      - >-
+        Registered the exemption in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (compares against a manual-review habit, not this venture's existing
+        named-product page, vs-openssf-scorecard.html), linked from index.html,
+        added to sitemap.xml, and wrote a test file following the venture's
+        own vs-openssf-scorecard.test.mjs pattern (54 assertions).
+      - >-
+        Ran the full starvation checklist before merging (ci_starvation.py
+        confirmed runner_id: 0 on this PR's own checks): node --test on the
+        venture (54/54) and platform/marketing+platform/pages (1289/1289),
+        surface-budget/siblings/checklist_coverage/sync_tree_counts/
+        check_venture_regression/publish_surface all clean, score_ventures.py
+        and router/validate.py clean, gitops/tests (613 passed, 25 skipped --
+        environmental), all 27 platform/ci unittest modules plus agent_review
+        (21/21), and portfolio/ledger+scoring+router+usage+pipeline+infra
+        (446 passed). Rebased twice more against main as #5679 and #5698
+        landed mid-session; both were clean generated-artifact merges via
+        regen.mjs, no real conflicts. Merged #5699 directly (no human review
+        needed per CLAUDE.md's ship-without-review-ceremony policy).
+      - >-
+        Same session, second uncontested lane: added
+        actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html
+        (also 0/1 generic-method budget, no open PR or recent commit touching
+        it). Argues the vulnerable pattern -- a download-artifact step and
+        the run step that later executes its contents -- is two separately
+        ordinary-looking lines that can sit many steps apart in the same
+        workflow_run job, plus an unscoped download-artifact step being an
+        absence rather than a suspicious presence; neither is the kind of
+        thing a linear top-to-bottom read reliably connects or notices.
+        Same registration pattern (clauses.mjs exemption, index.html link,
+        sitemap.xml, 53-assertion test file mirroring vs-zizmor.test.mjs).
+        Both pages regenerated into the front-door mirror together.
+      - >-
+        Left the owner's decision queue untouched: every top item
+        (hetzner-ssh-key-is-a-public-key, payout-rail, funding-sponsors-live,
+        print-atelier-stripe-checkout, pages-custom-domain) is genuinely
+        owner-blocked and none had new information to add this session.
+    mrr_end: 0

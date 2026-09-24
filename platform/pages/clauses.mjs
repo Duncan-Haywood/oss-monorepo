@@ -1898,6 +1898,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
   // and already carries the "not affiliated" disclaimer.
   'actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names zizmor specifically and already carries the
+  // "not affiliated" disclaimer.
+  'actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html',
   // Compares against "reading the file by hand" -- a manual review habit
   // every developer already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
