@@ -2466,9 +2466,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # This branch only ever knew its own predecessor's number (357) until
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
+    #
+    # 359 since `claude-code-settings-check` graduated in #5751 -- a
+    # browser-local checker for a repo's `.claude/settings.json` (hooks,
+    # permissions). Static `index.html` from its first commit, same shape
+    # as the rest of this running count.
+    #
+    # 360 since `mega-backdoor-roth-calculator` graduated in #5769 -- a
+    # browser-local calculator for after-tax 401(k) mega-backdoor Roth
+    # headroom. Static `index.html` from its first commit, same shape as
+    # the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 359  # `infra/OWNER_CHECKLIST.md`'s own "N of the 359 tools" wording.
+    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
