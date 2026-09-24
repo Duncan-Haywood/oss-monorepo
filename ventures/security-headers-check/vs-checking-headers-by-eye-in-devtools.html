@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Headers Checker vs. Checking Headers by Eye in DevTools</title>
+<meta name="description" content="Browser DevTools' Network tab shows you a response's raw headers for free, no install. This free tool takes it one step further: it applies the CSP frame-ancestors/default-src fallback rules correctly and classifies the frame-protection, CSP-strength, and HSTS headers into named misconfiguration patterns -- including an X-Frame-Options: ALLOW-FROM value every current browser silently ignores. Nothing uploaded either way.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/security-headers-check/vs-checking-headers-by-eye-in-devtools.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Security Headers Checker vs. checking headers by eye in DevTools">
+<meta property="og:description" content="DevTools shows you the raw headers for free. This tool reads them for you -- applying the CSP fallback rules correctly and naming the exact pattern behind each finding, instead of leaving you to notice it yourself.">
+<meta property="og:url" content="https://example.invalid/security-headers-check/vs-checking-headers-by-eye-in-devtools.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this tool instead of DevTools?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Different jobs, and most people who use this tool also still open DevTools. The Network tab's Headers panel shows you the raw response headers for a request you've already made in your browser -- free, already installed, and often the fastest way to check one page you're looking at anyway. It does not tell you which of those headers, read together, form a well-documented weakness: whether an X-Frame-Options: ALLOW-FROM value is silently ignored by every current browser, or whether a CSP's frame-ancestors is missing because default-src alone does not cover it. This tool reads the same headers DevTools would show you and names the specific, well-documented pattern -- so you don't have to already know the CSP fallback rules to notice the problem." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why would I need more than DevTools if I already know what to look for?",
+      "acceptedAnswer": { "@type": "Answer", "text": "If you already know that frame-ancestors doesn't inherit from default-src the way script-src does, that ALLOW-FROM is dead in every current browser, and that unsafe-inline is only a real gap when nothing overrides it, DevTools plus your own judgement is enough. This tool exists for the times you don't want to re-derive those rules from memory on every response, or when you want the same checks wired into your own CI as a non-zero exit code, which DevTools' UI cannot do -- it has no CLI and nothing to script against." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool see anything DevTools can't?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No -- it sees the same response headers DevTools already shows you, and nothing more. The difference is entirely in the reading: this tool applies the frame-protection, CSP-strength, and HSTS checks the same way every time, whether or not you remember the fallback rules, and it can run from a terminal or a CI job where opening a browser and clicking through the Network tab isn't practical." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my target URL or its response headers uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The CLI's request goes directly from your machine to the URL you name, exactly like the request your browser already makes. The browser report viewer only parses JSON you paste into it yourself, locally in your browser -- nothing about the target, the headers, or the report is sent anywhere. The only thing stored is an anonymous local count of which features were used, with no target URLs or header values in it." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
+  a { overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0.3rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.87rem; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; overflow-wrap: anywhere; }
+  .note, footer { font-size: 0.86rem; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Security Headers Checker</a></p>
+<h1>This checker vs. checking headers by eye in DevTools</h1>
+<p>
+  <strong>Browser DevTools</strong> -- the Network tab's Headers panel -- shows the raw response
+  headers for a request you've already made, for free, with nothing to install. It is a fine first
+  look at what a server actually sent, and for a page you're already inspecting it is often the
+  fastest option there is. What it does not do is apply the fallback rules that decide whether those
+  headers actually protect anything: that a CSP <code>frame-ancestors</code> directive does
+  <strong>not</strong> inherit from <code>default-src</code> the way <code>script-src</code> does, so
+  a policy of <code>default-src 'self'</code> alone gives zero clickjacking protection, or that an
+  <code>X-Frame-Options: ALLOW-FROM</code> value looks like frame protection in the panel and is
+  silently ignored by every current browser engine. Reading raw headers in a panel and knowing which
+  combinations quietly fail are two different skills.
+</p>
+<p>
+  <strong>This tool</strong> sends one request to a URL you name and classifies the response's
+  frame-protection, CSP-strength, and HSTS headers into named patterns -- missing clickjacking
+  protection, the dead <code>ALLOW-FROM</code> value, a CSP <code>script-src</code> allowing
+  <code>'unsafe-inline'</code> with nothing overriding it, a wildcard script source, CSP shipped only
+  as report-only, and a missing <code>Strict-Transport-Security</code> header -- stating in plain
+  English which header proves each one. It does not replace DevTools -- for a page open in your
+  browser right now, the Network tab is still the quickest way to glance at a response. It automates
+  the fallback-rule reasoning a person would otherwise have to redo by eye, every time, and it runs
+  from a terminal or CI job where clicking through a Network tab isn't practical.
+</p>
+<table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>I have a page open in my browser and want a quick look at its response headers.</td>
+      <td>DevTools' Network tab -- that quick raw look is exactly its job.</td>
+    </tr>
+    <tr>
+      <td>I want to know whether frame-protection and CSP headers actually protect against clickjacking, applying the correct fallback rules.</td>
+      <td>This checker -- <code>frame-ancestors</code> does not inherit from <code>default-src</code>; a naive read of the panel can miss that.</td>
+    </tr>
+    <tr>
+      <td>I want to know whether an <code>X-Frame-Options: ALLOW-FROM</code> value I can see in the panel is actually doing anything.</td>
+      <td>This checker -- names it as ignored by every current major browser instead of leaving you to look that up.</td>
+    </tr>
+    <tr>
+      <td>I want this checked automatically on every deploy, with a non-zero exit code on a real problem.</td>
+      <td>This checker's CLI -- <code>node check.mjs &lt;url&gt; --json</code> exits non-zero on a danger-severity finding. DevTools has no CLI to wire into CI.</td>
+    </tr>
+    <tr>
+      <td>I'd rather not re-derive the CSP fallback rules from memory to read a headers panel myself.</td>
+      <td>This checker -- paste the CLI's JSON into the browser report and get the plain-English findings without already knowing the rules.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Neither tool replaces the other, and in practice most people use both: DevTools for a fast raw
+  look at one response you're already looking at, this tool for the recurring, automatable question
+  of whether that response's frame-protection, CSP, and HSTS headers actually do what they look like
+  they do.
+</p>
+<div class="card">
+  <h2>Try it</h2>
+  <pre class="cmd"><code>node check.mjs https://example.com --json</code></pre>
+  <p class="note">One request to the URL you name, the same kind your browser already sends. Paste the JSON into <a href="index.html">the checker</a> for the plain-English report.</p>
+</div>
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Should I use this tool instead of DevTools?</h3>
+  <p>Different jobs, and most people who use this tool also still open DevTools. The Network tab's Headers panel shows you the raw response headers for a request you've already made in your browser -- free, already installed, and often the fastest way to check one page you're looking at anyway. It does not tell you which of those headers, read together, form a well-documented weakness: whether an X-Frame-Options: ALLOW-FROM value is silently ignored by every current browser, or whether a CSP's frame-ancestors is missing because default-src alone does not cover it. This tool reads the same headers DevTools would show you and names the specific, well-documented pattern -- so you don't have to already know the CSP fallback rules to notice the problem.</p>
+  <h3>Why would I need more than DevTools if I already know what to look for?</h3>
+  <p>If you already know that frame-ancestors doesn't inherit from default-src the way script-src does, that ALLOW-FROM is dead in every current browser, and that unsafe-inline is only a real gap when nothing overrides it, DevTools plus your own judgement is enough. This tool exists for the times you don't want to re-derive those rules from memory on every response, or when you want the same checks wired into your own CI as a non-zero exit code, which DevTools' UI cannot do -- it has no CLI and nothing to script against.</p>
+  <h3>Does this tool see anything DevTools can't?</h3>
+  <p>No -- it sees the same response headers DevTools already shows you, and nothing more. The difference is entirely in the reading: this tool applies the frame-protection, CSP-strength, and HSTS checks the same way every time, whether or not you remember the fallback rules, and it can run from a terminal or a CI job where opening a browser and clicking through the Network tab isn't practical.</p>
+  <h3>Is my target URL or its response headers uploaded anywhere?</h3>
+  <p>No. The CLI's request goes directly from your machine to the URL you name, exactly like the request your browser already makes. The browser report viewer only parses JSON you paste into it yourself, locally in your browser -- nothing about the target, the headers, or the report is sent anywhere. The only thing stored is an anonymous local count of which features were used, with no target URLs or header values in it.</p>
+  <p class="note">Want a hosted, single-grade outside read instead? See <a href="vs-securityheaders.html">this checker vs. Security Headers (securityheaders.com)</a>.</p>
+</section>
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of
+  frame-protection, CSP-strength, and HSTS patterns from one response. It is not a full security
+  assessment and cannot see a pattern it doesn't check for.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's request goes straight from your
+  machine to the URL you name, exactly like a request your browser would send -- never through this
+  site. This page only parses JSON you paste into it locally.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
