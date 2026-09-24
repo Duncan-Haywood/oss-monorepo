@@ -317,6 +317,7 @@ configMapGenerator:
       - vs__flat-rate-per-square-foot.html.gz=front-door/vs__flat-rate-per-square-foot.html.gz
       - vs__gitleaks.html.gz=front-door/vs__gitleaks.html.gz
       - vs__doing-it-by-hand.html.gz=front-door/vs__doing-it-by-hand.html.gz
+      - vs__doing-it-in-a-spreadsheet.html.gz=front-door/vs__doing-it-in-a-spreadsheet.html.gz
       - vs__tracking-payouts-in-a-spreadsheet.html.gz=front-door/vs__tracking-payouts-in-a-spreadsheet.html.gz
       - vs__tracking-it-in-a-spreadsheet.html.gz=front-door/vs__tracking-it-in-a-spreadsheet.html.gz
       - vs__flat-day-rate.html.gz=front-door/vs__flat-day-rate.html.gz
