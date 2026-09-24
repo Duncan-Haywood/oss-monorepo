@@ -1,0 +1,95 @@
+name: slopsquatting-check
+description: 'Free checker that flags an npm dependency name that looks like a hallucinated or typosquatted variant of a well-known package -- the pattern behind slopsquatting, where an attacker pre-registers a name that AI code-generation models are known to hallucinate. The browser page runs a fully offline heuristic against a bundled list of well-known names, no network call of any kind; the companion CLI makes one read-only request per dependency to the public npm registry to check whether the name exists at all and, if it does, whether it was published suspiciously recently with almost no version history. Browser or zero-dependency CLI, no account.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as
+# dependency-confusion-check, npm-lifecycle-script-check, and
+# vscode-extension-drift-check -- a direct, obvious, low-risk dev-tool idea
+# tied to a well-documented, dated attack class rather than a
+# pipeline-candidate write-up.
+#
+# duplicate_check.py scored every existing venture, screened-out.md row, and
+# ai-first-markets idea below 0.15 for "Free CLI and browser checker that
+# reads a package.json's dependencies and checks each one against the
+# public npm registry to flag names that do not exist at all (a hallucinated
+# package name an AI coding assistant suggested, which an attacker can
+# register later in a slopsquatting attack) or that were only very recently
+# published with almost no versions (a freshly-squatted look-alike name)" --
+# well below the 0.45 flag bar. Closest match: npm-lifecycle-script-check
+# (0.12), which diffs lockfile snapshots for install-time scripts, a
+# different mechanism and a different artifact (installed script text, not
+# registry existence/recency). Confirmed 2026-09-24, not restated from an
+# earlier session.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high, but this venture is NOT the fully-offline, zero-network-call
+# shape most of this venture family uses (dependency-confusion-check,
+# npm-lifecycle-script-check) -- its entire value depends on checking
+# whether a name exists on a public registry, which cannot be answered
+# without asking the registry. Precedent for this exact trade-off already
+# exists in this portfolio: vscode-extension-drift-check's `check`
+# subcommand makes a live, read-only lookup against the public VS Code
+# Marketplace API, and keeps it CLI-only rather than adding it to the
+# browser page. This venture follows the identical split: the browser page
+# (index.html) makes zero network calls of any kind and only runs an
+# offline near-miss heuristic against a bundled list of well-known package
+# names; the live registry check is CLI-only and documented as "the only
+# part of this tool that touches the network" in both the CLI's own --help
+# and the page's copy. The CLI sends only a dependency's bare name to
+# registry.npmjs.org -- the same public, unauthenticated endpoint
+# `npm install` itself queries -- never the rest of the manifest, never
+# code, never an API key. No advice-of-record beyond "verify this before
+# trusting it"; findings are informational, not a verdict a reader could
+# mistake for a compliance or legal claim.
+#
+# Distribution channel this was picked for: not "searchable, like the other
+# 141 <trade>-bid-calculators" -- real, dated, event-driven demand,
+# independently verified 2026-09-24 via two live fetches (not restated from
+# a prior session's summary): Wikipedia's "Slopsquatting" article, citing a
+# May 2025 USENIX Security study ("We Have a Package for You! A
+# Comprehensive Analysis of Package Hallucinations by Code Generating
+# LLMs") that found 19.7% of packages recommended by 16 code-generating
+# models did not exist at all (21.7% for open-source models, 5.2% for
+# proprietary ones), and a live fetch of The Hacker News' write-up of the
+# PhantomRaven campaign (100+ malicious npm packages distributed via
+# slopsquatting and typosquatting, flagged October 2025 by Koi Security and
+# DCODX). Three sustained Hacker News threads across 2025 discuss the
+# mechanism directly. The audience: any developer using an AI coding
+# assistant for JavaScript/Node work -- effectively the whole npm
+# ecosystem -- and anyone searching "slopsquatting", "AI hallucinated
+# package", or "npm package doesn't exist" in the aftermath of press
+# coverage of PhantomRaven or the USENIX study.
+hypotheses:
+  - claim: A developer who has read about slopsquatting, PhantomRaven, or the USENIX hallucination study will paste a package.json here or run the CLI to check whether a name an AI assistant just suggested is real and looks trustworthy.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire cli.mjs into CI (optionally with --strict) to block a newly-added dependency that does not exist on the registry, or that looks freshly squatted, before it reaches a lockfile.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser page parses only text pasted
+  # into it, in the visitor's own browser, with no network call of any
+  # kind. The CLI's only network use is one small, free, unauthenticated
+  # GET request per dependency to the public npm registry -- no paid API,
+  # no account, no per-user cost.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/
+  analytics: null
