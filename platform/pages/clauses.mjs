@@ -1365,6 +1365,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the "not affiliated" clause for that reason. Same
   // reasoning as the other vs-checking-*-by-hand/by-eye pages above.
   'slopsquatting-check/vs-checking-package-names-by-eye.html',
+  // Compares against tracking a hood-cleaning bid in a spreadsheet -- the
+  // generic method, not a company or product this could be mistaken for.
+  // The page names no vendor or competing calculator at all -- distinct
+  // from this venture's own vs-hoodcleanpro.html and
+  // vs-hoodcleaningdispatch.html, which do name products and carry their
+  // own "not affiliated" clauses.
+  'hood-cleaning-bid-calculator/vs-tracking-it-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
