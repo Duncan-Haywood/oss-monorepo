@@ -42927,3 +42927,64 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: facebook-marketplace-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator pricing a Facebook
+        Marketplace sale against the current, corroborated fee schedule --
+        10% of the buyer-paid total on a shipped checkout order with an
+        $0.80 minimum fee, $0 for local pickup, and the flat $20 dispute
+        penalty a disputed shipped order can carry. Screened per
+        portfolio/pipeline/README.md: duplicate_check.py top match 0.25
+        (ebay-fee-calculator), well under the 0.45 bar -- no existing
+        venture prices Facebook Marketplace specifically, though several
+        (depop-fee-calculator, mercari-fee-calculator,
+        poshmark-fee-calculator) share the resale-marketplace-fee shape.
+        Rates corroborated via several independent web searches, which
+        also surfaced the evidence this niche is worth building: the fee
+        has changed more than once in the last two years and multiple
+        independent third-party blogs/calculators already rank for this
+        exact question with inconsistent, sometimes stale rates -- real
+        search demand this tool serves more accurately and keeps current.
+      - >-
+        Filed under the existing "Marketplace seller tools" category in
+        platform/pages/build.mjs rather than letting it fall into the
+        catch-all (which build.test.mjs caps and flags once it grows past
+        5), and added a reciprocal link from depop-fee-calculator's
+        footer so the new page is not a crawlable orphan --
+        platform/pages/siblings.test.mjs budgets that at 0 and it would
+        otherwise have failed the very first CI/local run.
+      - >-
+        Caught and fixed a real defect in my own work before pushing: the
+        FAQPage JSON-LD text used straight punctuation (apostrophe,
+        double-hyphen) while the visible copy used curly/em-dash HTML
+        entities for the same sentences -- the identical em-dash/en-dash
+        mismatch bug class this CLAUDE.md section already records hitting
+        other sessions' new-venture PRs. faq-visible.test.mjs caught both
+        instances; fixed by matching punctuation exactly between the two.
+      - >-
+        Regenerated the mirrored front-door artifacts (regen.mjs) and
+        refreshed both tree-count guards (sync_tree_counts.py: mirrored
+        tools 359->360, opt-out switches 339->340, with the required
+        running-comment entries in gitops/tests/test_manifests.py and
+        platform/privacy/optout-persistence.test.mjs) and scored the
+        venture in venture-scores.yaml (composite 5.667, both gates
+        pass) before score_ventures.py --check would otherwise flag it
+        as unscored.
+      - >-
+        Opened as a PR rather than merged directly: the branch collided
+        with concurrent merges to main twice while pushing (each adding
+        another venture's mirror shard), resolved both times with
+        platform/marketing/resolve-mirror-merge.sh plus a fresh
+        regen.mjs run for the front-door.mjs-generated artifacts the
+        script does not cover, verified clean each time (full
+        platform/marketing + platform/pages suite 1289-1290/1290,
+        gitops/tests 637/1, checklist_coverage.py, sync_tree_counts.py,
+        score_ventures.py --check, validate_doc_consistency.py, and
+        regen.mjs --verify all clean). Actions runners were starved at
+        the time (ci_starvation.py on a sibling open PR's build job:
+        runner_id: 0), so every check above was run locally per
+        CLAUDE.md's starvation checklist.
+    mrr_end: 0
