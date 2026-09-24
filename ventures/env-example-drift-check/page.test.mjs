@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { readdirSync } from "node:fs";
 import { parseExampleFile, scanSource, diffEnv, summarize } from "./engine.mjs";
 
 const DOCS_PAGE = "why-env-example-files-drift-from-the-code-that-reads-them.html";
@@ -34,6 +35,32 @@ test("index carries the sponsor link", async () => {
 test("index states nothing is uploaded (privacy line)", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /never uploaded|never leaves your device/i);
+});
+
+test("index links to the generic-method comparison page", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="vs-grepping-the-codebase-by-hand\.html"/,
+    "index must link the generic-method comparison page so crawlers can reach it",
+  );
+});
+
+test("the generic-method comparison page links back to the tool and carries disclaimers", async () => {
+  const page = await readFile(new URL("./vs-grepping-the-codebase-by-hand.html", import.meta.url), "utf8");
+  assert.match(page, /href="\.\/"/);
+  assert.match(page, /no warranty/i);
+  assert.match(page, /FAQPage/);
+});
+
+test("every .html file in the venture is reachable from the sitemap", async () => {
+  const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const dir = new URL("./", import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html") continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
 });
 
 test("index links one hop to the structured-data-drift-check sibling", async () => {

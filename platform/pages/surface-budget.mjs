@@ -163,6 +163,22 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'Neither page\'s worked example or conclusion duplicates the other\'s. Allowed at two, which still blocks a ' +
       'third.',
   },
+  'menu-engineering-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added this venture\'s first generic-method page within the same ' +
+      'window, #5639\'s "vs. averaging margins in a spreadsheet" (an operator who builds a per-dish margin ' +
+      'formula but averages it unweighted, so a high-volume plate can misread as below the bar) and this ' +
+      'session\'s own "vs. ranking by food cost percentage" (an operator who never builds a margin figure at ' +
+      'all and instead sorts dishes by the one percentage every POS and recipe card already reports, which the ' +
+      'calculator\'s own shipped example ranks backwards from contribution margin). Both landed cleanly against ' +
+      'an overlap check that was correct when it ran -- the same collision shape surface-budget.mjs\'s own ' +
+      'docstring already describes for overtime-pay-calculator, shopify-fee-calculator, ' +
+      'sign-language-interpreter-rate-calculator, apparel-decoration-price-calculator, atm-route-margin and ' +
+      'fleet-repair-or-replace-planner, from a seventh pair of angles: an unweighted spreadsheet formula versus ' +
+      'no formula at all. Neither page\'s worked example or conclusion duplicates the other\'s. Allowed at two, ' +
+      'which still blocks a third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */
