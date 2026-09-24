@@ -39611,3 +39611,58 @@ entries:
         addition that touches the builder -- a full ~25 minute
         whole-catalogue run is a separate task, not this session's.
     mrr_end: 0
+  - venture: plantation-shutter-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second named-product comparison page,
+        `vs-housecall-pro.html`, alongside the existing `vs-jobber.html`.
+        Picked via `portfolio/router/allocate.py` (rank 20, merit 6.83) and
+        `platform/pages/surface-budget.mjs --for`, which showed the venture
+        at its one-page generic-method budget but with room for another
+        named-competitor page -- exactly the unbudgeted, per-distinct-product
+        angle CLAUDE.md cites `locksmith-bid-calculator` (Jobber, Workiz,
+        Housecall Pro) for. Housecall Pro is a widely searched, well-
+        documented field-service platform used across the same home-service
+        trades Jobber serves, so "plantation shutter bid calculator vs
+        Housecall Pro" and "...vs Jobber" are two distinct product-name
+        queries a shutter installer might type, not the same angle twice --
+        the visitor-source justification is organic search on that specific
+        product name, the only channel this session can honestly serve.
+        Followed the venture's own `vs-jobber.html` template exactly (same
+        structure, disclaimer, "not affiliated" FAQ, and privacy footer) and
+        the sibling `vs-housecall-pro.html` pages already shipped for
+        `security-camera-bid-calculator` and others for the Housecall Pro
+        facts, so no new pattern was invented. No usage-tracking call is
+        added to this static comparison page because none of the venture's
+        existing `vs-*`/guide pages call `usage.mjs` either -- only the
+        interactive `index.html` does, which this page links back to.
+        Added the page to the venture's own `sitemap.xml` (which
+        `platform/pages/venture-sitemap-coverage.test.mjs` checks) and to
+        the "See also" links on `index.html`.
+      - >-
+        Checklist run for this single-venture content change: `node
+        platform/marketing/regen.mjs --verify` reported the committed
+        front-door mirror STALE -- both for this venture's new page and for
+        41 other already-stale artifacts left behind by other sessions'
+        merges to `main` since the last regen (comparison pages for other
+        ventures, an `about.html` rebuild, catalog/sitemap/llms.txt
+        refreshes). Ran `node platform/marketing/regen.mjs` and committed
+        everything it rewrote, per CLAUDE.md's instruction to fix the root
+        cause rather than skip it; `--verify` then reported current.
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        first caught a real defect in the new page itself:
+        `faq-visible.test.mjs` failed because the new page's FAQPage JSON-LD
+        answer ("...tied to one account used on an ongoing basis across
+        every job the company runs...") diverged from the same answer's
+        visible prose ("...every job and every crew...") -- a copy-paste
+        slip between the Jobber and Housecall Pro source pages this page
+        was templated from. Fixed by making the JSON-LD match the visible
+        copy exactly, then re-ran `regen.mjs` (the fix changed the page's
+        bytes after the first regen, so the mirror needed a second pass) and
+        confirmed `--verify` clean again. Full suite then 1286/1286;
+        `node --test 'ventures/plantation-shutter-bid-calculator/**/*.test.mjs'`
+        115/115; `python3 platform/ci/checklist_coverage.py` clean (venture
+        glob still reaches all 1998 venture test files).
+    mrr_end: 0

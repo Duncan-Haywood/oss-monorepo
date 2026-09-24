@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 118 files, 554503 bytes
 #   portfolio-front-tools-12: 120 files, 556014 bytes
 #   portfolio-front-tools-13: 131 files, 548333 bytes
-#   portfolio-front-tools-14: 132 files, 549862 bytes
+#   portfolio-front-tools-14: 133 files, 553694 bytes
 #   portfolio-front-tools-15: 103 files, 551556 bytes
 #   portfolio-front-tools-16: 113 files, 541120 bytes
 #   portfolio-front-tools-17: 126 files, 550560 bytes
@@ -1935,6 +1935,7 @@ configMapGenerator:
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
       - plantation-shutter-bid-calculator__usage.mjs.gz=plantation-shutter-bid-calculator__usage.mjs.gz
       - plantation-shutter-bid-calculator__vs-a-flat-per-window-special.html.gz=plantation-shutter-bid-calculator__vs-a-flat-per-window-special.html.gz
+      - plantation-shutter-bid-calculator__vs-housecall-pro.html.gz=plantation-shutter-bid-calculator__vs-housecall-pro.html.gz
       - plantation-shutter-bid-calculator__vs-jobber.html.gz=plantation-shutter-bid-calculator__vs-jobber.html.gz
       - podcast-feed-check__check.mjs.gz=podcast-feed-check__check.mjs.gz
       - podcast-feed-check__engine.mjs.gz=podcast-feed-check__engine.mjs.gz
