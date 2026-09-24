@@ -473,7 +473,14 @@ const CATEGORY_RULES = [
     // still run — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a
     // marketplace keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop)/.test(slug),
+    // `facebook-marketplace-fee-calculator` is the same single-channel
+    // fee-schedule shape as `depop` and `mercari` above — a shipped-vs-local
+    // split with a minimum-fee floor on one storefront — and its slug
+    // starts with the storefront name plus "-marketplace-fee", which the
+    // bare `marketplace-fee-compare` alternative does not prefix-match, so
+    // it would otherwise sit in the catch-all for the same reason those two
+    // did.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
@@ -1254,7 +1261,15 @@ const CATEGORY_RULES = [
       // the same season, and all three disagree on married-filing-separately
       // treatment in ways worth a reader hitting explicitly rather than
       // assuming one rule generalizes to the others.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|mega-backdoor-roth-calculator|senior-deduction-calculator)/.test(slug),
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, concurrently --
+      // the same "personal-finance tax arithmetic against a published,
+      // dated federal limit table" axis as `senior-deduction-calculator`
+      // and `auto-loan-interest-deduction-calculator` right above it, just
+      // an after-tax 401(k)/IRS 415(c) headroom lookup rather than a
+      // deduction. Its slug names neither a bid, a fee, nor an OBBBA
+      // deduction, so no keyword above would have caught it and it would
+      // otherwise have swollen the catch-all past its bound of 5.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator)/.test(slug),
   },
   {
     id: 'ci',

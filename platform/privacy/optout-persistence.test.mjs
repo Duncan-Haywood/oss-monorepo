@@ -761,22 +761,35 @@ const RELATIVE_SELF = relative(
 // transition independently, one landing on 341 (only seeing
 // claude-skill-scaffold-generator) and the other on 341 by a different path
 // (only seeing claude-code-subagent-check) -- neither could see the other's
-// addition. All three additions are real, so the merged count is 342.
+// addition. All three additions are real.
 //
-// 342 -> 343: `npm-provenance-check` also graduated, on a sixth
-// concurrent branch that only ever knew its own predecessor's number
-// (339) -- adding one more `usage.mjs`
-// (`ventures/npm-provenance-check/usage.mjs`) following the same
-// opt-out pattern as its dev-tool-checker siblings
+// 342 -> 343: `facebook-marketplace-fee-calculator` also graduated -- adding
+// one more `usage.mjs`
+// (`ventures/facebook-marketplace-fee-calculator/usage.mjs`) following the
+// same opt-out pattern as its resale-marketplace siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `facebook-marketplace-fee-calculator-usage` storage name), no deletions.
+// This branch only ever knew its own predecessor's number (341, from its
+// own earlier merge of `senior-deduction-calculator`) until this merge
+// revealed two further concurrent graduations
+// (`claude-skill-scaffold-generator`, `claude-code-subagent-check`) it had
+// never observed -- the same ordinary collision shape recorded throughout
+// this list, one merge later. `senior-deduction-calculator` was
+// independently recorded again by a fourth concurrent session at this same
+// 343; the addition is the same one already counted above, not a second.
+//
+// 343 -> 344: `caa-record-check` also graduated, concurrently on `main` --
+// adding one more `usage.mjs` (`ventures/caa-record-check/usage.mjs`), no
+// deletions.
+// Re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
+//
+// 344 -> 345: `npm-provenance-check` also graduated, adding one more
+// `usage.mjs` (`ventures/npm-provenance-check/usage.mjs`) following the
+// same opt-out pattern as its dev-tool-checker siblings
 // (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
 // `npm-provenance-check-usage` storage name), no deletions.
-//
-// 343 -> 344: `caa-record-check` also graduated, concurrently on
-// `main` -- adding one more `usage.mjs` (`ventures/caa-record-check/usage.mjs`),
-// its own recordUsage(storage, optedOut, event) shape honouring Do Not
-// Track / Global Privacy Control, keyed under its own
-// `caa-record-check-usage` storage name, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 344;
+const SWITCHES_IN_THE_CATALOGUE = 345;
 
 let counter = 0;
 function fixture(source) {

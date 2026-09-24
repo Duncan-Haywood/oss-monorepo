@@ -2524,26 +2524,41 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # each recorded their own half of this transition independently, one
     # only seeing claude-skill-scaffold-generator and the other only
     # seeing claude-code-subagent-check -- neither could see the other's
-    # addition. All four additions above are real, so the merged total is
-    # 363.
+    # addition. All four additions above are real.
     #
-    # 364 on this merge: `npm-provenance-check` also graduated, on a fifth
-    # concurrent branch that only ever knew its own predecessor's number
-    # (360) -- a browser/CLI checker reporting which packages in a pasted
-    # lockfile carry an npm provenance attestation (trusted publishing /
-    # --provenance), static index.html plus a
-    # why-not-just-npm-audit-signatures.html docs page, both from their
+    # 364 on this later merge: `facebook-marketplace-fee-calculator` also
+    # graduated -- a browser-local calculator that prices a Facebook
+    # Marketplace sale against the current shipped-checkout 10% fee (with
+    # an $0.80 minimum) vs. the $0 local-pickup fee, plus the flat $20
+    # dispute penalty. Static `index.html` and a
+    # `vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html`
+    # comparison page, both from their first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (362, from its own earlier merges of
+    # `mega-backdoor-roth-calculator` and `senior-deduction-calculator`)
+    # until this merge revealed two further concurrent graduations
+    # (`claude-skill-scaffold-generator`, `claude-code-subagent-check`) it
+    # had never observed -- the same ordinary collision shape recorded
+    # throughout this list, one merge later. `senior-deduction-calculator`
+    # was independently recorded again by a fourth concurrent session at
+    # this same 364; the addition is the same one already counted above,
+    # not a fifth.
+    #
+    # 365 on this later merge: `caa-record-check` also graduated,
+    # concurrently on `main` -- a browser checker for CAA (Certification
+    # Authority Authorization) DNS records, static `index.html` from its
     # first commit, same shape as the rest of this running count.
     #
-    # 365 on this merge: `caa-record-check` also graduated, concurrently
-    # on `main` -- a browser-local checker verifying whether a CAA DNS
-    # record actually authorizes a given certificate authority to issue
-    # for a domain, reading the record's own flags and tag grammar rather
-    # than guessing from the issuer string alone. Static `index.html` from
-    # its first commit, same shape as the rest of this running count.
+    # 366 on this merge: `npm-provenance-check` also graduated, on a
+    # branch that only ever knew its own predecessor's number (360) until
+    # this merge -- a browser/CLI checker reporting which packages in a
+    # pasted lockfile carry an npm provenance attestation (trusted
+    # publishing / --provenance), static index.html plus a
+    # why-not-just-npm-audit-signatures.html docs page, both from their
+    # first commit, same shape as the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 365  # `infra/OWNER_CHECKLIST.md`'s own "N of the 365 tools" wording.
+    total = 366  # `infra/OWNER_CHECKLIST.md`'s own "N of the 366 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
