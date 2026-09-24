@@ -1273,6 +1273,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // generic-method pages above.
   'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "planning cuts by hand" -- a manual layout habit every
+  // woodworking or sign shop already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-opticutter-and-cutlist-optimizer.html, which names two specific
+  // hosted services and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other generic-method pages above.
+  'cut-list-optimizer/vs-planning-cuts-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
