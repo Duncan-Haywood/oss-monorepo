@@ -2466,9 +2466,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # This branch only ever knew its own predecessor's number (357) until
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
+    # mega-backdoor-roth-calculator graduated 2026-09-24: a browser
+    # calculator computing after-tax 401(k) headroom under the IRS 415(c)
+    # limit, static index.html plus a
+    # which-conversion-cadence-should-i-use.html guide page, both from
+    # their first commit. 359 -> 360.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 359  # `infra/OWNER_CHECKLIST.md`'s own "N of the 359 tools" wording.
+    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
