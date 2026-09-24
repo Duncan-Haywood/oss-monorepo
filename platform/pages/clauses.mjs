@@ -1060,6 +1060,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "clicking through your own cloud provider's console
+  // by hand" -- a manual habit every bucket owner already has, not a
+  // company or product this could be mistaken for. The page's own first
+  // paragraph says so explicitly ("names no specific company or
+  // product"), same reasoning as branch-protection-drift-check's and
+  // supabase-rls-check's own-console exemptions above.
+  'cloud-bucket-exposure-check/vs-manually-checking-in-the-cloud-console.html',
   // Compares against "pasting an introspection query into GraphiQL, Postman,
   // or curl" -- a generic manual habit every GraphQL developer already has
   // (every server ships a playground that runs the identical query), not a
@@ -1222,6 +1229,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "ranking route locations by withdrawal count" -- a
+  // habit every ATM route operator already has from a monthly transaction
+  // report, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-atm-depot.html, which names a specific
+  // equipment/processing vendor and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other generic-method pages
+  // above.
+  'atm-route-margin/vs-ranking-by-transaction-count.html',
   // Compares against "running dig by hand" -- a manual DNS lookup habit
   // every developer and admin already has, not a company or product this
   // could be mistaken for. Distinct from this venture's own
@@ -1265,6 +1280,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // generic-method pages above.
   'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "planning cuts by hand" -- a manual layout habit every
+  // woodworking or sign shop already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-opticutter-and-cutlist-optimizer.html, which names two specific
+  // hosted services and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other generic-method pages above.
+  'cut-list-optimizer/vs-planning-cuts-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
