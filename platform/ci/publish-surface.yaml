@@ -1028,6 +1028,9 @@ workflows:
 - workflow: sitemap-lastmod-freshness-check-ci.yml
   classification: none
   publishes: []
+- workflow: skill-manifest-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: skylight-install-bid-calculator-ci.yml
   classification: none
   publishes: []
