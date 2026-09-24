@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. ranking by food cost percentage | Menu Engineering Calculator</title>
+<meta name="description" content="Most menus get judged dish by dish on food cost percentage. This free, private, no-account calculator sorts the whole menu into stars, plowhorses, puzzles and dogs by contribution margin and popularity instead. On the shipped four-dish example, food cost percentage ranks a $20.00-margin ribeye worst on the menu and gives no signal at all on the plate a price move is actually worth acting on.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-ranking-by-food-cost-percent.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. ranking by food cost percentage">
+<meta property="og:description" content="Two ways to read a menu: sorting dishes by food cost percentage, or classifying them by contribution margin and popularity. On the shipped example the percentage ranks the highest-margin plate on the menu as the worst performer.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/vs-ranking-by-food-cost-percent.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just rank the menu by food cost percentage?","acceptedAnswer":{"@type":"Answer","text":"Because food cost percentage and contribution margin rank a menu in a different order, and only contribution margin is the dollar amount that pays rent. On this calculator's own shipped four-dish example, a ribeye priced at $34.00 against a $14.00 plate cost runs 41.2% food cost; a house salad priced at $16.00 against a $3.00 plate cost runs 18.8%. Ranked by the lower percentage, the salad looks like the better dish and the ribeye looks like the worst one on the menu. Ranked by contribution margin, the ribeye contributes $20.00 a plate and the salad contributes $13.00 -- the ribeye is the higher-margin item, and food cost percentage ranked it backwards."}},{"@type":"Question","name":"How much does it actually change on a real menu?","acceptedAnswer":{"@type":"Answer","text":"On the calculator's shipped four-dish example, ranking by food cost percentage alone (lowest to highest) puts the house salad first at 18.8%, the smash burger second at 35.7%, the soup of the day third at 37.5%, and the ribeye last at 41.2% -- worst on the menu by that measure. This calculator's matrix classifies the ribeye as a puzzle instead: at $20.00 a plate its contribution margin is nearly double the menu's $10.90 weighted-average, and the only thing working against it is that it sells at 10% of covers against a 17.5% popularity bar -- it does not need a lower food cost, it needs more covers. The percentage ranking also buries the one dish the matrix flags as worth acting on: the smash burger sits mid-table on food cost percentage (35.7%) but is the plowhorse, 50% of covers at a below-average $9.00 margin, the only item on this menu where a price move lands on enough plates to matter. A $1.00 increase on the smash burger alone is worth $500 over the four weeks entered, or about $6,500 a year -- a number the percentage ranking never surfaces, because nothing about the burger's own percentage stands out from the rest of the menu."}},{"@type":"Question","name":"Doesn't a low food cost percentage still matter?","acceptedAnswer":{"@type":"Answer","text":"Yes -- it is one of the numbers a kitchen should watch, just not the only one a dish should be judged by. On its own it answers how much of one plate's own price is food cost, not how many dollars the dish contributed or whether enough people ordered it. This calculator still reports every dish's food cost percentage, plus the menu's overall food cost percentage against a target you set -- it is one column on the results table, not a number this tool throws away. What changes is that it stops being the only column a dish gets judged by."}},{"@type":"Question","name":"What does the price-increase figure actually show?","acceptedAnswer":{"@type":"Answer","text":"It sizes one specific move: raising price by a stated amount on every dish the matrix classifies as a plowhorse (sells well, contributes below the menu's weighted-average margin), assuming the same number of people order it at the new price. On the shipped four-dish example the only plowhorse is the smash burger, and a $1.00 increase across its 500 units sold over the four weeks entered is worth $500 in that period, or about $6,500 annualized. Food cost percentage ranking has no equivalent figure, because it never singles out which dish a price move would pay off on the most covers."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests for either approach. Ranking by food cost percentage is arithmetic you can already do on a spreadsheet or by hand from your own sales report. This calculator's matrix runs the same way -- entirely in your browser, on this device, with nothing about your dish names, plate costs, menu prices or cover counts sent or stored anywhere else."}},{"@type":"Question","name":"Is this accounting or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the plate costs, menu prices and units sold you type in. It has no opinion on what to charge, what to cut or how to lay out a menu -- check its output against your own records, your POS reports, and a qualified professional before acting on anything here."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1ec; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1a5c3d; overflow-wrap: anywhere; }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f6b47; margin: 0 0 6px; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #55645c; }
+  section { background: #fbfdfa; border: 1px solid #c9d6cd; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #10251b0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d6cd; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55645c; }
+  .fine, .note { font-size: .88rem; color: #55645c; }
+  footer { color: #55645c; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Menu Engineering Calculator</a></p>
+<header>
+<h1>This calculator vs. ranking by food cost percentage</h1>
+<p class="lede">Food cost percentage is the number restaurants already track on every dish. This page is about what changes when a menu gets sorted by contribution margin and popularity instead &mdash; the matrix this calculator runs.</p>
+</header>
+<section>
+<h2>What each approach is</h2>
+<p>
+  <strong>Ranking by food cost percentage</strong> means reading down a menu
+  or a POS report and judging each dish by ingredient cost divided by menu
+  price &mdash; the number most kitchens already track, dish by dish, without
+  a separate tool. It costs nothing and needs no extra data, and it is the
+  default nearly every operator starts from, because it is the number
+  suppliers, POS systems and recipe cards already report.
+</p>
+<p>
+  <strong>This calculator</strong> takes the same three numbers a food-cost
+  read already needs &mdash; plate food cost, menu price and units sold over a
+  period &mdash; and crosses two different axes: contribution margin in
+  dollars against the menu's own weighted-average, and popularity against a
+  70% share-of-equal-sales bar. It runs once, in the browser, on nothing that
+  leaves the device, and it sorts every dish into a star, plowhorse, puzzle or
+  dog instead of a single percentage.
+</p>
+<p>
+  The gap is not rounding error. On this calculator's own shipped four-dish
+  example, ranking by food cost percentage puts a $34.00 ribeye last on the
+  menu at 41.2% &mdash; the worst dish by that measure. The matrix classifies
+  the same ribeye as a puzzle: at <strong>$20.00</strong> a plate, its
+  contribution margin is nearly double the menu's <strong>$10.90</strong>
+  weighted average. It is not overpriced on ingredients; it simply is not
+  selling enough, at 10% of covers against a 17.5% popularity bar. The
+  percentage ranking also has nothing to say about the smash burger, which
+  sits mid-table at 35.7% food cost but is the plowhorse doing half the
+  menu's volume at a below-average margin &mdash; the one dish where a price
+  move pays off on the most plates. A $1.00 increase there alone is worth
+  <strong>$500</strong> over the four weeks entered, or about
+  <strong>$6,500</strong> a year, a number the percentage ranking never
+  surfaces because nothing about that dish's own percentage stands out.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Which dish has the lowest food cost percentage?</td><td>The ranking &mdash; free, and already what most kitchens track dish by dish.</td></tr>
+<tr><td>Which dishes are actually carrying this menu in dollars, and which are being carried?</td><td>This calculator &mdash; free, instant, private, no account, no upload.</td></tr>
+<tr><td>Is the dish with the worst food cost percentage actually the problem?</td><td>Run the same menu through this calculator and compare the two readings directly.</td></tr>
+<tr><td>Which dish is a price increase actually worth acting on?</td><td>This calculator's plowhorse figure &mdash; on the shipped example, not the dish with the worst percentage.</td></tr>
+<tr><td>How does the math behind the matrix actually work?</td><td>This calculator's own <a href="./how-menu-engineering-works.html">worked explanation</a>.</td></tr>
+<tr><td>Do I need to create an account, upload sales data, or sign up?</td><td>No, for either approach &mdash; the percentage ranking needs nothing and neither does this calculator.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Food cost percentage is not a bad number so much as an incomplete one:
+  useful for pricing a single dish, misleading when it is asked to rank a
+  whole menu against itself. This calculator does not throw the percentage
+  away &mdash; it still reports it, per dish and overall &mdash; it just stops
+  treating it as the only column a dish gets judged by.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why not just rank the menu by food cost percentage?</h3>
+<p>Because food cost percentage and contribution margin rank a menu in a different order, and only contribution margin is the dollar amount that pays rent. On this calculator's own shipped four-dish example, a ribeye priced at $34.00 against a $14.00 plate cost runs 41.2% food cost; a house salad priced at $16.00 against a $3.00 plate cost runs 18.8%. Ranked by the lower percentage, the salad looks like the better dish and the ribeye looks like the worst one on the menu. Ranked by contribution margin, the ribeye contributes $20.00 a plate and the salad contributes $13.00 -- the ribeye is the higher-margin item, and food cost percentage ranked it backwards.</p>
+<h3>How much does it actually change on a real menu?</h3>
+<p>On the calculator's shipped four-dish example, ranking by food cost percentage alone (lowest to highest) puts the house salad first at 18.8%, the smash burger second at 35.7%, the soup of the day third at 37.5%, and the ribeye last at 41.2% -- worst on the menu by that measure. This calculator's matrix classifies the ribeye as a puzzle instead: at $20.00 a plate its contribution margin is nearly double the menu's $10.90 weighted-average, and the only thing working against it is that it sells at 10% of covers against a 17.5% popularity bar -- it does not need a lower food cost, it needs more covers. The percentage ranking also buries the one dish the matrix flags as worth acting on: the smash burger sits mid-table on food cost percentage (35.7%) but is the plowhorse, 50% of covers at a below-average $9.00 margin, the only item on this menu where a price move lands on enough plates to matter. A $1.00 increase on the smash burger alone is worth $500 over the four weeks entered, or about $6,500 a year -- a number the percentage ranking never surfaces, because nothing about the burger's own percentage stands out from the rest of the menu.</p>
+<h3>Doesn't a low food cost percentage still matter?</h3>
+<p>Yes -- it is one of the numbers a kitchen should watch, just not the only one a dish should be judged by. On its own it answers how much of one plate's own price is food cost, not how many dollars the dish contributed or whether enough people ordered it. This calculator still reports every dish's food cost percentage, plus the menu's overall food cost percentage against a target you set -- it is one column on the results table, not a number this tool throws away. What changes is that it stops being the only column a dish gets judged by.</p>
+<h3>What does the price-increase figure actually show?</h3>
+<p>It sizes one specific move: raising price by a stated amount on every dish the matrix classifies as a plowhorse (sells well, contributes below the menu's weighted-average margin), assuming the same number of people order it at the new price. On the shipped four-dish example the only plowhorse is the smash burger, and a $1.00 increase across its 500 units sold over the four weeks entered is worth $500 in that period, or about $6,500 annualized. Food cost percentage ranking has no equivalent figure, because it never singles out which dish a price move would pay off on the most covers.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No account and no network requests for either approach. Ranking by food cost percentage is arithmetic you can already do on a spreadsheet or by hand from your own sales report. This calculator's matrix runs the same way -- entirely in your browser, on this device, with nothing about your dish names, plate costs, menu prices or cover counts sent or stored anywhere else.</p>
+<h3>Is this accounting or business advice?</h3>
+<p>No. It is arithmetic on the plate costs, menu prices and units sold you type in. It has no opinion on what to charge, what to cut or how to lay out a menu -- check its output against your own records, your POS reports, and a qualified professional before acting on anything here.</p>
+<p class="note">
+  Open the <a href="./">Menu Engineering Calculator</a> to sort your own menu.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge, what to cut, or how to lay out a menu. Verify every figure against your own records and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device; this page names no company and compares against a generic ranking habit, not a product.</p>
+<p class="support">Free and open source. If it helps you read a menu, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
