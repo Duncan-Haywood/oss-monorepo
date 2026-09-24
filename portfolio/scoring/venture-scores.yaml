@@ -16715,3 +16715,126 @@ ventures:
       and it never scans or fingerprints third-party infrastructure since
       it only reads text the visitor pastes or a file they explicitly
       choose to load.
+  - slug: skill-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately -- and no call to an LLM to judge
+      whether a skill will actually trigger. Every finding (a missing or
+      malformed frontmatter field, a description-vagueness heuristic, a
+      Jaccard-overlap trigger comparison, a token-estimate body-size
+      caution) is a deterministic pattern match or fixed-threshold
+      comparison against the pasted text, never a model judgment. Same
+      floor class and reasoning as this session's sibling graduations
+      mcp-config-risk-check and hidden-unicode-check.
+    basis: >-
+      Graduated 2026-09-24 (added retroactively -- this venture merged to
+      `main` without a score entry, caught by `score_ventures.py --check`
+      failing during a later session's CI verification; scored here from
+      the venture's own VENTURE.yaml, which already carries the full
+      duplicate_check.py table, liability/ethics reasoning, and named
+      channels). A free browser tool checking one or more pasted SKILL.md
+      agent-skill manifests for missing/malformed frontmatter, a
+      description too vague to trigger reliably, overlapping trigger
+      vocabulary between sibling skills, and a body-size context-budget
+      caution. duplicate_check.py scored every venture, screened-out row,
+      and pipeline candidate at or below 0.14 against the final
+      description -- nothing close in scope (the nearest hits shared only
+      the generic "check a pasted manifest for missing fields" shape with
+      an entirely different subject: WordPress plugin headers, Dockerfile
+      layer order, video captions, etc.). Distribution 5, matching
+      mcp-config-risk-check's and hidden-unicode-check's own score:
+      real but narrower named channels (r/ClaudeAI, r/LocalLLaMA
+      agent-tooling threads, Anthropic's developer community, HN Show
+      threads about Claude Code Skills, plus reciprocal footer cross-links
+      with those two sibling agent-tooling checkers) rather than an
+      established platform-review funnel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic pattern match against text
+      the user pastes -- no network call, no call to an LLM to judge the
+      skill, and no claim that a skill actually will or will not trigger
+      inside a real agent runtime. The UI, README, and footer all state a
+      finding is "worth a look, not a verdict" and a clean result is "not
+      a guarantee the skill will trigger correctly." Ethics: strictly
+      beneficial as it scales -- helps a skill author catch an authoring
+      mistake before publishing, no adverse incentive on our side
+      (donations-only), and it never scans, fingerprints, or contacts any
+      third-party system, registry, or agent runtime.
+  - slug: economic-nexus-threshold-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against a published, dated table of 51 jurisdictions'
+      economic-nexus figures -- a state lookup plus a >=/AND/OR comparison,
+      never an inference step. time_to_revenue ties it at 1: donations-only,
+      same as every other venture in this file with no paid tier.
+    basis: >-
+      Graduated 2026-09-24 as a free browser tracker letting a multi-state
+      online seller enter trailing-12-month sales by state and see which
+      states' economic-nexus sales-tax-registration thresholds they've
+      crossed, per state, against each state's own published revenue
+      figure ($100k for 41 states+DC, $250k for Alabama/Mississippi, $500k
+      for California/New York/Texas) and, for the roughly third of states
+      that still pair one on, a transaction-count test applied as AND
+      (Connecticut, New York) or OR (the rest). duplicate_check.py scored
+      every venture, screened-out row, ai-first-markets idea, and pipeline
+      candidate at or below 0.11 against the final description -- the
+      closest match was the pipeline candidate str-occupancy-tax-
+      calculator, a different tax entirely (per-stay lodging remittance,
+      not a sales-volume registration threshold). No existing venture
+      addresses economic nexus; the closest sibling by mechanism is
+      1099-k-threshold-checker (a different threshold -- IRS payment
+      reporting, not state tax registration -- but the same "which of my
+      per-source thresholds have I crossed" shape, deliberately reused
+      here). Distribution 6 reflects demonstrated search volume: nine
+      independent competitor/publisher pages (Avalara, Numeral, TaxCloud,
+      NexusFlag, TaxesLedger, My Sales Tax Firm, nexusbystate.com,
+      Wikipedia, and others) found via WebSearch 2026-09-24 all target the
+      exact phrase "economic nexus threshold/calculator", plus recurring
+      threads on this exact question in r/ecommerce, r/Etsysellers,
+      r/AmazonSeller, r/FulfillmentByAmazon, and r/smallbusiness.
+      Defensibility 2: the threshold table itself is easy to reproduce --
+      the free/no-account/no-integration angle against paid incumbents
+      (Avalara, TaxJar) is the only edge, same class as this portfolio's
+      other reference-table calculators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: numbers the seller supplies, compared to public statutory
+      figures pulled from a named, dated, cited secondary source (Numeral's
+      2026 handbook, cross-checked against TaxCloud's own aggregate figures
+      via WebSearch); output is a per-state "crossed / not crossed / needs
+      more info" observation, never a filing, a registration, or a
+      calculated tax liability. Every page states plainly the data is
+      secondary-sourced rather than an independent fifty-state statute
+      review and directs the user to the state's own department of revenue
+      before relying on a boundary case -- same shape and score class as
+      the sibling 1099-k-threshold-checker's own liability gate. Ethics:
+      the tool only prompts a seller toward voluntary compliance they might
+      otherwise miss -- it never assists evading an obligation, holds no
+      personal or scraped data, and gets no worse for anyone as it scales.
+      No adverse incentive on our side (donations-only, no referral fee to
+      either named paid platform).

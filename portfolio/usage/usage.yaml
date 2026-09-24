@@ -6970,3 +6970,27 @@ products:
           having measured nothing. `campaign_calculated` is the one worth
           watching: `pledge_calculated` alone means a visitor only checked
           one reward tier, not a whole campaign estimate.
+
+  - slug: economic-nexus-threshold-tracker
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          entry_added: 0
+          sample_loaded: 0
+          exported: 0
+        note: >-
+          Baseline at graduation. A browser-local tracker letting a
+          multi-state online seller enter trailing-12-month sales by state
+          and see which states' economic-nexus sales-tax-registration
+          thresholds they've crossed. `live_url_visitors` is null, not
+          zero -- GitHub Pages exposes no server-side analytics and the
+          local counter is opt-in, so nobody has measured yet. Named
+          channels to watch: r/ecommerce, r/Etsysellers, r/AmazonSeller,
+          r/FulfillmentByAmazon, r/smallbusiness, and organic search for
+          "economic nexus threshold/calculator" (nine independent
+          competitor/publisher pages target this exact phrase, found via
+          WebSearch 2026-09-24). `entry_added` is the signal worth
+          watching first: it is the one act every visitor with a real
+          question can complete regardless of the answer they get.

@@ -2392,9 +2392,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `llms.txt` (joining `catalog.json` and `sitemap.xml`) to buy back
     # etcd-object headroom -- see `llmsStoredKey` in
     # `platform/marketing/front-door.mjs`.
+    #
+    # 352 on this merge: `economic-nexus-threshold-tracker` also
+    # graduated -- a zero-dependency browser tracker letting a
+    # multi-state online seller enter trailing-12-month sales by state
+    # and flag which states' economic-nexus sales-tax-registration
+    # thresholds they've crossed, against each state's own published
+    # revenue figure ($100k/$250k/$500k) and, where the state pairs one
+    # on, its transaction-count test (AND or OR). Static `index.html`
+    # from its first commit, same shape as the rest of this running
+    # count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 351  # `infra/OWNER_CHECKLIST.md`'s own "N of the 351 tools" wording.
+    total = 352  # `infra/OWNER_CHECKLIST.md`'s own "N of the 352 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
