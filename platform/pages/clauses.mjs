@@ -1984,6 +1984,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "a spreadsheet" in the abstract -- SUM formulas and
+  // manual multiplication anyone tracking a rate increase already has, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-sitelink.html, which names a real platform and already
+  // carries the "not affiliated" disclaimer.
+  'self-storage-rate-increase-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

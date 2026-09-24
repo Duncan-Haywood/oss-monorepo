@@ -42874,3 +42874,56 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: self-storage-rate-increase-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, vs-a-spreadsheet.html --
+        surface-budget.mjs reported 0/1 generic-method pages for this
+        venture (it already carries one named-product page,
+        vs-sitelink.html). The angle: a spreadsheet multiplies units by
+        the increase fine, but a SUM formula for the cost of one induced
+        move-out tends to drop the re-rent-uplift term entirely -- the
+        one term that is a credit rather than a cost whenever the street
+        rate sits above the raised rent. On the worked example already
+        used on index.html (42 units at $118, 15% increase, $149 street,
+        45 days vacant, 1-month concession, $45 turnover), the real cost
+        of one move-out is $272.43; a formula that sums only downtime,
+        concession and turnover and skips the credit reports $432.03 --
+        59% too high, enough to make a profitable increase look like a
+        loss. Also covers the backward solve for the break-even induced
+        move-out rate (60.8%) and the 5%-to-25% ladder, neither of which
+        a single spreadsheet cell does without rebuilding it per
+        increase size.
+      - >-
+        The worked-example figures ($743.40 gross gain, $1,772.40
+        naive rent-only cost, $272.43 real cost, $159.60 credit, $432.03
+        naive-formula total, 59%, 60.8% break-even) are recomputed in the
+        test file directly against calc.mjs's calculateIncrease(), not
+        hand-typed, so the page's central claim goes red if the shipped
+        arithmetic ever changes.
+      - >-
+        Filed in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        method, not a named product -- distinct from this venture's own
+        vs-sitelink.html). Wired into index.html and sitemap.xml. Ran
+        `node platform/marketing/regen.mjs` to refresh the front-door
+        mirror and added the new page's mount line to
+        gitops/prod/front-door-tools/kustomization.yaml.
+      - >-
+        Verified: the venture's own suite (73/73), checklist_coverage.py,
+        surface-budget.mjs --check, regen.mjs --verify clean,
+        clauses/surface-budget/front-door-tools/front-door/regen test
+        files (260/260), the rest of the platform/marketing +
+        platform/pages suite run in two further batches (741/741 and
+        289/289 for build.test.mjs, the slow file), gitops/tests (637
+        passed/1 skipped, environmental), and guard_state.py
+        --require-runnable (no fixable skips after installing
+        nginx-light/openssh-client/python3-pytest). The one run of the
+        full 35-file suite in a single `node --test` invocation showed 6
+        failures that did not reproduce in any of the isolated batches --
+        consistent with the documented regen.test.mjs mid-run
+        gitops/prod/ rewrite hazard racing against other files reading
+        that tree in parallel, not a defect in this change. Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.

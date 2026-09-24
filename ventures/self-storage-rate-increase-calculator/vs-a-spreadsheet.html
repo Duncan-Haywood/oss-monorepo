@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a spreadsheet | Self-Storage Rate Increase Calculator</title>
+<meta name="description" content="A spreadsheet can multiply units by the increase fine. Where it quietly goes wrong: pricing a move-out at the tenant's rent instead of the re-rent gap (which can run the cost the wrong way), no backward solve for the break-even move-out rate, and no ladder showing how that break-even shifts as the increase gets larger. Free, no sign-up, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet multiplies units by the increase fine. It won't itemize what one move-out really costs once the unit re-rents, solve backward for the break-even move-out rate, or show how that rate shifts across a 5%-to-25% ladder.">
+<meta property="og:url" content="https://example.invalid/self-storage-rate-increase-calculator/vs-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't the gain from a rate increase just units times the increase?","acceptedAnswer":{"@type":"Answer","text":"That multiplication is trivial and a spreadsheet does it fine — on the worked example below it is $743.40 a month across 42 units. What it leaves out is the move-outs the increase causes, and what each one actually costs, which is not the rent the leaving tenant was paying."}},{"@type":"Question","name":"Why can't a spreadsheet formula get the cost of one move-out right?","acceptedAnswer":{"@type":"Answer","text":"Because one of the five terms is a credit, not a cost, and a formula built to add up costs tends to drop it or add it with the wrong sign. Downtime, the move-in concession, and turnover are real costs a SUM formula gets right. The re-rent uplift — the raised rent minus the street rate, times the horizon — is the term that is easy to leave out entirely, and on the worked example leaving it out overstates one move-out's cost by 59%, which is enough to make a profitable increase look like a loss."}},{"@type":"Question","name":"What does solving backward for the break-even move-out rate save you?","acceptedAnswer":{"@type":"Answer","text":"Most spreadsheets go one direction: type an induced move-out guess, see whether the increase still gains. Finding the rate at which it stops gaining from there means typing a different guess and checking again — trial and error with the same formula. This calculator solves the arithmetic in the other direction too: it reports the exact induced move-out rate at which the increase breaks even, in one pass, with no guess to iterate on."}},{"@type":"Question","name":"Why do I need a ladder from 5% to 25% instead of one answer?","acceptedAnswer":{"@type":"Answer","text":"Because the break-even move-out rate is not the same shape at every increase size, and a single cell built for one increase does not show that on its own. A larger increase buys more from every tenant who stays, so it can usually absorb more churn — right up until the raised rent crosses the street rate, at which point the re-rent uplift flips from a credit to a cost and the break-even rate can fall sharply instead of rising. The ladder shows every rung from 5% to 25% at once, with a flag on any rung priced above street, instead of one row you would have to rebuild by hand for each increase you are weighing."}},{"@type":"Question","name":"Does this replace a property management system's own rent roll or reports?","acceptedAnswer":{"@type":"Answer","text":"No. A rent roll or a management system's own reports are still the right record of what every tenant is actually paying and when a lease last changed. This page answers one narrower question — is a specific proposed increase on a specific group of units worth the move-outs it will cause — and nothing it computes is saved anywhere once you leave the page."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#17231f;background:#e8f0ee}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1c4f4a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a5a55}section{background:#fff;border:1px solid #c7d8d4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1420180d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c7d8d4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5a55}.fine,.note{font-size:.88rem;color:#4a5a55}footer{color:#4a5a55;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Self-Storage Rate Increase Calculator</a></p>
+<header>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">A spreadsheet can multiply units by the increase fine. Where it quietly goes wrong: pricing a move-out at the tenant's rent instead of the re-rent gap &mdash; a term that can run the cost the wrong way &mdash; no backward solve for the break-even move-out rate, and no ladder showing how that break-even shifts as the increase gets larger.</p>
+</header>
+<section>
+<h2>What each one actually does</h2>
+<p>
+  Plenty of operators reach for a spreadsheet first: units in the group,
+  times the dollar increase, times twelve months. That multiplication is
+  trivial and a spreadsheet does it fine. What it does not do on its own is
+  <strong>price the move-outs the increase causes</strong>. The instinct is
+  to price a move-out at the rent the leaving tenant was paying, which is
+  wrong, because the unit gets re-rented &mdash; usually at the street rate,
+  which can sit above or below what the raised tenant would have paid. A
+  formula built to add up downtime, a move-in concession, and turnover
+  treats all three as costs, which they are, and tends to drop the fourth
+  term entirely: the re-rent uplift, which is a <em>credit</em> whenever
+  street sits above the raised rent, and only turns into a cost once the
+  increase prices a tenant above street.
+</p>
+<p>
+  This calculator takes one proposed increase on one group of units &mdash;
+  current rent, street rate, move-in concession, turnover cost, and a
+  horizon &mdash; and itemizes exactly what one induced move-out costs
+  (including that uplift term with its correct sign), solves backward for
+  the induced move-out rate at which the increase breaks even, and shows the
+  same decision at every increase from 5% to 25% with a flag on any rung
+  priced above street. It runs free in any browser, keeps no account, and
+  nothing you type is uploaded.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What's the gross monthly gain from raising 42 units by 15%?</td><td>Either one &mdash; a spreadsheet multiplies fine.</td></tr>
+<tr><td>What does one induced move-out actually cost, once the unit re-rents?</td><td>This calculator &mdash; itemized into downtime, concession, turnover, and the re-rent uplift, with the uplift's sign correct.</td></tr>
+<tr><td>At what induced move-out rate does this 15% increase stop paying for itself?</td><td>This calculator &mdash; solves backward for the break-even rate in one pass, no trial and error.</td></tr>
+<tr><td>Would an 8% increase or a 20% increase survive more churn than 15%?</td><td>This calculator's 5%-to-25% ladder, not a rebuilt formula per increase size.</td></tr>
+<tr><td>How does the math behind a rate-increase decision actually work?</td><td>This calculator's <a href="./how-much-can-i-raise-storage-rent.html">worked example</a>.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No, on either &mdash; but this calculator needs no formulas to build or maintain.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most operators get different value from each: a rent roll or a
+  management system's own reports for the ongoing record of what every
+  tenant is paying, and a page like this one for an instant, no-login check
+  on whether one specific proposed increase is worth the move-outs it will
+  cause before it goes out as a letter. This page's own figures are an
+  arithmetic comparison built from what you typed in, not a substitute for
+  your own rent roll.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off. Nothing you type is uploaded.</p>
+</section>
+<section>
+<h2>A worked example</h2>
+<p>
+  42 units at $118, raised 15% to $135.70, with a $149 street rate, 45 days
+  to lease up, a $45 turnover cost, and a free first month: the gross gain
+  looks like <strong>$743.40 a month</strong> before any move-outs, which a
+  spreadsheet gets right. Priced at the leaving tenant's rent, one move-out
+  looks like it costs $1,772.40 over the year. It does not &mdash; the real
+  cost is <strong>$272.43</strong>, because the vacated unit re-rents at the
+  $149 street rate, above the $135.70 the tenant was raised to, which credits
+  <strong>$159.60</strong> back against the downtime, concession, and
+  turnover costs. A formula that adds up only those three costs and skips
+  the credit reports <strong>$432.03</strong> &mdash; 59% too high &mdash;
+  which is enough to make a profitable increase look like a bad idea.
+</p>
+<p>
+  Solved backward, this increase breaks even once induced move-outs reach
+  <strong>60.8%</strong> of the group &mdash; about 25 of the 42 units,
+  against the 2 or 3 an operator would typically expect. Nothing about that
+  answer needs a new spreadsheet formula per increase size; it needs the
+  same arithmetic solved for the unknown on the other side, and repeated
+  across the 5%-to-25% ladder this page shows in one pass.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't the gain from a rate increase just units times the increase?</h3>
+<p>That multiplication is trivial and a spreadsheet does it fine &mdash; on the worked example below it is $743.40 a month across 42 units. What it leaves out is the move-outs the increase causes, and what each one actually costs, which is not the rent the leaving tenant was paying.</p>
+<h3>Why can't a spreadsheet formula get the cost of one move-out right?</h3>
+<p>Because one of the five terms is a credit, not a cost, and a formula built to add up costs tends to drop it or add it with the wrong sign. Downtime, the move-in concession, and turnover are real costs a SUM formula gets right. The re-rent uplift &mdash; the raised rent minus the street rate, times the horizon &mdash; is the term that is easy to leave out entirely, and on the worked example leaving it out overstates one move-out's cost by 59%, which is enough to make a profitable increase look like a loss.</p>
+<h3>What does solving backward for the break-even move-out rate save you?</h3>
+<p>Most spreadsheets go one direction: type an induced move-out guess, see whether the increase still gains. Finding the rate at which it stops gaining from there means typing a different guess and checking again &mdash; trial and error with the same formula. This calculator solves the arithmetic in the other direction too: it reports the exact induced move-out rate at which the increase breaks even, in one pass, with no guess to iterate on.</p>
+<h3>Why do I need a ladder from 5% to 25% instead of one answer?</h3>
+<p>Because the break-even move-out rate is not the same shape at every increase size, and a single cell built for one increase does not show that on its own. A larger increase buys more from every tenant who stays, so it can usually absorb more churn &mdash; right up until the raised rent crosses the street rate, at which point the re-rent uplift flips from a credit to a cost and the break-even rate can fall sharply instead of rising. The ladder shows every rung from 5% to 25% at once, with a flag on any rung priced above street, instead of one row you would have to rebuild by hand for each increase you are weighing.</p>
+<h3>Does this replace a property management system's own rent roll or reports?</h3>
+<p>No. A rent roll or a management system's own reports are still the right record of what every tenant is actually paying and when a lease last changed. This page answers one narrower question &mdash; is a specific proposed increase on a specific group of units worth the move-outs it will cause &mdash; and nothing it computes is saved anywhere once you leave the page.</p>
+<p class="note">Open the <a href="./">Self-Storage Rate Increase Calculator</a> to price your own increase, or read <a href="./how-much-can-i-raise-storage-rent.html">how much you can raise rent on an existing tenant</a>.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it does not tell you what to charge, what notice your lease or your state&rsquo;s self-storage act requires before an increase takes effect, or whether raising a tenant&rsquo;s rent is a good idea. It is arithmetic on the numbers you type, and the numbers it starts with are an illustrative example rather than market data. Verify every figure against your own management software, your leases, and a qualified professional before acting on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it saves you a bad increase, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
