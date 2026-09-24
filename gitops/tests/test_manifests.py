@@ -2507,14 +2507,50 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # merge -- the same ordinary collision shape recorded throughout this
     # list.
     #
-    # 364 on this merge: `senior-deduction-calculator` also graduated
-    # (#5765), concurrently on `main` -- a browser calculator for the new
-    # OBBBA $6,000 senior deduction (tax years 2025-2028), static
-    # `index.html` from its first commit, same shape as the rest of this
-    # running count.
+    # 362 on this merge: `mega-backdoor-roth-calculator` also graduated,
+    # concurrently on `main` -- a browser-local calculator computing
+    # after-tax 401(k)/415(c) contribution headroom for the mega-backdoor
+    # Roth strategy against the published, dated IRS dollar limits. Static
+    # `index.html` plus a `which-conversion-cadence-should-i-use.html`
+    # guide page, both from their first commit, same shape as the rest of
+    # this running count.
+    #
+    # 363 on this merge: `senior-deduction-calculator` also graduated
+    # (#5765), concurrently on `main` -- a browser-local calculator for the
+    # new federal "senior bonus" deduction (OBBBA, tax years 2025-2028),
+    # including the married-filing-separately exclusion and the per-spouse
+    # MAGI phase-out. Static `index.html` from its first commit, same shape
+    # as the rest of this running count. Two separate concurrent sessions
+    # each recorded their own half of this transition independently, one
+    # only seeing claude-skill-scaffold-generator and the other only
+    # seeing claude-code-subagent-check -- neither could see the other's
+    # addition. All four additions above are real.
+    #
+    # 364 on this later merge: `facebook-marketplace-fee-calculator` also
+    # graduated -- a browser-local calculator that prices a Facebook
+    # Marketplace sale against the current shipped-checkout 10% fee (with
+    # an $0.80 minimum) vs. the $0 local-pickup fee, plus the flat $20
+    # dispute penalty. Static `index.html` and a
+    # `vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html`
+    # comparison page, both from their first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (362, from its own earlier merges of
+    # `mega-backdoor-roth-calculator` and `senior-deduction-calculator`)
+    # until this merge revealed two further concurrent graduations
+    # (`claude-skill-scaffold-generator`, `claude-code-subagent-check`) it
+    # had never observed -- the same ordinary collision shape recorded
+    # throughout this list, one merge later. `senior-deduction-calculator`
+    # was independently recorded again by a fourth concurrent session at
+    # this same 364; the addition is the same one already counted above,
+    # not a fifth.
+    #
+    # 365 on this later merge: `caa-record-check` also graduated,
+    # concurrently on `main` -- a browser checker for CAA (Certification
+    # Authority Authorization) DNS records, static `index.html` from its
+    # first commit, same shape as the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 364  # `infra/OWNER_CHECKLIST.md`'s own "N of the 364 tools" wording.
+    total = 365  # `infra/OWNER_CHECKLIST.md`'s own "N of the 365 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

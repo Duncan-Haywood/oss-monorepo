@@ -488,6 +488,9 @@ workflows:
 - workflow: exterior-painting-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: facebook-marketplace-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
