@@ -1627,6 +1627,23 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names Chargeflow specifically and already carries the trademark
   // disclaimer. Same reasoning as the other generic-method pages above.
   'chargeback-evidence-packet/vs-a-generic-dispute-checklist.html',
+  // Compares against "tracking 1099 vendors in a spreadsheet" -- the
+  // generic method most small-business bookkeepers already use, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-track1099.html, which names Track1099 (an Avalara
+  // product) specifically and already carries the trademark disclaimer.
+  // Same reasoning as the other generic-method pages above.
+  '1099-vendor-tracker/vs-tracking-vendors-in-a-spreadsheet.html',
+  // Compares against "opening each of ten AI-crawler operators' own docs
+  // pages and cross-referencing each token against robots.txt by eye" -- the
+  // manual habit any site owner deciding on AI-crawler access already has,
+  // not a company or product this could be mistaken for. Its sibling
+  // comparison page, vs-known-agents.html, names a real product (Known
+  // Agents, formerly Dark Visitors) and already carries the trademark
+  // disclaimer separately. Same reasoning as the other manual-method pages
+  // above (dependency-confusion-check/vs-checking-configs-by-hand.html in
+  // particular).
+  'ai-crawler-access-check/vs-checking-each-crawlers-docs-by-hand.html',
   // Compares against "normalizing a 3PL rate-card quote yourself in a
   // spreadsheet" -- the generic method anyone comparing a fulfillment quote
   // already reaches for, not a company or product this could be mistaken

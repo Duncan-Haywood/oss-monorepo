@@ -36,11 +36,11 @@
 #   portfolio-front-tools-0: 138 files, 546878 bytes
 #   portfolio-front-tools-1: 97 files, 554617 bytes
 #   portfolio-front-tools-2: 145 files, 555834 bytes
-#   portfolio-front-tools-3: 135 files, 553551 bytes
-#   portfolio-front-tools-4: 145 files, 553634 bytes
-#   portfolio-front-tools-5: 116 files, 555733 bytes
-#   portfolio-front-tools-6: 134 files, 546425 bytes
-#   portfolio-front-tools-7: 126 files, 552816 bytes
+#   portfolio-front-tools-3: 135 files, 553550 bytes
+#   portfolio-front-tools-4: 144 files, 555880 bytes
+#   portfolio-front-tools-5: 117 files, 554366 bytes
+#   portfolio-front-tools-6: 136 files, 555618 bytes
+#   portfolio-front-tools-7: 127 files, 556239 bytes
 #   portfolio-front-tools-8: 133 files, 555526 bytes
 #   portfolio-front-tools-9: 133 files, 553723 bytes
 #   portfolio-front-tools-10: 121 files, 552644 bytes
@@ -574,6 +574,7 @@ configMapGenerator:
       - 1099-vendor-tracker__calc.mjs.gz=1099-vendor-tracker__calc.mjs.gz
       - 1099-vendor-tracker__index.html.gz=1099-vendor-tracker__index.html.gz
       - 1099-vendor-tracker__vs-track1099.html.gz=1099-vendor-tracker__vs-track1099.html.gz
+      - 1099-vendor-tracker__vs-tracking-vendors-in-a-spreadsheet.html.gz=1099-vendor-tracker__vs-tracking-vendors-in-a-spreadsheet.html.gz
       - 1099-vendor-tracker__when-do-i-need-to-send-a-1099.html.gz=1099-vendor-tracker__when-do-i-need-to-send-a-1099.html.gz
       - 1099k-reconciliation-worksheet__LICENSE.gz=1099k-reconciliation-worksheet__LICENSE.gz
       - 1099k-reconciliation-worksheet__calc.mjs.gz=1099k-reconciliation-worksheet__calc.mjs.gz
@@ -605,12 +606,12 @@ configMapGenerator:
       - actions-injection-check__classify.mjs.gz=actions-injection-check__classify.mjs.gz
       - actions-injection-check__index.html.gz=actions-injection-check__index.html.gz
       - actions-injection-check__usage.mjs.gz=actions-injection-check__usage.mjs.gz
-      - actions-injection-check__vs-checking-a-workflow-by-hand.html.gz=actions-injection-check__vs-checking-a-workflow-by-hand.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-injection-check__vs-checking-a-workflow-by-hand.html.gz=actions-injection-check__vs-checking-a-workflow-by-hand.html.gz
       - actions-injection-check__vs-zizmor.html.gz=actions-injection-check__vs-zizmor.html.gz
       - actions-injection-check__what-is-a-pwn-request-in-github-actions.html.gz=actions-injection-check__what-is-a-pwn-request-in-github-actions.html.gz
       - actions-minutes-estimator__cli.mjs.gz=actions-minutes-estimator__cli.mjs.gz
@@ -688,6 +689,7 @@ configMapGenerator:
       - ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz=ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz
       - ai-crawler-access-check__index.html.gz=ai-crawler-access-check__index.html.gz
       - ai-crawler-access-check__usage.mjs.gz=ai-crawler-access-check__usage.mjs.gz
+      - ai-crawler-access-check__vs-checking-each-crawlers-docs-by-hand.html.gz=ai-crawler-access-check__vs-checking-each-crawlers-docs-by-hand.html.gz
       - ai-crawler-access-check__vs-known-agents.html.gz=ai-crawler-access-check__vs-known-agents.html.gz
       - ai-engineering-academy__555-timer-calculator__LICENSE.gz=ai-engineering-academy__555-timer-calculator__LICENSE.gz
       - ai-engineering-academy__555-timer-calculator__calc.mjs.gz=ai-engineering-academy__555-timer-calculator__calc.mjs.gz
@@ -753,14 +755,14 @@ configMapGenerator:
       - appointment-deposit-calculator__tattoo-app.mjs.gz=appointment-deposit-calculator__tattoo-app.mjs.gz
       - appointment-deposit-calculator__tattoo-deposit-and-touchup-calculator.html.gz=appointment-deposit-calculator__tattoo-deposit-and-touchup-calculator.html.gz
       - appointment-deposit-calculator__tattoo-share.mjs.gz=appointment-deposit-calculator__tattoo-share.mjs.gz
-      - appointment-deposit-calculator__touchup.mjs.gz=appointment-deposit-calculator__touchup.mjs.gz
-      - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
-      - appointment-deposit-calculator__vs-doing-it-by-hand.html.gz=appointment-deposit-calculator__vs-doing-it-by-hand.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - appointment-deposit-calculator__touchup.mjs.gz=appointment-deposit-calculator__touchup.mjs.gz
+      - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
+      - appointment-deposit-calculator__vs-doing-it-by-hand.html.gz=appointment-deposit-calculator__vs-doing-it-by-hand.html.gz
       - appointment-deposit-calculator__vs-square-appointments.html.gz=appointment-deposit-calculator__vs-square-appointments.html.gz
       - appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz=appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz
       - artificial-turf-bid-calculator__calc.mjs.gz=artificial-turf-bid-calculator__calc.mjs.gz
@@ -875,13 +877,13 @@ configMapGenerator:
       - bounce-house-rental-calculator__share.mjs.gz=bounce-house-rental-calculator__share.mjs.gz
       - bounce-house-rental-calculator__usage.mjs.gz=bounce-house-rental-calculator__usage.mjs.gz
       - bounce-house-rental-calculator__vs-a-spreadsheet.html.gz=bounce-house-rental-calculator__vs-a-spreadsheet.html.gz
-      - bounce-house-rental-calculator__vs-booqable.html.gz=bounce-house-rental-calculator__vs-booqable.html.gz
-      - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - bounce-house-rental-calculator__vs-booqable.html.gz=bounce-house-rental-calculator__vs-booqable.html.gz
+      - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
       - branch-protection-drift-check__cli.mjs.gz=branch-protection-drift-check__cli.mjs.gz
       - branch-protection-drift-check__engine.mjs.gz=branch-protection-drift-check__engine.mjs.gz
       - branch-protection-drift-check__index.html.gz=branch-protection-drift-check__index.html.gz
@@ -996,6 +998,7 @@ configMapGenerator:
       - cloud-bucket-exposure-check__how-to-fix-a-publicly-listable-bucket.html.gz=cloud-bucket-exposure-check__how-to-fix-a-publicly-listable-bucket.html.gz
       - cloud-bucket-exposure-check__index.html.gz=cloud-bucket-exposure-check__index.html.gz
       - cloud-bucket-exposure-check__probe.mjs.gz=cloud-bucket-exposure-check__probe.mjs.gz
+      - cloud-bucket-exposure-check__public-listing-vs-public-read.html.gz=cloud-bucket-exposure-check__public-listing-vs-public-read.html.gz
       - cloud-bucket-exposure-check__usage.mjs.gz=cloud-bucket-exposure-check__usage.mjs.gz
       - cloud-bucket-exposure-check__vs-manually-checking-in-the-cloud-console.html.gz=cloud-bucket-exposure-check__vs-manually-checking-in-the-cloud-console.html.gz
       - cnc-machining-quote-calculator__calculator.mjs.gz=cnc-machining-quote-calculator__calculator.mjs.gz
@@ -1015,12 +1018,12 @@ configMapGenerator:
       - commissary-kitchen-cost-split-calculator__usage.mjs.gz=commissary-kitchen-cost-split-calculator__usage.mjs.gz
       - commissary-kitchen-cost-split-calculator__vs-splitting-evenly.html.gz=commissary-kitchen-cost-split-calculator__vs-splitting-evenly.html.gz
       - concrete-lifting-bid-calculator__calc.mjs.gz=concrete-lifting-bid-calculator__calc.mjs.gz
-      - concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz=concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz=concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz
       - concrete-lifting-bid-calculator__index.html.gz=concrete-lifting-bid-calculator__index.html.gz
       - concrete-lifting-bid-calculator__share.mjs.gz=concrete-lifting-bid-calculator__share.mjs.gz
       - concrete-lifting-bid-calculator__usage.mjs.gz=concrete-lifting-bid-calculator__usage.mjs.gz
