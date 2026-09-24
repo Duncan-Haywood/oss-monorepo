@@ -2432,9 +2432,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # merge -- the same ordinary collision shape recorded throughout this
     # list. Static `index.html` from its first commit, same shape as the
     # rest of this running count.
+    #
+    # 356 on this merge: `auto-loan-interest-deduction-calculator` also
+    # graduates -- a zero-dependency browser calculator for the new federal
+    # "qualified passenger vehicle loan interest" (QPVLI) deduction enacted
+    # by the One Big Beautiful Bill Act for tax years 2025-2028, including
+    # the two assumptions people get backwards: the $10,000 cap does not
+    # double for a joint return, and married filing separately is not
+    # excluded the way it is for the separate tips/overtime deduction.
+    # Static `index.html` from its first commit, same shape as the rest of
+    # this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 355  # `infra/OWNER_CHECKLIST.md`'s own "N of the 355 tools" wording.
+    total = 356  # `infra/OWNER_CHECKLIST.md`'s own "N of the 356 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
