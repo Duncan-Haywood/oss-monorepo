@@ -41045,6 +41045,50 @@ entries:
         trustworthy browser_state.json reading for the next session's
         freshness check to build on.
     mrr_end: 0
+  - venture: hidden-unicode-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a third new venture this session: a free,
+        client-side browser tool that scans pasted text (CLAUDE.md,
+        AGENTS.md, .cursorrules, copilot-instructions.md, READMEs, PR
+        descriptions) for hidden Unicode characters used in current
+        AI-agent prompt-injection attacks -- zero-width/invisible
+        characters, Unicode Tag characters (with hidden-message decoding,
+        the documented "ASCII smuggling" technique), and bidirectional
+        override characters (the Trojan Source family, CVE-2021-42574).
+        Grounded in a live, current attack pattern confirmed via web
+        research this session: packages injecting instructions into agent
+        config files this way so a human reviewer sees nothing unusual
+        while an AI coding assistant reads and executes the hidden text.
+        27 tests on calc.mjs. duplicate_check.py top score 0.15 against
+        agent-instructions-drift-check (a different concern -- stale
+        pointers to renamed files, not hidden-character security) and
+        against everything else in the portfolio; well under the 0.45
+        review bar. PR #5656, merged.
+      - >-
+        Caught and fixed several real issues during its own checklist run
+        before merging: a runs-on README count drift, an em-dash/en-dash
+        mismatch between FAQPage JSON-LD and visible copy (the same class
+        of bug this session's second venture also hit and fixed), and the
+        mirrored-tool/opt-out-switch tree-count sync with running-comment
+        entries. Closed its own crawlable-orphan gap with a reciprocal
+        footer link from mcp-config-risk-check (this session's second
+        venture), flagged plainly as a change outside its own directory.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot (clean
+        build, no problems) and confirmed sync_tree_counts.py and
+        regen.mjs --verify are current against the merged main. New tool
+        live at
+        https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/.
+        This session has now shipped three new ventures
+        (llm-api-pricing-calculator, mcp-config-risk-check,
+        hidden-unicode-check) plus a fleet-wide accessibility
+        re-verification; portfolio-wide revenue and confirmed-visitor
+        counts remain at zero, which no single session's product output
+        can close on its own.
+    mrr_end: 0
   - venture: photo-booth-event-quote
     agent_spend_usd: null
     human_hours: 0
