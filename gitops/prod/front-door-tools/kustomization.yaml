@@ -49,7 +49,7 @@
 #   portfolio-front-tools-13: 122 files, 548601 bytes
 #   portfolio-front-tools-14: 130 files, 553629 bytes
 #   portfolio-front-tools-15: 131 files, 555502 bytes
-#   portfolio-front-tools-16: 119 files, 548530 bytes
+#   portfolio-front-tools-16: 120 files, 553075 bytes
 #   portfolio-front-tools-17: 106 files, 548814 bytes
 #   portfolio-front-tools-18: 125 files, 555453 bytes
 #   portfolio-front-tools-19: 119 files, 554318 bytes
@@ -2273,6 +2273,7 @@ configMapGenerator:
       - security-headers-check__index.html.gz=security-headers-check__index.html.gz
       - security-headers-check__probe.mjs.gz=security-headers-check__probe.mjs.gz
       - security-headers-check__usage.mjs.gz=security-headers-check__usage.mjs.gz
+      - security-headers-check__vs-checking-headers-by-eye-in-devtools.html.gz=security-headers-check__vs-checking-headers-by-eye-in-devtools.html.gz
       - security-headers-check__vs-securityheaders.html.gz=security-headers-check__vs-securityheaders.html.gz
       - security-txt-check__check.mjs.gz=security-txt-check__check.mjs.gz
       - security-txt-check__engine.mjs.gz=security-txt-check__engine.mjs.gz
