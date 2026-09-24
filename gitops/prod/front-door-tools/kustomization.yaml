@@ -36,11 +36,11 @@
 #   portfolio-front-tools-0: 140 files, 524169 bytes
 #   portfolio-front-tools-1: 91 files, 550872 bytes
 #   portfolio-front-tools-2: 145 files, 556738 bytes
-#   portfolio-front-tools-3: 132 files, 555672 bytes
-#   portfolio-front-tools-4: 143 files, 556700 bytes
-#   portfolio-front-tools-5: 123 files, 554769 bytes
-#   portfolio-front-tools-6: 133 files, 553504 bytes
-#   portfolio-front-tools-7: 128 files, 544408 bytes
+#   portfolio-front-tools-3: 132 files, 555528 bytes
+#   portfolio-front-tools-4: 142 files, 552643 bytes
+#   portfolio-front-tools-5: 123 files, 554625 bytes
+#   portfolio-front-tools-6: 132 files, 552755 bytes
+#   portfolio-front-tools-7: 131 files, 553292 bytes
 #   portfolio-front-tools-8: 127 files, 551940 bytes
 #   portfolio-front-tools-9: 133 files, 554280 bytes
 #   portfolio-front-tools-10: 126 files, 554912 bytes
@@ -525,6 +525,7 @@ configMapGenerator:
       - notary-trip-quote__index.html.gz=notary-trip-quote__index.html.gz
       - notary-trip-quote__share.mjs.gz=notary-trip-quote__share.mjs.gz
       - notary-trip-quote__usage.mjs.gz=notary-trip-quote__usage.mjs.gz
+      - notary-trip-quote__vs-doing-the-trip-math-yourself.html.gz=notary-trip-quote__vs-doing-the-trip-math-yourself.html.gz
       - notary-trip-quote__vs-notarygadget.html.gz=notary-trip-quote__vs-notarygadget.html.gz
       - booth-rent-vs-commission__calc.mjs.gz=booth-rent-vs-commission__calc.mjs.gz
       - booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html.gz=booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html.gz
@@ -599,12 +600,12 @@ configMapGenerator:
       - 3d-print-price-calculator__share.mjs.gz=3d-print-price-calculator__share.mjs.gz
       - 3d-print-price-calculator__usage.mjs.gz=3d-print-price-calculator__usage.mjs.gz
       - 3d-print-price-calculator__vs-slicer-cost-estimate.html.gz=3d-print-price-calculator__vs-slicer-cost-estimate.html.gz
-      - 3d-print-price-calculator__vs-the-3x-filament-rule.html.gz=3d-print-price-calculator__vs-the-3x-filament-rule.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - 3d-print-price-calculator__vs-the-3x-filament-rule.html.gz=3d-print-price-calculator__vs-the-3x-filament-rule.html.gz
       - actions-artifact-poisoning-check__check.py.gz=actions-artifact-poisoning-check__check.py.gz
       - actions-artifact-poisoning-check__classify.mjs.gz=actions-artifact-poisoning-check__classify.mjs.gz
       - actions-artifact-poisoning-check__index.html.gz=actions-artifact-poisoning-check__index.html.gz
@@ -746,13 +747,13 @@ configMapGenerator:
       - android-data-safety-check__usage.mjs.gz=android-data-safety-check__usage.mjs.gz
       - android-data-safety-check__vs-manually-reviewing-play-console-warnings.html.gz=android-data-safety-check__vs-manually-reviewing-play-console-warnings.html.gz
       - app-store-screenshot-check__check.mjs.gz=app-store-screenshot-check__check.mjs.gz
-      - app-store-screenshot-check__engine.mjs.gz=app-store-screenshot-check__engine.mjs.gz
-      - app-store-screenshot-check__image.mjs.gz=app-store-screenshot-check__image.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - app-store-screenshot-check__engine.mjs.gz=app-store-screenshot-check__engine.mjs.gz
+      - app-store-screenshot-check__image.mjs.gz=app-store-screenshot-check__image.mjs.gz
       - app-store-screenshot-check__index.html.gz=app-store-screenshot-check__index.html.gz
       - app-store-screenshot-check__spec.mjs.gz=app-store-screenshot-check__spec.mjs.gz
       - app-store-screenshot-check__usage.mjs.gz=app-store-screenshot-check__usage.mjs.gz
@@ -874,13 +875,13 @@ configMapGenerator:
       - basement-finishing-bid-calculator__vs-buildxact.html.gz=basement-finishing-bid-calculator__vs-buildxact.html.gz
       - basement-finishing-bid-calculator__vs-jobtread.html.gz=basement-finishing-bid-calculator__vs-jobtread.html.gz
       - basement-finishing-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=basement-finishing-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
-      - basement-waterproofing-bid-calculator__calc.mjs.gz=basement-waterproofing-bid-calculator__calc.mjs.gz
-      - basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz=basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - basement-waterproofing-bid-calculator__calc.mjs.gz=basement-waterproofing-bid-calculator__calc.mjs.gz
+      - basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz=basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz
       - basement-waterproofing-bid-calculator__index.html.gz=basement-waterproofing-bid-calculator__index.html.gz
       - basement-waterproofing-bid-calculator__share.mjs.gz=basement-waterproofing-bid-calculator__share.mjs.gz
       - basement-waterproofing-bid-calculator__usage.mjs.gz=basement-waterproofing-bid-calculator__usage.mjs.gz
@@ -1011,14 +1012,14 @@ configMapGenerator:
       - certified-payroll-calculator__vs-lcptracker.html.gz=certified-payroll-calculator__vs-lcptracker.html.gz
       - childcare-tuition-calculator__calc.mjs.gz=childcare-tuition-calculator__calc.mjs.gz
       - childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz=childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz
-      - childcare-tuition-calculator__index.html.gz=childcare-tuition-calculator__index.html.gz
-      - childcare-tuition-calculator__share.mjs.gz=childcare-tuition-calculator__share.mjs.gz
-      - childcare-tuition-calculator__usage.mjs.gz=childcare-tuition-calculator__usage.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - childcare-tuition-calculator__index.html.gz=childcare-tuition-calculator__index.html.gz
+      - childcare-tuition-calculator__share.mjs.gz=childcare-tuition-calculator__share.mjs.gz
+      - childcare-tuition-calculator__usage.mjs.gz=childcare-tuition-calculator__usage.mjs.gz
       - childcare-tuition-calculator__vs-doing-it-by-hand.html.gz=childcare-tuition-calculator__vs-doing-it-by-hand.html.gz
       - childcare-tuition-calculator__vs-procare.html.gz=childcare-tuition-calculator__vs-procare.html.gz
       - chimney-sweep-bid-calculator__calc.mjs.gz=chimney-sweep-bid-calculator__calc.mjs.gz
