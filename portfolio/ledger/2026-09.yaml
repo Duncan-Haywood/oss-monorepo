@@ -39451,6 +39451,69 @@ entries:
         (ci_starvation.py --run 35936631836: runner_id 0 earlier this
         session), so this local verification stands in per CLAUDE.md.
     mrr_end: 0
+  - venture: slopsquatting-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, screened and graduated this session per
+        portfolio/pipeline/README.md's "archetype itself" section, not
+        another <trade>-bid-calculator or a 39th -check with no channel
+        evidence. Niche researched via a background agent with WebSearch,
+        then independently re-verified by live fetch (not trusted at face
+        value): Wikipedia's Slopsquatting article and The Hacker News'
+        PhantomRaven writeup, both fetched directly this session. A May
+        2025 USENIX Security study found 19.7% of packages recommended by
+        16 code-generating models did not exist at all; PhantomRaven
+        (100+ malicious npm packages via slopsquatting/typosquatting,
+        flagged October 2025) is a real, dated incident distinct from the
+        unverified 38%/13%/51% breakdown and "HalluSquatting" claim the
+        research agent's first pass reported.
+      - >-
+        duplicate_check.py scored every existing venture, screened-out
+        row, ai-first-markets idea, and pipeline candidate below 0.15;
+        closest match npm-lifecycle-script-check at 0.12 (a different
+        mechanism -- install-time scripts, not registry existence/recency).
+      - >-
+        Shipped a browser page (fully offline, no network call of any
+        kind -- an edit-distance heuristic against a bundled well-known-
+        package list) plus a zero-dependency CLI (one read-only GET per
+        dependency to the public npm registry, the only network call
+        anywhere in the tool). This split follows the precedent
+        vscode-extension-drift-check already set for a live registry
+        lookup in this venture family, rather than inventing a new
+        privacy trade-off: no existing venture page in the catalogue made
+        a live third-party fetch before this one, confirmed by grepping
+        every ventures/*/index.html for an external fetch call.
+      - >-
+        Categorized under "CI checks & developer gates" in build.mjs
+        (reciprocally linked with dependency-confusion-check and
+        npm-lifecycle-script-check) instead of the catch-all, which
+        build.test.mjs bounds at 5. Updated the two tree-derived counts
+        sync_tree_counts.py flagged (mirrored tools 339 -> 340, opt-out
+        switches 321 -> 322) with the running-comment entries each guard
+        requires, rather than just the bare number.
+      - >-
+        Verified: venture's own suite (57/57), npm-lifecycle-script-check's
+        own suite after adding the reciprocal link (60/60),
+        platform/marketing suite (272/272), full platform/pages suite
+        (1014/1014, covering the category and FAQ-visibility fixes),
+        platform/privacy + platform/webcheck (142/142, covering the
+        opt-out-count fix), gitops/tests (637 passed, 1 skipped),
+        router/validate.py, score_ventures.py --check,
+        checklist_coverage.py, and regen.mjs --verify all clean. Manually
+        ran cli.mjs against a real package.json against the live npm
+        registry: correctly flagged a hallucinated name and cleared
+        chalk. ci_starvation.py confirmed main's red Portfolio validate
+        check (run 35941339132) is runner starvation (runner_id 0), not a
+        real failure, before relying on local verification per CLAUDE.md.
+      - >-
+        Merged a 13-commit main advance into the branch; resolved the
+        expected generated front-door-mirror conflict by regenerating
+        (platform/marketing/resolve-mirror-merge.sh's method, extended by
+        hand to gitops/prod/front-door/ since that script only covers
+        gitops/prod/front-door-tools/), never by picking a side. PR #5421.
+    mrr_end: 0
   - venture: cloud-bucket-exposure-check
     agent_spend_usd: null
     human_hours: 0

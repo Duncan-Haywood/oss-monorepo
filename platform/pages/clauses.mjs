@@ -189,6 +189,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // templates generally, not a company or product this could be mistaken
   // for. The page names no specific source for the figure.
   'brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html',
+  // Compares against "a flat industry-average CPM" -- the single
+  // cost-per-1000-downloads figure podcast ad rate reports and blog posts
+  // commonly cite as "the average podcast CPM", not a company or product
+  // this could be mistaken for. The page names no specific report or
+  // publisher, and its illustrative $25 figure is explicitly disclaimed as
+  // not a claim about any specific report's published number.
+  'podcast-sponsorship-rate-calculator/vs-a-flat-industry-average-cpm.html',
   // Compares against "eyeballing which box triggers the dimensional
   // penalty" -- a habit every shipper already has, not a company or
   // product this could be mistaken for. The page names no carrier tool.
@@ -1207,6 +1214,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-checking-*-by-hand pages above (e.g.
   // graphql-introspection-exposure-check's).
   'actions-injection-check/vs-checking-a-workflow-by-hand.html',
+  // Compares against "a flat installed price per square foot" -- a generic
+  // pricing habit every shed dealer already shops against (the "$X.XX
+  // installed" Facebook-special quote), not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html, which
+  // names a specific field-service platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-a-flat-rate-per-square-foot pages above (e.g.
+  // artificial-turf-bid-calculator's).
+  'shed-install-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "opening each base image's own release page by hand" --
   // a manual lookup habit every Dockerfile author already has, not a
   // company or product this could be mistaken for. Distinct from this
@@ -1273,6 +1289,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // generic-method pages above.
   'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "planning cuts by hand" -- a manual layout habit every
+  // woodworking or sign shop already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-opticutter-and-cutlist-optimizer.html, which names two specific
+  // hosted services and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other generic-method pages above.
+  'cut-list-optimizer/vs-planning-cuts-by-hand.html',
   // Compares against "opening settings.json or an mcpServers block and
   // reading it by eye before committing" -- a generic manual habit every
   // developer and reviewer already has access to, not a company or product

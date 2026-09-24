@@ -1,0 +1,47 @@
+name: slopsquatting-check CI
+
+# Zero-dependency browser/CLI tool: the browser page runs a fully offline
+# edit-distance heuristic against a bundled list of well-known package names
+# (no network call), and the CLI additionally makes one read-only GET per
+# dependency to the public npm registry. Keep both covered independently of
+# the portfolio-wide validation workflow, which only checks published pages
+# and does not run venture unit tests. Without this file,
+# `validate_workflows.py` would fail the moment the venture's `*.test.mjs`
+# files land -- the same hole `dotenv-exposure-check-ci.yml` and its siblings
+# document.
+on:
+  pull_request:
+    paths:
+      - "ventures/slopsquatting-check/**"
+      - ".github/workflows/slopsquatting-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/slopsquatting-check/**"
+      - ".github/workflows/slopsquatting-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: slopsquatting-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/slopsquatting-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # Discovered, not enumerated -- bare `node --test` walks the working
+      # directory and cannot fall behind a file added later.
+      - name: Run every test in the venture
+        run: node --test
