@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 137 files, 543059 bytes
 #   portfolio-front-tools-1: 97 files, 554620 bytes
 #   portfolio-front-tools-2: 145 files, 555841 bytes
-#   portfolio-front-tools-3: 135 files, 553535 bytes
-#   portfolio-front-tools-4: 144 files, 555992 bytes
+#   portfolio-front-tools-3: 135 files, 556477 bytes
+#   portfolio-front-tools-4: 145 files, 556860 bytes
 #   portfolio-front-tools-5: 117 files, 554373 bytes
 #   portfolio-front-tools-6: 136 files, 555622 bytes
 #   portfolio-front-tools-7: 127 files, 556233 bytes
@@ -583,6 +583,7 @@ configMapGenerator:
       - 1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz=1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz
       - 1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz=1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz
       - 3d-print-price-calculator__calc.mjs.gz=3d-print-price-calculator__calc.mjs.gz
+      - 3d-print-price-calculator__how-much-does-a-failed-print-cost-you.html.gz=3d-print-price-calculator__how-much-does-a-failed-print-cost-you.html.gz
       - 3d-print-price-calculator__index.html.gz=3d-print-price-calculator__index.html.gz
       - 3d-print-price-calculator__share.mjs.gz=3d-print-price-calculator__share.mjs.gz
       - 3d-print-price-calculator__usage.mjs.gz=3d-print-price-calculator__usage.mjs.gz
@@ -604,12 +605,12 @@ configMapGenerator:
       - actions-injection-check__check.py.gz=actions-injection-check__check.py.gz
       - actions-injection-check__classify.mjs.gz=actions-injection-check__classify.mjs.gz
       - actions-injection-check__index.html.gz=actions-injection-check__index.html.gz
-      - actions-injection-check__usage.mjs.gz=actions-injection-check__usage.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-injection-check__usage.mjs.gz=actions-injection-check__usage.mjs.gz
       - actions-injection-check__vs-checking-a-workflow-by-hand.html.gz=actions-injection-check__vs-checking-a-workflow-by-hand.html.gz
       - actions-injection-check__vs-zizmor.html.gz=actions-injection-check__vs-zizmor.html.gz
       - actions-injection-check__what-is-a-pwn-request-in-github-actions.html.gz=actions-injection-check__what-is-a-pwn-request-in-github-actions.html.gz
