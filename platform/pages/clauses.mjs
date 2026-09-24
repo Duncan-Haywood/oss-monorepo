@@ -1166,6 +1166,19 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // calculator at all -- distinct from this venture's own vs-lmn.html,
   // which does name a product and carries its own "not affiliated" clause.
   'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
+  // Compares against sending a single crafted curl request and reading the
+  // response by eye -- a manual habit every developer testing CORS already
+  // has, not a company or product this could be mistaken for. The page
+  // does cross-link to this venture's own vs-burp-suite.html, which does
+  // name a product and carries its own "not affiliated" clause.
+  'cors-misconfig-check/vs-checking-cors-by-hand.html',
+  // Compares against "a flat monthly fee" -- the round, competitor-matched
+  // maintenance-plan price every HVAC contractor is shopped against, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or field-service platform at all -- distinct from this
+  // venture's own vs-servicetitan.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'hvac-maintenance-contract-calculator/vs-a-flat-monthly-fee.html',
   // Compares against "a spreadsheet" -- a generic method every decoration
   // shop already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-printavo.html, which
@@ -1179,6 +1192,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names a specific field-service platform and already carries the
   // "not affiliated" clause for that reason.
   'dumpster-rental-margin-calculator/vs-a-spreadsheet.html',
+  // Compares against "reading the workflow file by hand" -- a manual
+  // review habit every GitHub Actions user already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names a specific open-source tool and already
+  // carries the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-checking-*-by-hand pages above (e.g.
+  // graphql-introspection-exposure-check's).
+  'actions-injection-check/vs-checking-a-workflow-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
