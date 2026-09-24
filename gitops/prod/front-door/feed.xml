@@ -35,6 +35,15 @@
     <summary type="text">Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a plain-English report on whether anyone on the internet can list its contents with no credentials. Never fetches an object&#39;s own content, only the listing. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Depop Fee Calculator — What You Actually Keep After Depop&#39;s Fee</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/depop-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/depop-fee-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Depop seller fee calculator for the US and UK schedule (0% selling fee, 3.3%+$0.45 or 2.9%+£0.30 processing on item price + shipping) and the rest-of-world flat 10% schedule, plus Boosted Listings. Real profit, price for a target profit, and a region-by-region comparison. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
     <title>Employee vs. Contractor Cost Calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employee-cost-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/employee-cost-calculator</id>
