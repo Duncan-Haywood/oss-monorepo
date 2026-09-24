@@ -1490,6 +1490,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against pricing purely by a flat per-square-foot rate -- a
+  // generic estimating shortcut independent home inspectors reach for
+  // absent a franchise's own fee schedule, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-franchise-fee-schedule.html, which is about the business decision of
+  // joining a franchise rather than a pricing method, and does not name any
+  // franchise brand either. Same reasoning as the other flat-rate
+  // generic-method pages above.
+  'home-inspection-fee-calculator/vs-a-flat-per-square-foot-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
