@@ -78,3 +78,11 @@ test('every input has an associated label', () => {
     assert.match(html, new RegExp(`<label>[^<]*<input name="${name}"`), `input "${name}" is not inside a <label> with visible text`);
   }
 });
+
+test('index links one hop to the senior-deduction-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/senior-deduction-calculator\/"/,
+    'index must link ../senior-deduction-calculator/ so crawlers reach the sibling deduction calculator in one hop',
+  );
+});

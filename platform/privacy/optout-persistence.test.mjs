@@ -722,7 +722,14 @@ const RELATIVE_SELF = relative(
 // until this merge -- the same ordinary collision shape recorded throughout
 // this list; the intervening 339 was another concurrent graduation this
 // branch never observed.
-const SWITCHES_IN_THE_CATALOGUE = 340;
+//
+// 340 -> 341: `senior-deduction-calculator` also graduated, concurrently on
+// `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. This
+// branch only ever knew its own predecessor's number (340, at its own
+// graduation) until this merge -- the same ordinary collision shape
+// recorded throughout this list.
+const SWITCHES_IN_THE_CATALOGUE = 341;
 
 let counter = 0;
 function fixture(source) {
