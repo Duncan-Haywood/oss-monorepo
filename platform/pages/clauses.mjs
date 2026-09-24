@@ -1140,6 +1140,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
+  // Compares against "a spreadsheet" -- a generic method every restaurant
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-toast.html, which
+  // names Toast and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as the other vs-spreadsheet pages above.
+  'delivery-app-margin-calculator/vs-a-spreadsheet.html',
   // Compares against "sales minus booth fee" mental math or a one-line
   // spreadsheet -- a generic gut check every maker already does, not a
   // company or product this could be mistaken for. The page names no
@@ -1153,6 +1159,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // calculator at all -- distinct from this venture's own vs-lmn.html,
   // which does name a product and carries its own "not affiliated" clause.
   'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
+  // Compares against "a spreadsheet" -- a generic method every decoration
+  // shop already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-printavo.html, which
+  // names a specific shop-management platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-spreadsheet pages above (e.g. bounce-house-rental-calculator's).
+  'apparel-decoration-price-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
