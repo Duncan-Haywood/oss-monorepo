@@ -1,6 +1,6 @@
 # Free calculators and checks for people who run a small business
 
-> 349 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 350 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -388,6 +388,7 @@ page that hosts it.
 ## More free tools
 
 - [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
+- [Depop Fee Calculator — What You Actually Keep After Depop's Fee](https://marisstella.dev/tools/depop-fee-calculator/): Free Depop seller fee calculator for the US and UK schedule (0% selling fee, 3.3%+$0.45 or 2.9%+£0.30 processing on item price + shipping) and the rest-of-world flat 10% schedule, plus Boosted Listings. Real profit, price for a target profit, and a region-by-region comparison. Nothing leaves your browser.
 - [HOA Reserve Fund Calculator — Special Assessment Risk](https://marisstella.dev/tools/hoa-reserve-fund-calculator/): Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.
 - [Overtime Pay Calculator — Blended Rate for Two Pay Rates, Free](https://marisstella.dev/tools/overtime-pay-calculator/): Free overtime pay calculator: standard time-and-a-half for one hourly rate, plus the FLSA weighted-average (blended rate) calculator for a week worked at two or more different pay rates. Entirely client-side, nothing uploaded.
 - [Voice-Over Project Rate Calculator — Free, No Sign-Up](https://marisstella.dev/tools/voiceover-project-rate-calculator/): Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute, scaled by usage/licensing term (internal, web, broadcast, buyout) — or price an audiobook per finished hour from manuscript word count. No sign-up, nothing uploaded.
