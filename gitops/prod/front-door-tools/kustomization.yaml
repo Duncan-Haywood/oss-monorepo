@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 97 files, 554617 bytes
 #   portfolio-front-tools-2: 145 files, 556037 bytes
 #   portfolio-front-tools-3: 135 files, 554289 bytes
-#   portfolio-front-tools-4: 145 files, 551941 bytes
+#   portfolio-front-tools-4: 146 files, 556366 bytes
 #   portfolio-front-tools-5: 116 files, 552800 bytes
 #   portfolio-front-tools-6: 134 files, 556107 bytes
 #   portfolio-front-tools-7: 128 files, 555238 bytes
@@ -715,6 +715,7 @@ configMapGenerator:
       - ai-engineering-academy__voltage-divider-calculator__how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.gz=ai-engineering-academy__voltage-divider-calculator__how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.gz
       - ai-engineering-academy__voltage-divider-calculator__index.html.gz=ai-engineering-academy__voltage-divider-calculator__index.html.gz
       - ai-engineering-academy__voltage-divider-calculator__usage.mjs.gz=ai-engineering-academy__voltage-divider-calculator__usage.mjs.gz
+      - ai-engineering-academy__vs-doing-the-math-by-hand.html.gz=ai-engineering-academy__vs-doing-the-math-by-hand.html.gz
       - ai-engineering-academy__vs-omni-calculator.html.gz=ai-engineering-academy__vs-omni-calculator.html.gz
       - android-data-safety-check__check.mjs.gz=android-data-safety-check__check.mjs.gz
       - android-data-safety-check__index.html.gz=android-data-safety-check__index.html.gz
