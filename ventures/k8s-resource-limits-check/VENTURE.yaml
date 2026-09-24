@@ -1,0 +1,145 @@
+name: k8s-resource-limits-check
+description: >-
+  Free, zero-dependency CLI + browser tool that reads Kubernetes workload
+  YAML (Pod, Deployment, StatefulSet, DaemonSet, ReplicaSet, Job, CronJob)
+  and reports every container missing a memory limit, memory request, CPU
+  request, or ephemeral-storage limit -- the specific gaps that let one
+  container starve for scheduling priority, get OOM-killed alongside
+  unrelated processes, or fill a node's local disk and trigger eviction
+  across every pod on it -- plus any request set above its own limit, which
+  the API server rejects outright at apply time. A set CPU limit is reported
+  informational rather than as a problem, because it is a genuine trade-off
+  (CFS quota throttling) rather than an obvious gap. No Helm binary, no
+  cluster, no network call; it reads only the text it is given.
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues for this shape over another
+# <trade>-bid-calculator (141+ of ~300 ventures already share that shape
+# with zero recorded visitors). Filed in the `ci` category beside
+# k8s-deprecated-api-check, k8s-rollout-safety-check, and
+# helm-values-schema-check -- same "read what is actually there, report the
+# exact evidence, never fetch" shape, applied to a distinct, well-documented
+# failure mode (node-pressure eviction, OOM handling, CFS CPU throttling),
+# not chosen merely because "checker" was underused.
+#
+# Screened 2026-09-24. duplicate_check.py's closest match was
+# k8s-rollout-safety-check at 0.13 -- well under the 0.45 review bar, and
+# read directly to confirm no overlap: that venture's own CHECKS list (10
+# checks: Recreate strategy, readiness/liveness probes, maxUnavailable,
+# preStop/grace period, PodDisruptionBudget coverage) never reads
+# `resources.requests`/`resources.limits` at all. No existing venture
+# checks Kubernetes resource requests or limits. Not in
+# portfolio/pipeline/screened-out.md.
+#
+# The mechanisms, stated precisely rather than assumed, each independently
+# verified against a primary source:
+#   - No memory limit: the kernel's OOM killer eventually acts once the node
+#     is short on memory, scored by oom_score_adj rather than scoped to the
+#     container that grew (Kubernetes "Resource Management for Pods and
+#     Containers" docs).
+#   - No memory/CPU request: ranked worst in the kubelet's node-pressure
+#     eviction ordering regardless of actual usage (Kubernetes
+#     "Node-pressure Eviction" docs, the documented `Requests`-relative
+#     ranking).
+#   - No ephemeral-storage limit: a filled local disk crosses the node's
+#     disk-pressure threshold and the kubelet evicts pods to reclaim space,
+#     not only the one that filled it (same "Node-pressure Eviction" docs,
+#     "Local ephemeral storage" resource).
+#   - A set CPU limit: enforced by the kernel's CFS bandwidth controller,
+#     which grants quota once per fixed period with no rollover -- a bursty
+#     container can be throttled even while the node has spare CPU overall.
+#     Tracked upstream as kubernetes/kubernetes#67577 (verified via web
+#     search against the GitHub issue and Fairwinds' own Polaris
+#     documentation, which independently confirms Polaris runs CPU/memory
+#     request and limit checks as part of its 30+-policy set --
+#     fairwinds.com/polaris, github.com/FairwindsOps/polaris,
+#     polaris.docs.fairwinds.com).
+#   - Request above limit: the API server's admission validation rejects
+#     this outright (documented Kubernetes API validation behavior for
+#     ResourceRequirements).
+#
+# Distribution channels, named rather than assumed:
+#   - Kubernetes' own "Resource Management for Pods and Containers" and
+#     "Node-pressure Eviction" documentation pages, among the most-read
+#     pages in the Kubernetes docs, describe the exact mechanisms this tool
+#     checks for.
+#   - Specific, real search strings an operator hitting this is likely to
+#     use: "kubernetes pod evicted no resource limits", "kubernetes
+#     OOMKilled no limit set", "kubernetes CPU throttling CFS quota",
+#     "kubernetes DiskPressure eviction".
+#   - r/kubernetes and r/devops carry recurring "why did my pod get evicted"
+#     and "why is my pod throttled with idle CPU" threads -- the second is
+#     specifically the kubernetes/kubernetes#67577 phenomenon this tool's
+#     CPU-limit check surfaces.
+#   - Fairwinds' own Polaris is a well-known broader competing/adjacent
+#     tool for this exact sub-check (confirmed via web search: Polaris
+#     covers CPU/memory requests and limits among 30+ built-in checks) --
+#     vs-polaris.html compares against it directly, a real and specific
+#     comparison rather than an invented one.
+#
+# Scored against portfolio/pipeline/README.md's rubric (see
+# portfolio/scoring/venture-scores.yaml for the numeric breakdown):
+# AI leverage 1 (deterministic YAML parse + k8s quantity-string comparison,
+# no model work), autonomous ops 10 (browser page and CLI both parse only
+# locally supplied text, no network call in either), time to revenue 5
+# (donation-only like the rest of the fleet), gross margin 10 (static
+# parsing, zero hosting/inference cost per user), defensibility 4
+# (forkable like every checker in this portfolio; the YAML reader and the
+# check list are the whole product), distribution 6 (official K8s docs
+# among the most-read in the project, specific real search strings, an
+# active subreddit audience, and a named real competing/adjacent tool
+# -- Polaris -- to draw comparison-search traffic from, scored above the
+# narrower Helm-specific sibling's 5 but not claimed at a stronger level
+# than that evidence supports). Composite 6.0, floor 1 (ai_leverage) --
+# deliberate, not a defect: no AI in the product, since whether a resource
+# field is present, whether a request exceeds its own limit, and whether a
+# quantity string parses are all deterministic structural comparisons, not
+# judgment calls.
+#
+# Liability/ethics, read against portfolio/DIRECTION.md's legal guardrails
+# rather than filed as a separate formal gate (this graduated the same
+# lightweight path k8s-deprecated-api-check and helm-values-schema-check
+# did -- straight to VENTURE.yaml, no candidates.yaml probe): pure
+# information about a manifest the user supplies, no filing, signature,
+# deployment action, or determination on the user's behalf. A wrong finding
+# costs a missed or extra flag in a text report, never an infrastructure
+# change -- the tool makes no Kubernetes API call and touches no cluster.
+# Every claim about Kubernetes' own eviction/OOM/CFS-throttling behavior is
+# sourced from Kubernetes' public documentation or a public GitHub issue,
+# not asserted from memory of an undocumented internal, and the one claim
+# about a specific competing product (Polaris) was verified via web search
+# against that product's own documentation before being stated.
+hypotheses:
+  - claim: A platform engineer or SRE who has just traced a node-pressure eviction, an OOM kill, or a CPU-throttling incident back to a missing resource request/limit will use the free checker, or wire the CLI into CI, after finding it from Kubernetes' own resource-management documentation, a targeted search for the incident's symptom, or r/kubernetes / r/devops.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team already running a broader policy engine (Polaris, kube-score, Checkov) will still reach for a zero-install, single-question checker for a quick sanity check on one manifest before it is even proposed, rather than deploying or invoking the broader tool for that one file.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only YAML loaded or
+  # pasted in the visitor's own browser (no fetch, no upload), and the CLI
+  # reads only local files with no network call at all. Serving one more
+  # user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI/release pipeline within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/k8s-resource-limits-check/
+  analytics: null
