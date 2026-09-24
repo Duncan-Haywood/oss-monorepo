@@ -90,3 +90,16 @@ test('the entry page links one hop to the senior-deduction-calculator sibling', 
     'index must link ../senior-deduction-calculator/ so crawlers reach the sibling deduction calculator in one hop',
   );
 });
+
+// A second, concurrently-landed sibling link (both reconcile a figure the
+// filer already has against what they actually kept or can still
+// contribute), independently added to close the same crawlable-orphan gap
+// siblings.test.mjs's committed budget (0) flags. Kept alongside the link
+// above rather than picking one -- both are real, correct one-hop paths.
+test('index links one hop to the 1099k-reconciliation-worksheet sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/1099k-reconciliation-worksheet\/"/,
+    'index must link ../1099k-reconciliation-worksheet/ so crawlers reach it in one hop',
+  );
+});

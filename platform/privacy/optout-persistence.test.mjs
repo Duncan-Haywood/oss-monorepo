@@ -708,10 +708,32 @@ const RELATIVE_SELF = relative(
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
 //
-// 339 -> 340: `senior-deduction-calculator` graduated (#5765), concurrently
-// on `main` -- adding one more `usage.mjs`
-// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 340;
+// 339 -> 340: `claude-code-subagent-check` graduates -- adding one
+// `usage.mjs` (`ventures/claude-code-subagent-check/usage.mjs`), the same
+// opt-in/opt-out toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
+// under its own `claude-code-subagent-check:usage` storage name). Exactly
+// one added `usage.mjs`, no deletions. (This session found the file already
+// at 339 rather than 338 -- one venture between `tip-pool-compliance-
+// calculator` and this one added a switch without a comment recording it;
+// not reconstructed here since this entry only speaks to this session's own
+// change.) `mega-backdoor-roth-calculator`, which also graduated
+// concurrently, added no `usage.mjs` of its own, so it does not move this
+// count.
+//
+// 340 -> 341: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` a second time while this branch was still in
+// flight -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Same
+// collision shape one merge later: this branch only ever knew the
+// predecessor number (340) from the first merge until this second one.
+// (A separate concurrent session also recorded the 339 -> 340 half of this
+// same transition, independently, attributing it entirely to
+// senior-deduction-calculator and landing on 340 -- it could not see this
+// branch's own claude-code-subagent-check addition. Both additions are
+// real, so the merged count is 341, not 340; this entry supersedes that
+// one rather than dropping either venture's contribution.)
+const SWITCHES_IN_THE_CATALOGUE = 341;
 
 let counter = 0;
 function fixture(source) {
