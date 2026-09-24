@@ -708,8 +708,8 @@ const RELATIVE_SELF = relative(
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
 //
-// 339 -> 340: `senior-deduction-calculator` graduated 2026-09-24,
-// concurrently on `main` -- adding one more `usage.mjs`
+// 339 -> 340: `senior-deduction-calculator` graduated (#5765), concurrently
+// on `main` -- adding one more `usage.mjs`
 // (`ventures/senior-deduction-calculator/usage.mjs`), no deletions.
 // `mega-backdoor-roth-calculator`, which landed the same day, added no
 // `usage.mjs` and so does not count here.

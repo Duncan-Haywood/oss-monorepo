@@ -2069,6 +2069,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-rcreports-and-a-paid-valuation-report.html, which names
   // RCReports specifically and already carries the trademark disclaimer.
   's-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html',
+  // Compares against "a flat $2,999 special" -- the water-surface pricing
+  // habit every vinyl-liner crew is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

@@ -52,8 +52,8 @@
 #   portfolio-front-tools-16: 132 files, 556999 bytes
 #   portfolio-front-tools-17: 103 files, 554224 bytes
 #   portfolio-front-tools-18: 120 files, 554012 bytes
-#   portfolio-front-tools-19: 126 files, 554257 bytes
-#   portfolio-front-tools-20: 76 files, 367072 bytes
+#   portfolio-front-tools-19: 126 files, 554615 bytes
+#   portfolio-front-tools-20: 77 files, 371474 bytes
 #   portfolio-front-tools-21: 50 files, 264334 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2675,6 +2675,7 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
+      - vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz=vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
       - voiceover-project-rate-calculator__calc.mjs.gz=voiceover-project-rate-calculator__calc.mjs.gz
       - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
@@ -2688,12 +2689,12 @@ configMapGenerator:
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
       - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
-      - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
       - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
