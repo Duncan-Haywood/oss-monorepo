@@ -684,7 +684,10 @@ const RELATIVE_SELF = relative(
 // 334 -> 335: `salary-range-posting-check` also graduated, concurrently
 // on `main` -- adding one more `usage.mjs`
 // (`ventures/salary-range-posting-check/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 335;
+// 335 -> 336: `tip-pool-compliance-calculator` graduated, adding one more
+// `usage.mjs` (`ventures/tip-pool-compliance-calculator/usage.mjs`), no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 336;
 
 let counter = 0;
 function fixture(source) {

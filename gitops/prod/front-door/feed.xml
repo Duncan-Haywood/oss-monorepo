@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 353 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 354 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -123,6 +123,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Split a short-term rental stay&#39;s occupancy tax into what Airbnb or Vrbo already collects and what is left for the host to remit directly, layer by layer -- state, county, city, and a flat per-night fee. Free, private, nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Tip Pool Compliance Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/tip-pool-compliance-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/tip-pool-compliance-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Check a mandatory tip pool against federal FLSA rules: managers and supervisors are never eligible, and back-of-house staff are eligible only if you take no tip credit. See the tip-credit back-wage exposure a non-compliant pool creates. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>Window Tinting Bid Calculator — Auto Tint Job Pricing</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for biohazard and trauma-scene remediation technicians: price a job from crew labor, PPE decon cycles, and regulated-waste disposal billed per container (not per pound), then check whether a quote you&#39;re already giving clears cost.</summary>
-  </entry>
-  <entry>
-    <title>Branch Protection Drift Check — Does Your Repo Still Match Its Own Policy?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/branch-protection-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/branch-protection-drift-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a repo&#39;s actual GitHub branch protection settings (gh api branches/:branch/protection) and your declared policy to find every rule that has drifted weaker than intended — a temporarily disabled review requirement, force pushes turned back on, admin enforcement quietly off. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

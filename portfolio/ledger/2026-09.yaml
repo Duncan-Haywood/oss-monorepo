@@ -41685,3 +41685,71 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+
+  - venture: tip-pool-compliance-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new niche not in screened-out.md: a free browser
+        calculator checking a restaurant/bar's mandatory tip pool against
+        the two federal FLSA rules -- a manager or supervisor is never
+        eligible for tip-pool money regardless of tip-credit status (2018
+        CAA amendment to 29 U.S.C. 203(m)), and back-of-house staff are
+        eligible only when the employer takes no tip credit at all (DOL's
+        2021 final rule, 29 CFR 531.54) -- and computes the tip-credit
+        back-wage exposure a violation creates from the front-of-house
+        hours actually pooled. duplicate_check.py scored every venture,
+        screened-out row, and pipeline candidate at or below 0.10 against
+        the final description; not the same business as
+        no-tax-on-tips-overtime-calculator (a federal income-tax
+        deduction, unrelated to pool eligibility). Liability and ethics
+        gates both pass: a single well-documented federal rule rather
+        than a 50-state table, framed as a check and an exposure estimate
+        rather than a determination, donations-only with no incentive to
+        bias either direction.
+      - >-
+        Shipped complete: calc.mjs (pure functions, 14 assertions
+        pinning the worked example -- a shift manager and dishwashers
+        both improperly pooled while a $5.12 tip credit is taken, 230
+        front-of-house hours/week, $1,177.60/week and $4,710.40 over
+        four weeks in back-wage exposure), usage.mjs (opt-out,
+        DNT/GPC-respecting local counter, never records a role/wage/
+        headcount), share.mjs (localStorage + URL-fragment roster
+        save/share, re-validated on decode), index.html (the
+        calculator, FAQPage + SoftwareApplication JSON-LD with every
+        visible FAQ answer matching the structured data verbatim --
+        checked directly against faq-visible.test.mjs's own algorithm),
+        and a generic-method comparison page
+        (vs-guessing-from-a-staff-meeting.html, exempted in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT since it compares
+        against a verbal habit, not a named product). Filed in the
+        `backoffice` category in build.mjs alongside
+        certified-payroll-calculator and employee-cost-calculator
+        (the catch-all was already at its 5-tool bound the day this
+        graduated) and cross-linked with
+        no-tax-on-tips-overtime-calculator in both directions to close
+        the crawlable-orphan check. Scored in venture-scores.yaml
+        (composite 6.0, floor 1 on ai_leverage by design -- no model
+        call anywhere in the product).
+      - >-
+        Full local verification since Actions is starved
+        (ci_starvation.py confirmed runner_id: 0 on recent runs): the
+        venture's own 44 node --test assertions,
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1290+ assertions, including the five this graduation initially
+        broke and then fixed -- a stale front-door-mirror commit,
+        a missing launched.json date, the catch-all-category bound,
+        missing structured data on the comparison page, and the
+        crawlable-orphan budget), regen.mjs --verify, checklist_coverage.py,
+        sync_tree_counts.py (mirrored-tool count 353 -> 354, opt-out-switch
+        count 335 -> 336, with the running-comment lines this graduation
+        added), gitops/ci/sync_readme_counts.py (runs-on count drift from a
+        concurrent merge), python3 -m pytest across
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests (446 passed) and gitops/tests (637
+        passed, 1 skipped -- nginx unavailable), and all 27 platform/ci
+        unittest modules (1014 + 21 assertions) run from their own working
+        directories. Revenue and confirmed-visitor counts remain at zero,
+        which this does not change on its own.
+    mrr_end: 0

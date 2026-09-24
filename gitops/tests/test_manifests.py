@@ -2412,9 +2412,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `llms.txt` for the identical etcd-headroom reason as the merge two
     # entries above -- the second write is a no-op once the first is
     # already committed.
+    #
+    # 354 on this merge: `tip-pool-compliance-calculator` also graduated --
+    # a zero-dependency browser calculator for restaurant/bar owners that
+    # checks a mandatory tip pool against the two federal FLSA tip-pooling
+    # rules (a manager/supervisor is never eligible; back-of-house staff are
+    # eligible only when no tip credit is taken) and computes the tip-credit
+    # back-wage exposure a violation creates. Static `index.html` and a
+    # `vs-guessing-from-a-staff-meeting.html` comparison page, both from
+    # their first commit, same shape as the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 353  # `infra/OWNER_CHECKLIST.md`'s own "N of the 353 tools" wording.
+    total = 354  # `infra/OWNER_CHECKLIST.md`'s own "N of the 354 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1179,7 +1179,21 @@ const CATEGORY_RULES = [
       // staffing-cost decision. It cross-links staffing-markup-calculator as
       // a sibling -- the same burden math, applied on the other side of who
       // pays it.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator)/.test(slug),
+      // `tip-pool-compliance-calculator` joined 2026-09-24, filed here on
+      // its first commit rather than after a spell in the catch-all -- the
+      // catch-all was already at its bound of 5 (ai-engineering-academy,
+      // hoa-reserve-fund-calculator, overtime-pay-calculator,
+      // voiceover-project-rate-calculator, world-clock-widget) the day this
+      // venture graduated. It is the same "wage/payroll obligation computed
+      // after the fact" axis as `certified-payroll-calculator` and
+      // `employee-cost-calculator` right above it in this rule -- a federal
+      // FLSA tip-pooling eligibility check and the back-wage exposure a
+      // violation creates, rather than a bid or a fee schedule. It
+      // cross-links `no-tax-on-tips-overtime-calculator` as a sibling: same
+      // section of the tipped-wage workforce, a different obligation (a
+      // federal income-tax deduction there, a federal wage-and-hour rule
+      // here).
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|tip-pool-compliance-calculator)/.test(slug),
   },
   {
     id: 'ci',
