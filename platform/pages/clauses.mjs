@@ -1916,6 +1916,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
   // specifically and already carries the trademark disclaimer.
   'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
+  // Compares against "tracking payouts in a spreadsheet" -- a generic method
+  // every Poshmark seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above (e.g. whatnot-seller-payout's).
+  'poshmark-fee-calculator/vs-tracking-poshmark-payouts-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
