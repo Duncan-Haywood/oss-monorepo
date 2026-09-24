@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 144 files, 555078 bytes
 #   portfolio-front-tools-3: 135 files, 553602 bytes
 #   portfolio-front-tools-4: 141 files, 556684 bytes
-#   portfolio-front-tools-5: 119 files, 544671 bytes
+#   portfolio-front-tools-5: 120 files, 549940 bytes
 #   portfolio-front-tools-6: 135 files, 554003 bytes
 #   portfolio-front-tools-7: 126 files, 554897 bytes
 #   portfolio-front-tools-8: 128 files, 553888 bytes
@@ -825,6 +825,7 @@ configMapGenerator:
       - auto-glass-bid-calculator__index.html.gz=auto-glass-bid-calculator__index.html.gz
       - auto-glass-bid-calculator__share.mjs.gz=auto-glass-bid-calculator__share.mjs.gz
       - auto-glass-bid-calculator__usage.mjs.gz=auto-glass-bid-calculator__usage.mjs.gz
+      - auto-glass-bid-calculator__vs-a-flat-249-windshield-coupon.html.gz=auto-glass-bid-calculator__vs-a-flat-249-windshield-coupon.html.gz
       - auto-repair-effective-labor-rate__calc.mjs.gz=auto-repair-effective-labor-rate__calc.mjs.gz
       - auto-repair-effective-labor-rate__index.html.gz=auto-repair-effective-labor-rate__index.html.gz
       - auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz=auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz

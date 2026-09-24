@@ -1863,6 +1863,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-buildxact.html, which names a specific estimating platform and
   // already carries the trademark disclaimer.
   'pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html',
+  // Compares against "a flat $249 windshield coupon" -- a common
+  // advertised rate any auto-glass shop already runs, not a company or
+  // product this could be mistaken for.
+  'auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html',
   // Compares against "a flat rate per linear foot" -- the generic
   // per-foot quoting habit hardscape and retaining-wall contractors are
   // shopped against, not a company or product this could be mistaken for.
