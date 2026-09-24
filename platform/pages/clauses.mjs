@@ -1743,6 +1743,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above (e.g. docker-base-image-pin-check's).
   'docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "reading Kubernetes' own Deprecated API Migration
+  // Guide and cross-checking a manifest by hand" -- a manual review habit
+  // any platform engineer already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-pluto.html, which
+  // names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-build-secrets-check's).
+  'k8s-deprecated-api-check/vs-checking-the-migration-guide-by-hand.html',
   // Compares against "a flat pump-swap special" -- the generic coupon
   // pricing ($X, any sump pump, done) that swap specials are shopped
   // against, not a company or product this could be mistaken for.
@@ -1768,6 +1776,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which names Jobber specifically and
   // already carries the trademark disclaimer.
   'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "grepping the codebase by hand" -- a manual audit
+  // habit any developer already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-dotenv-linter.html,
+  // which names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-build-secrets-check's).
+  'env-example-drift-check/vs-grepping-the-codebase-by-hand.html',
+  // Compares against "ranking dishes by food cost percentage" -- the
+  // ordinary per-dish metric every restaurant kitchen already tracks off
+  // its own recipe cards and POS reports, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-marginedge.html, which names MarginEdge specifically and already
+  // carries the trademark disclaimer.
+  'menu-engineering-calculator/vs-ranking-by-food-cost-percent.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
