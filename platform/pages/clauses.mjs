@@ -1838,6 +1838,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Photobooth Supply Co specifically and already carries the "not
   // affiliated" clause for that reason.
   'photo-booth-event-quote/vs-a-flat-package-price.html',
+  // Compares against "running dig by hand and comparing the output by eye"
+  // -- a manual DNS-checking habit any operator already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-whatsmydns.html, which names whatsmydns.net specifically and
+  // already carries the "not affiliated" clause for that reason. Same
+  // shape as sql-migration-lock-check's
+  // vs-reading-the-migration-by-hand.html above.
+  'dns-configuration-evidence/vs-checking-dns-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
