@@ -289,12 +289,15 @@ test('every mirrored page carries the robots directive and canonical the switch 
       page.contents.includes(`<link rel="canonical" href="${canonical}">`),
       `${page.key} should be canonical to ${canonical}`,
     );
-    // A real `<link>` element, not a bare occurrence of the attribute text --
-    // canonical-tag-check's own guide page teaches the duplicate-canonical
-    // failure with escaped example markup in <code>, which legitimately
-    // contains the string `rel="canonical"` with no `<link` in front of it.
+    // Anchored to an actual <link> tag, not a bare `rel="canonical"`
+    // substring -- a guide page that discusses canonical tags in its own
+    // prose (escaped as `&lt;link rel="canonical"...&gt;`) legitimately
+    // contains that substring without shipping a second real tag. Measured
+    // 2026-09-24 on canonical-tag-check/why-two-canonical-tags-is-worse-
+    // than-none.html: the unanchored regex counted 5, the mirrored page
+    // ships 1.
     assert.equal(
-      page.contents.match(/<link\b[^>]*\brel=["']canonical["'][^>]*>/g).length,
+      (page.contents.match(/<link\b[^>]*\brel=["']canonical["'][^>]*>/g) ?? []).length,
       1,
       `${page.key} has more than one canonical, which leaves the crawler to pick`,
     );
