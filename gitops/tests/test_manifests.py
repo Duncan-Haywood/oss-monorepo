@@ -2479,18 +2479,39 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `caa-record-check` above) until this merge -- the same ordinary
     # collision shape recorded throughout this list.
     #
-    # 364 on this merge (PR #5768's own merge-into-main, against a `main`
-    # that had moved four further graduations past this branch's own base):
-    # `claude-skill-scaffold-generator`, `mega-backdoor-roth-calculator`,
-    # `senior-deduction-calculator` and `claude-code-subagent-check` each
-    # also graduated, concurrently on `main` -- a Claude Skill starter
-    # generator, an after-tax 401(k) headroom calculator, an OBBBA senior
-    # deduction calculator, and a Claude Code subagent-definition checker,
-    # each with a static `index.html` from its own first commit, same shape
-    # as the rest of this running count. This branch only ever knew its own
-    # predecessor's number (360, at `claude-code-settings-check`'s
-    # graduation) until this merge -- the same ordinary collision shape
-    # recorded throughout this list.
+    # 361 on a later merge: `claude-code-subagent-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser checker for
+    # Claude Code subagent definitions (.claude/agents/*.md) that flags a
+    # malformed/mismatched name, a description too vague for reliable
+    # orchestrator delegation, a malformed `tools` list, an unrecognized
+    # `model` alias, and a missing or near-empty system prompt. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 362 on a later merge: `claude-skill-scaffold-generator` also
+    # graduated, concurrently on `main` -- a zero-dependency browser tool
+    # that turns a plain-language description of a Claude Agent Skill into
+    # a starter SKILL.md with valid YAML frontmatter and a suggested folder
+    # layout, flagging a non-slug name, a first-person description, and a
+    # missing trigger condition. The generator half of the pair
+    # `skill-manifest-check` started as the checker half. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 363 on a later merge: `mega-backdoor-roth-calculator` also graduated,
+    # concurrently on `main` -- a browser calculator computing after-tax
+    # 401(k) headroom under the IRS 415(c) limit, static index.html plus a
+    # which-conversion-cadence-should-i-use.html guide page, both from
+    # their first commit. This branch only ever knew its own predecessor's
+    # number (360, from `claude-code-settings-check` above) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list.
+    #
+    # 364 on this merge: `senior-deduction-calculator` also graduated
+    # (#5765), concurrently on `main` -- a browser calculator for the new
+    # OBBBA $6,000 senior deduction (tax years 2025-2028), static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
     total = 364  # `infra/OWNER_CHECKLIST.md`'s own "N of the 364 tools" wording.

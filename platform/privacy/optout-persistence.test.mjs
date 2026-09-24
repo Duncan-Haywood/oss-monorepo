@@ -724,17 +724,30 @@ const RELATIVE_SELF = relative(
 // comparison page adds no switch of its own -- a static comparison page,
 // not a `usage.mjs` -- so it does not move this count.
 //
-// 340 -> 343 (PR #5768's own merge-into-main, against a `main` that had
-// moved four further graduations past this branch's own base):
-// `claude-skill-scaffold-generator`, `senior-deduction-calculator` and
-// `claude-code-subagent-check` each also graduated, concurrently on
-// `main`, each adding one more `usage.mjs` following the same opt-out
-// pattern as their siblings, no deletions.
-// `mega-backdoor-roth-calculator`, which also graduated concurrently,
-// added no `usage.mjs` of its own, so it does not move this count. This
-// branch only ever knew its own predecessor's number (340, at
-// `claude-code-settings-check`'s graduation) until this merge -- the same
-// ordinary collision shape recorded throughout this list.
+// 340 -> 341: `claude-code-subagent-check` also graduated, concurrently on
+// `main` -- adding one more `usage.mjs`
+// (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
+// toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
+// under its own `claude-code-subagent-check:usage` storage name). Exactly
+// one added `usage.mjs`, no deletions.
+//
+// 341 -> 342: `claude-skill-scaffold-generator` also graduated,
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/claude-skill-scaffold-generator/usage.mjs`) following the same
+// opt-out pattern as its AI-agent-tooling siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its own
+// `claude-skill-scaffold-generator:usage` storage name), no deletions.
+// `mega-backdoor-roth-calculator`, which also graduated concurrently, added
+// no `usage.mjs` of its own, so it does not move this count.
+//
+// 342 -> 343: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` -- adding one more `usage.mjs` following the same
+// opt-out pattern as its siblings (`usageOptedOut`/`setUsageOptOut` gating
+// `record`, keyed under its own `senior-deduction-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+// Re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
 const SWITCHES_IN_THE_CATALOGUE = 343;
 
 let counter = 0;
