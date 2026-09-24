@@ -441,8 +441,7 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 365 of the 365 tools directly. Step 1
-below no longer publishes any tool a stranger cannot already reach; what it
+"You decide" below), and it mirrors 365 of the 365 tools directly. Step 1below no longer publishes any tool a stranger cannot already reach; what it
 buys is the canonical hostname and indexability.
 
 **Changed 2026-09-03, twice.** That read "162 ... the remaining 7" until the
@@ -483,8 +482,7 @@ it retires the mirror, serves the canonical host, and lets those pages be
 *indexed*, which the mirrored copies deliberately are not — but it is no
 longer the difference between a stranger reaching 53 tools and reaching
 169. Since the `ENTRY_OVERRIDES` fix above it is not a tool-count difference
-at all: the apex serves all 365. What Step 1 buys is the canonical host and
-search.
+at all: the apex serves all 365. What Step 1 buys is the canonical host andsearch.
 
 **Corrected 2026-09-07.** This sentence said "175" while the paragraph 40
 lines above it already said "198 of the 198" — the mirror kept growing
@@ -611,8 +609,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 365 tools at `/tools/<slug>/`, both
-  held in kustomize ConfigMaps. Neither clones the repo at pod start, so
+  §5b clauses) plus a static mirror of 365 tools at `/tools/<slug>/`, both  held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
   it is already live. See `gitops/README.md`'s "The public product site"

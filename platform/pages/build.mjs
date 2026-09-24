@@ -1269,7 +1269,18 @@ const CATEGORY_RULES = [
       // deduction. Its slug names neither a bid, a fee, nor an OBBBA
       // deduction, so no keyword above would have caught it and it would
       // otherwise have swollen the catch-all past its bound of 5.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator)/.test(slug),
+      //
+      // `trump-account-calculator` joined 2026-09-24, concurrently on
+      // `main` too, filed here on its first commit rather than after a
+      // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is
+      // for. Same "IRS dollar-limit lookup against a filer's own numbers"
+      // axis as `mega-backdoor-roth-calculator` right above it in this rule
+      // -- a published, dated contribution cap plus arithmetic on figures
+      // the saver already has, never a filed election or plan-compliance
+      // determination -- just for a federal child savings account (26
+      // U.S.C. 530A) instead of a 401(k)'s after-tax bucket. It cross-links
+      // `mega-backdoor-roth-calculator` as its nearest sibling.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator)/.test(slug),
   },
   {
     id: 'ci',
