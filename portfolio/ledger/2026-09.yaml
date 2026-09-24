@@ -39735,3 +39735,103 @@ entries:
         running unbounded, the same call `backup-file-exposure-check`'s
         entry above records for the identical reason.
     mrr_end: 0
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore task (router allocate.py rank #1: test the untested
+        "offer-vs-list" hypothesis). WebSearch found the demand
+        plausible but not something this session can settle -- several
+        third-party Reverb fee calculators already exist (evidence
+        people search "reverb fee calculator"), but confirming a
+        returning-seller hypothesis needs a customer response this
+        session cannot gather (evidence: customer-contact, and the
+        router's own README says that stays BLOCKED for what a session
+        can observe). Research instead surfaced a concrete, checkable
+        calculator defect: Reverb's own help centre ("What fees will I
+        pay for selling on Reverb?" / "What are my fees as a Reverb
+        Preferred Seller?") caps the seller's marketplace/selling fee at
+        $500 per sale, for standard and Preferred sellers alike -- a
+        $15,000 guitar owes $500, not the uncapped 5% ($750), confirmed
+        against Reverb's own worked example via WebSearch. The
+        calculator had no such cap, so it overstated Reverb's fee (and
+        understated a seller's net cash) on any listing above roughly
+        $10,000 -- an ordinary price for vintage/boutique gear on this
+        marketplace, not an edge case, and the opposite of what Reverb
+        itself advertises the cap for ("particularly cost-effective for
+        selling high-value instruments").
+      - >-
+        Shipped: `marketplaceFeeCap` input (default $500, 0 = no cap),
+        applied in `calculateReverbSale`. The two closed-form crossover
+        solvers (`offerThatMatchesEbayList`, the included-shipping list
+        match) assumed one linear fee line the whole way up; replaced
+        both with a shared `solvePriceForReverbProfit` that re-solves
+        piecewise around the price where the fee flattens, checked
+        continuous across the seam by a dedicated test. New input field,
+        results-panel note, FAQ entry (both the visible HTML and the
+        FAQPage JSON-LD, plus the schema.org featureList) and a README
+        section explaining the cap and why it is an input rather than a
+        hard-coded number, matching this venture's own existing "every
+        rate is an input, not a stored fee schedule" convention. 8 new
+        `calc.test.mjs` assertions: the $500/$15,000 worked example
+        matches Reverb's own, the cap never binds below the $800 worked
+        example (no regression), 0 means uncapped, Reverb Gives is
+        untouched by the cap, and both solvers stay correct and
+        continuous above the cap threshold.
+      - >-
+        Full local verification (CI starved -- `ci_starvation.py` on the
+        latest Portfolio validate run confirmed `runner_id: 0`):
+        venture's own suite 112/112. Browser checks (Playwright + axe-core,
+        `npm install --no-save playwright@1.56.0 axe-core` in one
+        command) `--only reverb-fee-calculator`: 8/8, including 11 pages
+        x 2 viewports WCAG A/AA contrast clean on the new input field.
+        `platform/marketing` + `platform/pages` (`node --test`): first
+        full run caught a real bug this change introduced -- the new
+        FAQ's JSON-LD used a straight apostrophe where the matching
+        visible copy used the page's `&rsquo;` convention, and
+        `faq-visible.test.mjs` correctly flagged the mismatch; fixed, and
+        a clean re-run then caught the ordinary consequence of editing
+        `index.html` after the first `regen.mjs` (a second, expected
+        `regen.mjs --verify` / `regen.mjs` round) -- final run 1286/1286.
+        `platform/proposal` 101/101; `platform/privacy` +
+        `platform/webcheck` 142/142. `checklist_coverage.py`,
+        `clauses.mjs` (1377/1377) and `faq-duplicate.mjs` (1377/1377)
+        all clean. `gitops/tests` (pytest, after installing
+        `nginx-light` + `openssh-client` per CLAUDE.md's documented apt
+        workaround): 637 passed/1 skipped (environmental,
+        `test_front_door_serving.py`). `platform/ci` unittest (all
+        `test_*.py`) + `agent_review/test_review`: all pass.
+        `guard_state.py --require-runnable`: no fixable skips.
+        `portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests` (pytest): 446
+        passed. `router/validate.py`, `score_ventures.py --check`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `usage_state.py`, `score_sensitivity.py`
+        all clean. `run_workflow_locally.py --for-changes`: 14/17
+        selected workflows passed; the 3 not run are
+        write-permission/secret-gated deploy and review jobs
+        (`agent-cross-review`, `hetzner-gitops-ci`, `portfolio-pages` +
+        `publish-pages-branch` deploy steps).
+      - >-
+        Merging `origin/main` (moved several times during this session --
+        the fleet merges every few minutes) hit the documented
+        generated-mirror conflict in `gitops/prod/front-door-tools/`;
+        resolved with `platform/marketing/resolve-mirror-merge.sh` as
+        CLAUDE.md prescribes, never by hand. The regenerated mirror then
+        surfaced one pre-existing, fleet-wide, out-of-scope failure:
+        `front-door-tools.test.mjs`'s "mirror is under the warn ratio"
+        check now reads 85.3%, over its 85% warn threshold -- caused by
+        the dozen-plus other ventures merged into `main` during this
+        session (this PR's own footprint is under 1KB), not by this
+        venture's change. Left unfixed and reported here, the same
+        pattern this ledger already records for other single-venture
+        PRs that surface an unrelated pre-existing failure. Separately,
+        the merge also brought in two new CI workflows that moved
+        `gitops/ci/README.md`'s hand-typed `runs-on` count; resynced with
+        `gitops/ci/sync_readme_counts.py` (437/439/398 -> 438/440/399,
+        `gitops/tests/test_ci_runner.py` clean after) rather than
+        retyped, per this file's own documented tax on hand-written tree
+        counts. `sync_tree_counts.py` found both of its own counts
+        already in agreement after the merge -- nothing to rewrite.
+    mrr_end: 0
