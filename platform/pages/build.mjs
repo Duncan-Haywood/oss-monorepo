@@ -2233,6 +2233,15 @@ const CATEGORY_RULES = [
     // their own post before it costs them a disclosure violation -- and it
     // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
     // the same solo-earner audience.
+    //
+    // `voiceover-project-rate-calculator` joined 2026-09-24, found by
+    // enumerating the catch-all after `mega-backdoor-roth-calculator`
+    // graduated into it and pushed it to 6: a voice-over artist turning a
+    // script's word count and the buyer's intended usage into a defensible
+    // project rate is the same move as `tutor-package-pricing-calculator`'s
+    // instructor and `cat-adjuster-fee-calculator`'s adjuster -- one person
+    // pricing their own labour from their own inputs, not a business quoting
+    // a customer.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -2250,6 +2259,7 @@ const CATEGORY_RULES = [
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',
+        'voiceover-project-rate-calculator',
       ].includes(slug),
   },
 ];
