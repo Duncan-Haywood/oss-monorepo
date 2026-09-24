@@ -16704,40 +16704,119 @@ ventures:
     scores:
       ai_leverage: 1
       autonomous_ops: 10
-      time_to_revenue: 5
+      time_to_revenue: 6
       gross_margin: 10
-      defensibility: 2
-      distribution: 6
-    composite: 5.667
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
     floor_note: >-
-      No AI in the product, deliberately. Every finding is a mechanical
-      Unicode codepoint classification against the Unicode Standard's own
-      stable character properties -- never a model judgment about intent.
+      No AI in the product, deliberately. Every finding (a zero-width or
+      other invisible codepoint, a Unicode Tag character decoded back to
+      the plaintext it spells out, a bidirectional override/control
+      character) is decided by classifying the exact codepoint against the
+      Unicode Standard's own, stable character properties -- a factual,
+      deterministic comparison, not a model judgment, and it never claims
+      to know whether the surrounding text is actually malicious.
     basis: >-
-      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml for
-      the full duplicate_check.py run against agent-instructions-drift-check
-      and others, none clearing the 0.45 bar). Defensibility 2,
-      distribution 6: scored deliberately modest on defensibility -- a
-      zero-width/Unicode-Tag/bidi-override codepoint table is easy to
-      reproduce once someone thinks to -- while distribution reflects
-      named, current (2024-2026) security-community channels (r/netsec,
-      Hacker News threads on Trojan Source and ASCII-smuggling
-      prompt-injection writeups) rather than a channel invented from
-      nothing. No search-volume tool was queried to confirm magnitude.
+      Screened 2026-09-24 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free browser checker covering an active,
+      current attack pattern (Unicode/ASCII-smuggling prompt injection
+      against AI coding agents, plus the older 2021 Trojan Source
+      bidirectional-override technique). duplicate_check.py (run twice,
+      before building and against the final description) found nothing
+      >= the 0.45 review bar; the closest hit, agent-instructions-drift-
+      check, shares an audience (AI-agent instruction files) but an
+      entirely different mechanism -- it is a stale-reference linter over
+      visible, correctly-encoded text, where this venture classifies raw
+      codepoints regardless of what the visible text says. See the
+      venture's own VENTURE.yaml for the full duplicate_check table and
+      the judgment calls (no homoglyph/confusable detection in v0; every
+      Tag character flagged "high" unconditionally) documented there.
+      Autonomous ops 10 / gross margin 10: every check runs client-side
+      against text the visitor pastes or a file they load locally,
+      nothing uploaded, no server of ours in the loop, so serving one
+      more visitor costs a static file -- same shape as mcp-config-risk-
+      check.
+      Distribution 5: named channels are real but narrower than an
+      established platform-review funnel (the "ASCII smuggling" and
+      "Trojan Source" documentation threads, HN Show/security threads,
+      r/ClaudeAI and r/LocalLLaMA agent-safety discussion, plus a footer
+      cross-link with mcp-config-risk-check and agent-instructions-drift-
+      check), matching mcp-config-risk-check's own distribution score for
+      the same reasoning.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      codepoint classifier is easy to reimplement, so defensibility rests
+      on being first and correct for this exact attack surface rather
+      than on any moat -- matching mcp-config-risk-check's own
+      defensibility score in the same domain.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: every check is a mechanical codepoint match against text
-      the user pastes or a file they load locally, no network call, and
-      every finding is framed as "worth a look, not a verdict" with a
-      clean result explicitly stated as not a safety guarantee, mirroring
-      mcp-config-risk-check's and actions-permissions-check's own liability
-      framing.
-      Ethics: strictly beneficial as it scales -- helps a reviewer catch a
-      real, current hiding technique before an AI agent or human reviewer
-      is fooled by it, no affiliate link, no referral fee, donations-only,
-      and it does not scan or fingerprint any third party.
+      Liability: every check is a mechanical codepoint classification
+      against text the user pastes or a file they load locally -- no
+      network call of any kind, no claim that the surrounding text's
+      meaning was understood or that an instruction is or is not
+      malicious, only that a specific character was or was not observed
+      at a specific position. The UI, README, and footer all state
+      plainly that a finding is "worth a look, not a verdict" and a clean
+      result is "not a safety guarantee".
+      Ethics: strictly beneficial as it scales -- exists only to help a
+      developer or reviewer catch a real, current hiding technique before
+      an AI agent or human reviewer is fooled by it, no adverse incentive
+      on our side (no affiliate link, no referral fee, donations-only),
+      and it never scans or fingerprints third-party infrastructure since
+      it only reads text the visitor pastes or a file they explicitly
+      choose to load.
+
+  - slug: skill-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately -- no call of any kind to an LLM
+      to judge a skill. Every finding is a deterministic pattern match
+      (frontmatter parse, a fixed trigger-cue regex list, Jaccard
+      vocabulary overlap, a character-count token estimate) against text
+      the user pastes.
+    basis: >-
+      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml for
+      the full duplicate_check.py run, none clearing the 0.45 bar, and the
+      pipeline's "archetype itself" note this write-up already applies).
+      Defensibility 3: a frontmatter parser plus a few pattern-match
+      heuristics is moderately easy to reproduce, scored a point above
+      hidden-unicode-check's 4 because the description-vagueness and
+      cross-skill-overlap heuristics (not just a codepoint table) took more
+      judgment to tune than a pure lookup. Distribution 5: named,
+      current (early-2026) developer-tooling channels (r/ClaudeAI,
+      r/LocalLLaMA agent-tooling threads, HN Show threads on Claude Code
+      Skills, the GitHub SKILL.md topic surface) plus footer cross-links
+      with mcp-config-risk-check and hidden-unicode-check, matching those
+      two ventures' own distribution score for the same reasoning. No
+      search-volume tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic pattern match against text
+      the user pastes, no network call of any kind, no LLM call to judge
+      the skill, and no claim that a skill will or will not actually
+      trigger inside a real agent session -- every finding is framed as
+      "worth a look, not a verdict" and a clean result as "not a guarantee
+      the skill will trigger correctly", mirroring mcp-config-risk-check's
+      and hidden-unicode-check's own liability framing.
+      Ethics: strictly beneficial as it scales -- helps a skill author
+      catch an authoring mistake before publishing, no affiliate link, no
+      referral fee, donations-only, and it does not scan, fingerprint, or
+      contact any third-party system, registry, or agent runtime.

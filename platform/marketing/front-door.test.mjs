@@ -1456,18 +1456,12 @@ test('llms.txt claims a wider collection only while one actually exists', () => 
   }
 });
 
-/**
- * The committed llms.txt, inflated.
- *
- * Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in `front-door.mjs`),
- * so every assertion below reads it through here rather than as UTF-8, for
- * the identical reason `readCommittedSitemap` does.
- */
-async function readCommittedLlms() {
-  return zlib.gunzipSync(await fs.readFile(LLMS_OUTPUT_FILE)).toString('utf8');
-}
-
 test('the committed llms.txt matches what this generator produces', async () => {
+  // Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in
+  // `front-door.mjs`), so this reads it through `readCommittedLlms` rather
+  // than as UTF-8 — see that helper's own doc comment for why reading the
+  // `.gz` bytes as text would not throw but would compare mojibake to plain
+  // text and fail for the wrong reason.
   const { llms } = await buildFrontDoor();
   assert.equal(
     await readCommittedLlms(),
@@ -1517,23 +1511,21 @@ test('nginx answers /llms.txt as markdown-ish text, with the encoding declared',
   const block = conf.match(new RegExp(`location = /${escapeForRegExp(LLMS_FILE)} \\{[\\s\\S]*?\\n {2}\\}`));
   assert.ok(block, `front-door/default.conf must serve /${LLMS_FILE} explicitly`);
   assert.match(block[0], /default_type text\/plain;/);
+  // The one thing robots.txt does not need. That file is held to ASCII by a
+  // test; this one carries the ventures' own titles, 31 of whose bullets
+  // contain an em dash, and nginx defaults to `charset off` — so without this
+  // a client assuming Latin-1 renders every one as mojibake.
+  assert.match(block[0], /charset utf-8;/);
   // Stored gzip-only since 2026-09-24, so this block is served out of the
   // content phase by `gzip_static` rather than resolved in the rewrite phase
   // by `try_files`. Both halves are asserted, for the identical reason the
-  // `/sitemap.xml` block's own test above gives.
+  // `/sitemap.xml` and `/catalog.json` blocks' own tests give.
   assert.ok(
     !/try_files/.test(block[0]),
     'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
   );
   assert.match(block[0], /gzip_static always;/);
   assert.match(block[0], /gunzip on;/);
-  // The one thing robots.txt does not need. That file is held to ASCII by a
-  // test; this one carries the ventures' own titles, 31 of whose bullets
-  // contain an em dash, and nginx defaults to `charset off` — so without this
-  // a client assuming Latin-1 renders every one as mojibake. `gunzip on`
-  // decompresses before this directive is consulted, so it still applies to
-  // the bytes a plain-Accept-Encoding client receives.
-  assert.match(block[0], /charset utf-8;/);
   assert.ok(!/X-Robots-Tag/.test(block[0]), '/llms.txt exists to be read by crawlers');
   assert.ok(
     conf.indexOf(`location = /${LLMS_FILE}`) < conf.indexOf('location / {'),
@@ -1542,17 +1534,17 @@ test('nginx answers /llms.txt as markdown-ish text, with the encoding declared',
 });
 
 test('the committed llms.txt is the file that block promises to serve', async () => {
-  // The encoding claim above is only true of the *inflated* bytes — the
-  // stored `.gz` bytes themselves are binary — and the em-dash count is what
-  // makes the charset load-bearing rather than decorative — if a future edit
-  // made this file ASCII the directive would be harmless but the comment
-  // beside it would be wrong.
-  const text = await readCommittedLlms();
-  const nonAscii = [...text].filter((c) => c.codePointAt(0) > 127);
+  // The encoding claim above is only true if the bytes really are UTF-8, and
+  // the em-dash count is what makes the charset load-bearing rather than
+  // decorative — if a future edit made this file ASCII the directive would be
+  // harmless but the comment beside it would be wrong. Read through
+  // `readCommittedLlms` since the committed key is gzipped, not plain text.
+  const txt = await readCommittedLlms();
+  const nonAscii = [...txt].filter((c) => c.codePointAt(0) > 127);
   assert.ok(nonAscii.length > 0, 'if this file is ever pure ASCII, drop the charset comment with it');
 });
 
-test('the stored llms key agrees with the compression suffix constant', () => {
+test('the stored llms.txt key agrees with the compression suffix constant', () => {
   // `LLMS_OUTPUT_FILE` spells `.gz` literally, because `COMPRESSED_SUFFIX` is
   // declared below it and a forward reference would be a TDZ error at module
   // load. This is the assertion that comment promises, so the literal cannot
@@ -1565,7 +1557,7 @@ test('no plain llms.txt is left beside the compressed key', async () => {
   // The stale-sibling trap, asserted rather than trusted to the sweep in
   // `front-door.mjs`: `location = /llms.txt`'s own `root` would still find a
   // plain file, so a regeneration that stopped writing the `.gz` would go on
-  // serving a frozen catalogue under a 200 for as long as anybody looked.
+  // serving a frozen document under a 200 for as long as anybody looked.
   const plain = path.join(path.dirname(LLMS_OUTPUT_FILE), LLMS_FILE);
   assert.equal(
     await fs.stat(plain).then(() => true, () => false),
@@ -1903,6 +1895,17 @@ test('catalog.json rides in the ConfigMap that mounts at the document root', asy
  */
 async function readCommittedSitemap() {
   return zlib.gunzipSync(await fs.readFile(SITEMAP_OUTPUT_FILE)).toString('utf8');
+}
+
+/**
+ * The committed llms.txt, inflated.
+ *
+ * Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in `front-door.mjs`),
+ * so every assertion below reads it through here rather than as UTF-8, for
+ * the identical reason `readCommittedSitemap` above does.
+ */
+async function readCommittedLlms() {
+  return zlib.gunzipSync(await fs.readFile(LLMS_OUTPUT_FILE)).toString('utf8');
 }
 
 test('the stored sitemap key agrees with the compression suffix constant', () => {

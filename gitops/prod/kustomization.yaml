@@ -112,18 +112,20 @@ configMapGenerator:
       # `llms.txt`, the AI-discovery counterpart to the feed.
       #
       # **Stored gzipped since 2026-09-24**, same reason and same mechanism as
-      # `sitemap.xml.gz` above: it is the same "one line per published page"
-      # shape, and it is the key that took the object over the 943,718-byte
-      # budget in `gitops/tests/test_manifests.py` that day (945,206 bytes,
-      # over by 1,488, from two ventures graduating in the same merge window).
-      # See `llmsStoredKey` in `platform/marketing/front-door.mjs`.
+      # `sitemap.xml.gz` above and `catalog.json.gz` below: it is one of the
+      # keys that grows with the catalogue, and it was the key that took the
+      # object over the 943,718-byte budget in
+      # `gitops/tests/test_manifests.py` that day (945,297 bytes, over by
+      # 1,579 — measured with `main` itself already 109 bytes over budget
+      # before this session's venture existed). See `llmsStoredKey` in
+      # `platform/marketing/front-door.mjs`.
       #
       # A `.gz` key is not valid UTF-8, so kustomize files it under
       # `binaryData` as base64. The URL is unchanged: nginx still answers
-      # `/llms.txt`, via `gzip_static always; gunzip on;` and *no* `try_files`,
-      # for the identical reason `sitemap.xml`'s entry above gives —
-      # `try_files` stats the uncompressed name and there is no longer a plain
-      # sibling on disk. The `location = /llms.txt` block in
+      # `/llms.txt`, via `gzip_static always; gunzip on;` and *no*
+      # `try_files`, for the identical reason `sitemap.xml`'s entry above
+      # gives — `try_files` stats the uncompressed name and there is no
+      # longer a plain sibling on disk. The `location = /llms.txt` block in
       # `front-door/default.conf` carries the long version of that trap.
       - llms.txt.gz=front-door/llms.txt.gz
       # `catalog.json`, the structured counterpart to `llms.txt` — the same

@@ -1844,6 +1844,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Photobooth Supply Co specifically and already carries the "not
   // affiliated" clause for that reason.
   'photo-booth-event-quote/vs-a-flat-package-price.html',
+  // Compares against "a flat rate per square foot" -- a common pricing
+  // habit any outdoor-living contractor already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-buildxact.html, which names a specific estimating platform and
+  // already carries the trademark disclaimer.
+  'pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

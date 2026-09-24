@@ -547,21 +547,30 @@ export const LLMS_FILE = 'llms.txt';
 /**
  * The ConfigMap key it is stored under, gzipped — see `COMPRESSED_SUFFIX`.
  *
- * `COMPRESSED_SUFFIX`'s own doc comment named `llms.txt` (106,635 bytes on
- * 2026-09-23) as the second of the two keys left plain "one at a time and
- * against a measurement" after `sitemap.xml` joined. That day came on
- * 2026-09-24: two ventures graduating in the same merge window
- * (`salary-range-posting-check`, `hidden-unicode-check`) took
- * `portfolio-front-html` to 945,206 bytes against the 943,718-byte budget —
- * the identical failure shape `sitemapStoredKey` records a day earlier, one
- * key further down the list `COMPRESSED_SUFFIX` already named.
+ * `catalogStoredKey`'s own doc comment named `sitemap.xml` (113,830 bytes the
+ * day `catalog.json` was compressed) as the next key over the etcd threshold,
+ * and its own comment then named `llms.txt` (106,635 bytes that same day) as
+ * the one after that — both left plain deliberately, "one at a time and
+ * against a measurement" rather than pre-emptively. `sitemap.xml` joined on
+ * 2026-09-23; this is that day for `llms.txt`. Measured on 2026-09-24: adding
+ * `skill-manifest-check` to a `main` that was already 109 bytes over the
+ * 943,718-byte budget on its own (three sibling comparison pages having
+ * landed since `sitemap.xml` bought its headroom back) took
+ * `portfolio-front-html` to 945,297 bytes — over by 1,579, the same failure
+ * shape `catalogStoredKey` and `sitemapStoredKey` both record, one key
+ * further down the list they named. This was never really about one venture:
+ * `main` itself was already over budget before this session's page existed.
  *
- * `llms.txt` is the same "one line per published page" shape sitemap.xml is,
- * so it compresses on the same order — see the write site below for the
- * measured before/after.
+ * Applied the identical mechanism the two keys before it use: gzip the file,
+ * store it under a `.gz` key, serve it via `gzip_static always; gunzip on;`
+ * (no `try_files`, which stats the now-absent uncompressed name and would
+ * 404 before `gzip_static` ever ran), sweep the stale plain sibling, and add
+ * the matching test coverage mirroring what guards `sitemap.xml.gz`.
  *
- * The *URL* is unchanged and stays `/llms.txt` — well-known paths do not move
- * to save bytes. Only the stored key changes.
+ * The *URL* is unchanged and stays `/llms.txt` — `LLMS_FILE` is what the
+ * front page and the About page link, and a well-known path
+ * (llmstxt.org) is not something to move to save bytes. Only the stored key
+ * changes.
  */
 export const llmsStoredKey = () => `${LLMS_FILE}${COMPRESSED_SUFFIX}`;
 
@@ -1322,14 +1331,11 @@ export const COMPARE_KEY = 'compare.html';
  * rather than as an exception to it — it grows with the catalogue, and by then
  * it was both the largest key in the object and the one that took it over
  * budget. See `catalogStoredKey` for the measurement. `sitemap.xml` (113,830
- * bytes) joined on 2026-09-23, the day it was the key that took the object
- * over budget — see `sitemapStoredKey` for that measurement. `llms.txt`
- * (106,635 bytes at the time) was left plain a second longer, "one at a time
- * and against a measurement rather than all three on the strength of the
- * first one working" — until 2026-09-24, when it was the next key in this
- * same list to take the object over budget in turn. See `llmsStoredKey` for
- * that measurement. All four ConfigMap-crossing keys are now gzipped; none
- * of the remaining plain keys grows with the catalogue the way these did.
+ * bytes) and `llms.txt` (106,635) are the next two by the same test and are
+ * deliberately left plain for now: one key bought roughly thirty ventures of
+ * headroom, and compressing a well-known path is a change to how nginx
+ * answers it, so it is worth doing one at a time and against a measurement
+ * rather than all three on the strength of the first one working.
  *
  * nginx serves them with `gzip_static always; gunzip on;`, reached by a
  * `rewrite`, never a `try_files`. That is not style: `try_files` stats the
@@ -2907,11 +2913,10 @@ if (isMain) {
     console.log(`wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${feed.length} bytes)`);
     // And once more: `llms.txt` lists the same mirrored tools the page and the
     // feed do, so a run that wrote one without the others would publish three
-    // documents disagreeing about what this host serves.
-    // Gzipped, unlike the feed write above it: this is the key `llmsStoredKey`
-    // named as the next one over the etcd budget by this same test, and it is
-    // what took the object over on 2026-09-24. See `llmsStoredKey`. The URL is
-    // still `/llms.txt`.
+    // documents disagreeing about what this host serves. Gzipped, unlike the
+    // feed write above it: this is the key `catalogStoredKey` and
+    // `sitemapStoredKey` both named as next over the etcd budget, and it is
+    // what took the object over on 2026-09-24. See `llmsStoredKey`.
     const storedLlms = compress(llms);
     await fs.writeFile(LLMS_OUTPUT_FILE, storedLlms);
     console.log(
@@ -3009,9 +3014,9 @@ if (isMain) {
     // moved on. `SITEMAP_FILE` joined on 2026-09-23 for the identical reason,
     // one key over: a plain `sitemap.xml` left beside the new `.gz` would
     // keep answering `/sitemap.xml` with a sitemap that stopped growing.
-    // `LLMS_FILE` joins on 2026-09-24, same reason again, one key further:
-    // a plain `llms.txt` left beside the new `.gz` would keep answering
-    // `/llms.txt` with a catalogue that stopped growing.
+    // `LLMS_FILE` joins on 2026-09-24, one key further still, for the
+    // identical reason again: a plain `llms.txt` left beside the new `.gz`
+    // would keep answering `/llms.txt` with a document that stopped growing.
     for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, LLMS_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
       const file = path.join(path.dirname(OUTPUT_FILE), stale);
       if (await fs.stat(file).then(() => true, () => false)) {
