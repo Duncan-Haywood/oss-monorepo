@@ -1620,6 +1620,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // B" and names no real vendor. Same reasoning as the other generic-method
   // pages above.
   'vector-db-cost-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "tracking 1099 vendors in a spreadsheet" -- the
+  // generic method most small-business bookkeepers already use, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-track1099.html, which names Track1099 (an Avalara
+  // product) specifically and already carries the trademark disclaimer.
+  // Same reasoning as the other generic-method pages above.
+  '1099-vendor-tracker/vs-tracking-vendors-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
