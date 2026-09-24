@@ -1409,6 +1409,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-a-spreadsheet pages above.
   'ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a method every independent medical
+  // courier pricing their own route already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-onfleet.html, which names a specific dispatch platform and already
+  // carries the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-a-spreadsheet pages above.
+  'medical-courier-route-margin/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a method every self-published author
+  // tracking their own royalties already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-amazon-kdp-royalty-calculator.html, which names Amazon's own official
+  // tool and already carries the "not affiliated" clause for that reason.
+  // Same reasoning as the other vs-a-spreadsheet pages above.
+  'kdp-royalty-calculator/vs-a-spreadsheet.html',
   // Compares against "a flat $499 delivery and setup special" -- a generic
   // advertised price every spa dealer is shopped against, not a company or
   // product this could be mistaken for. Distinct from this venture's own
@@ -1660,6 +1674,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (the test file asserts none of the sibling pages' named products
   // appear). Same reasoning as the other generic-method pages above.
   '3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html',
+  // Compares against "a flat per-foot rate card" -- a generic pricing
+  // method every ice dam removal contractor already has access to, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html, which names Jobber specifically and
+  // already carries the trademark disclaimer. Same reasoning as
+  // irrigation-winterization-bid-calculator's own flat-rate exemption
+  // above.
+  'ice-dam-removal-bid-calculator/vs-a-flat-rate-per-linear-foot.html',
   // Compares against "a flat price per house square foot" -- the generic
   // shorthand quoting habit ("$X a square foot") every reroofing customer
   // and many contractors already reach for, not a company or product this
@@ -1699,6 +1721,45 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries the trademark disclaimer. Same reasoning as the other
   // generic-method pages above.
   'menu-engineering-calculator/vs-averaging-margins-in-a-spreadsheet.html',
+  // Compares against "a flat per-room rate" -- the generic quoting habit
+  // ("$X a room, however long it takes") every independent home stager is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-hutch.html and vs-honeybook.html,
+  // which name real products and already carry the trademark disclaimer.
+  // Same reasoning as the other generic-method pages above.
+  'home-staging-bid-calculator/vs-a-flat-per-room-rate.html',
+  // Compares against "reading a Dockerfile by hand" -- a manual review habit
+  // every Dockerfile author already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-gitleaks.html, which
+  // names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-base-image-pin-check's).
+  'docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "a flat pump-swap special" -- the generic coupon
+  // pricing ($X, any sump pump, done) that swap specials are shopped
+  // against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-servicetitan.html, which names
+  // ServiceTitan specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html',
+  // Compares against "a flat pump special" -- the generic coupon pricing
+  // ($X, any tank, pumped) that septic pump specials are shopped against,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-servicecore.html, which names ServiceCore
+  // specifically and already carries the trademark disclaimer.
+  'septic-pumping-bid-calculator/vs-a-flat-pump-special.html',
+  // Compares against "a flat per-inch rate" -- the generic "$X a diameter
+  // inch" quoting habit tree services are shopped against, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-singleops.html, which names SingleOps specifically and already
+  // carries the trademark disclaimer.
+  'tree-service-bid-calculator/vs-a-flat-per-inch-rate.html',
+  // Compares against "a flat rate per lineal foot" -- the generic "$X a
+  // lineal foot" quoting habit ramp builders are shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html, which names Jobber specifically and
+  // already carries the trademark disclaimer.
+  'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

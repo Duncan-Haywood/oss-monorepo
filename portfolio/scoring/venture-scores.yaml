@@ -16440,72 +16440,136 @@ ventures:
       autonomous_ops: 10
       time_to_revenue: 6
       gross_margin: 10
-      defensibility: 3
-      distribution: 6
+      defensibility: 4
+      distribution: 5
     composite: 6.0
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
     floor_note: >-
-      No AI in the product, deliberately. Whether a command is a shell
-      interpreter, whether an argument matches a known broad-permission
-      flag or a root/home path, whether an env value matches a known token
-      shape or an unreferenced secret-like key name, whether a launched
-      package or image carries an explicit version pin, and whether a tool
-      name is shadowed across servers are all decided by pattern matching
-      against fixed lists and regular expressions -- a factual,
-      deterministic comparison, not a model judgment, and the README is
-      explicit that a clean result is not a security audit or a safety
-      guarantee.
+      No AI in the product, deliberately. Every finding (broad
+      filesystem/shell access, a hardcoded-secret-shaped literal, a
+      missing version pin, a shadowed tool name) is decided by pattern
+      matching against a fixed literal/flag list or a bare regex over the
+      pasted text -- a factual, deterministic comparison, not a model
+      judgment, and it never claims to know whether a server is actually
+      malicious.
     basis: >-
-      Graduated 2026-09-24, the top-ranked of three candidates offered that
-      session (VENTURE.yaml records the other two and the duplicate_check.py
-      scores against every existing venture and pipeline candidate, all
-      under the 0.45 flag bar). Distinguished in the same VENTURE.yaml note
-      from mcp-supply-chain-watch, the one existing venture whose name and
-      domain overlap: that tool diffs two captured tool-manifest snapshots
-      over time (what changed since a server was approved); this tool reads
-      a single current launch config and flags risk patterns in it right
-      now, before any drift has happened. Same free CLI + browser checker
-      archetype as the fleet's other structural-pattern auditors
-      (chrome-extension-permission-check, wordpress-plugin-review-check),
-      scored on this file's six-dimension rubric to keep coverage complete
-      for `score_ventures.py --check` and `portfolio/router/allocate.py`.
-      Autonomous ops 10 / gross margin 10: the browser page parses only the
-      config text pasted into it and the CLI reads only a local file it is
-      pointed at, so serving one more user costs a static file and needs no
-      human review of any output; no network call, no account, nothing
-      uploaded.
-      Time to revenue 6, defensibility 3: donations-only; a transparent
-      pattern-matcher over a small, documented set of risk shapes is easy to
-      reimplement, and MCP config auditing is a narrower, newer niche than
-      the Chrome/WordPress review-rejection terminology those two siblings
-      can anchor to, so defensibility rests only on being first and correct
-      for this exact launch-config shape.
-      Distribution 6: MCP client and server documentation (Anthropic's,
-      VS Code's, and the growing "MCP security" discussion following public
-      writeups of overpermissioned servers and prompt-injection-via-tool-
-      description incidents) gives a reachable, named audience, but the
-      search terminology is less settled and lower-volume than an
-      established platform-review rejection reason, so scored one point
-      below the Chrome/WordPress siblings rather than matched to them.
+      Screened 2026-09-24 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free browser checker, candidate 1 of 3 offered
+      that session and the top-ranked one. duplicate_check.py scored the
+      closest existing venture (mcp-supply-chain-watch, same MCP domain)
+      at 0.09 against the final description, well under the 0.45 flag
+      bar -- that venture reads a temporal diff between two captured tool
+      manifests, never a single launch config, and does not check for
+      hardcoded secrets, missing version pins, or broad filesystem/shell
+      access. Two other candidates offered the same session (an agent
+      tool-permission diff checker; a RAG/agent context-window calculator)
+      were passed over as thinner differentiation or a weaker niche fit;
+      see the venture's own VENTURE.yaml for the full duplicate_check
+      table.
+      Autonomous ops 10 / gross margin 10: every check runs client-side
+      against text the visitor pastes, nothing uploaded, no server of
+      ours in the loop, so serving one more visitor costs a static file.
+      Distribution 5: named channels are real but narrower than an
+      established platform-review funnel (r/ClaudeAI, r/LocalLLaMA MCP
+      threads, HN Show/security threads, GitHub topic search for
+      mcp.json/claude_desktop_config.json, plus a footer cross-link with
+      mcp-supply-chain-watch), reflecting an actively-maturing protocol
+      community rather than a mainstream store's own rejection
+      documentation the way chrome-extension-permission-check's channel
+      does.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      pattern-matcher is easy to reimplement, so defensibility rests on
+      being first and correct for this exact single-snapshot config audit
+      rather than on any moat -- matching mcp-supply-chain-watch's own
+      defensibility score in the same domain.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Liability: read-only and defensive -- it reports which structural
-      patterns fired in the pasted config and where, never a claim that a
-      server is safe to run or that a clean result is a security
-      certification. It contacts no server, package registry, or
-      vulnerability database, and uploads nothing: parsing happens entirely
-      in the browser (or locally in the CLI) against the text supplied. The
-      README states plainly, twice, that this is not a security audit, not
-      a scanner of the server's actual code, and not a compliance
-      attestation.
+      Liability: every check is a mechanical pattern match against text
+      the user pastes -- no network call of any kind, no claim that a
+      server's actual published version, code, or compromise status was
+      checked. The UI, README, and footer all state plainly that a
+      finding is "not a verdict" and a clean result is "not a safety
+      guarantee".
+      Ethics: strictly beneficial as it scales -- exists only to help a
+      developer or team catch a risky config line before approving a
+      server, no adverse incentive on our side (no affiliate link, no
+      referral fee, donations-only), and it never scans or fingerprints
+      third-party infrastructure since it only reads a pasted launch
+      config and contacts no server, connected or not.
+  - slug: kickstarter-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is Kickstarter's own
+      two-fee schedule (a 5% platform fee on the total raise, plus a
+      per-pledge payment processing fee that itself changes rate under
+      $10) applied correctly, and the one non-obvious arithmetic fact --
+      that the flat per-pledge component means the same total raised
+      keeps less when spread across more, smaller pledges -- is exactly
+      the kind of thing a creator needs to re-derive whenever they set
+      reward-tier pricing, not something a language model adds value to.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.13
+      (freelance-platform-fee-calculator) well under the 0.45
+      read-this-first bar -- no existing venture prices a crowdfunding
+      platform; the closest matches are single-channel marketplace-fee
+      or platform-cut calculators (freelance-platform-fee-calculator,
+      twitch-payout-calculator, mercari-fee-calculator) that share the
+      shape but not the domain. Rates confirmed against Kickstarter's own
+      published US fee schedule (kickstarter.com/help/fees) via three
+      independent web searches agreeing on 5% platform + 3%/$0.20
+      standard or 5%/$0.05 under $10 processing.
+      Autonomous ops 10 / gross margin 10: static ES modules, no build
+      step, no network call, no server -- same shape as every other
+      browser-local calculator in this portfolio.
+      Time to revenue 6, distribution 6: multiple third-party Kickstarter
+      fee calculators already rank for "kickstarter fee calculator" and
+      "how much does kickstarter take" (found via web search), which is
+      evidence searchers exist but also that the query is contested
+      rather than open, and r/kickstarter / r/crowdfunding are real,
+      named communities rather than a channel this basis merely asserts.
+      Scored below stockx-seller-payout-calculator's 7/7 because that
+      venture's niche communities (r/Sneakers, r/FlippingSneakers) had no
+      incumbent free tool modeling their specific fee wrinkle at the time
+      it was scored, where this one competes against several existing
+      calculators head-on.
+      Defensibility 4: a percentage-plus-flat-fee schedule is easy to
+      copy, same as every fee calculator in this portfolio -- the
+      per-pledge-size effect (more, smaller pledges keep less of an
+      identical total) is a real differentiator none of the competing
+      tools surfaced in search results show, but it is a framing choice
+      on top of public arithmetic, not a moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: pure arithmetic over a total raised, backer count, or
+      pledge amount the visitor supplies, against Kickstarter's own
+      public, non-personal fee schedule. No advice-of-record (it
+      computes, the creator decides), no compliance claim, no PII, no
+      payment code, no account. The only failure mode is a stale
+      constant if Kickstarter changes its published schedule, which is
+      why the no-warranty clause explicitly tells the visitor to confirm
+      the current schedule at kickstarter.com/help/fees before relying
+      on this for a real campaign (`platform/pages/clauses.mjs` enforces
+      the clause; the page passes it).
       Ethics: gets strictly better for the visitor as it scales -- it
-      exists only to surface risk patterns (broad filesystem/shell access,
-      hardcoded secrets, missing version pins, shadowed tool names) that are
-      already visible in the config a user is about to trust, with no
-      adverse incentive on our side: no affiliate link, no referral fee,
-      donations-only same as the rest of the portfolio, and no vendor or
-      MCP server is named or favored.
+      exists only to help a creator see the true net payout and price
+      reward tiers accordingly, with no adverse incentive on our side (no
+      affiliate link, no referral fee, donations-only same as the rest of
+      the portfolio, no reward tier or pledge size favored since the
+      arithmetic is symmetric and user-entered).
