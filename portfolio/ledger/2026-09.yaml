@@ -40410,3 +40410,80 @@ entries:
         No form input added (a static guide page), so the Playwright/
         axe-core browser-check line was not run.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened for a genuinely new venture first, per DIRECTION.md's
+        standing preference. session_gate.py: PROCEED, build-now pipeline
+        empty (all 8 scored candidates already graduated). Checked the two
+        saturated-archetype counts pipeline/README.md tracks (141
+        <trade>-bid-calculator ventures, 38 -check/-checker ventures, now
+        against 354 ventures/ total) before picking a shape. The one
+        specific, differentiated idea this session could name with a real
+        channel -- a static scanner for MCP "tool poisoning" / tool-
+        description prompt injection, a live 2026 security topic with an
+        OWASP page and Cloud Security Alliance research notes (verified via
+        web search, not assumed) -- was rejected on arrival: Invariant
+        Labs' `mcp-scan` already does exactly this as a funded vendor's
+        open-source tool (the "why hasn't a big vendor solved it" question
+        this portfolio's own playbook asks), and it overlaps this repo's
+        own parked, mitigation-refuted `mcp-supply-chain-watch` candidate
+        closely enough that duplicate_check.py would likely flag it. No
+        other candidate idea cleared both "not a near-duplicate of 354
+        existing ventures" and "has a channel stronger than a 355th
+        instance of an already-141-times-tried or already-38-times-tried
+        shape" within the session. Per the brief's own instruction, did not
+        force a weak graduation.
+      - >-
+        Looked for a real, reproducible defect on an already-live product
+        as the fallback instead. Ran the full CLAUDE.md starvation-window
+        checklist: checklist_coverage.py and sync_tree_counts.py clean;
+        regen.mjs --verify clean (no stale committed mirror); public_surface.py
+        clean on the canonical GitHub Pages origin (24/24 sitemap sample
+        served -- the 23/24 "NO" rows are all on the separate, long-known-down
+        marisstella.dev/k3s route CLAUDE.md already documents at length, not
+        a new finding); pages_state.py --require-current clean (served,
+        current); node --test platform/marketing + platform/pages 1287/1287
+        (run twice, ~5 min apart, both clean); platform/proposal 101/101;
+        platform/privacy + platform/webcheck 142/142; portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446/446; gitops/tests
+        637 passed/1 skipped (nginx-light + openssh-client installed via
+        apt-get after `apt-get update`, environmental skip documented);
+        platform/ci unittest sweep (all modules) + agent_review's
+        test_review clean; guard_state.py --require-runnable: no fixable
+        skips, one environmental skip (test_front_door_serving.py, needs a
+        GitHub-hosted runner). Found nothing red anywhere.
+      - >-
+        Ran the whole-catalogue Playwright/axe-core browser and
+        accessibility sweep (browser_state.py had it recorded STALE --
+        builder files had moved since the last reading) twice: once against
+        3f3d6870 while screening, then again from scratch against 6cd49f15
+        after a concurrent session's own merges (including PR #5555)
+        invalidated the first run mid-flight. Both runs: all 8 checks
+        (sideways, presets, roundtrip, highlight, contrast, optout, sweep,
+        journey) passed clean -- 1481-1483 pages at 2 viewports, 0 WCAG A/AA
+        violations, 353/353 tools answered with no console/resource errors,
+        full save/restore/share user journey passing, no off-origin
+        requests. Recorded the second (newer) run into
+        platform/ci/browser_state.json. A concurrent session (PR #5567)
+        recorded its own clean pass at an older commit (39af4ef2) while
+        this one was running; this session's recording (6cd49f15) is
+        strictly newer and was kept over that entry on conflict, confirmed
+        via `git log` ordering. Given 13-15 unrelated venture-page commits
+        landed on `main` during each ~20-30 min run, this reading is
+        already several commits behind the current tip by the time it
+        merges -- expected under this session's measured 6-8 concurrent
+        sessions per 15-minute window, not a defect in the check.
+      - >-
+        Net outcome: no shippable defect found, no new venture honestly
+        cleared the channel-evidence bar within this session, and the
+        fleet's accessibility/correctness posture was independently
+        re-verified clean rather than assumed from a stale reading or a
+        sibling session's unread claim. Did not add a comparison/guide page
+        -- CLAUDE.md and DIRECTION.md both flag that lane as currently
+        saturated by concurrent sessions (open PR #5544 and several dozen
+        ledger entries this same day are exactly that pattern) and the
+        brief for this session explicitly excluded it.
+    mrr_end: 0

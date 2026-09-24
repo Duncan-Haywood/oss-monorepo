@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tracker vs. tracking vendors in a spreadsheet | 1099-NEC Vendor Tracker</title>
+  <meta name="description" content="A spreadsheet's 1099 formula is only as current as whoever last edited it. Two rules changed for 2026 at once—the $600-to-$2,000 threshold and the attorney-fees exception a blanket 'corporation = exempt' rule leaves out—and a spreadsheet carries both silently wrong until someone remembers to fix the formula. This free tracker applies both every time, in your browser, with no account.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-tracking-vendors-in-a-spreadsheet.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="This tracker vs. tracking vendors in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet formula is only as current as whoever last edited it. This tracker applies the 2026 threshold and the attorney-fees exception every time, not just the year someone remembered to update the sheet.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a hand-kept 1099 spreadsheet usually get wrong?","acceptedAnswer":{"@type":"Answer","text":"Two things, usually silently. First, its threshold formula is whatever number someone typed in last — often still $600, copied forward from a prior year, when payments made in 2026 or later use $2,000. Second, a blanket \"if entity is a corporation, mark exempt\" rule leaves out the one exception that does not follow entity type: an attorney's own fees for services are reportable no matter how the firm is organized. A spreadsheet formula has to encode both the threshold and the exception correctly, and re-encode the threshold again whenever it changes; this tracker applies the current rule every time."}},{"@type":"Question","name":"Can you show a real example of the mismatch?","acceptedAnswer":{"@type":"Answer","text":"Three vendors, evaluated for 2026: a $950 payment to an individual contractor, a $5,400 attorney's-fee payment to a firm organized as an LLC taxed as a corporation, and a $4,100 payment to a C-corporation for ordinary services. A spreadsheet still using the pre-2026 $600 threshold flags the $950 contractor as needing a 1099 — wrong, since $950 is below the 2026 $2,000 threshold. A spreadsheet using a blanket \"corporation = exempt\" rule marks the $5,400 attorney payment exempt — wrong, since attorney fees are reportable regardless of entity type. This tracker gets both right: below threshold, not yet reportable for the first; needs a 1099, W-9 on file for the second. The $4,100 C-corp services payment is correctly exempt either way, because ordinary services to a corporation are not the exception."}},{"@type":"Question","name":"Isn't a spreadsheet good enough once it's set up correctly?","acceptedAnswer":{"@type":"Answer","text":"It can be, for one filing season. The risk is not that a spreadsheet formula is hard to write once — it is that nothing prompts anyone to revisit it when a rule changes, the way the threshold just did. A cell holding \"600\" looks exactly as confident the year the real number becomes 2000 as it did the year before. This tracker has no stored formula to go stale; the threshold and the exception are applied fresh against the tax year you pick."}},{"@type":"Question","name":"Does this tracker replace a spreadsheet entirely?","acceptedAnswer":{"@type":"Answer","text":"For deciding who needs a 1099-NEC and whose W-9 is missing, yes — that is the one job it does. It keeps no ledger of payment history, invoices, or vendor contact details beyond what you type in, and it does not e-file or generate the form itself. A bookkeeper who wants a running payment ledger across the year, not just a threshold check at filing time, still has reasons to keep a spreadsheet alongside it."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --card:#fffdf8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui, sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { font: 700 clamp(1.8rem, 5vw, 2.6rem)/1.05 Georgia, serif; letter-spacing: -.04em; }
+    a { color: var(--accent); overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; background: var(--card); }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .note, .fine { font-size: .85rem; color: var(--muted); }
+    footer { margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; 1099-NEC Vendor Tracker</a></p>
+  <h1>This tracker vs. tracking vendors in a spreadsheet</h1>
+  <p>
+    A spreadsheet is how most small-business bookkeepers already do this, and
+    for one filing season it can work fine: a column for total paid, a column
+    for entity type, and an <code>IF</code> formula that flags a row. The
+    problem is not the spreadsheet — it is that the formula is only as
+    current as whoever last edited it, and two rules changed for 2026 at once.
+  </p>
+  <p>
+    First, the reporting threshold rose from $600 to $2,000 for payments made
+    on or after 2026-01-01. A formula copied forward from last year's sheet
+    still says <code>600</code> until someone remembers to change it. Second,
+    a blanket <code>IF(entity = "corp", "exempt", "check")</code> rule leaves
+    out the one case that does not follow entity type: an attorney's own fees
+    for services are reportable no matter how the firm is organized. Getting
+    that exception into a formula, and keeping it there through a rewrite, is
+    easy to skip.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">What a spreadsheet formula does</th><th scope="col">What this tracker does instead</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Carries whatever threshold number was typed in last, which is often the prior year's figure until someone notices it is wrong.</td>
+        <td>Applies $2,000 to payments made in 2026 or later and $600 before that, keyed to the tax year you pick — nothing to remember to update.</td>
+      </tr>
+      <tr>
+        <td>A blanket "corporation = exempt" rule marks every corporate-entity row exempt, including an attorney's own fees — the one category that is reportable regardless of entity type.</td>
+        <td>Applies the corporation exemption except for attorney fees specifically, so a firm organized as an LLC taxed as a corporation still gets flagged for its own fee payments.</td>
+      </tr>
+      <tr>
+        <td>Has no place to flag "this follows a different rule I haven't encoded" — a row either matches the formula or gets a wrong answer.</td>
+        <td>Routes attorney gross-proceeds and medical/health-care payments to "check separately" instead of guessing, because those follow their own box-specific rules this tracker has not verified closely enough to compute.</td>
+      </tr>
+      <tr>
+        <td>Tracks whether a W-9 is on file as just another column, with no ordering to say which missing one is most urgent.</td>
+        <td>Sorts a missing W-9 to the top of the review queue and marks it resolved the moment you record one received.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    A worked example, evaluated for tax year 2026. A $950 payment to an
+    individual contractor, a $5,400 attorney's-fee payment to a firm organized
+    as an LLC taxed as a corporation, and a $4,100 services payment to a
+    C-corporation. A spreadsheet still running the pre-2026 $600 threshold
+    flags the $950 contractor as needing a 1099 — wrong, since $950 is
+    below the 2026 $2,000 threshold. A spreadsheet running a blanket
+    "corporation = exempt" rule marks the $5,400 attorney payment exempt
+    — wrong, since attorney fees are reportable regardless of entity
+    type. This tracker reports the $950 contractor as below threshold, not yet
+    reportable, and the $5,400 attorney payment as needing a 1099 with the W-9
+    on file. The $4,100 C-corp services payment is correctly exempt either
+    way, because ordinary services to a corporation is not the exception.
+  </p>
+  <p class="note">
+    It needs no account and no sign-in: it is a static page, the arithmetic
+    runs in your browser, and nothing you type is ever sent anywhere.
+  </p>
+  <section>
+    <h2>Common questions</h2>
+    <h3>What does a hand-kept 1099 spreadsheet usually get wrong?</h3>
+    <p>Two things, usually silently. First, its threshold formula is whatever number someone typed in last — often still $600, copied forward from a prior year, when payments made in 2026 or later use $2,000. Second, a blanket "if entity is a corporation, mark exempt" rule leaves out the one exception that does not follow entity type: an attorney's own fees for services are reportable no matter how the firm is organized. A spreadsheet formula has to encode both the threshold and the exception correctly, and re-encode the threshold again whenever it changes; this tracker applies the current rule every time.</p>
+    <h3>Can you show a real example of the mismatch?</h3>
+    <p>Three vendors, evaluated for 2026: a $950 payment to an individual contractor, a $5,400 attorney's-fee payment to a firm organized as an LLC taxed as a corporation, and a $4,100 payment to a C-corporation for ordinary services. A spreadsheet still using the pre-2026 $600 threshold flags the $950 contractor as needing a 1099 — wrong, since $950 is below the 2026 $2,000 threshold. A spreadsheet using a blanket "corporation = exempt" rule marks the $5,400 attorney payment exempt — wrong, since attorney fees are reportable regardless of entity type. This tracker gets both right: below threshold, not yet reportable for the first; needs a 1099, W-9 on file for the second. The $4,100 C-corp services payment is correctly exempt either way, because ordinary services to a corporation are not the exception.</p>
+    <h3>Isn't a spreadsheet good enough once it's set up correctly?</h3>
+    <p>It can be, for one filing season. The risk is not that a spreadsheet formula is hard to write once — it is that nothing prompts anyone to revisit it when a rule changes, the way the threshold just did. A cell holding "600" looks exactly as confident the year the real number becomes 2000 as it did the year before. This tracker has no stored formula to go stale; the threshold and the exception are applied fresh against the tax year you pick.</p>
+    <h3>Does this tracker replace a spreadsheet entirely?</h3>
+    <p>For deciding who needs a 1099-NEC and whose W-9 is missing, yes — that is the one job it does. It keeps no ledger of payment history, invoices, or vendor contact details beyond what you type in, and it does not e-file or generate the form itself. A bookkeeper who wants a running payment ledger across the year, not just a threshold check at filing time, still has reasons to keep a spreadsheet alongside it.</p>
+    <p class="fine">Nothing here says or implies that tracking 1099 vendors in a spreadsheet is a mistake — it is the default most small businesses already use, and it works until a rule the formula did not anticipate changes. This page describes where that shortcut breaks down, not a fault in anyone who uses it. The $950, $5,400, and $4,100 figures above are this tracker's own arithmetic on the three example vendors described in this page, not a claim about any specific business's real payments.</p>
+  </section>
+  <p class="note">
+    Open the <a href="./">1099-NEC Vendor Tracker</a> to review your own vendors.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, or tax advice, and it does not replace a qualified tax preparer. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any filing obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. A review queue is not a filing, an IRS TIN match, or a compliance determination.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+  </footer>
+</main>
+</body>
+</html>
