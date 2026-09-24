@@ -43,8 +43,8 @@
 #   portfolio-front-tools-7: 120 files, 555016 bytes
 #   portfolio-front-tools-8: 136 files, 555696 bytes
 #   portfolio-front-tools-9: 125 files, 552312 bytes
-#   portfolio-front-tools-10: 122 files, 554435 bytes
-#   portfolio-front-tools-11: 115 files, 539120 bytes
+#   portfolio-front-tools-10: 122 files, 555277 bytes
+#   portfolio-front-tools-11: 116 files, 543157 bytes
 #   portfolio-front-tools-12: 119 files, 550482 bytes
 #   portfolio-front-tools-13: 130 files, 550059 bytes
 #   portfolio-front-tools-14: 134 files, 555668 bytes
@@ -1525,6 +1525,7 @@ configMapGenerator:
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
       - holiday-light-bid-calculator__index.html.gz=holiday-light-bid-calculator__index.html.gz
       - holiday-light-bid-calculator__usage.mjs.gz=holiday-light-bid-calculator__usage.mjs.gz
+      - holiday-light-bid-calculator__vs-a-flat-3-per-lf-special.html.gz=holiday-light-bid-calculator__vs-a-flat-3-per-lf-special.html.gz
       - holiday-light-bid-calculator__vs-realgreen.html.gz=holiday-light-bid-calculator__vs-realgreen.html.gz
       - home-elevator-bid-calculator__acrylic-vs-glass-home-elevator-cab.html.gz=home-elevator-bid-calculator__acrylic-vs-glass-home-elevator-cab.html.gz
       - home-elevator-bid-calculator__calc.mjs.gz=home-elevator-bid-calculator__calc.mjs.gz
@@ -1544,12 +1545,12 @@ configMapGenerator:
       - home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz=home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz
       - home-staging-bid-calculator__index.html.gz=home-staging-bid-calculator__index.html.gz
       - home-staging-bid-calculator__usage.mjs.gz=home-staging-bid-calculator__usage.mjs.gz
-      - home-staging-bid-calculator__vs-honeybook.html.gz=home-staging-bid-calculator__vs-honeybook.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - home-staging-bid-calculator__vs-honeybook.html.gz=home-staging-bid-calculator__vs-honeybook.html.gz
       - home-staging-bid-calculator__vs-hutch.html.gz=home-staging-bid-calculator__vs-hutch.html.gz
       - hood-cleaning-bid-calculator__calc.mjs.gz=hood-cleaning-bid-calculator__calc.mjs.gz
       - hood-cleaning-bid-calculator__how-much-to-charge.html.gz=hood-cleaning-bid-calculator__how-much-to-charge.html.gz
