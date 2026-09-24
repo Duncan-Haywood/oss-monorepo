@@ -103,3 +103,17 @@ test("index links one hop to the qbi-deduction-calculator sibling", () => {
     'index must link ../qbi-deduction-calculator/ so crawlers reach it in one hop',
   );
 });
+
+// Closes the crawlable-orphan pair siblings.mjs --check found for
+// mega-backdoor-roth-calculator on its own graduation (concurrent with this
+// venture's own comparison-page work): reciprocal link added in the same
+// commit rather than left for a later session, per the same rule as the
+// qbi-deduction-calculator pairing above.
+test("index links one hop to the mega-backdoor-roth-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/mega-backdoor-roth-calculator\/"/,
+    'index must link ../mega-backdoor-roth-calculator/ so crawlers reach it in one hop',
+  );
+});

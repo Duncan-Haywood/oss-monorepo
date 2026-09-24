@@ -70,6 +70,10 @@ test("links to mcp-config-risk-check, skill-manifest-check, and hidden-unicode-c
   assert.match(html, /hidden-unicode-check\/">/);
 });
 
+test("links to claude-code-subagent-check as a complementary AI-agent-tooling checker", () => {
+  assert.match(html, /claude-code-subagent-check\/">/);
+});
+
 test("supports pasting both settings.json and settings.local.json", () => {
   assert.match(html, /id="projectInput"/);
   assert.match(html, /id="localInput"/);

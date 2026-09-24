@@ -2068,6 +2068,29 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // specific plan provider"). Same reasoning as the other vs-doing-it-by-hand
   // / vs-a-spreadsheet pages above (e.g. depreciation-recapture-calculator's).
   'mega-backdoor-roth-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against "assembling one by hand in a document editor" -- a
+  // generic method (a word processor or slide deck) every creator already
+  // has access to, not a company or product this could be mistaken for.
+  // The page's own footer says so explicitly ("names no specific document
+  // editor, product, or company"). This venture's own vs-kitly.html names
+  // a real platform and already carries the trademark disclaimer
+  // separately; the two comparison pages are deliberately different
+  // classes, same shape as epk-generator's own by-hand page.
+  'influencer-media-kit-generator/vs-assembling-one-by-hand.html',
+  // Compares against "picking a round salary number" -- the manual habit
+  // every S-corp owner without a paid report already has (a figure that
+  // sounds reasonable, matches a peer, or rolls last year's number forward),
+  // not a company or product this could be mistaken for. The page's own
+  // "Common questions" section says so explicitly. Distinct from this
+  // venture's own vs-rcreports-and-a-paid-valuation-report.html, which names
+  // RCReports specifically and already carries the trademark disclaimer.
+  's-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html',
+  // Compares against "a flat $2,999 special" -- the water-surface pricing
+  // habit every vinyl-liner crew is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

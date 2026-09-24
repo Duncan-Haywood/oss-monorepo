@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 361 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 362 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Claude Code settings.json (and, optionally, settings.local.json) and get every structural mistake flagged: a hook matcher that can&#39;t compile, a hook with no command, a misspelled event name, a permission rule with unbalanced parentheses, a rule duplicated across allow/deny/ask, and a rule that contradicts itself across the two files. Free, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Claude Code Subagent Check — find subagents that never get delegated to</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-code-subagent-check/"/>
+    <id>tag:marisstella.dev,2026:tool/claude-code-subagent-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a Claude Code subagent definition (.claude/agents/*.md) and get every structural mistake flagged: a name that isn&#39;t kebab-case, a missing or vague description that stops automatic delegation, a tools list with an empty or unrecognized entry, an unrecognized model alias, and a near-empty system prompt. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute, scaled by usage/licensing term (internal, web, broadcast, buyout) — or price an audiobook per finished hour from manuscript word count. No sign-up, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dimensional Weight Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/parcel-dim-weight-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/parcel-dim-weight-calculator</id>
-    <published>2026-09-18T00:00:00Z</published>
-    <updated>2026-09-18T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Work out the billable weight of a parcel from its box size, weight and DIM divisor — then see the box size that stops you paying for air, and whether the carton trips an additional-handling or oversize surcharge.</summary>
   </entry>
 </feed>

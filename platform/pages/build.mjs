@@ -1219,10 +1219,21 @@ const CATEGORY_RULES = [
       // different obligation (a federal income-tax deduction there, a
       // federal wage-and-hour rule here).
       //
-      // `senior-deduction-calculator` joined 2026-09-24, filed here on its
-      // first commit rather than after a spell in the catch-all -- same
-      // "new-for-2025 OBBBA federal deduction" axis as
-      // `auto-loan-interest-deduction-calculator` and
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, concurrently on
+      // `main` while a sibling session's branch was in flight -- filed here
+      // rather than left in the catch-all (`build.test.mjs`'s bound is what
+      // that guard is for). Same "IRS dollar-limit lookup against a filer's
+      // own numbers" axis as `qbi-deduction-calculator` and
+      // `depreciation-recapture-calculator` right above it in this rule --
+      // after-tax 401(k)/415(c) headroom instead of a deduction, but the
+      // same shape: a published, dated table plus arithmetic on figures the
+      // saver already has, never a filed election or plan-compliance
+      // determination.
+      //
+      // `senior-deduction-calculator` joined 2026-09-24, concurrently on
+      // `main` too, filed here on its first commit rather than after a
+      // spell in the catch-all -- same "new-for-2025 OBBBA federal
+      // deduction" axis as `auto-loan-interest-deduction-calculator` and
       // `no-tax-on-tips-overtime-calculator` right above it in this rule,
       // just the age-65 bonus deduction instead of vehicle-loan interest or
       // tips/overtime pay. It cross-links both of those siblings: all three
@@ -1230,22 +1241,7 @@ const CATEGORY_RULES = [
       // the same season, and all three disagree on married-filing-separately
       // treatment in ways worth a reader hitting explicitly rather than
       // assuming one rule generalizes to the others.
-      //
-      // `mega-backdoor-roth-calculator` graduated 2026-09-24 and had been
-      // sitting in the catch-all (pushing it to 6, past `build.test.mjs`'s
-      // bound of 5) because its own graduation commit added no category
-      // rule for it. Filed here on this commit instead: it computes a
-      // federal contribution ceiling (IRC 415(c)) against elective deferral
-      // and employer contributions already made this pay period -- the same
-      // "downstream tax/contribution consequence of income already earned"
-      // axis as `qbi-deduction-calculator` and `senior-deduction-calculator`
-      // right above it in this rule, just a contribution headroom instead
-      // of a deduction. Not `solo-earner`: that section groups people
-      // pricing their own labour or audience before a sale, and this runs
-      // on a paycheck already received. It cross-links
-      // `senior-deduction-calculator` as a sibling -- both are 2025/2026
-      // federal tax-code numbers keyed to the saver's age.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|mega-backdoor-roth-calculator|senior-deduction-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -2088,8 +2084,22 @@ const CATEGORY_RULES = [
     // .json. Its footer already cross-links all three siblings as Related
     // (reciprocally, in the same commit). Filed here on its first commit
     // rather than after a spell in the catch-all, the same lesson.
+    //
+    // `claude-code-subagent-check` joined 2026-09-24, extending the same
+    // cluster with the one Claude Code AI-agent-tooling file the four above
+    // it leave unchecked: a subagent definition (.claude/agents/*.md) --
+    // not a skill manifest (skill-manifest-check has no tools/model fields
+    // and is loaded by name, not matched for delegation), a launch config
+    // (mcp-config-risk-check), a hidden-character scan (hidden-unicode-
+    // check), or Claude Code's own settings.json (claude-code-settings-
+    // check). Checks: a malformed/mismatched name, a description too vague
+    // for reliable orchestrator delegation, a malformed tools list, an
+    // unrecognized model alias, and a missing/near-empty system prompt.
+    // Its footer already cross-links all four siblings as Related
+    // (reciprocally, in the same commit). Filed here on its first commit
+    // rather than after a spell in the catch-all, the same lesson.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|claude-code-settings-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|claude-code-settings-check|claude-code-subagent-check)/.test(
         slug,
       ),
   },
