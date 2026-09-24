@@ -1795,3 +1795,45 @@ candidates:
       implementation surface.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: cloud-bucket-exposure-check
+    name: Cloud bucket exposure checker
+    doc: candidates/cloud-bucket-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/cloud-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Only one request is ever sent per check -- the bucket's own anonymous
+      listing endpoint -- capped at 16KB of body read, and the tool never
+      requests any individual object's content: finding out a bucket allows
+      public listing is the exposure it checks, downloading what is inside
+      it is a different, higher-liability action a real authorised
+      penetration test would take. Up to 5 example object names are shown
+      as evidence (never content), out of however many the single response
+      reports. Classification requires the response BODY to match a
+      provider's own documented listing-or-error XML shape, not just a
+      status code, since a public and a private bucket can each answer 200
+      or 403 depending on provider and misconfiguration -- pinned by
+      fixture tests built from each provider's own documented shape and
+      cross-checked live, read-only, against three real endpoints during
+      development. Explicit "only run this against a bucket you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family. Measure real user
+      reports before expanding the provider table or attempting to confirm
+      public object-read access, either of which would raise the liability
+      surface past what this read covers.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
