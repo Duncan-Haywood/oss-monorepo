@@ -41426,6 +41426,40 @@ entries:
         confirmed-visitor counts remain at zero, which this fix does not
         change on its own.
     mrr_end: 0
+  - venture: shop-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-housecall-pro.html, a second named-product comparison page
+        (the venture previously had only vs-servicetitan.html) -- unbudgeted
+        by surface-budget.mjs's generic-method cap, linked from index.html
+        and the venture's sitemap, 103-assertion suite passing.
+      - >-
+        Independently hit the same etcd-budget overflow this ledger's
+        skill-manifest-check, salary-range-posting-check and
+        helm-values-schema-check entries above already describe (confirmed
+        against a clean checkout of main at 03cc7f19, before this branch's
+        own change, via git stash): built the identical llms.txt-gzip fix
+        described there, then found on push that main had already gained it
+        (#5671) plus a further category-page gzip fix (#5676, this file's
+        own `platform` entry immediately above). Reconciled by merging and
+        taking main's implementation whole rather than carrying a fourth
+        copy of the same mechanism -- recorded here only as a fourth
+        independent confirmation of the same root cause and fix.
+      - >-
+        Verified locally after the merge (Actions confirmed starved via
+        ci_starvation.py on the most recent publish-pages-branch.yml run,
+        36023137403: runner_id 0, 3s, no steps): the venture's own suite,
+        `platform/marketing/*.test.mjs`, `platform/pages/*.test.mjs`,
+        `regen.mjs --verify`, `checklist_coverage.py`, `surface-budget.mjs
+        --check`, `clauses.mjs --check`, `check_venture_regression.py
+        --base origin/main`, `python3 -m pytest gitops/tests -q`
+        (etcd-budget test passing on the merged tree), platform/ci's
+        27-module unittest suite + agent_review's, and `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` all clean.
+    mrr_end: 0
   - venture: auto-glass-bid-calculator
     agent_spend_usd: null
     human_hours: 0

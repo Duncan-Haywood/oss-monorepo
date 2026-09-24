@@ -49,11 +49,11 @@
 #   portfolio-front-tools-13: 125 files, 556292 bytes
 #   portfolio-front-tools-14: 130 files, 554919 bytes
 #   portfolio-front-tools-15: 131 files, 555439 bytes
-#   portfolio-front-tools-16: 107 files, 553418 bytes
-#   portfolio-front-tools-17: 116 files, 554725 bytes
-#   portfolio-front-tools-18: 123 files, 554373 bytes
-#   portfolio-front-tools-19: 126 files, 556208 bytes
-#   portfolio-front-tools-20: 60 files, 321259 bytes
+#   portfolio-front-tools-16: 107 files, 551314 bytes
+#   portfolio-front-tools-17: 115 files, 555810 bytes
+#   portfolio-front-tools-18: 123 files, 542954 bytes
+#   portfolio-front-tools-19: 122 files, 556417 bytes
+#   portfolio-front-tools-20: 65 files, 334266 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2297,6 +2297,7 @@ configMapGenerator:
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
       - shop-rate-calculator__vs-guessing-your-burden-and-overhead.html.gz=shop-rate-calculator__vs-guessing-your-burden-and-overhead.html.gz
+      - shop-rate-calculator__vs-housecall-pro.html.gz=shop-rate-calculator__vs-housecall-pro.html.gz
       - shop-rate-calculator__vs-servicetitan.html.gz=shop-rate-calculator__vs-servicetitan.html.gz
       - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
@@ -2310,12 +2311,12 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz=shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz
       - shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz=shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz
       - shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz
-      - shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz
       - shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz=shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz
       - shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz=shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz
       - shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz
@@ -2430,13 +2431,13 @@ configMapGenerator:
       - sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz=sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz
       - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
       - staffing-markup-calculator__index.html.gz=staffing-markup-calculator__index.html.gz
-      - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
-      - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
+      - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
       - staffing-markup-calculator__vs-tempworks.html.gz=staffing-markup-calculator__vs-tempworks.html.gz
       - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
       - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
@@ -2558,13 +2559,13 @@ configMapGenerator:
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
       - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
-      - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
-      - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
+      - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
       - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
       - turo-host-payout-calculator__calc.mjs.gz=turo-host-payout-calculator__calc.mjs.gz
       - turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz=turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz
@@ -2666,7 +2667,6 @@ configMapGenerator:
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
-      - water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz=water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
       - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
@@ -2686,16 +2686,16 @@ configMapGenerator:
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
       - whatnot-seller-payout__index.html.gz=whatnot-seller-payout__index.html.gz
       - whatnot-seller-payout__share.mjs.gz=whatnot-seller-payout__share.mjs.gz
-      - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz
-      - whatnot-seller-payout__to-where-to-sell.mjs.gz=whatnot-seller-payout__to-where-to-sell.mjs.gz
-      - whatnot-seller-payout__usage.mjs.gz=whatnot-seller-payout__usage.mjs.gz
-      - whatnot-seller-payout__vs-tracking-payouts-in-a-spreadsheet.html.gz=whatnot-seller-payout__vs-tracking-payouts-in-a-spreadsheet.html.gz
-      - whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz=whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz
+      - whatnot-seller-payout__to-where-to-sell.mjs.gz=whatnot-seller-payout__to-where-to-sell.mjs.gz
+      - whatnot-seller-payout__usage.mjs.gz=whatnot-seller-payout__usage.mjs.gz
+      - whatnot-seller-payout__vs-tracking-payouts-in-a-spreadsheet.html.gz=whatnot-seller-payout__vs-tracking-payouts-in-a-spreadsheet.html.gz
+      - whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz=whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz
       - wheelchair-ramp-bid-calculator__calc.mjs.gz=wheelchair-ramp-bid-calculator__calc.mjs.gz
       - wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz=wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz
       - wheelchair-ramp-bid-calculator__index.html.gz=wheelchair-ramp-bid-calculator__index.html.gz
