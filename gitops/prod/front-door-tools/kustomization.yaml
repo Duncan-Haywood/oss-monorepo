@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 118 files, 556806 bytes
 #   portfolio-front-tools-13: 127 files, 553780 bytes
 #   portfolio-front-tools-14: 124 files, 540524 bytes
-#   portfolio-front-tools-15: 133 files, 552463 bytes
+#   portfolio-front-tools-15: 134 files, 556702 bytes
 #   portfolio-front-tools-16: 103 files, 556714 bytes
 #   portfolio-front-tools-17: 118 files, 552920 bytes
 #   portfolio-front-tools-18: 128 files, 556665 bytes
@@ -2166,6 +2166,7 @@ configMapGenerator:
       - redirect-chain-check__fetch-chain.mjs.gz=redirect-chain-check__fetch-chain.mjs.gz
       - redirect-chain-check__index.html.gz=redirect-chain-check__index.html.gz
       - redirect-chain-check__usage.mjs.gz=redirect-chain-check__usage.mjs.gz
+      - redirect-chain-check__vs-checking-a-chain-by-hand.html.gz=redirect-chain-check__vs-checking-a-chain-by-hand.html.gz
       - redirect-chain-check__vs-httpstatus-io.html.gz=redirect-chain-check__vs-httpstatus-io.html.gz
       - redirect-chain-check__why-redirect-chains-matter.html.gz=redirect-chain-check__why-redirect-chains-matter.html.gz
       - required-checks-drift-check__check.py.gz=required-checks-drift-check__check.py.gz
