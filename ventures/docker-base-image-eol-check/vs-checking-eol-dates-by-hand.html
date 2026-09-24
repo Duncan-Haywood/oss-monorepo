@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Docker Base Image EOL Check vs. Checking End-of-Life Dates by Hand</title>
+  <meta name="description" content="Checking whether a FROM line's release is past end-of-life by hand means opening each base image's own release page, one tag at a time, for every stage of every Dockerfile. This free browser tool reads all of them at once against a dated table and tells you which are confirmed vs. estimated.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-checking-eol-dates-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Docker Base Image EOL Check vs. Checking End-of-Life Dates by Hand">
+  <meta property="og:description" content="Looking up each FROM line's release on the publisher's own page works, until there are ten Dockerfiles and multi-stage builds. This tool reads them all at once, in your browser, against a dated table that names its own source.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-base-image-eol-check/vs-checking-eol-dates-by-hand.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just look up each base image's end-of-life date myself?","acceptedAnswer":{"@type":"Answer","text":"You can, and for one Dockerfile with one FROM line it may be faster than pasting it in here. It stops scaling once there is more than one: a multi-stage build can name a different release on every FROM line, a monorepo can hold dozens of Dockerfiles, and each lookup means finding and reading the right project's own release notes or end-of-life policy correctly. This tool reads every FROM line in every file you paste at once and reports all of them against one dated table."}},{"@type":"Question","name":"Is a manual lookup on the project's own release page more accurate than this tool's table?","acceptedAnswer":{"@type":"Answer","text":"It can be, since it is live and this tool's table is a checked-in snapshot with its own as-of date shown in the results. The tradeoff is throughput and consistency: a manual pass across many FROM lines takes one browser tab and one careful read per line, and it is easy to skip a stage in a multi-stage build or misread a policy page. This tool checks every line the same way, every time, and tells you plainly which findings are the project's own confirmed date versus an estimate inferred from its policy -- a distinction a quick manual read can blur."}},{"@type":"Question","name":"Does this replace reading the base image's own release page?","acceptedAnswer":{"@type":"Answer","text":"No, and the page says so: re-verify any finding against the upstream project's own page before relying on it, especially an estimated one. What this tool replaces is doing that lookup for every FROM line in every Dockerfile, every time you want to know -- it narrows the manual work to the findings worth double-checking instead of every line you have."}},{"@type":"Question","name":"What does a manual check catch that this tool cannot?","acceptedAnswer":{"@type":"Answer","text":"A base image or private-registry reference outside this tool's curated table, and a tag of latest, are both reported as unknown rather than guessed at -- a manual reader who knows the project can sometimes reason about those where the table stays silent. A manual reader can also catch a policy change the table's snapshot has not picked up yet, which is exactly why the results carry a snapshot date and a re-verify note."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Docker Base Image EOL Check</a></p>
+    <h1>Docker Base Image EOL Check vs. Checking End-of-Life Dates by Hand</h1>
+    <p class="lede">A manual check works: open each <code>FROM</code> line's project page and read its support policy. It gets slow the moment there is more than one line to check -- a multi-stage build, a handful of services, or a monorepo full of Dockerfiles. This free tool reads every <code>FROM</code> line you paste at once, in your browser, against a small dated table that names its own source for each entry.</p>
+
+    <section class="card">
+      <h2>What each approach is for</h2>
+      <p>
+        <strong>Checking by hand</strong> means finding, for each base image tag, the right page to read -- the
+        project's own release notes or end-of-life policy -- and working out whether today's
+        date is past the line it names. For one Dockerfile with one <code>FROM</code> line this can be the fastest
+        route, and it is the only way to reason about an image outside any curated table.
+      </p>
+      <p>
+        <strong>This checker</strong> reads the text of every Dockerfile you paste, pulls out every <code>FROM</code>
+        line across every build stage, and checks each release line against a small table checked into the tool --
+        no pull, no build, no browser tab per line. Every finding says whether the date is the project's own
+        published end date (confirmed) or inferred from its stated support-length policy (estimated), and the table
+        carries a snapshot date so you know how fresh it is.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where each approach earns its keep.</caption>
+        <thead><tr><th scope="col">Situation</th><th scope="col">Better fit</th></tr></thead>
+        <tbody>
+          <tr><td>One Dockerfile, one FROM line, and you already know the project's policy.</td><td>Checking by hand -- often faster than opening this page at all.</td></tr>
+          <tr><td>A multi-stage build, several services, or a monorepo with many Dockerfiles.</td><td>This checker -- it reads every FROM line at once instead of one tab per line.</td></tr>
+          <tr><td>The base image is outside this tool's curated table, or tagged <code>latest</code>.</td><td>Checking by hand -- the tool reports these as unknown rather than guessing.</td></tr>
+          <tr><td>A finding this tool marks estimated, and you want the project's own words.</td><td>Both -- re-verify the specific finding against the upstream page rather than re-checking everything.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">Treat this checker as the first pass across many FROM lines, and a manual read of the upstream page as the second pass on whichever findings matter enough to double-check. This page names no product or company being compared against -- checking a project's own release page by hand is a method, not a competitor.</p>
+      <p><a class="cta" href="./">Run the free base image EOL check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Why not just look up each base image's end-of-life date myself?</h3>
+      <p>You can, and for one Dockerfile with one FROM line it may be faster than pasting it in here. It stops scaling once there is more than one: a multi-stage build can name a different release on every FROM line, a monorepo can hold dozens of Dockerfiles, and each lookup means finding and reading the right project's own release notes or end-of-life policy correctly. This tool reads every FROM line in every file you paste at once and reports all of them against one dated table.</p>
+      <h3>Is a manual lookup on the project's own release page more accurate than this tool's table?</h3>
+      <p>It can be, since it is live and this tool's table is a checked-in snapshot with its own as-of date shown in the results. The tradeoff is throughput and consistency: a manual pass across many FROM lines takes one browser tab and one careful read per line, and it is easy to skip a stage in a multi-stage build or misread a policy page. This tool checks every line the same way, every time, and tells you plainly which findings are the project's own confirmed date versus an estimate inferred from its policy -- a distinction a quick manual read can blur.</p>
+      <h3>Does this replace reading the base image's own release page?</h3>
+      <p>No, and the page says so: re-verify any finding against the upstream project's own page before relying on it, especially an estimated one. What this tool replaces is doing that lookup for every FROM line in every Dockerfile, every time you want to know -- it narrows the manual work to the findings worth double-checking instead of every line you have.</p>
+      <h3>What does a manual check catch that this tool cannot?</h3>
+      <p>A base image or private-registry reference outside this tool's curated table, and a tag of latest, are both reported as unknown rather than guessed at -- a manual reader who knows the project can sometimes reason about those where the table stays silent. A manual reader can also catch a policy change the table's snapshot has not picked up yet, which is exactly why the results carry a snapshot date and a re-verify note.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The Dockerfile you paste is never uploaded, and this page makes no live comparison against any manual lookup -- it is a static page describing the tradeoff, not a live scan of any image. We count only anonymous local feature events, never people or Dockerfile content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>
