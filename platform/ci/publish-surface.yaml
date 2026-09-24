@@ -158,6 +158,9 @@ workflows:
 - workflow: attic-insulation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: auto-glass-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: auto-repair-effective-labor-rate-ci.yml
   classification: none
   publishes: []
@@ -561,6 +564,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: hetzner-gitops-ci.yml
+  classification: none
+  publishes: []
+- workflow: hidden-unicode-check-ci.yml
   classification: none
   publishes: []
 - workflow: hoa-reserve-fund-calculator-ci.yml

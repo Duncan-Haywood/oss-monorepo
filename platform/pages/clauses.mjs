@@ -1714,6 +1714,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "running curl -sI -L or reading DevTools' Network
+  // panel by hand" -- generic tools and habits any developer already has,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-httpstatus-io.html, which names a real hosted
+  // service and already carries the trademark disclaimer. Same reasoning
+  // as cache-control-check's vs-checking-headers-by-eye-in-devtools.html
+  // and source-map-leak-check's vs-checking-devtools-by-hand.html above.
+  'redirect-chain-check/vs-checking-a-chain-by-hand.html',
   // Compares against "averaging margins in a spreadsheet" -- the generic
   // =AVERAGE() formula an operator builds by hand, not a company or product
   // this could be mistaken for. Distinct from this venture's own
@@ -1735,6 +1743,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above (e.g. docker-base-image-pin-check's).
   'docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "reading Kubernetes' own Deprecated API Migration
+  // Guide and cross-checking a manifest by hand" -- a manual review habit
+  // any platform engineer already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-pluto.html, which
+  // names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-build-secrets-check's).
+  'k8s-deprecated-api-check/vs-checking-the-migration-guide-by-hand.html',
   // Compares against "a flat pump-swap special" -- the generic coupon
   // pricing ($X, any sump pump, done) that swap specials are shopped
   // against, not a company or product this could be mistaken for.
@@ -1742,6 +1758,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // ServiceTitan specifically and already carries the trademark
   // disclaimer. Same reasoning as the other generic-method pages above.
   'sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html',
+  // Compares against "just checking whether the invoice cleared the bid" --
+  // the generic before/after gut check every contractor already runs
+  // without any tool, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-quickbooks-job-costing.html, which
+  // names QuickBooks/Intuit specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'job-margin-variance/vs-checking-if-you-still-made-money.html',
   // Compares against "a flat pump special" -- the generic coupon pricing
   // ($X, any tank, pumped) that septic pump specials are shopped against,
   // not a company or product this could be mistaken for. Distinct from
@@ -1760,6 +1783,54 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which names Jobber specifically and
   // already carries the trademark disclaimer.
   'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "a flat $1,800 installed" patio door special -- a
+  // generic pricing method every window/door crew already has access to,
+  // not a company or product this could be mistaken for. The page's own
+  // footer says so explicitly ("common, honest shortcut"). Same reasoning
+  // as the other generic-method pages above. Distinct from this venture's
+  // own vs-jobber.html, which names Jobber specifically and already
+  // carries the trademark disclaimer.
+  'patio-door-bid-calculator/vs-a-flat-installed-price.html',
+  // Compares against "a sticky note or mental checklist" -- a manual
+  // tracking habit any contractor already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-jobtread.html, which names JobTread specifically and already
+  // carries the trademark disclaimer.
+  'contractor-bid-readiness/vs-a-sticky-note-checklist.html',
+  // Compares against "picking a rate off the going local price" -- the
+  // generic habit of copying a nearby studio's posted per-lesson price, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-mymusicstaff.html, which names My Music Staff
+  // specifically and already carries the trademark disclaimer.
+  'music-lesson-break-even/vs-picking-a-rate-off-the-going-local-price.html',
+  // Compares against "grepping the codebase by hand" -- a manual audit
+  // habit any developer already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-dotenv-linter.html,
+  // which names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-build-secrets-check's).
+  'env-example-drift-check/vs-grepping-the-codebase-by-hand.html',
+  // Compares against "ranking dishes by food cost percentage" -- the
+  // ordinary per-dish metric every restaurant kitchen already tracks off
+  // its own recipe cards and POS reports, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-marginedge.html, which names MarginEdge specifically and already
+  // carries the trademark disclaimer.
+  'menu-engineering-calculator/vs-ranking-by-food-cost-percent.html',
+  // Compares against "a flat rate per square foot" -- the generic "$X a
+  // square foot installed" quoting habit hardscape contractors are shopped
+  // against, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-aspire.html, which names Aspire specifically
+  // and already carries the trademark disclaimer.
+  'paver-patio-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "reading the migration file by hand" -- a manual
+  // review habit any developer applying a schema change already has, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-squawk.html, which names a specific open-source
+  // linter and already carries the "not affiliated" clause for that
+  // reason. Same shape as docker-build-secrets-check's
+  // vs-reading-a-dockerfile-by-hand.html.
+  'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

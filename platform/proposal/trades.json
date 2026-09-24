@@ -1,4 +1,52 @@
 {
+  "auto-glass-bid-calculator": {
+    "jobTitle": "Auto glass replacement — {positionLabel}",
+    "jobTitleFallback": "Auto glass replacement",
+    "priceField": "price",
+    "fields": {
+      "positionLabel": {
+        "select": "position"
+      },
+      "sourceLabel": {
+        "select": "glassSource"
+      },
+      "calibrationLabel": {
+        "select": "calibration",
+        "map": {
+          "none": "",
+          "dynamic": "Dynamic ADAS calibration (supervised road test)",
+          "static": "Static ADAS calibration (target boards, in-shop)",
+          "dual": "Static and dynamic ADAS calibration (both required)"
+        }
+      },
+      "serviceLabel": {
+        "select": "service",
+        "map": {
+          "in-shop": "",
+          "mobile": "Mobile service at the vehicle"
+        }
+      }
+    },
+    "scope": [
+      "Supply and install {sourceLabel} for the {positionLabel}",
+      {
+        "line": "{calibrationLabel}",
+        "when": "calibrationLabel"
+      },
+      {
+        "line": "{serviceLabel}",
+        "when": "serviceLabel"
+      },
+      "Confirm a clean, leak-free urethane seal and correct fit before hand-back"
+    ],
+    "placeholders": {
+      "companyName": "Clearview Mobile Auto Glass LLC",
+      "scope": "Supply and install OEM-equivalent aftermarket glass for the Windshield\nDynamic ADAS calibration (supervised road test)",
+      "exclusions": "Paintless dent repair or body panel work\nPre-existing chips or cracks outside the replaced glass",
+      "notes": "Old glass and trim removed and disposed of the same day."
+    },
+    "disclaimerTail": "It is not a determination that any ADAS or safety system is functioning correctly after the work, and it is not a substitute for the vehicle manufacturer's own calibration procedure."
+  },
   "appliance-repair-quote-calculator": {
     "priceField": "target",
     "screenPriceSelector": "#target",
