@@ -632,7 +632,13 @@ const RELATIVE_SELF = relative(
 // under its own `llm-api-pricing-calculator:usage` storage name). Exactly
 // one added `usage.mjs` (`ventures/llm-api-pricing-calculator/usage.mjs`),
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 328;
+//
+// 328 -> 329 on this merge: `mcp-config-risk-check` also graduated, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
+// own `mcp-config-risk-check:usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/mcp-config-risk-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 329;
 
 let counter = 0;
 function fixture(source) {
