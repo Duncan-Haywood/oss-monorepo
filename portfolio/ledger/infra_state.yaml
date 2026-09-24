@@ -947,3 +947,13 @@ readings:
       and its two follow-up fixes had grown the catalogue since the prior
       reading). Confirms the pattern rather than changing it; re-announce
       again after further catalogue growth.
+      **2026-09-24 (a sixth): re-measured again, same `selective: false`
+      environment** -- `platform/marketing/indexnow.mjs --submit --ref
+      gh-pages` succeeded (`POST https://api.indexnow.org/indexnow ->
+      200`, 1599 URLs, after `mega-backdoor-roth-calculator` (#5769)
+      graduated and the mirror was republished). The local clone needed
+      `git fetch origin gh-pages` plus `git branch -f gh-pages
+      origin/gh-pages` first -- the script reads the ref with `git show
+      gh-pages:catalog.json`, which needs a local branch by that name, not
+      only the `origin/gh-pages` remote-tracking ref a plain fetch leaves
+      behind.
