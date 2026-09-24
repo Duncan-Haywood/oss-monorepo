@@ -572,7 +572,7 @@ readings:
   github-pages-branch-route:
     verdict: up
     measured: "2026-09-24"
-    run: 36048895283
+    run: 36053152442
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
@@ -939,3 +939,11 @@ readings:
       that is correct-as-designed. Re-announce again after further
       catalogue growth rather than treating any one of these four readings
       as still current.
+      **2026-09-24 (a fifth by-hand announcement): re-measured again, same
+      `selective: false` environment** -- `platform/marketing/indexnow.mjs
+      --submit --ref gh-pages` succeeded (`POST
+      https://api.indexnow.org/indexnow -> 200`, 1592 URLs from the
+      then-current `gh-pages` snapshot, after `claude-code-settings-check`
+      and its two follow-up fixes had grown the catalogue since the prior
+      reading). Confirms the pattern rather than changing it; re-announce
+      again after further catalogue growth.
