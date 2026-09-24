@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATM Route Margin Calculator vs a Spreadsheet</title>
+<meta name="description" content="A route-pricing spreadsheet can total commission, processor fees, and mileage correctly if every cell is filled in. It has no cell that charges vault cash a cost of capital on its own, structurally, the way an actual bill would prompt you to -- which is exactly the gap that turns a 24% margin into a 4% margin with nothing on the sheet flagging it.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://example.invalid/atm-route-margin/vs-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ATM Route Margin Calculator vs a Spreadsheet">
+<meta property="og:description" content="A spreadsheet can total commission, processor fees, and mileage correctly and still never charge the vault cash sitting in the machine a cost of capital -- because it never arrives as a bill, nothing on a typical cost list prompts you to add it.">
+<meta property="og:url" content="https://example.invalid/atm-route-margin/vs-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a route-pricing spreadsheet usually get right, and what does it miss?","acceptedAnswer":{"@type":"Answer","text":"Filled in carefully, a spreadsheet can total a location's commission split, processor fees, mileage, and labor time correctly. What it doesn't do on its own is charge the vault cash sitting in the machine a cost of capital -- because that cost never arrives as an invoice the way a processor fee or a mileage receipt does, nothing on a typical cash-in/cash-out cost list prompts anyone to add a line for it unless they already know to."}},{"@type":"Question","name":"Why does vault cash need a cost line at all if it's already my own money?","acceptedAnswer":{"@type":"Answer","text":"Because it is money that could be earning a return somewhere else, or that a cash-servicing provider would charge to hold. An annual cost-of-capital rate applied to the average cash balance turns that opportunity cost into a monthly dollar figure next to the surcharge revenue it makes possible -- and on a location running a large cash balance, that figure can be the difference between a route that looks healthy and one that is barely breaking even."}},{"@type":"Question","name":"Why can't a running list of per-location profit numbers tell me how many more locations I need?","acceptedAnswer":{"@type":"Answer","text":"A spreadsheet can sum a column of monthly profit figures and average them without much trouble. What it usually doesn't do automatically is divide the gap between that total and a monthly income goal by the average profit per location, to say how many more placements at the same average would close it -- and a route carrying even one underperforming or losing location pulls that average down in a way that is easy to miss just eyeballing a list, but that changes the answer directly."}},{"@type":"Question","name":"Does this calculator store or upload anything I type?","acceptedAnswer":{"@type":"Answer","text":"No. Every field runs in your browser and nothing survives closing the tab except the visit-cost inputs and income goal, which are saved locally on this device so you don't retype them. Usage counting only tallies anonymous feature events, and you can turn it off from the calculator page."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#12241f;background:#eef6f2}
+body{max-width:760px;margin:auto;padding:28px 18px 56px;line-height:1.55}
+a{color:#0f5c3c;overflow-wrap:anywhere}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.12;letter-spacing:-.04em;margin:.3rem 0}
+.lede{font-size:1.05rem;color:#254b3d}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1c7a52}
+section{background:#fff;border:1px solid #bfe0d1;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:0 8px 24px #0a3f2c08}
+h2{margin-top:0}
+h3{margin-bottom:.3rem}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:.6rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d3ecdf;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#1c7a52}
+.note,footer{font-size:.85rem;color:#4c6a5d}
+footer p{margin:.6rem 0}
+</style>
+</head>
+<body>
+<p class="eyebrow"><a href="./">&larr; ATM Route Margin Calculator</a></p>
+<header>
+<h1>ATM route margin calculator vs a spreadsheet</h1>
+<p class="lede">A route-pricing spreadsheet can total commission, processor fees, and mileage correctly if every cell is filled in. What it doesn't do on its own is charge the vault cash sitting in the machine a cost of capital -- because that cost never arrives as a bill the way a processor fee does, so nothing on a typical cost list prompts anyone to add it. On a location running a real cash balance, that omission is the difference between a route that looks healthy and one that barely clears.</p>
+</header>
+
+<section>
+<h2>What a per-location spreadsheet tracks, and what it doesn't</h2>
+<div class="table-scroll">
+<table>
+<tr><th></th><th>A per-location pricing spreadsheet</th><th>This calculator</th></tr>
+<tr><th>Commission split / flat fee</th><td>A cell most operators already track</td><td>Charged against gross surcharge the same way</td></tr>
+<tr><th>Processor fee, mileage, labor</th><td>Usually tracked once someone thinks to add the columns</td><td>Itemized fields for each, held apart from the commission split</td></tr>
+<tr><th>Vault cash cost of capital</th><td>Not on the sheet unless someone deliberately adds an opportunity-cost line -- it is never a bill you receive</td><td>A required field: an annual cost-of-capital rate applied to the average cash balance, every time</td></tr>
+<tr><th>Route income-gap projection</th><td>A manual SUM and a manual formula someone has to write</td><td>Rolls the list into total and average profit, then divides the gap to a target income by the average automatically</td></tr>
+</table>
+</div>
+</section>
+
+<section>
+<h2>One location, two very different margins</h2>
+<p>Take a location doing the calculator's default 220 withdrawals a month at a $2.75 surcharge, a 40% commission split, and a $0.30 processor fee -- but running a larger cash balance, $8,000, serviced at an 18% annual cost-of-capital rate. A spreadsheet that lists commission, processor fees, mileage, and labor but never adds a line for the cash itself reports:</p>
+<div class="table-scroll">
+<table>
+<tr><th>Gross surcharge revenue</th><td>$605.00</td></tr>
+<tr><th>Commission, processing, mileage, labor, machine cost</th><td>$461.47</td></tr>
+<tr><th>Net profit (no vault cash cost line)</th><td>$143.53</td></tr>
+<tr><th>Margin (no vault cash cost line)</th><td>23.72%</td></tr>
+</table>
+</div>
+<p>That reads as a healthy location. Add the one line most cash-in/cash-out sheets never get around to -- $8,000 of vault cash at 18% annually costs $120.00 a month, whether that cash is your own or a servicing provider's -- and the same location comes out very differently:</p>
+<div class="table-scroll">
+<table>
+<tr><th>Vault cash cost of capital</th><td>$120.00</td></tr>
+<tr><th>Net profit (vault cash cost counted)</th><td>$23.53</td></tr>
+<tr><th>Margin (vault cash cost counted)</th><td>3.89%</td></tr>
+</table>
+</div>
+<p>Nothing about the location changed between those two readings. The $120 was always there, drawing down a return it could have earned elsewhere -- a spreadsheet just never asked. This calculator asks every time, because the cash-cost field has no default of zero worth trusting.</p>
+</section>
+
+<section>
+<h2>Why "how many more locations" needs the average held apart</h2>
+<p>Say a four-location route nets $185, $60, -$10, and $40 a month once each location's own numbers are worked out -- a spreadsheet's SUM gets the $275 total right, and AVERAGE gets $68.75 right. Neither function, on its own, answers the next question an operator actually has: against a $1,200 monthly income goal, that's a $925 gap, and closing it at the same $68.75 average takes 14 more locations. That's a formula someone has to write on purpose, and a single losing placement (-$10 here) pulls the average -- and so the projection -- down in a way that is easy to miss glancing down a column, but that this calculator's route roll-up computes on every change to the list.</p>
+<p class="note">Open the <a href="./">ATM Route Margin Calculator</a> to price your own route, or read <a href="is-this-atm-placement-worth-it.html">is this ATM placement worth it?</a> for a worked example on a single new offer. Shopping for a new processor instead? See <a href="vs-atm-depot.html">this calculator vs. ATM Depot's Profit Calculator</a>.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>What does a route-pricing spreadsheet usually get right, and what does it miss?</h3>
+<p>Filled in carefully, a spreadsheet can total a location's commission split, processor fees, mileage, and labor time correctly. What it doesn't do on its own is charge the vault cash sitting in the machine a cost of capital -- because that cost never arrives as an invoice the way a processor fee or a mileage receipt does, nothing on a typical cash-in/cash-out cost list prompts anyone to add a line for it unless they already know to.</p>
+<h3>Why does vault cash need a cost line at all if it's already my own money?</h3>
+<p>Because it is money that could be earning a return somewhere else, or that a cash-servicing provider would charge to hold. An annual cost-of-capital rate applied to the average cash balance turns that opportunity cost into a monthly dollar figure next to the surcharge revenue it makes possible -- and on a location running a large cash balance, that figure can be the difference between a route that looks healthy and one that is barely breaking even.</p>
+<h3>Why can't a running list of per-location profit numbers tell me how many more locations I need?</h3>
+<p>A spreadsheet can sum a column of monthly profit figures and average them without much trouble. What it usually doesn't do automatically is divide the gap between that total and a monthly income goal by the average profit per location, to say how many more placements at the same average would close it -- and a route carrying even one underperforming or losing location pulls that average down in a way that is easy to miss just eyeballing a list, but that changes the answer directly.</p>
+<h3>Does this calculator store or upload anything I type?</h3>
+<p>No. Every field runs in your browser and nothing survives closing the tab except the visit-cost inputs and income goal, which are saved locally on this device so you don't retype them. Usage counting only tallies anonymous feature events, and you can turn it off from the calculator page.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p>The worked figures above come directly from this calculator's own default inputs with the cash balance and cost-of-capital rate changed to show the gap, and from hand-picked route figures chosen to illustrate the income-gap arithmetic -- nothing here is a claim about what your own locations or route will return.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it helped you price a route, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. <a href="./">Use the calculator</a> &middot; <a href="LICENSE" rel="noopener">Licence</a>.</p>
+</footer>
+</body>
+</html>
