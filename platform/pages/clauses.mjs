@@ -896,6 +896,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries its own "not affiliated" clause. Same reasoning as the other
   // vs-doing-it-by-hand / vs-spreadsheet pages above.
   'childcare-tuition-calculator/vs-doing-it-by-hand.html',
+  // Compares against "tallying a serve's profit by hand or in a spreadsheet"
+  // -- the generic method every independent process server already has, not
+  // a company or product this could be mistaken for. The page names no
+  // spreadsheet application or notebook app at all -- distinct from this
+  // venture's own vs-servemanager.html, which does name a product and
+  // carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-doing-it-by-hand / vs-spreadsheet pages above.
+  'process-server-fee-calculator/vs-doing-it-by-hand.html',
   // Compares against "tracking orders in a spreadsheet" -- the generic
   // method every Etsy seller already has, not a company or product this
   // could be mistaken for. The page names no spreadsheet application or
@@ -1490,6 +1498,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against pricing purely by a flat per-square-foot rate -- a
+  // generic estimating shortcut independent home inspectors reach for
+  // absent a franchise's own fee schedule, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-franchise-fee-schedule.html, which is about the business decision of
+  // joining a franchise rather than a pricing method, and does not name any
+  // franchise brand either. Same reasoning as the other flat-rate
+  // generic-method pages above.
+  'home-inspection-fee-calculator/vs-a-flat-per-square-foot-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
