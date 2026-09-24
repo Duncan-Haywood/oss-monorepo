@@ -103,3 +103,12 @@ test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
   assert.ok(app, "missing SoftwareApplication JSON-LD on index");
   assert.equal(app.offers.price, "0");
 });
+
+test("index links one hop to the mega-backdoor-roth-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/mega-backdoor-roth-calculator\/"/,
+    "index must link ../mega-backdoor-roth-calculator/ so crawlers reach the sibling retirement calculator in one hop",
+  );
+});
