@@ -134,6 +134,15 @@
     <summary type="text">Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.</summary>
   </entry>
   <entry>
+    <title>Mega Backdoor Roth 401(k) Calculator — After-Tax Contribution Headroom</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mega-backdoor-roth-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mega-backdoor-roth-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions, and after-tax contributions and get your remaining after-tax headroom under the 2025/2026 IRS 415(c) limit, plus the per-paycheck amount to use it up by year-end. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>S-Corp Reasonable Compensation Calculator — Salary vs. Distribution</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s-corp-reasonable-compensation-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/s-corp-reasonable-compensation-calculator</id>
