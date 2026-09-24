@@ -459,7 +459,15 @@ const CATEGORY_RULES = [
     // Broadened the `str-host` match to `str-` rather than adding a second
     // alternative, since both slugs share the audience and the storefront
     // prefix.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
+    // `kickstarter-fee-calculator` is the same platform-cut shape as
+    // `stockx` and `twitch` above, one step further from a resale: a
+    // platform fee plus a per-transaction processing charge netted out of
+    // what a creator collects, rather than a seller's sale price — the
+    // same "what do I actually keep on this platform" question this
+    // section already answers. Its slug names neither a marketplace nor a
+    // storefront keyword this rule already recognised, so it would
+    // otherwise have swelled the catch-all.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter)/.test(slug),
   },
   {
     id: 'trades',
