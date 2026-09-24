@@ -197,6 +197,7 @@ test('robots and sitemap let crawlers find every page', () => {
   assert.match(sitemap, /vs-tekmetric\.html/);
   assert.match(sitemap, /vs-shop-ware\.html/);
   assert.match(sitemap, /vs-shopmonkey\.html/);
+  assert.match(sitemap, /vs-autoleap\.html/);
   assert.match(sitemap, /vs-dividing-labor-sales-by-hours\.html/);
   assert.match(sitemap, /should-i-keep-taking-warranty-work\.html/);
 });
@@ -264,7 +265,7 @@ test('the warranty-work guide quotes figures the calculator actually produces', 
 });
 
 test('every published page carries Open Graph tags', () => {
-  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['should-i-keep-taking-warranty-work.html', warrantyGuide], ['vs-tekmetric.html', page('vs-tekmetric.html')], ['vs-shop-ware.html', page('vs-shop-ware.html')], ['vs-shopmonkey.html', page('vs-shopmonkey.html')], ['vs-dividing-labor-sales-by-hours.html', page('vs-dividing-labor-sales-by-hours.html')]]) {
+  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['should-i-keep-taking-warranty-work.html', warrantyGuide], ['vs-tekmetric.html', page('vs-tekmetric.html')], ['vs-shop-ware.html', page('vs-shop-ware.html')], ['vs-shopmonkey.html', page('vs-shopmonkey.html')], ['vs-autoleap.html', page('vs-autoleap.html')], ['vs-dividing-labor-sales-by-hours.html', page('vs-dividing-labor-sales-by-hours.html')]]) {
     assert.match(html, /property="og:title"/, `${name} has no og:title`);
     assert.match(html, /property="og:description"/, `${name} has no og:description`);
   }
@@ -339,6 +340,29 @@ test('wide tables on the Shopmonkey comparison page scroll in their own box, not
   assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
 });
 
+test('index links to the AutoLeap comparison page, and the comparison page links back', () => {
+  assert.match(markup, /href="vs-autoleap\.html"/);
+  const vsPage = page('vs-autoleap.html');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /not\s+affiliated\s+with/i);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the tool');
+  // PRODUCT_PLAYBOOK.md 5f: a vs-<competitor> page names a trademark and must
+  // say plainly it is not that product's page. Loosely matched to allow the
+  // page's own voice, mirroring platform/pages/clauses.mjs's NOT_AFFILIATED.
+  assert.match(vsPage, /AutoLeap/);
+});
+
+test('wide tables on the AutoLeap comparison page scroll in their own box, not the page', () => {
+  const vsPage = page('vs-autoleap.html');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
 test('opening the page counts nothing and arms nothing', () => {
   // A usage count is an event about a feature being used. Loading a page is not
   // one, and counting it would turn an aggregate feature tally into a visit
@@ -394,7 +418,7 @@ test('index links to the divide-it-yourself comparison, and the page links back'
   // carries no trademark disclaimer and must name no management system --
   // that is the claim `COMPARISON_DISCLAIMER_EXEMPT` in clauses.mjs records
   // for it, and the reason it needs no "not affiliated with" line.
-  assert.doesNotMatch(vsPage, /Tekmetric|Shop-Ware|Mitchell|AllData|Shopmonkey/i);
+  assert.doesNotMatch(vsPage, /Tekmetric|Shop-Ware|Mitchell|AllData|Shopmonkey|AutoLeap/i);
 });
 
 test('wide tables on the divide-it-yourself page scroll in their own box, not the page', () => {
