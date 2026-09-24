@@ -42,11 +42,11 @@
 #   portfolio-front-tools-6: 137 files, 555997 bytes
 #   portfolio-front-tools-7: 121 files, 553394 bytes
 #   portfolio-front-tools-8: 135 files, 549773 bytes
-#   portfolio-front-tools-9: 130 files, 555786 bytes
-#   portfolio-front-tools-10: 122 files, 551670 bytes
-#   portfolio-front-tools-11: 114 files, 555141 bytes
-#   portfolio-front-tools-12: 120 files, 555153 bytes
-#   portfolio-front-tools-13: 129 files, 549275 bytes
+#   portfolio-front-tools-9: 130 files, 553178 bytes
+#   portfolio-front-tools-10: 122 files, 554059 bytes
+#   portfolio-front-tools-11: 114 files, 555038 bytes
+#   portfolio-front-tools-12: 120 files, 555173 bytes
+#   portfolio-front-tools-13: 130 files, 553442 bytes
 #   portfolio-front-tools-14: 131 files, 556977 bytes
 #   portfolio-front-tools-15: 121 files, 554701 bytes
 #   portfolio-front-tools-16: 105 files, 545372 bytes
@@ -1403,6 +1403,7 @@ configMapGenerator:
       - fleet-repair-or-replace-planner__index.html.gz=fleet-repair-or-replace-planner__index.html.gz
       - fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz=fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz
       - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
+      - fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz=fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz
       - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
       - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
       - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
@@ -1418,12 +1419,12 @@ configMapGenerator:
       - food-truck-event-margin-calculator__usage.mjs.gz=food-truck-event-margin-calculator__usage.mjs.gz
       - food-truck-event-margin-calculator__vs-a-flat-per-guest-price.html.gz=food-truck-event-margin-calculator__vs-a-flat-per-guest-price.html.gz
       - food-truck-event-margin-calculator__vs-roaminghunger.html.gz=food-truck-event-margin-calculator__vs-roaminghunger.html.gz
-      - forestry-mulching-bid-calculator__calc.mjs.gz=forestry-mulching-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - forestry-mulching-bid-calculator__calc.mjs.gz=forestry-mulching-bid-calculator__calc.mjs.gz
       - forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz=forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz
       - forestry-mulching-bid-calculator__index.html.gz=forestry-mulching-bid-calculator__index.html.gz
       - forestry-mulching-bid-calculator__share.mjs.gz=forestry-mulching-bid-calculator__share.mjs.gz
@@ -1545,12 +1546,12 @@ configMapGenerator:
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
       - hoa-reserve-fund-calculator__vs-spreadsheet.html.gz=hoa-reserve-fund-calculator__vs-spreadsheet.html.gz
-      - hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz=hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz=hoa-reserve-fund-calculator__why-did-our-hoa-get-hit-with-a-special-assessment.html.gz
       - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
       - holiday-light-bid-calculator__index.html.gz=holiday-light-bid-calculator__index.html.gz
@@ -1664,12 +1665,12 @@ configMapGenerator:
       - janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz=janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz
       - janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz=janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz
       - janitorial-bid-calculator__usage.mjs.gz=janitorial-bid-calculator__usage.mjs.gz
-      - janitorial-bid-calculator__vs-cleanguru.html.gz=janitorial-bid-calculator__vs-cleanguru.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - janitorial-bid-calculator__vs-cleanguru.html.gz=janitorial-bid-calculator__vs-cleanguru.html.gz
       - junk-removal-bid-calculator__calc.mjs.gz=junk-removal-bid-calculator__calc.mjs.gz
       - junk-removal-bid-calculator__how-to-price-junk-removal.html.gz=junk-removal-bid-calculator__how-to-price-junk-removal.html.gz
       - junk-removal-bid-calculator__index.html.gz=junk-removal-bid-calculator__index.html.gz
@@ -1789,12 +1790,12 @@ configMapGenerator:
       - mobile-detailing-bid-calculator__usage.mjs.gz=mobile-detailing-bid-calculator__usage.mjs.gz
       - mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz=mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz
       - mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz=mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz
-      - mold-remediation-bid-calculator__calc.mjs.gz=mold-remediation-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mold-remediation-bid-calculator__calc.mjs.gz=mold-remediation-bid-calculator__calc.mjs.gz
       - mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz=mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz
       - mold-remediation-bid-calculator__index.html.gz=mold-remediation-bid-calculator__index.html.gz
       - mold-remediation-bid-calculator__share.mjs.gz=mold-remediation-bid-calculator__share.mjs.gz
