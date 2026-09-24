@@ -1320,6 +1320,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that reason. Same reasoning as the other flat-rate generic-method
   // pages above (e.g. shed-install-bid-calculator's).
   'well-pump-bid-calculator/vs-a-flat-well-pump-special.html',
+  // Compares against a flat "$X a square foot" or "$28,000 for a 30x40"
+  // post-frame special -- a generic advertised pricing habit the trade is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-jobtread.html, which names a
+  // specific project-management platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // flat-rate generic-method pages above.
+  'pole-barn-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "a flat $3/LF Christmas light special" -- a generic
   // advertised price every holiday lighting contractor is shopped against,
   // not a company or product this could be mistaken for. Distinct from
@@ -1357,6 +1365,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the "not affiliated" clause for that reason. Same
   // reasoning as the other vs-checking-*-by-hand/by-eye pages above.
   'slopsquatting-check/vs-checking-package-names-by-eye.html',
+  // Compares against "a flat $950/square metal-roof special" -- a generic
+  // advertised price every metal-roofing crew is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-acculynx.html, which names a specific estimating
+  // platform and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as the other flat-rate generic-method pages
+  // above (e.g. well-pump-bid-calculator's).
+  'metal-roof-bid-calculator/vs-a-flat-950-per-square-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
