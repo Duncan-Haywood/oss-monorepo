@@ -2055,6 +2055,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-voices-com.html, which names a real marketplace and already carries
   // the trademark disclaimer.
   'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
+  // Compares against "a flat $2,999 special" -- the water-surface pricing
+  // habit every vinyl-liner crew is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
