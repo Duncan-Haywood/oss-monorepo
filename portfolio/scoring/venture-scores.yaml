@@ -16185,3 +16185,70 @@ ventures:
       anything, and the report is explicit that a clean result describes
       only the one bucket checked and only the listing exposure class, not
       a full cloud security assessment.
+
+  - slug: window-tinting-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The pane-count-and-film-tier cost
+      breakdown, the old-tint removal time, and the flat-per-vehicle
+      comparison are all decided entirely by the numbers the installer types
+      in and a fixed set of preset windows/minutes/film-tier rates, not a
+      model judgment -- the same reasoning this portfolio applies to every
+      other deterministic bid calculator (e.g. land-survey-bid-calculator,
+      biohazard-cleanup-bid-calculator).
+    basis: >-
+      Screened 2026-09-24, same session, per portfolio/pipeline/README.md's
+      scoring process. `python3 portfolio/pipeline/duplicate_check.py` scored
+      every existing venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate below 0.21 for this niche (top match
+      wildlife-exclusion-bid-calculator at 0.21, an unrelated animal-proofing
+      trade sharing only generic bid-calculator vocabulary), and a full read
+      of screened-out.md and portfolio/pipeline/README.md's current
+      candidates turned up no "tint"/"tinting"/"window film" row anywhere in
+      the tree -- confirmed by grep, not recollection. Distinct from every
+      existing window-adjacent venture: window-cleaning-bid-calculator and
+      window-replacement-bid-calculator price washing and swapping glass, not
+      applying film to existing glass, and no venture prices auto or
+      architectural tint film.
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 6: auto window tinting is a mass consumer service with a
+      large installer base (far broader than a licensed-professional niche
+      like land surveying), and "how much should I charge for tint",
+      "window tint pricing calculator", and r/WindowTint-style installer
+      forum threads are a recurring, real trade question -- no search-volume
+      tool was queried from this sandbox to confirm magnitude, so scored at
+      this portfolio's typical bid-calculator distribution rather than above
+      it.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the portfolio's
+      typical bid-calculator floor), so the edge is being first and specific
+      to this niche's actual cost drivers (pane count, film tier, and
+      removal time, not vehicle size class) rather than a moat in the code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no check of the installer's state tint-darkness (VLT%) law, medical
+      exemption rules, or any other film-legality requirement, and does not
+      replace the installer's own judgment about scope or warranty terms;
+      the installer remains the one who quotes and performs the job.
+      Ethically: donations-only with no per-quote fee, so the tool has no
+      incentive to steer a bid up or down, and the flat-per-vehicle
+      comparison is disclosed methodology (FAQ: "why compare against a flat
+      per-vehicle price?") rather than an unexplained claim about what any
+      job "should" cost.
