@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 121 files, 554935 bytes
 #   portfolio-front-tools-11: 117 files, 553827 bytes
 #   portfolio-front-tools-12: 118 files, 554956 bytes
-#   portfolio-front-tools-13: 128 files, 551130 bytes
+#   portfolio-front-tools-13: 129 files, 555652 bytes
 #   portfolio-front-tools-14: 124 files, 556756 bytes
 #   portfolio-front-tools-15: 134 files, 553835 bytes
 #   portfolio-front-tools-16: 105 files, 555046 bytes
@@ -1821,6 +1821,7 @@ configMapGenerator:
       - menu-engineering-calculator__how-menu-engineering-works.html.gz=menu-engineering-calculator__how-menu-engineering-works.html.gz
       - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
       - menu-engineering-calculator__usage.mjs.gz=menu-engineering-calculator__usage.mjs.gz
+      - menu-engineering-calculator__vs-averaging-margins-in-a-spreadsheet.html.gz=menu-engineering-calculator__vs-averaging-margins-in-a-spreadsheet.html.gz
       - menu-engineering-calculator__vs-marginedge.html.gz=menu-engineering-calculator__vs-marginedge.html.gz
       - mercari-fee-calculator__calc.mjs.gz=mercari-fee-calculator__calc.mjs.gz
       - mercari-fee-calculator__how-much-does-mercari-take.html.gz=mercari-fee-calculator__how-much-does-mercari-take.html.gz
