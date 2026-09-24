@@ -35,20 +35,20 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 137 files, 543045 bytes
 #   portfolio-front-tools-1: 97 files, 554617 bytes
-#   portfolio-front-tools-2: 145 files, 556037 bytes
-#   portfolio-front-tools-3: 135 files, 553998 bytes
-#   portfolio-front-tools-4: 145 files, 553634 bytes
-#   portfolio-front-tools-5: 116 files, 555733 bytes
-#   portfolio-front-tools-6: 134 files, 546425 bytes
+#   portfolio-front-tools-2: 145 files, 555834 bytes
+#   portfolio-front-tools-3: 135 files, 553550 bytes
+#   portfolio-front-tools-4: 145 files, 553872 bytes
+#   portfolio-front-tools-5: 116 files, 555771 bytes
+#   portfolio-front-tools-6: 135 files, 550709 bytes
 #   portfolio-front-tools-7: 126 files, 552816 bytes
 #   portfolio-front-tools-8: 133 files, 555526 bytes
 #   portfolio-front-tools-9: 133 files, 553723 bytes
 #   portfolio-front-tools-10: 121 files, 552644 bytes
 #   portfolio-front-tools-11: 117 files, 541345 bytes
 #   portfolio-front-tools-12: 115 files, 555611 bytes
-#   portfolio-front-tools-13: 127 files, 553412 bytes
-#   portfolio-front-tools-14: 126 files, 556217 bytes
-#   portfolio-front-tools-15: 134 files, 549473 bytes
+#   portfolio-front-tools-13: 127 files, 553352 bytes
+#   portfolio-front-tools-14: 126 files, 556328 bytes
+#   portfolio-front-tools-15: 135 files, 553446 bytes
 #   portfolio-front-tools-16: 102 files, 557028 bytes
 #   portfolio-front-tools-17: 120 files, 547066 bytes
 #   portfolio-front-tools-18: 122 files, 541059 bytes
@@ -357,6 +357,7 @@ configMapGenerator:
       - 3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html.gz=3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html.gz
       - 3pl-quote-normalizer__usage.mjs.gz=3pl-quote-normalizer__usage.mjs.gz
       - 3pl-quote-normalizer__vs-extensiv.html.gz=3pl-quote-normalizer__vs-extensiv.html.gz
+      - 3pl-quote-normalizer__vs-normalizing-a-quote-in-a-spreadsheet.html.gz=3pl-quote-normalizer__vs-normalizing-a-quote-in-a-spreadsheet.html.gz
       - 3pl-quote-normalizer__vs-shipbob.html.gz=3pl-quote-normalizer__vs-shipbob.html.gz
       - 3pl-quote-normalizer__warnings-page.mjs.gz=3pl-quote-normalizer__warnings-page.mjs.gz
       - freight-accessorial-auditor__audit.mjs.gz=freight-accessorial-auditor__audit.mjs.gz
@@ -464,12 +465,12 @@ configMapGenerator:
       - invoice-payment-terms-calculator__schedule.mjs.gz=invoice-payment-terms-calculator__schedule.mjs.gz
       - invoice-payment-terms-calculator__share.mjs.gz=invoice-payment-terms-calculator__share.mjs.gz
       - invoice-payment-terms-calculator__should-i-ask-for-a-deposit.html.gz=invoice-payment-terms-calculator__should-i-ask-for-a-deposit.html.gz
-      - invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz=invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz=invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz
       - invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz=invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz
       - invoice-payment-terms-calculator__usage.mjs.gz=invoice-payment-terms-calculator__usage.mjs.gz
       - invoice-payment-terms-calculator__vs-freshbooks.html.gz=invoice-payment-terms-calculator__vs-freshbooks.html.gz
@@ -604,12 +605,12 @@ configMapGenerator:
       - actions-injection-check__classify.mjs.gz=actions-injection-check__classify.mjs.gz
       - actions-injection-check__index.html.gz=actions-injection-check__index.html.gz
       - actions-injection-check__usage.mjs.gz=actions-injection-check__usage.mjs.gz
-      - actions-injection-check__vs-checking-a-workflow-by-hand.html.gz=actions-injection-check__vs-checking-a-workflow-by-hand.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-injection-check__vs-checking-a-workflow-by-hand.html.gz=actions-injection-check__vs-checking-a-workflow-by-hand.html.gz
       - actions-injection-check__vs-zizmor.html.gz=actions-injection-check__vs-zizmor.html.gz
       - actions-injection-check__what-is-a-pwn-request-in-github-actions.html.gz=actions-injection-check__what-is-a-pwn-request-in-github-actions.html.gz
       - actions-minutes-estimator__cli.mjs.gz=actions-minutes-estimator__cli.mjs.gz
@@ -754,12 +755,12 @@ configMapGenerator:
       - appointment-deposit-calculator__tattoo-share.mjs.gz=appointment-deposit-calculator__tattoo-share.mjs.gz
       - appointment-deposit-calculator__touchup.mjs.gz=appointment-deposit-calculator__touchup.mjs.gz
       - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
-      - appointment-deposit-calculator__vs-doing-it-by-hand.html.gz=appointment-deposit-calculator__vs-doing-it-by-hand.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - appointment-deposit-calculator__vs-doing-it-by-hand.html.gz=appointment-deposit-calculator__vs-doing-it-by-hand.html.gz
       - appointment-deposit-calculator__vs-square-appointments.html.gz=appointment-deposit-calculator__vs-square-appointments.html.gz
       - appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz=appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz
       - artificial-turf-bid-calculator__calc.mjs.gz=artificial-turf-bid-calculator__calc.mjs.gz
@@ -875,12 +876,12 @@ configMapGenerator:
       - bounce-house-rental-calculator__usage.mjs.gz=bounce-house-rental-calculator__usage.mjs.gz
       - bounce-house-rental-calculator__vs-a-spreadsheet.html.gz=bounce-house-rental-calculator__vs-a-spreadsheet.html.gz
       - bounce-house-rental-calculator__vs-booqable.html.gz=bounce-house-rental-calculator__vs-booqable.html.gz
-      - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
       - branch-protection-drift-check__cli.mjs.gz=branch-protection-drift-check__cli.mjs.gz
       - branch-protection-drift-check__engine.mjs.gz=branch-protection-drift-check__engine.mjs.gz
       - branch-protection-drift-check__index.html.gz=branch-protection-drift-check__index.html.gz
@@ -1888,6 +1889,7 @@ configMapGenerator:
       - openapi-breaking-change-check__usage.mjs.gz=openapi-breaking-change-check__usage.mjs.gz
       - openapi-breaking-change-check__vs-manually-reading-the-spec-diff.html.gz=openapi-breaking-change-check__vs-manually-reading-the-spec-diff.html.gz
       - openapi-breaking-change-check__vs-oasdiff.html.gz=openapi-breaking-change-check__vs-oasdiff.html.gz
+      - openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz=openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz
       - osha-trir-dart-calculator__calc.mjs.gz=osha-trir-dart-calculator__calc.mjs.gz
       - osha-trir-dart-calculator__how-to-calculate-trir.html.gz=osha-trir-dart-calculator__how-to-calculate-trir.html.gz
       - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
@@ -1921,12 +1923,12 @@ configMapGenerator:
       - patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz=patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz
       - patio-door-bid-calculator__index.html.gz=patio-door-bid-calculator__index.html.gz
       - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
-      - patio-door-bid-calculator__vs-jobber.html.gz=patio-door-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - patio-door-bid-calculator__vs-jobber.html.gz=patio-door-bid-calculator__vs-jobber.html.gz
       - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
       - paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz=paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
@@ -2052,12 +2054,12 @@ configMapGenerator:
       - pressure-washing-bid-calculator__vs-gorilladesk.html.gz=pressure-washing-bid-calculator__vs-gorilladesk.html.gz
       - pressure-washing-bid-calculator__vs-jobber.html.gz=pressure-washing-bid-calculator__vs-jobber.html.gz
       - print-atelier__index.html.gz=print-atelier__index.html.gz
-      - print-atelier__preflight.mjs.gz=print-atelier__preflight.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - print-atelier__preflight.mjs.gz=print-atelier__preflight.mjs.gz
       - print-atelier__usage.mjs.gz=print-atelier__usage.mjs.gz
       - print-atelier__vs-printful.html.gz=print-atelier__vs-printful.html.gz
       - print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz=print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz
