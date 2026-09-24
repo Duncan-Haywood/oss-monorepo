@@ -717,8 +717,17 @@ const RELATIVE_SELF = relative(
 // at 339 rather than 338 -- one venture between `tip-pool-compliance-
 // calculator` and this one added a switch without a comment recording it;
 // not reconstructed here since this entry only speaks to this session's own
-// change.)
-const SWITCHES_IN_THE_CATALOGUE = 340;
+// change.) `mega-backdoor-roth-calculator`, which also graduated
+// concurrently, added no `usage.mjs` of its own, so it does not move this
+// count.
+//
+// 340 -> 341: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` a second time while this branch was still in
+// flight -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Same
+// collision shape one merge later: this branch only ever knew the
+// predecessor number (340) from the first merge until this second one.
+const SWITCHES_IN_THE_CATALOGUE = 341;
 
 let counter = 0;
 function fixture(source) {

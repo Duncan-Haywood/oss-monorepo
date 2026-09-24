@@ -1229,7 +1229,19 @@ const CATEGORY_RULES = [
       // same shape: a published, dated table plus arithmetic on figures the
       // saver already has, never a filed election or plan-compliance
       // determination.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|mega-backdoor-roth-calculator)/.test(slug),
+      //
+      // `senior-deduction-calculator` joined 2026-09-24, concurrently on
+      // `main` too, filed here on its first commit rather than after a
+      // spell in the catch-all -- same "new-for-2025 OBBBA federal
+      // deduction" axis as `auto-loan-interest-deduction-calculator` and
+      // `no-tax-on-tips-overtime-calculator` right above it in this rule,
+      // just the age-65 bonus deduction instead of vehicle-loan interest or
+      // tips/overtime pay. It cross-links both of those siblings: all three
+      // are new, temporary 2025-2028 OBBBA deductions a filer may claim in
+      // the same season, and all three disagree on married-filing-separately
+      // treatment in ways worth a reader hitting explicitly rather than
+      // assuming one rule generalizes to the others.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|mega-backdoor-roth-calculator|senior-deduction-calculator)/.test(slug),
   },
   {
     id: 'ci',

@@ -1019,6 +1019,9 @@ workflows:
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
+- workflow: senior-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: septic-pumping-bid-calculator-ci.yml
   classification: none
   publishes: []
