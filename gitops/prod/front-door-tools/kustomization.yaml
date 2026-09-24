@@ -45,8 +45,8 @@
 #   portfolio-front-tools-9: 122 files, 554262 bytes
 #   portfolio-front-tools-10: 121 files, 554941 bytes
 #   portfolio-front-tools-11: 117 files, 555950 bytes
-#   portfolio-front-tools-12: 126 files, 556138 bytes
-#   portfolio-front-tools-13: 125 files, 552317 bytes
+#   portfolio-front-tools-12: 125 files, 556489 bytes
+#   portfolio-front-tools-13: 127 files, 556630 bytes
 #   portfolio-front-tools-14: 135 files, 556110 bytes
 #   portfolio-front-tools-15: 103 files, 555297 bytes
 #   portfolio-front-tools-16: 118 files, 543730 bytes
@@ -1759,6 +1759,7 @@ configMapGenerator:
       - no-show-fee-calculator__usage.mjs.gz=no-show-fee-calculator__usage.mjs.gz
       - no-show-fee-calculator__vs-acuity-scheduling.html.gz=no-show-fee-calculator__vs-acuity-scheduling.html.gz
       - no-tax-on-tips-overtime-calculator__calc.mjs.gz=no-tax-on-tips-overtime-calculator__calc.mjs.gz
+      - no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz=no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz
       - no-tax-on-tips-overtime-calculator__index.html.gz=no-tax-on-tips-overtime-calculator__index.html.gz
       - no-tax-on-tips-overtime-calculator__usage.mjs.gz=no-tax-on-tips-overtime-calculator__usage.mjs.gz
       - no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz=no-tax-on-tips-overtime-calculator__vs-estimating-the-deduction-by-hand.html.gz
@@ -1794,13 +1795,13 @@ configMapGenerator:
       - osha-trir-dart-calculator__calc.mjs.gz=osha-trir-dart-calculator__calc.mjs.gz
       - osha-trir-dart-calculator__how-to-calculate-trir.html.gz=osha-trir-dart-calculator__how-to-calculate-trir.html.gz
       - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
-      - osha-trir-dart-calculator__usage.mjs.gz=osha-trir-dart-calculator__usage.mjs.gz
-      - osha-trir-dart-calculator__vs-spreadsheet.html.gz=osha-trir-dart-calculator__vs-spreadsheet.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - osha-trir-dart-calculator__usage.mjs.gz=osha-trir-dart-calculator__usage.mjs.gz
+      - osha-trir-dart-calculator__vs-spreadsheet.html.gz=osha-trir-dart-calculator__vs-spreadsheet.html.gz
       - overtime-pay-calculator__calc.mjs.gz=overtime-pay-calculator__calc.mjs.gz
       - overtime-pay-calculator__index.html.gz=overtime-pay-calculator__index.html.gz
       - overtime-pay-calculator__usage.mjs.gz=overtime-pay-calculator__usage.mjs.gz
