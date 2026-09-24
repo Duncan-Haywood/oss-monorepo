@@ -397,6 +397,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page's own footer says so explicitly ("names no specific product").
   // Same reasoning as the other manual-method pages above.
   'call-recording-consent-check/vs-checking-each-states-statute-by-hand.html',
+  // Compares against "checking each state's law by hand" (a one-off web
+  // search) -- a generic manual method anyone can do with a search engine,
+  // not a company or product this could be mistaken for. The page's own
+  // footer says so explicitly ("names no specific product"). Same reasoning
+  // as the other manual-method pages above.
+  'salary-range-posting-check/vs-checking-each-states-law-by-hand.html',
   // Compares against "a flat price per square foot" -- a generic pricing
   // method every insulation crew already has access to, not a company or
   // product this could be mistaken for. Same reasoning as the other
@@ -1838,6 +1844,19 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same shape as docker-build-secrets-check's
   // vs-reading-a-dockerfile-by-hand.html.
   'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
+  // Compares against "diffing package-lock.json by hand" -- a manual
+  // review habit any developer already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-socket.html,
+  // which names Socket, Inc. specifically and already carries the
+  // trademark disclaimer. Same shape as the other vs-*-by-hand pages above.
+  'npm-lifecycle-script-check/vs-diffing-package-lock-by-hand.html',
+  // Compares against "reading values.yaml next to values.schema.json by
+  // eye" -- a manual review habit any chart author already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-helm-lint.html, which names a specific tool (Helm)
+  // and already carries the "not affiliated" clause for that reason. Same
+  // shape as sql-migration-lock-check's vs-reading-the-migration-by-hand.html.
+  'helm-values-schema-check/vs-checking-it-by-eye.html',
   // Compares against "a flat 3-hour, $500 package" -- the generic
   // flat-rate booking pattern any mobile photo booth operator already
   // uses, not a company or product this could be mistaken for. Distinct
@@ -1851,6 +1870,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-buildxact.html, which names a specific estimating platform and
   // already carries the trademark disclaimer.
   'pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html',
+  // Compares against "a flat $249 windshield coupon" -- a common
+  // advertised rate any auto-glass shop already runs, not a company or
+  // product this could be mistaken for.
+  'auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html',
+  // Compares against "a flat rate per linear foot" -- the generic
+  // per-foot quoting habit hardscape and retaining-wall contractors are
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-aspire.html, which names Aspire
+  // specifically and already carries the trademark disclaimer.
+  'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
