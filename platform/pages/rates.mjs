@@ -222,6 +222,18 @@ export const SHOP_RATE_ALIASES = {
     hourlyWage: 'laborRatePerHour',
     targetMargin: 'targetMarginPercent',
   },
+  // "Installer rate ($/hr)" is a single loaded rate for one installer's time
+  // -- the same raw, per-person wage shape as `hourlyWage` -- spelled
+  // `installerRate`. "Target margin on price (%)" is the same net-margin-on-
+  // price concept as `targetMargin`, spelled `targetMarginPercent` (same
+  // convention as `biohazard-cleanup-bid-calculator` above). It has no
+  // separate payroll-burden field, and its overhead ("Booth / shop overhead
+  // ($)") is a flat dollar figure per job rather than a percentage of direct
+  // cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'window-tinting-bid-calculator': {
+    hourlyWage: 'installerRate',
+    targetMargin: 'targetMarginPercent',
+  },
 };
 
 /**
@@ -279,6 +291,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
     'This tool has no separate payroll-burden field and prices containment setup, air monitoring, and waste disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
   'biohazard-cleanup-bid-calculator':
     'This tool has no separate payroll-burden field and prices PPE, supplies, equipment and disposal as their own line items rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
+  'window-tinting-bid-calculator':
+    'This tool has no separate payroll-burden field and allocates overhead as a flat dollar figure for the job rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
 };
 
 /**
