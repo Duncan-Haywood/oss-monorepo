@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 135 files, 554289 bytes
 #   portfolio-front-tools-4: 145 files, 551941 bytes
 #   portfolio-front-tools-5: 116 files, 552800 bytes
-#   portfolio-front-tools-6: 133 files, 552311 bytes
+#   portfolio-front-tools-6: 134 files, 556107 bytes
 #   portfolio-front-tools-7: 128 files, 555238 bytes
 #   portfolio-front-tools-8: 136 files, 549760 bytes
 #   portfolio-front-tools-9: 128 files, 556508 bytes
@@ -950,6 +950,7 @@ configMapGenerator:
       - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
       - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
       - carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz=carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz
+      - carpet-install-bid-calculator__vs-jobber.html.gz=carpet-install-bid-calculator__vs-jobber.html.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
       - cat-adjuster-fee-calculator__calc.mjs.gz=cat-adjuster-fee-calculator__calc.mjs.gz
       - cat-adjuster-fee-calculator__index.html.gz=cat-adjuster-fee-calculator__index.html.gz
