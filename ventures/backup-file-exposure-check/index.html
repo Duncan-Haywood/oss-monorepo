@@ -43,17 +43,17 @@
     {
       "@type": "Question",
       "name": "Does this tool download or read the actual contents of my backup or database dump?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Each request reads at most 8KB of the response -- enough to confirm a real archive's magic-byte header or a real SQL dump's opening lines, never enough to be \"downloading the backup\". For an archive, only that header is ever shown as evidence -- this tool never lists, extracts, or reads a file from inside it. For a SQL dump, only schema statements (CREATE/DROP/ALTER TABLE -- table and column structure) are ever quoted; row-data statements (INSERT, REPLACE, COPY ... FROM stdin) are counted but their text is never shown, because that is where real row content -- potentially real customer data -- would be." }
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Each request reads at most 8KB of the response — enough to confirm a real archive's magic-byte header or a real SQL dump's opening lines, never enough to be \"downloading the backup\". For an archive, only that header is ever shown as evidence — this tool never lists, extracts, or reads a file from inside it. For a SQL dump, only schema statements (CREATE/DROP/ALTER TABLE — table and column structure) are ever quoted; row-data statements (INSERT, REPLACE, COPY ... FROM stdin) are counted but their text is never shown, because that is where real row content — potentially real customer data — would be." }
     },
     {
       "@type": "Question",
       "name": "How is this different from just typing the URL into my browser?",
-      "acceptedAnswer": { "@type": "Answer", "text": "A browser tab shows you the raw response, but many servers return their normal 200 page (a single-page app's fallback route, a themed 404) for literally any path -- which can look plausible enough to misread as an exposure, or a real one might download as an unreadable binary blob you can't quickly confirm. This tool verifies the bytes actually match a real archive's magic-byte header or a real SQL dump's line shape before calling anything exposed, and checks eight well-known filenames in one run instead of one at a time." }
+      "acceptedAnswer": { "@type": "Answer", "text": "A browser tab shows you the raw response, but many servers return their normal 200 page (a single-page app's fallback route, a themed 404) for literally any path — which can look plausible enough to misread as an exposure, or a real one might download as an unreadable binary blob you can't quickly confirm. This tool verifies the bytes actually match a real archive's magic-byte header or a real SQL dump's line shape before calling anything exposed, and checks eight well-known filenames in one run instead of one at a time." }
     },
     {
       "@type": "Question",
       "name": "Is it safe to point this at a URL?",
-      "acceptedAnswer": { "@type": "Answer", "text": "This tool sends only ordinary GET requests to the eight paths under the URL you name -- the same requests your own browser already makes when you type one of those URLs in by hand -- and it never writes or submits anything. It does not upload the URL or anything it finds to our servers when run in the browser; every request goes straight from your browser to the target. Still, only run this against a site you own or are authorised to test, the same caution you'd apply to any request tool aimed at someone else's server." }
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool sends only ordinary GET requests to the eight paths under the URL you name — the same requests your own browser already makes when you type one of those URLs in by hand — and it never writes or submits anything. It does not upload the URL or anything it finds to our servers when run in the browser; every request goes straight from your browser to the target. Still, only run this against a site you own or are authorised to test, the same caution you'd apply to any request tool aimed at someone else's server." }
     },
     {
       "@type": "Question",

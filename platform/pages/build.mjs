@@ -963,9 +963,18 @@ const CATEGORY_RULES = [
     // real-estate tools. Slug ends in `-calculator`, not any suffix this
     // rule already catches, so it is added by exact match rather than
     // widening the suffix list to a word this is the only user of.
+    //
+    // The `backup` prefix narrowed to `backup-verification` on 2026-09-24,
+    // when `backup-file-exposure-check` graduated and `categoryFor` swept
+    // it in here on the strength of its slug alone -- it is the `git-
+    // exposure-check`/`dotenv-exposure-check` "read what's actually there,
+    // name the exact evidence" checker family filed under `ci` below, not a
+    // compliance evidence record, and this category's own test ran before
+    // that one's and won on prefix order. `backup-verification-evidence`
+    // is still the only venture the narrower prefix needs to reach.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
+      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator',
   },

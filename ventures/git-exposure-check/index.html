@@ -305,7 +305,10 @@
   from whether a real <code>.env</code> is exposed). Once the repository itself is not exposed,
   <a href="../security-headers-check/">Security Headers Checker</a> and
   <a href="../cors-misconfig-check/">CORS Misconfiguration Checker</a> cover two response-header
-  evidence classes worth a pass on the same site.</p>
+  evidence classes worth a pass on the same site, and
+  <a href="../backup-file-exposure-check/">Backup File Exposure Checker</a> asks the same "read
+  what's actually there, name the exact evidence" question of a leftover backup archive or SQL
+  dump instead of git-internal plumbing.</p>
 </footer>
 </body>
 </html>
