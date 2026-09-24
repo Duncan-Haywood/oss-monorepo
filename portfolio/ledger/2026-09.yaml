@@ -41045,6 +41045,42 @@ entries:
         trustworthy browser_state.json reading for the next session's
         freshness check to build on.
     mrr_end: 0
+  - venture: npm-lifecycle-script-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-diffing-package-lock-by-hand.html, this venture's first
+        generic-method comparison page (surface-budget.mjs's own 0/1
+        budget). session_gate.py read PROCEED with the build-now pipeline
+        empty; router/allocate.py's top merit-ranked prototypes were all
+        already picked up by the ~7 concurrent sessions committing in the
+        same 15-minute window, so the candidate was selected by
+        intersecting router merit with surface-budget.mjs's list of
+        ventures still at 0 generic-method pages, avoiding that collision
+        rather than re-deriving the router's own top row.
+      - >-
+        Page explains why grepping package-lock.json for
+        hasInstallScript: true and diffing two copies by eye stops working
+        past a few hundred packages, and why the lockfile's boolean alone
+        never reveals the actual script text (only node cli.mjs snapshot's
+        local node_modules read does). Wired into index.html, sitemap.xml,
+        page.test.mjs, and clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (generic method, not a named competitor -- distinct from this
+        venture's own vs-socket.html).
+      - >-
+        Regenerated the front-door mirror (regen.mjs): the apex serves this
+        venture as a projected ConfigMap and does not update itself when a
+        venture page is only committed under ventures/.
+      - >-
+        main advanced 12 commits while this was in flight, producing the
+        documented front-door-mirror merge conflict (kustomization.yaml +
+        catalog/compare/sitemap/llms.txt) plus an additive conflict in
+        clauses.mjs and this ledger file; resolved via `git checkout
+        --ours` on the generated mirror paths followed by
+        `node platform/marketing/regen.mjs` and `--verify`, and by keeping
+        both sides' entries in clauses.mjs and here.
+    mrr_end: 0
   - venture: hidden-unicode-check
     agent_spend_usd: null
     human_hours: 0
