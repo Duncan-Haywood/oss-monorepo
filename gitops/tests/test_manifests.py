@@ -2388,9 +2388,22 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Source family -- the technique behind current AI-agent
     # prompt-injection attacks. Static `index.html` from its first commit,
     # same shape as the rest of this running count.
+    #
+    # 352 on this merge: `skill-manifest-check` also graduated, concurrently
+    # on `main` -- a zero-dependency browser tool that lints one or more
+    # pasted SKILL.md agent-skill manifests (the frontmatter-plus-Markdown
+    # format Claude Code and similar agent systems use) for missing/
+    # malformed frontmatter, a description too vague to trigger reliably,
+    # overlapping triggers between two or more pasted skills, and a
+    # body-size context-budget caution. Static `index.html` from its first
+    # commit, same shape as the rest of this running count. That merge
+    # also gzip-compressed `llms.txt` (joining `catalog.json`,
+    # `sitemap.xml`, and this branch's own `about.html`) to buy back
+    # etcd-object headroom -- see `llmsStoredKey` and `aboutStoredKey` in
+    # `platform/marketing/front-door.mjs`.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 351  # `infra/OWNER_CHECKLIST.md`'s own "N of the 351 tools" wording.
+    total = 352  # `infra/OWNER_CHECKLIST.md`'s own "N of the 352 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
