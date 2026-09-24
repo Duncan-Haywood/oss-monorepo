@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 135 files, 553551 bytes
 #   portfolio-front-tools-4: 145 files, 553634 bytes
 #   portfolio-front-tools-5: 116 files, 555733 bytes
-#   portfolio-front-tools-6: 134 files, 546425 bytes
+#   portfolio-front-tools-6: 135 files, 550634 bytes
 #   portfolio-front-tools-7: 126 files, 552816 bytes
 #   portfolio-front-tools-8: 133 files, 555526 bytes
 #   portfolio-front-tools-9: 133 files, 553723 bytes
@@ -995,6 +995,7 @@ configMapGenerator:
       - cloud-bucket-exposure-check__how-to-fix-a-publicly-listable-bucket.html.gz=cloud-bucket-exposure-check__how-to-fix-a-publicly-listable-bucket.html.gz
       - cloud-bucket-exposure-check__index.html.gz=cloud-bucket-exposure-check__index.html.gz
       - cloud-bucket-exposure-check__probe.mjs.gz=cloud-bucket-exposure-check__probe.mjs.gz
+      - cloud-bucket-exposure-check__public-listing-vs-public-read.html.gz=cloud-bucket-exposure-check__public-listing-vs-public-read.html.gz
       - cloud-bucket-exposure-check__usage.mjs.gz=cloud-bucket-exposure-check__usage.mjs.gz
       - cloud-bucket-exposure-check__vs-manually-checking-in-the-cloud-console.html.gz=cloud-bucket-exposure-check__vs-manually-checking-in-the-cloud-console.html.gz
       - cnc-machining-quote-calculator__calculator.mjs.gz=cnc-machining-quote-calculator__calculator.mjs.gz
