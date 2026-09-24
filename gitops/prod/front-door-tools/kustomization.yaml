@@ -39,8 +39,8 @@
 #   portfolio-front-tools-3: 133 files, 554399 bytes
 #   portfolio-front-tools-4: 145 files, 553650 bytes
 #   portfolio-front-tools-5: 121 files, 556000 bytes
-#   portfolio-front-tools-6: 137 files, 552908 bytes
-#   portfolio-front-tools-7: 120 files, 548202 bytes
+#   portfolio-front-tools-6: 137 files, 555531 bytes
+#   portfolio-front-tools-7: 121 files, 549968 bytes
 #   portfolio-front-tools-8: 134 files, 551040 bytes
 #   portfolio-front-tools-9: 127 files, 555941 bytes
 #   portfolio-front-tools-10: 122 files, 552459 bytes
@@ -898,6 +898,7 @@ configMapGenerator:
       - cache-control-check__index.html.gz=cache-control-check__index.html.gz
       - cache-control-check__probe.mjs.gz=cache-control-check__probe.mjs.gz
       - cache-control-check__usage.mjs.gz=cache-control-check__usage.mjs.gz
+      - cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz=cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz
       - cache-control-check__vs-curl.html.gz=cache-control-check__vs-curl.html.gz
       - cache-control-check__why-isnt-my-cdn-caching-this.html.gz=cache-control-check__why-isnt-my-cdn-caching-this.html.gz
       - call-recording-consent-check__cli.mjs.gz=call-recording-consent-check__cli.mjs.gz
@@ -1020,12 +1021,12 @@ configMapGenerator:
       - cookie-security-check__usage.mjs.gz=cookie-security-check__usage.mjs.gz
       - cookie-security-check__vs-cookiebot.html.gz=cookie-security-check__vs-cookiebot.html.gz
       - cors-misconfig-check__analyze.mjs.gz=cors-misconfig-check__analyze.mjs.gz
-      - cors-misconfig-check__check.mjs.gz=cors-misconfig-check__check.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cors-misconfig-check__check.mjs.gz=cors-misconfig-check__check.mjs.gz
       - cors-misconfig-check__index.html.gz=cors-misconfig-check__index.html.gz
       - cors-misconfig-check__probe.mjs.gz=cors-misconfig-check__probe.mjs.gz
       - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
