@@ -278,6 +278,9 @@ workflows:
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
+- workflow: claude-skill-scaffold-generator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cleaning-dilution-calculator-ci.yml
   classification: none
   publishes: []

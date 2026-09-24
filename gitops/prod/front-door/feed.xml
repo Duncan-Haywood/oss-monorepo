@@ -62,6 +62,15 @@
     <summary type="text">Paste a Claude Code subagent definition (.claude/agents/*.md) and get every structural mistake flagged: a name that isn&#39;t kebab-case, a missing or vague description that stops automatic delegation, a tools list with an empty or unrecognized entry, an unrecognized model alias, and a near-empty system prompt. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Claude Skill Scaffold Generator — turn a plain-language description into a starter SKILL.md</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-skill-scaffold-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/claude-skill-scaffold-generator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Type what a Claude Agent Skill should do and when Claude should use it, plus any scripts, references, or assets it bundles, and get a starter SKILL.md with valid YAML frontmatter and a suggested folder layout -- checked for the common authoring mistakes that keep a skill from triggering. Free, runs entirely in your browser, nothing uploaded, no model call.</summary>
+  </entry>
+  <entry>
     <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloud-bucket-exposure-check/"/>
     <id>tag:marisstella.dev,2026:tool/cloud-bucket-exposure-check</id>

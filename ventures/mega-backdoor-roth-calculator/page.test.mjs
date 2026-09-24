@@ -79,6 +79,14 @@ test('every input has an associated label', () => {
   }
 });
 
+test('index links one hop to the senior-deduction-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/senior-deduction-calculator\/"/,
+    'index must link ../senior-deduction-calculator/ so crawlers reach the sibling deduction calculator in one hop',
+  );
+});
+
 // Closest sibling per platform/pages/siblings.mjs's own nearest-sibling
 // scoring, in the same "Back-office money & contracts" category: both
 // reconcile a figure the filer already has (a marketplace's 1099-K, an

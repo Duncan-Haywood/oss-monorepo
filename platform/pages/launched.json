@@ -70,6 +70,7 @@
     "chrome-extension-permission-check": "2026-09-09",
     "claude-code-settings-check": "2026-09-24",
     "claude-code-subagent-check": "2026-09-24",
+    "claude-skill-scaffold-generator": "2026-09-24",
     "cleaning-dilution-calculator": "2026-08-26",
     "cloud-bucket-exposure-check": "2026-09-24",
     "cloud-egress-calculator": "2026-08-26",

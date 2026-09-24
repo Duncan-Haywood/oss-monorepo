@@ -727,18 +727,25 @@ const RELATIVE_SELF = relative(
 // toggle shape as its `claude-code-settings-check` sibling
 // (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
 // under its own `claude-code-subagent-check:usage` storage name). Exactly
-// one added `usage.mjs`, no deletions. `mega-backdoor-roth-calculator`,
-// which also graduated concurrently, added no `usage.mjs` of its own, so it
-// does not move this count.
+// one added `usage.mjs`, no deletions.
 //
-// 341 -> 342: `senior-deduction-calculator` also graduated (#5765),
+// 341 -> 342: `claude-skill-scaffold-generator` also graduated,
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/claude-skill-scaffold-generator/usage.mjs`) following the same
+// opt-out pattern as its AI-agent-tooling siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its own
+// `claude-skill-scaffold-generator:usage` storage name), no deletions.
+// `mega-backdoor-roth-calculator`, which also graduated concurrently, added
+// no `usage.mjs` of its own, so it does not move this count.
+//
+// 342 -> 343: `senior-deduction-calculator` also graduated (#5765),
 // concurrently on `main` -- adding one more `usage.mjs` following the same
 // opt-out pattern as its siblings (`usageOptedOut`/`setUsageOptOut` gating
 // `record`, keyed under its own `senior-deduction-calculator-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions.
 // Re-derived here by `sync_tree_counts.py` against the fully merged tree
 // rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 342;
+const SWITCHES_IN_THE_CATALOGUE = 343;
 
 let counter = 0;
 function fixture(source) {
