@@ -2466,17 +2466,33 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # This branch only ever knew its own predecessor's number (357) until
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
-    # 360 on this merge: `facebook-marketplace-fee-calculator` also
-    # graduated -- a browser-local calculator that prices a Facebook
-    # Marketplace sale against the current shipped-checkout 10% fee (with
-    # an $0.80 minimum) vs. the $0 local-pickup fee, plus the flat $20
-    # dispute penalty. Static `index.html` and a
+    # mega-backdoor-roth-calculator graduated 2026-09-24: a browser
+    # calculator computing after-tax 401(k) headroom under the IRS 415(c)
+    # limit, static index.html plus a
+    # which-conversion-cadence-should-i-use.html guide page, both from
+    # their first commit. 359 -> 360.
+    # `facebook-marketplace-fee-calculator` also graduated, concurrently
+    # -- a browser-local calculator that prices a Facebook Marketplace
+    # sale against the current shipped-checkout 10% fee (with an $0.80
+    # minimum) vs. the $0 local-pickup fee, plus the flat $20 dispute
+    # penalty. Static `index.html` and a
     # `vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html`
     # comparison page, both from their first commit, same shape as the
-    # rest of this running count.
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (360, before `mega-backdoor-roth-calculator`
+    # landed) until this merge -- the same ordinary collision shape
+    # recorded throughout this list.
+    # 362 on this later merge: `senior-deduction-calculator` also
+    # graduated, concurrently on `main` -- a browser-local calculator for
+    # the new federal "senior bonus" deduction (OBBBA, tax years
+    # 2025-2028), static `index.html` from its first commit. This branch
+    # only ever knew its own predecessor's number (361, from the two
+    # graduations just above) until this second merge -- the same
+    # ordinary collision shape recorded throughout this list, one merge
+    # later.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
+    total = 362  # `infra/OWNER_CHECKLIST.md`'s own "N of the 362 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

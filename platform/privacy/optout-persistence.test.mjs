@@ -712,8 +712,17 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` following the same opt-out pattern as its siblings
 // (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
 // `facebook-marketplace-fee-calculator-usage` storage name). Exactly one
-// added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 340;
+// added `usage.mjs`, no deletions. `mega-backdoor-roth-calculator` also
+// graduated the same merge but carries no `usage.mjs` of its own, so it
+// does not move this count.
+//
+// 340 -> 341: `senior-deduction-calculator` also graduated, concurrently on
+// `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. This
+// branch only ever knew its own predecessor's number (340, from the
+// graduation just above) until this second merge -- the same ordinary
+// collision shape recorded throughout this list, one merge later.
+const SWITCHES_IN_THE_CATALOGUE = 341;
 
 let counter = 0;
 function fixture(source) {

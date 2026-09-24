@@ -1225,7 +1225,27 @@ const CATEGORY_RULES = [
       // as a sibling: same section of the tipped-wage workforce, a
       // different obligation (a federal income-tax deduction there, a
       // federal wage-and-hour rule here).
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator)/.test(slug),
+      //
+      // `senior-deduction-calculator` joined 2026-09-24, filed here on its
+      // first commit rather than after a spell in the catch-all -- same
+      // "new-for-2025 OBBBA federal deduction" axis as
+      // `auto-loan-interest-deduction-calculator` and
+      // `no-tax-on-tips-overtime-calculator` right above it in this rule,
+      // just the age-65 bonus deduction instead of vehicle-loan interest or
+      // tips/overtime pay. It cross-links both of those siblings: all three
+      // are new, temporary 2025-2028 OBBBA deductions a filer may claim in
+      // the same season, and all three disagree on married-filing-separately
+      // treatment in ways worth a reader hitting explicitly rather than
+      // assuming one rule generalizes to the others.
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, concurrently --
+      // the same "personal-finance tax arithmetic against a published,
+      // dated federal limit table" axis as `senior-deduction-calculator`
+      // and `auto-loan-interest-deduction-calculator` right above it, just
+      // an after-tax 401(k)/IRS 415(c) headroom lookup rather than a
+      // deduction. Its slug names neither a bid, a fee, nor an OBBBA
+      // deduction, so no keyword above would have caught it and it would
+      // otherwise have swollen the catch-all past its bound of 5.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator)/.test(slug),
   },
   {
     id: 'ci',

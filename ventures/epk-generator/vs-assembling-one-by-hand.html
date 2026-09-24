@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EPK Generator vs. assembling one by hand in a document editor</title>
+  <meta name="description" content="A word processor or slide deck can hold the same bio, links, tour dates, and quotes an EPK needs. What it does not do on its own: tell you a booking email address is missing, keep a plain-text version in sync with the formatted one, or lay out a press-standard one-pager without you designing it. Free, no-signup, nothing uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-assembling-one-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="EPK Generator vs. assembling one by hand in a document editor">
+  <meta property="og:description" content="A document editor can hold the same content. It won't flag a missing contact email, keep a plain-text copy in sync with the formatted one, or lay out the page for you.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/epk-generator/vs-assembling-one-by-hand.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I just build a press kit in a word processor or slide deck myself?","acceptedAnswer":{"@type":"Answer","text":"Yes — a document editor holds the same bio, links, tour dates, and quotes this generator does, and plenty of press kits in circulation were built exactly that way. What it does not do on its own is tell you the kit is missing something a booker expects, produce a plain-text copy alongside the formatted one, or lay out the page — all three are on you, every time you update it."}},{"@type":"Question","name":"What does the generator check that a blank document does not?","acceptedAnswer":{"@type":"Answer","text":"A blank document accepts whatever you type and stays silent about what you left out. This generator requires an artist name and a bio before it will build anything, and separately warns — without blocking — when there is no booking contact email, no streaming or social link, or no photo link, because those are the specific gaps a booker or blog notices first."}},{"@type":"Question","name":"Why does a plain-text version matter?","acceptedAnswer":{"@type":"Answer","text":"Plenty of festival submission forms and booking emails reject an attached file or strip its formatting, and a document built in a word processor or slide tool has no plain-text edition unless you build one separately and then keep it matching every time you update the original. This generator produces both from the same form in the same pass, so the two never drift apart."}},{"@type":"Question","name":"Is a document editor ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, for a layout this generator does not offer — a designed multi-page PDF with custom typography and photo placement, or a kit built around a visual identity a document or design tool can express and this one, deliberately kept to one plain template, cannot. This generator trades that design flexibility for a page that appears the moment the form is filled in, with no layout decisions to make."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; letter-spacing: -.02em; margin: 0 0 14px; color: #17324a; }
+    h2 { margin-top: 30px; font-size: 1.15rem; color: #17324a; }
+    h3 { margin-top: 22px; font-size: 1rem; }
+    p, li { line-height: 1.6; }
+    .eyebrow { font-size: .85rem; margin: 0 0 18px; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 460px; background: #fff; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #d5dbe3; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    caption { text-align: left; font-size: .82rem; color: #55606f; padding-bottom: 8px; }
+    .cta { display: inline-block; margin: 8px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    .cta:hover { background: #114a39; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 18px 20px; box-shadow: 0 8px 24px #17324a10; margin: 20px 0; }
+    .note { font-size: .85rem; color: #55606f; }
+    footer { margin-top: 34px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; EPK generator</a></p>
+    <h1>EPK Generator vs. assembling one by hand in a document editor</h1>
+    <p class="lede">A word processor or slide deck can hold the same bio, links, tour dates, and press
+      quotes this generator does &mdash; most press kits ever sent were built exactly that way. What it does
+      not do on its own: flag a missing booking email, keep a plain-text copy in sync with the formatted one
+      every time you edit it, or lay out the page. This tool does all three the moment the form is filled in.</p>
+
+    <section class="card">
+      <h2>What each approach actually does</h2>
+      <p>
+        <strong>A document editor</strong> &mdash; a word processor, a slide deck, a blank page in any
+        general-purpose tool &mdash; will hold anything you type: bio, streaming and social links, tour
+        dates, press quotes, a photo. Nothing about the blank page tells you what a press kit is expected to
+        include, so a kit missing a booking contact, or with no way to actually hear the music, ships exactly
+        as easily as a complete one. Producing a plain-text version for a submission form that rejects
+        attachments means building a second copy and manually keeping it matching every time the formatted
+        one changes. Layout &mdash; type sizes, spacing, where the photo sits relative to the bio &mdash; is a
+        design decision you make yourself, each time you revise it.
+      </p>
+      <p>
+        <strong>This generator</strong> takes the same content through one form and builds both files at
+        once: a self-contained, print-friendly HTML one-sheet and a plain-text edition, generated from the
+        identical data so the two can never drift apart. Before it builds anything it requires an artist name
+        and a bio; separately, without blocking generation, it warns when there is no booking contact email,
+        no streaming or social link, or no photo link &mdash; the specific gaps a booker or blog notices
+        first, not a spelling or grammar check. The form autosaves to your own browser as you type, so
+        closing the tab mid-edit does not lose the draft.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption>Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I forgot to include a way to actually contact me.</td><td>This generator &mdash; warns before you send the kit out, not after a booker gives up.</td></tr>
+          <tr><td>A festival form won't take an attachment; I need plain text.</td><td>This generator &mdash; built from the same data, every time, so it never falls out of sync.</td></tr>
+          <tr><td>I want full control over layout, typography, and a custom design.</td><td>A document editor or design tool &mdash; this generator uses one fixed template, deliberately.</td></tr>
+          <tr><td>I closed the tab halfway through filling in the form.</td><td>This generator &mdash; the draft autosaves locally and reloads where you left off.</td></tr>
+          <tr><td>What actually belongs in a press kit in the first place?</td><td>This generator's own <a href="what-is-an-epk.html">explanation of what an EPK is and isn't</a>.</td></tr>
+          <tr><td>Is my content uploaded anywhere either way?</td><td>No, with this generator &mdash; everything runs in your browser. A document editor's own upload behavior depends on which one you use.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>
+        The two are not mutually exclusive: a document editor is still the right tool for a kit built around
+        custom design work a fixed template cannot express. For the common case &mdash; a complete,
+        correctly-formatted one-pager and a plain-text edition to send tonight, with the obvious gaps flagged
+        before a booker finds them &mdash; filling in a form is faster than laying out a page.
+      </p>
+      <p class="note">This tool needs no account and no sign-in: it is a static page, the generator runs in your browser, and it keeps working with the connection off once loaded.</p>
+      <p><a class="cta" href="./">Build your free press kit</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Can I just build a press kit in a word processor or slide deck myself?</h3>
+      <p>Yes &mdash; a document editor holds the same bio, links, tour dates, and quotes this generator does, and plenty of press kits in circulation were built exactly that way. What it does not do on its own is tell you the kit is missing something a booker expects, produce a plain-text copy alongside the formatted one, or lay out the page &mdash; all three are on you, every time you update it.</p>
+      <h3>What does the generator check that a blank document does not?</h3>
+      <p>A blank document accepts whatever you type and stays silent about what you left out. This generator requires an artist name and a bio before it will build anything, and separately warns &mdash; without blocking &mdash; when there is no booking contact email, no streaming or social link, or no photo link, because those are the specific gaps a booker or blog notices first.</p>
+      <h3>Why does a plain-text version matter?</h3>
+      <p>Plenty of festival submission forms and booking emails reject an attached file or strip its formatting, and a document built in a word processor or slide tool has no plain-text edition unless you build one separately and then keep it matching every time you update the original. This generator produces both from the same form in the same pass, so the two never drift apart.</p>
+      <h3>Is a document editor ever the better choice?</h3>
+      <p>Yes, for a layout this generator does not offer &mdash; a designed multi-page PDF with custom typography and photo placement, or a kit built around a visual identity a document or design tool can express and this one, deliberately kept to one plain template, cannot. This generator trades that design flexibility for a page that appears the moment the form is filled in, with no layout decisions to make.</p>
+      <p class="note">This page names no specific product &mdash; it compares against the generic method of assembling a press kit by hand in a document editor, not a competing tool. See <a href="vs-presskit.html">this generator vs. Presskit.to</a> for the account-based hosting comparison.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not booking, publicity, legal, or career advice, and it does not replace a manager, publicist, or lawyer. <strong>You are responsible for reviewing and verifying everything in the generated press kit before sending it anywhere</strong> &mdash; including that any photo link you provide is one you have the right to use. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working.</p>
+      <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors beyond the anonymous local feature counters described on the generator page, with an opt-out there. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the generator.</p>
+    </footer>
+  </main>
+</body></html>
