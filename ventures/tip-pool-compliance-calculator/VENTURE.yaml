@@ -1,0 +1,31 @@
+name: tip-pool-compliance-calculator
+description: Free browser calculator for restaurant and bar owners that checks a mandatory tip pool against the two federal FLSA rules -- a manager or supervisor is never eligible regardless of tip-credit status, and back-of-house staff are eligible only when no tip credit is taken -- and computes the tip-credit back-wage exposure a non-compliant pool creates from the front-of-house hours actually pooled.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Restaurant and bar owners running a mandatory tip pool conflate two separate FLSA rules (the manager prohibition and the back-of-house/tip-credit condition) into one, because most sources present tip-pool eligibility as a single yes/no question rather than two independent tests.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers looking for "can managers be in a tip pool", "can dishwashers be in a tip pool", or "tip pool compliance calculator" will prefer a tool that names each violating role and the specific rule it breaks over a general DOL fact-sheet summary.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The dollar exposure figure -- the tip credit an owner would owe back across every front-of-house hour pooled -- is the number that changes behavior, because "this might not be allowed" competes for attention against a payroll deadline while a specific dollar figure does not. Measured by pool_checked firing against a roster where clawbackApplies is true.
+    status: untested
+    checked: null
+    evidence: in-repo
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No return usage or organic referral signal after 60 days of public availability.
+  - No unsolicited feedback, star, fork, or referral after 90 days.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/tip-pool-compliance-calculator/
+  analytics: null
