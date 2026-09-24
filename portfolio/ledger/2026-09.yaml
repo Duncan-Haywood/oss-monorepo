@@ -41141,3 +41141,56 @@ entries:
         portfolio/pipeline infra/tests -q` (446 passed),
         `checklist_coverage.py` and `regen.mjs --verify` both clean.
     mrr_end: 0
+  - venture: auto-repair-effective-labor-rate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-autoleap.html: a named comparison page against AutoLeap's
+        free labor rate calculator (PR #5661). This venture was
+        `portfolio/router/allocate.py`'s top-ranked dispatchable candidate
+        this session; its generic-method comparison budget was already at
+        the cap of 1, so this adds an unbudgeted named-product page instead,
+        per surface-budget.mjs.
+      - >-
+        Facts sourced via WebSearch/WebFetch against
+        autoleap.com/tools/labor-rate-calculator/ and AutoLeap's own blog
+        description of its effective-labor-rate reporting: AutoLeap's free
+        tool takes the effective labor rate as an input (not an output) and
+        gates its result behind a contact form (name, email, phone, business
+        name); this calculator computes the rate itself from twelve figures
+        with no form and splits the gap three ways, which AutoLeap's tool
+        does not.
+      - >-
+        Caught and fixed a real defect before merging: the JSON-LD FAQPage
+        answers used a literal "--" where the visible prose used "&mdash;",
+        which faq-visible.test.mjs correctly failed on (JSON-LD and visible
+        text must match exactly). Also caught a JSON-LD answer that said
+        "covered below" when the referenced content was actually above it on
+        the page.
+      - >-
+        Main advanced twice (9 commits total) while this was in flight, each
+        time producing the documented front-door-mirror merge conflict
+        (kustomization.yaml + shard .gz blobs); resolved both via
+        `git checkout --theirs` on the generated paths followed by
+        `node platform/marketing/regen.mjs` and `--verify`, per
+        resolve-mirror-merge.sh's own docstring. The first drift also made
+        `check_venture_regression.py --base refs/ci/base-main` report a false
+        "loses ventures/hidden-unicode-check" against a base that had since
+        moved -- resolved by re-merging, not by touching the check.
+      - >-
+        Verified locally (Actions confirmed starved on this PR's own checks
+        via ci_starvation.py: runner_id 0, ~3s, no steps): the venture's own
+        64-assertion suite, `platform/pages/*.test.mjs` (1015/1015),
+        `platform/marketing/*.test.mjs` (272/272 after regen), `clauses.mjs`
+        and `surface-budget.mjs` clean, `regen.mjs --verify` clean,
+        `checklist_coverage.py` clean, `check_venture_regression.py --base
+        origin/main` clean, `python3 -m pytest gitops/tests -q` (613 passed,
+        25 skipped -- environmental), platform/ci's unittest modules +
+        agent_review's, `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (446 passed), and `run_workflow_locally.py --for-changes` clean on
+        the final merge. Squash-merged as #5661; refreshed the GitHub Pages
+        branch snapshot (publish-branch.sh) and recorded the reading
+        (pages_state.py --record) after merge.
+    mrr_end: 0
