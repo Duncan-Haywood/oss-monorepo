@@ -2548,9 +2548,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # concurrently on `main` -- a browser checker for CAA (Certification
     # Authority Authorization) DNS records, static `index.html` from its
     # first commit, same shape as the rest of this running count.
+    #
+    # 366 on this merge: `recipe-costing-calculator` also graduated -- a
+    # browser-local calculator converting as-purchased ingredient price and
+    # yield percentage into edible-portion cost, rolled into a total recipe
+    # cost, a per-portion plate cost, and a target-food-cost-percentage
+    # menu price. Static `index.html` and a
+    # `vs-estimating-recipe-cost-in-a-spreadsheet.html` comparison page,
+    # both from their first commit, same shape as the rest of this running
+    # count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 365  # `infra/OWNER_CHECKLIST.md`'s own "N of the 365 tools" wording.
+    total = 366  # `infra/OWNER_CHECKLIST.md`'s own "N of the 366 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
