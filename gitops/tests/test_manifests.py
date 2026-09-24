@@ -2285,17 +2285,55 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # by `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
     #
-    # 342 since this merge: `backup-file-exposure-check` graduated -- a
-    # zero-dependency browser tool + CLI sending real GET requests to eight
-    # well-known backup-file paths (backup.zip, backup.sql, db.sql, and
-    # more), classifying the response against a real archive's magic bytes
-    # or a real SQL dump's line shape rather than a bare status code, and
-    # never quoting a SQL dump's row-data statements or extracting a
-    # matched archive. Same "read what's actually there, name the exact
-    # evidence" checker shape as `git-exposure-check` and
-    # `dotenv-exposure-check`, with a static `index.html` from its first
-    # commit, same shape as the rest of this running count.
-    total = 342  # `infra/OWNER_CHECKLIST.md`'s own "N of the 342 tools" wording.
+    # 342 since this merge: `window-tinting-bid-calculator` graduated -- a
+    # deterministic bid calculator for independent auto window tinting
+    # installers pricing a vehicle film job by pane count, film tier, and
+    # old-tint removal time rather than a flat per-vehicle-size price. Same
+    # "browser-local bid worksheet, no AI, no network call" shape as
+    # `land-survey-bid-calculator` and `biohazard-cleanup-bid-calculator`,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    #
+    # 343 since this merge: `backup-file-exposure-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser tool + CLI sending
+    # real GET requests to eight well-known backup-file paths (backup.zip,
+    # backup.sql, db.sql, and more), classifying the response against a
+    # real archive's magic bytes or a real SQL dump's line shape rather
+    # than a bare status code, and never quoting a SQL dump's row-data
+    # statements or extracting a matched archive. Same "read what's
+    # actually there, name the exact evidence" checker shape as
+    # `git-exposure-check` and `dotenv-exposure-check`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (342, before `window-tinting-bid-calculator` landed) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    #
+    # 344 since this merge: `employee-cost-calculator` also graduated,
+    # concurrently on `main` -- a browser calculator comparing the
+    # fully-loaded annual cost of a W-2 employee against a 1099 contractor
+    # for the same role (capped FUTA/SUTA employer-burden arithmetic,
+    # ongoing-vs-year-one cost split, a break-even contractor rate), with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch only ever knew its own predecessor's
+    # number (343, before `backup-file-exposure-check` landed on this side)
+    # until this merge -- the same ordinary collision shape recorded
+    # throughout this list.
+    #
+    # 345 on this merge: `str-occupancy-tax-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator
+    # splitting one short-term-rental stay's occupancy tax into up to four
+    # named layers plus a flat per-night fee, each split between what a
+    # platform's collection agreement already remits and what is left for
+    # the host to self-file. Static `index.html` from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (341, before `window-tinting-bid-
+    # calculator`, `backup-file-exposure-check`, and `employee-cost-
+    # calculator` each landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, three-wide this time.
+    # Total re-derived here by `sync_tree_counts.py` against the fully
+    # merged tree rather than by hand.
+    total = 345  # `infra/OWNER_CHECKLIST.md`'s own "N of the 345 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

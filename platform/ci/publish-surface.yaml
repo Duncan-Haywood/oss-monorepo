@@ -425,6 +425,9 @@ workflows:
 - workflow: email-auth-check-ci.yml
   classification: none
   publishes: []
+- workflow: employee-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: entry-door-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1070,6 +1073,9 @@ workflows:
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-occupancy-tax-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: structured-data-drift-check-ci.yml
   classification: none
   publishes: []
@@ -1215,6 +1221,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: window-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: window-tinting-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: wordpress-plugin-review-check-ci.yml
