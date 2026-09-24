@@ -40734,6 +40734,88 @@ entries:
         than main's tip) both before and after this PR merged, and recorded
         the infra_state.yaml reading each time (#5618).
     mrr_end: 0
+  - venture: job-margin-variance
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Landed PRs #5612 (ice-dam-removal-bid-calculator, generic-method
+        comparison vs. a flat per-foot rate) and #5608
+        (medical-courier-route-margin, vs. a spreadsheet) via the
+        session's merge queue -- both had drifted to a conflicting
+        mergeable_state against a fast-moving main. Resolved the
+        generated front-door mirror conflicts by checking out --ours and
+        re-running platform/marketing/regen.mjs (never hand-editing the
+        .gz shards or kustomization.yaml), merged an additive conflict in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set for #5612, and
+        verified locally (venture suites, platform/marketing +
+        platform/pages 1287/1287, platform/proposal 101/101,
+        platform/privacy+webcheck 142/142, gitops/tests 613/25 skip,
+        all platform/ci unittest modules, portfolio
+        ledger/scoring/router/usage/pipeline/infra pytest 446/446,
+        checklist_coverage.py, regen.mjs --verify) before pushing.
+        #5610 (ev-charger-bid-calculator) and #5610's own conflict were
+        resolved independently by a concurrent session while this one was
+        mid-verification; confirmed merged rather than duplicating the
+        work. supersede_check.py confirmed all three carried real,
+        unshipped lines before any of this.
+      - >-
+        Part 2 (post-merge derived-state refresh) on a fresh
+        origin/main reset: checklist_coverage.py, sync_tree_counts.py,
+        and regen.mjs --verify all reported clean -- no drift for this
+        session to fix forward.
+      - >-
+        Shipped job-margin-variance's first generic-method comparison
+        page (0/1 per surface-budget.mjs --for): vs-checking-if-you-still-
+        made-money.html, comparing this calculator against the flat
+        before/after gut check ("did the invoice clear the bid?") every
+        contractor already runs without a tool. Worked example pinned
+        against calc.mjs on stated inputs (16h estimated -> 20h actual,
+        materials $420 -> $465, other $80 -> $95, $55/hr rate, $2,000
+        bid): the job still nets $340 profit (down from an estimated
+        $620, a flat check's only signal), but margin fell from 31.0% to
+        17.0% and $220 of the $280 total cost increase -- nearly 79% --
+        is the labor-hour overrun once priced at the real rate, not the
+        $45 materials line that looks bigger next to an unpriced "4" on
+        the hours row. Chose this venture after an earlier pick
+        (kdp-royalty-calculator) turned out to have just been filled by
+        a concurrent session (#5622) -- re-ran surface-budget.mjs and
+        checked open PRs again before writing anything. Linked from
+        index.html, added to sitemap.xml and clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, front-door mirror regenerated.
+        Verified: venture suite 51/51 (10 new), surface-budget.mjs --for
+        confirms vs/gen classification, regen.mjs --verify clean,
+        checklist_coverage.py clean, sync_tree_counts.py clean (no new
+        venture, mirrored-tool count unchanged), platform/proposal
+        101/101, platform/privacy+webcheck 142/142.
+      - >-
+        Re-merging main a second time (it moved again mid-verification)
+        surfaced a real, pre-existing bug on main unrelated to this
+        session's own changes: #5634 (wheelchair-ramp-bid-calculator)
+        added the second venture comparing against "a flat rate per
+        lineal foot", which crosses that generic method into
+        front-door.mjs's cross-venture compareProductPages grouping --
+        but gitops/prod/kustomization.yaml's file-mount list is
+        hand-kept (not one of regen.mjs's two generators), and nobody
+        added the line, so the rendered page would 404 on the apex.
+        Caught by platform/marketing/front-door.test.mjs's own guard for
+        exactly this seam ("every rendered per-product comparison page
+        is mounted by the kustomization"), confirmed via
+        git show <main-tip>:gitops/prod/kustomization.yaml that the line
+        was missing before this session touched anything. Fixed forward:
+        added the one missing
+        `vs__flat-rate-per-lineal-foot.html.gz=front-door/...` line;
+        confirmed no other entries missing or stale with a small script
+        against front-door.mjs's own compareProductPages/
+        compareProductStoredKey exports. Re-verified clean end to end
+        afterward (platform/marketing/front-door.test.mjs 115/115 in
+        isolation, then the full platform/marketing+platform/pages sweep).
+      - >-
+        CI confirmed starved this session
+        (ci_starvation.py --run 36001692164: runner_id 0, no steps), so
+        every check above was run locally per CLAUDE.md's starvation
+        checklist rather than trusted from a red or absent GitHub check.
+    mrr_end: 0
   - venture: sump-pump-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -40820,4 +40902,146 @@ entries:
         break-even cost. Listed in clauses.mjs's
         COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
         sitemap.xml.
+    mrr_end: 0
+  - venture: sql-migration-lock-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped sql-migration-lock-check's first generic-method comparison
+        page (0/1 per surface-budget.mjs): vs-reading-the-migration-by-hand.html,
+        against manually reviewing a migration file for lock risk. Covers
+        the checks that are easy to get right by eye (CREATE INDEX with no
+        CONCURRENTLY, a bare TRUNCATE) versus the relational ones that
+        depend on a second statement elsewhere in the same file and are
+        much harder to hold in mind while reading top to bottom: a
+        lock_timeout that may or may not be set earlier in the file,
+        NOT VALID + VALIDATE CONSTRAINT sharing one transaction, and
+        several exclusive-lock statements compounding into one long hold.
+        Listed in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from
+        index.html, added to the venture's sitemap.xml, mirror
+        regenerated (regen.mjs). Verified: the venture's own 121-assertion
+        suite, faq-coverage.mjs (348/348), faq-duplicate.mjs (no dupes),
+        clauses.mjs, surface-budget.mjs --check, checklist_coverage.py,
+        and a targeted 154-assertion re-run of
+        platform/pages/clauses.test.mjs, surface-budget.test.mjs,
+        platform/marketing/front-door-tools.test.mjs,
+        venture-sitemap-coverage.test.mjs, faq-coverage/faq-duplicate/
+        faq-visible.test.mjs all pass clean.
+    mrr_end: 0
+  - venture: patio-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped patio-door-bid-calculator's first generic-method
+        comparison page (0/1 per surface-budget.mjs):
+        vs-a-flat-installed-price.html, "This calculator vs. a flat
+        '$1,800 installed' patio door special". Worked examples pinned
+        against calc.mjs, run through the same job presets and form
+        defaults ($48 crew wage, 32% burden, 16% overhead, 32% target
+        margin) the shipped page uses: even the cheapest job the
+        calculator prices -- a 6-foot vinyl 2-panel retrofit at grade
+        with a tear-out -- walks away at $2,770.12, already $970.12 over
+        the $1,800 special; a 12-foot 3-panel new-construction job at
+        $7,975.38; a 16-foot 4-panel fiberglass impact-glass balcony job
+        at $23,344.28. Unlike several sibling comparison pages this
+        month, even the cheapest configuration already clears the flat
+        special once real payroll burden and overhead are loaded in, so
+        all three worked rows lose against it rather than one covering
+        and two losing. Listed in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
+        sitemap.xml. Selected via portfolio/router/allocate.py's merit
+        ranking intersected with surface-budget.mjs's 0-generic-method
+        ventures, since the router's own top-ranked candidates already
+        had their comparison-page budget filled by concurrent sessions.
+    mrr_end: 0
+  - venture: auto-glass-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a browser-local bid calculator for mobile and
+        in-shop auto-glass technicians pricing a windshield, door-glass, or
+        back-glass replacement. No existing venture prices auto glass
+        (duplicate_check.py top unrelated match 0.16 against 356 ventures +
+        pipeline candidates + screened-out.md). Prices glass position/source,
+        ADAS camera or sensor calibration (dynamic, static, or both), a
+        mobile trip fee, and cash-discount vs. insurance-deductible billing.
+        Worked examples pinned against calc.mjs: an economy-glass, no-ADAS,
+        in-shop cash windshield swap costs $428.77 and prices at $630.55
+        (1.35 shop hours); the same job with a required dynamic calibration
+        priced ($85 sublet, 0.6h) prices at $807.41; a mobile OEM windshield
+        needing both static and dynamic calibration, billed through
+        insurance with a $100 deductible, costs $1,323.51 and prices at
+        $2,036.17 ($1,936.17 billed to the insurer, $100 collected from the
+        customer). The calculator's one differentiator: it flags a bid
+        "ADAS calibration required but not priced" when a calibration
+        requirement is selected but neither hours nor cost were ever
+        entered against it -- the trade's real failure mode, since a flat
+        coupon rate has no way to see a camera-equipped windshield is a
+        different job.
+
+        Shipped with calc.mjs + calc.test.mjs (40 worked-example and edge
+        assertions), usage.mjs (opt-out local counters, honors Do Not
+        Track/GPC) + usage.test.mjs, share.mjs (shareable private quote
+        link, ids validated against calc.mjs's own presets) + share.test.mjs,
+        a guide page (how-much-to-charge-for-adas-calibration.html, FAQPage +
+        HowTo JSON-LD) + page.test.mjs, VENTURE.yaml, README, MIT LICENSE,
+        robots.txt, sitemap.xml, and a scoped CI workflow
+        (auto-glass-bid-calculator-ci.yml). Adopted the customer-proposal
+        panel via `platform/proposal/adopt.mjs` (new trades.json entry) and
+        the older-mechanism `proposal-terms.mjs` module so the deposit and
+        terms survive a shared link (`platform/proposal/term-ids.test.mjs`).
+        Added the venture-scores.yaml row `score_ventures.py --check`
+        requires (composite 6.5: ai_leverage 1, autonomous_ops 10,
+        time_to_revenue 7, gross_margin 10, defensibility 5, distribution
+        6). Filed into the `trades-cleaning` sub-group beside
+        `mobile-detailing`/`vehicle-wrap`/`window-tinting` (same vehicle-
+        service buyer) and closed the crawlable-orphan budget by adding a
+        reciprocal link with `window-tinting-bid-calculator`
+        (`platform/pages/siblings.mjs --check`). Ran `launched.mjs --write`
+        and `publish_surface.py --write` (new test-only CI workflow,
+        classification `none`) per the definition-of-done checklist. Wired
+        into the front-door mirror via `regen.mjs`; `sync_tree_counts.py`
+        and `gitops/ci/sync_readme_counts.py` re-derived the tree-count
+        constants after merging main.
+
+        Full local verification: the venture's own 99 assertions,
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs`,
+        `platform/proposal/*.test.mjs`, `platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs`, `gitops/tests` (pytest),
+        `platform/ci`'s 15 unittest modules + `agent_review`'s, and
+        `portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests` (pytest) all green.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the whole-catalogue Playwright/axe-core browser and
+        accessibility sweep (browser_state.py had it recorded STALE --
+        builder files had moved since the last reading). Installed
+        playwright@1.56.0 + axe-core (one npm install, both packages in the
+        same command per CLAUDE.md's documented trap). First run found a
+        real WCAG AA violation: 18 instances of insufficient color contrast
+        (3.02:1, needs 4.5:1) on llm-api-pricing-calculator's .example hint
+        text -- a bug in this session's own earlier-shipped venture. Before
+        pushing a fix, a concurrent session independently found and merged
+        the same fix (#5627, effectively identical: same property, an
+        equivalent passing gray). Confirmed via diff and discarded the
+        duplicate local change rather than re-fixing what was already fixed,
+        then re-synced to main and re-ran the full sweep clean: all 8 checks
+        (sideways, presets, roundtrip, highlight, contrast, optout, sweep,
+        journey) passed -- 1519 sitemap URLs resolve, 355 tools answered
+        with no console/resource errors, 0 WCAG A/AA violations across the
+        catalogue. Recorded into platform/ci/browser_state.json (PR #5648).
+      - >-
+        Net outcome: the fleet's accessibility/correctness posture was
+        independently re-verified clean at a commit past the last recorded
+        reading, one real defect was confirmed already fixed by a sibling
+        session rather than duplicated, and the catalogue now has a current,
+        trustworthy browser_state.json reading for the next session's
+        freshness check to build on.
     mrr_end: 0

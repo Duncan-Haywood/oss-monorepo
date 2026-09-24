@@ -10,6 +10,8 @@ The target user is a solo piano, guitar, voice, or instrument teacher who prices
 
 Organic acquisition comes from searches about private music lesson pricing, piano lesson rates, teacher hourly pay, cancellation assumptions, and studio costs. A future hosted version could offer saved rate scenarios or an optional user-supplied AI scope reviewer, but the deterministic workflow remains free and needs no API key.
 
+See [vs-mymusicstaff.html](vs-mymusicstaff.html) for how this free, private calculator differs from My Music Staff's paid studio-management platform, or [vs-picking-a-rate-off-the-going-local-price.html](vs-picking-a-rate-off-the-going-local-price.html) for what copying a nearby teacher's posted rate misses about your own cancellations, travel time, and income target.
+
 ## Privacy, usage, and cost
 
 Everything runs in the browser. Inputs never leave the device; there are no accounts, cookies, tracking pixels, or analytics vendors. The local counter records only the aggregate `lesson_price_calculated` event and can be stopped with Do Not Track / Global Privacy Control or by clearing browser storage. Hosting and inference cost is $0 per user at launch.
