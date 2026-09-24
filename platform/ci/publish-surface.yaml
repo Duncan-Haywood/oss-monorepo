@@ -653,6 +653,9 @@ workflows:
 - workflow: link-contrast-ci.yml
   classification: none
   publishes: []
+- workflow: llm-api-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: llms-txt-generator-ci.yml
   classification: none
   publishes: []
