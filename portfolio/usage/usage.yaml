@@ -6949,3 +6949,24 @@ products:
           same as having measured nothing. `check_run` is the one worth
           watching: a visitor who only ever loads the worked example
           (`example_loaded`) never checked their own feed.
+
+  - slug: kickstarter-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          campaign_calculated: 0
+          pledge_calculated: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/kickstarter-fee-calculator/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `campaign_calculated` is the one worth
+          watching: `pledge_calculated` alone means a visitor only checked
+          one reward tier, not a whole campaign estimate.

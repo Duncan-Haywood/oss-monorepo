@@ -1,0 +1,32 @@
+name: kickstarter-fee-calculator
+description: A private browser calculator for Kickstarter creators that prices a campaign the way a payout actually lands -- the 5% platform fee, per-pledge payment processing (3% + $0.20 standard, 5% + $0.05 under $10), net payout, effective rate, and why the same total raised keeps less when spread across more, smaller pledges.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: First-time Kickstarter creators setting reward tiers will use a fee calculator that surfaces the per-pledge processing charge, because the "Kickstarter takes 8-10%" summaries every guide repeats treat it as a flat percentage of the total raise and hide that a $0.20 flat fee per pledge means many small reward tiers keep less of an identical total than fewer, larger ones.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/crowdfunding, r/kickstarter, and the search phrases "kickstarter fee calculator", "how much does kickstarter take", and "kickstarter fees explained" are a reachable, free channel with demonstrated search demand -- multiple third-party Kickstarter fee calculators already rank for these terms, which is evidence searchers exist even though none of those tools show the per-pledge-size effect this one does.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified creators run a real campaign estimate twice within 90 days of the tool being discoverable.
+  - Kickstarter's published US fee schedule changes and the calculator's fixed constants no longer match a real payout statement.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/kickstarter-fee-calculator/
+  analytics: null

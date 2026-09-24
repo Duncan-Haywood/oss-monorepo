@@ -40664,6 +40664,41 @@ entries:
         surface-budget.mjs --check, clauses.mjs --check all clean; venture's
         own suite 133/133).
     mrr_end: 0
+  - venture: docker-build-secrets-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the stale published Pages snapshot first (session_gate.py's
+        top item): built from 05958aa9 while main was at 94fcf02e;
+        publish-branch.sh republished, IndexNow notified 1512 URLs,
+        pages_state.py --require-current now reports current and the
+        github-pages-branch-route reading was recorded.
+      - >-
+        Shipped docker-build-secrets-check's one budgeted generic-method
+        comparison page (0/1 per surface-budget.mjs; the venture already
+        carried one named-product page against gitleaks):
+        vs-reading-a-dockerfile-by-hand.html, covering the two cases a manual
+        Dockerfile review tends to miss that this checker's classify.mjs
+        catches mechanically: an ENV value resolved from a build argument
+        (no literal secret text on the line) and a bare ARG declaration with
+        no default (no value in the file at all). Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, listed in
+        sitemap.xml. This page's title text ("vs. reading a Dockerfile by
+        hand") exactly matches docker-base-image-pin-check's existing page of
+        the same name, so front-door.mjs's cross-venture subject grouping
+        promoted it to a second shared apex comparison page the moment two
+        ventures carried it -- gitops/prod/kustomization.yaml needed a new
+        hand-kept mount line for vs__reading-a-dockerfile-by-hand.html.gz,
+        caught by front-door.test.mjs's "every rendered per-product
+        comparison page is mounted" assertion before it would have shipped a
+        dark link. Mirror regenerated and verified (regen.mjs --verify clean
+        before and after; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1287/1287; front-door.test.mjs 115/115;
+        checklist_coverage.py, surface-budget.mjs --check clean; venture's
+        own suite 45/45; python3 -m pytest gitops/tests 613 passed, 25
+        skipped).
+    mrr_end: 0
   - venture: medical-courier-route-margin
     agent_spend_usd: null
     human_hours: 0
@@ -40698,4 +40733,91 @@ entries:
         snapshot (found stale at session start, built from an older commit
         than main's tip) both before and after this PR merged, and recorded
         the infra_state.yaml reading each time (#5618).
+    mrr_end: 0
+  - venture: sump-pump-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped sump-pump-bid-calculator's first generic-method comparison
+        page (0/1 per surface-budget.mjs): vs-a-flat-pump-swap-special.html
+        (PR #5625, merged). Worked example pinned against calc.mjs's own
+        suggested-preset kits: an existing-pit 1/3 HP swap costs $517.23 to
+        run and prices at $738.90; a new pit cut through a slab with a 1/2
+        HP pump, 40 ft of discharge, and a battery backup costs $2,418.52
+        to run and prices at $3,455.03 -- 4.68x. Quoting the heavy job at
+        the swap special's $738.90 price leaves it $1,679.62 below its own
+        break-even cost. Listed in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
+        sitemap.xml.
+      - >-
+        Refreshed the stale gh-pages snapshot at session start (found
+        built from an older commit than main's tip) and again after this
+        PR merged, recording the infra_state.yaml reading each time.
+    mrr_end: 0
+  - venture: septic-pumping-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped septic-pumping-bid-calculator's first generic-method
+        comparison page (0/1 per surface-budget.mjs): vs-a-flat-pump-special.html
+        (PR #5628, merged). Worked example pinned against calc.mjs's own
+        shipped defaults: an exposed-lid, 1,000-gallon single-tank stop
+        costs $351.22 to run and prices at $487.81; a buried, two-tank
+        2,000-gallon system with baffles, two risers, and a written
+        inspection report costs $1,419.85 to run and prices at $1,972.02
+        -- 4.04x. Quoting the two-tank job at the pump special's $487.81
+        price leaves it $932.04 below its own break-even cost. Listed in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from
+        index.html, added to sitemap.xml.
+    mrr_end: 0
+  - venture: tree-service-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped tree-service-bid-calculator's first generic-method
+        comparison page (0/1 per surface-budget.mjs): vs-a-flat-per-inch-rate.html
+        (PR #5632, merged). Worked example pinned against calc.mjs's own
+        defaults: a 12-inch street pine costs $397.58 to run and prices
+        at $530.10 ($44.18/in); a 24-inch backyard oak next to the house
+        (chip-and-haul, stump ground) costs $4,897.39 to run and prices
+        at $6,529.85 -- 12.32x on just twice the diameter, the point
+        calc.mjs's own comment makes about volume scaling with DBH
+        squared. Applying the pine's flat per-inch rate to the oak prices
+        it $3,837.18 below its own break-even cost. Listed in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from
+        index.html, added to sitemap.xml.
+      - >-
+        A background full-suite run (platform/marketing + platform/pages,
+        1287 assertions) reported 1 failure while this session was
+        concurrently creating and committing this venture's files on the
+        same working tree. A clean, isolated re-run immediately after
+        (no concurrent git operations) passed 1287/1287, confirming the
+        single failure was a false positive from reading a mid-edit tree
+        rather than a real regression -- the same class of hazard
+        CLAUDE.md's regen.mjs --verify section warns about for a
+        different generator. Recorded here so a later session does not
+        re-diagnose it: run heavy test suites against a stable, committed
+        tree, not one still being edited.
+    mrr_end: 0
+  - venture: wheelchair-ramp-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped wheelchair-ramp-bid-calculator's first generic-method
+        comparison page (0/1 per surface-budget.mjs):
+        vs-a-flat-rate-per-lineal-foot.html. Worked example pinned against
+        calc.mjs: a 24-inch straight wood ramp with the two required
+        landings costs $4,601.99 to run and prices at $6,135.98
+        ($255.67/lf); a 48-inch switchback on modular aluminum (rest
+        landing, turn landing, 111 lf handrail, 22 footings, stair demo,
+        permit) costs $13,910.58 to run and prices at $18,547.43 -- 3.02x
+        on just twice the run. Quoting the aluminum switchback at the
+        wood ramp's flat per-foot rate prices it $1,638.61 below its own
+        break-even cost. Listed in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
+        sitemap.xml.
     mrr_end: 0
