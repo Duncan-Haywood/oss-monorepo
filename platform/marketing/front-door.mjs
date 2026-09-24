@@ -1794,9 +1794,32 @@ export const PRIVACY_LOG_FIELDS = ['$remote_addr', '$http_user_agent', '$http_re
  */
 export const ABOUT_KEY = 'about.html';
 
+/**
+ * The ConfigMap key the About page is actually stored under, gzipped — see
+ * `COMPRESSED_SUFFIX`.
+ *
+ * Compressed since 2026-09-24, for the same reason `catalogStoredKey` and
+ * `sitemapStoredKey` were: `depop-fee-calculator` and `hidden-unicode-check`
+ * graduating in the same window took `portfolio-front-html` to 945,123 bytes
+ * against the 943,718-byte test budget in `gitops/tests/test_manifests.py` —
+ * and the object was already 109 bytes over that budget on `main` before
+ * either merged, from ordinary catalogue growth since the last time this
+ * ceiling was addressed. `about.html` was the right key to compress rather
+ * than `llms.txt` (146 KB, but a well-known path with a dozen other tests
+ * pinned to its plain form) or a category page (a `c__<id>.html` compresses
+ * about as well but is a data file this ConfigMap needs a fast, self-
+ * contained fix for, not a rewrite of the largest remaining plain key):
+ * at ~15 KB plain it does not grow with the catalogue the way `llms.txt` and
+ * the category pages do, so compressing it buys headroom without picking a
+ * key that will need compressing again in a few dozen ventures. The *URL* is
+ * unchanged and stays `/about/` — `ABOUT_KEY` is still what the front page,
+ * the sitemap and `ABOUT_PATH` name; only the stored key changes.
+ */
+export const aboutStoredKey = () => `${ABOUT_KEY}${COMPRESSED_SUFFIX}`;
+
 /** Where `--write` puts the rendered About page. */
 export const aboutOutputFile = () =>
-  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', ABOUT_KEY);
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', aboutStoredKey());
 
 /** The About page's URL on this host. */
 export const apexAboutUrl = () => `${FRONT_DOOR_URL}${ABOUT_PATH}`;
@@ -3014,9 +3037,26 @@ if (isMain) {
     // it, for the reason every other artifact here is written together: a page
     // referenced by two files it was not committed beside is a 404 that only
     // shows up in production.
+    // Gzipped, unlike the write above it: this is the key that took the
+    // object over budget on 2026-09-24. See `aboutStoredKey`. The URL is
+    // still `/about/`.
     const aboutFile = aboutOutputFile();
-    await fs.writeFile(aboutFile, about);
-    console.log(`wrote ${path.relative(REPO_ROOT, aboutFile)} (${about.length} bytes)`);
+    const storedAbout = compress(about);
+    await fs.writeFile(aboutFile, storedAbout);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, aboutFile)} (${storedAbout.length} bytes, ${about.length} uncompressed)`,
+    );
+    // Stale-sibling sweep, same reason as the category-page sweep above: a
+    // plain `about.html` left beside its `.gz` would go on being served by
+    // `location = /about.html`'s `root`-resolved fallback nowhere -- there is
+    // no such fallback here, but a plain file on disk is still a frozen copy
+    // nothing points at and a trap for the next reader wondering which one is
+    // live.
+    const stalePlainAbout = path.join(path.dirname(OUTPUT_FILE), ABOUT_KEY);
+    if (await fs.stat(stalePlainAbout).then(() => true, () => false)) {
+      await fs.rm(stalePlainAbout);
+      console.log(`removed ${ABOUT_KEY} (superseded by ${path.basename(aboutFile)})`);
+    }
     // The comparison index, on the same terms as the category pages above: it
     // is written when there is something to list and swept when there is not,
     // so it can never stay in git, in the ConfigMap and in nobody's sitemap
