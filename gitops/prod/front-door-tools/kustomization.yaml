@@ -43,9 +43,9 @@
 #   portfolio-front-tools-7: 123 files, 555889 bytes
 #   portfolio-front-tools-8: 135 files, 554841 bytes
 #   portfolio-front-tools-9: 125 files, 538452 bytes
-#   portfolio-front-tools-10: 122 files, 549511 bytes
+#   portfolio-front-tools-10: 123 files, 552761 bytes
 #   portfolio-front-tools-11: 114 files, 553374 bytes
-#   portfolio-front-tools-12: 119 files, 551790 bytes
+#   portfolio-front-tools-12: 119 files, 551757 bytes
 #   portfolio-front-tools-13: 127 files, 541910 bytes
 #   portfolio-front-tools-14: 132 files, 555975 bytes
 #   portfolio-front-tools-15: 120 files, 556047 bytes
@@ -1435,6 +1435,7 @@ configMapGenerator:
       - foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz=foundation-repair-bid-calculator__vs-a-flat-price-per-pier.html.gz
       - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
       - freelance-platform-fee-calculator__calc.mjs.gz=freelance-platform-fee-calculator__calc.mjs.gz
+      - freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz=freelance-platform-fee-calculator__how-much-does-fiverr-take.html.gz
       - freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz=freelance-platform-fee-calculator__how-much-does-upwork-take.html.gz
       - freelance-platform-fee-calculator__index.html.gz=freelance-platform-fee-calculator__index.html.gz
       - freelance-platform-fee-calculator__share.mjs.gz=freelance-platform-fee-calculator__share.mjs.gz
