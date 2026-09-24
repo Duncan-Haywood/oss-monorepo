@@ -1775,6 +1775,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above (e.g. docker-build-secrets-check's).
   'env-example-drift-check/vs-grepping-the-codebase-by-hand.html',
+  // Compares against "ranking dishes by food cost percentage" -- the
+  // ordinary per-dish metric every restaurant kitchen already tracks off
+  // its own recipe cards and POS reports, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-marginedge.html, which names MarginEdge specifically and already
+  // carries the trademark disclaimer.
+  'menu-engineering-calculator/vs-ranking-by-food-cost-percent.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
