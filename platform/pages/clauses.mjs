@@ -1991,6 +1991,64 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "tracking Depop sales in a spreadsheet" -- a generic
+  // method every Depop seller already has access to, not a company or
+  // product this could be mistaken for. The page's own footer says so
+  // explicitly ("names no specific product"). This venture's calculator
+  // still names Depop itself (the platform whose fee schedule it computes
+  // against) and separately carries the trademark disclaimer for that
+  // reason; the two clauses are independent. Same reasoning as the other
+  // vs-spreadsheet pages above (e.g. whatnot-seller-payout's).
+  'depop-fee-calculator/vs-tracking-depop-sales-in-a-spreadsheet.html',
+  // Compares against manually reviewing Google Play Console's Data safety
+  // warnings, or waiting for a policy reviewer to flag a mismatch -- a
+  // generic, ungoverned habit any Android developer already has, not a
+  // company or product this could be mistaken for. This venture's checker
+  // still names Google Play, Play Console, Android and Data safety (the
+  // platform whose declarations it checks against) and separately carries
+  // the trademark disclaimer for that reason; the two clauses are
+  // independent. Same reasoning as supabase-rls-check's
+  // vs-manually-checking-the-dashboard.html above.
+  'android-data-safety-check/vs-manually-reviewing-play-console-warnings.html',
+  // Compares against "reading CODEOWNERS by eye" -- a manual review habit
+  // any repository maintainer already has, not a company or product this
+  // could be mistaken for. This venture's checker still names GitHub (the
+  // platform whose CODEOWNERS format it checks) and separately carries the
+  // trademark disclaimer for that reason; the two clauses are independent.
+  // Same reasoning as branch-protection-drift-check's
+  // vs-manually-checking-settings.html above.
+  'codeowners-shadow-check/vs-reading-codeowners-by-eye.html',
+  // Compares against the flat "8-10%" rule of thumb some campaign creators
+  // use to estimate Kickstarter's combined fees -- a generic, one-line
+  // estimate any campaign creator already has access to, not a company or
+  // product this could be mistaken for. This venture's calculator still
+  // names Kickstarter (the platform whose published fee schedule it
+  // computes against) and separately carries the trademark disclaimer for
+  // that reason; the two clauses are independent. Same reasoning as the
+  // other flat-rate/rule-of-thumb pages above (e.g.
+  // stair-lift-bid-calculator's vs-a-flat-rate-stair-lift-special.html).
+  'kickstarter-fee-calculator/vs-the-flat-8-10-percent-rule-of-thumb.html',
+  // Compares against guessing from Obsidian's own guidelines, or waiting
+  // for a community plugin reviewer to comment -- a generic, ungoverned
+  // habit any plugin author already has, not a company or product this
+  // could be mistaken for. This venture's checker still names Obsidian and
+  // Dynalist Inc. (the platform whose review guidelines it checks against)
+  // and separately carries the trademark disclaimer for that reason; the
+  // two clauses are independent. Same reasoning as
+  // skill-manifest-check's vs-reading-the-skill-by-hand.html above.
+  'obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html',
+  // Compares against "quoting one flat seasonal rate for every driveway
+  // from memory" -- a pricing habit any snow contractor already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-aspire.html, which names Aspire specifically and
+  // already carries the trademark disclaimer.
+  'snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html',
+  // Compares against "quoting one flat project rate regardless of usage" --
+  // a pricing habit any freelance narrator already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-voices-com.html, which names a real marketplace and already carries
+  // the trademark disclaimer.
+  'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
