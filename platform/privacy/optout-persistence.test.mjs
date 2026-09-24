@@ -707,7 +707,9 @@ const RELATIVE_SELF = relative(
 // `auto-loan-interest-deduction-calculator` landed) until this merge -- the
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
-const SWITCHES_IN_THE_CATALOGUE = 339;
+// npm-provenance-check graduated 2026-09-24 with its own opt-in usage.mjs
+// switch, same shape as the rest of this running count. 339 -> 340.
+const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;
 function fixture(source) {
