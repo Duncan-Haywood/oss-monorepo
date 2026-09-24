@@ -39,9 +39,9 @@
 #   portfolio-front-tools-3: 133 files, 555642 bytes
 #   portfolio-front-tools-4: 144 files, 556990 bytes
 #   portfolio-front-tools-5: 124 files, 554776 bytes
-#   portfolio-front-tools-6: 134 files, 551831 bytes
-#   portfolio-front-tools-7: 122 files, 552461 bytes
-#   portfolio-front-tools-8: 137 files, 556840 bytes
+#   portfolio-front-tools-6: 135 files, 556511 bytes
+#   portfolio-front-tools-7: 122 files, 556191 bytes
+#   portfolio-front-tools-8: 137 files, 553238 bytes
 #   portfolio-front-tools-9: 121 files, 542228 bytes
 #   portfolio-front-tools-10: 120 files, 557009 bytes
 #   portfolio-front-tools-11: 116 files, 554075 bytes
@@ -1006,6 +1006,7 @@ configMapGenerator:
       - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
       - cors-misconfig-check__usage.mjs.gz=cors-misconfig-check__usage.mjs.gz
       - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
+      - cors-misconfig-check__vs-checking-cors-by-hand.html.gz=cors-misconfig-check__vs-checking-cors-by-hand.html.gz
       - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
       - countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz=countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz
       - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
@@ -1132,7 +1133,6 @@ configMapGenerator:
       - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
       - docker-base-image-pin-check__usage.mjs.gz=docker-base-image-pin-check__usage.mjs.gz
       - docker-base-image-pin-check__vs-hadolint.html.gz=docker-base-image-pin-check__vs-hadolint.html.gz
-      - docker-base-image-pin-check__vs-reading-a-dockerfile-by-hand.html.gz=docker-base-image-pin-check__vs-reading-a-dockerfile-by-hand.html.gz
       - docker-build-secrets-check__classify.mjs.gz=docker-build-secrets-check__classify.mjs.gz
       - docker-build-secrets-check__how-to-pass-a-docker-build-secret-without-baking-it-into-the-image.html.gz=docker-build-secrets-check__how-to-pass-a-docker-build-secret-without-baking-it-into-the-image.html.gz
       - docker-build-secrets-check__index.html.gz=docker-build-secrets-check__index.html.gz
@@ -1146,12 +1146,12 @@ configMapGenerator:
       - docker-cache-order-check__why-docker-build-cache-gets-busted.html.gz=docker-cache-order-check__why-docker-build-cache-gets-busted.html.gz
       - dog-boarding-daycare-pricing__calc.mjs.gz=dog-boarding-daycare-pricing__calc.mjs.gz
       - dog-boarding-daycare-pricing__how-much-to-charge-for-dog-boarding.html.gz=dog-boarding-daycare-pricing__how-much-to-charge-for-dog-boarding.html.gz
+      - dog-boarding-daycare-pricing__index.html.gz=dog-boarding-daycare-pricing__index.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - dog-boarding-daycare-pricing__index.html.gz=dog-boarding-daycare-pricing__index.html.gz
       - dog-boarding-daycare-pricing__share.mjs.gz=dog-boarding-daycare-pricing__share.mjs.gz
       - dog-boarding-daycare-pricing__usage.mjs.gz=dog-boarding-daycare-pricing__usage.mjs.gz
       - dog-boarding-daycare-pricing__vs-a-flat-nightly-rate.html.gz=dog-boarding-daycare-pricing__vs-a-flat-nightly-rate.html.gz
@@ -1198,6 +1198,7 @@ configMapGenerator:
       - dumpster-rental-margin-calculator__calc.mjs.gz=dumpster-rental-margin-calculator__calc.mjs.gz
       - dumpster-rental-margin-calculator__index.html.gz=dumpster-rental-margin-calculator__index.html.gz
       - dumpster-rental-margin-calculator__usage.mjs.gz=dumpster-rental-margin-calculator__usage.mjs.gz
+      - dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz=dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz
       - dumpster-rental-margin-calculator__vs-jobber.html.gz=dumpster-rental-margin-calculator__vs-jobber.html.gz
       - dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz=dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz
       - duplicate-payment-audit__app.mjs.gz=duplicate-payment-audit__app.mjs.gz
