@@ -1620,6 +1620,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // B" and names no real vendor. Same reasoning as the other generic-method
   // pages above.
   'vector-db-cost-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "opening each of ten AI-crawler operators' own docs
+  // pages and cross-referencing each token against robots.txt by eye" -- the
+  // manual habit any site owner deciding on AI-crawler access already has,
+  // not a company or product this could be mistaken for. Its sibling
+  // comparison page, vs-known-agents.html, names a real product (Known
+  // Agents, formerly Dark Visitors) and already carries the trademark
+  // disclaimer separately. Same reasoning as the other manual-method pages
+  // above (dependency-confusion-check/vs-checking-configs-by-hand.html in
+  // particular).
+  'ai-crawler-access-check/vs-checking-each-crawlers-docs-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
