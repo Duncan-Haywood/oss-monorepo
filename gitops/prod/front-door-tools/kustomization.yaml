@@ -36,9 +36,9 @@
 #   portfolio-front-tools-0: 139 files, 557009 bytes
 #   portfolio-front-tools-1: 98 files, 550675 bytes
 #   portfolio-front-tools-2: 144 files, 555087 bytes
-#   portfolio-front-tools-3: 135 files, 553738 bytes
-#   portfolio-front-tools-4: 140 files, 553083 bytes
-#   portfolio-front-tools-5: 121 files, 549617 bytes
+#   portfolio-front-tools-3: 135 files, 553556 bytes
+#   portfolio-front-tools-4: 140 files, 556930 bytes
+#   portfolio-front-tools-5: 122 files, 550588 bytes
 #   portfolio-front-tools-6: 133 files, 551519 bytes
 #   portfolio-front-tools-7: 126 files, 556458 bytes
 #   portfolio-front-tools-8: 127 files, 553779 bytes
@@ -600,18 +600,19 @@ configMapGenerator:
       - actions-artifact-poisoning-check__classify.mjs.gz=actions-artifact-poisoning-check__classify.mjs.gz
       - actions-artifact-poisoning-check__index.html.gz=actions-artifact-poisoning-check__index.html.gz
       - actions-artifact-poisoning-check__usage.mjs.gz=actions-artifact-poisoning-check__usage.mjs.gz
+      - actions-artifact-poisoning-check__vs-reading-the-workflow-yaml-by-hand.html.gz=actions-artifact-poisoning-check__vs-reading-the-workflow-yaml-by-hand.html.gz
       - actions-artifact-poisoning-check__vs-zizmor.html.gz=actions-artifact-poisoning-check__vs-zizmor.html.gz
       - actions-artifact-poisoning-check__what-is-github-actions-artifact-poisoning.html.gz=actions-artifact-poisoning-check__what-is-github-actions-artifact-poisoning.html.gz
       - actions-cache-poisoning-check__check.py.gz=actions-cache-poisoning-check__check.py.gz
       - actions-cache-poisoning-check__classify.mjs.gz=actions-cache-poisoning-check__classify.mjs.gz
       - actions-cache-poisoning-check__index.html.gz=actions-cache-poisoning-check__index.html.gz
       - actions-cache-poisoning-check__usage.mjs.gz=actions-cache-poisoning-check__usage.mjs.gz
-      - actions-cache-poisoning-check__vs-checking-by-hand.html.gz=actions-cache-poisoning-check__vs-checking-by-hand.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - actions-cache-poisoning-check__vs-checking-by-hand.html.gz=actions-cache-poisoning-check__vs-checking-by-hand.html.gz
       - actions-cache-poisoning-check__vs-zizmor.html.gz=actions-cache-poisoning-check__vs-zizmor.html.gz
       - actions-cache-poisoning-check__what-is-github-actions-cache-poisoning.html.gz=actions-cache-poisoning-check__what-is-github-actions-cache-poisoning.html.gz
       - actions-injection-check__check.py.gz=actions-injection-check__check.py.gz
@@ -751,12 +752,12 @@ configMapGenerator:
       - apparel-decoration-price-calculator__calculator.mjs.gz=apparel-decoration-price-calculator__calculator.mjs.gz
       - apparel-decoration-price-calculator__index.html.gz=apparel-decoration-price-calculator__index.html.gz
       - apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz=apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz
-      - apparel-decoration-price-calculator__usage.mjs.gz=apparel-decoration-price-calculator__usage.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - apparel-decoration-price-calculator__usage.mjs.gz=apparel-decoration-price-calculator__usage.mjs.gz
       - apparel-decoration-price-calculator__vs-a-flat-price-per-shirt.html.gz=apparel-decoration-price-calculator__vs-a-flat-price-per-shirt.html.gz
       - apparel-decoration-price-calculator__vs-a-spreadsheet.html.gz=apparel-decoration-price-calculator__vs-a-spreadsheet.html.gz
       - apparel-decoration-price-calculator__vs-printavo.html.gz=apparel-decoration-price-calculator__vs-printavo.html.gz

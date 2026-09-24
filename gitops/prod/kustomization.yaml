@@ -327,6 +327,7 @@ configMapGenerator:
       - vs__flat-per-acre-quote.html.gz=front-door/vs__flat-per-acre-quote.html.gz
       - vs__reading-a-dockerfile-by-hand.html.gz=front-door/vs__reading-a-dockerfile-by-hand.html.gz
       - vs__flat-rate-per-lineal-foot.html.gz=front-door/vs__flat-rate-per-lineal-foot.html.gz
+      - vs__reading-the-workflow-yaml-by-hand.html.gz=front-door/vs__reading-the-workflow-yaml-by-hand.html.gz
       - vs__checking-headers-by-eye-in-devtools.html.gz=front-door/vs__checking-headers-by-eye-in-devtools.html.gz
   - name: portfolio-front-nginx
     files:
