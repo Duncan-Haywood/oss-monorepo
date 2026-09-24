@@ -37,9 +37,9 @@
 #   portfolio-front-tools-1: 98 files, 550632 bytes
 #   portfolio-front-tools-2: 144 files, 555078 bytes
 #   portfolio-front-tools-3: 135 files, 553602 bytes
-#   portfolio-front-tools-4: 141 files, 556684 bytes
-#   portfolio-front-tools-5: 120 files, 549940 bytes
-#   portfolio-front-tools-6: 135 files, 554003 bytes
+#   portfolio-front-tools-4: 140 files, 553344 bytes
+#   portfolio-front-tools-5: 121 files, 555049 bytes
+#   portfolio-front-tools-6: 136 files, 557034 bytes
 #   portfolio-front-tools-7: 126 files, 554897 bytes
 #   portfolio-front-tools-8: 128 files, 553888 bytes
 #   portfolio-front-tools-9: 140 files, 554842 bytes
@@ -677,6 +677,7 @@ configMapGenerator:
       - affiliate-disclosure-checker__engine.mjs.gz=affiliate-disclosure-checker__engine.mjs.gz
       - affiliate-disclosure-checker__index.html.gz=affiliate-disclosure-checker__index.html.gz
       - affiliate-disclosure-checker__usage.mjs.gz=affiliate-disclosure-checker__usage.mjs.gz
+      - affiliate-disclosure-checker__vs-checking-a-post-by-eye.html.gz=affiliate-disclosure-checker__vs-checking-a-post-by-eye.html.gz
       - affiliate-disclosure-checker__vs-post-affiliate-pro.html.gz=affiliate-disclosure-checker__vs-post-affiliate-pro.html.gz
       - affiliate-disclosure-checker__what-disclosure-does-amazon-associates-and-the-ftc-require.html.gz=affiliate-disclosure-checker__what-disclosure-does-amazon-associates-and-the-ftc-require.html.gz
       - agent-instructions-drift-check__cli.mjs.gz=agent-instructions-drift-check__cli.mjs.gz
@@ -751,13 +752,13 @@ configMapGenerator:
       - apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz=apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz
       - apparel-decoration-price-calculator__usage.mjs.gz=apparel-decoration-price-calculator__usage.mjs.gz
       - apparel-decoration-price-calculator__vs-a-flat-price-per-shirt.html.gz=apparel-decoration-price-calculator__vs-a-flat-price-per-shirt.html.gz
-      - apparel-decoration-price-calculator__vs-a-spreadsheet.html.gz=apparel-decoration-price-calculator__vs-a-spreadsheet.html.gz
-      - apparel-decoration-price-calculator__vs-printavo.html.gz=apparel-decoration-price-calculator__vs-printavo.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - apparel-decoration-price-calculator__vs-a-spreadsheet.html.gz=apparel-decoration-price-calculator__vs-a-spreadsheet.html.gz
+      - apparel-decoration-price-calculator__vs-printavo.html.gz=apparel-decoration-price-calculator__vs-printavo.html.gz
       - appointment-deposit-calculator__app.mjs.gz=appointment-deposit-calculator__app.mjs.gz
       - appointment-deposit-calculator__calc.mjs.gz=appointment-deposit-calculator__calc.mjs.gz
       - appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz=appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz
@@ -877,12 +878,12 @@ configMapGenerator:
       - biohazard-cleanup-bid-calculator__usage.mjs.gz=biohazard-cleanup-bid-calculator__usage.mjs.gz
       - biohazard-cleanup-bid-calculator__vs-a-flat-rate-per-pound-quote.html.gz=biohazard-cleanup-bid-calculator__vs-a-flat-rate-per-pound-quote.html.gz
       - boiler-replacement-bid-calculator__calc.mjs.gz=boiler-replacement-bid-calculator__calc.mjs.gz
-      - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
       - boiler-replacement-bid-calculator__index.html.gz=boiler-replacement-bid-calculator__index.html.gz
       - boiler-replacement-bid-calculator__should-i-install-a-customer-supplied-boiler.html.gz=boiler-replacement-bid-calculator__should-i-install-a-customer-supplied-boiler.html.gz
       - boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz=boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz

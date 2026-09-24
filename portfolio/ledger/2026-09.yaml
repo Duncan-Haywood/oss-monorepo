@@ -41592,3 +41592,41 @@ entries:
         (pages_state.py --record) and confirmed sync_tree_counts.py agrees
         after merge.
     mrr_end: 0
+  - venture: affiliate-disclosure-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. checking a post by
+        eye": the venture had a named-product comparison (vs-post-affiliate-pro.html)
+        and a guide page but none of the "you could work this out yourself"
+        angle, one of 93 ventures at 0 per surface-budget.mjs at the time.
+        Names the three things a manual re-read of a post reliably misses
+        that this checker's own engine.mjs already computes: an affiliate
+        link's tracking signal living in the href rather than the visible
+        anchor text (amzn.to, ShareASale/CJ/Impact/Skimlinks/AWIN, generic
+        tracking params), a rel="sponsored" attribute with no rendered
+        marker at all, and whether a disclosure's character position
+        genuinely precedes every affiliate link's position once a post has
+        more than one -- plus the Amazon-exact-phrase check being a
+        separate condition from a generic disclosure note. Registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from index.html,
+        added to sitemap.xml, wired into a dedicated test file mirroring
+        this repo's vs-checking-dns-records-by-hand.test.mjs pattern
+        (FAQ-schema/visible-heading parity, angle-reader h1 shape,
+        no-competitor-named check), mirror regenerated.
+      - >-
+        Verified locally (Actions confirmed starved -- ci_starvation.py on
+        the latest portfolio-validate.yml run: runner_id 0, ~3s, no
+        steps): venture's own suite 60/60, full platform/marketing +
+        platform/pages suite 1289/1289 (clean after regen.mjs; caught and
+        fixed a stale mirror from a concurrent PR's merge first),
+        gitops/tests 637 passed/1 skipped (environmental), the 43
+        platform/ci unittest modules, agent_review's 21 tests, checklist_coverage.py,
+        surface-budget.mjs --check, regen.mjs --verify, router/validate.py,
+        scoring/score_ventures.py --check, usage/validate_usage.py,
+        pipeline/validate_doc_consistency.py, pipeline/validate_candidates.py,
+        pipeline/probes/validate_probe_index.py, pipeline/score_sensitivity.py,
+        front-door-tools.mjs --headroom, and the ledger/scoring/router/usage/
+        pipeline/infra pytest suite (446 passed) all clean.
+    mrr_end: 0

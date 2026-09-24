@@ -1880,6 +1880,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "re-reading a post and checking it by eye for a
+  // disclosure" -- a manual habit any blogger already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
+  // specifically and already carries the trademark disclaimer.
+  'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
