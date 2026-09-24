@@ -148,6 +148,21 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'missing cost versus no formula at all. Neither page\'s worked example or conclusion duplicates the ' +
       'other\'s. Allowed at two, which still blocks a third.',
   },
+  'fleet-repair-or-replace-planner': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added this venture\'s first generic-method page within the same ' +
+      'window, this session\'s own "vs. a spreadsheet" (an owner who already builds a per-asset formula but gets ' +
+      'the payback and budget-ranking arithmetic wrong the two specific ways calc.mjs\'s own header documents ' +
+      'having shipped) and #5541\'s "vs. comparing the repair bill to a new price" (an owner who skips a formula ' +
+      'entirely and holds this year\'s repair invoice up against a replacement quote, which leaves out downtime). ' +
+      'Both landed cleanly against an overlap check that was correct when it ran -- the same collision shape ' +
+      'surface-budget.mjs\'s own docstring already describes for overtime-pay-calculator, shopify-fee-calculator, ' +
+      'sign-language-interpreter-rate-calculator, apparel-decoration-price-calculator and atm-route-margin, from ' +
+      'a sixth pair of angles: a spreadsheet formula with specific documented defects versus no formula at all. ' +
+      'Neither page\'s worked example or conclusion duplicates the other\'s. Allowed at two, which still blocks a ' +
+      'third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */
