@@ -6970,6 +6970,28 @@ products:
           having measured nothing. `campaign_calculated` is the one worth
           watching: `pledge_calculated` alone means a visitor only checked
           one reward tier, not a whole campaign estimate.
+  - slug: depop-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          regions_compared: 0
+          numbers_saved: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/depop-fee-calculator/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `regions_compared` is the one worth
+          watching: it is the feature this venture's write-up bets on,
+          since it answers whether a seller unsure which of Depop's three
+          regional fee schedules applies to their account actually uses
+          the side-by-side comparison rather than guessing.
   - slug: salary-range-posting-check
     surface: github-pages
     readings:
@@ -6988,3 +7010,47 @@ products:
           device, so nobody has measured yet -- that is not the same as
           having measured nothing. `posting_scanned` is the one worth
           watching.
+  - slug: economic-nexus-threshold-tracker
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          entry_added: 0
+          sample_loaded: 0
+          exported: 0
+        note: >-
+          Baseline at graduation. A browser-local tracker letting a
+          multi-state online seller enter trailing-12-month sales by state
+          and see which states' economic-nexus sales-tax-registration
+          thresholds they've crossed. `live_url_visitors` is null, not
+          zero -- GitHub Pages exposes no server-side analytics and the
+          local counter is opt-in, so nobody has measured yet. Named
+          channels to watch: r/ecommerce, r/Etsysellers, r/AmazonSeller,
+          r/FulfillmentByAmazon, r/smallbusiness, and organic search for
+          "economic nexus threshold/calculator" (nine independent
+          competitor/publisher pages target this exact phrase, found via
+          WebSearch 2026-09-24). `entry_added` is the signal worth
+          watching first: it is the one act every visitor with a real
+          question can complete regardless of the answer they get.
+  - slug: s-corp-reasonable-compensation-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          assessed: 0
+          sample_loaded: 0
+        note: >-
+          Baseline at graduation. A browser-local calculator comparing a
+          planned S-corp salary against a comparable-wage figure the owner
+          supplies. `live_url_visitors` is null, not zero -- GitHub Pages
+          exposes no server-side analytics and the local counter is
+          opt-in, so nobody has measured yet. Named channels to watch:
+          r/tax, r/smallbusiness, r/accounting, r/Bookkeeping, and organic
+          search for "s corp salary calculator" / "s corp reasonable
+          compensation calculator" (nine independent CPA/advisor pages
+          target this exact phrase, found via WebSearch 2026-09-24).
+          `assessed` is the signal worth watching first: it is the one act
+          every visitor with a real question can complete regardless of
+          the answer they get.

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why a Clean MCP Config Scan Isn't a Safety Guarantee | MCP Config Risk Check</title>
+<meta name="description" content="A zero-finding MCP config scan means none of this tool's mechanical checks fired — not that a server is safe. What structural checks can and can't see, and what still needs a human look.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./why-a-clean-scan-isnt-a-safety-guarantee.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why a clean MCP config scan isn't a safety guarantee">
+<meta property="og:description" content="Zero findings means none of this tool's structural checks fired, not that a server is safe. What the checks can and can't see.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"If a config scan comes back with zero findings, is the setup safe?","acceptedAnswer":{"@type":"Answer","text":"No. A zero-finding result means none of this tool's mechanical checks fired against the text you pasted — it does not mean the servers you're launching are safe. The scan looks at structure (broad filesystem or shell access, hardcoded secrets, missing version pins, duplicate tool names), not at what a server's code actually does when it runs, and it cannot see a vulnerability, a compromise, or a malicious update that hasn't yet shown up as one of those structural patterns."}},{"@type":"Question","name":"What can a structural config scan actually catch?","acceptedAnswer":{"@type":"Answer","text":"Patterns visible in the launch config itself: a server started with broad filesystem or shell scope it may not need, a secret written directly into the config instead of referenced from an environment variable, a package or image launched without a version pin (so it can change under you on the next run), and tool names that collide or shadow each other across servers you've loaded together. These are the same category of mistake a careful human reviewer would look for — structural, not behavioral."}},{"@type":"Question","name":"What can't it catch?","acceptedAnswer":{"@type":"Answer","text":"Anything that isn't visible as a pattern in the config text: whether a pinned package version itself contains a vulnerability or a supply-chain compromise, whether a server's actual runtime behavior matches what its description claims, whether a tool's description carries hidden model-directed instructions, or whether a server that looked fine yesterday was updated to something different today. Those need a registry/vulnerability check, a manifest-diff tool run over time, or a human reading the server's own source — not a one-time structural scan of the config."}},{"@type":"Question","name":"So what is a clean scan actually worth?","acceptedAnswer":{"@type":"Answer","text":"It rules out the specific, common mistakes the scan checks for, cheaply and before you launch anything — the same value a linter has before a test suite runs. It is a floor, not a ceiling: worth running every time you add or change a server, and worth pairing with the practices that catch what it can't see, not a substitute for them."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}body{max-width:820px;margin:auto;padding:1.5rem}a{color:#2457d6;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.1;margin:.3rem 0;max-width:26ch;letter-spacing:-.02em}.lede{font-size:1.03rem;max-width:64ch;color:#58657a}section{background:#fff;border:1px solid #d9e0eb;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 5px 20px #18315a0b;margin:1rem 0}h2{margin-top:0}.fine,.note{font-size:.88rem;color:#58657a}footer{color:#58657a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; MCP Config Risk Check</a></p>
+<header>
+<h1>Why a clean scan isn't a safety guarantee</h1>
+<p class="lede">Zero findings means none of this tool's mechanical checks fired against the config you pasted &mdash; not that the servers you're about to launch are safe. Here is what a structural scan can and can't see, and why the difference matters.</p>
+</header>
+<section>
+<h2>What "structural" means here</h2>
+<p>
+  Every check this tool runs looks at the shape of the launch config itself:
+  is a server started with filesystem or shell access broader than it likely
+  needs, is a secret written directly into the config instead of referenced
+  from an environment variable, is a package or container image launched
+  without a version pin so it can silently change on the next run, and do any
+  two servers you've loaded together claim the same tool name. These are
+  exactly the mistakes a careful human reviewer would look for by eye &mdash;
+  mechanized so they don't get missed on a rushed review.
+</p>
+</section>
+<section>
+<h2>What it can't see</h2>
+<p>
+  A structural scan has no way to know whether a pinned package version
+  itself carries a known vulnerability or a supply-chain compromise, whether
+  a server's actual runtime behavior matches what its tool descriptions
+  claim, whether a description carries hidden model-directed instruction
+  language, or whether a server that scanned clean last week was updated to
+  something different since. Catching those needs a registry or
+  vulnerability lookup, a tool that diffs a captured manifest against an
+  earlier one over time, or a human reading the server's own source &mdash;
+  not a one-time look at the config text.
+</p>
+<p class="fine">This is the same reason a linter passing doesn't mean a test suite would: they check different, complementary things.</p>
+</section>
+<section>
+<h2>What a clean scan is worth, then</h2>
+<p>
+  It rules out the specific, common mistakes above, cheaply, before you
+  launch anything &mdash; worth running every time you add or change a
+  server. Treat it as a floor: pair it with a version-pin habit, a registry
+  or vulnerability check on anything unfamiliar, and a periodic re-scan
+  after updates, rather than a one-time pass you never revisit.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>If a config scan comes back with zero findings, is the setup safe?</h3>
+<p>No. A zero-finding result means none of this tool's mechanical checks fired against the text you pasted — it does not mean the servers you're launching are safe. The scan looks at structure (broad filesystem or shell access, hardcoded secrets, missing version pins, duplicate tool names), not at what a server's code actually does when it runs, and it cannot see a vulnerability, a compromise, or a malicious update that hasn't yet shown up as one of those structural patterns.</p>
+<h3>What can a structural config scan actually catch?</h3>
+<p>Patterns visible in the launch config itself: a server started with broad filesystem or shell scope it may not need, a secret written directly into the config instead of referenced from an environment variable, a package or image launched without a version pin (so it can change under you on the next run), and tool names that collide or shadow each other across servers you've loaded together. These are the same category of mistake a careful human reviewer would look for — structural, not behavioral.</p>
+<h3>What can't it catch?</h3>
+<p>Anything that isn't visible as a pattern in the config text: whether a pinned package version itself contains a vulnerability or a supply-chain compromise, whether a server's actual runtime behavior matches what its description claims, whether a tool's description carries hidden model-directed instructions, or whether a server that looked fine yesterday was updated to something different today. Those need a registry/vulnerability check, a manifest-diff tool run over time, or a human reading the server's own source — not a one-time structural scan of the config.</p>
+<h3>So what is a clean scan actually worth?</h3>
+<p>It rules out the specific, common mistakes the scan checks for, cheaply and before you launch anything — the same value a linter has before a test suite runs. It is a floor, not a ceiling: worth running every time you add or change a server, and worth pairing with the practices that catch what it can't see, not a substitute for them.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it does not replace a qualified professional's review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Use <a href="./">MCP Config Risk Check</a> to scan your own launch config. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

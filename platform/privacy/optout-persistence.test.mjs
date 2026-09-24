@@ -655,25 +655,59 @@ const RELATIVE_SELF = relative(
 // `auto-glass-bid-usage` storage name). Exactly one added `usage.mjs`
 // (`ventures/auto-glass-bid-calculator/usage.mjs`), no deletions.
 //
-// 331 -> 332: `hidden-unicode-check` also graduated, adding one
-// `usage.mjs` following the same opt-out pattern as its siblings
-// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
-// own `hidden-unicode-check:usage` storage name). Exactly one added
+// 331 -> 332: `depop-fee-calculator` graduated -- adding one `usage.mjs`
+// following the same opt-out pattern as its siblings (`readOptOut`/
+// `writeOptOut` gating `recordUsage`, keyed under its own
+// `depop-fee-calculator-usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/depop-fee-calculator/usage.mjs`), no deletions.
+//
+// 332 -> 333: `hidden-unicode-check` also graduated, concurrently on
+// `main` -- adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`,
+// keyed under its own `hidden-unicode-check:usage` storage name). This
+// branch only ever knew its own predecessor's number (331, before
+// `depop-fee-calculator` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Exactly one added
 // `usage.mjs` (`ventures/hidden-unicode-check/usage.mjs`), no deletions.
 //
-// 332 -> 333: a concurrent branch merge -- `salary-range-posting-check`
-// also graduated the same session, adding one more `usage.mjs`
+// 333 -> 334: `skill-manifest-check` also graduated, concurrently on
+// `main` -- adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`,
+// keyed under its own `skill-manifest-check:usage` storage name). This
+// branch only ever knew its own predecessor's number (332, before
+// `hidden-unicode-check` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Exactly one added
+// `usage.mjs` (`ventures/skill-manifest-check/usage.mjs`), no deletions --
+// the same-commit link added to `mcp-config-risk-check`'s footer reuses
+// that venture's own existing switch rather than adding a new one.
+//
+// 334 -> 335: `salary-range-posting-check` also graduated, concurrently
+// on `main` -- adding one more `usage.mjs`
 // (`ventures/salary-range-posting-check/usage.mjs`), no deletions.
 //
-// 333 -> 334: another concurrent branch merge -- `skill-manifest-check`
-// also graduated, adding one `usage.mjs` following the same opt-out
-// pattern as its siblings (`usageAllowed`/`setUsageEnabled` gating
-// `countUsage`, keyed under its own `skill-manifest-check:usage` storage
-// name). Exactly one added `usage.mjs`
-// (`ventures/skill-manifest-check/usage.mjs`), no deletions -- the
-// same-commit link added to `mcp-config-risk-check`'s footer reuses that
-// venture's own existing switch rather than adding a new one.
-const SWITCHES_IN_THE_CATALOGUE = 334;
+// 335 -> 336: `k8s-resource-limits-check` also graduates -- adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `k8s-resource-limits-check-usage` storage name). This branch only ever
+// knew its own predecessor's number (331, before any of the four merges
+// above landed) until this merge -- the same ordinary collision shape
+// recorded throughout this list. Exactly one added `usage.mjs`
+// (`ventures/k8s-resource-limits-check/usage.mjs`), no deletions.
+//
+// 336 -> 337: `auto-loan-interest-deduction-calculator` graduates -- adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `auto-loan-interest-deduction-calculator-usage` storage name). Exactly
+// one added `usage.mjs`, no deletions.
+//
+// 337 -> 338: `tip-pool-compliance-calculator` also graduated, concurrently
+// on `main` -- adding one more `usage.mjs`
+// (`ventures/tip-pool-compliance-calculator/usage.mjs`), no deletions. This
+// branch only ever knew its own predecessor's number (336, before
+// `auto-loan-interest-deduction-calculator` landed) until this merge -- the
+// same ordinary collision shape recorded throughout this list, this time
+// with both sides claiming the same next number.
+const SWITCHES_IN_THE_CATALOGUE = 338;
 
 let counter = 0;
 function fixture(source) {

@@ -118,6 +118,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the trademark disclaimer, so the two comparison pages
   // are deliberately different classes.
   'cache-control-check/vs-checking-headers-by-eye-in-devtools.html',
+  // Compares against "checking response headers by eye in DevTools' Network
+  // tab" -- the same manual habit exempted above for cache-control-check,
+  // applied to this venture's own frame-protection/CSP/HSTS findings. This
+  // venture's vs-securityheaders.html is separately exempt-free (it names a
+  // real hosted scanner and carries the trademark disclaimer), so the two
+  // comparison pages are deliberately different classes.
+  'security-headers-check/vs-checking-headers-by-eye-in-devtools.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -251,6 +258,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific tax-prep company or
   // competing calculator at all.
   'no-tax-on-tips-overtime-calculator/vs-estimating-the-deduction-by-hand.html',
+  // Compares against "estimating the auto loan interest deduction by hand"
+  // -- a generic method every filer already has, not a company or product
+  // this could be mistaken for. The page names no specific tax-prep
+  // company or competing calculator at all.
+  'auto-loan-interest-deduction-calculator/vs-estimating-the-deduction-by-hand.html',
   // Compares against "the Form 8995-A worksheet by hand" -- the IRS's own
   // published worksheet, a generic method every filer already has, not a
   // company or product this could be mistaken for. The page names no
@@ -725,6 +737,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-servicetitan.html, which does name a
   // product and carries its own "not affiliated" clause.
   'water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html',
+  // Compares against "a flat $799 installed" special -- the postcard
+  // water-softener price every plumbing and water-treatment shop is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'water-softener-bid-calculator/vs-a-flat-rate-water-softener-special.html',
   // Compares against "a flat per-window special" -- the "$250 a window
   // installed" price every window-treatment shop is shopped against, not a
   // company or product this could be mistaken for. The page names no vendor
@@ -1873,6 +1892,87 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "a flat rate per square" -- a common pricing habit any
+  // siding contractor already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-jobnimbus.html, which
+  // names JobNimbus specifically and already carries the trademark
+  // disclaimer.
+  'siding-bid-calculator/vs-a-flat-rate-per-square.html',
+  // Compares against "checking it by eye" -- reading view-source and
+  // comparing a page's JSON-LD against its rendered text by hand, a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for. Same shape as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html exemption above.
+  'structured-data-drift-check/vs-checking-it-by-eye.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
+  // and already carries the "not affiliated" disclaimer.
+  'actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names zizmor specifically and already carries the
+  // "not affiliated" disclaimer.
+  'actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html',
+  // Compares against "reading the file by hand" -- a manual review habit
+  // every developer already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
+  // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
+  'hidden-unicode-check/vs-reading-the-file-by-hand.html',
+  // Compares against "comparing the buyout price to fair market value" -- a
+  // generic sanity check any lessee already runs against a payoff letter,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-lendzero.html and vs-crest-capital.html, which name
+  // specific competitors and already carry the trademark disclaimer.
+  'equipment-lease-buyout-calculator/vs-comparing-the-buyout-price-to-fair-market-value.html',
+  // Compares against "a flat $1,195 radon special" -- a common advertised
+  // rate any radon mitigation contractor already runs, sized for the
+  // smallest single-suction basement job, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-oneradon.html, which names Sun Nuclear's OneRADON software
+  // specifically and already carries the trademark disclaimer.
+  'radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html',
+  // Compares against "a flat price-per-watt quote" -- a common dollars-per-
+  // watt rate any solar installer already quotes from, sized for the roof
+  // and panel condition the rate was set on, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-aurora-solar.html, which names Aurora Solar specifically and already
+  // carries the trademark disclaimer.
+  'solar-pv-bid-calculator/vs-a-flat-price-per-watt.html',
+  // Compares against "re-reading a post and checking it by eye for a
+  // disclosure" -- a manual habit any blogger already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
+  // specifically and already carries the trademark disclaimer.
+  'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
+  // Compares against "tracking payouts in a spreadsheet" -- a generic method
+  // every Poshmark seller already has access to, not a company or product
+  // this could be mistaken for. The page's own footer says so explicitly
+  // ("names no specific product"). Same reasoning as the other
+  // vs-spreadsheet / by-hand pages above (e.g. whatnot-seller-payout's).
+  'poshmark-fee-calculator/vs-tracking-poshmark-payouts-in-a-spreadsheet.html',
+  // Compares against "reading the command/args/env blocks by hand before
+  // approving a server" -- a manual habit anyone reviewing an MCP config
+  // already has, not a company or product this could be mistaken for.
+  // This venture names no named-product comparison at all.
+  'mcp-config-risk-check/vs-reading-the-config-by-hand.html',
+  // Compares against "reviewing an invoice by eye" -- a manual review habit
+  // any shipper, broker, or AP clerk already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-trax.html and vs-cass.html, which name specific freight audit and
+  // payment providers and already carry the "not affiliated" disclaimer.
+  'freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html',
+  // Compares against "reading the SKILL.md by hand" -- a manual review
+  // habit every skill author already has, not a company or product this
+  // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
+  // pages above (e.g. hidden-unicode-check's, docker-build-secrets-check's).
+  'skill-manifest-check/vs-reading-the-skill-by-hand.html',
+  // Compares against "deciding tip-pool eligibility in a staff meeting" --
+  // a verbal, ungoverned habit any restaurant or bar already has, not a
+  // company or product this could be mistaken for.
+  'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

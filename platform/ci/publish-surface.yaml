@@ -161,6 +161,9 @@ workflows:
 - workflow: auto-glass-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: auto-loan-interest-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: auto-repair-effective-labor-rate-ci.yml
   classification: none
   publishes: []
@@ -362,6 +365,9 @@ workflows:
 - workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
+- workflow: depop-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: depreciation-recapture-calculator-ci.yml
   classification: none
   publishes: []
@@ -414,6 +420,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ebay-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: economic-nexus-threshold-tracker-ci.yml
   classification: none
   publishes: []
 - workflow: egress-window-bid-calculator-ci.yml
@@ -633,6 +642,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: k8s-deprecated-api-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: k8s-resource-limits-check-ci.yml
   classification: none
   publishes: []
 - workflow: k8s-rollout-safety-check-ci.yml
@@ -965,6 +977,9 @@ workflows:
 - workflow: roofing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: s-corp-reasonable-compensation-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
@@ -1140,6 +1155,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tiktok-shop-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tip-pool-compliance-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml

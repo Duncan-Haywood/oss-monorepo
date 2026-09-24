@@ -111,7 +111,12 @@ test("the SoftwareApplication JSON-LD is valid", () => {
 
 test("sitemap lists every published page and no extras", () => {
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs.sort(), ["./"]);
+  assert.deepEqual(locs.sort(), [
+    "./",
+    "./how-to-remove-hidden-unicode-characters.html",
+    "./vs-mcp-scan.html",
+    "./vs-reading-the-file-by-hand.html",
+  ]);
 });
 
 test("robots.txt allows crawling", () => {

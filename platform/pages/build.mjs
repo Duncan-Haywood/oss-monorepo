@@ -467,7 +467,13 @@ const CATEGORY_RULES = [
     // section already answers. Its slug names neither a marketplace nor a
     // storefront keyword this rule already recognised, so it would
     // otherwise have swelled the catch-all.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter)/.test(slug),
+    // `depop-fee-calculator` is the same single-channel fee-schedule shape
+    // as `mercari` and `poshmark` above — a per-region selling/processing
+    // fee split on one storefront, with an older flat schedule some sellers
+    // still run — and would otherwise sit in the catch-all for the same
+    // reason those two did: the slug names the storefront, not a
+    // marketplace keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop)/.test(slug),
   },
   {
     id: 'trades',
@@ -1173,7 +1179,46 @@ const CATEGORY_RULES = [
       // staffing-cost decision. It cross-links staffing-markup-calculator as
       // a sibling -- the same burden math, applied on the other side of who
       // pays it.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator)/.test(slug),
+      // `s-corp-reasonable-compensation-calculator` joined 2026-09-24, filed
+      // here on its first commit rather than after a spell in the catch-all
+      // -- what `build.test.mjs`'s catch-all bound is for. Same axis as
+      // `qbi-deduction-calculator` and `no-tax-on-tips-overtime-calculator`
+      // right above it: a downstream tax/compensation decision on business
+      // income already earned, not a quote to a client (that is `services`)
+      // and not pricing labour before a sale (that is `solo-earner`). It
+      // cross-links `qbi-deduction-calculator` as a sibling -- both are a
+      // federal-tax consequence of the same S-corp/pass-through income, one
+      // on the deduction side and one on the salary-vs-distribution split
+      // that feeds it.
+      // `auto-loan-interest-deduction-calculator` joined 2026-09-24,
+      // concurrently, filed here on its first commit rather than after a
+      // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is
+      // for. It estimates a federal deduction on interest already paid on a
+      // loan already taken out -- the same "downstream obligation/benefit on
+      // a transaction already made" axis as `no-tax-on-tips-overtime-calculator`
+      // and `qbi-deduction-calculator` right above it in this same rule, just
+      // a deduction tied to a vehicle loan instead of tips/overtime pay or
+      // QBI. It cross-links `no-tax-on-tips-overtime-calculator` as a
+      // sibling: both are new-for-2025 OBBBA deductions a filer may claim in
+      // the same season, and the two disagree on whether married filing
+      // separately qualifies, which is worth a reader hitting explicitly
+      // rather than assuming one rule generalizes to the other.
+      //
+      // `tip-pool-compliance-calculator` joined 2026-09-24, concurrently,
+      // filed here on its first commit rather than after a spell in the
+      // catch-all -- the catch-all was already at its bound of 5
+      // (ai-engineering-academy, hoa-reserve-fund-calculator,
+      // overtime-pay-calculator, voiceover-project-rate-calculator,
+      // world-clock-widget) the day this venture graduated. It is the same
+      // "wage/payroll obligation computed after the fact" axis as
+      // `certified-payroll-calculator` and `employee-cost-calculator` right
+      // above it in this rule -- a federal FLSA tip-pooling eligibility
+      // check and the back-wage exposure a violation creates, rather than a
+      // bid or a fee schedule. It cross-links `no-tax-on-tips-overtime-calculator`
+      // as a sibling: same section of the tipped-wage workforce, a
+      // different obligation (a federal income-tax deduction there, a
+      // federal wage-and-hour rule here).
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -1791,6 +1836,18 @@ const CATEGORY_RULES = [
     // `k8s-deprecated-api-check` as Related both ways, closing the
     // crawlable-orphan gap a new venture with no existing sibling
     // otherwise opens. Listed by exact slug, same reason as its neighbors.
+    //
+    // `k8s-resource-limits-check` joined 2026-09-24, adjacent to all three
+    // existing `k8s-`/Helm siblings but asking a question none of them ask:
+    // not "will this rollout drop requests," not "will the cluster accept
+    // this apiVersion," not "does values.yaml match its own schema," but
+    // "can this container starve or crowd out everything else on its node."
+    // Same browser-local-plus-CLI, read-only, never-fetch shape, applied to
+    // Kubernetes' own documented node-pressure eviction, OOM, and CFS CPU-
+    // throttling behavior. It cross-links `k8s-rollout-safety-check` and
+    // `k8s-deprecated-api-check` as Related, closing the crawlable-orphan
+    // gap a new venture with no existing sibling otherwise opens. Listed by
+    // exact slug, same reason as its neighbors.
     // `deploy-concurrency-check` joined 2026-09-17. Same browser-local-plus-
     // CLI shape as the `actions-` family it sits with, reading workflow YAML
     // the maintainer already has -- but one step past what the rest of that
@@ -1993,7 +2050,7 @@ const CATEGORY_RULES = [
     // rather than after a spell in the catch-all -- `build.test.mjs`'s bound
     // is why: it would otherwise have been the sixth tool in `more`.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check)/.test(
         slug,
       ),
   },

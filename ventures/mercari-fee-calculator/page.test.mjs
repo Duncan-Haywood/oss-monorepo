@@ -177,6 +177,7 @@ test('index links to the related seller-tool calculators', () => {
   assert.match(markup, /href="\.\.\/where-to-sell-calculator\/"/);
   assert.match(markup, /href="\.\.\/marketplace-fee-compare\/"/);
   assert.match(markup, /href="\.\.\/poshmark-fee-calculator\/"/);
+  assert.match(markup, /href="\.\.\/depop-fee-calculator\/"/);
 });
 
 test('an edit updates the payout on screen rather than leaving the last one standing', () => {
