@@ -41426,3 +41426,86 @@ entries:
         confirmed-visitor counts remain at zero, which this fix does not
         change on its own.
     mrr_end: 0
+  - venture: auto-glass-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-249-windshield-coupon.html, a generic-method
+        comparison page ("vs. a flat $249 windshield coupon") -- the
+        venture showed 0/1 on its generic-method budget. calc.mjs's own
+        JOB_PRESETS[0] is literally labelled "the $249 coupon job";
+        selected via surface-budget.mjs's 0-generic-method ventures
+        intersected with router/allocate.py's merit ranking.
+      - >-
+        Worked examples pinned against calc.mjs at the form's own defaults
+        ($28 wage, 22% burden, 14% overhead, 32% target margin): the
+        coupon's own named job (economy aftermarket glass, no ADAS,
+        in-shop) already costs $428.77 to run, so the $249 coupon is
+        $179.77 under that job's own break-even cost before overhead or
+        margin ever apply -- sharper than a margin story. The shortfall
+        against a mobile job with static-and-dynamic ADAS calibration
+        priced (OEM glass, camera and radar both on the glass) grows to
+        $1,017.70.
+      - >-
+        The full platform/marketing + platform/pages suite (not this
+        venture's own scoped tests) caught a real bug the venture's own
+        109-assertion suite missed: 4 of 5 FAQPage JSON-LD answers used a
+        literal "--" where the visible prose renders "&mdash;" as an em
+        dash. faq-visible.test.mjs correctly failed on the mismatch; fixed
+        to match verbatim in a follow-up commit before merging.
+      - >-
+        Hit the generated front-door mirror's sequential-packing merge
+        conflict three times while main absorbed several sibling PRs
+        during this session (per session_gate.py's concurrent-session
+        signal); resolved each time with resolve-mirror-merge.sh's
+        approach plus a full regen.mjs run against the merged tree,
+        verified clean with --verify each time.
+      - >-
+        Verified locally (Actions starved for the session, confirmed via
+        ci_starvation.py on every failing check -- runner_id: 0, 3-4s, no
+        steps): the venture's own 109-assertion suite, faq-visible.test.mjs
+        and clauses.test.mjs, checklist_coverage.py, surface-budget.mjs
+        --check, regen.mjs --verify clean, the platform/marketing +
+        platform/pages suite (1289/1289), gitops/tests pytest (613 passed,
+        25 skipped -- environmental), platform/ci unittest (27/27), and
+        portfolio/ledger + scoring + router + usage + pipeline + infra/tests
+        pytest (446 passed). Posted the starvation diagnosis and re-ran the
+        starved checks once per CLAUDE.md's drive-to-green checklist before
+        squash-merging as #5674.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a discoverability guide page to three of this session's own
+        earlier-shipped ventures (mcp-config-risk-check, hidden-unicode-check,
+        skill-manifest-check), which had only index.html and no docs page --
+        unlike llm-api-pricing-calculator (this session's first venture),
+        which already had one from a sibling session's own PR. Each answers a
+        real follow-up question: what a clean MCP config scan does and
+        doesn't guarantee, how to actually remove hidden Unicode once a scan
+        finds it, and how to rewrite a SKILL.md description that doesn't
+        trigger. Chose this over a fifth new venture this session, on the
+        reasoning that adding to an already-358-product catalogue with zero
+        confirmed visitors has lower marginal value than strengthening
+        discoverability on products already shipped this session, where
+        prior context made a fast, accurate page cheap to write.
+      - >-
+        Caught and fixed a real defect in my own work before shipping: the
+        full marketing/pages suite failed on faq-visible.test.mjs across all
+        three new pages -- an em-dash/en-dash mismatch between the FAQPage
+        JSON-LD text and the visible copy, the same bug class this session's
+        build agents already hit twice on other ventures (and, per the entry
+        just above, a sibling session's auto-glass-bid-calculator PR the
+        same day -- a recurring pitfall, not a one-off). Fixed, re-verified
+        clean (1289/1289), then merged.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot and
+        confirmed sync_tree_counts.py and regen.mjs --verify current against
+        the merged main. This session has now shipped four new ventures, six
+        guide/comparison pages across them, fixed two real pre-existing
+        defects, and run one fleet-wide accessibility sweep. Portfolio-wide
+        revenue and confirmed-visitor counts remain at zero.
+    mrr_end: 0
