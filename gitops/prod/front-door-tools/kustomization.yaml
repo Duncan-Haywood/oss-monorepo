@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 125 files, 556735 bytes
 #   portfolio-front-tools-9: 140 files, 548273 bytes
 #   portfolio-front-tools-10: 121 files, 555376 bytes
-#   portfolio-front-tools-11: 119 files, 549180 bytes
+#   portfolio-front-tools-11: 120 files, 553724 bytes
 #   portfolio-front-tools-12: 117 files, 544845 bytes
 #   portfolio-front-tools-13: 120 files, 549080 bytes
 #   portfolio-front-tools-14: 131 files, 556928 bytes
@@ -1615,6 +1615,7 @@ configMapGenerator:
       - hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz=hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz
       - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
       - hidden-unicode-check__usage.mjs.gz=hidden-unicode-check__usage.mjs.gz
+      - hidden-unicode-check__vs-mcp-scan.html.gz=hidden-unicode-check__vs-mcp-scan.html.gz
       - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
