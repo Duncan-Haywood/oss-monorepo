@@ -42,8 +42,8 @@
 #   portfolio-front-tools-6: 134 files, 556107 bytes
 #   portfolio-front-tools-7: 128 files, 555238 bytes
 #   portfolio-front-tools-8: 137 files, 553664 bytes
-#   portfolio-front-tools-9: 128 files, 556508 bytes
-#   portfolio-front-tools-10: 119 files, 543847 bytes
+#   portfolio-front-tools-9: 127 files, 553272 bytes
+#   portfolio-front-tools-10: 121 files, 550948 bytes
 #   portfolio-front-tools-11: 119 files, 555483 bytes
 #   portfolio-front-tools-12: 116 files, 542103 bytes
 #   portfolio-front-tools-13: 127 files, 555552 bytes
@@ -1420,13 +1420,14 @@ configMapGenerator:
       - fleet-repair-or-replace-planner__index.html.gz=fleet-repair-or-replace-planner__index.html.gz
       - fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz=fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz
       - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
-      - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
-      - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
+      - fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz=fleet-repair-or-replace-planner__vs-comparing-the-repair-bill-to-a-new-price.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
+      - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
       - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
       - flooring-bid-calculator__index.html.gz=flooring-bid-calculator__index.html.gz
       - flooring-bid-calculator__share.mjs.gz=flooring-bid-calculator__share.mjs.gz
