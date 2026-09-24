@@ -219,6 +219,27 @@
     },
     "disclaimerTail": "Automated gates carry entrapment risk; installation is quoted to the manufacturer\u2019s instructions and applicable safety standards, and this is not a safety certification."
   },
+  "biohazard-cleanup-bid-calculator": {
+    "jobTitle": "Biohazard / trauma-scene cleanup \u2014 {technicianCount} tech{technicianCount+s}, {hoursOnSitePerTechnician~1} hr each",
+    "scope": [
+      "{technicianCount} technician{technicianCount+s} on site for {hoursOnSitePerTechnician~1} hour{hoursOnSitePerTechnician+s} each",
+      "{ppeSets} full PPE set{ppeSets+s} across {deconCyclesPerTechnician} decon cycle{deconCyclesPerTechnician+s} per technician",
+      {
+        "line": "Regulated-waste disposal: {containersNeeded} container{containersNeeded+s}",
+        "when": "containersNeeded"
+      },
+      "Supplies: enzymatic cleaner, sealant, odor treatment and absorbents",
+      "Equipment: ozone generator / air scrubber as needed for the scene",
+      "Site travel"
+    ],
+    "placeholders": {
+      "companyName": "Baseline Biohazard Remediation LLC",
+      "scope": "2 technicians on site for 5 hours each\n2 PPE sets, 1 decon cycle per technician\nRegulated-waste disposal: 2 containers",
+      "exclusions": "Structural repair, demolition rebuild, or odor-source removal beyond the affected surfaces\nInsurance-claim adjudication or a formal biohazard exposure determination",
+      "notes": "Regulated waste manifested and disposed of at a licensed facility; manifest available on request."
+    },
+    "disclaimerTail": "Cleanup addresses the biohazard/trauma-scene surfaces described; it is not a hauler contract, an OSHA bloodborne-pathogen exposure determination, or an insurance-claim adjudication."
+  },
   "boiler-replacement-bid-calculator": {
     "jobTitle": "Boiler replacement \u2014 {inputMbh} MBH",
     "fields": {
