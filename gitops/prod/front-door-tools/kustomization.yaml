@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 116 files, 552032 bytes
 #   portfolio-front-tools-12: 118 files, 553747 bytes
 #   portfolio-front-tools-13: 124 files, 555616 bytes
-#   portfolio-front-tools-14: 129 files, 544232 bytes
+#   portfolio-front-tools-14: 130 files, 549380 bytes
 #   portfolio-front-tools-15: 129 files, 541818 bytes
 #   portfolio-front-tools-16: 100 files, 556534 bytes
 #   portfolio-front-tools-17: 116 files, 546332 bytes
@@ -2029,6 +2029,7 @@ configMapGenerator:
       - photo-booth-event-quote__index.html.gz=photo-booth-event-quote__index.html.gz
       - photo-booth-event-quote__share.mjs.gz=photo-booth-event-quote__share.mjs.gz
       - photo-booth-event-quote__usage.mjs.gz=photo-booth-event-quote__usage.mjs.gz
+      - photo-booth-event-quote__vs-a-flat-package-price.html.gz=photo-booth-event-quote__vs-a-flat-package-price.html.gz
       - photo-booth-event-quote__vs-photobooth-supply-co.html.gz=photo-booth-event-quote__vs-photobooth-supply-co.html.gz
       - pinned-actions-check__check.py.gz=pinned-actions-check__check.py.gz
       - pinned-actions-check__classify.mjs.gz=pinned-actions-check__classify.mjs.gz
