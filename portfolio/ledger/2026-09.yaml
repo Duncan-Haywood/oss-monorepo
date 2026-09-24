@@ -41972,6 +41972,7 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+
   - venture: equipment-lease-buyout-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -42004,6 +42005,75 @@ entries:
         pytest gitops/tests -q` (631 passed, 7 skipped) including the etcd
         object-ceiling test specifically.
     mrr_end: 0
+
+  - venture: tip-pool-compliance-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new niche not in screened-out.md: a free browser
+        calculator checking a restaurant/bar's mandatory tip pool against
+        the two federal FLSA rules -- a manager or supervisor is never
+        eligible for tip-pool money regardless of tip-credit status (2018
+        CAA amendment to 29 U.S.C. 203(m)), and back-of-house staff are
+        eligible only when the employer takes no tip credit at all (DOL's
+        2021 final rule, 29 CFR 531.54) -- and computes the tip-credit
+        back-wage exposure a violation creates from the front-of-house
+        hours actually pooled. duplicate_check.py scored every venture,
+        screened-out row, and pipeline candidate at or below 0.10 against
+        the final description; not the same business as
+        no-tax-on-tips-overtime-calculator (a federal income-tax
+        deduction, unrelated to pool eligibility). Liability and ethics
+        gates both pass: a single well-documented federal rule rather
+        than a 50-state table, framed as a check and an exposure estimate
+        rather than a determination, donations-only with no incentive to
+        bias either direction.
+      - >-
+        Shipped complete: calc.mjs (pure functions, 14 assertions
+        pinning the worked example -- a shift manager and dishwashers
+        both improperly pooled while a $5.12 tip credit is taken, 230
+        front-of-house hours/week, $1,177.60/week and $4,710.40 over
+        four weeks in back-wage exposure), usage.mjs (opt-out,
+        DNT/GPC-respecting local counter, never records a role/wage/
+        headcount), share.mjs (localStorage + URL-fragment roster
+        save/share, re-validated on decode), index.html (the
+        calculator, FAQPage + SoftwareApplication JSON-LD with every
+        visible FAQ answer matching the structured data verbatim --
+        checked directly against faq-visible.test.mjs's own algorithm),
+        and a generic-method comparison page
+        (vs-guessing-from-a-staff-meeting.html, exempted in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT since it compares
+        against a verbal habit, not a named product). Filed in the
+        `backoffice` category in build.mjs alongside
+        certified-payroll-calculator and employee-cost-calculator
+        (the catch-all was already at its 5-tool bound the day this
+        graduated) and cross-linked with
+        no-tax-on-tips-overtime-calculator in both directions to close
+        the crawlable-orphan check. Scored in venture-scores.yaml
+        (composite 6.0, floor 1 on ai_leverage by design -- no model
+        call anywhere in the product).
+      - >-
+        Full local verification since Actions is starved
+        (ci_starvation.py confirmed runner_id: 0 on recent runs): the
+        venture's own 44 node --test assertions,
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1290+ assertions, including the five this graduation initially
+        broke and then fixed -- a stale front-door-mirror commit,
+        a missing launched.json date, the catch-all-category bound,
+        missing structured data on the comparison page, and the
+        crawlable-orphan budget), regen.mjs --verify, checklist_coverage.py,
+        sync_tree_counts.py (mirrored-tool count 353 -> 354, opt-out-switch
+        count 335 -> 336, with the running-comment lines this graduation
+        added), gitops/ci/sync_readme_counts.py (runs-on count drift from a
+        concurrent merge), python3 -m pytest across
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests (446 passed) and gitops/tests (637
+        passed, 1 skipped -- nginx unavailable), and all 27 platform/ci
+        unittest modules (1014 + 21 assertions) run from their own working
+        directories. Revenue and confirmed-visitor counts remain at zero,
+        which this does not change on its own.
+    mrr_end: 0
+
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
@@ -42260,6 +42330,90 @@ entries:
         (9/9 selected workflows, 70/70 run steps in portfolio-validate.yml)
         all clean -- main itself was genuinely green, not just starved.
     mrr_end: 0
+  - venture: s-corp-reasonable-compensation-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator for single-shareholder
+        S-corp owners comparing a planned or current W-2 salary against a
+        comparable-wage figure the owner supplies, using the IRS's actual
+        multi-factor reasonable-compensation test (there is no published
+        percentage safe-harbor -- the "60/40 rule" seen online is not IRS
+        guidance). Reports the combined FICA-tax cost of closing any gap
+        against the 2026 Social Security wage base ($184,500, per the
+        Social Security Administration's own October 2025 announcement),
+        and prints a nine-factor documentation checklist drawn from
+        Rev. Rul. 74-44 and Watson v. Commissioner (668 F.3d 1008, 8th
+        Cir. 2012 -- $67,044/year of distributions recharacterized to
+        wages against a $24,000 salary on ~$200k-274k of annual profit).
+        Screened per pipeline/README.md's rubric: duplicate_check.py
+        scored every venture, screened-out row, ai-first-markets idea, and
+        pipeline candidate at or below 0.10 against the final description
+        -- no collision. liability_containment 6, ethical_robustness 8,
+        both above the gate; composite 5.0 in
+        portfolio/scoring/venture-scores.yaml. Distribution channel:
+        nine independent CPA/advisor pages (jupid.com, lecpa.co,
+        nationaltaxtools.com, madsencpa.com, taxstra.com, biztaxcalc.com,
+        sdocpa.com, unclekam.com, financial-advisors-for-business-owners.com)
+        found via WebSearch 2026-09-24 target "s corp salary calculator" /
+        "s corp reasonable compensation calculator", plus recurring r/tax,
+        r/smallbusiness, r/accounting, r/Bookkeeping threads on this exact
+        question. Ships all required elements per PRODUCT_PLAYBOOK.md
+        section 5 (LICENSE, no-warranty/no-SLA disclaimer, privacy line,
+        opt-in usage counting, sponsor link, discoverability checklist), a
+        guide page (Watson case + safe-harbor myth), and a named-competitor
+        comparison page (RCReports, section 5f disclaimer). Filed in the
+        `backoffice` category (same axis as qbi-deduction-calculator and
+        no-tax-on-tips-overtime-calculator) and cross-linked
+        qbi-deduction-calculator as a sibling, closing what would
+        otherwise be a crawlable orphan (siblings.mjs).
+      - >-
+        Fixed forward two pre-existing count drifts found while verifying,
+        unrelated to this venture's own content: gitops/ci/README.md's
+        stale runs-on count (gitops/ci/sync_readme_counts.py, drift from
+        concurrent merges) and the mirrored-tool count across
+        infra/OWNER_CHECKLIST.md, gitops/prod/usage/aggregate.py,
+        gitops/prod/front-door/default.conf, and
+        gitops/tests/test_manifests.py (platform/ci/sync_tree_counts.py,
+        355->356, with a running-comment entry saying why). Also fixed a
+        real defect this venture's own first draft introduced: its
+        money() formatter signed a negative inside the $ symbol
+        ($-9.24 instead of -$9.24), caught by
+        platform/ci/test_check_money_sign.py and rewritten per the
+        guard's own template.
+      - >-
+        Verified locally (Actions confirmed starved:
+        ci_starvation.py --run 36038452443, runner_id 0, 3s, no steps):
+        venture's own 67 assertions (calc.mjs + page.mjs, after the
+        qbi-deduction-calculator sibling-link addition); node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        (1290/1290, after regen.mjs, launched.mjs --write, the money-sign
+        fix, and a JSON-LD/visible-text en-dash/em-dash punctuation fix on
+        the guide page); node platform/marketing/regen.mjs --verify
+        (clean); python3 -m pytest gitops/tests -q (637 passed, 1 skipped
+        -- environmental); the 27 platform/ci unittest modules +
+        agent_review's 21; python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q (446 passed, after adding this
+        venture's row to venture-scores.yaml and a usage.yaml baseline);
+        python3 portfolio/router/validate.py,
+        portfolio/scoring/score_ventures.py --check,
+        portfolio/usage/validate_usage.py,
+        portfolio/pipeline/validate_doc_consistency.py,
+        portfolio/pipeline/validate_candidates.py,
+        portfolio/pipeline/probes/validate_probe_index.py,
+        portfolio/pipeline/score_sensitivity.py, node
+        platform/marketing/front-door-tools.mjs --headroom (all clean);
+        platform/ci/checklist_coverage.py; platform/pages/siblings.mjs
+        --check (0 orphans, within budget); platform/ci/validate_workflows.py
+        and platform/ci/publish_surface.py --write/--check (new per-venture
+        CI workflow registered, classified none). Merged origin/main
+        twice mid-session (other sessions merging every few minutes) and
+        resolved front-door mirror conflicts with resolve-mirror-merge.sh
+        plus regen.mjs --write for the front-door/*.gz files outside its
+        scope.
+    mrr_end: 0
   - venture: skill-manifest-check
     agent_spend_usd: null
     human_hours: 0
@@ -42472,6 +42626,66 @@ entries:
         this does not change on its own -- usage_state.py --require-honest
         confirms no steering document reports that null as an observed
         zero.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED (0% meta-work share, no build-now
+        candidates). Checked the open-PR queue first (3 open, all
+        agent-authored comparison-page/contrast fixes) and the top of
+        router/allocate.py -- the two highest-merit ventures
+        (reverb-fee-calculator, where-to-sell-calculator) are both already
+        at or over surface-budget.mjs's generic-method comparison-page
+        budget, so another marketing page on either would need an override
+        rather than being genuine new coverage. Spent the session on two
+        portfolio-wide support/market actions instead of a 363rd
+        calculator.
+      - >-
+        Marketing: by-hand IndexNow submission from this sandbox
+        (`node platform/marketing/indexnow.mjs --submit --ref
+        origin/gh-pages`) returned HTTP 200 from api.indexnow.org, 1567
+        URLs, 366 from catalog.json plus 1567 from 356 published sitemaps.
+        indexnow_state.py's own verdict still reads "never" afterward --
+        by design, it only reads GitHub workflow run history (all 60
+        recent publish-pages-branch.yml runs starved, runner_id: 0) and has
+        no way to record a by-hand submission. This is at least the fourth
+        such by-hand submission recorded in this ledger (1321, then 1512,
+        then 1557, now 1567 URLs), so the egress-proxy 403 CLAUDE.md
+        documents for api.indexnow.org is intermittent rather than
+        absolute from this environment -- worth another look at whether it
+        can be made reliable rather than assumed-blocked.
+      - >-
+        Support: browser_state.py reported all 8 whole-catalogue checks
+        STALE (last recorded pass was pinned to an older builder/front-door
+        commit, f5b24635). Installed playwright@1.56.0 + axe-core in one
+        command per CLAUDE.md's documented install line, then ran the full
+        sweep (`browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey`)
+        against a fresh build at ba76f41c: 8/8 passed -- 1567 pages across
+        2 viewports with zero WCAG A/AA violations (contrast), 363/363
+        tools answered with no console/page errors (sweep), 230/230 share
+        links round-tripped, 418/418 opt-out pages persisted the visitor's
+        choice, and the full saved-bids/backup/restore/sitemap journey
+        passed end to end. No defects found this run, unlike the
+        2026-09-06 first run that found 48 critical axe label violations --
+        this reading says the catalogue is currently clean, not that the
+        check is redundant to keep running.
+      - >-
+        Recorded the reading (platform/ci/browser_state.json) and merged
+        origin/main (29c890c6, which had moved during the ~20-minute sweep
+        and touched ventures/**) into this branch before pushing, resolving
+        a conflict in that same file by keeping both this session's
+        ba76f41c reading and a fc166319c reading another concurrent session
+        had already appended, in commit order. Did not re-run the sweep
+        against 29c890c6 -- browser_state.py will correctly report it STALE
+        again given how many venture files the merge touched, which is
+        accurate: this reading covers ba76f41c, not the current tip.
+      - >-
+        Revenue and confirmed-visitor counts remain at zero, which neither
+        action changes on its own -- both are prerequisites for a stranger
+        finding and being able to use the catalogue, not usage itself.
     mrr_end: 0
   - venture: which-job-first
     agent_spend_usd: null

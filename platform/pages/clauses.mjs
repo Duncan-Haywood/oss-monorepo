@@ -1974,6 +1974,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
   // pages above (e.g. hidden-unicode-check's, docker-build-secrets-check's).
   'skill-manifest-check/vs-reading-the-skill-by-hand.html',
+  // Compares against "deciding tip-pool eligibility in a staff meeting" --
+  // a verbal, ungoverned habit any restaurant or bar already has, not a
+  // company or product this could be mistaken for.
+  'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
