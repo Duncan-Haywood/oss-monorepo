@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Skill Manifest Check vs. reviewing a SKILL.md by eye</title>
+  <meta name="description" content="A read-through catches an obviously broken sentence. It cannot catch a description that sounds fine to the author because they already know what the skill does, a YAML indentation error that renders as plausible-looking text, or vocabulary that quietly overlaps a sibling skill sitting in a different file. This free tool checks all three, in your browser, nothing uploaded.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./vs-reviewing-it-by-eye.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Skill Manifest Check vs. reviewing a SKILL.md by eye">
+  <meta property="og:description" content="The author who wrote a description already knows what the skill does -- which is exactly why they are the wrong reader to judge whether it gives an agent, who does not, enough to trigger on.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a careful read-through of a SKILL.md catch reliably?","acceptedAnswer":{"@type":"Answer","text":"A read-through catches what reads badly: a confusing sentence, a typo, a body section that is out of order or contradicts itself, an instruction step that would not make sense to follow. Those are real defects and a careful reader finds them the same way they always have. This tool does not replace that kind of reading -- it checks a narrower, more mechanical set of things a read-through is not well positioned to catch."}},{"@type":"Question","name":"Why can't the author reliably judge their own description's trigger quality?","acceptedAnswer":{"@type":"Answer","text":"Because the author already knows what the skill does before they read a single word of the description. Reading it back, their own knowledge fills in exactly the concrete detail -- the file type, the trigger phrase, the situation -- that a first-time reader, including an agent that has never seen the skill, does not have. The description can read as perfectly clear to the person who wrote it and still give an agent nothing concrete to match a real request against, because the two readers are not in the same position."}},{"@type":"Question","name":"Why is a malformed frontmatter field hard to catch by eye?","acceptedAnswer":{"@type":"Answer","text":"YAML frontmatter is easy to skim as prose rather than parse as structured data -- a missing colon, a value that needed quoting and was not, or a description field that silently continued onto an indented line reads as ordinary-looking text to a human eye and can still fail to parse as the field the format expects."}},{"@type":"Question","name":"Why can't a single read-through catch overlap with a sibling skill?","acceptedAnswer":{"@type":"Answer","text":"Because it requires holding a second file's distinctive vocabulary in mind while reading the first, across every skill in a bundle, which is not what reading one file at a time does. An agent that has several skills loaded still has to pick one per request; two descriptions that separately read fine can still share enough distinctive vocabulary to compete for the same request, and noticing that takes a direct word-by-word comparison, not a read-through of either file alone."}},{"@type":"Question","name":"Does a clean result mean the skill will definitely trigger correctly?","acceptedAnswer":{"@type":"Answer","text":"No. This tool only reports the structural patterns on its list -- missing fields, vagueness heuristics, vocabulary overlap, a body-size caution. A skill with zero findings can still fail to trigger inside a real agent session, and a skill that trips a finding can still work fine. Every finding here is worth a look, not a verdict."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
+    body{max-width:820px;margin:auto;padding:28px}
+    h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;color:var(--ink);margin:0 0 14px}
+    h2{font-size:1.1rem;color:var(--ink);margin:26px 0 8px}
+    h3{font-size:1rem;margin:20px 0 4px}
+    p,li{line-height:1.6}
+    .note,footer{font-size:.86rem;color:var(--muted)}
+    table{border-collapse:collapse;width:100%;font-size:.9rem;margin:14px 0}
+    th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+    th{background:#eef2fa}
+    code{background:#eef2fa;padding:0 4px;border-radius:4px;overflow-wrap:anywhere}
+    footer{margin-top:28px;border-top:1px solid var(--line);padding-top:16px}
+    a.cta{display:inline-block;background:var(--accent);color:#fff;padding:11px 15px;border-radius:8px;font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">Skill Manifest Check</a> &middot; comparison</p>
+  <h1>Skill Manifest Check vs. reviewing a SKILL.md by eye</h1>
+  <p>A careful read-through genuinely catches what reads badly. This page names no company or product &mdash; reading your own file before shipping it is a habit most skill authors already have, not a competing tool.</p>
+
+  <h2>What a read-through catches reliably</h2>
+  <p>A confusing sentence, a typo, a body section that contradicts itself or would not make sense to follow as written &mdash; anything that reads badly on its own terms is exactly what a careful reader is good at noticing. This tool does not replace that kind of reading.</p>
+
+  <h2>What a read-through cannot catch, by construction</h2>
+  <table>
+    <tr><th>Case</th><th>Reading it by eye</th><th>This tool</th></tr>
+    <tr><td>A description that sounds clear to the author</td><td>The author already knows what the skill does before reading a word of it &mdash; their own knowledge fills in the trigger detail a first-time reader does not have</td><td>Checks for a concrete trigger cue, real distinctive vocabulary, and a minimum length, independent of what the reader already knows</td></tr>
+    <tr><td>A missing or malformed frontmatter field</td><td>YAML read as prose skims as ordinary-looking text; a missing colon or an unquoted value that needed quoting does not visually announce itself</td><td>Parses the frontmatter block and reports the exact field and the exact reason it failed to parse</td></tr>
+    <tr><td>Vocabulary overlap with a sibling skill</td><td>Requires holding a second file's wording in mind while reading the first, across every skill in the bundle</td><td>Computes distinctive-word overlap between every pasted pair directly and reports which words they share</td></tr>
+    <tr><td>Instruction body size against a context budget</td><td>A read-through gives a sense of "long" or "short," not a token estimate against any particular caution line</td><td>Reports an estimated token count and flags it against a documented caution and a stronger caution</td></tr>
+  </table>
+
+  <h2>The gap that matters most: the author is the wrong reader to judge trigger quality</h2>
+  <p>
+    This isn't a case of a reviewer missing something a careful enough read could have caught. The
+    person best placed to write a skill's description is, by construction, the person worst placed
+    to judge whether it gives a stranger enough to act on &mdash; they already know the trigger
+    situation, so the description reads as complete to them whether or not it actually names it.
+    An agent evaluating the description for the first time is in exactly the position the author
+    cannot occupy while reading their own words. A structural check for a concrete trigger cue and
+    real distinctive vocabulary asks a question the author's own read-through structurally cannot
+    answer about itself, not a more careful version of the same question.
+  </p>
+
+  <h2>When to still read the file yourself</h2>
+  <p>
+    This tool only reports the structural patterns on its list: missing fields, vagueness
+    heuristics, vocabulary overlap, a body-size caution. It does not understand what the
+    instruction body actually tells the agent to do, does not judge whether the steps are correct
+    or complete, and does not run the skill inside a real agent session to see whether it
+    triggers. Judging the instructions themselves, and everything a structural pattern match
+    cannot see, is still a job for reading the file yourself.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>What does a careful read-through of a SKILL.md catch reliably?</h3>
+  <p>A read-through catches what reads badly: a confusing sentence, a typo, a body section that is out of order or contradicts itself, an instruction step that would not make sense to follow. Those are real defects and a careful reader finds them the same way they always have. This tool does not replace that kind of reading -- it checks a narrower, more mechanical set of things a read-through is not well positioned to catch.</p>
+  <h3>Why can't the author reliably judge their own description's trigger quality?</h3>
+  <p>Because the author already knows what the skill does before they read a single word of the description. Reading it back, their own knowledge fills in exactly the concrete detail -- the file type, the trigger phrase, the situation -- that a first-time reader, including an agent that has never seen the skill, does not have. The description can read as perfectly clear to the person who wrote it and still give an agent nothing concrete to match a real request against, because the two readers are not in the same position.</p>
+  <h3>Why is a malformed frontmatter field hard to catch by eye?</h3>
+  <p>YAML frontmatter is easy to skim as prose rather than parse as structured data -- a missing colon, a value that needed quoting and was not, or a description field that silently continued onto an indented line reads as ordinary-looking text to a human eye and can still fail to parse as the field the format expects.</p>
+  <h3>Why can't a single read-through catch overlap with a sibling skill?</h3>
+  <p>Because it requires holding a second file's distinctive vocabulary in mind while reading the first, across every skill in a bundle, which is not what reading one file at a time does. An agent that has several skills loaded still has to pick one per request; two descriptions that separately read fine can still share enough distinctive vocabulary to compete for the same request, and noticing that takes a direct word-by-word comparison, not a read-through of either file alone.</p>
+  <h3>Does a clean result mean the skill will definitely trigger correctly?</h3>
+  <p>No. This tool only reports the structural patterns on its list -- missing fields, vagueness heuristics, vocabulary overlap, a body-size caution. A skill with zero findings can still fail to trigger inside a real agent session, and a skill that trips a finding can still work fine. Every finding here is worth a look, not a verdict.</p>
+
+  <p><a class="cta" href="./">Check a SKILL.md</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked tool are provided free and as-is, without warranty of any kind, express or implied. It is not a guarantee that a skill will or will not trigger correctly in any particular agent runtime, and it does not replace reading and testing the skill yourself. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs client-side in your browser. The SKILL.md text you paste, and every finding this tool produces, never leaves your device -- there is no upload, no server-side processing, and no third-party analytics vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p class="support">Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

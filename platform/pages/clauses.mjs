@@ -1903,6 +1903,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
   // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
   'hidden-unicode-check/vs-reading-the-file-by-hand.html',
+  // Compares against "reviewing a SKILL.md by eye" -- a manual review habit
+  // any skill author already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-reading-*-by-hand /
+  // vs-checking-*-by-hand pages above.
+  'skill-manifest-check/vs-reviewing-it-by-eye.html',
   // Compares against "a flat $1,195 radon special" -- a common advertised
   // rate any radon mitigation contractor already runs, sized for the
   // smallest single-suction basement job, not a company or product this
