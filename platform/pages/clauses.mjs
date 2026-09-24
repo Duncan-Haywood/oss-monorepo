@@ -1490,6 +1490,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against "manually re-checking each dependency's license after
+  // an update" -- a habit any developer already has, not a company or
+  // product this could be mistaken for. This venture's own vs-fossa.html is
+  // separately exempt-free (FOSSA is a named product) and carries the
+  // trademark disclaimer. Same reasoning as flaky-test-finder's
+  // vs-eyeballing-two-ci-logs-by-hand.html above.
+  'license-drift-check/vs-manually-rechecking-licenses.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

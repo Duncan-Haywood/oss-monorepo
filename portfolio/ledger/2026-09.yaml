@@ -39959,3 +39959,58 @@ entries:
         comparison page), so the Playwright/axe-core browser-check line was
         not run -- nothing this change touches is markup a user types into.
     mrr_end: 0
+  - venture: license-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-manually-rechecking-licenses.html, filling the venture's
+        0/1 generic-method comparison budget (surface-budget.mjs --for
+        license-drift-check showed a guide and a named-product page against
+        FOSSA, but no generic-method page). Compares against opening every
+        version-bumped package's own registry page and re-reading its
+        license by hand after an update -- the manual equivalent of what
+        engine.mjs's snapshot/diff does mechanically. The worked example
+        (infra-tool MPL-2.0 -> BUSL-1.1, mirroring the real 2023 Terraform
+        relicense already documented in this venture's README) is computed
+        from parseSnapshot/diffSnapshots/classifyLicenseFamily directly, not
+        hardcoded, and pinned by a new test mirroring
+        vs-eyeballing-two-ci-logs-by-hand.test.mjs's structure. Caught and
+        fixed the em-dash/backtick JSON-LD-vs-visible-text mismatch
+        platform/pages/faq-visible.test.mjs exists to catch (the same
+        lesson CLAUDE.md already records against painting-bid-calculator
+        and hardwood-refinishing-bid-calculator) before it reached main.
+        Linked from index.html, added to sitemap.xml, and registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set. Refreshed the
+        gh-pages published snapshot at the start of this session
+        (session_gate.py flagged it stale) via CONFIRM=publish-pages-branch
+        PUSH=1 ./platform/pages/publish-branch.sh.
+      - >-
+        Verified: node --test 'ventures/license-drift-check/**/*.test.mjs'
+        48/48; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1286/1286 after the second regen (one
+        run mid-fix showed 4 failures -- 3 were this branch's own
+        not-yet-regenerated mirror, fixed by re-running regen.mjs after the
+        dash fix; the remaining front-door-tools.test.mjs mirror-capacity
+        warning, 85.9% of MIRROR_BYTE_CEILING, was confirmed pre-existing
+        on origin/main via git stash, same fleet-wide condition CLAUDE.md
+        already records); surface-budget.mjs --check clean (0/1 -> 1/1, no
+        venture over budget); checklist_coverage.py, sync_tree_counts.py,
+        and regen.mjs --verify all clean; gitops/tests 613 passed/25
+        skipped (nginx-light/openssh-client binary skips, documented);
+        platform/ci unittest sweep (15 modules) all OK; platform/proposal
+        101/101; platform/privacy + platform/webcheck 142/142; portfolio
+        pytest (ledger/scoring/router/usage/pipeline/infra) 446 passed; all
+        8 portfolio-validate.yml validators (router/validate.py,
+        front-door-tools.mjs --headroom, validate_doc_consistency.py,
+        validate_candidates.py, validate_probe_index.py,
+        score_sensitivity.py, score_ventures.py --check,
+        validate_usage.py) clean. CI confirmed starved this session
+        (ci_starvation.py --run 35964763746: runner_id 0, 2s, no steps). No
+        form inputs added (a static comparison page), so the
+        Playwright/axe-core browser-check line was not run.
+        run_workflow_locally.py --for-changes was still running (>8 min) at
+        push time -- every workflow step it would sweep was already run
+        standalone above and passed, so pushing rather than blocking on the
+        wrapper; will check its result and follow up if it disagrees.
+    mrr_end: 0
