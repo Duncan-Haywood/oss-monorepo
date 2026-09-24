@@ -45,8 +45,8 @@
 #   portfolio-front-tools-9: 136 files, 553953 bytes
 #   portfolio-front-tools-10: 123 files, 555449 bytes
 #   portfolio-front-tools-11: 120 files, 556480 bytes
-#   portfolio-front-tools-12: 122 files, 556720 bytes
-#   portfolio-front-tools-13: 119 files, 545451 bytes
+#   portfolio-front-tools-12: 121 files, 556340 bytes
+#   portfolio-front-tools-13: 121 files, 550495 bytes
 #   portfolio-front-tools-14: 129 files, 554128 bytes
 #   portfolio-front-tools-15: 129 files, 556940 bytes
 #   portfolio-front-tools-16: 131 files, 551822 bytes
@@ -1717,6 +1717,7 @@ configMapGenerator:
       - influencer-media-kit-generator__prefill.mjs.gz=influencer-media-kit-generator__prefill.mjs.gz
       - influencer-media-kit-generator__state.mjs.gz=influencer-media-kit-generator__state.mjs.gz
       - influencer-media-kit-generator__usage.mjs.gz=influencer-media-kit-generator__usage.mjs.gz
+      - influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz=influencer-media-kit-generator__vs-assembling-one-by-hand.html.gz
       - influencer-media-kit-generator__vs-kitly.html.gz=influencer-media-kit-generator__vs-kitly.html.gz
       - influencer-media-kit-generator__what-is-a-media-kit.html.gz=influencer-media-kit-generator__what-is-a-media-kit.html.gz
       - interior-door-bid-calculator__calc.mjs.gz=interior-door-bid-calculator__calc.mjs.gz
@@ -1791,13 +1792,13 @@ configMapGenerator:
       - kdp-royalty-calculator__index.html.gz=kdp-royalty-calculator__index.html.gz
       - kdp-royalty-calculator__share.mjs.gz=kdp-royalty-calculator__share.mjs.gz
       - kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz=kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz
-      - kdp-royalty-calculator__usage.mjs.gz=kdp-royalty-calculator__usage.mjs.gz
-      - kdp-royalty-calculator__vs-a-spreadsheet.html.gz=kdp-royalty-calculator__vs-a-spreadsheet.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - kdp-royalty-calculator__usage.mjs.gz=kdp-royalty-calculator__usage.mjs.gz
+      - kdp-royalty-calculator__vs-a-spreadsheet.html.gz=kdp-royalty-calculator__vs-a-spreadsheet.html.gz
       - kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz=kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz
       - kickstarter-fee-calculator__calc.mjs.gz=kickstarter-fee-calculator__calc.mjs.gz
       - kickstarter-fee-calculator__index.html.gz=kickstarter-fee-calculator__index.html.gz
