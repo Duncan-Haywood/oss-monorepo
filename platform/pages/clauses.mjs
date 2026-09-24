@@ -2121,6 +2121,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-notarygadget.html, which names NotaryGadget specifically and
   // carries the trademark disclaimer.
   'notary-trip-quote/vs-doing-the-trip-math-yourself.html',
+  // Compares against "doing it in a spreadsheet" -- a generic method every
+  // laundromat or laundry delivery operator already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-cents.html, which names Cents specifically and carries the
+  // trademark disclaimer. The page's own FAQ says so explicitly ("names no
+  // spreadsheet application or vendor at all") and its own test pins that
+  // sentence.
+  'wash-and-fold-price-calculator/vs-doing-it-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. doing it in a spreadsheet | Wash and Fold Price Per Pound Calculator</title>
+<meta name="description" content="A cost-per-pound spreadsheet usually divides total cost by total weight, which smooths away two things that actually happen order by order: a washer or dryer cycle is a whole-load cost whether the machine is full or half full, and intake, tagging and a delivery stop cost the same on a 10 lb order as a 30 lb one. This free calculator prices one order at a time so both show up.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-doing-it-in-a-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing it in a spreadsheet">
+<meta property="og:description" content="Dividing total cost by total pounds is easy to build. It also hides the two things that decide whether wash-dry-fold makes money on a small order: a stepwise machine cycle, and a per-order cost that doesn't shrink with the weight.">
+<meta property="og:url" content="https://example.invalid/wash-and-fold-price-calculator/vs-doing-it-in-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can't I just work this out in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"You can build one that gets a single number right for a single order size. Where a typical cost-per-pound spreadsheet slips is averaging: total monthly machine cost divided by total monthly pounds, or one wash-cost-per-pound cell multiplied straight through. That average is correct only if every order weighs the same and every washer runs full, which is never true. This calculator costs one order at a time from the rates you enter, so a small order and a large order each get their own, different, cost per pound — not a shared average."}},{"@type":"Question","name":"What does a spreadsheet not catch that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Two things a flat per-pound formula hides. First, a washer or dryer cycle is a whole-load cost: a 22 lb order on a 20 lb washer runs two cycles, and the second one costs a full cycle whether it's 10% full or 100% full — a spreadsheet cell that multiplies pounds by a cost-per-pound rate never charges for that partial second load. Second, some cost is per order, not per pound: intake, tagging, staging, checkout, and the drive to a delivery stop cost the same on a 10 lb order as a 30 lb one, so the smallest order you accept carries the largest per-pound share of it — easy to miss when a spreadsheet's only weight-independent line is delivery, if it has one at all."}},{"@type":"Question","name":"Why does a small order cost more per pound than a big one?","acceptedAnswer":{"@type":"Answer","text":"Because the per-order costs — intake and tagging minutes, a delivery stop, and any wasted capacity on a partly full machine — are a fixed dollar amount that a small order has fewer pounds to spread it across. A flat per-pound spreadsheet rate, built from an average order, understates the true cost of your smallest orders and can put your minimum charge below what they actually cost to process — a loss that repeats on every small order, invisibly, until someone checks the arithmetic against the specific weight rather than the average."}},{"@type":"Question","name":"Is this calculator affiliated with any spreadsheet app?","acceptedAnswer":{"@type":"Answer","text":"There is nothing to be affiliated with. This page compares against building your own spreadsheet or working the numbers out by hand — a generic method, not any specific company or product — so it names no spreadsheet application or vendor at all."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f4f2f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1a4f7a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.03em;color:#1f4a5d}.lede{font-size:1.05rem;max-width:64ch;color:#4c5a68}section{background:#fff;border:1px solid #d6e0e6;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0;color:#1f4a5d}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e3e9ef;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#40505e}.fine,.note{font-size:.88rem;color:#4c5a68}footer{color:#4c5a68;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Wash and Fold Price Per Pound Calculator</a></p>
+<header>
+<h1>This calculator vs. doing it in a spreadsheet</h1>
+<p class="lede">Total cost divided by total pounds is one cell anyone can build. It also assumes every order weighs the same and every washer runs full &mdash; neither is true, and both gaps land hardest on the smallest orders you accept, which is exactly where a minimum charge set from the average alone loses money on every one of them.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+  <strong>A spreadsheet</strong> built the obvious way takes your monthly
+  machine, labour, supplies and overhead cost and divides it by your monthly
+  pounds, or multiplies an average cost-per-pound rate straight through a
+  weight. That gets you a number, and for an order that happens to be exactly
+  average-sized, it can even be right. What it does not do on its own is cost
+  a washer or dryer cycle as the whole-load, stepwise expense it actually is
+  &mdash; a 22 lb order on a 20 lb washer runs two cycles, and the second one
+  costs a full cycle whether it is 10% full or full &mdash; or separate the
+  cost that scales with pounds (labour, supplies) from the cost that does not
+  (intake, tagging, a delivery stop), which is a fixed dollar amount a small
+  order has far fewer pounds to spread across.
+</p>
+<p>
+  <strong>This calculator</strong> costs one order at a time from your own
+  rates: labour minutes per pound plus a fixed minutes-per-order figure,
+  whole washer and dryer loads rounded up from your pounds-per-load capacity,
+  supplies per pound, a delivery stop's drive time and mileage, and a share
+  of monthly overhead. It runs that same arithmetic separately for your
+  typical order and for the smallest order you accept, so the minimum-charge
+  finding compares what a small order actually costs against what it actually
+  brings in &mdash; not against an average that never applies to it.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What does a typical order cost, on average?</td><td>Either &mdash; a correctly built spreadsheet gets a single average right too.</td></tr>
+<tr><td>Does a partly full washer or dryer cycle still cost a full cycle?</td><td>This calculator rounds pounds up to whole machine loads automatically. A flat per-pound rate in a spreadsheet does not, unless you build that rounding in yourself.</td></tr>
+<tr><td>Does my smallest order actually cover its own cost, or just the average?</td><td>This calculator's minimum-charge finding prices the smallest order specifically. A single average-cost cell cannot answer this.</td></tr>
+<tr><td>My situation has a wrinkle this calculator doesn't model (tiered pricing, a second location, a seasonal wage change).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+<tr><td>Is anything I type uploaded anywhere?</td><td>No, either way &mdash; a local spreadsheet and this calculator both keep your numbers on your own device.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Can't I just work this out in a spreadsheet?</h3>
+<p>You can build one that gets a single number right for a single order size. Where a typical cost-per-pound spreadsheet slips is averaging: total monthly machine cost divided by total monthly pounds, or one wash-cost-per-pound cell multiplied straight through. That average is correct only if every order weighs the same and every washer runs full, which is never true. This calculator costs one order at a time from the rates you enter, so a small order and a large order each get their own, different, cost per pound &mdash; not a shared average.</p>
+<h3>What does a spreadsheet not catch that this calculator does?</h3>
+<p>Two things a flat per-pound formula hides. First, a washer or dryer cycle is a whole-load cost: a 22 lb order on a 20 lb washer runs two cycles, and the second one costs a full cycle whether it's 10% full or 100% full &mdash; a spreadsheet cell that multiplies pounds by a cost-per-pound rate never charges for that partial second load. Second, some cost is per order, not per pound: intake, tagging, staging, checkout, and the drive to a delivery stop cost the same on a 10 lb order as a 30 lb one, so the smallest order you accept carries the largest per-pound share of it &mdash; easy to miss when a spreadsheet's only weight-independent line is delivery, if it has one at all.</p>
+<h3>Why does a small order cost more per pound than a big one?</h3>
+<p>Because the per-order costs &mdash; intake and tagging minutes, a delivery stop, and any wasted capacity on a partly full machine &mdash; are a fixed dollar amount that a small order has fewer pounds to spread it across. A flat per-pound spreadsheet rate, built from an average order, understates the true cost of your smallest orders and can put your minimum charge below what they actually cost to process &mdash; a loss that repeats on every small order, invisibly, until someone checks the arithmetic against the specific weight rather than the average.</p>
+<h3>Is this calculator affiliated with any spreadsheet app?</h3>
+<p>There is nothing to be affiliated with. This page compares against building your own spreadsheet or working the numbers out by hand &mdash; a generic method, not any specific company or product &mdash; so it names no spreadsheet application or vendor at all.</p>
+<p class="note">
+  Open the <a href="./">Wash and Fold Price Per Pound Calculator</a> to price your own pound, read <a href="./how-much-to-charge-for-wash-and-fold.html">how much to charge for wash and fold</a>, or see <a href="./vs-cents.html">how this differs from Cents</a> if you're already running orders and routes through a laundry platform.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p>Everything runs in your browser. Your data is never uploaded, and this page makes no live comparison against any spreadsheet or notebook software &mdash; it is a static page describing arithmetic both approaches share. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
