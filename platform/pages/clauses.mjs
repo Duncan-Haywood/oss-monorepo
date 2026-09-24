@@ -1342,6 +1342,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-a-spreadsheet pages above.
   'ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html',
+  // Compares against "eyeballing package.json by hand" -- the same manual
+  // read-and-recognize habit this checker automates, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-socket.html, which names a specific commercial scanning service and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other vs-checking-*-by-hand/by-eye pages above.
+  'slopsquatting-check/vs-checking-package-names-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
