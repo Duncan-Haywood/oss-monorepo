@@ -2013,6 +2013,34 @@ export function dynamicLinks(files) {
   return found;
 }
 
+/**
+ * Every hyperlink and asset reference the mirror's own files hold each other
+ * to, checked against what the mirror actually serves.
+ *
+ * **Prose describing a tag, not a real link, reads as one anyway — measured
+ * 2026-09-24, and it is worth knowing before writing a worked example on a
+ * comparison page.** A `canonical-tag-check` comparison page once wrote its
+ * worked example as `&lt;link rel="canonical" href="/products/old-page"&gt;`
+ * inside a `<code>` block — HTML-escaped for display, and never a real
+ * `<link>` element. This regex scan does not decode entities or parse the
+ * DOM; it matches `href="..."` and `rel="..."` as raw text, so the escaped
+ * `&lt;`/`&gt;` around the tag made no difference and the literal
+ * `href="/products/old-page"` inside the prose was read as a genuine
+ * root-relative link the mirror does not serve. That single false positive
+ * dropped the venture from `discoverEligible`'s fixpoint on pass 1, which
+ * then cascaded through the security/compliance "-check" family's own
+ * cross-links and collaterally dropped 66 ventures from the mirror — caught
+ * before merging only because the generator's own ineligibility report was
+ * read, not because `regen --verify` (which only checks self-consistency
+ * against whatever the generator currently produces) could show it.
+ * `build.test.mjs`'s "every published page declares exactly one canonical
+ * URL" test caught the same escaped snippet a second way, for the same
+ * reason: it counts `rel="canonical"` occurrences in raw text too. Describe
+ * an example tag in prose without embedding literal `href="..."` or
+ * `rel="..."` attribute syntax — name the value instead ("a relative href
+ * that reads /products/old-page") — and both checks stay silent about text
+ * that was never a link.
+ */
 export function validateLinks(files) {
   const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
   const problems = [];
