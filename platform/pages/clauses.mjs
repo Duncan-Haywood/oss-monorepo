@@ -1727,6 +1727,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this venture's own vs-servicecore.html, which names ServiceCore
   // specifically and already carries the trademark disclaimer.
   'septic-pumping-bid-calculator/vs-a-flat-pump-special.html',
+  // Compares against "a flat per-inch rate" -- the generic "$X a diameter
+  // inch" quoting habit tree services are shopped against, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-singleops.html, which names SingleOps specifically and already
+  // carries the trademark disclaimer.
+  'tree-service-bid-calculator/vs-a-flat-per-inch-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
