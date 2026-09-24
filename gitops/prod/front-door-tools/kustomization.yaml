@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 115 files, 556672 bytes
 #   portfolio-front-tools-12: 120 files, 556133 bytes
 #   portfolio-front-tools-13: 124 files, 555352 bytes
-#   portfolio-front-tools-14: 131 files, 550062 bytes
+#   portfolio-front-tools-14: 132 files, 554971 bytes
 #   portfolio-front-tools-15: 129 files, 541844 bytes
 #   portfolio-front-tools-16: 100 files, 556521 bytes
 #   portfolio-front-tools-17: 116 files, 546417 bytes
@@ -1982,6 +1982,7 @@ configMapGenerator:
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
       - paver-patio-bid-calculator__share.mjs.gz=paver-patio-bid-calculator__share.mjs.gz
       - paver-patio-bid-calculator__usage.mjs.gz=paver-patio-bid-calculator__usage.mjs.gz
+      - paver-patio-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=paver-patio-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - paver-patio-bid-calculator__vs-aspire.html.gz=paver-patio-bid-calculator__vs-aspire.html.gz
       - payment-reconciliation-workbench__app.mjs.gz=payment-reconciliation-workbench__app.mjs.gz
       - payment-reconciliation-workbench__export.mjs.gz=payment-reconciliation-workbench__export.mjs.gz
