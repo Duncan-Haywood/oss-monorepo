@@ -94,7 +94,7 @@ test("the SoftwareApplication JSON-LD is valid", () => {
 
 test("sitemap lists every published page and no extras", () => {
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs.sort(), ["./", "./why-prompt-caching-changes-the-math.html"].sort());
+  assert.deepEqual(locs.sort(), ["./", "./why-prompt-caching-changes-the-math.html", "./vs-a-blended-per-token-rate.html"].sort());
 });
 
 test("robots.txt allows crawling", () => {
