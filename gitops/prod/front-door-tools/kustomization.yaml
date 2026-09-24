@@ -45,9 +45,9 @@
 #   portfolio-front-tools-9: 127 files, 556777 bytes
 #   portfolio-front-tools-10: 124 files, 556929 bytes
 #   portfolio-front-tools-11: 116 files, 555763 bytes
-#   portfolio-front-tools-12: 117 files, 543555 bytes
+#   portfolio-front-tools-12: 118 files, 548296 bytes
 #   portfolio-front-tools-13: 128 files, 556192 bytes
-#   portfolio-front-tools-14: 136 files, 550558 bytes
+#   portfolio-front-tools-14: 137 files, 554605 bytes
 #   portfolio-front-tools-15: 111 files, 552678 bytes
 #   portfolio-front-tools-16: 111 files, 557004 bytes
 #   portfolio-front-tools-17: 124 files, 555181 bytes
@@ -1718,6 +1718,7 @@ configMapGenerator:
       - license-drift-check__index.html.gz=license-drift-check__index.html.gz
       - license-drift-check__usage.mjs.gz=license-drift-check__usage.mjs.gz
       - license-drift-check__vs-fossa.html.gz=license-drift-check__vs-fossa.html.gz
+      - license-drift-check__vs-manually-rechecking-licenses.html.gz=license-drift-check__vs-manually-rechecking-licenses.html.gz
       - llms-txt-generator__cli.mjs.gz=llms-txt-generator__cli.mjs.gz
       - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
       - llms-txt-generator__index.html.gz=llms-txt-generator__index.html.gz
@@ -1969,6 +1970,7 @@ configMapGenerator:
       - podcast-sponsorship-rate-calculator__usage.mjs.gz=podcast-sponsorship-rate-calculator__usage.mjs.gz
       - podcast-sponsorship-rate-calculator__vs-a-flat-industry-average-cpm.html.gz=podcast-sponsorship-rate-calculator__vs-a-flat-industry-average-cpm.html.gz
       - podcast-sponsorship-rate-calculator__vs-podcorn.html.gz=podcast-sponsorship-rate-calculator__vs-podcorn.html.gz
+      - podcast-sponsorship-rate-calculator__why-downloads-not-subscribers.html.gz=podcast-sponsorship-rate-calculator__why-downloads-not-subscribers.html.gz
       - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
       - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
       - pole-barn-bid-calculator__index.html.gz=pole-barn-bid-calculator__index.html.gz
