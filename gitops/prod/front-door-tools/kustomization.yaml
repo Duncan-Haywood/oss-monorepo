@@ -45,10 +45,10 @@
 #   portfolio-front-tools-9: 130 files, 554913 bytes
 #   portfolio-front-tools-10: 122 files, 554059 bytes
 #   portfolio-front-tools-11: 114 files, 555038 bytes
-#   portfolio-front-tools-12: 120 files, 555173 bytes
-#   portfolio-front-tools-13: 130 files, 553442 bytes
-#   portfolio-front-tools-14: 129 files, 555224 bytes
-#   portfolio-front-tools-15: 121 files, 543773 bytes
+#   portfolio-front-tools-12: 120 files, 555629 bytes
+#   portfolio-front-tools-13: 130 files, 554800 bytes
+#   portfolio-front-tools-14: 128 files, 557010 bytes
+#   portfolio-front-tools-15: 123 files, 544654 bytes
 #   portfolio-front-tools-16: 106 files, 553374 bytes
 #   portfolio-front-tools-17: 125 files, 556918 bytes
 #   portfolio-front-tools-18: 119 files, 554835 bytes
@@ -1677,6 +1677,7 @@ configMapGenerator:
       - junk-removal-bid-calculator__share.mjs.gz=junk-removal-bid-calculator__share.mjs.gz
       - junk-removal-bid-calculator__usage.mjs.gz=junk-removal-bid-calculator__usage.mjs.gz
       - junk-removal-bid-calculator__vs-a-flat-truck-fraction-rate.html.gz=junk-removal-bid-calculator__vs-a-flat-truck-fraction-rate.html.gz
+      - junk-removal-bid-calculator__vs-housecall-pro.html.gz=junk-removal-bid-calculator__vs-housecall-pro.html.gz
       - junk-removal-bid-calculator__vs-jobber.html.gz=junk-removal-bid-calculator__vs-jobber.html.gz
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
       - k8s-deprecated-api-check__cli.mjs.gz=k8s-deprecated-api-check__cli.mjs.gz
@@ -1789,12 +1790,12 @@ configMapGenerator:
       - mobile-detailing-bid-calculator__share.mjs.gz=mobile-detailing-bid-calculator__share.mjs.gz
       - mobile-detailing-bid-calculator__usage.mjs.gz=mobile-detailing-bid-calculator__usage.mjs.gz
       - mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz=mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz
-      - mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz=mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz=mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz
       - mold-remediation-bid-calculator__calc.mjs.gz=mold-remediation-bid-calculator__calc.mjs.gz
       - mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz=mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz
       - mold-remediation-bid-calculator__index.html.gz=mold-remediation-bid-calculator__index.html.gz
@@ -1924,12 +1925,12 @@ configMapGenerator:
       - personal-trainer-package-pricing-calculator__usage.mjs.gz=personal-trainer-package-pricing-calculator__usage.mjs.gz
       - personal-trainer-package-pricing-calculator__vs-a-spreadsheet.html.gz=personal-trainer-package-pricing-calculator__vs-a-spreadsheet.html.gz
       - pest-control-bid-calculator__calc.mjs.gz=pest-control-bid-calculator__calc.mjs.gz
-      - pest-control-bid-calculator__how-much-to-charge.html.gz=pest-control-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pest-control-bid-calculator__how-much-to-charge.html.gz=pest-control-bid-calculator__how-much-to-charge.html.gz
       - pest-control-bid-calculator__index.html.gz=pest-control-bid-calculator__index.html.gz
       - pest-control-bid-calculator__usage.mjs.gz=pest-control-bid-calculator__usage.mjs.gz
       - pest-control-bid-calculator__vs-a-flat-quote-by-house-size.html.gz=pest-control-bid-calculator__vs-a-flat-quote-by-house-size.html.gz
@@ -2057,13 +2058,13 @@ configMapGenerator:
       - quarterly-estimated-tax-calendar__vs-keeper.html.gz=quarterly-estimated-tax-calendar__vs-keeper.html.gz
       - quarterly-estimated-tax-calendar__what-happens-if-i-miss-a-quarterly-estimated-tax-payment.html.gz=quarterly-estimated-tax-calendar__what-happens-if-i-miss-a-quarterly-estimated-tax-payment.html.gz
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
-      - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
-      - quote-margin-check__drafts.mjs.gz=quote-margin-check__drafts.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
+      - quote-margin-check__drafts.mjs.gz=quote-margin-check__drafts.mjs.gz
       - quote-margin-check__effective-hourly-rate.html.gz=quote-margin-check__effective-hourly-rate.html.gz
       - quote-margin-check__export.mjs.gz=quote-margin-check__export.mjs.gz
       - quote-margin-check__format.mjs.gz=quote-margin-check__format.mjs.gz
