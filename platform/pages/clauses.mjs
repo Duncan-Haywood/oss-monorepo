@@ -2115,6 +2115,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // sentence, same shape as branch-protection-drift-check's and
   // source-map-leak-check's by-hand pages above.
   'package-exports-drift-check/vs-manually-checking-exports-targets.html',
+  // Compares against "doing the trip math yourself" -- a mental-estimate
+  // habit every mobile notary already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-notarygadget.html, which names NotaryGadget specifically and
+  // carries the trademark disclaimer.
+  'notary-trip-quote/vs-doing-the-trip-math-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
