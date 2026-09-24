@@ -46,13 +46,13 @@
 #   portfolio-front-tools-10: 120 files, 555409 bytes
 #   portfolio-front-tools-11: 121 files, 554738 bytes
 #   portfolio-front-tools-12: 119 files, 554643 bytes
-#   portfolio-front-tools-13: 124 files, 547378 bytes
+#   portfolio-front-tools-13: 125 files, 551401 bytes
 #   portfolio-front-tools-14: 126 files, 554290 bytes
 #   portfolio-front-tools-15: 134 files, 556025 bytes
 #   portfolio-front-tools-16: 103 files, 555274 bytes
 #   portfolio-front-tools-17: 120 files, 554947 bytes
 #   portfolio-front-tools-18: 125 files, 555705 bytes
-#   portfolio-front-tools-19: 109 files, 546690 bytes
+#   portfolio-front-tools-19: 110 files, 551960 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1890,6 +1890,7 @@ configMapGenerator:
       - openapi-breaking-change-check__usage.mjs.gz=openapi-breaking-change-check__usage.mjs.gz
       - openapi-breaking-change-check__vs-manually-reading-the-spec-diff.html.gz=openapi-breaking-change-check__vs-manually-reading-the-spec-diff.html.gz
       - openapi-breaking-change-check__vs-oasdiff.html.gz=openapi-breaking-change-check__vs-oasdiff.html.gz
+      - openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz=openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz
       - osha-trir-dart-calculator__calc.mjs.gz=osha-trir-dart-calculator__calc.mjs.gz
       - osha-trir-dart-calculator__how-to-calculate-trir.html.gz=osha-trir-dart-calculator__how-to-calculate-trir.html.gz
       - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
@@ -2631,6 +2632,7 @@ configMapGenerator:
       - where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz=where-to-sell-calculator__reverb-vs-ebay-for-gear.html.gz
       - where-to-sell-calculator__share.mjs.gz=where-to-sell-calculator__share.mjs.gz
       - where-to-sell-calculator__usage.mjs.gz=where-to-sell-calculator__usage.mjs.gz
+      - where-to-sell-calculator__vs-crosslist.html.gz=where-to-sell-calculator__vs-crosslist.html.gz
       - where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz=where-to-sell-calculator__vs-each-marketplaces-own-calculator.html.gz
       - where-to-sell-calculator__vs-list-perfectly.html.gz=where-to-sell-calculator__vs-list-perfectly.html.gz
       - where-to-sell-calculator__vs-vendoo.html.gz=where-to-sell-calculator__vs-vendoo.html.gz
