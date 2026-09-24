@@ -1892,6 +1892,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. Same shape as source-map-leak-check's
   // vs-checking-devtools-by-hand.html exemption above.
   'structured-data-drift-check/vs-checking-it-by-eye.html',
+  // Compares against "reading the file by hand" -- a manual review habit
+  // every developer already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
+  // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
+  'hidden-unicode-check/vs-reading-the-file-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
