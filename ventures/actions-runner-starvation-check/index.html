@@ -78,7 +78,7 @@
     <pre class="cmd"><code>python3 check.py --run RUN_ID          # exits 1 if any job was starved
 python3 check.py --run RUN_ID --json   # machine-readable
 python3 check.py --from-json jobs.json # classify a payload you already have, no API call</code></pre>
-    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-runner-starvation-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It talks to the API itself via the <code>gh</code> CLI or a <code>GH_TOKEN</code>/<code>GITHUB_TOKEN</code> it finds in your environment, which is the route a hosted CI step or an agent session actually has.</p>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It talks to the API itself via the <code>gh</code> CLI or a <code>GH_TOKEN</code>/<code>GITHUB_TOKEN</code> it finds in your environment, which is the route a hosted CI step or an agent session actually has.</p>
   </section>
 
   <section class="card">
@@ -98,7 +98,7 @@ python3 check.py --from-json jobs.json # classify a payload you already have, no
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for reading GitHub's own billing and Actions usage pages, and it does not tell you why your account stopped receiving runners, only whether a specific job got one. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-runner-starvation-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The JSON you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>If the answer here was &ldquo;starved&rdquo;, the next question is usually <em>which workflow spent the minutes</em> — and GitHub's billing page aggregates across the account without attributing it. <a href="../actions-minutes-estimator/">actions-minutes-estimator</a> reads your workflow files and projects the monthly spend per workflow and per job, so the cause is visible before the next allowance goes the same way.</p>

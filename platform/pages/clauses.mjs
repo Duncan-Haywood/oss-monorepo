@@ -347,6 +347,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // data than anything typed into a form. Same reasoning as
   // auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html.
   'owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html',
+  // Compares against "checking a vendor's terms, privacy, or subprocessor
+  // page from memory" -- a manual habit every practitioner already has, not
+  // a company or product this could be mistaken for. The page names no
+  // specific vendor-monitoring service; its sibling comparison page,
+  // vs-changedetection-io.html, names a real product and carries its own
+  // trademark disclaimer separately. Same reasoning as the other
+  // manual-method pages above.
+  'vendor-change-watch/vs-checking-vendor-pages-by-hand.html',
   // Compares against "reading your own workflow files" -- the manual habit a
   // maintainer already has, not a company or product this could be mistaken
   // for. It does name GitHub, unavoidably, because GitHub Actions workflow
@@ -1562,6 +1570,23 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-codecov.html, which names a specific hosted service
   // and already carries the trademark disclaimer.
   'coverage-drop-check/vs-a-flat-coverage-floor.html',
+  // Compares against "a spreadsheet" -- a generic method every fleet owner
+  // already has, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("names no specific product").
+  // Distinct from this venture's own vs-fleet-management-software.html,
+  // which names a category of paid product and already carries its own
+  // trademark-free framing. Same reasoning as the other vs-spreadsheet
+  // pages above.
+  'fleet-repair-or-replace-planner/vs-spreadsheet.html',
+  // Compares against "holding this year's repair invoice up against a new
+  // price" -- the default comparison every fleet owner already runs in their
+  // head, not a company or product this could be mistaken for. The page
+  // names no vendor or fleet-management platform (the venture's own
+  // named-product comparison, vs-fleet-management-software, carries its own
+  // framing already) and its copy opens by agreeing the repair-bill
+  // comparison is a reasonable first filter. Same reasoning as the other
+  // generic-method pages above.
+  'fleet-repair-or-replace-planner/vs-comparing-the-repair-bill-to-a-new-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
