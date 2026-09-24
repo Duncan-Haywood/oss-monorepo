@@ -40541,6 +40541,52 @@ entries:
         workflow; the by-hand route has no egress from this sandbox, per
         indexnow_state.py.
     mrr_end: 0
+  - venture: mcp-config-risk-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a second new venture this session: a free,
+        static, client-side tool that audits a pasted MCP server config
+        (mcp.json / claude_desktop_config.json / VS Code's servers shape / a
+        generic entry list) for four structural risk patterns -- broad
+        filesystem/shell access, secrets hardcoded instead of referenced from
+        the environment, missing version pins on npx/uvx/pipx/docker
+        launches, and duplicate/shadowing tool names across servers. All
+        checks are local pattern-matching, no network call, findings framed
+        explicitly as "not a verdict." 44 pure-logic tests on calc.mjs (58
+        total with usage/page tests). Chose this over mcp-supply-chain-watch
+        (a temporal diff between two manifests -- different scope, scored
+        0.09 in duplicate_check.py) and two other researched candidates.
+        PR #5607, merged.
+      - >-
+        Caught and fixed a real accessibility/correctness bug before
+        publishing: the summary panel's CSS set display:grid unconditionally,
+        which outranks the [hidden] attribute's native display:none, so the
+        panel would render even while marked hidden. platform/pages/check.mjs
+        caught it on the first publish attempt (refused to publish); fixed
+        with a `.summary[hidden]{display:none}` override and re-verified
+        clean before publishing.
+      - >-
+        Also fixed forward a real bug the build agent introduced mid-session
+        and caught itself before merging: FAQPage JSON-LD text used ASCII
+        "--" where the visible page copy used a real em-dash, tripping
+        faq-visible.test.mjs's authored-content-matches-JSON-LD guard.
+      - >-
+        A pre-existing, unrelated failure on main (canonical-tag-check's own
+        demo page shipping 5 real canonical tags instead of the 1 it exists
+        to teach about) was investigated, correctly identified as not this
+        session's regression, and left alone rather than opportunistically
+        fixed outside scope -- confirmed resolved by a different session's
+        PR #5601 landing while this one was in flight.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot (caught the
+        CSS bug during this very step, since publish-branch.sh's build check
+        runs against the real built output) and confirmed sync_tree_counts.py
+        and regen.mjs --verify are current against the merged main. New tool
+        live at
+        https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/.
+    mrr_end: 0
   - venture: roofing-bid-calculator
     agent_spend_usd: null
     human_hours: 0
