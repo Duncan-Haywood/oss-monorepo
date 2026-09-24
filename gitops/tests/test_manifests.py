@@ -2258,8 +2258,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this running count. Total re-derived here by `sync_tree_counts.py`
     # against the fully merged tree rather than by hand.
     #
-    # 340 since this merge: `slopsquatting-check` graduated (this branch) --
-    # a zero-dependency browser tool + CLI flagging an npm dependency name
+    # 341 since this merge: `cloud-bucket-exposure-check` graduated -- a
+    # zero-dependency browser tool + CLI sending one real, read-only,
+    # unauthenticated GET to a cloud provider's own anonymous
+    # bucket-listing endpoint across AWS S3, Google Cloud Storage, and
+    # Azure Blob Storage, classifying the response body against each
+    # provider's own documented listing-or-error XML shape rather than
+    # trusting a bare status code. Same "read what's actually there, name
+    # the exact evidence" checker shape as `git-exposure-check` and
+    # `subdomain-takeover-check`, with a static `index.html` from its
+    # first commit. And `slopsquatting-check` graduated (this branch) -- a
+    # zero-dependency browser tool + CLI flagging an npm dependency name
     # that looks hallucinated or freshly squatted. The browser page is
     # fully offline (an edit-distance heuristic against a bundled list of
     # well-known names, no network call); the CLI's one live check is a
@@ -2270,7 +2279,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # first commit, same shape as the rest of this running count. Total
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
-    total = 340  # `infra/OWNER_CHECKLIST.md`'s own "N of the 340 tools" wording.
+    total = 341  # `infra/OWNER_CHECKLIST.md`'s own "N of the 341 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
