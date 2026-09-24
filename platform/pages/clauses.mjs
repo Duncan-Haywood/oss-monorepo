@@ -205,6 +205,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // payroll admin already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
   'overtime-pay-calculator/vs-spreadsheet.html',
+  // Compares against "comparing effective rates" -- the standard rate-
+  // shopping advice every merchant-services guide recommends, not a company
+  // or product this could be mistaken for. The page names no processor and
+  // its own test asserts that.
+  'card-processing-fee-audit/vs-comparing-effective-rates.html',
   // Compares against "doing the blended-rate arithmetic by hand or in a
   // spreadsheet" -- a generic method every payroll admin already has, not a
   // company or product this could be mistaken for. Same reasoning as the
@@ -1048,6 +1053,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "pasting an introspection query into GraphiQL, Postman,
+  // or curl" -- a generic manual habit every GraphQL developer already has
+  // (every server ships a playground that runs the identical query), not a
+  // company or product this could be mistaken for. Same reasoning as this
+  // file's own git-exposure-check/vs-checking-the-url-by-hand.html entry
+  // above.
+  'graphql-introspection-exposure-check/vs-checking-introspection-by-hand.html',
   // Compares against "doing the math yourself" -- a generic method (adding
   // up wall-clock minutes by hand) every repository maintainer already
   // does, not a company or product this could be mistaken for. Distinct
@@ -1081,6 +1093,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carry the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-spreadsheet pages above (e.g. turo-host-payout-calculator's).
   'saas-seat-true-up/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every freelance
+  // interpreter already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'sign-language-interpreter-rate-calculator/vs-a-spreadsheet.html',
   // Compares against "a spreadsheet" -- a generic method every rental
   // operator already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-booqable.html and
@@ -1109,11 +1125,132 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that reason. Same reasoning as the other vs-spreadsheet pages above
   // (e.g. saas-seat-true-up's).
   'retainage-cashflow-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $4.50-a-foot installed special" -- the
+  // published per-foot ad rate every gutter shop competes with, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or field-service platform (the venture's own named-product
+  // comparison, vs-jobnimbus, carries its own trademark disclaimer) and its
+  // copy opens by agreeing the flat special is the right tool for
+  // advertising. Same reasoning as automatic-driveway-gate-bid-calculator's
+  // vs-a-flat-4500-special.html and entry-door-bid-calculator's
+  // vs-a-flat-1200-special.html above.
+  'gutter-install-bid-calculator/vs-a-flat-per-foot-special.html',
   // Compares against "a flat fee per assignment" -- a generic pricing habit
   // every freelance interpreter already has access to (a memorized number
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
+  // Compares against "a flat price per shirt" -- a generic pricing habit
+  // every apparel decorator already has access to (one per-piece quote
+  // regardless of placement count), not a company or product this could be
+  // mistaken for. The page names no vendor, platform, or shop-management
+  // tool; vs-printavo.html already carries this venture's one
+  // named-competitor comparison and its own trademark disclaimer.
+  'apparel-decoration-price-calculator/vs-a-flat-price-per-shirt.html',
+  // Compares against "a spreadsheet" -- a generic method every restaurant
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-toast.html, which
+  // names Toast and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as the other vs-spreadsheet pages above.
+  'delivery-app-margin-calculator/vs-a-spreadsheet.html',
+  // Compares against "sales minus booth fee" mental math or a one-line
+  // spreadsheet -- a generic gut check every maker already does, not a
+  // company or product this could be mistaken for. The page names no
+  // spreadsheet application or bookkeeping tool. Distinct from this
+  // venture's own vs-craftybase.html, which names a specific product and
+  // already carries the "not affiliated" clause for that reason.
+  'craft-fair-booth-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat rate per acre" -- the per-acre mowing rate
+  // every lawn-care operator is shopped against, not a company or product
+  // this could be mistaken for. The page names no vendor or competing
+  // calculator at all -- distinct from this venture's own vs-lmn.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html',
+  // Compares against sending a single crafted curl request and reading the
+  // response by eye -- a manual habit every developer testing CORS already
+  // has, not a company or product this could be mistaken for. The page
+  // does cross-link to this venture's own vs-burp-suite.html, which does
+  // name a product and carries its own "not affiliated" clause.
+  'cors-misconfig-check/vs-checking-cors-by-hand.html',
+  // Compares against "a flat monthly fee" -- the round, competitor-matched
+  // maintenance-plan price every HVAC contractor is shopped against, not a
+  // company or product this could be mistaken for. The page names no
+  // vendor or field-service platform at all -- distinct from this
+  // venture's own vs-servicetitan.html, which does name a product and
+  // carries its own "not affiliated" clause.
+  'hvac-maintenance-contract-calculator/vs-a-flat-monthly-fee.html',
+  // Compares against "a spreadsheet" -- a generic method every decoration
+  // shop already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-printavo.html, which
+  // names a specific shop-management platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-spreadsheet pages above (e.g. bounce-house-rental-calculator's).
+  'apparel-decoration-price-calculator/vs-a-spreadsheet.html',
+  // Compares against "a per-job pricing spreadsheet" -- a generic method
+  // every operator already has access to, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-jobber.html,
+  // which names a specific field-service platform and already carries the
+  // "not affiliated" clause for that reason.
+  'dumpster-rental-margin-calculator/vs-a-spreadsheet.html',
+  // Compares against "reading the workflow file by hand" -- a manual
+  // review habit every GitHub Actions user already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names a specific open-source tool and already
+  // carries the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-checking-*-by-hand pages above (e.g.
+  // graphql-introspection-exposure-check's).
+  'actions-injection-check/vs-checking-a-workflow-by-hand.html',
+  // Compares against "opening each base image's own release page by hand" --
+  // a manual lookup habit every Dockerfile author already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-a-vulnerability-scanner.html, which names specific
+  // scanners (Trivy, Grype, Docker Scout) and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. actions-injection-check's).
+  'docker-base-image-eol-check/vs-checking-eol-dates-by-hand.html',
+  // Compares against "reading a Dockerfile by hand" -- a manual review
+  // habit every Docker user already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-hadolint.html,
+  // which names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above.
+  'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "checking the manifest by hand" -- a manual review
+  // habit every Chrome extension developer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-crxcavator.html, which names a specific product and already carries
+  // the "not affiliated" clause for that reason. Same reasoning as the
+  // other vs-checking-*-by-hand pages above.
+  'chrome-extension-permission-check/vs-checking-the-manifest-by-hand.html',
+  // Compares against "matching an SBOM to advisories by hand" -- a manual
+  // review habit anyone with the two export files already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-dependency-track.html, which names a specific
+  // open-source project and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other vs-checking-*-by-hand pages
+  // above.
+  'cra-evidence-desk/vs-matching-by-hand.html',
+  // Compares against "a spreadsheet" -- a method every route operator
+  // already has, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-atm-depot.html, which names a
+  // specific equipment/processing vendor and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-a-spreadsheet pages above.
+  'atm-route-margin/vs-a-spreadsheet.html',
+  // Compares against "reviewing workflows by eye" -- a manual review habit
+  // every GitHub Actions user already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-zizmor.html,
+  // which names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above.
+  'actions-cache-poisoning-check/vs-checking-by-hand.html',
+  // Compares against "a flat price per window" -- a pricing method every
+  // window cleaner already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-servicemonster.html,
+  // which names a specific field-service platform and already carries the
+  // "not affiliated" clause for that reason. Same reasoning as the other
+  // generic-method pages above.
+  'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

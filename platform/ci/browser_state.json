@@ -11,28 +11,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "3cfbf47e984ee559796af46ece835019fda15d86",
-      "measured": "2026-09-17",
-      "pages": 1196,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "a92a9c01aae746797eddbdbb7d876de25fbfc8be",
-        "ventures": "769c4c7438289eb39d0989e1ec3e5d426afc3f71"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "7217f3d8ef7446b785ff41eb2be72582cc35b6d8",
       "measured": "2026-09-17",
       "pages": 1202,
@@ -429,15 +407,37 @@
         "sideways",
         "sweep"
       ],
-      "commit": "78d909e3b9059bc82ab30e30fb04cc26574f2977",
+      "commit": "249624cd4f1c646dcff400f6ba11c05bc779c37d",
       "measured": "2026-09-24",
-      "pages": 1376,
+      "pages": 1379,
       "result": "pass",
       "scope": "full",
       "surface": {
         "platform/marketing": "1cfe6210bb4d5bff71aa6e3edeae9d3a68a34f4f",
-        "platform/pages": "ede042bcb43202cd847f801c430ebddb35c14db8",
-        "ventures": "5590bc668f7b412c3745b1ea8a7de0f9979865e3"
+        "platform/pages": "c25fc33a2b49c5dd43e247b283c78054895d499d",
+        "ventures": "aa9ca2782c39ae37d097c1f3379025e4aaa9355b"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "a6dfa619a3f75003c512308be4dfd9c471dd21f1",
+      "measured": "2026-09-24",
+      "pages": 1382,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "1cfe6210bb4d5bff71aa6e3edeae9d3a68a34f4f",
+        "platform/pages": "a63d842cd3fd1ffa45e9aa474aad78aa556f3ef8",
+        "ventures": "c484494672395804212600f642a1552fcb83cb85"
       }
     }
   ]

@@ -110,7 +110,7 @@ python3 check.py --warn-days 30   # narrow the eol-soon warning window</code></p
     <p>No. This checks one specific thing: whether the base image's release line, as named by its tag, has passed its publisher's own end-of-life date. It is not a vulnerability scan, does not inspect installed packages, and makes no claim about CVEs present in a supported image.</p>
     <h3>What if my tag is <code>latest</code>, or I use a private registry image?</h3>
     <p>A tag of latest (or no tag at all, which resolves to latest) names no fixed release line, so it cannot be checked against a dated table -- it is reported as unknown-tag rather than guessed at. The same applies to any image outside this tool's curated table, including private-registry and custom images: reported as unknown-image, which is not evidence of anything either way.</p>
-    <p>More: <a href="vs-a-vulnerability-scanner.html">how this compares to a vulnerability scanner</a>.</p>
+    <p>More: <a href="vs-a-vulnerability-scanner.html">how this compares to a vulnerability scanner</a>, or <a href="vs-checking-eol-dates-by-hand.html">how it compares to checking end-of-life dates by hand</a>.</p>
   </section>
 
   <footer>

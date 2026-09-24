@@ -697,7 +697,7 @@ export function renderOfflineWidgetHtml(categories) {
         Save one category of tools to this device and they all keep working
         with no connection. Nothing is uploaded either way.
       </p>
-      <select id="offline-category" aria-label="Category to save for offline use">
+      <select id="offline-category" aria-label="Category to save for offline">
 ${options}
       </select>
       <button type="button" id="offline-save">Save this category for offline</button>
