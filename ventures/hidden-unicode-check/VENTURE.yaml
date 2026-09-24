@@ -1,0 +1,185 @@
+name: hidden-unicode-check
+description: Free browser tool that scans pasted text -- CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a README, a PR description, or any text a developer might hand to an AI coding agent -- for zero-width/invisible Unicode characters, Unicode Tag characters (U+E0000-U+E007F, decoding any hidden ASCII message a run of them spells out), and bidirectional text override/control characters (RLO/LRO and the rest of the Trojan Source family). Every finding shows the codepoint, name, severity, line/column and byte offset, and the surrounding context with the invisible character made visible. Runs entirely client-side; nothing uploaded, no account, no network call.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-24)
+#
+# Pre-validated in the task brief: an active, current (2024-2026) attack
+# pattern where a package or a pasted document carries zero-width or
+# Unicode-Tag-encoded instructions invisible to a human reviewer in a normal
+# text editor or diff view, which an AI coding agent still reads and acts on
+# when it opens the file -- the "ASCII smuggling" technique documented since
+# mid-2024, plus the older (2021) "Trojan Source" bidirectional-override
+# technique this tool also covers. Both are mechanical, deterministic
+# codepoint-matching problems: no vendor fact is being asserted (unlike a
+# pricing calculator's bring-your-own-data constraint), so the only
+# liability-containment question is not overclaiming what a clean scan means
+# -- handled the same way mcp-config-risk-check (built earlier this session)
+# already does: every finding is "worth a look", never a verdict, and a
+# clean result is explicitly not a safety guarantee, in the UI copy, the
+# README, and calc.test.mjs.
+#
+# duplicate_check.py (run this session, twice -- once before building, once
+# against the final shipped description) against:
+#
+#   "Hidden Unicode instruction checker: scans pasted text (CLAUDE.md,
+#   AGENTS.md, .cursorrules, copilot-instructions.md, a README, a PR
+#   description, or any text) for zero-width and invisible Unicode
+#   characters, Unicode Tag characters (decoding any hidden ASCII message
+#   they spell out), and bidirectional text override/control characters
+#   (RLO/LRO and the Trojan Source family) used to hide instructions from a
+#   human reviewer while an AI coding agent reading the raw bytes still
+#   executes them"
+#
+#   score  source                    label
+#    0.15  venture                   agent-instructions-drift-check
+#    0.10  venture                   caption-quality-check
+#    0.07  pipeline candidate        social-preview-check
+#    0.07  venture                   security-txt-check
+#    0.06  pipeline candidate        wordpress-plugin-review-check
+#    0.06  venture                   affiliate-disclosure-checker
+#    0.06  pipeline candidate        redirect-chain-check
+#    0.06  venture                   redirect-chain-check
+#    0.06  venture                   wordpress-plugin-review-check
+#    0.05  pipeline candidate        chrome-extension-permission-check
+#
+# Nothing scored >= 0.45 (the review bar). The only hit worth reading closely
+# is agent-instructions-drift-check, since its name and audience (AI-agent
+# instruction files) overlap heavily with this venture's headline example.
+# Read its VENTURE.yaml and README.md in full before starting, per the
+# brief's explicit instruction. Its actual scope is entirely different: it
+# is a *stale-reference* linter -- it reads AGENTS.md/CLAUDE.md and reports a
+# markdown link or `npm run <script>` reference that no longer resolves
+# against the repo the file describes, plus known interpreter-mismatch shell
+# footguns (a bare `pytest` that can silently resolve to the wrong Python).
+# It has no concept of a hidden or invisible character at all -- its checks
+# operate on the file's own *visible, correctly-encoded* text and ask
+# whether what it points at still exists. This venture instead operates on
+# raw codepoints regardless of what the visible text says, asking a
+# completely different question: is there a character here that a human
+# reading this file in a normal editor cannot see, or that changes what
+# order the visible characters appear to be in. Different mechanism
+# (codepoint classification vs. path/script resolution), different threat
+# model (a security/injection concern vs. a correctness/drift concern), and
+# different audience framing (a maintainer worried their instruction file is
+# carrying a payload vs. one worried it is out of date) -- not a duplicate.
+# Cross-linked in both footers anyway, since a reader checking one concern
+# about an instruction file is a plausible reader for the other.
+#
+# Also checked `git log --oneline -20 origin/main` and grepped ventures/ for
+# "unicode"/"invisible"/"zero-width"/"bidi"/"trojan-source" in the slug (per
+# the brief's own instruction): no existing venture or open PR matched.
+#
+# LIABILITY CONTAINMENT: every check is a mechanical codepoint match against
+# text the user pastes or a file they load locally -- no network call of any
+# kind, no claim that the surrounding *meaning* of the file was understood or
+# that an instruction is or is not malicious, only that a specific character
+# was or was not observed at a specific position. The UI, README, and
+# footer all say plainly that a finding is "worth a look, not a verdict" and
+# that a clean result is "not a safety guarantee" -- this mirrors
+# mcp-config-risk-check's and actions-permissions-check's own liability
+# framing (both already graduated on the same reasoning). No advice-of-
+# record, no compliance claim, no PII, no payment code, no account.
+#
+# Bring-your-own-data compliance: not applicable in the usual sense -- the
+# tool asserts nothing about a live, time-varying external fact (a vendor's
+# price, a package's published version). It classifies literal Unicode
+# codepoints in the exact text the user supplies against the Unicode
+# Standard's own, stable character properties, which do not change. The one
+# place this venture could overclaim is decoding a Tag-character run and
+# presenting the decoded text as "the hidden message" -- calc.mjs and the UI
+# both frame it as "what these particular characters decode to" rather than
+# "the attacker's intent", since a Tag-character run with no adversarial
+# purpose (rare, but the block has legitimate historical uses) would decode
+# the same way.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- it helps anyone
+# reviewing a file (their own, a dependency's, a pasted PR description)
+# catch a real, current hiding technique before an AI agent or a human
+# reviewer is fooled by it, with no adverse incentive on our side (no
+# affiliate link, no referral fee, donations-only same as the rest of the
+# portfolio). It does not scan or fingerprint any third party -- it only
+# reads text the visitor pastes or a file they explicitly choose to load,
+# same discipline as mcp-config-risk-check and agent-instructions-drift-check.
+#
+# JUDGMENT CALLS flagged for review:
+#  - No homoglyph/confusable detection (flagging a Cyrillic "а" standing in
+#    for a Latin "a", for example), despite the brief listing it as an
+#    optional stretch category. Deliberately out of scope for v0: the two
+#    shipped categories are an unambiguous "this exact codepoint has no
+#    visible glyph" or "this exact codepoint can reorder what renders" fact
+#    about the Unicode Standard itself. A confusables check is a different
+#    kind of judgment call -- which glyph pairs are close enough to matter
+#    depends on the rendering font, the reader's script familiarity, and a
+#    tunable similarity threshold -- and shipping it well would cost more of
+#    this session's budget than the two core, unambiguous categories the
+#    brief calls "ship-worthy v0 on their own". Documented here rather than
+#    silently dropped so a future session can pick it up deliberately.
+#  - Every Unicode Tag character (U+E0020-U+E007E) is flagged at "high"
+#    severity unconditionally, including inside a run that might be
+#    completely benign (the block has legitimate, if rare, historical use).
+#    This mirrors the byte-order-mark handling (position-dependent severity)
+#    in spirit but was not applied here: unlike a BOM, there is no common
+#    legitimate context in ordinary prose or code where a human would
+#    knowingly place a Tag character, so treating every occurrence as
+#    worth-a-close-look is the safer default. Stated plainly in the UI and
+#    README that a finding is not a verdict.
+#  - The Variation Selectors Supplement block (U+E0100-U+E01EF) is flagged
+#    at "medium" rather than "high" despite being a documented 2024
+#    byte-smuggling channel, because that block also has a real, common
+#    legitimate use (the Unicode Ideographic Variation Database, selecting a
+#    specific glyph variant for a CJK character) that the ordinary
+#    emoji-presentation Variation Selectors block (U+FE00-U+FE0F, flagged
+#    "low") does not share as strongly. Documented in calc.mjs's comments
+#    and in the README rather than guessed at silently.
+hypotheses:
+  - claim: A developer who has read about hidden-Unicode / ASCII-smuggling prompt injection, or who is auditing a dependency's README or a PR description before letting an AI agent act on it, will paste the text here, see a specific finding (not just "something is wrong"), and use it as part of their normal review workflow before trusting a new AGENTS.md/CLAUDE.md-carrying repo.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Decoding a Unicode-Tag-character run back into the plaintext it spells out (rather than only reporting "N tag characters found") is significantly more actionable to a visitor than a presence-only report, since it answers "what does the hidden text actually say" in one step instead of requiring the visitor to decode it by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all checks are client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors paste or load text and get at least one finding within 90 days.
+  - A finding's stated codepoint, name, or severity is wrong against the Unicode Standard's own character database, and cannot be fixed by correcting a single table entry.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: developer security communities actively
+  discussing hidden-Unicode and prompt-injection techniques against AI coding
+  agents through 2025-2026 -- r/netsec, r/cybersecurity, r/ClaudeAI and
+  r/LocalLLaMA threads on agent supply-chain risk, Hacker News threads on
+  Trojan Source (CVE-2021-42574) and on the 2024+ Unicode-tag/ASCII-smuggling
+  prompt-injection writeups, and security-research threads on X/Twitter
+  covering the same two techniques by name. Organic and AI-assistant search:
+  "zero width character detector", "invisible unicode checker", "trojan
+  source detector", "hidden prompt injection unicode", "bidi override
+  detector", "ascii smuggling checker" -- current search terms given how
+  often packages embedding invisible instructions to trigger a fake
+  "security scan" that actually exfiltrates secrets have circulated in the
+  same communities mcp-config-risk-check and mcp-supply-chain-watch already
+  target. The footer cross-links to mcp-config-risk-check and
+  agent-instructions-drift-check are themselves a channel: a visitor
+  reviewing an AI agent's instruction file or launch config for one concern
+  is a plausible visitor for the other two.
