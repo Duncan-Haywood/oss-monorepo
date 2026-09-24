@@ -38,8 +38,8 @@
 #   portfolio-front-tools-2: 146 files, 554628 bytes
 #   portfolio-front-tools-3: 133 files, 554352 bytes
 #   portfolio-front-tools-4: 145 files, 553720 bytes
-#   portfolio-front-tools-5: 122 files, 553359 bytes
-#   portfolio-front-tools-6: 136 files, 549638 bytes
+#   portfolio-front-tools-5: 121 files, 555987 bytes
+#   portfolio-front-tools-6: 137 files, 552898 bytes
 #   portfolio-front-tools-7: 120 files, 548282 bytes
 #   portfolio-front-tools-8: 134 files, 550256 bytes
 #   portfolio-front-tools-9: 126 files, 557007 bytes
@@ -879,12 +879,12 @@ configMapGenerator:
       - bridal-hair-makeup-pricing-calculator__index.html.gz=bridal-hair-makeup-pricing-calculator__index.html.gz
       - bridal-hair-makeup-pricing-calculator__share.mjs.gz=bridal-hair-makeup-pricing-calculator__share.mjs.gz
       - bridal-hair-makeup-pricing-calculator__usage.mjs.gz=bridal-hair-makeup-pricing-calculator__usage.mjs.gz
-      - bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz=bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz=bridal-hair-makeup-pricing-calculator__vs-flat-day-rate.html.gz
       - bridal-hair-makeup-pricing-calculator__vs-honeybook.html.gz=bridal-hair-makeup-pricing-calculator__vs-honeybook.html.gz
       - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
       - cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz=cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz

@@ -32,7 +32,7 @@
 
 import { DEFAULTS } from './calc.mjs';
 
-/** Every field `computeJobBid` requires -- calc.mjs's own DEFAULTS keys. */
+/** Every field `calculateJobBid` requires -- calc.mjs's own DEFAULTS keys. */
 export const REQUIRED_FIELD_IDS = Object.freeze(Object.keys(DEFAULTS));
 
 /** The one field the arithmetic treats as optional. See the header comment
@@ -42,6 +42,21 @@ export const OPTIONAL_FIELD_IDS = Object.freeze(['proposedPrice']);
 
 export const FIELD_IDS = Object.freeze([...REQUIRED_FIELD_IDS, ...OPTIONAL_FIELD_IDS]);
 
+// The proposal panel's terms (`platform/proposal/adopt.mjs`), which also ride
+// the link and the saved draft -- otherwise a shared link opens the sender's
+// price under the recipient's own default deposit and terms, the defect
+// `platform/proposal/term-ids.test.mjs` guards against. Named here, rather
+// than left to `adopt.mjs`'s own copy, for the same reason `REQUIRED_FIELD_IDS`
+// above is derived instead of restated: `term-ids.test.mjs` asserts the two
+// agree.
+export const TERM_NUMBER_FIELD_IDS = Object.freeze(['depositPercent', 'validDays']);
+export const TERM_TEXT_FIELD_IDS = Object.freeze(['paymentTerms', 'proposalNotes', 'proposalExclusions']);
+
+// Matches `MAX_TERM_TEXT` in the vendored `withProposalTerms` module
+// (`platform/proposal/README.md`) so the two share mechanisms on this site
+// agree about what fits in a fragment.
+export const MAX_TERM_TEXT = 512;
+
 function usableNumber(value) {
   if (value === '' || value === null || value === undefined) return null;
   if (String(value).trim() === '') return null;
@@ -49,11 +64,30 @@ function usableNumber(value) {
   return Number.isFinite(result) && result >= 0 ? result : null;
 }
 
+// Prose is carried as typed, newlines included -- these are textareas, and a
+// multi-line exclusions list is multiple lines on the customer's sheet. Only
+// the control characters no textarea produces are stripped, plus surrounding
+// whitespace, so a field holding only a stray newline reads as empty rather
+// than as terms the sender wrote. Over-long text is dropped, not truncated:
+// half a payment-terms clause presented to the recipient as the sender's
+// terms is worse than the field arriving empty.
+function usableText(value) {
+  if (typeof value !== 'string') return null;
+  // eslint-disable-next-line no-control-regex
+  const clean = value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+  if (!clean) return null;
+  return clean.length > MAX_TERM_TEXT ? null : clean;
+}
+
 export function encodeInputs(input) {
   const params = new URLSearchParams();
-  for (const id of FIELD_IDS) {
+  for (const id of [...FIELD_IDS, ...TERM_NUMBER_FIELD_IDS]) {
     const value = usableNumber(input?.[id]);
     if (value !== null) params.set(id, String(value));
+  }
+  for (const id of TERM_TEXT_FIELD_IDS) {
+    const value = usableText(input?.[id]);
+    if (value !== null) params.set(id, value);
   }
   return params.toString();
 }
@@ -61,9 +95,14 @@ export function encodeInputs(input) {
 export function decodeInputs(source) {
   const params = new URLSearchParams(String(source || '').replace(/^[?#]/, ''));
   const result = {};
-  for (const id of FIELD_IDS) {
+  for (const id of [...FIELD_IDS, ...TERM_NUMBER_FIELD_IDS]) {
     if (!params.has(id)) continue;
     const value = usableNumber(params.get(id));
+    if (value !== null) result[id] = value;
+  }
+  for (const id of TERM_TEXT_FIELD_IDS) {
+    if (!params.has(id)) continue;
+    const value = usableText(params.get(id));
     if (value !== null) result[id] = value;
   }
   return result;
@@ -75,5 +114,18 @@ export function decodeInputs(source) {
  */
 export function formValues(decoded) {
   const source = decoded || {};
-  return Object.fromEntries(FIELD_IDS.map((id) => [id, id in source ? String(source[id]) : '']));
+  const ids = [...FIELD_IDS, ...TERM_NUMBER_FIELD_IDS, ...TERM_TEXT_FIELD_IDS];
+  return Object.fromEntries(ids.map((id) => [id, id in source ? String(source[id]) : '']));
+}
+
+/**
+ * Which term text fields are too long to ride in a link -- named to the
+ * sender at the moment they copy, the same reasoning as
+ * `platform/proposal/README.md`'s `overlongTerms`.
+ */
+export function overlongTerms(values) {
+  return TERM_TEXT_FIELD_IDS.filter((id) => {
+    const raw = values?.[id];
+    return typeof raw === 'string' && raw.trim().length > MAX_TERM_TEXT;
+  });
 }
