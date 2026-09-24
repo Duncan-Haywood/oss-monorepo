@@ -167,6 +167,9 @@ workflows:
 - workflow: backflow-test-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: backup-file-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []

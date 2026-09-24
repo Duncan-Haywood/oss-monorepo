@@ -1086,6 +1086,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. This page names no git-hosting
   // platform, IDE, or scanning tool.
   'dotenv-exposure-check/vs-checking-by-hand.html',
+  // Compares against "typing the URL into a browser tab and downloading the
+  // file by hand" -- a manual habit every developer already has, not a
+  // company or product this could be mistaken for. This page names no
+  // hosting platform, backup tool, or scanning tool. Same reasoning as this
+  // file's own dotenv-exposure-check/vs-checking-by-hand.html and
+  // git-exposure-check/vs-checking-the-url-by-hand.html entries above.
+  'backup-file-exposure-check/vs-checking-by-hand.html',
   // Compares against "running dig CNAME by hand" -- a generic DNS-lookup
   // habit every developer already has, not a company or product this could
   // be mistaken for. The page names third-party hosting providers (S3,
@@ -1313,6 +1320,43 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that reason. Same reasoning as the other flat-rate generic-method
   // pages above (e.g. shed-install-bid-calculator's).
   'well-pump-bid-calculator/vs-a-flat-well-pump-special.html',
+  // Compares against "a flat $3/LF Christmas light special" -- a generic
+  // advertised price every holiday lighting contractor is shopped against,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-realgreen.html, which names a specific business-
+  // management software vendor and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other flat-rate
+  // generic-method pages above (e.g. well-pump-bid-calculator's).
+  'holiday-light-bid-calculator/vs-a-flat-3-per-lf-special.html',
+  // Compares against "eyeballing the copy-paste test yourself" -- the same
+  // manual technique this checker automates, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-jobscan.html,
+  // which names a specific resume-scanning service and already carries the
+  // "not affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand/by-eye pages above.
+  'ats-resume-checker/vs-checking-it-by-eye.html',
+  // Compares against "a spreadsheet" -- a method every carrier filing their
+  // own IFTA return already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-expressifta.html,
+  // which names a specific paid preparation service and already carries the
+  // "not affiliated" clause for that reason. Same reasoning as the other
+  // vs-a-spreadsheet pages above.
+  'ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat $499 delivery and setup special" -- a generic
+  // advertised price every spa dealer is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which names a specific field-service platform and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other flat-rate generic-method pages above (e.g.
+  // well-pump-bid-calculator's).
+  'hot-tub-bid-calculator/vs-a-flat-499-setup-special.html',
+  // Compares against "eyeballing package.json by hand" -- the same manual
+  // read-and-recognize habit this checker automates, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-socket.html, which names a specific commercial scanning service and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other vs-checking-*-by-hand/by-eye pages above.
+  'slopsquatting-check/vs-checking-package-names-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
