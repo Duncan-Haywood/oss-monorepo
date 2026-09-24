@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 134 files, 551040 bytes
 #   portfolio-front-tools-9: 126 files, 551271 bytes
 #   portfolio-front-tools-10: 122 files, 552459 bytes
-#   portfolio-front-tools-11: 117 files, 553093 bytes
+#   portfolio-front-tools-11: 118 files, 556973 bytes
 #   portfolio-front-tools-12: 117 files, 550574 bytes
 #   portfolio-front-tools-13: 131 files, 554136 bytes
 #   portfolio-front-tools-14: 133 files, 553574 bytes
@@ -1572,6 +1572,7 @@ configMapGenerator:
       - hood-cleaning-bid-calculator__usage.mjs.gz=hood-cleaning-bid-calculator__usage.mjs.gz
       - hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz=hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz
       - hood-cleaning-bid-calculator__vs-hoodcleanpro.html.gz=hood-cleaning-bid-calculator__vs-hoodcleanpro.html.gz
+      - hood-cleaning-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=hood-cleaning-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - hot-tub-bid-calculator__calc.mjs.gz=hot-tub-bid-calculator__calc.mjs.gz
       - hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz=hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz
       - hot-tub-bid-calculator__index.html.gz=hot-tub-bid-calculator__index.html.gz
