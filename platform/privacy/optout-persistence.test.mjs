@@ -720,6 +720,9 @@ const RELATIVE_SELF = relative(
 // branch only ever knew its own predecessor's number (338, before
 // `caa-record-check` landed) until this merge -- the same ordinary
 // collision shape recorded throughout this list.
+// `mega-backdoor-roth-calculator`'s own `vs-doing-the-math-by-hand.html`
+// comparison page adds no switch of its own -- a static comparison page,
+// not a `usage.mjs` -- so it does not move this count.
 //
 // 340 -> 343 (PR #5768's own merge-into-main, against a `main` that had
 // moved four further graduations past this branch's own base):
