@@ -33,26 +33,26 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 137 files, 542952 bytes
-#   portfolio-front-tools-1: 97 files, 554638 bytes
-#   portfolio-front-tools-2: 146 files, 554708 bytes
-#   portfolio-front-tools-3: 132 files, 550415 bytes
-#   portfolio-front-tools-4: 145 files, 553593 bytes
-#   portfolio-front-tools-5: 121 files, 556917 bytes
-#   portfolio-front-tools-6: 137 files, 548256 bytes
-#   portfolio-front-tools-7: 119 files, 551093 bytes
-#   portfolio-front-tools-8: 136 files, 555755 bytes
-#   portfolio-front-tools-9: 125 files, 552281 bytes
-#   portfolio-front-tools-10: 122 files, 554503 bytes
-#   portfolio-front-tools-11: 115 files, 553948 bytes
-#   portfolio-front-tools-12: 122 files, 548476 bytes
-#   portfolio-front-tools-13: 133 files, 557024 bytes
-#   portfolio-front-tools-14: 132 files, 555797 bytes
-#   portfolio-front-tools-15: 103 files, 557016 bytes
-#   portfolio-front-tools-16: 117 files, 555946 bytes
-#   portfolio-front-tools-17: 128 files, 554064 bytes
-#   portfolio-front-tools-18: 70 files, 330076 bytes
-#   portfolio-front-tools-19: 49 files, 268865 bytes
+#   portfolio-front-tools-0: 137 files, 542946 bytes
+#   portfolio-front-tools-1: 97 files, 554645 bytes
+#   portfolio-front-tools-2: 146 files, 554706 bytes
+#   portfolio-front-tools-3: 132 files, 550457 bytes
+#   portfolio-front-tools-4: 145 files, 553522 bytes
+#   portfolio-front-tools-5: 121 files, 556923 bytes
+#   portfolio-front-tools-6: 137 files, 548242 bytes
+#   portfolio-front-tools-7: 119 files, 551071 bytes
+#   portfolio-front-tools-8: 136 files, 555708 bytes
+#   portfolio-front-tools-9: 125 files, 552257 bytes
+#   portfolio-front-tools-10: 122 files, 554512 bytes
+#   portfolio-front-tools-11: 115 files, 553954 bytes
+#   portfolio-front-tools-12: 122 files, 548491 bytes
+#   portfolio-front-tools-13: 133 files, 557012 bytes
+#   portfolio-front-tools-14: 130 files, 550281 bytes
+#   portfolio-front-tools-15: 102 files, 554525 bytes
+#   portfolio-front-tools-16: 118 files, 554711 bytes
+#   portfolio-front-tools-17: 127 files, 554034 bytes
+#   portfolio-front-tools-18: 76 files, 353140 bytes
+#   portfolio-front-tools-19: 49 files, 268900 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2061,14 +2061,17 @@ configMapGenerator:
       - retaining-wall-bid-calculator__share.mjs.gz=retaining-wall-bid-calculator__share.mjs.gz
       - retaining-wall-bid-calculator__usage.mjs.gz=retaining-wall-bid-calculator__usage.mjs.gz
       - retaining-wall-bid-calculator__vs-aspire.html.gz=retaining-wall-bid-calculator__vs-aspire.html.gz
-      - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
-      - sbom-diff-check__index.html.gz=sbom-diff-check__index.html.gz
-      - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
+      - s-corp-reasonable-compensation-calculator__calc.mjs.gz=s-corp-reasonable-compensation-calculator__calc.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - s-corp-reasonable-compensation-calculator__index.html.gz=s-corp-reasonable-compensation-calculator__index.html.gz
+      - s-corp-reasonable-compensation-calculator__usage.mjs.gz=s-corp-reasonable-compensation-calculator__usage.mjs.gz
+      - sbom-diff-check__diff.mjs.gz=sbom-diff-check__diff.mjs.gz
+      - sbom-diff-check__index.html.gz=sbom-diff-check__index.html.gz
+      - sbom-diff-check__usage.mjs.gz=sbom-diff-check__usage.mjs.gz
       - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
       - sbom-diff-check__vs-diffing-the-raw-json-files.html.gz=sbom-diff-check__vs-diffing-the-raw-json-files.html.gz
       - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
@@ -2166,17 +2169,17 @@ configMapGenerator:
       - shopify-fee-calculator__why-paypal-costs-more.html.gz=shopify-fee-calculator__why-paypal-costs-more.html.gz
       - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
       - shopify-permission-drift__capture.mjs.gz=shopify-permission-drift__capture.mjs.gz
+  - name: portfolio-front-tools-16
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
       - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
       - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
       - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
       - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
-  - name: portfolio-front-tools-16
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - siding-bid-calculator__index.html.gz=siding-bid-calculator__index.html.gz
       - siding-bid-calculator__share.mjs.gz=siding-bid-calculator__share.mjs.gz
       - siding-bid-calculator__usage.mjs.gz=siding-bid-calculator__usage.mjs.gz
@@ -2289,16 +2292,16 @@ configMapGenerator:
       - storage-auction-max-bid-calculator__vs-bidding-a-flat-percentage.html.gz=storage-auction-max-bid-calculator__vs-bidding-a-flat-percentage.html.gz
       - storage-auction-max-bid-calculator__vs-storagetreasures.html.gz=storage-auction-max-bid-calculator__vs-storagetreasures.html.gz
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
-      - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
-      - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
-      - structured-data-drift-check__usage.mjs.gz=structured-data-drift-check__usage.mjs.gz
-      - structured-data-drift-check__vs-google-rich-results-test.html.gz=structured-data-drift-check__vs-google-rich-results-test.html.gz
-      - structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz=structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
+      - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
+      - structured-data-drift-check__usage.mjs.gz=structured-data-drift-check__usage.mjs.gz
+      - structured-data-drift-check__vs-google-rich-results-test.html.gz=structured-data-drift-check__vs-google-rich-results-test.html.gz
+      - structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz=structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz
       - stucco-repair-bid-calculator__calc.mjs.gz=stucco-repair-bid-calculator__calc.mjs.gz
       - stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz=stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz
       - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
@@ -2421,17 +2424,17 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
+  - name: portfolio-front-tools-18
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - voiceover-project-rate-calculator__calc.mjs.gz=voiceover-project-rate-calculator__calc.mjs.gz
       - voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz=voiceover-project-rate-calculator__how-much-should-i-charge-for-a-voice-over-project.html.gz
       - voiceover-project-rate-calculator__index.html.gz=voiceover-project-rate-calculator__index.html.gz
       - voiceover-project-rate-calculator__usage.mjs.gz=voiceover-project-rate-calculator__usage.mjs.gz
       - voiceover-project-rate-calculator__vs-voices-com.html.gz=voiceover-project-rate-calculator__vs-voices-com.html.gz
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
-  - name: portfolio-front-tools-18
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
