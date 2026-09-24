@@ -17529,7 +17529,63 @@ ventures:
       listing correctly instead of guessing from a stale blog post, no
       affiliate link, no referral fee, donations-only, and it does not
       scan, fingerprint, or contact Facebook or any third-party system.
-      third-party system or agent runtime.
+
+  - slug: trump-account-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is compounding
+      arithmetic and a pro-rata split against a published statutory seed
+      deposit and contribution cap, never an inference step. time_to_revenue
+      ties it at 1: donations-only, same as most other ventures in this
+      file with no paid tier.
+    basis: >-
+      Screened 2026-09-24. duplicate_check.py against the final description
+      scored every venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate at or below 0.10 -- no existing venture or
+      candidate addresses the federal Trump Account (26 U.S.C. 530A), and
+      this is a distinct account (a federal child savings account funded by
+      a one-time seed deposit) from the portfolio's other IRS-dollar-limit
+      calculator, mega-backdoor-roth-calculator (a 401(k) after-tax
+      bucket). Distribution 6: WebSearch 2026-09-24 found several
+      already-published CPA-firm and finance-site explainers
+      (trumpaccounts.guide, TaxSharkInc, and multiple accounting-firm blog
+      posts) confirming real, brand-new search demand as accounts opened
+      through 2026, but every one found is a static explainer or a
+      generic-inputs projector, not an interactive calculator modeling the
+      IRA pro-rata basis split this tool is built around -- real but
+      unproven-for-this-exact-tool demand, one point below the fully
+      confirmed-and-differentiated auto-loan-interest-deduction-calculator
+      sibling's 7. Defensibility 2: the compounding arithmetic itself is
+      easy to reproduce, same class as this portfolio's other tax-arithmetic
+      calculators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every dollar input (age, contribution amounts, assumed
+      return, tax rate) is a figure the saver already has or chooses;
+      output is a balance projection and a tax-free/taxable split to
+      verify, never a filed contribution, a citizenship/eligibility
+      determination, or investment advice about which fund to hold. The
+      page states plainly this is not a full tax return and points at IRS
+      guidance and a qualified tax professional before acting on it, same
+      gate class as the sibling auto-loan-interest-deduction-calculator and
+      mega-backdoor-roth-calculator. Ethics: strictly beneficial as it
+      scales -- helps a saver understand a withdrawal-tax mechanic
+      (pro-rata basis) that is easy to get backwards from a 529-plan
+      mental model, never toward evading an obligation, no personal or
+      scraped data, no referral fee or affiliate link to any 529 plan,
+      brokerage, or bank named in the research above.
   - slug: claude-skill-scaffold-generator
     scores:
       ai_leverage: 1

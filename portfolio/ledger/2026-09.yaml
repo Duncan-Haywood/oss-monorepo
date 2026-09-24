@@ -43469,3 +43469,94 @@ entries:
         0`, 3s, no steps), verified locally per CLAUDE.md's starvation
         checklist.
     mrr_end: 0
+
+  - venture: trump-account-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture this session (session_gate.py:
+        build-now queue empty, PROCEED verdict, 6 sessions committing to
+        `main` inside one 15-minute window). Picked the federal "Trump
+        Account" child savings account (One Big Beautiful Bill Act, 26
+        U.S.C. 530A) -- new for 2025-2026, no existing venture or
+        pipeline candidate addresses it (duplicate_check.py top score
+        0.10 against mega-backdoor-roth-calculator, well under the 0.45
+        review bar), and not in screened-out.md. Mechanics verified via
+        WebSearch 2026-09-24 against Ameriprise Financial, Sikich, BDO's
+        summary of the IRS's initial guidance, Surgent CPE, Alloy
+        Silverstein, the Journal of Accountancy/Tax Adviser's coverage of
+        the proposed section 128 employer-contribution regulations,
+        Mercer Advisors, Seyfarth Shaw, Treasury's own press release, and
+        TaxSharkInc's worked pro-rata withdrawal examples.
+      - >-
+        Shipped a free, static, browser-local calculator: projects the
+        one-time $1,000 federal seed deposit plus family/employer
+        contributions (capped $5,000/year total, $2,500/year employer
+        sub-cap counted inside that total) to a chosen withdrawal age of
+        18+, and applies the IRA-style pro-rata withdrawal rule -- only
+        individual contributions are tax-free basis, while the seed,
+        employer money, and all investment growth are taxed as ordinary
+        income, the mechanic every 529-plan comparison gets backwards.
+        Ships calc.mjs (21 test assertions), index.html with
+        FAQPage/SoftwareApplication JSON-LD verified to match visible
+        copy character-for-character, the required generic-method
+        comparison page (vs-doing-the-math-by-hand.html), an opt-out
+        local usage counter honouring DNT/GPC, robots.txt/sitemap.xml,
+        and a dedicated CI workflow. Filed into build.mjs's existing
+        `backoffice` category (nearest sibling: mega-backdoor-roth-calculator)
+        rather than the catch-all, added a reciprocal footer link with
+        that sibling (its own page.test.mjs now pins the link back) so
+        the venture is not a crawlable orphan, and scored in
+        venture-scores.yaml (composite 5.0, gates pass/pass).
+      - >-
+        `main` advanced five times while this branch was in flight
+        (facebook-marketplace-fee-calculator #5772, caa-record-check
+        #5768, a senior-deduction-calculator comparison page, a
+        ventures-by-viability summary doc, and an appliance-repair-quote-calculator
+        comparison page), plus a same-day fix for a stray unresolved
+        `<<<<<<< HEAD` conflict marker another PR had merged into
+        `platform/privacy/optout-persistence.test.mjs` (#5797) -- this
+        session independently found and fixed the same marker during its
+        own rebase before that PR's fix landed. Rebased three times;
+        the mirrored-tool count (363->364->365->366) and opt-out-switch
+        count (342->343->344->345) were resynced via
+        sync_tree_counts.py after each merge-in, each rewrite's
+        running-comment entry naming the venture responsible. One
+        rebase's manual conflict resolution briefly introduced a
+        line-join defect in three unrelated sentences in
+        infra/OWNER_CHECKLIST.md; caught by diffing the file against
+        `origin/main` byte-for-byte before merging, and fixed in the same
+        session rather than left for a later one to discover.
+      - >-
+        Verified on the final, thrice-rebased tree: the venture's own
+        suite (42/42), mega-backdoor-roth-calculator's suite (33/33)
+        after the sibling-link fix, the full platform/marketing +
+        platform/pages suite (1290/1290), platform/privacy (83/83),
+        gitops/tests (637 passed/1 skipped), every platform/ci unittest
+        module (all passing) plus agent_review's test_review (21
+        passed), portfolio/ledger + scoring + router + usage + pipeline +
+        infra/tests pytest (446 passed), router/validate.py,
+        score_ventures.py --check, checklist_coverage.py,
+        siblings.mjs --check (0 orphans), surface-budget.mjs --check,
+        clauses.mjs, check_venture_regression.py (no live venture
+        disappears against origin/main), regen.mjs --verify clean, a
+        scoped `browser_checks.py --only trump-account-calculator` pass
+        (sideways/presets/roundtrip/contrast/optout/sweep all ok,
+        0 WCAG A/AA violations; highlight has nothing to verify for a
+        calculator with no highlight promise), and
+        run_workflow_locally.py --for-changes (portfolio-validate.yml's
+        72 run: steps all passed once the mirror was current; the one
+        real red it found -- check_venture_regression.py naming two
+        ventures "removed" -- was this branch being one merge behind, not
+        a defect, and resolved by rebasing). A whole-catalogue `journey`
+        browser check flagged a transient `icon-192.png` resource-load
+        race under this session's heavy concurrent CPU load; reproduced
+        clean (0 failed, 0 errors) on a dedicated re-run once contention
+        eased, so not treated as a real regression. Actions runners
+        starved this session (`ci_starvation.py`: `runner_id: 0`, ~4-7s,
+        no steps on `Portfolio validate` / `Conflict markers`); verified
+        locally per CLAUDE.md's starvation checklist throughout. Revenue
+        and confirmed-visitor counts remain at zero, which a single new
+        venture does not change on its own.
+    mrr_end: 0
