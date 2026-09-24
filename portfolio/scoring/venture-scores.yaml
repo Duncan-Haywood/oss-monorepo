@@ -16352,3 +16352,84 @@ ventures:
       comparison is disclosed methodology (FAQ: "why compare against a flat
       per-vehicle price?") rather than an unexplained claim about what any
       job "should" cost.
+
+  - slug: llm-api-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every dollar figure is
+      deterministic arithmetic (token count / 1,000,000 * a per-provider
+      rate the visitor supplies), the same reasoning already recorded for
+      ai-coding-plan-cost-calculator and vector-db-cost-calculator right
+      above this entry -- a language model would add nothing but a source
+      of wrong numbers to a tool whose entire value is that its numbers can
+      be checked by hand.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.18
+      (ai-coding-plan-cost-calculator), well under the 0.45 read-this-first
+      bar -- and read directly rather than trusting the score: that venture
+      compares a flat-rate AI *coding-assistant subscription* against the
+      same vendor's own API price for the same coding usage, a
+      subscription-vs-API comparison for one vendor at a time. This venture
+      is the different comparison of raw per-token API pricing *across*
+      vendors (Claude vs. GPT vs. Gemini vs. custom) for a visitor-supplied
+      workload, with no subscription plan involved. vector-db-cost-
+      calculator is the closest in shape (bring-your-own-rates, multi-
+      provider, no vendor price asserted) but prices vector database
+      storage/queries, not LLM tokens -- it is this venture's direct
+      template, not a duplicate. No open PR or recent `main` merge builds
+      this niche (checked `git log` and PR search for "llm"/"api-
+      pricing"/"token").
+      Autonomous ops 10 / gross margin 10: the page computes everything
+      client-side from typed inputs, nothing uploaded, no network call, so
+      serving one more visitor costs a static file -- same shape as every
+      other browser-local calculator in this portfolio.
+      Distribution 5: LLM API pricing (and prompt-caching discounts
+      specifically) is a live, frequently-changing topic that every
+      developer calling one of these APIs faces, not only the narrower RAG/
+      agent-memory audience vector-db-cost-calculator targets -- plausibly
+      broader reach than that venture's distribution: 4. Scored below
+      ai-coding-plan-cost-calculator's distribution: 6 because that score
+      followed session-specific WebSearch evidence of real threads and
+      ranking content; this session named plausible channels and search
+      terms in VENTURE.yaml (r/LocalLLaMA, r/MachineLearning, Hacker News
+      Show HN, "llm api pricing calculator") from general knowledge of the
+      niche without a search tool confirming volume, the same honesty gap
+      vector-db-cost-calculator's basis already records for its own score.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable), so the edge is being
+      first and specific to this niche's actual cost driver (separating
+      cached from fresh input tokens, which a generic two-column calculator
+      does not do) rather than a moat in the code -- same reasoning
+      vector-db-cost-calculator's basis gives for the same pair of scores.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: pure arithmetic over token volumes and rates the visitor
+      enters themselves, against each vendor's own public, non-personal
+      pricing. No advice-of-record (it computes, the visitor decides), no
+      compliance claim, no PII, no payment code, no account. The only
+      failure mode is a stale or wrong default rate, which is why every
+      rate ships editable and each of the three preset provider rows
+      labels every single rate field "example -- replace with the current
+      rate" (not just once per row), and the no-warranty clause tells the
+      visitor this is not vendor-pricing advice and to verify with each
+      provider before deciding (`platform/pages/clauses.mjs` enforces the
+      clause; the page passes it).
+      Ethics: gets strictly better for the visitor as it scales -- it
+      exists only to help a developer or team pay less by choosing the
+      cheaper provider or catching an under-priced cache assumption, with
+      no adverse incentive on our side (no affiliate link, no referral fee,
+      donations-only same as the rest of the portfolio, no vendor favored
+      since every rate field is symmetric and user-entered).
