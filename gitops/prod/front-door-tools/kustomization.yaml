@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 133 files, 555642 bytes
 #   portfolio-front-tools-4: 144 files, 556990 bytes
 #   portfolio-front-tools-5: 124 files, 554776 bytes
-#   portfolio-front-tools-6: 134 files, 551831 bytes
+#   portfolio-front-tools-6: 135 files, 556511 bytes
 #   portfolio-front-tools-7: 122 files, 556191 bytes
 #   portfolio-front-tools-8: 138 files, 555334 bytes
 #   portfolio-front-tools-9: 122 files, 554262 bytes
@@ -1006,6 +1006,7 @@ configMapGenerator:
       - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
       - cors-misconfig-check__usage.mjs.gz=cors-misconfig-check__usage.mjs.gz
       - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
+      - cors-misconfig-check__vs-checking-cors-by-hand.html.gz=cors-misconfig-check__vs-checking-cors-by-hand.html.gz
       - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
       - countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz=countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz
       - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
