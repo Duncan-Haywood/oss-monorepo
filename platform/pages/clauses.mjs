@@ -1173,6 +1173,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-spreadsheet pages above (e.g. bounce-house-rental-calculator's).
   'apparel-decoration-price-calculator/vs-a-spreadsheet.html',
+  // Compares against "reading the workflow file by hand" -- a manual
+  // review habit every GitHub Actions user already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names a specific open-source tool and already
+  // carries the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-checking-*-by-hand pages above (e.g.
+  // graphql-introspection-exposure-check's).
+  'actions-injection-check/vs-checking-a-workflow-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
