@@ -707,7 +707,22 @@ const RELATIVE_SELF = relative(
 // `auto-loan-interest-deduction-calculator` landed) until this merge -- the
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
-const SWITCHES_IN_THE_CATALOGUE = 339;
+//
+// 338 -> 339: `claude-code-settings-check` also graduated, concurrently on
+// `main` -- adding one more `usage.mjs`
+// (`ventures/claude-code-settings-check/usage.mjs`), no deletions.
+//
+// 339 -> 340: `claude-skill-scaffold-generator` also graduated,
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/claude-skill-scaffold-generator/usage.mjs`) following the same
+// opt-out pattern as its AI-agent-tooling siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its own
+// `claude-skill-scaffold-generator:usage` storage name), no deletions. This
+// branch only ever knew its own predecessor's number (338, at graduation)
+// until this merge -- the same ordinary collision shape recorded throughout
+// this list; the intervening 339 was another concurrent graduation this
+// branch never observed.
+const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;
 function fixture(source) {

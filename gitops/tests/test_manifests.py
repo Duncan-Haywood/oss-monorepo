@@ -2466,9 +2466,22 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # This branch only ever knew its own predecessor's number (357) until
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
+    #
+    # 360 on this merge: `claude-skill-scaffold-generator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser tool that turns a
+    # plain-language description of a Claude Agent Skill into a starter
+    # SKILL.md with valid YAML frontmatter and a suggested folder layout,
+    # flagging a non-slug name, a first-person description, and a missing
+    # trigger condition. The generator half of the pair
+    # `skill-manifest-check` started as the checker half. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (358, at graduation) until this merge -- the same ordinary
+    # collision shape recorded throughout this list; the intervening 359
+    # was another concurrent graduation this branch never observed.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 359  # `infra/OWNER_CHECKLIST.md`'s own "N of the 359 tools" wording.
+    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
