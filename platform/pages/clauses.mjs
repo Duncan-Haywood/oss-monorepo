@@ -1424,6 +1424,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against "a flat per-vehicle price" (a posted "$180 sedan /
+  // $220 SUV / $250 truck" list) -- a pricing habit every independent tint
+  // shop already posts, not a company or product this could be mistaken
+  // for. The page names no specific tint franchise, film brand, or
+  // competing calculator at all. Same reasoning as this venture's sibling
+  // vs-a-flat-*-price pages above (mobile-detailing-bid-calculator's
+  // vs-a-flat-per-vehicle-price.html, pet-grooming-bid-calculator's
+  // vs-a-flat-per-breed-price.html).
+  'window-tinting-bid-calculator/vs-a-flat-per-vehicle-size-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
