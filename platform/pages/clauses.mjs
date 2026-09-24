@@ -1783,6 +1783,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which names Jobber specifically and
   // already carries the trademark disclaimer.
   'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "a flat $1,800 installed" patio door special -- a
+  // generic pricing method every window/door crew already has access to,
+  // not a company or product this could be mistaken for. The page's own
+  // footer says so explicitly ("common, honest shortcut"). Same reasoning
+  // as the other generic-method pages above. Distinct from this venture's
+  // own vs-jobber.html, which names Jobber specifically and already
+  // carries the trademark disclaimer.
+  'patio-door-bid-calculator/vs-a-flat-installed-price.html',
   // Compares against "a sticky note or mental checklist" -- a manual
   // tracking habit any contractor already has, not a company or product
   // this could be mistaken for. Distinct from this venture's own

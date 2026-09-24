@@ -40929,6 +40929,33 @@ entries:
         venture-sitemap-coverage.test.mjs, faq-coverage/faq-duplicate/
         faq-visible.test.mjs all pass clean.
     mrr_end: 0
+  - venture: patio-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped patio-door-bid-calculator's first generic-method
+        comparison page (0/1 per surface-budget.mjs):
+        vs-a-flat-installed-price.html, "This calculator vs. a flat
+        '$1,800 installed' patio door special". Worked examples pinned
+        against calc.mjs, run through the same job presets and form
+        defaults ($48 crew wage, 32% burden, 16% overhead, 32% target
+        margin) the shipped page uses: even the cheapest job the
+        calculator prices -- a 6-foot vinyl 2-panel retrofit at grade
+        with a tear-out -- walks away at $2,770.12, already $970.12 over
+        the $1,800 special; a 12-foot 3-panel new-construction job at
+        $7,975.38; a 16-foot 4-panel fiberglass impact-glass balcony job
+        at $23,344.28. Unlike several sibling comparison pages this
+        month, even the cheapest configuration already clears the flat
+        special once real payroll burden and overhead are loaded in, so
+        all three worked rows lose against it rather than one covering
+        and two losing. Listed in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
+        sitemap.xml. Selected via portfolio/router/allocate.py's merit
+        ranking intersected with surface-budget.mjs's 0-generic-method
+        ventures, since the router's own top-ranked candidates already
+        had their comparison-page budget filled by concurrent sessions.
+    mrr_end: 0
   - venture: auto-glass-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -40987,4 +41014,34 @@ entries:
         `platform/ci`'s 15 unittest modules + `agent_review`'s, and
         `portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
         portfolio/pipeline infra/tests` (pytest) all green.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the whole-catalogue Playwright/axe-core browser and
+        accessibility sweep (browser_state.py had it recorded STALE --
+        builder files had moved since the last reading). Installed
+        playwright@1.56.0 + axe-core (one npm install, both packages in the
+        same command per CLAUDE.md's documented trap). First run found a
+        real WCAG AA violation: 18 instances of insufficient color contrast
+        (3.02:1, needs 4.5:1) on llm-api-pricing-calculator's .example hint
+        text -- a bug in this session's own earlier-shipped venture. Before
+        pushing a fix, a concurrent session independently found and merged
+        the same fix (#5627, effectively identical: same property, an
+        equivalent passing gray). Confirmed via diff and discarded the
+        duplicate local change rather than re-fixing what was already fixed,
+        then re-synced to main and re-ran the full sweep clean: all 8 checks
+        (sideways, presets, roundtrip, highlight, contrast, optout, sweep,
+        journey) passed -- 1519 sitemap URLs resolve, 355 tools answered
+        with no console/resource errors, 0 WCAG A/AA violations across the
+        catalogue. Recorded into platform/ci/browser_state.json (PR #5648).
+      - >-
+        Net outcome: the fleet's accessibility/correctness posture was
+        independently re-verified clean at a commit past the last recorded
+        reading, one real defect was confirmed already fixed by a sibling
+        session rather than duplicated, and the catalogue now has a current,
+        trustworthy browser_state.json reading for the next session's
+        freshness check to build on.
     mrr_end: 0
