@@ -2339,9 +2339,20 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # output tokens separately rather than one blended per-token rate.
     # Static `index.html` from its first commit, same shape as the rest of
     # this running count.
+    #
+    # 347 on this merge: `mcp-config-risk-check` also graduated -- a
+    # zero-dependency browser checker that audits a single pasted MCP server
+    # config (mcp.json / claude_desktop_config.json / VS Code's servers
+    # shape) for structural risk patterns: broad filesystem/shell access,
+    # secrets hardcoded instead of referenced from an environment variable,
+    # missing version pins on npx/uvx/pipx/docker launches, and shadowed
+    # tool names across servers. Different scope from the already-mirrored
+    # `mcp-supply-chain-watch` (which diffs two captured manifests over
+    # time). Static `index.html` from its first commit, same shape as the
+    # rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 346  # `infra/OWNER_CHECKLIST.md`'s own "N of the 346 tools" wording.
+    total = 347  # `infra/OWNER_CHECKLIST.md`'s own "N of the 347 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -671,6 +671,9 @@ workflows:
 - workflow: marketplace-fee-compare-ci.yml
   classification: none
   publishes: []
+- workflow: mcp-config-risk-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: mcp-drift-watch-ci.yml
   classification: none
   publishes: []

@@ -1409,6 +1409,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-a-spreadsheet pages above.
   'ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a method every independent medical
+  // courier pricing their own route already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-onfleet.html, which names a specific dispatch platform and already
+  // carries the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-a-spreadsheet pages above.
+  'medical-courier-route-margin/vs-a-spreadsheet.html',
   // Compares against "a flat $499 delivery and setup special" -- a generic
   // advertised price every spa dealer is shopped against, not a company or
   // product this could be mistaken for. Distinct from this venture's own
@@ -1668,6 +1675,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // irrigation-winterization-bid-calculator's own flat-rate exemption
   // above.
   'ice-dam-removal-bid-calculator/vs-a-flat-rate-per-linear-foot.html',
+  // Compares against "a flat price per house square foot" -- the generic
+  // shorthand quoting habit ("$X a square foot") every reroofing customer
+  // and many contractors already reach for, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-jobber.html
+  // and vs-acculynx.html, which name real products and already carry the
+  // trademark disclaimer. Same reasoning as asphalt-sealcoat-bid-calculator's
+  // own flat-per-square-foot exemption above.
+  'roofing-bid-calculator/vs-a-flat-price-per-house-square-foot.html',
   // Compares against "multiplying total monthly tokens by one headline
   // blended $/M rate" -- the generic estimating shortcut any developer
   // sizing an LLM API bill already reaches for, not a company or product
@@ -1684,6 +1699,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and already carries the trademark disclaimer. Same reasoning as the
   // other generic-method pages above.
   'grant-deadline-tracker/vs-tracking-deadlines-in-a-spreadsheet.html',
+  // Compares against "a flat rate for every call" -- the generic quoting
+  // habit ("$X for a lockout, day or night") every mobile locksmith is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-jobber.html, vs-workiz.html, and
+  // vs-housecall-pro.html, which name real products and already carry the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

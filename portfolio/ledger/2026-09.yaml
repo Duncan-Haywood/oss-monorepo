@@ -40541,3 +40541,126 @@ entries:
         workflow; the by-hand route has no egress from this sandbox, per
         indexnow_state.py.
     mrr_end: 0
+  - venture: mcp-config-risk-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a second new venture this session: a free,
+        static, client-side tool that audits a pasted MCP server config
+        (mcp.json / claude_desktop_config.json / VS Code's servers shape / a
+        generic entry list) for four structural risk patterns -- broad
+        filesystem/shell access, secrets hardcoded instead of referenced from
+        the environment, missing version pins on npx/uvx/pipx/docker
+        launches, and duplicate/shadowing tool names across servers. All
+        checks are local pattern-matching, no network call, findings framed
+        explicitly as "not a verdict." 44 pure-logic tests on calc.mjs (58
+        total with usage/page tests). Chose this over mcp-supply-chain-watch
+        (a temporal diff between two manifests -- different scope, scored
+        0.09 in duplicate_check.py) and two other researched candidates.
+        PR #5607, merged.
+      - >-
+        Caught and fixed a real accessibility/correctness bug before
+        publishing: the summary panel's CSS set display:grid unconditionally,
+        which outranks the [hidden] attribute's native display:none, so the
+        panel would render even while marked hidden. platform/pages/check.mjs
+        caught it on the first publish attempt (refused to publish); fixed
+        with a `.summary[hidden]{display:none}` override and re-verified
+        clean before publishing.
+      - >-
+        Also fixed forward a real bug the build agent introduced mid-session
+        and caught itself before merging: FAQPage JSON-LD text used ASCII
+        "--" where the visible page copy used a real em-dash, tripping
+        faq-visible.test.mjs's authored-content-matches-JSON-LD guard.
+      - >-
+        A pre-existing, unrelated failure on main (canonical-tag-check's own
+        demo page shipping 5 real canonical tags instead of the 1 it exists
+        to teach about) was investigated, correctly identified as not this
+        session's regression, and left alone rather than opportunistically
+        fixed outside scope -- confirmed resolved by a different session's
+        PR #5601 landing while this one was in flight.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot (caught the
+        CSS bug during this very step, since publish-branch.sh's build check
+        runs against the real built output) and confirmed sync_tree_counts.py
+        and regen.mjs --verify are current against the merged main. New tool
+        live at
+        https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/.
+    mrr_end: 0
+  - venture: roofing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped roofing-bid-calculator's one budgeted generic-method
+        comparison page (surface-budget.mjs reported 0/1 for the venture):
+        vs-a-flat-price-per-house-square-foot.html. Worked example from the
+        calculator's own shipped starting inputs: a 2,200 sq ft footprint at
+        a simple 6/12 main + 4/12 garage pitch, single-layer tear-off, prices
+        at $13,857.34 on an $11,085.87 cost; the identical 2,200 sq ft
+        footprint at 12/12 + 10/12 with a two-layer tear-off costs $19,652.96
+        to run and prices at $24,566.20 -- quoting it at the easy job's flat
+        price would sit $5,795.62 below its own break-even cost. Registered
+        the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        method, no vendor named), linked from index.html, listed in
+        sitemap.xml, mirror regenerated. Merged as PR #5605.
+      - >-
+        Running the full marketing test suite before pushing (node --test
+        platform/pages/*.test.mjs platform/marketing/*.test.mjs, ~1287
+        assertions) surfaced an unrelated pre-existing failure:
+        canonical-tag-check's own why-two-canonical-tags-is-worse-than-none.html
+        illustrated multiple <link rel="canonical"> examples in escaped
+        code/FAQ prose, which front-door-tools.test.mjs's naive
+        rel=["']canonical["'] occurrence count read as 5 canonical tags on
+        one page -- the exact defect the page exists to explain. Fixed it
+        (unquoted rel=canonical form, matching the page's own meta
+        description) and verified before pushing, but PR #5601 had already
+        landed an independent fix (quote-entity-encoding) for the identical
+        defect minutes earlier. Caught the collision at merge time rather
+        than after: took main's already-tested version for that one file
+        during the merge instead of re-landing a duplicate, re-verified
+        (front-door-tools.test.mjs 102/102, the venture's own 73/73), and
+        kept only the roofing-bid-calculator page as this PR's actual
+        content. Two more source conflicts surfaced merging main a second
+        time (another venture landing in the same window) -- both were
+        purely gitops/prod/front-door* binary-mirror files; resolved per
+        resolve-mirror-merge.sh (pick either side, regenerate from merged
+        sources via regen.mjs, verify with regen.mjs --verify) rather than
+        hand-editing generated output.
+      - >-
+        Before this: session_gate.py reported the gh-pages snapshot stale
+        (built from 470ef1b8, main at 21116f39) and refreshed it first
+        (CONFIRM=publish-pages-branch PUSH=1 publish-branch.sh), recording
+        the reading via pages_state.py --record. ci_starvation.py confirmed
+        the fleet was starved at the time (runner_id: 0 across all checks on
+        main), so verification was run locally per the checklist rather than
+        waited on: roofing-bid-calculator and canonical-tag-check suites,
+        every platform/pages/*.test.mjs and platform/marketing/*.test.mjs
+        file individually, gitops/tests (631 passed / 7 skipped),
+        checklist_coverage.py, surface-budget.mjs --check, clauses.mjs
+        --check, regen.mjs --verify -- all clean before each push.
+    mrr_end: 0
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped locksmith-bid-calculator's one budgeted generic-method
+        comparison page (0/1 per surface-budget.mjs; the venture already
+        carried three named-product pages against Jobber, Workiz, and
+        Housecall Pro): vs-a-flat-rate-for-every-call.html. Worked example
+        using the calculator's own shipped DEFAULTS unchanged except the
+        emergencyCall flag: the identical call (30 min labor, 20 min travel,
+        $90/hr, $35 trip fee, $40 parts at 40% markup) costs $198.54 to run
+        quoted in the daytime and $243.39 as an after-hours emergency
+        dispatch, because the 50% after-hours premium on billed time flows
+        through the callback reserve and overhead too. This calculator
+        prices each at its target 30% margin ($283.62 / $347.69); quoting
+        the emergency call at the daytime flat price still covers its cost
+        but drops the margin to 14.19%, a $64.07 shortfall. Registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from index.html,
+        listed in sitemap.xml, mirror regenerated and verified
+        (regen.mjs --verify, front-door-tools.test.mjs, checklist_coverage.py,
+        surface-budget.mjs --check, clauses.mjs --check all clean; venture's
+        own suite 133/133).
+    mrr_end: 0
