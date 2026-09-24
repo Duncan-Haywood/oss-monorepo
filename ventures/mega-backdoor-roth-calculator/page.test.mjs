@@ -110,7 +110,11 @@ test('every input has an associated label', () => {
   }
 });
 
-test('index links one hop to the senior-deduction-calculator sibling', () => {
+// Closest sibling: both are new 2025-2026 individual tax-planning moves,
+// stackable rather than mutually exclusive. Related-tool chrome rotates
+// inside the catch-all category, so without an explicit one-hop a crawler
+// on this page may never land on that tool -- see siblings.mjs.
+test('the entry page links one hop to the senior-deduction-calculator sibling', () => {
   assert.match(
     html,
     /href="\.\.\/senior-deduction-calculator\/"/,
@@ -118,13 +122,11 @@ test('index links one hop to the senior-deduction-calculator sibling', () => {
   );
 });
 
-// Closest sibling per platform/pages/siblings.mjs's own nearest-sibling
-// scoring, in the same "Back-office money & contracts" category: both
-// reconcile a figure the filer already has (a marketplace's 1099-K, an
-// employer plan's after-tax headroom) against what they actually kept or
-// can still contribute. Closes the crawlable-orphan gap
-// siblings.test.mjs's committed budget (0) would otherwise flag on this
-// venture's first commit.
+// A second, concurrently-landed sibling link (both reconcile a figure the
+// filer already has against what they actually kept or can still
+// contribute), independently added to close the same crawlable-orphan gap
+// siblings.test.mjs's committed budget (0) flags. Kept alongside the link
+// above rather than picking one -- both are real, correct one-hop paths.
 test('index links one hop to the 1099k-reconciliation-worksheet sibling', () => {
   assert.match(
     html,

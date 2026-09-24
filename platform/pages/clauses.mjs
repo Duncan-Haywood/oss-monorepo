@@ -1991,6 +1991,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "a plain DNS lookup" (dig, or any generic online CAA
+  // record viewer) -- a manual method and a genre of interchangeable free
+  // utilities, not one specific company or product this could be mistaken
+  // for. The page names no specific lookup tool or brand.
+  'caa-record-check/vs-a-plain-dns-lookup.html',
   // Compares against "assembling a press kit by hand in a document editor"
   // -- a generic class of tool (word processors, slide decks) any artist
   // already has access to, not a company or product this could be mistaken

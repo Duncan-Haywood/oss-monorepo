@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAA Record Checker — Which CA Can Issue Your Certificate?</title>
+<meta name="description" content="Free tool: paste a hostname and it resolves the CAA record set that actually governs certificate issuance -- walking up your DNS tree per RFC 8659 to the ancestor domain that publishes one, not just the exact name you typed -- flags malformed records and a critical unrecognized tag that silently blocks every CA, and names whether Let's Encrypt, Google Trust Services, DigiCert, and 5 more are authorized to issue. Nothing uploaded to us; only public DNS is read.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/caa-record-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CAA Record Checker">
+<meta property="og:description" content="Paste a hostname to see which certificate authorities your DNS actually authorizes -- following the real RFC 8659 tree-walk, not just the exact name. Free, runs from your browser or a CLI, nothing uploaded.">
+<meta property="og:url" content="https://example.invalid/caa-record-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CAA Record Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser; a Node.js CLI is also included for CI)",
+  "description": "Resolves the CAA record set that actually governs certificate issuance for a hostname, following RFC 8659's tree-walk up to the first ancestor domain that publishes one rather than only the exact name given. Validates each record's syntax (including the RFC 8657 CA-account-authorization parameters), flags a critical unrecognized property tag that silently blocks every CA that does not implement it, and reports whether each of 8 named certificate authorities -- or any other CA domain you name -- is authorized to issue non-wildcard and wildcard certificates.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Follows RFC 8659's tree-walk up the DNS hierarchy to the ancestor domain whose CAA records actually apply, not just the exact hostname typed",
+    "Follows a single CNAME hop first, since CAA for an aliased name is evaluated at the alias's target",
+    "Decodes CAA data in both the modern presentation format and the older RFC 3597 generic-hex encoding some resolvers still return",
+    "Parses the RFC 8657 CA-account-authorization parameters (accounturi, validationmethods) inside an issue/issuewild value without losing the issuer domain",
+    "Flags a critical-flagged, unrecognized property tag -- a configuration that silently blocks every CA that does not implement it, per RFC 8659",
+    "Applies the issuewild-overrides-issue fallback rule correctly for wildcard certificates",
+    "Names whether Let's Encrypt, Google Trust Services, DigiCert, Sectigo, Amazon Trust Services, GlobalSign, SSL.com, ZeroSSL, or any other CA domain you enter is authorized",
+    "A Node.js CLI performs the identical check for CI, with an exit code for gating a deploy"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a CAA record, and why would it block my certificate?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A CAA (Certification Authority Authorization) DNS record names which certificate authorities are allowed to issue TLS certificates for your domain. If it names one CA and you (or your hosting provider) try to get a certificate from a different one, that CA is required to refuse — this is one of the most common causes of a sudden, confusing certificate-renewal failure, especially after switching hosts or CDNs." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why check the parent domain, not just the exact hostname?",
+      "acceptedAnswer": { "@type": "Answer", "text": "RFC 8659 says a certificate authority does not stop at the exact name you're requesting a certificate for. If app.staging.example.com has no CAA records of its own, the CA checks staging.example.com, then example.com, and uses whichever ancestor domain has the first non-empty answer. A tool that queries only the exact name reports \"no CAA record, any CA may issue\" for a subdomain whose parent actually restricts issuance." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does a critical, unrecognized property tag actually do?",
+      "acceptedAnswer": { "@type": "Answer", "text": "RFC 8659 defines exactly three standard tags (issue, issuewild, iodef). A record can mark any tag — including a custom or misspelled one — as \"critical\", and a compliant CA that does not specifically implement that tag must then refuse to issue for the domain at all, regardless of any issue records also present. Since no public CA implements an arbitrary custom tag, a critical flag on one effectively blocks every CA until the record is fixed — and it is invisible in a plain record listing that doesn't apply this rule." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report guarantee my certificate will issue?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This reports what your published CAA records authorize, computed the way RFC 8659 says a CA must compute it — it is evidence about your DNS configuration, not a determination that a given CA will actually issue. The CA may apply its own additional checks (domain validation, rate limits, account restrictions) on top of CAA authorization." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to point this at a hostname?",
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool never sends any request to the hostname you name — it only queries Cloudflare's public DNS-over-HTTPS resolver, reading CAA and CNAME records the domain owner already published for anyone to see. Nothing is uploaded to our servers when run in the browser; every request goes straight from your browser to the DNS resolver." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  input[type="text"] { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; margin: 0.3rem 0 0.8rem; }
+  label { font-weight: 600; font-size: 0.9rem; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c9860a; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.critical { border-left-color: #8b0000; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; word-break: break-all; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; word-break: break-all; }
+  td.yes { color: #0a7c42; font-weight: 600; }
+  td.no { color: #c0392b; font-weight: 600; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>CAA Record Checker</h1>
+<p>
+  Paste a hostname. This resolves the CAA record set that actually governs certificate issuance for
+  it — walking up your DNS tree per RFC 8659 to the first ancestor domain that publishes one, the
+  same way a real certificate authority does, rather than stopping at the exact name you typed. See
+  <a href="how-caa-blocks-certificate-issuance.html">why a CAA record blocks issuance</a> for the
+  full mechanism and the fixes. This tool never contacts the hostname itself — only Cloudflare's
+  public DNS resolver, reading records the domain owner already published.
+</p>
+
+<div class="card">
+  <h2>Run the check</h2>
+  <label for="hostname">Hostname</label>
+  <input type="text" id="hostname" placeholder="app.staging.example.com" autocomplete="off" spellcheck="false">
+  <label for="ca">Check one specific CA is authorized (optional)</label>
+  <input type="text" id="ca" placeholder="letsencrypt.org" autocomplete="off" spellcheck="false">
+  <p>
+    <button type="button" class="primary" id="run">Check this hostname</button>
+    <button type="button" id="load-example">Load worked example (blocks Let's Encrypt)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Enter a hostname, then click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>CAA records</h3>
+  <p class="status-note" id="found-at"></p>
+  <table id="records-table"><thead><tr><th>Flag</th><th>Tag</th><th>Value</th></tr></thead><tbody></tbody></table>
+  <h3>Authorization by certificate authority</h3>
+  <table id="ca-table"><thead><tr><th>CA</th><th>Non-wildcard</th><th>Wildcard</th></tr></thead><tbody></tbody></table>
+</section>
+
+<div class="card">
+  <h2>Prefer a CLI, or want to gate a deploy on this?</h2>
+  <p>
+    The browser page and the CLI share the same lookup and analysis code, and both talk only to
+    Cloudflare's public resolver, so there is no CORS wall here the way there is for tools that must
+    also reach the target site itself.
+  </p>
+  <pre class="cmd"><code>node check.mjs app.staging.example.com --ca letsencrypt.org --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/caa-record-check" rel="noopener">check.mjs, lookup.mjs, parse.mjs, and analyze.mjs from the repo</a> —
+    exit code 1 on a malformed record, a critical unrecognized tag, or (with --ca) a blocked CA;
+    exit code 2 if the lookup itself could not complete. Wire it into deploy verification or a
+    recurring DNS-zone-audit job.
+  </p>
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What is a CAA record, and why would it block my certificate?</h3>
+  <p>A CAA (Certification Authority Authorization) DNS record names which certificate authorities are allowed to issue TLS certificates for your domain. If it names one CA and you (or your hosting provider) try to get a certificate from a different one, that CA is required to refuse — this is one of the most common causes of a sudden, confusing certificate-renewal failure, especially after switching hosts or CDNs.</p>
+  <h3>Why check the parent domain, not just the exact hostname?</h3>
+  <p>RFC 8659 says a certificate authority does not stop at the exact name you're requesting a certificate for. If <code>app.staging.example.com</code> has no CAA records of its own, the CA checks <code>staging.example.com</code>, then <code>example.com</code>, and uses whichever ancestor domain has the first non-empty answer. A tool that queries only the exact name reports "no CAA record, any CA may issue" for a subdomain whose parent actually restricts issuance. See <a href="vs-a-plain-dns-lookup.html">how this compares to a plain DNS lookup</a>.</p>
+  <h3>What does a critical, unrecognized property tag actually do?</h3>
+  <p>RFC 8659 defines exactly three standard tags (<code>issue</code>, <code>issuewild</code>, <code>iodef</code>). A record can mark any tag — including a custom or misspelled one — as "critical", and a compliant CA that does not specifically implement that tag must then refuse to issue for the domain at all, regardless of any <code>issue</code> records also present. Since no public CA implements an arbitrary custom tag, a critical flag on one effectively blocks every CA until the record is fixed — and it is invisible in a plain record listing that doesn't apply this rule.</p>
+  <h3>Does a clean report guarantee my certificate will issue?</h3>
+  <p><strong>No.</strong> This reports what your published CAA records authorize, computed the way RFC 8659 says a CA must compute it — it is evidence about your DNS configuration, not a determination that a given CA will actually issue. The CA may apply its own additional checks (domain validation, rate limits, account restrictions) on top of CAA authorization.</p>
+  <h3>Is it safe to point this at a hostname?</h3>
+  <p>This tool never sends any request to the hostname you name — it only queries Cloudflare's public DNS-over-HTTPS resolver, reading CAA and CNAME records the domain owner already published for anyone to see. Nothing is uploaded to our servers when run in the browser; every request goes straight from your browser to the DNS resolver.</p>
+</section>
+
+<script type="module">
+  import { resolveCaaSet } from './lookup.mjs';
+  import { classify, buildReport, KNOWN_CAS } from './analyze.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    hostname: $('#hostname'), ca: $('#ca'), status: $('#status'),
+    reportCard: $('#report-card'), verdict: $('#verdict'), findings: $('#findings'),
+    foundAt: $('#found-at'), recordsTable: $('#records-table tbody'), caTable: $('#ca-table tbody'),
+    run: $('#run'),
+  };
+
+  const EXAMPLE_HOSTNAME = 'shop.demo-shop-site.invalid';
+  const EXAMPLE_LOOKUP = {
+    ok: true, queriedName: EXAMPLE_HOSTNAME, canonicalName: EXAMPLE_HOSTNAME,
+    foundAtName: 'demo-shop-site.invalid',
+    records: [{ ok: true, flag: 0, critical: false, tag: 'issue', value: 'digicert.com' }],
+    walkedNames: [EXAMPLE_HOSTNAME, 'demo-shop-site.invalid'], error: null,
+  };
+  const EXAMPLE_RESULT = classify(EXAMPLE_HOSTNAME, EXAMPLE_LOOKUP, 'letsencrypt.org');
+  const EXAMPLE_REPORT = buildReport([EXAMPLE_HOSTNAME], [EXAMPLE_RESULT]);
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    const r = report.results[0];
+    if (r.category === 'lookup-error') {
+      els.verdict.className = 'verdict bad';
+      els.verdict.textContent = `DNS lookup did not complete: ${r.error}`;
+      els.findings.innerHTML = '';
+      els.foundAt.textContent = '';
+      els.recordsTable.innerHTML = '';
+      els.caTable.innerHTML = '';
+      els.reportCard.hidden = false;
+      return;
+    }
+    const { lookup, analysis, requestedCaVerdict } = r;
+
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (requestedCaVerdict) {
+      els.verdict.textContent = requestedCaVerdict.nonWildcard.authorized
+        ? `${requestedCaVerdict.name} is authorized to issue for ${lookup.queriedName}.`
+        : `${requestedCaVerdict.name} is NOT authorized to issue for ${lookup.queriedName}.`;
+    } else if (analysis.hasFindings) {
+      els.verdict.textContent = `${analysis.malformed.length} malformed record(s), ${analysis.criticalUnknown.length} critical unrecognized tag(s) found.`;
+    } else {
+      els.verdict.textContent = analysis.noCaaAnywhere
+        ? 'No CAA record found anywhere in the tree — any CA may issue.'
+        : 'CAA record set found, no syntax findings.';
+    }
+
+    const findingsHtml = [];
+    for (const m of analysis.malformed) {
+      findingsHtml.push(`<div class="finding critical"><h3>Malformed CAA record</h3><p class="evidence">${escapeHtml(m.error)} — raw: ${escapeHtml(m.raw)}</p></div>`);
+    }
+    for (const c of analysis.criticalUnknown) {
+      findingsHtml.push(`<div class="finding critical"><h3>Critical, unrecognized tag: ${escapeHtml(c.tag)}</h3><p>Any CA that does not implement this tag MUST refuse to issue for this name at all — in practice, every public CA that doesn't specifically support it.</p></div>`);
+    }
+    els.findings.innerHTML = findingsHtml.join('') || '<p>No syntax findings.</p>';
+
+    els.foundAt.textContent = analysis.noCaaAnywhere
+      ? `No CAA record found from ${lookup.canonicalName} up through the top level.`
+      : `Found at: ${lookup.foundAtName}${lookup.foundAtName !== lookup.canonicalName ? ' (an ancestor of the name you entered, not the exact name)' : ''}`;
+
+    els.recordsTable.innerHTML = lookup.records.map((rec) => rec.ok
+      ? `<tr><td>${rec.flag}${rec.critical ? ' (critical)' : ''}</td><td>${escapeHtml(rec.tag)}</td><td>${escapeHtml(rec.value)}</td></tr>`
+      : `<tr><td colspan="3" class="error">malformed: ${escapeHtml(rec.error)}</td></tr>`).join('');
+
+    els.caTable.innerHTML = analysis.caVerdicts.map((v) =>
+      `<tr><td>${escapeHtml(v.name)}</td>` +
+      `<td class="${v.nonWildcard.authorized ? 'yes' : 'no'}">${v.nonWildcard.authorized ? 'authorized' : 'blocked'}</td>` +
+      `<td class="${v.wildcard.authorized ? 'yes' : 'no'}">${v.wildcard.authorized ? 'authorized' : 'blocked'}</td></tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function runLiveCheck() {
+    const hostname = els.hostname.value.trim();
+    const ca = els.ca.value.trim() || null;
+    if (!hostname) {
+      els.status.innerHTML = '<span class="error">Enter a hostname.</span>';
+      return;
+    }
+    els.status.textContent = 'Checking… this sends real DNS-over-HTTPS requests to Cloudflare\'s public resolver only.';
+    els.run.disabled = true;
+    try {
+      const lookup = await resolveCaaSet(hostname);
+      const result = classify(hostname, lookup, ca);
+      const report = buildReport([hostname], [result]);
+      render(report);
+      els.status.textContent = result.category === 'lookup-error'
+        ? ''
+        : 'Done. This ran entirely in your browser; nothing was sent to us.';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
+    } finally {
+      els.run.disabled = false;
+    }
+  }
+
+  els.run.addEventListener('click', runLiveCheck);
+
+  $('#load-example').addEventListener('click', () => {
+    render(EXAMPLE_REPORT);
+    els.status.textContent = "Worked example: a domain whose CAA record only names DigiCert, so Let's Encrypt (checked here) is blocked.";
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.hostname.value = '';
+    els.ca.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Enter a hostname, then click Check.';
+  });
+
+  {
+    const usageControl = document.getElementById('usageOptOut');
+    if (usageControl) {
+      usageControl.checked = readOptOut(localStorage);
+      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+    }
+  }
+
+  void KNOWN_CAS;
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This reads the CAA record set your DNS actually
+  publishes and reports what RFC 8659 says it authorizes. It is not a guarantee that any particular
+  certificate authority will actually issue a certificate — the CA applies its own checks on top of
+  CAA authorization, and this tool does not perform a full security or compliance audit.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security or compliance advice, and it does not replace a
+  qualified review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability
+  for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser, and nothing is ever sent to the hostname you check.</strong>
+  Every request goes straight from your browser to Cloudflare's public DNS resolver — never through
+  this site, and never logged or stored by us. The only thing stored is an anonymous local count of
+  which features were used and the day — no hostnames, no CA names entered, no account, no tracking
+  cookies, no analytics vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your stack: <a href="../email-auth-check/">Email Auth checker</a> covers
+  SPF/DKIM/DMARC/BIMI, <a href="../security-headers-check/">Security Headers checker</a> covers
+  another response-evidence class, and <a href="../subdomain-takeover-check/">Subdomain Takeover
+  checker</a> covers a different DNS-hygiene footgun, all in the same "read what's actually there,
+  name the exact evidence" shape as this tool.</p>
+</footer>
+</body>
+</html>

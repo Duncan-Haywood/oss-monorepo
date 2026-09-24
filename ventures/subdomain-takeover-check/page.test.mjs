@@ -134,3 +134,15 @@ test('the report distinguishes confirmed from unconfirmed findings in the page c
   assert.match(html, /confirmed/i);
   assert.match(html, /unconfirmed/i);
 });
+
+// caa-record-check shipped after this venture and links here from its own
+// footer, but siblings.mjs only counts a link from a tool's *entry page*, so
+// the reciprocal has to be explicit -- otherwise a crawler landing on this
+// page first never reaches the other DNS-hygiene checker in one hop.
+test('index links one hop to the caa-record-check sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/caa-record-check\/"/,
+    'index must link ../caa-record-check/ so crawlers reach the CAA checker in one hop',
+  );
+});
