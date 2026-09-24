@@ -42660,6 +42660,53 @@ entries:
         confirms no steering document reports that null as an observed
         zero.
     mrr_end: 0
+  - venture: pour-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. a spreadsheet":
+        surface-budget.mjs reported 0 generic-method pages for this venture
+        (it already carried 2 named-product pages, vs-binwise.html and
+        vs-wisk.html, plus a how-to guide). The page contrasts the
+        calculator against a plain spreadsheet on three specific gaps the
+        arithmetic actually has: a half-filled modifier/mixer slot priced
+        as free instead of flagged (readOptionalIngredient's own
+        partial-entry check), no backward solve from a target pour-cost
+        percentage to the price it needs (targetMenuPrice), and no
+        annualized dollar figure for a small over-pour (overPourCostPerYear).
+        Filed in platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (compares a generic method, not a named product).
+      - >-
+        The worked example ($22/750ml well spirit, 1.5oz pour, 5oz of a
+        $4 mixer, $7 menu price, 20% target, 400 drinks/week, 0.25oz
+        over-pour) is recomputed in the new test file directly against
+        calculatePourCost from calc.mjs rather than hand-typed, so a future
+        change to the shipped arithmetic would make the page's claim false
+        and the test red instead of merely stale.
+      - >-
+        Regenerated the front-door mirror (platform/marketing/regen.mjs)
+        so the apex catalogue serves the new page and its sitemap entry;
+        verified clean with regen.mjs --verify before pushing.
+        sync_tree_counts.py reported no drift (this only adds a page to an
+        already-mirrored venture, not a new venture).
+      - >-
+        Verified before merging, since Actions is starved this session
+        (ci_starvation.py confirmed runner_id: 0 on a same-repo
+        portfolio-validate run): the venture's own suite 91/91,
+        clauses.mjs clean, surface-budget.mjs --check clean (venture now
+        1/1 generic-method), regen.mjs --verify clean, the full
+        platform/marketing + platform/pages suite (exit 0, no failures),
+        checklist_coverage.py clean, sync_tree_counts.py clean, and
+        gitops/tests 613 passed / 25 skipped (environmental --
+        nginx-light/openssh-client not installed this session).
+      - >-
+        Also refreshed the GitHub Pages branch-source snapshot this
+        session per CLAUDE.md's standing job (publish-branch.sh), before
+        starting this venture work -- it was stale (built one merge behind
+        `main`). Revenue and confirmed-visitor counts remain at zero,
+        which this does not change on its own.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
