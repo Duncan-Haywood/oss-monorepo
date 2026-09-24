@@ -1,0 +1,120 @@
+name: caa-record-check
+description: >-
+  A free browser tool + CLI for developers, DevOps engineers, and anyone who
+  manages a domain's DNS: resolves the CAA record set that actually governs
+  certificate issuance for a hostname, following RFC 8659's tree-walk up the
+  DNS hierarchy to the first ancestor domain that publishes one -- not just
+  the exact name typed, which is the single most common source of a
+  subdomain's certificate suddenly failing to renew. Validates each record's
+  syntax, including the RFC 8657 CA-account-authorization parameters inside
+  an issue/issuewild value, and flags a critical-flagged, unrecognized
+  property tag that silently blocks every certificate authority that does
+  not implement it. Names whether Let's Encrypt, Google Trust Services,
+  DigiCert, Sectigo, Amazon Trust Services, GlobalSign, SSL.com, ZeroSSL, or
+  any other CA domain entered is authorized to issue non-wildcard and
+  wildcard certificates. Never sends any request to the hostname being
+  checked -- only to a public DNS resolver, reading records the domain owner
+  already published.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-24 per portfolio/pipeline/README.md's "archetype itself"
+# section: a zero-dependency browser tool + CLI, in the same "read what's
+# actually there, apply the real processing rules, name the exact evidence"
+# shape as this portfolio's other DNS/HTTP checkers (email-auth-check,
+# subdomain-takeover-check, cors-misconfig-check), not another
+# <trade>-bid-calculator. duplicate_check.py scored every existing venture,
+# screened-out.md row, and pipeline candidate at 0.12 or below against the
+# final description -- subdomain-takeover-check closest (0.12, a different
+# DNS-hygiene footgun: dangling CNAMEs, not certificate-issuance
+# authorization) and email-auth-check next (0.11, SPF/DKIM/DMARC/BIMI mail
+# authentication, not TLS certificate authorization). dns-configuration-
+# evidence (a pipeline probe candidate, unbuilt) is a recurring
+# monitor-and-diff product over an authorized customer's own DNS zone; this
+# is a one-shot deterministic classifier anyone can point at any public
+# hostname, the same shape distinction the family's other checkers already
+# draw against that candidate. Nothing in screened-out.md covers CAA,
+# certificate-authority authorization, or certificate issuance.
+#
+# Distribution channel this was picked for: "CAA record prevents issuance"
+# and "Blocking CAA record(s) found" are recurring, actively-answered
+# threads on community.letsencrypt.org (Let's Encrypt's own support forum)
+# and a recurring certbot GitHub issue category, plus DirectAdmin/hosting-
+# panel forum threads -- a real, ongoing channel of people hitting this
+# specific error and searching for it, not a hypothetical one. Several free
+# CAA *lookup* tools already rank for the generic search term (UptimeRobot,
+# DNS Spy, Pulsetic, nslookup.io, whatsmydns.net, and others), which is why
+# distribution is scored at 6 rather than the family's typical 7 -- but
+# every one of them shows the raw record at the exact name queried and stops
+# there, none apply RFC 8659's tree-walk, the issuewild fallback, or the
+# critical-flag rule, and a DNSControl GitHub issue independently confirms
+# the RFC 8657 multi-parameter value shape is a real parsing failure mode
+# ("CAA value does not contain 3 fields") -- the differentiation is
+# diagnostic depth on a crowded search term, not being first to it. This
+# session has no live internet access to pull a current search-volume
+# number, so the channel claim is reasoned from the forum/issue-tracker
+# activity found during screening, not a verified traffic figure.
+
+hypotheses:
+  - claim: >-
+      A developer or DNS administrator who has just hit "CAA record prevents
+      issuance" on a certificate renewal, or who is doing pre-launch DNS
+      verification after switching hosting providers, will search a variant
+      of "CAA record checker", "CAA record prevents issuance", or "why does
+      my subdomain certificate fail to renew", and use a free tool that
+      applies the actual RFC 8659 tree-walk and fallback rules rather than
+      only showing the raw record at the exact name they typed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, currently active and recurring certificate-
+      management footgun, not a one-off incident: community.letsencrypt.org
+      and certbot's own GitHub issue tracker carry an ongoing stream of "CAA
+      record prevents issuance" / "Blocking CAA record(s) found" threads,
+      and DirectAdmin and other hosting-panel forums show the same error
+      recurring across unrelated stacks. No existing venture in this
+      portfolio reads DNS CAA records or applies RFC 8659's issuance-
+      authorization rules.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or agency that gets a confirmed finding will wire the CLI
+      into a pre-deploy or DNS-zone-change verification job (cron or CI),
+      producing return usage with no action from this portfolio -- the same
+      return-usage path the sibling checker family already documents.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: both the CLI (the user's own machine) and the
+  # browser page (the visitor's own browser) query Cloudflare's public DNS
+  # resolver directly -- the hostname being checked is never contacted at
+  # all. No server of ours is involved, so serving one more user costs a
+  # static file and nothing else.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free tool covering the same RFC 8659 tree-walk,
+    issuewild fallback, and critical-flag classification, at the same
+    zero-install bar, becomes the obvious default, such that this tool's
+    differentiation over the existing raw-lookup tools no longer holds.
+  - Real user reports show the CA issuer-domain shortlist or the RFC 8659/
+    RFC 8657 parsing produces false positives or false negatives that
+    cannot be fixed without expanding scope past what this tool's liability
+    read covers.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/caa-record-check/
+  analytics: null
