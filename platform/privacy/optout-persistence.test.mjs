@@ -723,13 +723,28 @@ const RELATIVE_SELF = relative(
 // this list; the intervening 339 was another concurrent graduation this
 // branch never observed.
 //
-// 340 -> 341: `senior-deduction-calculator` also graduated, concurrently on
-// `main` -- adding one more `usage.mjs`
-// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. This
-// branch only ever knew its own predecessor's number (340, at its own
-// graduation) until this merge -- the same ordinary collision shape
-// recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 341;
+// 340 -> 341: `claude-code-subagent-check` also graduated, independently on
+// `main` at the same 339 predecessor -- adding one more `usage.mjs`
+// (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
+// toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage`, keyed under its own
+// `claude-code-subagent-check:usage` storage name), no deletions. Both this
+// venture and `claude-skill-scaffold-generator` above claimed the same next
+// number (340) from the same 339 predecessor -- the same ordinary collision
+// shape recorded throughout this list, this time with both additions real
+// and neither superseding the other. `mega-backdoor-roth-calculator`, which
+// also graduated concurrently, added no `usage.mjs` of its own, so it does
+// not move this count.
+//
+// 341 -> 342: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Two
+// separate concurrent sessions each recorded their own half of this
+// transition independently, one landing on 341 (only seeing
+// claude-skill-scaffold-generator) and the other on 341 by a different path
+// (only seeing claude-code-subagent-check) -- neither could see the other's
+// addition. All three additions are real, so the merged count is 342.
+const SWITCHES_IN_THE_CATALOGUE = 342;
 
 let counter = 0;
 function fixture(source) {

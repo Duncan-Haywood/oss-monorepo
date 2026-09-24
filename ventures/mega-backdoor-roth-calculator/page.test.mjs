@@ -86,3 +86,18 @@ test('index links one hop to the senior-deduction-calculator sibling', () => {
     'index must link ../senior-deduction-calculator/ so crawlers reach the sibling deduction calculator in one hop',
   );
 });
+
+// Closest sibling per platform/pages/siblings.mjs's own nearest-sibling
+// scoring, in the same "Back-office money & contracts" category: both
+// reconcile a figure the filer already has (a marketplace's 1099-K, an
+// employer plan's after-tax headroom) against what they actually kept or
+// can still contribute. Closes the crawlable-orphan gap
+// siblings.test.mjs's committed budget (0) would otherwise flag on this
+// venture's first commit.
+test('index links one hop to the 1099k-reconciliation-worksheet sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/1099k-reconciliation-worksheet\/"/,
+    'index must link ../1099k-reconciliation-worksheet/ so crawlers reach it in one hop',
+  );
+});
