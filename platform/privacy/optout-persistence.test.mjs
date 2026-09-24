@@ -654,7 +654,13 @@ const RELATIVE_SELF = relative(
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
 // `auto-glass-bid-usage` storage name). Exactly one added `usage.mjs`
 // (`ventures/auto-glass-bid-calculator/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 331;
+//
+// 331 -> 332: `hidden-unicode-check` also graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
+// own `hidden-unicode-check:usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/hidden-unicode-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 332;
 
 let counter = 0;
 function fixture(source) {
