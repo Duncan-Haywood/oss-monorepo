@@ -33,27 +33,27 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 139 files, 557011 bytes
-#   portfolio-front-tools-1: 98 files, 550630 bytes
-#   portfolio-front-tools-2: 144 files, 555060 bytes
+#   portfolio-front-tools-0: 139 files, 557013 bytes
+#   portfolio-front-tools-1: 98 files, 550667 bytes
+#   portfolio-front-tools-2: 144 files, 555066 bytes
 #   portfolio-front-tools-3: 135 files, 553565 bytes
-#   portfolio-front-tools-4: 141 files, 556753 bytes
+#   portfolio-front-tools-4: 141 files, 556757 bytes
 #   portfolio-front-tools-5: 118 files, 540893 bytes
 #   portfolio-front-tools-6: 136 files, 556886 bytes
 #   portfolio-front-tools-7: 126 files, 555312 bytes
-#   portfolio-front-tools-8: 127 files, 556671 bytes
+#   portfolio-front-tools-8: 127 files, 556643 bytes
 #   portfolio-front-tools-9: 140 files, 549994 bytes
-#   portfolio-front-tools-10: 123 files, 551871 bytes
+#   portfolio-front-tools-10: 123 files, 551883 bytes
 #   portfolio-front-tools-11: 116 files, 554476 bytes
-#   portfolio-front-tools-12: 118 files, 554638 bytes
-#   portfolio-front-tools-13: 124 files, 555420 bytes
-#   portfolio-front-tools-14: 131 files, 549981 bytes
-#   portfolio-front-tools-15: 129 files, 541900 bytes
-#   portfolio-front-tools-16: 100 files, 556445 bytes
+#   portfolio-front-tools-12: 118 files, 554634 bytes
+#   portfolio-front-tools-13: 124 files, 555527 bytes
+#   portfolio-front-tools-14: 131 files, 549985 bytes
+#   portfolio-front-tools-15: 129 files, 541889 bytes
+#   portfolio-front-tools-16: 100 files, 556496 bytes
 #   portfolio-front-tools-17: 116 files, 546259 bytes
-#   portfolio-front-tools-18: 129 files, 556202 bytes
-#   portfolio-front-tools-19: 117 files, 545863 bytes
-#   portfolio-front-tools-20: 51 files, 264889 bytes
+#   portfolio-front-tools-18: 129 files, 556225 bytes
+#   portfolio-front-tools-19: 117 files, 545857 bytes
+#   portfolio-front-tools-20: 51 files, 264910 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has

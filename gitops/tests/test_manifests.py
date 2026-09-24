@@ -2370,9 +2370,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # mechanical flag when a selected calibration requirement was never
     # actually priced. Static `index.html` from its first commit, same
     # shape as the rest of this running count.
+    #
+    # 350 on this merge: `depop-fee-calculator` also graduated -- a
+    # zero-dependency browser calculator pricing a Depop sale against the
+    # 0%-selling-fee-plus-processing schedule US and UK sellers now run,
+    # the older flat 10% schedule still used elsewhere, and the Boosted
+    # Listings surcharge, keeping the buyer-paid Marketplace fee separate
+    # from seller payout. Static `index.html` from its first commit, same
+    # shape as the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 349  # `infra/OWNER_CHECKLIST.md`'s own "N of the 349 tools" wording.
+    total = 350  # `infra/OWNER_CHECKLIST.md`'s own "N of the 350 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
