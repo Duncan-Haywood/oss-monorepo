@@ -121,6 +121,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // tell you, not a separate company or product this could be mistaken
   // for. Same shape as branch-protection-drift-check's exemption above.
   'supabase-rls-check/vs-manually-checking-the-dashboard.html',
+  // Compares against "eyeballing two CI console logs" -- a manual habit
+  // every developer reaching for this tool already has, not a company or
+  // product this could be mistaken for. Same shape as
+  // branch-protection-drift-check's exemption above.
+  'flaky-test-finder/vs-eyeballing-two-ci-logs-by-hand.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
