@@ -205,6 +205,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // payroll admin already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
   'overtime-pay-calculator/vs-spreadsheet.html',
+  // Compares against "comparing effective rates" -- the standard rate-
+  // shopping advice every merchant-services guide recommends, not a company
+  // or product this could be mistaken for. The page names no processor and
+  // its own test asserts that.
+  'card-processing-fee-audit/vs-comparing-effective-rates.html',
   // Compares against "doing the blended-rate arithmetic by hand or in a
   // spreadsheet" -- a generic method every payroll admin already has, not a
   // company or product this could be mistaken for. Same reasoning as the
