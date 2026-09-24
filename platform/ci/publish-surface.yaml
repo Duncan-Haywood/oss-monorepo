@@ -957,6 +957,9 @@ workflows:
     step: uses cloudflare/wrangler-action
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
+- workflow: recipe-costing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: redirect-chain-check-ci.yml
   classification: none
   publishes: []

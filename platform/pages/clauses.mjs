@@ -208,6 +208,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-binwise.html and vs-wisk.html,
   // which name real inventory platforms and carry the trademark disclaimer.
   'pour-cost-calculator/vs-a-spreadsheet.html',
+  // Compares against "estimating recipe cost in a spreadsheet" -- a generic
+  // method every kitchen costing more than one dish already has, not a
+  // company or product this could be mistaken for. Same reasoning as the
+  // other vs-spreadsheet pages above; the page's own footer says it names
+  // no specific product or company.
+  'recipe-costing-calculator/vs-estimating-recipe-cost-in-a-spreadsheet.html',
   // Compares against scoring each job on a 1-10 scale -- a generic ranking
   // habit any contractor already has, not a company or product this could
   // be mistaken for. Distinct from this venture's own vs-jobber.html,

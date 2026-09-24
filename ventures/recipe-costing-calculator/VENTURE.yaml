@@ -1,0 +1,36 @@
+name: recipe-costing-calculator
+description: A private browser calculator that converts as-purchased ingredient price and trim/cook yield percentage into edible-portion cost, rolls up a short ingredient list into a total recipe cost and a per-portion plate cost, and shows the menu price needed to hit a target food-cost percentage -- or the actual food-cost percentage at a current menu price. Handles yields above 100% for ingredients that gain weight when prepped (dried beans, rice, stock).
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Independent restaurant kitchens costing a recipe by hand or in a spreadsheet routinely skip the AP-to-EP yield adjustment because the as-purchased price on the invoice is the number closest at hand, and will use a calculator that makes the conversion automatic per ingredient.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A kitchen that already knows its plate cost still wants the reverse calculation -- the menu price that hits a target food-cost percentage -- solved for it rather than done by hand each time a recipe or an ingredient price changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The search phrases "recipe costing calculator", "AP EP yield cost", "plate cost calculator", and "food cost calculator recipe", plus r/KitchenConfidential, r/AskCulinary, and r/restaurantowners, are a reachable, free channel -- measurable only once the tool is live in the apex catalogue's sitemap. Several paid recipe-costing products (MarketMan, Toast plate costing, Craftable) already sell this exact calculation as a feature, which is itself evidence of real, unmet demand for a free, single-recipe version.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three independent kitchen operators use the calculator twice within 90 days of it being discoverable.
+  - Operators report they already track AP-to-EP yield correctly in their existing POS or inventory system, so the conversion step this tool automates changes no decision.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/recipe-costing-calculator/
+  analytics: null

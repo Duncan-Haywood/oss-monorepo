@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recipe Costing Calculator vs. estimating recipe cost in a spreadsheet</title>
+  <meta name="description" content="A kitchen costing a recipe usually builds a spreadsheet: one column for as-purchased price, a formula for yield loss, a sum across ingredients. This free calculator keeps the AP-to-EP conversion, the plate cost, and the target-price math on one screen.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-estimating-recipe-cost-in-a-spreadsheet.html">
+  <meta property="og:title" content="Recipe Costing Calculator vs. estimating recipe cost in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can hold the same AP-to-EP yield math this calculator does. What it does not do on its own is solve backwards for a target-price menu number, or flag a yield above 100% as expected rather than a typo.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. The AP-to-EP yield conversion, the per-portion division, and the target-price formula are each ordinary arithmetic. Building it means one column per ingredient for as-purchased price and yield percentage, a formula dividing one by the other, and a sum across rows divided by portions -- then a second formula solving backwards for the menu price at your target food-cost percentage."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Keep the AP-to-EP formula, the per-batch rollup, and the target-price solve on one screen with no formula to write or debug, and flag a yield percentage over 100% as expected for an ingredient that gains weight when prepped rather than leaving it looking like a typo in a cell."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, for a full recipe book with dozens of dishes, sub-recipes nested inside other recipes, or a live link to a supplier's price list. A spreadsheet or dedicated recipe-management software can represent all of that. This calculator trades that scope for a form that costs one recipe at a time with no setup."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. Ingredient prices, quantities, and menu prices are never uploaded, and the optional usage counter records only which features were used and the day, never your numbers."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2417; background: #f2f6ec; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { font-size: 1.15rem; }
+    section.card { background: #fff; border: 1px solid #c9d9b8; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #1c2a0f0f; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d9b8; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #52604a; }
+    .note { font-size: .9rem; color: #52604a; }
+    footer { margin-top: 28px; font-size: .82rem; color: #52604a; border-top: 1px solid #c9d9b8; padding-top: 16px; }
+    footer p { margin: .6rem 0; }
+    a { color: #3f6b1f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Recipe costing calculator</a></p>
+  <h1>Recipe Costing Calculator vs. estimating recipe cost in a spreadsheet</h1>
+  <p>A kitchen costing more than one recipe usually ends up with a spreadsheet: a column for as-purchased price, a formula dividing by yield percentage, a sum across ingredient rows. Each formula is ordinary arithmetic. Getting the AP-to-EP direction right for an ingredient that gains weight when prepped, and rebuilding the target-price formula for each dish, is the part that gets skipped when a menu needs a price today.</p>
+
+  <section class="card">
+  <h2>What each approach actually does</h2>
+  <p><strong>A spreadsheet</strong> can reproduce every step this calculator runs &mdash; the AP-to-EP yield conversion, the per-portion division, and the target-price solve. Building it means one column per ingredient for as-purchased price and yield percentage, a formula dividing one by the other, a sum across rows divided by portions, and your own formula to solve backwards for the menu price at a target food-cost percentage.</p>
+  <p><strong>This calculator</strong> keeps the AP-to-EP formula, the per-batch rollup, and the target-price solve on one screen with no formula to write or debug, and flags a yield percentage over 100% as expected for an ingredient that gains weight when prepped rather than leaving it looking like a typo in a cell.</p>
+  <div style="overflow-x:auto">
+  <table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>What does this ingredient actually cost once trim loss is counted?</td><td>This calculator's per-ingredient EP cost &mdash; one field, no formula to maintain.</td></tr>
+  <tr><td>What menu price hits my target food-cost percentage?</td><td>The target field, solved for you.</td></tr>
+  <tr><td>Is a yield over 100% a mistake?</td><td>The calculator notes when this is expected (dried beans, rice, stock) rather than flagging it as an error.</td></tr>
+  <tr><td>I need a full recipe book with sub-recipes and a live supplier price feed.</td><td>A spreadsheet or dedicated recipe-management software &mdash; built for that scope, which this single-recipe form does not attempt.</td></tr>
+  <tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+  </tbody>
+  </table>
+  </div>
+  </section>
+
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet do this math instead?</h3>
+  <p>Yes. The AP-to-EP yield conversion, the per-portion division, and the target-price formula are each ordinary arithmetic. Building it means one column per ingredient for as-purchased price and yield percentage, a formula dividing one by the other, and a sum across rows divided by portions -- then a second formula solving backwards for the menu price at your target food-cost percentage.</p>
+  <h3>What does a spreadsheet not do that this calculator does?</h3>
+  <p>Keep the AP-to-EP formula, the per-batch rollup, and the target-price solve on one screen with no formula to write or debug, and flag a yield percentage over 100% as expected for an ingredient that gains weight when prepped rather than leaving it looking like a typo in a cell.</p>
+  <h3>Is a spreadsheet ever the better choice?</h3>
+  <p>Yes, for a full recipe book with dozens of dishes, sub-recipes nested inside other recipes, or a live link to a supplier's price list. A spreadsheet or dedicated recipe-management software can represent all of that. This calculator trades that scope for a form that costs one recipe at a time with no setup.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. Ingredient prices, quantities, and menu prices are never uploaded, and the optional usage counter records only which features were used and the day, never your numbers.</p>
+  <p class="note">This page names no specific product or company &mdash; it compares against the generic method of estimating recipe cost in a spreadsheet, not a competing calculator or recipe-management platform. Open <a href="./">the recipe costing calculator</a>, or see the <a href="../menu-engineering-calculator/">menu engineering calculator</a> for classifying dishes once you know their plate cost.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not culinary, food-safety, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> Everything runs client-side; nothing you enter is uploaded anywhere.</p>
+    <p class="support">Free and open source. If it helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

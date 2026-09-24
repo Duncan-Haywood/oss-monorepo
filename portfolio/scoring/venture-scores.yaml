@@ -17654,3 +17654,65 @@ ventures:
       no-delegation debugging session, no affiliate link, no referral
       fee, donations-only, and it does not scan, fingerprint, or contact
       any third-party system or agent runtime.
+  - slug: recipe-costing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is the AP-to-EP yield
+      conversion (AP price / (yield % / 100)), a per-batch rollup, and
+      solving a target-price formula backwards -- deterministic arithmetic
+      a language model adds nothing to, matching the floor reasoning every
+      other browser-local calculator in this portfolio carries.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match against an
+      existing venture 0.36 (menu-engineering-calculator), well under the
+      0.45 read-this-first bar and semantically distinct on inspection:
+      menu-engineering-calculator classifies dishes from a plate cost the
+      operator already has, while this venture computes that plate cost
+      from as-purchased price and yield loss in the first place -- an
+      upstream, complementary calculation, not a duplicate. AP-to-EP
+      yield costing (AP price / yield %) is standard culinary-school and
+      ServSafe-taught math; several paid products (MarketMan, Toast plate
+      costing, Craftable) sell it as a platform feature, which is
+      evidence of real demand rather than a novel claim about the
+      arithmetic. Autonomous ops 10 / gross margin 10: static ES modules,
+      no build step, no network call, no server -- same shape as every
+      other browser-local calculator in this portfolio. Time to revenue
+      4, distribution 4: r/KitchenConfidential, r/AskCulinary, and
+      r/restaurantowners are real, named communities where food cost is a
+      recurring topic, and "recipe costing calculator" / "plate cost
+      calculator" are established culinary-management search terms, but
+      no search-volume tool was queried and no existing paid competitor
+      was found offering a free, single-recipe version specifically --
+      slightly more speculative than a fee-schedule calculator with
+      visible third-party coverage of the exact rate, hence one point
+      below facebook-marketplace-fee-calculator's distribution score.
+      Defensibility 3: the AP/EP formula and a fixed five-row rollup are
+      trivially reproducible, matching the defensibility score every
+      other single-mechanism fee/cost calculator in this portfolio
+      carries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: purely arithmetic on user-supplied numbers, no claim
+      about food safety, nutrition, or regulatory compliance, and the
+      page states plainly it is not culinary or food-safety advice and
+      that yield percentages the user enters are their own to verify.
+      No network call of any kind, nothing uploaded, no account, no
+      tracking cookie.
+      Ethics: strictly beneficial as it scales -- helps an independent
+      kitchen price a dish against its real cost instead of an
+      unadjusted as-purchased number, no affiliate link, no referral
+      fee, donations-only, and it does not scan, fingerprint, or contact
+      any third-party system.
