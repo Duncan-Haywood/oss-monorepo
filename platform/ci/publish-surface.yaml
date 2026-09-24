@@ -212,6 +212,9 @@ workflows:
 - workflow: browser-checks-ci.yml
   classification: none
   publishes: []
+- workflow: caa-record-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cabinet-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []

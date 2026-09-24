@@ -17212,3 +17212,81 @@ ventures:
       useful to an owner the more accurately they describe their own
       roster -- unlike a compliance product sold on alert volume, there is
       no party here whose incentive runs the other way.
+
+  - slug: caa-record-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Which CAs are authorized is
+      decided by applying RFC 8659's own processing rules (the tree-walk,
+      the issuewild fallback, the critical-unknown-tag block) to the
+      record set a real DNS lookup returns -- a factual, deterministic
+      application of a published standard, not a model judgment.
+    basis: >-
+      Screened and built 2026-09-24 per portfolio/pipeline/README.md's
+      "archetype itself" section: a zero-dependency browser tool + CLI, in
+      the same "read what's actually there, apply the real processing
+      rules" shape as email-auth-check and subdomain-takeover-check, not
+      another <trade>-bid-calculator. duplicate_check.py scored every
+      existing venture, screened-out.md row, and pipeline candidate at
+      0.12 or below against the final description --
+      subdomain-takeover-check closest (a different DNS-hygiene footgun:
+      dangling CNAMEs, not certificate-issuance authorization) and
+      email-auth-check next (SPF/DKIM/DMARC/BIMI mail authentication, not
+      TLS certificate authorization). Nothing in screened-out.md covers
+      CAA or certificate-authority authorization.
+      Autonomous ops 10 / gross margin 10: every request runs from the
+      visitor's own browser or the user's own machine (for the CLI) to a
+      public DNS resolver -- this tool never contacts the hostname being
+      checked at all -- so serving one more user costs a static file and
+      needs no human review of any output.
+      Distribution 6: "CAA record prevents issuance" and "Blocking CAA
+      record(s) found" are recurring, actively-answered threads on
+      community.letsencrypt.org and a recurring certbot GitHub issue
+      category, plus hosting-panel forum threads (DirectAdmin and others)
+      showing the same error across unrelated stacks -- a real, ongoing
+      channel. Scored below the sibling checker family's typical 7
+      because several free CAA *lookup* tools already rank for the
+      generic search term (UptimeRobot, DNS Spy, Pulsetic, nslookup.io,
+      whatsmydns.net, and others); none of them apply RFC 8659's
+      tree-walk, the issuewild fallback, or the critical-flag rule, and a
+      DNSControl GitHub issue independently confirms the RFC 8657
+      multi-parameter value shape is a real parsing failure mode ("CAA
+      value does not contain 3 fields") -- so the differentiation is
+      diagnostic depth on a crowded term, not being first to it.
+      Time to revenue 6, defensibility 3: donations-only; the RFC 8659
+      tree-walk and the issuewild/critical-flag fallback-rule interactions
+      are a genuine, if narrow, correctness surface to get right (matching
+      security-headers-check's CSP-fallback-rule precedent for a 3 rather
+      than the flatter 2-scored checkers), but a determined competitor
+      could still reimplement it from the same published RFCs.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and structurally safer than most of the sibling checker
+      family: this tool never sends any request of any kind to the
+      hostname being checked, only to a public DNS-over-HTTPS resolver,
+      reading CAA and CNAME records the domain owner already published for
+      anyone to see -- there is no live-request-to-a-third-party surface
+      to contain at all. A malformed record or an unrecognized data format
+      is reported as such rather than guessed at or silently dropped, and
+      the CA issuer-domain shortlist is disclosed as a helpful list rather
+      than an authoritative registry, with the page and README both
+      stating a clean report is evidence about published DNS data, not a
+      guarantee a given CA will issue. Ethically: donations-only with no
+      per-use fee and no revenue model that would reward misclassifying a
+      CA's authorization in either direction; the tool gets strictly more
+      useful to a domain owner as it is used, since a false "authorized"
+      reading would only surface as their own next renewal failing, which
+      is the same self-correcting incentive structure this portfolio's
+      other read-only DNS/HTTP checkers already rely on.

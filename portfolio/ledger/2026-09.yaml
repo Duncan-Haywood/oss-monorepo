@@ -42720,3 +42720,91 @@ entries:
         action changes on its own -- both are prerequisites for a stranger
         finding and being able to use the catalogue, not usage itself.
     mrr_end: 0
+
+  - venture: caa-record-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py read PROCEED; build-now pipeline empty. Screened,
+        graduated, and built a new venture not in screened-out.md: a free
+        browser tool + CLI that resolves the CAA DNS record set actually
+        governing certificate issuance for a hostname, following RFC
+        8659's tree-walk up the DNS hierarchy to the first ancestor domain
+        that publishes one -- not just the exact name typed, which is the
+        single most common source of "why does my subdomain suddenly fail
+        to renew" confusion on Let's Encrypt's own community support
+        forum (a recurring, actively-answered thread there and a recurring
+        certbot GitHub issue category). Validates the RFC 8657
+        CA-account-authorization parameters inside an issue/issuewild
+        value (a real DNSControl GitHub issue independently confirms this
+        exact parsing failure mode), flags a critical-flagged unrecognized
+        property tag that silently blocks every CA that doesn't implement
+        it, and names whether 8 well-known CAs -- or any other CA domain
+        entered -- are authorized for non-wildcard and wildcard
+        certificates. duplicate_check.py scored every existing venture,
+        screened-out row, and pipeline candidate at 0.12 or below against
+        the final description (subdomain-takeover-check closest, a
+        different DNS-hygiene footgun); nothing in screened-out.md covers
+        CAA or certificate-authority authorization. Composite 6.75 (8-dim
+        candidates.yaml scoring), floor 1 (ai_leverage, deliberate -- no
+        model in the loop), both gates well clear of 5:
+        liability_containment 9 (this tool never sends any request to the
+        hostname being checked, only to a public DNS resolver -- a
+        narrower request surface than most of the sibling checker family),
+        ethical_robustness 9. Full write-up:
+        portfolio/pipeline/candidates/caa-record-check.md.
+      - >-
+        Built ventures/caa-record-check/: VENTURE.yaml, LICENSE, README.md,
+        parse.mjs (decodes both DNS-over-HTTPS wire formats a CAA record
+        can come back as -- the modern presentation format and the RFC
+        3597 generic-hex encoding Cloudflare's own DoH JSON changelog says
+        it only stopped returning on 2026-07-28 -- plus the RFC 8657
+        multi-parameter issue/issuewild value grammar), lookup.mjs (the
+        RFC 8659 tree-walk over Cloudflare's public DoH resolver, with a
+        single CNAME hop first; the only network-calling file), analyze.mjs
+        (per-CA authorization verdicts applying the issuewild-overrides-
+        issue fallback and the critical-unknown-tag block), check.mjs
+        (CLI, exit 0/1/2), usage.mjs (opt-out, DNT/GPC-respecting local
+        counter, never records a hostname or CA), index.html (paste a
+        hostname, optional CA field, worked example, live DoH lookup runs
+        entirely client-side with no CORS wall since only the public
+        resolver is ever contacted), a HowTo guide page on the four causes
+        of a CAA issuance failure, and a generic-method comparison page
+        against a plain DNS lookup. 73 tests across parse/lookup/analyze/
+        check/usage, plus page.test.mjs for both pages' disclosures and
+        JSON-LD (SoftwareApplication + FAQPage on the index, HowTo on the
+        guide, FAQPage on the vs page). Added its own CI workflow
+        (test-only, publish_surface.py --write recorded it as publishing
+        `none`), scored it in venture-scores.yaml and
+        portfolio/pipeline/candidates.yaml (with the README.md ranking
+        table row, renumbered in place per validate_doc_consistency.py's
+        composite-descending rule), and closed a crawlable-orphan flag
+        from siblings.mjs by adding a reciprocal link from
+        subdomain-takeover-check's footer (the other DNS-hygiene checker
+        it's closest to) with its own page.test.mjs assertion.
+      - >-
+        Verified before pushing: the venture's own 73 assertions; the
+        fleet-wide platform/marketing + platform/pages suite (1290+
+        assertions) after regen.mjs --verify caught the new venture's
+        stale front-door mirror and a worked-example fixture string
+        (`demo-example.invalid`) that accidentally contained the literal
+        placeholder-origin substring `example.invalid`, both fixed;
+        platform/proposal, platform/privacy, platform/webcheck suites;
+        all 26 platform/ci unittest modules plus agent_review's
+        test_review; gitops/tests (637 passed, 1 skipped) after
+        sync_tree_counts.py and gitops/ci/sync_readme_counts.py repaired
+        the mirrored-tool and runs-on counts a concurrent merge had
+        already moved past 358; pytest across portfolio/ledger,
+        portfolio/scoring, portfolio/router, portfolio/usage,
+        portfolio/pipeline, infra/tests (446 passed); router/validate.py,
+        score_ventures.py --check, usage/validate_usage.py,
+        validate_doc_consistency.py, validate_candidates.py,
+        score_sensitivity.py, probes/validate_probe_index.py,
+        checklist_coverage.py, clauses.mjs (added the vs-page's
+        generic-method exemption), siblings.mjs --check, and
+        surface-budget.mjs --check all clean. Revenue and confirmed-
+        visitor counts remain at zero fleet-wide; this ships a fresh,
+        gate-cleared bet with a named channel rather than moving either
+        number on its own.
+    mrr_end: 0

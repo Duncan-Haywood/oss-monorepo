@@ -287,9 +287,11 @@
   optional and never changes what the tool does.</p>
   <p>Also worth a pass on your stack: <a href="../dotenv-exposure-check/">Dotenv Exposure checker</a>
   and <a href="../git-exposure-check/">Git Exposure checker</a> cover other static-file exposure
-  classes, and <a href="../security-headers-check/">Security Headers checker</a> covers another
+  classes, <a href="../security-headers-check/">Security Headers checker</a> covers another
   response-evidence class in the same "read what's actually there, name the exact evidence" shape
-  as this tool.</p>
+  as this tool, and <a href="../caa-record-check/">CAA Record checker</a> covers a different
+  DNS-hygiene footgun -- which certificate authority is allowed to issue for your domain, rather
+  than a dangling CNAME.</p>
 </footer>
 </body>
 </html>
