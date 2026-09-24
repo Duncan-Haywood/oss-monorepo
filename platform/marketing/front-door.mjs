@@ -544,8 +544,48 @@ export const EMPTY_FEED_UPDATED = '2026-08-28T00:00:00Z';
 /** The well-known path a model fetches without having to discover it first. */
 export const LLMS_FILE = 'llms.txt';
 
-/** Where `--write` puts it, beside the page it describes. */
-export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', LLMS_FILE);
+/**
+ * The ConfigMap key it is stored under, gzipped — see `COMPRESSED_SUFFIX`.
+ *
+ * `catalogStoredKey`'s own doc comment named `sitemap.xml` (113,830 bytes the
+ * day `catalog.json` was compressed) as the next key over the etcd threshold,
+ * and its own comment then named `llms.txt` (106,635 bytes that same day) as
+ * the one after that — both left plain deliberately, "one at a time and
+ * against a measurement" rather than pre-emptively. `sitemap.xml` joined on
+ * 2026-09-23; this is that day for `llms.txt`. Measured on 2026-09-24: adding
+ * `skill-manifest-check` to a `main` that was already 109 bytes over the
+ * 943,718-byte budget on its own (three sibling comparison pages having
+ * landed since `sitemap.xml` bought its headroom back) took
+ * `portfolio-front-html` to 945,297 bytes — over by 1,579, the same failure
+ * shape `catalogStoredKey` and `sitemapStoredKey` both record, one key
+ * further down the list they named. This was never really about one venture:
+ * `main` itself was already over budget before this session's page existed.
+ *
+ * Applied the identical mechanism the two keys before it use: gzip the file,
+ * store it under a `.gz` key, serve it via `gzip_static always; gunzip on;`
+ * (no `try_files`, which stats the now-absent uncompressed name and would
+ * 404 before `gzip_static` ever ran), sweep the stale plain sibling, and add
+ * the matching test coverage mirroring what guards `sitemap.xml.gz`.
+ *
+ * The *URL* is unchanged and stays `/llms.txt` — `LLMS_FILE` is what the
+ * front page and the About page link, and a well-known path
+ * (llmstxt.org) is not something to move to save bytes. Only the stored key
+ * changes.
+ */
+export const llmsStoredKey = () => `${LLMS_FILE}${COMPRESSED_SUFFIX}`;
+
+/**
+ * Where `--write` puts it, beside the page it describes.
+ *
+ * The suffix is spelled out rather than taken from `COMPRESSED_SUFFIX`, for
+ * the same reason `SITEMAP_OUTPUT_FILE` spells it out: `COMPRESSED_SUFFIX` is
+ * declared several hundred lines below this, and a `const` is hoisted into
+ * the temporal dead zone, not initialised, so a forward reference here would
+ * throw at module load rather than read as a stale copy. `llmsStoredKey()`
+ * above is the accessor that does use the constant, and `front-door.test.mjs`
+ * asserts the two agree so this literal cannot drift.
+ */
+export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', `${LLMS_FILE}.gz`);
 
 /** The structured half of the same handshake. See `renderFrontDoorCatalog`. */
 export const CATALOG_FILE = 'catalog.json';
@@ -2894,9 +2934,15 @@ if (isMain) {
     console.log(`wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${feed.length} bytes)`);
     // And once more: `llms.txt` lists the same mirrored tools the page and the
     // feed do, so a run that wrote one without the others would publish three
-    // documents disagreeing about what this host serves.
-    await fs.writeFile(LLMS_OUTPUT_FILE, llms);
-    console.log(`wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${llms.length} bytes)`);
+    // documents disagreeing about what this host serves. Gzipped, unlike the
+    // feed write above it: this is the key `catalogStoredKey` and
+    // `sitemapStoredKey` both named as next over the etcd budget, and it is
+    // what took the object over on 2026-09-24. See `llmsStoredKey`.
+    const storedLlms = compress(llms);
+    await fs.writeFile(LLMS_OUTPUT_FILE, storedLlms);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${storedLlms.length} bytes, ${llms.length} uncompressed)`,
+    );
     // And once more, with one extra edge: `llms.txt` now *links* this file, so
     // a run that wrote the one without the other would publish a document
     // pointing a model at a path this host answers with the front page.
@@ -2999,10 +3045,13 @@ if (isMain) {
     // `location = /catalog.json` block's own `root`, so a regeneration that
     // stopped writing the compressed copy would go on serving a frozen
     // catalogue -- 200s, valid JSON, quietly describing a catalogue that has
-    // moved on. `SITEMAP_FILE` joins on 2026-09-23 for the identical reason,
+    // moved on. `SITEMAP_FILE` joined on 2026-09-23 for the identical reason,
     // one key over: a plain `sitemap.xml` left beside the new `.gz` would
     // keep answering `/sitemap.xml` with a sitemap that stopped growing.
-    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
+    // `LLMS_FILE` joins on 2026-09-24, one key further still, for the
+    // identical reason again: a plain `llms.txt` left beside the new `.gz`
+    // would keep answering `/llms.txt` with a document that stopped growing.
+    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, LLMS_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
       const file = path.join(path.dirname(OUTPUT_FILE), stale);
       if (await fs.stat(file).then(() => true, () => false)) {
         await fs.rm(file);

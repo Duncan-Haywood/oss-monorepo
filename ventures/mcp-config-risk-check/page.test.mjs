@@ -75,6 +75,13 @@ test("links to hidden-unicode-check as a complementary AI-agent-security checker
   assert.match(html, /hidden-unicode-check\/">/);
 });
 
+// skill-manifest-check lives in a different directory; this link is added
+// there specifically to keep both ventures out of the sibling-orphan report
+// (platform/pages/siblings.test.mjs), per that check's own instruction.
+test("links to skill-manifest-check as a complementary AI-agent-tooling checker", () => {
+  assert.match(html, /skill-manifest-check\/">/);
+});
+
 test("the FAQPage JSON-LD is valid and matches the visible headings", () => {
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   assert.ok(match, "no FAQPage schema found");

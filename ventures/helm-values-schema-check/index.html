@@ -97,6 +97,7 @@ node cli.mjs check chart/values.yaml chart/values.schema.json --json</pre>
     <h2>What this checks — and what it cannot</h2>
     <p>It understands the JSON Schema subset that covers the overwhelming majority of real charts: <code>type</code>, <code>properties</code>, <code>required</code>, <code>additionalProperties</code>, <code>enum</code>, <code>minimum</code>/<code>maximum</code>, and <code>items</code> for arrays. See <a href="why-helm-silently-accepts-a-typo-in-values-yaml.html">why this class of typo happens</a> for how Helm's template engine actually behaves on an undefined key.</p>
     <p class="note">Already have Helm installed? See <a href="vs-helm-lint.html">how this differs from <code>helm lint</code></a> — short version: same schema, but this also flags the undeclared-field case most schemas leave unguarded. A schema that matches values.yaml perfectly still says nothing about whether the chart's templates render correctly — this checks the data against its own contract, not the rendered manifests. Once you have rendered the chart, see <a href="../k8s-deprecated-api-check/">Kubernetes Deprecated API Check</a> for whether the output uses an apiVersion your target cluster will reject outright.</p>
+    <p class="note">Prefer to just read the two files side by side? See <a href="vs-checking-it-by-eye.html">what a manual read catches, and what gets hard as the schema grows nested fields</a>.</p>
   </section>
 
   <section class="card">
