@@ -42627,3 +42627,41 @@ entries:
         confirms no steering document reports that null as an observed
         zero.
     mrr_end: 0
+  - venture: snow-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the venture's first generic-method marketing surface ("vs.
+        quoting one flat seasonal rate for every driveway"):
+        surface-budget.mjs listed it among 83 ventures at 0 generic-method
+        comparison pages (it already carried one named-product page,
+        vs-aspire.html). Worked example computed live from the venture's own
+        calc.mjs on its shipped defaults (8 two-car-driveway sites, $22/hr
+        operator, $45/hr truck, 30% burden, $8/bag salt, 15% overhead, 20%
+        target margin, 10 snow + 6 ice events): a $950 flat seasonal clears
+        19.5% margin on a two-car driveway and 23.7% on a sidewalks-only
+        stop, but loses $1,921.96 (-202.3% margin) the moment it is quoted
+        to a medium commercial lot instead; held on the same driveway across
+        8/10/14 snow events, the same $950 flat quote goes from +$286.01
+        (30.1%) to +$185.05 (19.5%) to -$16.86 (underwater) as the storm
+        count rises.
+      - >-
+        Linked from index.html, added to sitemap.xml, and added to
+        platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set (it
+        compares against a generic pricing habit, not a named competitor --
+        the venture's separate vs-aspire.html already carries the trademark
+        disclaimer). Caught one drafting defect before pushing: the JSON-LD
+        FAQ answers used a plain "--" where the visible prose used an em
+        dash, which the page's own faq-visible-style verbatim-echo test
+        correctly flagged.
+      - >-
+        Refreshed the front-door mirror (platform/marketing/regen.mjs) so
+        the apex catalogue serves the new page.
+      - >-
+        Verified before pushing, since Actions is starved this session
+        (ci_starvation.py confirmed runner_id: 0 on this session's own
+        infra_state-refresh PR, #5738): venture's own suite 90/90,
+        checklist_coverage.py clean, surface-budget.mjs --check clean
+        (venture now 1/1 generic-method), regen.mjs --verify clean.
+    mrr_end: 0

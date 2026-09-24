@@ -1973,6 +1973,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "quoting one flat seasonal rate for every driveway
+  // from memory" -- a pricing habit any snow contractor already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-aspire.html, which names Aspire specifically and
+  // already carries the trademark disclaimer.
+  'snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
