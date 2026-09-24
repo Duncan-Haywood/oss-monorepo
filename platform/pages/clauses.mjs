@@ -1714,6 +1714,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "a flat per-room rate" -- the generic quoting habit
+  // ("$X a room, however long it takes") every independent home stager is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-hutch.html and vs-honeybook.html,
+  // which name real products and already carry the trademark disclaimer.
+  // Same reasoning as the other generic-method pages above.
+  'home-staging-bid-calculator/vs-a-flat-per-room-rate.html',
+  // Compares against "reading a Dockerfile by hand" -- a manual review habit
+  // every Dockerfile author already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-gitleaks.html, which
+  // names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-base-image-pin-check's).
+  'docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html',
   // Compares against "a flat pump-swap special" -- the generic coupon
   // pricing ($X, any sump pump, done) that swap specials are shopped
   // against, not a company or product this could be mistaken for.
@@ -1728,6 +1742,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // names QuickBooks/Intuit specifically and already carries the trademark
   // disclaimer. Same reasoning as the other generic-method pages above.
   'job-margin-variance/vs-checking-if-you-still-made-money.html',
+  // Compares against "a flat pump special" -- the generic coupon pricing
+  // ($X, any tank, pumped) that septic pump specials are shopped against,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-servicecore.html, which names ServiceCore
+  // specifically and already carries the trademark disclaimer.
+  'septic-pumping-bid-calculator/vs-a-flat-pump-special.html',
+  // Compares against "a flat per-inch rate" -- the generic "$X a diameter
+  // inch" quoting habit tree services are shopped against, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-singleops.html, which names SingleOps specifically and already
+  // carries the trademark disclaimer.
+  'tree-service-bid-calculator/vs-a-flat-per-inch-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
