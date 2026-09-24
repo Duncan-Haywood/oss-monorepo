@@ -2488,6 +2488,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # running count. This branch only ever knew its own predecessor's
     # number (360, at its own graduation) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
+    #
+    # mega-backdoor-roth-calculator's own graduation also added a
+    # which-conversion-cadence-should-i-use.html guide page from its first
+    # commit, per a sibling branch's independent count-sync of the same
+    # venture -- folded into the entry above rather than duplicated, since
+    # both branches are counting the same single new tool.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
     total = 361  # `infra/OWNER_CHECKLIST.md`'s own "N of the 361 tools" wording.
