@@ -353,24 +353,3 @@ export function formatBidSummary(result, jobLabel = 'Irrigation system install')
     'This is a draft for review. Confirm the zones, heads, trench, soil, backflow, controller, and all pricing before sending. It is not an irrigation design, a plumbing-code determination, a permit, or an engineering stamp.',
   ].join('\n');
 }
-
-/**
- * What the job would cost priced the way a flat "$X a zone" special prices
- * it: a fixed rate times the zone count, nothing for extra heads, trench
- * footage, backflow size, soil, or the drip/rain/master package. Returned so
- * the page can show the gap rather than assert it.
- *
- * @param {number} ratePerZone  The flat per-zone rate being compared against.
- * @param {object} result       A `calculateBid` result.
- */
-export function flatFeeGap(ratePerZone, result) {
-  const rate = number(ratePerZone, 'Rate per zone');
-  const round = (value) => Math.round(value * 100) / 100;
-  const flatFee = round(rate * result.zones);
-  return {
-    flatFee,
-    breakEvenPrice: result.totalCost,
-    shortfall: round(result.totalCost - flatFee),
-    coversBreakEven: flatFee >= result.totalCost,
-  };
-}
