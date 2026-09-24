@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 145 files, 553652 bytes
 #   portfolio-front-tools-5: 121 files, 556896 bytes
 #   portfolio-front-tools-6: 137 files, 548229 bytes
-#   portfolio-front-tools-7: 119 files, 551146 bytes
+#   portfolio-front-tools-7: 120 files, 555012 bytes
 #   portfolio-front-tools-8: 136 files, 555696 bytes
 #   portfolio-front-tools-9: 125 files, 552312 bytes
 #   portfolio-front-tools-10: 122 files, 554435 bytes
@@ -1129,6 +1129,7 @@ configMapGenerator:
       - deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz=deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz
       - depreciation-recapture-calculator__calc.mjs.gz=depreciation-recapture-calculator__calc.mjs.gz
       - depreciation-recapture-calculator__index.html.gz=depreciation-recapture-calculator__index.html.gz
+      - depreciation-recapture-calculator__is-1031-boot-taxed-at-my-average-rate.html.gz=depreciation-recapture-calculator__is-1031-boot-taxed-at-my-average-rate.html.gz
       - depreciation-recapture-calculator__share.mjs.gz=depreciation-recapture-calculator__share.mjs.gz
       - depreciation-recapture-calculator__usage.mjs.gz=depreciation-recapture-calculator__usage.mjs.gz
       - depreciation-recapture-calculator__vs-doing-it-by-hand.html.gz=depreciation-recapture-calculator__vs-doing-it-by-hand.html.gz
