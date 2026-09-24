@@ -4062,5 +4062,34 @@
       "notes": "Work is scheduled around required air-clearance results before re-occupancy."
     },
     "disclaimerTail": "It is not an asbestos inspection or a substitute for the contractor\u2019s own certification and regulatory compliance."
+  },
+  "window-tinting-bid-calculator": {
+    "jobTitle": "Window tint \u2014 {totalPanes} pane{totalPanes+s}, {filmTierLabel} film",
+    "priceField": "finalPrice",
+    "fields": {
+      "filmTierLabel": {
+        "select": "filmTier"
+      }
+    },
+    "scope": [
+      "Tint {totalPanes} window pane{totalPanes+s} in {filmTierLabel} film ({totalSqFt~0} sq ft with waste)",
+      "Front door windows: {counts.frontDoor}, rear door windows: {counts.rearDoor}, rear quarter windows: {counts.quarter}",
+      {
+        "line": "Includes rear windshield",
+        "when": "counts.rearWindshield"
+      },
+      {
+        "line": "Strip existing film before the new film goes on ({removalMinutes~0} min)",
+        "when": "removeOldTint"
+      },
+      "Waste factor of {wasteFactorPercent~0}% built into the film cut"
+    ],
+    "placeholders": {
+      "companyName": "Clearview Tint & Detail",
+      "scope": "Tint 7 window panes in ceramic film (23 sq ft with waste)\nFront door windows: 2, rear door windows: 2, rear quarter windows: 2\nIncludes rear windshield",
+      "exclusions": "Paint correction or detailing\nWindshield-front tint (where restricted by state law)",
+      "notes": "Avoid rolling windows down for 3-5 days while the film cures."
+    },
+    "disclaimerTail": "This price does not check your state's window tint darkness (VLT%) law, medical-exemption rules, reflectivity limits, or any other film-legality requirement \u2014 confirm legality before installing."
   }
 }

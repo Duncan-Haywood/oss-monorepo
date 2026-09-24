@@ -604,7 +604,17 @@ const RELATIVE_SELF = relative(
 // Verified the way this file's error message prescribes: exactly one
 // added `usage.mjs` (`ventures/backup-file-exposure-check/usage.mjs`)
 // beyond the merge base, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 325;
+//
+// 325 -> 326 on 2026-09-24: `employee-cost-calculator` also graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `employee-cost-usage` storage name).
+// This branch only ever knew its own predecessor's number (325, before
+// `backup-file-exposure-check` landed on this side) until this merge --
+// the same ordinary collision shape recorded throughout this list.
+// Exactly one added `usage.mjs`
+// (`ventures/employee-cost-calculator/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 326;
 
 let counter = 0;
 function fixture(source) {

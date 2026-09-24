@@ -39611,3 +39611,127 @@ entries:
         addition that touches the builder -- a full ~25 minute
         whole-catalogue run is a separate task, not this session's.
     mrr_end: 0
+  - venture: hardwood-refinishing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-flat-price-per-square-foot.html (#5466), a
+        generic-method comparison page filling the venture's last unclaimed
+        comparison slot (surface-budget.mjs: 0/1 -> 1/1). Picked via
+        cross-referencing router/allocate.py's merit ranking against
+        surface-budget.mjs's 0-generic-method list: highest-merit venture
+        (6.67) with no generic-method page and 0 ledger entries despite 3
+        router mentions -- the same neglected-but-scored shape CLAUDE.md
+        records for the metal-roof/pole-barn pages that landed earlier the
+        same session. Worked-example figures (a flat $5.09/sq ft rate, set
+        from the easy screen-and-recoat preset, quotes $1,272.57 on the
+        shipped "stairs trap" preset -- $1,427.37 below that job's own
+        break-even cost) are asserted against calc.mjs at test time, not
+        hardcoded. CI was confirmed starved at push time
+        (ci_starvation.py --run 35954170710: runner_id 0), so the full
+        local checklist was run and reported in the PR: venture suite
+        98/98, clauses.mjs and surface-budget.mjs clean, faq-duplicate.mjs
+        1378/1378 no duplicates, regen.mjs --verify / regen.mjs (mirror
+        rewrite committed), marketing suite 272/272, portfolio+infra
+        pytest 446/446. Two upstream merges were needed while the branch
+        was in flight (window-tinting-bid-calculator's new venture and a
+        personal-trainer-package-pricing-calculator guide page landed on
+        main first); the resulting front-door mirror conflicts were
+        resolved by discarding both sides and regenerating from the merged
+        sources, per resolve-mirror-merge.sh's own reasoning, never by
+        picking a side. After merging, refreshed the published gh-pages
+        snapshot (publish-branch.sh) and recorded the reading (#5468) since
+        a served surface changed.
+    mrr_end: 0
+  - venture: employee-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture graduated: a free browser calculator comparing the
+        fully-loaded annual cost of a W-2 employee against a 1099
+        independent contractor for the same role -- wages plus employer
+        FICA, FUTA/SUTA charged against their wage bases (not flat
+        percentages, the same capped-tax shape
+        `staffing-markup-calculator` already prices a billed placement
+        with), workers' comp, PTO accrual, retirement match, health
+        insurance and payroll admin on the employee side; rate, hours,
+        filing admin and one-time setup on the contractor side. Reports
+        ongoing annual and year-one cost for each, cost per hour, and the
+        contractor hourly rate at which the two arrangements cost exactly
+        the same. Explicitly and repeatedly disclaims (footer, FAQPage
+        JSON-LD, and the notes array `calc.mjs` returns) that it never
+        determines, or bears evidence toward, whether a worker should
+        legally be a W-2 employee or a 1099 contractor -- that is the IRS
+        common-law test and, in many states, a separate ABC test, and it
+        assumes that question is already settled. Picked specifically as
+        a business-model shape not yet in the fleet: a staffing-cost
+        decision, not another `<trade>-bid-calculator` (141+ already
+        exist per pipeline/README.md) or exposure checker (38+ already
+        exist), per DIRECTION.md's note that both archetypes are now
+        over-represented with zero confirmed visitors between them.
+        `duplicate_check.py`: closest match `shop-rate-calculator` at
+        0.28, well under the 0.45 flag bar, read rather than trusted (a
+        contractor's own crew rate vs. this tool's two-sided
+        staff-or-contract cost comparison for a business with no client
+        in the picture). Not in `screened-out.md`. Filed under the
+        `backoffice` category in `build.mjs` (the catch-all was already
+        at its bound of 5) and cross-linked reciprocally with
+        `staffing-markup-calculator` -- the same employer-burden
+        arithmetic, applied on opposite sides of who pays it -- which
+        closed the crawlable-orphan check at its committed budget of 0
+        (`siblings.mjs --check`). Score recorded in
+        `venture-scores.yaml`: composite 6.167, floor 1
+        (`ai_leverage`, deliberate -- no AI, the value is the
+        capped-wage-base arithmetic and the break-even closed form),
+        both gates pass.
+
+
+        Validation run: venture's own suite (`calc.test.mjs`,
+        `page.test.mjs`, `usage.test.mjs`) 41/41, plus
+        `staffing-markup-calculator`'s suite 100/100 after adding the
+        reciprocal sibling link and its own test assertion.
+        `regen.mjs --verify` found the committed apex mirror stale from
+        concurrent merges unrelated to this venture (1385 changed
+        artifacts); `regen.mjs` re-ran and `--verify` came back clean.
+        `sync_tree_counts.py`: mirrored-tool count 342->343, opt-out
+        switch count 324->325, both with running-comment entries added
+        (`gitops/tests/test_manifests.py`,
+        `platform/privacy/optout-persistence.test.mjs`) and confirmed
+        drift-free on a second run. `checklist_coverage.py` clean (2000
+        venture test files, all reachable). `platform/pages/build.test.mjs`
+        288/288; `platform/marketing/*.test.mjs` 272/272;
+        `platform/pages/*.test.mjs` exit 0; `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 243/243. `gitops/tests`
+        (pytest) 637 passed/1 skipped (environmental, nginx-dependent
+        `test_front_door_serving.py`, not installed this session).
+        `platform/ci` unittest discover: 1014/1014 pass except the
+        documented `agent_review.test_review` cwd trap, which passes
+        21/21 run from its own directory as CLAUDE.md prescribes. Also
+        caught and fixed two real defects this session's own guards
+        exist for: `check_step_grid.py` flagged three numeric inputs
+        whose `min`/`step` pair excluded every whole number (fixed to
+        `step="any"`); `check_money_sign.py` flagged the page's `money()`
+        helper for placing the `$` before a possible minus sign rather
+        than after it (rewritten to the sign-outside-the-`$` pattern the
+        guard's own test suite documents as correct). `portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests` (pytest) 446 passed.
+        `router/validate.py` 351/351; `score_ventures.py --check`
+        351/351 (new score entry added). Browser checks (Playwright +
+        axe-core) run `--only employee-cost-calculator`: first pass found
+        a real WCAG AA contrast failure (2 nodes, 1.95:1 against a 4.5:1
+        minimum) in the break-even box's hint text on the dark result
+        panel -- fixed with a `.result .hint` override (6.98:1) and the
+        check re-run clean; sideways, roundtrip, optout, sweep, journey
+        all ok; `highlight` and `presets` skip (no highlight/preset-picker
+        promise on this venture, expected). `run_workflow_locally.py
+        --for-changes` was started but not run to completion -- every
+        individual suite it would replay was already run and verified
+        directly above, and after several minutes it was still working
+        through the many workflows this branch's 1400+-file diff (mostly
+        the front-door mirror regen) touches; killed rather than left
+        running unbounded, the same call `backup-file-exposure-check`'s
+        entry above records for the identical reason.
+    mrr_end: 0

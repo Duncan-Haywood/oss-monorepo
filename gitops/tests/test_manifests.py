@@ -2311,7 +2311,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this merge -- the same ordinary collision shape recorded throughout
     # this list. Total re-derived here by `sync_tree_counts.py` against the
     # fully merged tree rather than by hand.
-    total = 343  # `infra/OWNER_CHECKLIST.md`'s own "N of the 343 tools" wording.
+    #
+    # 344 since this merge: `employee-cost-calculator` also graduated,
+    # concurrently on `main` -- a browser calculator comparing the
+    # fully-loaded annual cost of a W-2 employee against a 1099 contractor
+    # for the same role (capped FUTA/SUTA employer-burden arithmetic,
+    # ongoing-vs-year-one cost split, a break-even contractor rate), with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch only ever knew its own predecessor's
+    # number (343, before `backup-file-exposure-check` landed on this side)
+    # until this merge -- the same ordinary collision shape recorded
+    # throughout this list. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    total = 344  # `infra/OWNER_CHECKLIST.md`'s own "N of the 344 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
