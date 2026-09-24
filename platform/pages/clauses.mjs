@@ -1620,6 +1620,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // B" and names no real vendor. Same reasoning as the other generic-method
   // pages above.
   'vector-db-cost-calculator/vs-doing-the-math-yourself.html',
+  // Compares against reusing one downloaded or bookmarked chargeback
+  // checklist for every dispute reason -- a habit any seller fighting a
+  // chargeback already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-chargeflow.html,
+  // which names Chargeflow specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'chargeback-evidence-packet/vs-a-generic-dispute-checklist.html',
   // Compares against "a flat per-zone rate" -- a generic pricing method
   // every irrigation contractor already has access to, not a company or
   // product this could be mistaken for. Distinct from this venture's own
