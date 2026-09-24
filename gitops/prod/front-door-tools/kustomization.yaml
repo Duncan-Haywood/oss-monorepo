@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 137 files, 543045 bytes
+#   portfolio-front-tools-0: 138 files, 546878 bytes
 #   portfolio-front-tools-1: 97 files, 554617 bytes
 #   portfolio-front-tools-2: 145 files, 556037 bytes
 #   portfolio-front-tools-3: 135 files, 554289 bytes
@@ -181,6 +181,7 @@ configMapGenerator:
       - chargeback-evidence-packet__how-to-respond-to-a-chargeback.html.gz=chargeback-evidence-packet__how-to-respond-to-a-chargeback.html.gz
       - chargeback-evidence-packet__index.html.gz=chargeback-evidence-packet__index.html.gz
       - chargeback-evidence-packet__packet.mjs.gz=chargeback-evidence-packet__packet.mjs.gz
+      - chargeback-evidence-packet__vs-a-generic-dispute-checklist.html.gz=chargeback-evidence-packet__vs-a-generic-dispute-checklist.html.gz
       - chargeback-evidence-packet__vs-chargeflow.html.gz=chargeback-evidence-packet__vs-chargeflow.html.gz
       - str-host-payout-calculator__airbnb-host-fee-2026.html.gz=str-host-payout-calculator__airbnb-host-fee-2026.html.gz
       - str-host-payout-calculator__airbnb-vs-vrbo-host-fees.html.gz=str-host-payout-calculator__airbnb-vs-vrbo-host-fees.html.gz
