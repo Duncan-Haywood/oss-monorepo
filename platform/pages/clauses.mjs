@@ -1405,6 +1405,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against "a flat $400-a-zone special" -- a generic advertised
+  // rate every irrigation-install shop is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-aspire.html, which names a specific business-management platform and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other flat-rate generic-method pages above (e.g.
+  // wildlife-exclusion-bid-calculator's).
+  'irrigation-install-bid-calculator/vs-a-flat-400-a-zone-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
