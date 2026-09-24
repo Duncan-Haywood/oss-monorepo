@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 132 files, 550434 bytes
 #   portfolio-front-tools-4: 145 files, 553590 bytes
 #   portfolio-front-tools-5: 121 files, 556600 bytes
-#   portfolio-front-tools-6: 135 files, 549840 bytes
+#   portfolio-front-tools-6: 136 files, 553894 bytes
 #   portfolio-front-tools-7: 122 files, 556312 bytes
 #   portfolio-front-tools-8: 136 files, 554374 bytes
 #   portfolio-front-tools-9: 124 files, 556043 bytes
@@ -961,6 +961,7 @@ configMapGenerator:
       - chrome-extension-permission-check__purple-potassium-unused-permissions.html.gz=chrome-extension-permission-check__purple-potassium-unused-permissions.html.gz
       - chrome-extension-permission-check__scan.mjs.gz=chrome-extension-permission-check__scan.mjs.gz
       - chrome-extension-permission-check__usage.mjs.gz=chrome-extension-permission-check__usage.mjs.gz
+      - chrome-extension-permission-check__vs-checking-the-manifest-by-hand.html.gz=chrome-extension-permission-check__vs-checking-the-manifest-by-hand.html.gz
       - chrome-extension-permission-check__vs-crxcavator.html.gz=chrome-extension-permission-check__vs-crxcavator.html.gz
       - cnc-machining-quote-calculator__calculator.mjs.gz=cnc-machining-quote-calculator__calculator.mjs.gz
       - cnc-machining-quote-calculator__index.html.gz=cnc-machining-quote-calculator__index.html.gz
