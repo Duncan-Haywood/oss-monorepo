@@ -16724,3 +16724,74 @@ ventures:
       affiliate link, no referral fee, donations-only same as the rest of
       the portfolio, no region or listing type favored since the
       arithmetic is symmetric and user-entered).
+  - slug: hidden-unicode-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every finding (a zero-width or
+      invisible codepoint, a decoded Unicode Tag run, a bidirectional
+      override/control character) is a mechanical codepoint classification
+      against the Unicode Standard's own stable character properties --
+      a factual, deterministic comparison, not a model judgment, and it
+      never claims to know whether a hidden character is actually
+      adversarial.
+    basis: >-
+      Screened and scored per the venture's own VENTURE.yaml, written
+      2026-09-24 (this entry closes a gap: the venture graduated without
+      a same-session score row, caught by
+      `score_ventures.py --check` on a later merge). duplicate_check.py
+      (run twice per the venture's own notes) scored the closest existing
+      venture (agent-instructions-drift-check) well under the 0.45 flag
+      bar -- that venture is a stale-reference linter over a file's
+      visible, correctly-encoded text, where this one classifies raw
+      codepoints regardless of what the visible text says. Same
+      liability-containment shape as mcp-config-risk-check and
+      actions-permissions-check: a finding is "worth a look, not a
+      verdict," stated in the UI, README, and tests.
+      Autonomous ops 10 / gross margin 10: every check runs client-side
+      against text the visitor pastes, nothing uploaded, no server of
+      ours in the loop, so serving one more visitor costs a static file.
+      Time to revenue 6, distribution 6: named channels are current and
+      specific -- r/netsec, r/cybersecurity, r/ClaudeAI, r/LocalLLaMA
+      threads on agent supply-chain risk through 2025-2026, Hacker News
+      threads on Trojan Source (CVE-2021-42574) and the 2024+
+      Unicode-tag/ASCII-smuggling prompt-injection writeups -- scored
+      slightly above mcp-config-risk-check's 5 because the underlying
+      attack techniques (Trojan Source since 2021, ASCII smuggling since
+      mid-2024) have broader standing security-community documentation
+      than one protocol's config format.
+      Defensibility 4: donations-only; a codepoint classifier against a
+      public standard is easy to reimplement, so defensibility rests on
+      being first and correct for the two shipped categories rather than
+      on any moat -- matching mcp-config-risk-check's own defensibility
+      score for the same reason.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a mechanical codepoint match against text
+      the user pastes or a file they load locally -- no network call of
+      any kind, no claim that the surrounding meaning of the file was
+      understood or that a finding is malicious, only that a specific
+      character was or was not observed at a specific position. The UI,
+      README, and footer all state plainly that a finding is "worth a
+      look, not a verdict" and that a clean result is "not a safety
+      guarantee" (`platform/pages/clauses.mjs` enforces the clause; the
+      page passes it).
+      Ethics: strictly beneficial as it scales -- it helps anyone
+      reviewing a file (their own, a dependency's, a pasted PR
+      description) catch a real, current hiding technique before an AI
+      agent or a human reviewer is fooled by it, with no adverse
+      incentive on our side (no affiliate link, no referral fee,
+      donations-only same as the rest of the portfolio). It does not scan
+      or fingerprint any third party -- it only reads text the visitor
+      pastes or a file they explicitly choose to load.
