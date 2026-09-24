@@ -40734,6 +40734,88 @@ entries:
         than main's tip) both before and after this PR merged, and recorded
         the infra_state.yaml reading each time (#5618).
     mrr_end: 0
+  - venture: job-margin-variance
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Landed PRs #5612 (ice-dam-removal-bid-calculator, generic-method
+        comparison vs. a flat per-foot rate) and #5608
+        (medical-courier-route-margin, vs. a spreadsheet) via the
+        session's merge queue -- both had drifted to a conflicting
+        mergeable_state against a fast-moving main. Resolved the
+        generated front-door mirror conflicts by checking out --ours and
+        re-running platform/marketing/regen.mjs (never hand-editing the
+        .gz shards or kustomization.yaml), merged an additive conflict in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set for #5612, and
+        verified locally (venture suites, platform/marketing +
+        platform/pages 1287/1287, platform/proposal 101/101,
+        platform/privacy+webcheck 142/142, gitops/tests 613/25 skip,
+        all platform/ci unittest modules, portfolio
+        ledger/scoring/router/usage/pipeline/infra pytest 446/446,
+        checklist_coverage.py, regen.mjs --verify) before pushing.
+        #5610 (ev-charger-bid-calculator) and #5610's own conflict were
+        resolved independently by a concurrent session while this one was
+        mid-verification; confirmed merged rather than duplicating the
+        work. supersede_check.py confirmed all three carried real,
+        unshipped lines before any of this.
+      - >-
+        Part 2 (post-merge derived-state refresh) on a fresh
+        origin/main reset: checklist_coverage.py, sync_tree_counts.py,
+        and regen.mjs --verify all reported clean -- no drift for this
+        session to fix forward.
+      - >-
+        Shipped job-margin-variance's first generic-method comparison
+        page (0/1 per surface-budget.mjs --for): vs-checking-if-you-still-
+        made-money.html, comparing this calculator against the flat
+        before/after gut check ("did the invoice clear the bid?") every
+        contractor already runs without a tool. Worked example pinned
+        against calc.mjs on stated inputs (16h estimated -> 20h actual,
+        materials $420 -> $465, other $80 -> $95, $55/hr rate, $2,000
+        bid): the job still nets $340 profit (down from an estimated
+        $620, a flat check's only signal), but margin fell from 31.0% to
+        17.0% and $220 of the $280 total cost increase -- nearly 79% --
+        is the labor-hour overrun once priced at the real rate, not the
+        $45 materials line that looks bigger next to an unpriced "4" on
+        the hours row. Chose this venture after an earlier pick
+        (kdp-royalty-calculator) turned out to have just been filled by
+        a concurrent session (#5622) -- re-ran surface-budget.mjs and
+        checked open PRs again before writing anything. Linked from
+        index.html, added to sitemap.xml and clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, front-door mirror regenerated.
+        Verified: venture suite 51/51 (10 new), surface-budget.mjs --for
+        confirms vs/gen classification, regen.mjs --verify clean,
+        checklist_coverage.py clean, sync_tree_counts.py clean (no new
+        venture, mirrored-tool count unchanged), platform/proposal
+        101/101, platform/privacy+webcheck 142/142.
+      - >-
+        Re-merging main a second time (it moved again mid-verification)
+        surfaced a real, pre-existing bug on main unrelated to this
+        session's own changes: #5634 (wheelchair-ramp-bid-calculator)
+        added the second venture comparing against "a flat rate per
+        lineal foot", which crosses that generic method into
+        front-door.mjs's cross-venture compareProductPages grouping --
+        but gitops/prod/kustomization.yaml's file-mount list is
+        hand-kept (not one of regen.mjs's two generators), and nobody
+        added the line, so the rendered page would 404 on the apex.
+        Caught by platform/marketing/front-door.test.mjs's own guard for
+        exactly this seam ("every rendered per-product comparison page
+        is mounted by the kustomization"), confirmed via
+        git show <main-tip>:gitops/prod/kustomization.yaml that the line
+        was missing before this session touched anything. Fixed forward:
+        added the one missing
+        `vs__flat-rate-per-lineal-foot.html.gz=front-door/...` line;
+        confirmed no other entries missing or stale with a small script
+        against front-door.mjs's own compareProductPages/
+        compareProductStoredKey exports. Re-verified clean end to end
+        afterward (platform/marketing/front-door.test.mjs 115/115 in
+        isolation, then the full platform/marketing+platform/pages sweep).
+      - >-
+        CI confirmed starved this session
+        (ci_starvation.py --run 36001692164: runner_id 0, no steps), so
+        every check above was run locally per CLAUDE.md's starvation
+        checklist rather than trusted from a red or absent GitHub check.
+    mrr_end: 0
   - venture: sump-pump-bid-calculator
     agent_spend_usd: null
     human_hours: 0
