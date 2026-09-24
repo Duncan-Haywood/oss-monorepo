@@ -42414,3 +42414,50 @@ entries:
         front-door-tools.mjs --headroom all clean, and the
         ledger/scoring/router/usage/pipeline/infra pytest suite (446 passed).
     mrr_end: 0
+  - venture: mcp-config-risk-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a named-product comparison page, "vs. MCP-Scan": the venture's
+        generic-method slot was already filled by a sibling PR (#5719) that
+        merged minutes earlier, but no named-product page existed yet
+        (surface-budget.mjs's named-product class is unbudgeted). MCP-Scan
+        (Invariant Labs) connects to live MCP servers and judges their tool
+        descriptions for poisoning/shadowing/rug-pulls via local checks plus
+        a call to its own API; this venture never connects to anything -- it
+        reads only the launch config's command/args/env block and flags the
+        grant itself (broad filesystem/shell access, a hardcoded secret, a
+        missing version pin, shadowed tool names) before a server ever
+        starts. A server can pass every tool-poisoning check and still be
+        launched with a broader grant than it needed, so the two tools
+        answer genuinely different questions about the same MCP surface.
+      - >-
+        Carries the §5f trademark not-affiliated disclaimer (a named
+        product, unlike the generic-method exemption already registered for
+        this venture's other comparison page). Linked from index.html,
+        added to sitemap.xml, wired into a dedicated test file mirroring
+        hidden-unicode-check's own vs-mcp-scan.test.mjs pattern (FAQ-schema/
+        visible-heading parity, verbatim-answer check, not-affiliated
+        assertion, no-competitor-disparagement check). Front-door mirror
+        regenerated (regen.mjs) three times against a fast-moving `main`
+        during this session -- a first comparison page for this same
+        venture and angle collided with a concurrent duplicate PR (#5722,
+        merged first) and was closed rather than merged; this named-product
+        page followed once the branch was reset clean against the new
+        `main` tip.
+      - >-
+        Verified locally (ci_starvation.py on the latest portfolio-validate.yml
+        run: runner_id 0, no steps -- Actions starved throughout): venture's
+        own suite 80/80, full platform/marketing suite 275/275, full
+        platform/pages suite 1015/1015, platform/proposal + platform/privacy
+        + platform/webcheck suites 243/243, gitops/tests 637 passed/1
+        skipped, the platform/ci unittest modules (27) and agent_review's
+        test_review (21) all pass, checklist_coverage.py clean,
+        sync_tree_counts.py already in sync, surface-budget.mjs --check
+        clean (venture now 1 generic-method/1 named-product), regen.mjs
+        --verify clean, run_workflow_locally.py --for-changes (9/12
+        selected workflows' run: steps passed; the rest need bot tokens or a
+        live runner), and the ledger/scoring/router/usage/pipeline/infra
+        pytest suite (446 passed).
+    mrr_end: 0

@@ -17110,3 +17110,47 @@ ventures:
       system -- it directs them to the comparable-wage test and
       documentation the IRS and courts actually apply instead. No personal
       or scraped data, no adverse incentive on our side (donations-only).
+
+  - slug: auto-loan-interest-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. A tax-adjacent calculator is
+      exactly where a model has no business guessing -- the cap,
+      phase-out, and eligibility checklist are fixed arithmetic on a
+      published statute.
+    basis: >-
+      Graduated on 2026-09-24 as a browser-local calculator for the new
+      federal "qualified passenger vehicle loan interest" deduction
+      (OBBBA, tax years 2025-2028). Scored with the sibling
+      no-tax-on-tips-overtime-calculator on gross margin and ops --
+      serving one more filer costs a static file. Defensibility 2,
+      distribution 7: the arithmetic is easily reimplemented (several
+      finance-blog calculators for this exact deduction already exist,
+      found via WebSearch 2026-09-24), so the moat is the
+      MFS-differs-from-sibling correction and the full 8-item eligibility
+      checklist rather than cap/phase-out arithmetic alone; distribution
+      reflects the same confirmed search-demand evidence class that
+      justified the sibling tips/overtime calculator's score.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Every figure is either a published, cited statutory cap or
+      threshold, or a number the user supplies; the tool never determines
+      a specific vehicle's or loan's actual eligibility, and every
+      checklist item points the user at a primary source (window sticker,
+      VIN, lender statement) before relying on it. Nothing entered leaves
+      the browser. Ethics: the tool only helps a filer claim a deduction
+      they might otherwise miss or misapply, holds no personal or scraped
+      data, and there is no revenue model that would reward mistuning the
+      arithmetic in either direction (donations only).

@@ -1190,7 +1190,20 @@ const CATEGORY_RULES = [
       // federal-tax consequence of the same S-corp/pass-through income, one
       // on the deduction side and one on the salary-vs-distribution split
       // that feeds it.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator)/.test(slug),
+      // `auto-loan-interest-deduction-calculator` joined 2026-09-24,
+      // concurrently, filed here on its first commit rather than after a
+      // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is
+      // for. It estimates a federal deduction on interest already paid on a
+      // loan already taken out -- the same "downstream obligation/benefit on
+      // a transaction already made" axis as `no-tax-on-tips-overtime-calculator`
+      // and `qbi-deduction-calculator` right above it in this same rule, just
+      // a deduction tied to a vehicle loan instead of tips/overtime pay or
+      // QBI. It cross-links `no-tax-on-tips-overtime-calculator` as a
+      // sibling: both are new-for-2025 OBBBA deductions a filer may claim in
+      // the same season, and the two disagree on whether married filing
+      // separately qualifies, which is worth a reader hitting explicitly
+      // rather than assuming one rule generalizes to the other.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator)/.test(slug),
   },
   {
     id: 'ci',
