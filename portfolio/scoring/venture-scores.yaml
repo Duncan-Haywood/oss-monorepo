@@ -16500,3 +16500,76 @@ ventures:
       referral fee, donations-only), and it never scans or fingerprints
       third-party infrastructure since it only reads a pasted launch
       config and contacts no server, connected or not.
+  - slug: kickstarter-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is Kickstarter's own
+      two-fee schedule (a 5% platform fee on the total raise, plus a
+      per-pledge payment processing fee that itself changes rate under
+      $10) applied correctly, and the one non-obvious arithmetic fact --
+      that the flat per-pledge component means the same total raised
+      keeps less when spread across more, smaller pledges -- is exactly
+      the kind of thing a creator needs to re-derive whenever they set
+      reward-tier pricing, not something a language model adds value to.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.13
+      (freelance-platform-fee-calculator) well under the 0.45
+      read-this-first bar -- no existing venture prices a crowdfunding
+      platform; the closest matches are single-channel marketplace-fee
+      or platform-cut calculators (freelance-platform-fee-calculator,
+      twitch-payout-calculator, mercari-fee-calculator) that share the
+      shape but not the domain. Rates confirmed against Kickstarter's own
+      published US fee schedule (kickstarter.com/help/fees) via three
+      independent web searches agreeing on 5% platform + 3%/$0.20
+      standard or 5%/$0.05 under $10 processing.
+      Autonomous ops 10 / gross margin 10: static ES modules, no build
+      step, no network call, no server -- same shape as every other
+      browser-local calculator in this portfolio.
+      Time to revenue 6, distribution 6: multiple third-party Kickstarter
+      fee calculators already rank for "kickstarter fee calculator" and
+      "how much does kickstarter take" (found via web search), which is
+      evidence searchers exist but also that the query is contested
+      rather than open, and r/kickstarter / r/crowdfunding are real,
+      named communities rather than a channel this basis merely asserts.
+      Scored below stockx-seller-payout-calculator's 7/7 because that
+      venture's niche communities (r/Sneakers, r/FlippingSneakers) had no
+      incumbent free tool modeling their specific fee wrinkle at the time
+      it was scored, where this one competes against several existing
+      calculators head-on.
+      Defensibility 4: a percentage-plus-flat-fee schedule is easy to
+      copy, same as every fee calculator in this portfolio -- the
+      per-pledge-size effect (more, smaller pledges keep less of an
+      identical total) is a real differentiator none of the competing
+      tools surfaced in search results show, but it is a framing choice
+      on top of public arithmetic, not a moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: pure arithmetic over a total raised, backer count, or
+      pledge amount the visitor supplies, against Kickstarter's own
+      public, non-personal fee schedule. No advice-of-record (it
+      computes, the creator decides), no compliance claim, no PII, no
+      payment code, no account. The only failure mode is a stale
+      constant if Kickstarter changes its published schedule, which is
+      why the no-warranty clause explicitly tells the visitor to confirm
+      the current schedule at kickstarter.com/help/fees before relying
+      on this for a real campaign (`platform/pages/clauses.mjs` enforces
+      the clause; the page passes it).
+      Ethics: gets strictly better for the visitor as it scales -- it
+      exists only to help a creator see the true net payout and price
+      reward tiers accordingly, with no adverse incentive on our side (no
+      affiliate link, no referral fee, donations-only same as the rest of
+      the portfolio, no reward tier or pledge size favored since the
+      arithmetic is symmetric and user-entered).
