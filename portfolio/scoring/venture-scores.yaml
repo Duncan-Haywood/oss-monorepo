@@ -16644,86 +16644,6 @@ ventures:
       affiliate link, no referral fee, donations-only same as the rest of
       the portfolio, no reward tier or pledge size favored since the
       arithmetic is symmetric and user-entered).
-  - slug: k8s-resource-limits-check
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 5
-      gross_margin: 10
-      defensibility: 4
-      distribution: 6
-    composite: 6.0
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      No AI in the product, deliberately. Whether a resources.requests or
-      resources.limits field is present, whether a k8s quantity string
-      (128Mi, 500m, 1) parses and compares correctly against another, and
-      whether a request exceeds its own limit are all deterministic
-      structural comparisons against one file the user supplies, not a
-      model judgment.
-    basis: >-
-      Screened 2026-09-24 per portfolio/pipeline/README.md's "archetype
-      itself" section: a free CLI + browser checker, not another
-      <trade>-bid-calculator, filed beside k8s-deprecated-api-check,
-      k8s-rollout-safety-check, and helm-values-schema-check in the `ci`
-      category for the same "read what is actually there, report the
-      exact evidence, never fetch" shape, applied to a distinct,
-      well-documented Kubernetes failure mode rather than chosen because
-      "checker" is underused. duplicate_check.py's closest match was
-      k8s-rollout-safety-check at 0.13 -- well under the 0.45 review bar,
-      and confirmed by reading that venture's own CHECKS list directly:
-      it checks rollout/probe/PDB safety and never reads
-      resources.requests or resources.limits at all. No existing venture
-      checks Kubernetes resource requests or limits.
-      Autonomous ops 10 / gross margin 10: static YAML parsing client-side
-      in the browser and file reads in the CLI, no network call in
-      either, no server to host -- same shape as every other
-      browser-local checker in this portfolio.
-      Distribution 6: Kubernetes' own "Resource Management for Pods and
-      Containers" and "Node-pressure Eviction" documentation pages are
-      among the most-read in the project and describe the exact
-      mechanisms this tool checks; specific real search strings
-      ("kubernetes pod evicted no resource limits", "kubernetes OOMKilled
-      no limit set", "kubernetes CPU throttling CFS quota") and an active
-      r/kubernetes / r/devops audience recur on this exact pain point; and
-      Fairwinds' Polaris is a real, named, verified (via web search
-      against fairwinds.com/polaris and github.com/FairwindsOps/polaris)
-      broader competing/adjacent tool covering the same sub-check, giving
-      vs-polaris.html a genuine comparison to draw search traffic from --
-      scored one point above helm-values-schema-check's narrower,
-      Helm-specific 5 on the strength of that named tool and the more
-      widely searched underlying pain point, not asserted at parity with
-      a venture that has an actual measured signal.
-      Defensibility 4: a resource-requests/limits presence-and-consistency
-      check is easy to copy, same as every checker in this portfolio --
-      the CFS-throttling-aware CPU-limit framing (informational rather
-      than a problem to fix) is a real differentiator most naive
-      implementations of this check get wrong, but it is a framing choice
-      on top of publicly documented Kubernetes behavior, not a moat.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Liability: pure information about a Kubernetes manifest the visitor
-      supplies -- no filing, signature, deployment action, or
-      determination on the visitor's behalf, no PII, no cluster access
-      (no kubeconfig, no API server call in either the browser page or
-      the CLI). The only failure mode is a missed or extra flag in a text
-      report; it makes no Kubernetes API call and touches no cluster, so
-      a wrong finding cannot itself cause an outage. The no-warranty
-      clause tells the visitor to verify against their own workload's
-      actual usage before relying on any number it reports
-      (`platform/pages/clauses.mjs` enforces the clause; the page passes
-      it).
-      Ethics: gets strictly better for the visitor as it scales -- it
-      exists only to surface a gap the visitor's own manifest already
-      has, with no adverse incentive on our side (no affiliate link, no
-      referral fee, donations-only same as the rest of the portfolio, and
-      the CPU-limit finding is deliberately informational rather than
-      alarmist because setting a CPU limit is a legitimate choice, not a
-      mistake to shame the visitor into reversing).
   - slug: depop-fee-calculator
     scores:
       ai_leverage: 1
@@ -16804,6 +16724,86 @@ ventures:
       affiliate link, no referral fee, donations-only same as the rest of
       the portfolio, no region or listing type favored since the
       arithmetic is symmetric and user-entered).
+  - slug: k8s-resource-limits-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a resources.requests or
+      resources.limits field is present, whether a k8s quantity string
+      (128Mi, 500m, 1) parses and compares correctly against another, and
+      whether a request exceeds its own limit are all deterministic
+      structural comparisons against one file the user supplies, not a
+      model judgment.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not another
+      <trade>-bid-calculator, filed beside k8s-deprecated-api-check,
+      k8s-rollout-safety-check, and helm-values-schema-check in the `ci`
+      category for the same "read what is actually there, report the
+      exact evidence, never fetch" shape, applied to a distinct,
+      well-documented Kubernetes failure mode rather than chosen because
+      "checker" is underused. duplicate_check.py's closest match was
+      k8s-rollout-safety-check at 0.13 -- well under the 0.45 review bar,
+      and confirmed by reading that venture's own CHECKS list directly:
+      it checks rollout/probe/PDB safety and never reads
+      resources.requests or resources.limits at all. No existing venture
+      checks Kubernetes resource requests or limits.
+      Autonomous ops 10 / gross margin 10: static YAML parsing client-side
+      in the browser and file reads in the CLI, no network call in
+      either, no server to host -- same shape as every other
+      browser-local checker in this portfolio.
+      Distribution 6: Kubernetes' own "Resource Management for Pods and
+      Containers" and "Node-pressure Eviction" documentation pages are
+      among the most-read in the project and describe the exact
+      mechanisms this tool checks; specific real search strings
+      ("kubernetes pod evicted no resource limits", "kubernetes OOMKilled
+      no limit set", "kubernetes CPU throttling CFS quota") and an active
+      r/kubernetes / r/devops audience recur on this exact pain point; and
+      Fairwinds' Polaris is a real, named, verified (via web search
+      against fairwinds.com/polaris and github.com/FairwindsOps/polaris)
+      broader competing/adjacent tool covering the same sub-check, giving
+      vs-polaris.html a genuine comparison to draw search traffic from --
+      scored one point above helm-values-schema-check's narrower,
+      Helm-specific 5 on the strength of that named tool and the more
+      widely searched underlying pain point, not asserted at parity with
+      a venture that has an actual measured signal.
+      Defensibility 4: a resource-requests/limits presence-and-consistency
+      check is easy to copy, same as every checker in this portfolio --
+      the CFS-throttling-aware CPU-limit framing (informational rather
+      than a problem to fix) is a real differentiator most naive
+      implementations of this check get wrong, but it is a framing choice
+      on top of publicly documented Kubernetes behavior, not a moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: pure information about a Kubernetes manifest the visitor
+      supplies -- no filing, signature, deployment action, or
+      determination on the visitor's behalf, no PII, no cluster access
+      (no kubeconfig, no API server call in either the browser page or
+      the CLI). The only failure mode is a missed or extra flag in a text
+      report; it makes no Kubernetes API call and touches no cluster, so
+      a wrong finding cannot itself cause an outage. The no-warranty
+      clause tells the visitor to verify against their own workload's
+      actual usage before relying on any number it reports
+      (`platform/pages/clauses.mjs` enforces the clause; the page passes
+      it).
+      Ethics: gets strictly better for the visitor as it scales -- it
+      exists only to surface a gap the visitor's own manifest already
+      has, with no adverse incentive on our side (no affiliate link, no
+      referral fee, donations-only same as the rest of the portfolio, and
+      the CPU-limit finding is deliberately informational rather than
+      alarmist because setting a CPU limit is a legitimate choice, not a
+      mistake to shame the visitor into reversing).
   - slug: salary-range-posting-check
     scores:
       ai_leverage: 1
