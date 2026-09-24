@@ -1891,6 +1891,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
   // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
   'hidden-unicode-check/vs-reading-the-file-by-hand.html',
+  // Compares against "pasting the two segments into a base64 decoder and
+  // eyeballing the JSON by hand" -- a manual habit any developer already
+  // has, not a company or product this could be mistaken for. Same shape
+  // as structured-data-drift-check's and hidden-unicode-check's own
+  // vs-*-by-hand/by-eye exemptions above. The page's own first paragraph
+  // says it names no specific decoder site or library.
+  'jwt-security-check/vs-eyeballing-the-payload.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

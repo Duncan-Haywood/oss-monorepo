@@ -16820,3 +16820,56 @@ ventures:
       catch an authoring mistake before publishing, no affiliate link, no
       referral fee, donations-only, and it does not scan, fingerprint, or
       contact any third-party system, registry, or agent runtime.
+
+  - slug: jwt-security-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately -- no call of any kind to an LLM,
+      no signature verification, and no key of any kind requested. Every
+      finding is a deterministic pattern match (base64url/JSON decode, a
+      fixed header-field list, a regex over kid/field names, an arithmetic
+      comparison against RFC-numbered timing claims) against the decoded
+      text of a token the user pastes.
+    basis: >-
+      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml for
+      the full duplicate_check.py run, none clearing the 0.45 bar, and the
+      pipeline's "archetype itself" note this write-up already applies).
+      Defensibility 3: a base64url decoder plus a documented misconfiguration
+      checklist is moderately easy to reproduce, same tier as
+      skill-manifest-check's 3. Distribution 7, higher than
+      skill-manifest-check's 5 and hidden-unicode-check's/
+      mcp-config-risk-check's 5: JWTs underpin most mainstream web/mobile
+      authentication (OAuth2/OIDC access tokens, session tokens, API
+      tokens), so the searching audience ("jwt decoder", "jwt debugger",
+      "alg none vulnerability", Stack Overflow's own high-traffic "jwt" tag)
+      is a mainstream web/security topic rather than a narrow AI-agent-
+      tooling one, plus the same footer cross-links with mcp-config-risk-check
+      and hidden-unicode-check the sibling checkers already carry. No
+      search-volume tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic pattern match against the
+      decoded text of a token the user pastes, no network call of any kind,
+      no signature verification, and no key of any kind requested, stored,
+      or used -- every finding whose real-world impact depends on
+      server-side verification code (embedded-key trust, algorithm
+      confusion, kid injection) says explicitly that this tool cannot see
+      that code, mirroring mcp-config-risk-check's, hidden-unicode-check's,
+      and skill-manifest-check's own liability framing.
+      Ethics: strictly beneficial as it scales -- helps a developer catch a
+      documented JWT misconfiguration before it ships, no affiliate link, no
+      referral fee, donations-only, and it does not scan, fingerprint, or
+      contact any third-party system, service, or server, and never
+      transmits a token anywhere.

@@ -673,7 +673,16 @@ const RELATIVE_SELF = relative(
 // (`ventures/skill-manifest-check/usage.mjs`), no deletions -- the
 // same-commit link added to `mcp-config-risk-check`'s footer reuses that
 // venture's own existing switch rather than adding a new one.
-const SWITCHES_IN_THE_CATALOGUE = 334;
+//
+// 334 -> 335: `jwt-security-check` graduated, adding one more `usage.mjs`
+// following the same opt-out pattern as its siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
+// own `jwt-security-check:usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/jwt-security-check/usage.mjs`), no deletions --
+// the same-commit links added to `mcp-config-risk-check`'s and
+// `hidden-unicode-check`'s footers reuse those ventures' own existing
+// switches rather than adding new ones.
+const SWITCHES_IN_THE_CATALOGUE = 335;
 
 let counter = 0;
 function fixture(source) {

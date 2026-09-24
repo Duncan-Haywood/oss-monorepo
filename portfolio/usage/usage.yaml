@@ -6988,3 +6988,20 @@ products:
           device, so nobody has measured yet -- that is not the same as
           having measured nothing. `posting_scanned` is the one worth
           watching.
+  - slug: jwt-security-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          summary_copied: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/jwt-security-check/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `check_run` is the one worth watching.
