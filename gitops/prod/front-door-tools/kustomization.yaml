@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 129 files, 544232 bytes
 #   portfolio-front-tools-15: 129 files, 541818 bytes
 #   portfolio-front-tools-16: 100 files, 556534 bytes
-#   portfolio-front-tools-17: 115 files, 542024 bytes
+#   portfolio-front-tools-17: 116 files, 546332 bytes
 #   portfolio-front-tools-18: 129 files, 556330 bytes
 #   portfolio-front-tools-19: 117 files, 545853 bytes
 #   portfolio-front-tools-20: 51 files, 264927 bytes
@@ -2395,6 +2395,7 @@ configMapGenerator:
       - sql-migration-lock-check__index.html.gz=sql-migration-lock-check__index.html.gz
       - sql-migration-lock-check__sql.mjs.gz=sql-migration-lock-check__sql.mjs.gz
       - sql-migration-lock-check__usage.mjs.gz=sql-migration-lock-check__usage.mjs.gz
+      - sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz=sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz
       - sql-migration-lock-check__vs-squawk.html.gz=sql-migration-lock-check__vs-squawk.html.gz
       - sql-migration-lock-check__why-your-migration-locked-the-table.html.gz=sql-migration-lock-check__why-your-migration-locked-the-table.html.gz
       - sri-check__index.html.gz=sri-check__index.html.gz
