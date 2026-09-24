@@ -118,6 +118,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the trademark disclaimer, so the two comparison pages
   // are deliberately different classes.
   'cache-control-check/vs-checking-headers-by-eye-in-devtools.html',
+  // Compares against "checking response headers by eye in DevTools' Network
+  // tab" -- the same manual habit exempted above for cache-control-check,
+  // applied to this venture's own frame-protection/CSP/HSTS findings. This
+  // venture's vs-securityheaders.html is separately exempt-free (it names a
+  // real hosted scanner and carries the trademark disclaimer), so the two
+  // comparison pages are deliberately different classes.
+  'security-headers-check/vs-checking-headers-by-eye-in-devtools.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
