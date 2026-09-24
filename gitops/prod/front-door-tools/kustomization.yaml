@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 139 files, 550446 bytes
 #   portfolio-front-tools-10: 119 files, 554980 bytes
 #   portfolio-front-tools-11: 120 files, 554612 bytes
-#   portfolio-front-tools-12: 115 files, 548112 bytes
+#   portfolio-front-tools-12: 116 files, 552217 bytes
 #   portfolio-front-tools-13: 128 files, 543823 bytes
 #   portfolio-front-tools-14: 124 files, 556238 bytes
 #   portfolio-front-tools-15: 133 files, 556369 bytes
@@ -1765,6 +1765,7 @@ configMapGenerator:
       - llm-api-pricing-calculator__calc.mjs.gz=llm-api-pricing-calculator__calc.mjs.gz
       - llm-api-pricing-calculator__index.html.gz=llm-api-pricing-calculator__index.html.gz
       - llm-api-pricing-calculator__usage.mjs.gz=llm-api-pricing-calculator__usage.mjs.gz
+      - llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz=llm-api-pricing-calculator__vs-a-blended-per-token-rate.html.gz
       - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
       - llms-txt-generator__cli.mjs.gz=llms-txt-generator__cli.mjs.gz
       - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
