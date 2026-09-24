@@ -16899,6 +16899,73 @@ ventures:
       referral fee, donations-only, and it does not scan, fingerprint, or
       contact any third-party system, registry, or agent runtime.
 
+  - slug: economic-nexus-threshold-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against a published, dated table of 51 jurisdictions'
+      economic-nexus figures -- a state lookup plus a >=/AND/OR comparison,
+      never an inference step. time_to_revenue ties it at 1: donations-only,
+      same as every other venture in this file with no paid tier.
+    basis: >-
+      Graduated 2026-09-24 as a free browser tracker letting a multi-state
+      online seller enter trailing-12-month sales by state and see which
+      states' economic-nexus sales-tax-registration thresholds they've
+      crossed, per state, against each state's own published revenue
+      figure ($100k for 41 states+DC, $250k for Alabama/Mississippi, $500k
+      for California/New York/Texas) and, for the roughly third of states
+      that still pair one on, a transaction-count test applied as AND
+      (Connecticut, New York) or OR (the rest). duplicate_check.py scored
+      every venture, screened-out row, ai-first-markets idea, and pipeline
+      candidate at or below 0.11 against the final description -- the
+      closest match was the pipeline candidate str-occupancy-tax-
+      calculator, a different tax entirely (per-stay lodging remittance,
+      not a sales-volume registration threshold). No existing venture
+      addresses economic nexus; the closest sibling by mechanism is
+      1099-k-threshold-checker (a different threshold -- IRS payment
+      reporting, not state tax registration -- but the same "which of my
+      per-source thresholds have I crossed" shape, deliberately reused
+      here). Distribution 6 reflects demonstrated search volume: nine
+      independent competitor/publisher pages (Avalara, Numeral, TaxCloud,
+      NexusFlag, TaxesLedger, My Sales Tax Firm, nexusbystate.com,
+      Wikipedia, and others) found via WebSearch 2026-09-24 all target the
+      exact phrase "economic nexus threshold/calculator", plus recurring
+      threads on this exact question in r/ecommerce, r/Etsysellers,
+      r/AmazonSeller, r/FulfillmentByAmazon, and r/smallbusiness.
+      Defensibility 2: the threshold table itself is easy to reproduce --
+      the free/no-account/no-integration angle against paid incumbents
+      (Avalara, TaxJar) is the only edge, same class as this portfolio's
+      other reference-table calculators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: numbers the seller supplies, compared to public statutory
+      figures pulled from a named, dated, cited secondary source (Numeral's
+      2026 handbook, cross-checked against TaxCloud's own aggregate figures
+      via WebSearch); output is a per-state "crossed / not crossed / needs
+      more info" observation, never a filing, a registration, or a
+      calculated tax liability. Every page states plainly the data is
+      secondary-sourced rather than an independent fifty-state statute
+      review and directs the user to the state's own department of revenue
+      before relying on a boundary case -- same shape and score class as
+      the sibling 1099-k-threshold-checker's own liability gate. Ethics:
+      the tool only prompts a seller toward voluntary compliance they might
+      otherwise miss -- it never assists evading an obligation, holds no
+      personal or scraped data, and gets no worse for anyone as it scales.
+      No adverse incentive on our side (donations-only, no referral fee to
+      either named paid platform).
+
   - slug: tip-pool-compliance-calculator
     scores:
       ai_leverage: 1

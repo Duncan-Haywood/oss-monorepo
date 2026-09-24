@@ -1892,11 +1892,30 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. Same shape as source-map-leak-check's
   // vs-checking-devtools-by-hand.html exemption above.
   'structured-data-drift-check/vs-checking-it-by-eye.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
+  // and already carries the "not affiliated" disclaimer.
+  'actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html',
   // Compares against "reading the file by hand" -- a manual review habit
   // every developer already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
   // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
   'hidden-unicode-check/vs-reading-the-file-by-hand.html',
+  // Compares against "a flat $1,195 radon special" -- a common advertised
+  // rate any radon mitigation contractor already runs, sized for the
+  // smallest single-suction basement job, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-oneradon.html, which names Sun Nuclear's OneRADON software
+  // specifically and already carries the trademark disclaimer.
+  'radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html',
+  // Compares against "re-reading a post and checking it by eye for a
+  // disclosure" -- a manual habit any blogger already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
+  // specifically and already carries the trademark disclaimer.
+  'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
   // Compares against "deciding tip-pool eligibility in a staff meeting" --
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.

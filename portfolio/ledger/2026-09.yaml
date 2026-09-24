@@ -41645,6 +41645,102 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: economic-nexus-threshold-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per portfolio/pipeline/README.md's "screening
+        is done" instruction (candidates.yaml had zero unbuilt build-now
+        entries). Niche: multi-state online sellers (Etsy/Shopify/Amazon/eBay/
+        DTC) who need to know which states' economic-nexus sales-tax-
+        registration thresholds they've crossed. `duplicate_check.py` scored
+        every venture, screened-out row, ai-first-markets idea, and pipeline
+        candidate at or below 0.11 against the final description -- no
+        existing venture addresses economic nexus; the closest sibling by
+        mechanism is 1099-k-threshold-checker (a different threshold -- IRS
+        payment reporting, not state tax registration -- reusing the same
+        "which of my per-source thresholds have I crossed" shape).
+      - >-
+        Distribution channel evidence (DIRECTION.md North star point 2):
+        WebSearch 2026-09-24 found nine independent competitor/publisher
+        pages (Avalara, Numeral, TaxCloud, NexusFlag, TaxesLedger, My Sales
+        Tax Firm, nexusbystate.com, Wikipedia, and others) all targeting the
+        exact phrase "economic nexus threshold/calculator" -- real,
+        demonstrated search volume. Named channels: r/ecommerce,
+        r/Etsysellers, r/AmazonSeller, r/FulfillmentByAmazon, and
+        r/smallbusiness all carry recurring threads on this exact question.
+      - >-
+        Scored against portfolio/pipeline/README.md's rubric:
+        liability_containment 7, ethical_robustness 8 (both clear the gate);
+        composite 5.6, floor 1 (ai_leverage/time_to_revenue, same floor class
+        as most of this portfolio's zero-marginal-cost calculators). Full
+        derivation and gate reasoning recorded in the venture's own
+        VENTURE.yaml and in portfolio/scoring/venture-scores.yaml (six-
+        dimension ai-first-markets scale, composite 5.0 there).
+      - >-
+        Built: a browser tracker covering all 50 states + DC (WebFetch
+        2026-09-24 against Numeral's 2026 economic-nexus handbook,
+        cross-checked against TaxCloud's own aggregate figures via
+        WebSearch) -- 41 states+DC at $100k, California/New York/Texas at
+        $500k, Alabama/Mississippi at $250k, and the AND/OR transaction-
+        count test where a state still pairs one on (Connecticut and New
+        York require both together; the rest treat either as sufficient).
+        Per-state entries, never combined across states -- same "per
+        source" discipline as the sibling 1099-k-threshold-checker's
+        per-platform rule. 25 calc.mjs + 37 page.mjs assertions, including
+        the AND-state "needs a transaction count to know for sure" case a
+        naive implementation would silently guess at.
+      - >-
+        Shipped all five required things: MIT LICENSE, the §5b no-warranty
+        clause on every page (`node platform/pages/clauses.mjs
+        economic-nexus-threshold-tracker` clean), a client-side-only privacy
+        line, opt-in DNT/GPC-respecting usage counting, and the
+        github.com/sponsors/Duncan-Haywood link. A guide page
+        (why-does-economic-nexus-differ-by-state.html) and a named-competitor
+        comparison page (vs-paid-nexus-monitoring-software.html, naming
+        Avalara and TaxJar under the §5f nominative-fair-use disclaimer).
+        Reciprocal cross-link added with 1099-k-threshold-checker (both
+        answer an adjacent but distinct threshold question for the same
+        multi-platform-seller audience) to close what would otherwise have
+        been a crawlable orphan (siblings.test.mjs's committed budget is 0).
+      - >-
+        Caught two real defects before merging, both from running the full
+        suite rather than trusting the venture's own 62 assertions alone:
+        the FAQPage JSON-LD used "--" where the visible prose used an em
+        dash, which faq-visible.test.mjs correctly failed on (JSON-LD and
+        visible text must match exactly, `platform/pages/faq-visible.
+        test.mjs`); and the new venture was a crawlable orphan
+        (`platform/pages/siblings.test.mjs`), fixed with the reciprocal
+        cross-link above.
+      - >-
+        Also fixed forward two pre-existing defects found while verifying,
+        neither introduced by this change: `gitops/ci/README.md`'s
+        `runs-on` count was stale the moment this venture's own CI workflow
+        landed (`python3 gitops/ci/sync_readme_counts.py`, 445/447 across
+        406 -> 446/448 across 407); and `skill-manifest-check` (merged
+        immediately prior on `main`, #5667) had no entry in
+        portfolio/scoring/venture-scores.yaml, which `score_ventures.py
+        --check` and two router/scoring pytest suites were failing on --
+        scored it from its own VENTURE.yaml's existing duplicate_check
+        table and liability/ethics reasoning rather than leaving `main` red.
+      - >-
+        Verified locally (Actions confirmed starved: `ci_starvation.py
+        --run 36026469787` reported `runner_id: 0`, 3s, no steps, on the
+        most recent Portfolio validate push): the venture's own 62
+        assertions, `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1289/1289, after the two fixes above),
+        `python3 -m pytest gitops/tests -q` (637 passed, 1 skipped),
+        `platform/ci`'s 27 unittest modules (273 tests) + `agent_review`'s
+        21, `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (531 passed after the venture-scores.yaml fix), `clauses.mjs` on
+        both touched ventures, `check_venture_regression.py --base
+        origin/main`, `checklist_coverage.py`, `sync_tree_counts.py`
+        (mirrored-tool count 351->352, running-comment entry added to
+        test_manifests.py), and `regen.mjs --verify` clean after `regen.mjs`
+        rewrote the mirror shard packing.
+    mrr_end: 0
   - venture: pergola-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -41752,4 +41848,91 @@ entries:
         unittest modules (1014 + 21 assertions) run from their own working
         directories. Revenue and confirmed-visitor counts remain at zero,
         which this does not change on its own.
+    mrr_end: 0
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED. Reviewed the open-PR queue first (3 open,
+        all agent-authored): PR #5689 (siding-bid-calculator comparison page)
+        had a merge conflict against main from concurrent activity; began
+        rebasing and verifying it in a worktree, but the PR's own originating
+        session pushed an updated merge and merged it first, so that work was
+        discarded as a duplicate per CLAUDE.md's "Duplicate PRs" guidance
+        rather than raced or pushed over. PRs #5679 and #5692 were left alone
+        for the same reason -- both are large (1500+ changed files, mostly
+        the generated front-door mirror) and their own sessions were still
+        actively pushing to them.
+      - >-
+        pages_state.py showed the gh-pages snapshot stale (built from
+        e124614e/f608fc01 while main had moved 5-6 commits ahead). Ran
+        CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+        from a clean worktree of origin/main to refresh it -- pushed
+        332cc1e1, confirmed served by GitHub's managed Pages builder (run
+        36033755276).
+      - >-
+        That run's IndexNow submission (node platform/marketing/indexnow.mjs
+        --submit, invoked by publish-branch.sh) returned HTTP 200 from
+        api.indexnow.org with 1557 URLs, submitted from this session's
+        sandbox. This contradicts the standing claim in CLAUDE.md and
+        indexnow_state.py's own code comments that an agent sandbox's egress
+        proxy 403s that host -- worth a fresh look, since indexnow_state.py
+        only reads GitHub workflow run history and has no way to record a
+        by-hand submission, so it still reports "never" even after this one
+        succeeded. Not verified whether the submission actually registered
+        with Bing/Yandex beyond the 200 response; flagging as observed
+        rather than as confirmed indexing.
+      - >-
+        By the time the publish finished, main had already moved one more
+        commit ahead (pergola-bid-calculator comparison page), which is the
+        ordinary case at this session's concurrency level -- left for the
+        next session or scheduled run to catch, rather than chasing a moving
+        target repeatedly in one session.
+      - >-
+        Left the owner's decision queue untouched: every top item
+        (hetzner-ssh-key-is-a-public-key, payout-rail, funding-sponsors-live,
+        print-atelier-stripe-checkout, pages-custom-domain) is genuinely
+        owner-blocked (credentials, money decisions, or a DNS panel this
+        session cannot reach) and none had new information to add this
+        session.
+    mrr_end: 0
+  - venture: affiliate-disclosure-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. checking a post by
+        eye": the venture had a named-product comparison (vs-post-affiliate-pro.html)
+        and a guide page but none of the "you could work this out yourself"
+        angle, one of 93 ventures at 0 per surface-budget.mjs at the time.
+        Names the three things a manual re-read of a post reliably misses
+        that this checker's own engine.mjs already computes: an affiliate
+        link's tracking signal living in the href rather than the visible
+        anchor text (amzn.to, ShareASale/CJ/Impact/Skimlinks/AWIN, generic
+        tracking params), a rel="sponsored" attribute with no rendered
+        marker at all, and whether a disclosure's character position
+        genuinely precedes every affiliate link's position once a post has
+        more than one -- plus the Amazon-exact-phrase check being a
+        separate condition from a generic disclosure note. Registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from index.html,
+        added to sitemap.xml, wired into a dedicated test file mirroring
+        this repo's vs-checking-dns-records-by-hand.test.mjs pattern
+        (FAQ-schema/visible-heading parity, angle-reader h1 shape,
+        no-competitor-named check), mirror regenerated.
+      - >-
+        Verified locally (Actions confirmed starved -- ci_starvation.py on
+        the latest portfolio-validate.yml run: runner_id 0, ~3s, no
+        steps): venture's own suite 60/60, full platform/marketing +
+        platform/pages suite 1289/1289 (clean after regen.mjs; caught and
+        fixed a stale mirror from a concurrent PR's merge first),
+        gitops/tests 637 passed/1 skipped (environmental), the 43
+        platform/ci unittest modules, agent_review's 21 tests, checklist_coverage.py,
+        surface-budget.mjs --check, regen.mjs --verify, router/validate.py,
+        scoring/score_ventures.py --check, usage/validate_usage.py,
+        pipeline/validate_doc_consistency.py, pipeline/validate_candidates.py,
+        pipeline/probes/validate_probe_index.py, pipeline/score_sensitivity.py,
+        front-door-tools.mjs --headroom, and the ledger/scoring/router/usage/
+        pipeline/infra pytest suite (446 passed) all clean.
     mrr_end: 0
