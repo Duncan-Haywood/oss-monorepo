@@ -1289,6 +1289,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // generic-method pages above.
   'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "estimating egress in a spreadsheet" -- a method every
+  // engineer pricing a workload already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-aws-pricing-calculator.html, vs-azure-pricing-calculator.html and
+  // vs-google-cloud-pricing-calculator.html, which each name a specific
+  // provider's own tool and already carry that provider's "not affiliated"
+  // clause for that reason. Same reasoning as the other vs-a-spreadsheet
+  // pages above.
+  'cloud-egress-calculator/vs-a-spreadsheet.html',
   // Compares against "planning cuts by hand" -- a manual layout habit every
   // woodworking or sign shop already has, not a company or product this
   // could be mistaken for. Distinct from this venture's own
