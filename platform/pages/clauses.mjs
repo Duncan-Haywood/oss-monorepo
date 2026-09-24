@@ -205,6 +205,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // payroll admin already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
   'overtime-pay-calculator/vs-spreadsheet.html',
+  // Compares against "comparing effective rates" -- the standard rate-
+  // shopping advice every merchant-services guide recommends, not a company
+  // or product this could be mistaken for. The page names no processor and
+  // its own test asserts that.
+  'card-processing-fee-audit/vs-comparing-effective-rates.html',
   // Compares against "doing the blended-rate arithmetic by hand or in a
   // spreadsheet" -- a generic method every payroll admin already has, not a
   // company or product this could be mistaken for. Same reasoning as the
@@ -1142,6 +1147,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // tool; vs-printavo.html already carries this venture's one
   // named-competitor comparison and its own trademark disclaimer.
   'apparel-decoration-price-calculator/vs-a-flat-price-per-shirt.html',
+  // Compares against "a spreadsheet" -- a generic method every restaurant
+  // operator already has access to, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-toast.html, which
+  // names Toast and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as the other vs-spreadsheet pages above.
+  'delivery-app-margin-calculator/vs-a-spreadsheet.html',
   // Compares against "sales minus booth fee" mental math or a one-line
   // spreadsheet -- a generic gut check every maker already does, not a
   // company or product this could be mistaken for. The page names no
