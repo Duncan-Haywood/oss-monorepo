@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 359 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 360 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste a hostname and it resolves the CAA record set that actually governs certificate issuance -- walking up your DNS tree per RFC 8659 to the ancestor domain that publishes one, not just the exact name you typed -- flags malformed records and a critical unrecognized tag that silently blocks every CA, and names whether Let&#39;s Encrypt, Google Trust Services, DigiCert, and 5 more are authorized to issue. Nothing uploaded to us; only public DNS is read.</summary>
+  </entry>
+  <entry>
+    <title>Claude Code Settings Check — find hooks that never fire and permission rules that never match</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-code-settings-check/"/>
+    <id>tag:marisstella.dev,2026:tool/claude-code-settings-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a Claude Code settings.json (and, optionally, settings.local.json) and get every structural mistake flagged: a hook matcher that can&#39;t compile, a hook with no command, a misspelled event name, a permission rule with unbalanced parentheses, a rule duplicated across allow/deny/ask, and a rule that contradicts itself across the two files. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Check whether a marketplace, payment app, or platform is likely to send you a Form 1099-K, per platform and per tax year. Covers the federal threshold&#39;s four changes since 2022 ($20,000/200 transactions, $5,000 in 2024, back to $20,000/200 from 2025 on) plus the four states with their own stricter $600 rule. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>1099-NEC Vendor Tracker — Free 2026 $2,000 Threshold Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/1099-vendor-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/1099-vendor-tracker</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Track which contractors need a 1099-NEC under the 2026 $2,000 reporting threshold (up from $600), check the corporation exemption, and see missing W-9s before the January 31 deadline. Runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

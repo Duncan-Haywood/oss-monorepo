@@ -17290,3 +17290,63 @@ ventures:
       reading would only surface as their own next renewal failing, which
       is the same self-correcting incentive structure this portfolio's
       other read-only DNS/HTTP checkers already rely on.
+
+  - slug: claude-code-settings-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every finding (an uncompilable
+      matcher regex, an empty hook command, a permission rule with
+      unbalanced parentheses, a rule contradicting itself across two
+      files) is decided by a fixed parser and pattern/structural check
+      against the pasted JSON -- a deterministic comparison, not a model
+      judgment, and it never claims to know Claude Code's actual runtime
+      precedence between conflicting rules.
+    basis: >-
+      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml
+      for the full duplicate_check.py run, nothing clearing the 0.45 bar).
+      Autonomous ops 10 / gross margin 10: every check runs client-side
+      against text the visitor pastes, nothing uploaded, no server of
+      ours in the loop, so serving one more visitor costs a static file --
+      same shape as mcp-config-risk-check, hidden-unicode-check, and
+      skill-manifest-check. Defensibility 4: a JSON structural parser and
+      a regex-compile check are moderately easy to reproduce, matching
+      mcp-config-risk-check's and hidden-unicode-check's own defensibility
+      score in the same domain (a fixed pattern/lookup shape, not the
+      heuristic vagueness tuning that separated skill-manifest-check's 3).
+      Distribution 5: named, current developer-tooling channels (r/ClaudeAI
+      and r/LocalLLaMA agent-tooling threads, where "my hook isn't firing"
+      is a recurring live question, Anthropic's own developer community,
+      HN Show threads on Claude Code tooling, GitHub topic search for
+      committed .claude/settings.json files) plus footer cross-links with
+      all three sibling AI-agent-tooling checkers, matching their own
+      distribution score for the same reasoning. No search-volume tool was
+      queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic, structural check against
+      text the user pastes, no network call of any kind, no LLM call, and
+      no claim about Claude Code's actual runtime behaviour or which of
+      two conflicting rules or files it honours -- the two checks with any
+      time-dependence (hook event/type names) are dated and framed as a
+      caution, never an authoritative claim on Anthropic's behalf. Every
+      finding is framed as "worth a look, not a verdict" and a clean
+      result as "not a guarantee of how Claude Code will behave at
+      runtime," mirroring the other three AI-agent-tooling ventures' own
+      liability framing.
+      Ethics: strictly beneficial as it scales -- helps a Claude Code user
+      catch a hook or permission-rule authoring mistake before it costs a
+      debugging session, no affiliate link, no referral fee,
+      donations-only, and it does not scan, fingerprint, or contact any
+      third-party system or agent runtime.

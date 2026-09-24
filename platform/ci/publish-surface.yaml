@@ -269,6 +269,9 @@ workflows:
 - workflow: chrome-extension-permission-check-ci.yml
   classification: none
   publishes: []
+- workflow: claude-code-settings-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []

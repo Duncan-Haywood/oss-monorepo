@@ -2466,9 +2466,21 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # This branch only ever knew its own predecessor's number (357) until
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
+    #
+    # 359: `caa-record-check` graduates -- a browser tool + CLI resolving
+    # the CAA DNS record set that governs certificate issuance, following
+    # RFC 8659's tree-walk. Static `index.html`, a HowTo guide page and a
+    # generic-method comparison page, all from its first commit.
+    #
+    # 360 on this merge: `claude-code-settings-check` also graduated,
+    # concurrently on `main` -- a browser tool checking a pasted Claude
+    # Code settings.json for structural mistakes in hooks and permissions.
+    # This branch only ever knew its own predecessor's number (359, from
+    # `caa-record-check` above) until this merge -- the same ordinary
+    # collision shape recorded throughout this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 359  # `infra/OWNER_CHECKLIST.md`'s own "N of the 359 tools" wording.
+    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
