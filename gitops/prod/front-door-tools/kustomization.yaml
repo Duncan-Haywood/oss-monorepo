@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 122 files, 554036 bytes
 #   portfolio-front-tools-6: 132 files, 556155 bytes
 #   portfolio-front-tools-7: 129 files, 544721 bytes
-#   portfolio-front-tools-8: 125 files, 552670 bytes
+#   portfolio-front-tools-8: 126 files, 556601 bytes
 #   portfolio-front-tools-9: 139 files, 552980 bytes
 #   portfolio-front-tools-10: 120 files, 555247 bytes
 #   portfolio-front-tools-11: 119 files, 542704 bytes
@@ -1204,6 +1204,7 @@ configMapGenerator:
       - deploy-concurrency-check__usage.mjs.gz=deploy-concurrency-check__usage.mjs.gz
       - deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz=deploy-concurrency-check__vs-reading-your-workflows-yourself.html.gz
       - depop-fee-calculator__calc.mjs.gz=depop-fee-calculator__calc.mjs.gz
+      - depop-fee-calculator__how-much-does-depop-actually-take.html.gz=depop-fee-calculator__how-much-does-depop-actually-take.html.gz
       - depop-fee-calculator__index.html.gz=depop-fee-calculator__index.html.gz
       - depop-fee-calculator__usage.mjs.gz=depop-fee-calculator__usage.mjs.gz
       - depop-fee-calculator__vs-tracking-depop-sales-in-a-spreadsheet.html.gz=depop-fee-calculator__vs-tracking-depop-sales-in-a-spreadsheet.html.gz
