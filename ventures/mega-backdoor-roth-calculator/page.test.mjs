@@ -71,6 +71,18 @@ test('the entry page distinguishes this from a regular backdoor Roth IRA', () =>
   assert.match(html, /pro-rata/i);
 });
 
+// This venture must ship with an inbound sibling link (platform/pages/siblings.mjs
+// --check, orphan budget committed at 0). Paired with senior-deduction-calculator:
+// both are federal filing-season decisions for an individual, one on the
+// contribution side (this tool) and one on the deduction side.
+test('the entry page links one hop to the senior deduction calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/senior-deduction-calculator\/"/,
+    'index must link ../senior-deduction-calculator/ so crawlers reach the sibling tool in one hop',
+  );
+});
+
 test('every input has an associated label', () => {
   const inputNames = [...html.matchAll(/<input name="(\w+)"/g)].map((m) => m[1]);
   assert.ok(inputNames.length > 5);

@@ -84,6 +84,20 @@ test("index links one hop to both sibling OBBBA deduction calculators", () => {
   );
 });
 
+// mega-backdoor-roth-calculator graduated with no inbound sibling link of its
+// own (platform/pages/siblings.mjs --check, orphan budget committed at 0).
+// Paired here rather than with another OBBBA deduction: both are federal
+// filing-season decisions for an individual, one on the contribution side
+// (mega-backdoor-roth-calculator) and one on the deduction side (this tool).
+test('index links one hop to the mega backdoor Roth calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/mega-backdoor-roth-calculator\/"/,
+    'index must link ../mega-backdoor-roth-calculator/ so crawlers reach the sibling tool in one hop',
+  );
+});
+
 test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
   const html = page("index.html");
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);

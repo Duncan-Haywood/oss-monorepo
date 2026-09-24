@@ -1230,7 +1230,20 @@ const CATEGORY_RULES = [
       // the same season, and all three disagree on married-filing-separately
       // treatment in ways worth a reader hitting explicitly rather than
       // assuming one rule generalizes to the others.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator)/.test(slug),
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, moved here out of
+      // the catch-all it landed in on its own graduation commit -- which
+      // pushed the catch-all to 6 and past the bound `build.test.mjs` puts
+      // on it (`the catch-all holds only what no section claims`), because
+      // that commit added no category rule for it. It is the same axis as
+      // `qbi-deduction-calculator` and `senior-deduction-calculator` right
+      // above it in this rule: a federal tax-treatment decision on money the
+      // filer already has (401(k) after-tax headroom and IRS contribution
+      // limits already in place), not a quote to a client (`services`) and
+      // not pricing labour before a sale (`solo-earner`). It cross-links
+      // `senior-deduction-calculator` as a sibling -- both are federal
+      // retirement/tax-filing decisions a filer works through in the same
+      // season, one on the contribution side and one on the deduction side.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator)/.test(slug),
   },
   {
     id: 'ci',
