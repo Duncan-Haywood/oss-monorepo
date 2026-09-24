@@ -36,6 +36,7 @@ import {
   EMBED_STYLE_OUTPUT_FILE,
   LLMS_FILE,
   LLMS_OUTPUT_FILE,
+  llmsStoredKey,
   OUTPUT_FILE,
   PROMISE,
   ROBOTS_FILE,
@@ -1456,11 +1457,16 @@ test('llms.txt claims a wider collection only while one actually exists', () => 
 });
 
 test('the committed llms.txt matches what this generator produces', async () => {
+  // Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in
+  // `front-door.mjs`), so this reads it through `readCommittedLlms` rather
+  // than as UTF-8 — see that helper's own doc comment for why reading the
+  // `.gz` bytes as text would not throw but would compare mojibake to plain
+  // text and fail for the wrong reason.
   const { llms } = await buildFrontDoor();
   assert.equal(
-    await fs.readFile(LLMS_OUTPUT_FILE, 'utf8'),
+    await readCommittedLlms(),
     llms,
-    'gitops/prod/front-door/llms.txt is stale — run: node platform/marketing/regen.mjs',
+    'gitops/prod/front-door/llms.txt.gz is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1471,7 +1477,7 @@ test('every link in the committed llms.txt resolves on this host', async () => {
   const { files } = await buildMirror();
   const keys = new Set(files.map((f) => f.key));
   const { compareProductPages } = await buildFrontDoor();
-  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const txt = await readCommittedLlms();
   const links = [...txt.matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((m) => m[1]);
   assert.ok(links.length > 10, 'the committed llms.txt should carry the mirrored tools');
   const served = new Set([
@@ -1505,12 +1511,21 @@ test('nginx answers /llms.txt as markdown-ish text, with the encoding declared',
   const block = conf.match(new RegExp(`location = /${escapeForRegExp(LLMS_FILE)} \\{[\\s\\S]*?\\n {2}\\}`));
   assert.ok(block, `front-door/default.conf must serve /${LLMS_FILE} explicitly`);
   assert.match(block[0], /default_type text\/plain;/);
-  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(LLMS_FILE)} =404;`));
   // The one thing robots.txt does not need. That file is held to ASCII by a
   // test; this one carries the ventures' own titles, 31 of whose bullets
   // contain an em dash, and nginx defaults to `charset off` — so without this
   // a client assuming Latin-1 renders every one as mojibake.
   assert.match(block[0], /charset utf-8;/);
+  // Stored gzip-only since 2026-09-24, so this block is served out of the
+  // content phase by `gzip_static` rather than resolved in the rewrite phase
+  // by `try_files`. Both halves are asserted, for the identical reason the
+  // `/sitemap.xml` and `/catalog.json` blocks' own tests give.
+  assert.ok(
+    !/try_files/.test(block[0]),
+    'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
+  );
+  assert.match(block[0], /gzip_static always;/);
+  assert.match(block[0], /gunzip on;/);
   assert.ok(!/X-Robots-Tag/.test(block[0]), '/llms.txt exists to be read by crawlers');
   assert.ok(
     conf.indexOf(`location = /${LLMS_FILE}`) < conf.indexOf('location / {'),
@@ -1522,11 +1537,33 @@ test('the committed llms.txt is the file that block promises to serve', async ()
   // The encoding claim above is only true if the bytes really are UTF-8, and
   // the em-dash count is what makes the charset load-bearing rather than
   // decorative — if a future edit made this file ASCII the directive would be
-  // harmless but the comment beside it would be wrong.
-  const bytes = await fs.readFile(LLMS_OUTPUT_FILE);
-  assert.equal(bytes.toString('utf8'), await fs.readFile(LLMS_OUTPUT_FILE, 'utf8'));
-  const nonAscii = [...bytes.toString('utf8')].filter((c) => c.codePointAt(0) > 127);
+  // harmless but the comment beside it would be wrong. Read through
+  // `readCommittedLlms` since the committed key is gzipped, not plain text.
+  const txt = await readCommittedLlms();
+  const nonAscii = [...txt].filter((c) => c.codePointAt(0) > 127);
   assert.ok(nonAscii.length > 0, 'if this file is ever pure ASCII, drop the charset comment with it');
+});
+
+test('the stored llms.txt key agrees with the compression suffix constant', () => {
+  // `LLMS_OUTPUT_FILE` spells `.gz` literally, because `COMPRESSED_SUFFIX` is
+  // declared below it and a forward reference would be a TDZ error at module
+  // load. This is the assertion that comment promises, so the literal cannot
+  // drift from the constant the rest of the mechanism uses.
+  assert.equal(llmsStoredKey(), `${LLMS_FILE}${COMPRESSED_SUFFIX}`);
+  assert.equal(path.basename(LLMS_OUTPUT_FILE), llmsStoredKey());
+});
+
+test('no plain llms.txt is left beside the compressed key', async () => {
+  // The stale-sibling trap, asserted rather than trusted to the sweep in
+  // `front-door.mjs`: `location = /llms.txt`'s own `root` would still find a
+  // plain file, so a regeneration that stopped writing the `.gz` would go on
+  // serving a frozen document under a 200 for as long as anybody looked.
+  const plain = path.join(path.dirname(LLMS_OUTPUT_FILE), LLMS_FILE);
+  assert.equal(
+    await fs.stat(plain).then(() => true, () => false),
+    false,
+    `${LLMS_FILE} must not exist beside its .gz — front-door.mjs sweeps it`,
+  );
 });
 
 test('llms.txt rides in the ConfigMap that mounts at the document root', async () => {
@@ -1534,7 +1571,18 @@ test('llms.txt rides in the ConfigMap that mounts at the document root', async (
     path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
     'utf8',
   );
-  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(LLMS_FILE)}=front-door/${escapeForRegExp(LLMS_FILE)}`));
+  // The compressed key, and the plain name must not also be listed: two keys
+  // for one URL is how a frozen copy ends up being served beside a live one.
+  assert.match(
+    kustomization,
+    new RegExp(`- ${escapeForRegExp(llmsStoredKey())}=front-door/${escapeForRegExp(llmsStoredKey())}`),
+  );
+  assert.ok(
+    !new RegExp(`- ${escapeForRegExp(LLMS_FILE)}=front-door/${escapeForRegExp(LLMS_FILE)}$`, 'm').test(
+      kustomization,
+    ),
+    'the plain llms.txt key must be gone, not listed alongside its .gz',
+  );
 });
 
 test('the footer offers llms.txt only where this host serves one', () => {
@@ -1756,7 +1804,7 @@ test('the committed catalog.json parses and agrees with llms.txt', async () => {
   // comparable between these two — and a client that read both and got
   // different collections would have no way to tell which was right.
   const catalog = JSON.parse(await readCommittedCatalog());
-  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const txt = await readCommittedLlms();
   const linked = new Set(
     [...txt.matchAll(/\]\((https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/)\)/g)].map((m) => m[2]),
   );
@@ -1772,7 +1820,7 @@ test('llms.txt offers the catalogue now that this host serves one', async () => 
   // "lives on the tools host and is not served here". It is served here now,
   // and the rule that produced the old exclusion — every entry is a path this
   // host answers — is what makes listing it correct rather than a regression.
-  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const txt = await readCommittedLlms();
   assert.ok(
     txt.includes(`${FRONT_DOOR_URL}${CATALOG_FILE}`),
     'llms.txt should point a model at the structured catalogue',
@@ -1847,6 +1895,17 @@ test('catalog.json rides in the ConfigMap that mounts at the document root', asy
  */
 async function readCommittedSitemap() {
   return zlib.gunzipSync(await fs.readFile(SITEMAP_OUTPUT_FILE)).toString('utf8');
+}
+
+/**
+ * The committed llms.txt, inflated.
+ *
+ * Stored gzip-only since 2026-09-24 (see `llmsStoredKey` in `front-door.mjs`),
+ * so every assertion below reads it through here rather than as UTF-8, for
+ * the identical reason `readCommittedSitemap` above does.
+ */
+async function readCommittedLlms() {
+  return zlib.gunzipSync(await fs.readFile(LLMS_OUTPUT_FILE)).toString('utf8');
 }
 
 test('the stored sitemap key agrees with the compression suffix constant', () => {
