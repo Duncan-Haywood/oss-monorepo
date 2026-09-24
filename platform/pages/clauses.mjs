@@ -202,6 +202,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a generic method every bar or
+  // beverage program already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  // Distinct from this venture's own vs-binwise.html and vs-wisk.html,
+  // which name real inventory platforms and carry the trademark disclaimer.
+  'pour-cost-calculator/vs-a-spreadsheet.html',
   // Compares against "multiplying filament cost by three" -- a pricing
   // habit passed around among makers, not a company or product this could
   // be mistaken for. The page names no vendor at all.
