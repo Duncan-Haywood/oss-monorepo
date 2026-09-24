@@ -2055,6 +2055,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-voices-com.html, which names a real marketplace and already carries
   // the trademark disclaimer.
   'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
+  // Compares against "picking a round salary number" -- the manual habit
+  // every S-corp owner without a paid report already has (a figure that
+  // sounds reasonable, matches a peer, or rolls last year's number forward),
+  // not a company or product this could be mistaken for. The page's own
+  // "Common questions" section says so explicitly. Distinct from this
+  // venture's own vs-rcreports-and-a-paid-valuation-report.html, which names
+  // RCReports specifically and already carries the trademark disclaimer.
+  's-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
