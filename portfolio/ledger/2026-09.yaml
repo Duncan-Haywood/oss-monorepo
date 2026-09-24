@@ -41829,3 +41829,36 @@ entries:
         session cannot reach) and none had new information to add this
         session.
     mrr_end: 0
+  - venture: kickstarter-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first marketing surface: a generic-method
+        comparison page ("vs. the flat 8-10% rule of thumb"), following
+        session_gate.py PROCEED and picking from the two ventures
+        surface-budget.mjs reported at zero marketing surface out of 363
+        (the other, depop-fee-calculator, had just landed the same day via
+        #5679 and was left for a later session). Worked example uses the
+        calculator's own calc.mjs and shipped default inputs: a flat 9%
+        guess (the "8-10%" midpoint) prices a $10,000 raise at $9,100 net
+        regardless of backer count, while the real net payout is $9,170 at
+        150 backers ($66.67 average pledge) and $8,937.50 at 1,250 backers
+        ($8.00 average pledge, the micro-pledge tier) -- a $232.50 swing on
+        an identical guess, and the micro-pledge case's 10.625% effective
+        rate falls outside the quoted "8-10%" range entirely.
+      - >-
+        Ran node --test on the venture's own suite (32/32) and the full
+        platform/marketing + platform/pages suite (1290/1290) after fixing
+        two regressions the new page introduced: a JSON-LD FAQ block that
+        diverged from the visible copy by punctuation (curly vs. straight
+        quotes, and a stray backslash before dollar signs), caught by
+        faq-visible.test.mjs, and a venture sitemap.xml that omitted the
+        new page, caught by venture-sitemap-coverage.test.mjs. Ran
+        regen.mjs and committed the front-door mirror it rewrote so the
+        apex serves the new page rather than 404ing on it.
+      - >-
+        Left the owner's decision queue untouched: every top item remains
+        genuinely owner-blocked (credentials or money decisions this
+        session cannot reach) with nothing new to add.
+    mrr_end: 0
