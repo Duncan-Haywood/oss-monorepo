@@ -1620,6 +1620,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // B" and names no real vendor. Same reasoning as the other generic-method
   // pages above.
   'vector-db-cost-calculator/vs-doing-the-math-yourself.html',
+  // Compares against reusing one downloaded or bookmarked chargeback
+  // checklist for every dispute reason -- a habit any seller fighting a
+  // chargeback already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-chargeflow.html,
+  // which names Chargeflow specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'chargeback-evidence-packet/vs-a-generic-dispute-checklist.html',
   // Compares against "a flat per-zone rate" -- a generic pricing method
   // every irrigation contractor already has access to, not a company or
   // product this could be mistaken for. Distinct from this venture's own
@@ -1661,6 +1668,22 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as asphalt-sealcoat-bid-calculator's
   // own flat-per-square-foot exemption above.
   'roofing-bid-calculator/vs-a-flat-price-per-house-square-foot.html',
+  // Compares against "multiplying total monthly tokens by one headline
+  // blended $/M rate" -- the generic estimating shortcut any developer
+  // sizing an LLM API bill already reaches for, not a company or product
+  // this could be mistaken for. The worked example uses the calculator's
+  // own preloaded "Anthropic (Claude)" example rates, the same illustrative
+  // placeholders index.html already labels as examples, not a claim about
+  // Anthropic's or any vendor's current pricing. Same reasoning as the
+  // other generic-method pages above.
+  'llm-api-pricing-calculator/vs-a-blended-per-token-rate.html',
+  // Compares against "tracking grant deadlines in a spreadsheet" -- the
+  // generic method most small-nonprofit coordinators already use, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-instrumentl.html, which names Instrumentl specifically
+  // and already carries the trademark disclaimer. Same reasoning as the
+  // other generic-method pages above.
+  'grant-deadline-tracker/vs-tracking-deadlines-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
