@@ -707,7 +707,18 @@ const RELATIVE_SELF = relative(
 // `auto-loan-interest-deduction-calculator` landed) until this merge -- the
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
-const SWITCHES_IN_THE_CATALOGUE = 339;
+//
+// 339 -> 340: `claude-code-subagent-check` graduates -- adding one
+// `usage.mjs` (`ventures/claude-code-subagent-check/usage.mjs`), the same
+// opt-in/opt-out toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
+// under its own `claude-code-subagent-check:usage` storage name). Exactly
+// one added `usage.mjs`, no deletions. (This session found the file already
+// at 339 rather than 338 -- one venture between `tip-pool-compliance-
+// calculator` and this one added a switch without a comment recording it;
+// not reconstructed here since this entry only speaks to this session's own
+// change.)
+const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;
 function fixture(source) {

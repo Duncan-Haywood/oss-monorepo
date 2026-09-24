@@ -17271,3 +17271,67 @@ ventures:
       debugging session, no affiliate link, no referral fee,
       donations-only, and it does not scan, fingerprint, or contact any
       third-party system or agent runtime.
+  - slug: claude-code-subagent-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every finding (a malformed name,
+      a vague description, an empty/duplicated/unrecognized tools entry,
+      an unrecognized model alias, a near-empty body) is decided by a
+      fixed parser and pattern/heuristic check against the pasted text --
+      a deterministic comparison, not a model judgment, and it never
+      claims to know whether Claude Code's orchestrator will actually
+      delegate to a given subagent at runtime.
+    basis: >-
+      Screened and built 2026-09-24, extending the same-day AI-agent-
+      tooling cluster (see the venture's own VENTURE.yaml for the full
+      duplicate_check.py run, nothing clearing the 0.45 bar -- closest was
+      skill-manifest-check at 0.30). Autonomous ops 10 / gross margin 10:
+      every check runs client-side against text the visitor pastes,
+      nothing uploaded, no server of ours in the loop, so serving one
+      more visitor costs a static file -- same shape as the other four
+      AI-agent-tooling checkers. Defensibility 3: the description-
+      vagueness heuristic (word count, trigger-cue pattern match,
+      distinctive-vocabulary count) is the same tuning judgment that
+      separated skill-manifest-check's own 3 from mcp-config-risk-check's
+      and hidden-unicode-check's fixed-pattern 4 -- this venture carries
+      that same heuristic, independently implemented and re-tuned for a
+      delegation framing, plus the tools/model checks, which are fixed-
+      lookup shaped on their own but do not raise the composite judgment
+      call above skill-manifest-check's. Distribution 5: named, current
+      developer-tooling channels (r/ClaudeAI and r/LocalLLaMA agent-
+      tooling threads, where "my subagent never gets used" is a
+      recurring live question, Anthropic's own developer community, HN
+      Show threads on Claude Code subagent workflows, GitHub topic search
+      for committed .claude/agents/*.md files) plus footer cross-links
+      with all four sibling AI-agent-tooling checkers, matching their own
+      distribution score for the same reasoning. No search-volume tool
+      was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic, structural check against
+      text the user pastes, no network call of any kind, no LLM call, and
+      no claim about Claude Code's actual delegation or runtime behaviour
+      -- the two checks with any time-dependence (built-in tool names,
+      model aliases) are dated and framed as a caution, never an
+      authoritative claim on Anthropic's behalf. Every finding is framed
+      as "worth a look, not a verdict" and a clean result as "not a
+      guarantee of how Claude Code will delegate to or run this
+      subagent," mirroring the other four AI-agent-tooling ventures' own
+      liability framing.
+      Ethics: strictly beneficial as it scales -- helps a Claude Code user
+      catch a subagent-authoring mistake before it costs a silent
+      no-delegation debugging session, no affiliate link, no referral
+      fee, donations-only, and it does not scan, fingerprint, or contact
+      any third-party system or agent runtime.

@@ -42874,3 +42874,76 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: claude-code-subagent-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture end-to-end: a free, zero-dependency
+        browser tool that checks a pasted Claude Code subagent definition
+        (.claude/agents/*.md) for structural authoring mistakes that
+        stop the orchestrator delegating to it -- a name that isn't
+        kebab-case or doesn't match the filename, a missing or too-vague
+        description (the one field delegation is matched against), a
+        `tools` entry that's empty/duplicated/unrecognized, an
+        unrecognized `model` alias, and a missing or near-empty system
+        prompt. Extends the same-day AI-agent-tooling cluster
+        (hidden-unicode-check, mcp-config-risk-check, skill-manifest-check,
+        claude-code-settings-check) with the one Claude Code file those
+        four leave unchecked; sourced and built by this session for the
+        same reason claude-code-settings-check was -- this session is
+        Claude Code itself, with direct, current knowledge of the exact
+        schema being checked (frontmatter fields, built-in tool names,
+        model aliases).
+      - >-
+        duplicate_check.py cleared with nothing scoring above 0.30
+        (skill-manifest-check, the closest -- a different object: no
+        tools/model fields, loaded by name rather than matched for
+        delegation). Cross-linked all four sibling AI-agent-tooling
+        checkers' footers reciprocally (hidden-unicode-check,
+        mcp-config-risk-check, skill-manifest-check,
+        claude-code-settings-check), each with a matching page.test.mjs
+        assertion. Registered in launched.json, filed in build.mjs's
+        developer-tooling category, added a merit score to
+        venture-scores.yaml (composite 5.833, gates pass/pass), added a
+        CI workflow, and regenerated the front-door mirror
+        (platform/marketing/regen.mjs) so the apex serves the new page
+        immediately rather than 404ing on its own sitemap entry.
+      - >-
+        Resynced the mirrored-tool count (359->360) and opt-out-switch
+        count (339->340) via sync_tree_counts.py, and the `runs-on`
+        count (453/455->454/456) via gitops/ci/sync_readme_counts.py
+        after the new CI workflow added one more self-hosted-eligible
+        job; each rewrite's running-comment entry names this venture as
+        the reason the count moved.
+      - >-
+        Verified: the venture's own suite (56/56 across calc.test.mjs,
+        page.test.mjs, usage.test.mjs), clauses.mjs for all five
+        AI-agent-tooling ventures, the full platform/pages suite
+        (1015/1015) and platform/marketing suite (275/275, confirming
+        the mirror regen and headroom), gitops/tests (613 passed/25
+        skipped, after the runs-on resync), every platform/ci unittest
+        module (1014 passed) plus agent_review's test_review (21
+        passed), portfolio/ledger + scoring + router + usage + pipeline
+        + infra/tests pytest (446 passed), router/validate.py (367
+        VENTURE.yaml valid), score_ventures.py --check,
+        surface-budget.mjs --check, front-door-tools.mjs --headroom,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, usage/validate_usage.py, and
+        run_workflow_locally.py --for-changes (portfolio-validate.yml
+        71/71, sibling-links-ci.yml 2/2 confirming no orphaned footer
+        link, plus every sibling checker's own CI workflow green; the
+        only unrun selections were GitHub-hosted-runner-only jobs
+        [agent-cross-review, hetzner deploy/restore, Pages deploy] this
+        tool cannot execute locally, and a pre-existing, unrelated
+        `pages.yml` link-check failure caused by the tool's own inability
+        to evaluate that workflow's `${{ }}` build-artifact-path
+        expression, not by this change). claude-code-subagent-check-ci.yml
+        itself did not appear in the --for-changes selection because the
+        file was untracked at scan time; verified directly instead
+        (`node --test` in the venture directory, 56/56, plus
+        clauses.mjs). Revenue and confirmed-visitor counts remain at
+        zero, which a single new venture does not change on its own --
+        see its VENTURE.yaml `channel_notes` for the named first-visitor
+        channels.
+    mrr_end: 0
