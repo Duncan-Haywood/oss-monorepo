@@ -1940,6 +1940,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already has, not a company or product this could be mistaken for.
   // This venture names no named-product comparison at all.
   'mcp-config-risk-check/vs-reading-the-config-by-hand.html',
+  // Compares against "reviewing an invoice by eye" -- a manual review habit
+  // any shipper, broker, or AP clerk already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-trax.html and vs-cass.html, which name specific freight audit and
+  // payment providers and already carry the "not affiliated" disclaimer.
+  'freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
