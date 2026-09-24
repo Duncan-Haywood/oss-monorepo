@@ -1953,6 +1953,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-trax.html and vs-cass.html, which name specific freight audit and
   // payment providers and already carry the "not affiliated" disclaimer.
   'freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html',
+  // Compares against "reading the SKILL.md by hand" -- a manual review
+  // habit every skill author already has, not a company or product this
+  // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
+  // pages above (e.g. hidden-unicode-check's, docker-build-secrets-check's).
+  'skill-manifest-check/vs-reading-the-skill-by-hand.html',
   // Compares against "deciding tip-pool eligibility in a staff meeting" --
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
