@@ -3,4 +3,5 @@
   <url><loc>./index.html</loc></url>
   <url><loc>./how-to-block-or-allow-ai-crawlers.html</loc></url>
   <url><loc>./vs-known-agents.html</loc></url>
+  <url><loc>./vs-checking-each-crawlers-docs-by-hand.html</loc></url>
 </urlset>
