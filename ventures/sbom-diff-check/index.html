@@ -104,7 +104,7 @@ python3 sbom_diff.py old.json new.json --fail-on-change  # exit 2 if anything di
     <p>That still works. Only each package's name and version are compared, and both formats expose those two fields, so a CycloneDX document can be diffed against an SPDX document from an earlier build with no conversion step.</p>
     <h3>What about a package that appears twice with different versions in the same build?</h3>
     <p>Handled directly: packages are matched by name, and the set of versions recorded under that name is compared rather than assuming exactly one. A monorepo pulling in two versions of the same library through different paths is reported as a version gained or lost, not silently collapsed to one or crashed on.</p>
-    <p>More: <a href="vs-diffing-the-raw-json-files.html">how this compares to diffing the raw SBOM JSON files by hand</a>, and <a href="vs-cyclonedx-cli-diff.html">how this compares to the official cyclonedx-cli's diff command</a>.</p>
+    <p>More: <a href="vs-diffing-the-raw-json-files.html">how this compares to diffing the raw SBOM JSON files by hand</a>, and <a href="vs-cyclonedx-cli-diff.html">how this compares to the official cyclonedx-cli's diff command</a>. If one small version bump produced a report full of changes, see <a href="why-did-one-version-bump-show-up-as-dozens-of-changes.html">why bumping one package can show up as dozens of changes</a>.</p>
   </section>
 
   <footer>

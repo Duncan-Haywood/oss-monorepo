@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why did bumping one package show up as dozens of changes? | SBOM Diff Check</title>
+<meta name="description" content="You changed one line in package.json or requirements.txt, but the SBOM diff reports dozens of added, removed, and version-changed packages. Here is why that is usually expected, and how to tell it apart from a real supply-chain surprise.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./why-did-one-version-bump-show-up-as-dozens-of-changes.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Why did bumping one package show up as dozens of changes?">
+<meta property="og:description" content="An SBOM diff often reports far more changes than the one dependency you actually edited. Here is why that cascade happens and how to tell it apart from a real surprise.">
+<meta property="og:url" content="https://example.invalid/sbom-diff-check/why-did-one-version-bump-show-up-as-dozens-of-changes.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this mean my dependency bump broke something?","acceptedAnswer":{"@type":"Answer","text":"Not by itself. A version-changed row means the resolved version differs between the two SBOMs, not that anything is broken — most of these rows are transitive packages whose version your package manager chose on your behalf when it re-resolved the tree, not lines you edited or reviewed."}},{"@type":"Question","name":"How do I tell an expected cascade from a real supply-chain surprise?","acceptedAnswer":{"@type":"Answer","text":"Check whether every added, removed, or changed name is a dependency — direct or transitive — of the one package you bumped, using your package manager's own dependency-tree command. If every row traces back to that one edit, the cascade is expected. A name that has nothing to do with what you changed is the one worth investigating."}},{"@type":"Question","name":"Should I wire --fail-on-change into my CI pipeline?","acceptedAnswer":{"@type":"Answer","text":"Only where no dependency change is ever expected, such as a build meant to be pinned or vendored. Wired into an ordinary CI pipeline that rebuilds after every dependency bump, --fail-on-change fails on the exact commits meant to change dependencies, which trains a team to ignore the gate rather than read it."}},{"@type":"Question","name":"Why does the SBOM list packages I never installed directly?","acceptedAnswer":{"@type":"Answer","text":"Because syft, docker sbom, trivy, and cdxgen all record the full installed dependency tree, not just what your package.json, requirements.txt, or go.mod names directly. That is the SBOM doing its job — a build's actual attack surface is every package that ends up installed, not only the ones a human typed into a manifest."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px; }
+  a { color: #17604a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 30ch; color: #17324a; letter-spacing: -.02em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4652; }
+  section { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #17324a10; margin: 1rem 0; }
+  h2 { margin-top: 0; color: #17324a; }
+  ol, ul { padding-left: 1.3rem; }
+  li { margin: .4rem 0; }
+  code { overflow-wrap: anywhere; word-break: break-word; }
+  pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+  .fine, .note { font-size: .88rem; color: #3a4652; }
+  footer { color: #3a4652; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; SBOM Diff Check</a></p>
+<header>
+<h1>Why did bumping one package show up as dozens of changes?</h1>
+<p class="lede">You edited one line in <code>package.json</code>, <code>requirements.txt</code>, or <code>go.mod</code>, rebuilt, and the diff reports dozens of added, removed, and version-changed packages. That is usually the SBOM working correctly, not a sign anything went wrong &mdash; here is why the cascade happens and how to check it is the expected kind.</p>
+</header>
+
+<section>
+<h2>The SBOM records the whole install, not your one-line edit</h2>
+<p>
+  <code>syft</code>, <code>docker sbom</code>, <code>trivy</code>, and
+  <code>cdxgen</code> all walk the resolved dependency tree and record every
+  package that actually ends up installed &mdash; direct and transitive alike.
+  Bumping one direct dependency's version can change which versions its own
+  dependencies resolve to, because most package managers re-resolve the whole
+  tree rather than touching only the line you edited. A single version bump on
+  a popular package can easily carry twenty or thirty transitive packages
+  along with it, each showing up on this page as its own added, removed, or
+  version-changed row.
+</p>
+<p class="fine">
+  This is not specific to this tool. A line-based <code>diff</code> of the raw
+  SBOM JSON files would show the same cascade, just buried under the serial
+  number and timestamp noise this tool already strips out &mdash; see
+  <a href="vs-diffing-the-raw-json-files.html">how this compares to diffing the
+  raw files by hand</a>.
+</p>
+</section>
+
+<section>
+<h2>Telling an expected cascade from a real surprise</h2>
+<p>
+  The question worth asking is not "how many rows changed" but "does every row
+  trace back to the one thing I actually changed." Work it in this order:
+</p>
+<ol>
+<li>List what you actually edited &mdash; the one or few direct dependencies whose version constraint you changed.</li>
+<li>For each name the diff reports as added, removed, or version-changed, check whether it is a dependency (direct or transitive) of what you edited, using your package manager's own tree command (<code>npm ls &lt;pkg&gt;</code>, <code>pip show &lt;pkg&gt;</code>, <code>go mod why &lt;pkg&gt;</code>, or equivalent).</li>
+<li>If every row traces back to your edit, the cascade is expected &mdash; your lockfile or resolved tree changed exactly the way a dependency bump should.</li>
+<li>A row that has nothing to do with what you changed &mdash; a package your manifest never named and no changed dependency pulls in &mdash; is the one worth investigating: a stale lockfile committed by accident, a build environment that drifted, or a substitution attack are all things that would produce exactly that shape of finding.</li>
+</ol>
+</section>
+
+<section>
+<h2>Wiring <code>--fail-on-change</code> into CI without training people to ignore it</h2>
+<p>
+  <code>sbom_diff.py</code>'s <code>--fail-on-change</code> flag exits 2 the
+  moment anything differs between the two SBOMs you give it &mdash; it does not
+  distinguish an expected cascade from a real surprise, because it cannot see
+  which dependency you meant to bump. Two shapes of pipeline get real value out
+  of it, and one does not:
+</p>
+<pre class="cmd"><code>python3 sbom_diff.py old.json new.json --fail-on-change  # exit 2 if anything differs</code></pre>
+<ul>
+<li><strong>A build meant to be pinned or vendored</strong>, where no dependency change is ever expected between two runs &mdash; here a nonzero exit is exactly the signal you want, on every commit.</li>
+<li><strong>Not</strong> an ordinary pipeline that rebuilds after routine dependency bumps &mdash; there, this flag fails on the exact commits meant to change dependencies, and a gate that is red on purpose most of the time is a gate a team learns to re-run or override rather than read.</li>
+</ul>
+<p class="note">For the second shape, run without <code>--fail-on-change</code> and read the report as a diff to review, the same way you would read this page's table &mdash; not as a gate.</p>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>Does this mean my dependency bump broke something?</h3>
+<p>Not by itself. A version-changed row means the resolved version differs between the two SBOMs, not that anything is broken &mdash; most of these rows are transitive packages whose version your package manager chose on your behalf when it re-resolved the tree, not lines you edited or reviewed.</p>
+<h3>How do I tell an expected cascade from a real supply-chain surprise?</h3>
+<p>Check whether every added, removed, or changed name is a dependency &mdash; direct or transitive &mdash; of the one package you bumped, using your package manager's own dependency-tree command. If every row traces back to that one edit, the cascade is expected. A name that has nothing to do with what you changed is the one worth investigating.</p>
+<h3>Should I wire --fail-on-change into my CI pipeline?</h3>
+<p>Only where no dependency change is ever expected, such as a build meant to be pinned or vendored. Wired into an ordinary CI pipeline that rebuilds after every dependency bump, --fail-on-change fails on the exact commits meant to change dependencies, which trains a team to ignore the gate rather than read it.</p>
+<h3>Why does the SBOM list packages I never installed directly?</h3>
+<p>Because syft, docker sbom, trivy, and cdxgen all record the full installed dependency tree, not just what your package.json, requirements.txt, or go.mod names directly. That is the SBOM doing its job &mdash; a build's actual attack surface is every package that ends up installed, not only the ones a human typed into a manifest.</p>
+<p class="note">Want the tool itself, or how it compares to the official CLI's own diff command? See <a href="./">SBOM Diff Check</a>, or <a href="vs-cyclonedx-cli-diff.html">how this compares to cyclonedx-cli diff</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="sbom_diff.py" rel="noopener">sbom_diff.py from the repo</a> and run it yourself.</p>
+<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">optional support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
