@@ -1207,6 +1207,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-checking-*-by-hand pages above (e.g.
   // graphql-introspection-exposure-check's).
   'actions-injection-check/vs-checking-a-workflow-by-hand.html',
+  // Compares against "a flat installed price per square foot" -- a generic
+  // pricing habit every shed dealer already shops against (the "$X.XX
+  // installed" Facebook-special quote), not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html, which
+  // names a specific field-service platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-a-flat-rate-per-square-foot pages above (e.g.
+  // artificial-turf-bid-calculator's).
+  'shed-install-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "opening each base image's own release page by hand" --
   // a manual lookup habit every Dockerfile author already has, not a
   // company or product this could be mistaken for. Distinct from this
