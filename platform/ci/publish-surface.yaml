@@ -419,6 +419,9 @@ workflows:
 - workflow: ebay-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: economic-nexus-threshold-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: egress-window-bid-calculator-ci.yml
   classification: none
   publishes: []
