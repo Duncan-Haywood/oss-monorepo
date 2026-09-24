@@ -1409,6 +1409,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // vs-a-spreadsheet pages above.
   'ifta-quarterly-fuel-tax-calculator/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a method every independent medical
+  // courier pricing their own route already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-onfleet.html, which names a specific dispatch platform and already
+  // carries the "not affiliated" clause for that reason. Same reasoning as
+  // the other vs-a-spreadsheet pages above.
+  'medical-courier-route-margin/vs-a-spreadsheet.html',
   // Compares against "a flat $499 delivery and setup special" -- a generic
   // advertised price every spa dealer is shopped against, not a company or
   // product this could be mistaken for. Distinct from this venture's own
