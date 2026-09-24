@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 144 files, 555060 bytes
 #   portfolio-front-tools-3: 135 files, 553577 bytes
 #   portfolio-front-tools-4: 141 files, 556784 bytes
-#   portfolio-front-tools-5: 118 files, 540892 bytes
+#   portfolio-front-tools-5: 119 files, 544670 bytes
 #   portfolio-front-tools-6: 136 files, 556916 bytes
 #   portfolio-front-tools-7: 126 files, 555312 bytes
 #   portfolio-front-tools-8: 129 files, 556564 bytes
@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 115 files, 556672 bytes
 #   portfolio-front-tools-12: 120 files, 556133 bytes
 #   portfolio-front-tools-13: 124 files, 555352 bytes
-#   portfolio-front-tools-14: 131 files, 550277 bytes
+#   portfolio-front-tools-14: 132 files, 555613 bytes
 #   portfolio-front-tools-15: 131 files, 551686 bytes
 #   portfolio-front-tools-16: 100 files, 554492 bytes
 #   portfolio-front-tools-17: 117 files, 553579 bytes
@@ -829,6 +829,7 @@ configMapGenerator:
       - auto-repair-effective-labor-rate__index.html.gz=auto-repair-effective-labor-rate__index.html.gz
       - auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz=auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz
       - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz
+      - auto-repair-effective-labor-rate__vs-autoleap.html.gz=auto-repair-effective-labor-rate__vs-autoleap.html.gz
       - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
       - auto-repair-effective-labor-rate__vs-shop-ware.html.gz=auto-repair-effective-labor-rate__vs-shop-ware.html.gz
       - auto-repair-effective-labor-rate__vs-shopmonkey.html.gz=auto-repair-effective-labor-rate__vs-shopmonkey.html.gz
@@ -2003,6 +2004,7 @@ configMapGenerator:
       - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
       - pergola-bid-calculator__share.mjs.gz=pergola-bid-calculator__share.mjs.gz
       - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
+      - pergola-bid-calculator__vs-a-flat-45-per-square-foot-special.html.gz=pergola-bid-calculator__vs-a-flat-45-per-square-foot-special.html.gz
       - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
       - personal-trainer-package-pricing-calculator__calc.mjs.gz=personal-trainer-package-pricing-calculator__calc.mjs.gz
       - personal-trainer-package-pricing-calculator__how-to-price-a-personal-training-package.html.gz=personal-trainer-package-pricing-calculator__how-to-price-a-personal-training-package.html.gz
