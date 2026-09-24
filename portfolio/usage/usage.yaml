@@ -7033,3 +7033,24 @@ products:
           WebSearch 2026-09-24). `entry_added` is the signal worth
           watching first: it is the one act every visitor with a real
           question can complete regardless of the answer they get.
+  - slug: s-corp-reasonable-compensation-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          assessed: 0
+          sample_loaded: 0
+        note: >-
+          Baseline at graduation. A browser-local calculator comparing a
+          planned S-corp salary against a comparable-wage figure the owner
+          supplies. `live_url_visitors` is null, not zero -- GitHub Pages
+          exposes no server-side analytics and the local counter is
+          opt-in, so nobody has measured yet. Named channels to watch:
+          r/tax, r/smallbusiness, r/accounting, r/Bookkeeping, and organic
+          search for "s corp salary calculator" / "s corp reasonable
+          compensation calculator" (nine independent CPA/advisor pages
+          target this exact phrase, found via WebSearch 2026-09-24).
+          `assessed` is the signal worth watching first: it is the one act
+          every visitor with a real question can complete regardless of
+          the answer they get.

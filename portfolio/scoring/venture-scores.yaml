@@ -17043,6 +17043,73 @@ ventures:
       personal or scraped data, and gets no worse for anyone as it scales.
       No adverse incentive on our side (donations-only, no referral fee to
       either named paid platform).
+  - slug: s-corp-reasonable-compensation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic (combined FICA against the 2026 Social Security wage base,
+      a comparable-wage figure scaled by hours) plus a static nine-factor
+      reference checklist -- a lookup and a comparison, never an inference
+      step. time_to_revenue ties it at 1: donations-only, same as every
+      other venture in this file with no paid tier.
+    basis: >-
+      Graduated 2026-09-24 as a free browser calculator for single-
+      shareholder S-corp owners: compares a planned or current W-2 salary
+      against a comparable-wage figure the owner supplies, using the actual
+      IRS multi-factor reasonable-compensation test (there is no published
+      percentage safe-harbor), reports the combined FICA-tax cost of
+      closing any gap, and prints a nine-factor documentation checklist
+      drawn from Rev. Rul. 74-44 and Watson v. Commissioner (668 F.3d 1008,
+      8th Cir. 2012). duplicate_check.py scored every venture, screened-out
+      row, ai-first-markets idea, and pipeline candidate at or below 0.10
+      against the final description -- the closest matches
+      (staffing-markup-calculator, employee-cost-calculator,
+      economic-nexus-threshold-tracker) are all different problems. No
+      existing venture addresses the S-corp salary-vs-distribution split;
+      the closest siblings by domain (1099-vendor-tracker,
+      1099-k-threshold-checker) are issuer/payee reporting thresholds, not
+      an owner's own pay decision. Distribution 6 reflects demonstrated
+      search demand: nine independent CPA/advisor pages (jupid.com,
+      lecpa.co, nationaltaxtools.com, madsencpa.com, taxstra.com,
+      biztaxcalc.com, sdocpa.com, unclekam.com, and
+      financial-advisors-for-business-owners.com) found via WebSearch
+      2026-09-24 target the exact phrase "s corp salary calculator" / "s
+      corp reasonable compensation", plus recurring threads on this exact
+      question in r/tax, r/smallbusiness, r/accounting, and r/Bookkeeping.
+      Defensibility 2: the arithmetic and checklist are easy to reproduce
+      -- the free/no-account angle against a paid per-report service
+      (RCReports and similar, typically $200-900/report) is the only edge,
+      same class as this portfolio's other reference-calculator ventures.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: the number a filer sees is arithmetic on figures they
+      supplied, compared against a comparable-wage figure they also
+      supplied -- the tool asserts no market-wage figure of its own, never
+      files anything, and is framed throughout as a starting-point
+      estimate and documentation aid, explicitly "not a determination."
+      Scored one point below the sibling economic-nexus-threshold-tracker
+      because a bad self-supplied comparable-wage guess carries a real
+      dollar consequence (back FICA, penalties, interest) if relied on
+      uncritically -- still clearly above the gate given no advice-of-
+      record framing and no data leaving the browser. Ethics: the tool's
+      only effect is prompting an owner toward a more defensible, better-
+      documented salary decision, and it explicitly refuses to offer a
+      percentage safe-harbor shortcut that would help a user game the
+      system -- it directs them to the comparable-wage test and
+      documentation the IRS and courts actually apply instead. No personal
+      or scraped data, no adverse incentive on our side (donations-only).
 
   - slug: auto-loan-interest-deduction-calculator
     scores:

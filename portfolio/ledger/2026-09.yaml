@@ -42260,6 +42260,90 @@ entries:
         (9/9 selected workflows, 70/70 run steps in portfolio-validate.yml)
         all clean -- main itself was genuinely green, not just starved.
     mrr_end: 0
+  - venture: s-corp-reasonable-compensation-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator for single-shareholder
+        S-corp owners comparing a planned or current W-2 salary against a
+        comparable-wage figure the owner supplies, using the IRS's actual
+        multi-factor reasonable-compensation test (there is no published
+        percentage safe-harbor -- the "60/40 rule" seen online is not IRS
+        guidance). Reports the combined FICA-tax cost of closing any gap
+        against the 2026 Social Security wage base ($184,500, per the
+        Social Security Administration's own October 2025 announcement),
+        and prints a nine-factor documentation checklist drawn from
+        Rev. Rul. 74-44 and Watson v. Commissioner (668 F.3d 1008, 8th
+        Cir. 2012 -- $67,044/year of distributions recharacterized to
+        wages against a $24,000 salary on ~$200k-274k of annual profit).
+        Screened per pipeline/README.md's rubric: duplicate_check.py
+        scored every venture, screened-out row, ai-first-markets idea, and
+        pipeline candidate at or below 0.10 against the final description
+        -- no collision. liability_containment 6, ethical_robustness 8,
+        both above the gate; composite 5.0 in
+        portfolio/scoring/venture-scores.yaml. Distribution channel:
+        nine independent CPA/advisor pages (jupid.com, lecpa.co,
+        nationaltaxtools.com, madsencpa.com, taxstra.com, biztaxcalc.com,
+        sdocpa.com, unclekam.com, financial-advisors-for-business-owners.com)
+        found via WebSearch 2026-09-24 target "s corp salary calculator" /
+        "s corp reasonable compensation calculator", plus recurring r/tax,
+        r/smallbusiness, r/accounting, r/Bookkeeping threads on this exact
+        question. Ships all required elements per PRODUCT_PLAYBOOK.md
+        section 5 (LICENSE, no-warranty/no-SLA disclaimer, privacy line,
+        opt-in usage counting, sponsor link, discoverability checklist), a
+        guide page (Watson case + safe-harbor myth), and a named-competitor
+        comparison page (RCReports, section 5f disclaimer). Filed in the
+        `backoffice` category (same axis as qbi-deduction-calculator and
+        no-tax-on-tips-overtime-calculator) and cross-linked
+        qbi-deduction-calculator as a sibling, closing what would
+        otherwise be a crawlable orphan (siblings.mjs).
+      - >-
+        Fixed forward two pre-existing count drifts found while verifying,
+        unrelated to this venture's own content: gitops/ci/README.md's
+        stale runs-on count (gitops/ci/sync_readme_counts.py, drift from
+        concurrent merges) and the mirrored-tool count across
+        infra/OWNER_CHECKLIST.md, gitops/prod/usage/aggregate.py,
+        gitops/prod/front-door/default.conf, and
+        gitops/tests/test_manifests.py (platform/ci/sync_tree_counts.py,
+        355->356, with a running-comment entry saying why). Also fixed a
+        real defect this venture's own first draft introduced: its
+        money() formatter signed a negative inside the $ symbol
+        ($-9.24 instead of -$9.24), caught by
+        platform/ci/test_check_money_sign.py and rewritten per the
+        guard's own template.
+      - >-
+        Verified locally (Actions confirmed starved:
+        ci_starvation.py --run 36038452443, runner_id 0, 3s, no steps):
+        venture's own 67 assertions (calc.mjs + page.mjs, after the
+        qbi-deduction-calculator sibling-link addition); node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        (1290/1290, after regen.mjs, launched.mjs --write, the money-sign
+        fix, and a JSON-LD/visible-text en-dash/em-dash punctuation fix on
+        the guide page); node platform/marketing/regen.mjs --verify
+        (clean); python3 -m pytest gitops/tests -q (637 passed, 1 skipped
+        -- environmental); the 27 platform/ci unittest modules +
+        agent_review's 21; python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q (446 passed, after adding this
+        venture's row to venture-scores.yaml and a usage.yaml baseline);
+        python3 portfolio/router/validate.py,
+        portfolio/scoring/score_ventures.py --check,
+        portfolio/usage/validate_usage.py,
+        portfolio/pipeline/validate_doc_consistency.py,
+        portfolio/pipeline/validate_candidates.py,
+        portfolio/pipeline/probes/validate_probe_index.py,
+        portfolio/pipeline/score_sensitivity.py, node
+        platform/marketing/front-door-tools.mjs --headroom (all clean);
+        platform/ci/checklist_coverage.py; platform/pages/siblings.mjs
+        --check (0 orphans, within budget); platform/ci/validate_workflows.py
+        and platform/ci/publish_surface.py --write/--check (new per-venture
+        CI workflow registered, classified none). Merged origin/main
+        twice mid-session (other sessions merging every few minutes) and
+        resolved front-door mirror conflicts with resolve-mirror-merge.sh
+        plus regen.mjs --write for the front-door/*.gz files outside its
+        scope.
+    mrr_end: 0
   - venture: skill-manifest-check
     agent_spend_usd: null
     human_hours: 0

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 356 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 357 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -114,6 +114,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.</summary>
+  </entry>
+  <entry>
+    <title>S-Corp Reasonable Compensation Calculator — Salary vs. Distribution</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s-corp-reasonable-compensation-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/s-corp-reasonable-compensation-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free browser calculator for single-shareholder S-corp owners: compare your planned W-2 salary against a comparable-wage figure you supply, see the FICA-tax cost of closing the gap, and get a printable nine-factor documentation checklist for your own records. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Salary Range Posting Check — Does Your Job Ad Have One?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a GitHub Actions workflow and check whether a reusable workflow or composite action it pins to a commit SHA itself loads a third-party action by a mutable tag underneath — a gap a top-level SHA pin does not close.</summary>
-  </entry>
-  <entry>
-    <title>Android Data Safety Checker — permissions/SDKs vs Play Console declaration</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/android-data-safety-check/"/>
-    <id>tag:marisstella.dev,2026:tool/android-data-safety-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you&#39;ve already declared in Play Console -- so a missed declaration doesn&#39;t cost you a policy warning or listing removal. Nothing is uploaded.</summary>
   </entry>
 </feed>
