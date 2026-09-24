@@ -40487,3 +40487,57 @@ entries:
         ledger entries this same day are exactly that pattern) and the
         brief for this session explicitly excluded it.
     mrr_end: 0
+  - venture: llm-api-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a free, static, client-side
+        calculator comparing monthly LLM API cost across providers (Claude,
+        GPT, Gemini, or a custom provider) for a visitor-supplied token
+        workload, pricing fresh-input, cached-input, and output tokens
+        separately -- cached tokens are billed far below fresh input on
+        modern APIs and usually dominate agentic workloads, which a single
+        blended per-token estimate misses. Follows the bring-your-own-rates
+        discipline proven in vector-db-cost-calculator: no vendor price is
+        fetched or asserted, every preset rate is labelled "example --
+        replace with the current rate" on every field, and calc.mjs is pure,
+        tested arithmetic (28 tests). Ran duplicate_check.py first (top score
+        0.18 against ai-coding-plan-cost-calculator, a different comparison
+        -- subscription vs. that vendor's own API, not cross-vendor raw
+        pricing; well under the 0.45 review bar) and pasted the full output
+        into VENTURE.yaml. PR #5577, merged.
+      - >-
+        CI runners were starved (runner_id: 0) for the whole session, so
+        every check in CLAUDE.md's starvation checklist was run locally
+        before merge: venture tests 28/28, clauses.mjs clean, marketing+pages
+        suite 1287/1287, gitops/tests 637/1 skipped, checklist_coverage.py,
+        router/validate.py, usage/validate_usage.py, publish_surface.py,
+        launched.mjs, regen.mjs --verify, proposal/privacy/webcheck suites,
+        all 17 platform/ci unittest modules + agent_review, portfolio pytest
+        sweep, all research/pipeline probe dirs, run_workflow_locally.py
+        --for-changes, guard_state.py --require-runnable, sync_tree_counts.py
+        -- all clean or passing.
+      - >-
+        Hit the documented gitops/prod binary-mirror merge-conflict pattern
+        three times while landing this (main moved roughly every 1-3 minutes
+        under concurrent-session load); resolved each with
+        resolve-mirror-merge.sh's documented procedure (pick either side,
+        then regenerate from merged sources via front-door-tools.mjs/
+        front-door.mjs --write) rather than hand-editing generated output,
+        and re-verified with regen.mjs --verify after each pass before
+        pushing. Also fixed a misattributed merge commit (wrong git identity
+        picked up from a stray global git config, likely a side effect of
+        one of the test suites) via amend + force-push-with-lease on this
+        session's own branch before merging.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot
+        (publish-branch.sh, recorded via pages_state.py --record) so the new
+        tool is live at
+        https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/,
+        and confirmed sync_tree_counts.py and regen.mjs --verify are current
+        against the merged main. Did not submit to IndexNow -- the only
+        route with egress to api.indexnow.org is the (starved) GitHub Actions
+        workflow; the by-hand route has no egress from this sandbox, per
+        indexnow_state.py.
+    mrr_end: 0
