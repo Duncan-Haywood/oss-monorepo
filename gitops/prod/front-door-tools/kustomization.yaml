@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 136 files, 555696 bytes
 #   portfolio-front-tools-9: 125 files, 552312 bytes
 #   portfolio-front-tools-10: 122 files, 555277 bytes
-#   portfolio-front-tools-11: 115 files, 538923 bytes
+#   portfolio-front-tools-11: 116 files, 543157 bytes
 #   portfolio-front-tools-12: 119 files, 550482 bytes
 #   portfolio-front-tools-13: 130 files, 550059 bytes
 #   portfolio-front-tools-14: 134 files, 556483 bytes
@@ -1583,6 +1583,7 @@ configMapGenerator:
       - ifta-quarterly-fuel-tax-calculator__index.html.gz=ifta-quarterly-fuel-tax-calculator__index.html.gz
       - ifta-quarterly-fuel-tax-calculator__share.mjs.gz=ifta-quarterly-fuel-tax-calculator__share.mjs.gz
       - ifta-quarterly-fuel-tax-calculator__usage.mjs.gz=ifta-quarterly-fuel-tax-calculator__usage.mjs.gz
+      - ifta-quarterly-fuel-tax-calculator__vs-a-spreadsheet.html.gz=ifta-quarterly-fuel-tax-calculator__vs-a-spreadsheet.html.gz
       - ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz=ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz
       - import-landed-cost-calculator__calc.mjs.gz=import-landed-cost-calculator__calc.mjs.gz
       - import-landed-cost-calculator__does-the-de-minimis-exemption-still-apply.html.gz=import-landed-cost-calculator__does-the-de-minimis-exemption-still-apply.html.gz
