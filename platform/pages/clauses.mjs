@@ -1053,6 +1053,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "clicking through your own cloud provider's console
+  // by hand" -- a manual habit every bucket owner already has, not a
+  // company or product this could be mistaken for. The page's own first
+  // paragraph says so explicitly ("names no specific company or
+  // product"), same reasoning as branch-protection-drift-check's and
+  // supabase-rls-check's own-console exemptions above.
+  'cloud-bucket-exposure-check/vs-manually-checking-in-the-cloud-console.html',
   // Compares against "pasting an introspection query into GraphiQL, Postman,
   // or curl" -- a generic manual habit every GraphQL developer already has
   // (every server ships a playground that runs the identical query), not a
