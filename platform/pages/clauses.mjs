@@ -1823,6 +1823,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-aspire.html, which names Aspire specifically
   // and already carries the trademark disclaimer.
   'paver-patio-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "reading the migration file by hand" -- a manual
+  // review habit any developer applying a schema change already has, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-squawk.html, which names a specific open-source
+  // linter and already carries the "not affiliated" clause for that
+  // reason. Same shape as docker-build-secrets-check's
+  // vs-reading-a-dockerfile-by-hand.html.
+  'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

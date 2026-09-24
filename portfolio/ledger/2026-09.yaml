@@ -40903,6 +40903,32 @@ entries:
         COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
         sitemap.xml.
     mrr_end: 0
+  - venture: sql-migration-lock-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped sql-migration-lock-check's first generic-method comparison
+        page (0/1 per surface-budget.mjs): vs-reading-the-migration-by-hand.html,
+        against manually reviewing a migration file for lock risk. Covers
+        the checks that are easy to get right by eye (CREATE INDEX with no
+        CONCURRENTLY, a bare TRUNCATE) versus the relational ones that
+        depend on a second statement elsewhere in the same file and are
+        much harder to hold in mind while reading top to bottom: a
+        lock_timeout that may or may not be set earlier in the file,
+        NOT VALID + VALIDATE CONSTRAINT sharing one transaction, and
+        several exclusive-lock statements compounding into one long hold.
+        Listed in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from
+        index.html, added to the venture's sitemap.xml, mirror
+        regenerated (regen.mjs). Verified: the venture's own 121-assertion
+        suite, faq-coverage.mjs (348/348), faq-duplicate.mjs (no dupes),
+        clauses.mjs, surface-budget.mjs --check, checklist_coverage.py,
+        and a targeted 154-assertion re-run of
+        platform/pages/clauses.test.mjs, surface-budget.test.mjs,
+        platform/marketing/front-door-tools.test.mjs,
+        venture-sitemap-coverage.test.mjs, faq-coverage/faq-duplicate/
+        faq-visible.test.mjs all pass clean.
+    mrr_end: 0
   - venture: patio-door-bid-calculator
     agent_spend_usd: null
     human_hours: 0
