@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 129 files, 556570 bytes
 #   portfolio-front-tools-9: 140 files, 555390 bytes
 #   portfolio-front-tools-10: 120 files, 542783 bytes
-#   portfolio-front-tools-11: 116 files, 552032 bytes
+#   portfolio-front-tools-11: 117 files, 556444 bytes
 #   portfolio-front-tools-12: 118 files, 553747 bytes
 #   portfolio-front-tools-13: 124 files, 555616 bytes
 #   portfolio-front-tools-14: 129 files, 544232 bytes
@@ -1593,6 +1593,7 @@ configMapGenerator:
       - helm-values-schema-check__engine.mjs.gz=helm-values-schema-check__engine.mjs.gz
       - helm-values-schema-check__index.html.gz=helm-values-schema-check__index.html.gz
       - helm-values-schema-check__usage.mjs.gz=helm-values-schema-check__usage.mjs.gz
+      - helm-values-schema-check__vs-checking-it-by-eye.html.gz=helm-values-schema-check__vs-checking-it-by-eye.html.gz
       - helm-values-schema-check__vs-helm-lint.html.gz=helm-values-schema-check__vs-helm-lint.html.gz
       - helm-values-schema-check__why-helm-silently-accepts-a-typo-in-values-yaml.html.gz=helm-values-schema-check__why-helm-silently-accepts-a-typo-in-values-yaml.html.gz
       - helm-values-schema-check__yaml.mjs.gz=helm-values-schema-check__yaml.mjs.gz
