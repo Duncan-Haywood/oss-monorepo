@@ -9,6 +9,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
 const docHtml = readFileSync(join(HERE, 'clickjacking-and-csp-frame-ancestors.html'), 'utf8');
 const vsHtml = readFileSync(join(HERE, 'vs-securityheaders.html'), 'utf8');
+const vsDevtoolsHtml = readFileSync(join(HERE, 'vs-checking-headers-by-eye-in-devtools.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -128,6 +129,20 @@ test('the comparison page carries valid FAQPage JSON-LD and the no-warranty disc
   assert.match(vsHtml, /No warranty/);
   assert.match(vsHtml, /provided free and as-is, without warranty/);
   assert.match(vsHtml, /not affiliated with, endorsed by, or sponsored by Scott Helme/i);
+});
+
+test('index links to the DevTools comparison page, and it links back', () => {
+  assert.match(html, /href="vs-checking-headers-by-eye-in-devtools\.html"/);
+  assert.match(vsDevtoolsHtml, /href="index\.html"/);
+});
+
+test('the DevTools comparison page carries valid FAQPage JSON-LD and the no-warranty disclaimer', () => {
+  const blocks = jsonLdBlocks(vsDevtoolsHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the DevTools comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  assert.match(vsDevtoolsHtml, /No warranty/);
+  assert.match(vsDevtoolsHtml, /provided free and as-is, without warranty/);
 });
 
 test('the bundled worked example is valid input for buildReport and produces danger findings', () => {
