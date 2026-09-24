@@ -2121,6 +2121,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-notarygadget.html, which names NotaryGadget specifically and
   // carries the trademark disclaimer.
   'notary-trip-quote/vs-doing-the-trip-math-yourself.html',
+  // Compares against "tracking grants in a spreadsheet" -- a hand-maintained
+  // habit every small nonprofit already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-granthub.html,
+  // which names GrantHub/Foundant specifically and carries the trademark
+  // disclaimer.
+  'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
