@@ -1,0 +1,155 @@
+name: claude-code-settings-check
+description: Free browser tool that checks a pasted Claude Code settings.json (and, optionally, its sibling settings.local.json) for the structural mistakes in the hooks and permissions sections that fail silently -- a hook matcher regex that doesn't compile, a hook entry with no command to run, an event or hook-type name outside this tool's documented list, a permission rule with unbalanced parentheses or an empty specifier, a rule duplicated across allow/deny/ask, and a rule that contradicts itself across the project and local settings files.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-24)
+#
+# Niche sourced by this session, not from a pipeline candidate list, per
+# portfolio/pipeline/README.md's "screening is done" instruction and
+# DIRECTION.md's standing invitation to graduate a genuinely new niche when
+# one clears the bars below. Distinguishing context: this session is Claude
+# Code itself, run by Claude Code's own maintainer's account, which gives it
+# unusually direct and current knowledge of the exact schema this tool
+# checks -- the hook event names, the hook entry shape, and the permission
+# rule grammar -- the same kind of first-hand-expertise argument the
+# portfolio has used for other AI-agent-tooling ventures this session
+# (hidden-unicode-check, mcp-config-risk-check, skill-manifest-check all
+# graduated the same day on the same reasoning: a free, client-side,
+# no-upload structural checker for a real, current AI-agent-tooling
+# authoring gap).
+#
+# duplicate_check.py (run before building and re-run against the final
+# description) against "Free browser tool that checks a pasted Claude Code
+# settings.json (and optionally settings.local.json) for structural
+# mistakes in the hooks and permissions sections: a hook matcher regex that
+# fails to compile, a hook entry with no command, an unrecognized hook
+# event or type name, a permission rule string with unbalanced parentheses
+# or an empty specifier, a rule duplicated across allow/deny/ask, and a
+# rule that contradicts itself across the project and local settings
+# files":
+#
+#   score  source                    label
+#    0.13  venture                   skill-manifest-check
+#    0.12  venture                   mcp-config-risk-check
+#    0.09  venture                   security-txt-check
+#    0.09  venture                   obsidian-plugin-review-check
+#    0.08  venture                   docker-cache-order-check
+#    0.08  venture                   android-data-safety-check
+#    0.07  venture                   agent-instructions-drift-check
+#    0.07  venture                   chrome-extension-permission-check
+#    0.06  venture                   hreflang-reciprocity-check
+#    0.06  venture                   caption-quality-check
+#
+# Nothing scored >= 0.45 (the review bar). Read the top two anyway per the
+# tool's own instruction:
+#  - skill-manifest-check (0.13) checks a SKILL.md's YAML frontmatter and
+#    description for trigger-reliability problems -- a different object
+#    (a skill manifest, not settings.json), a different file (Markdown
+#    plus frontmatter, not JSON), and a different failure mode (a vague
+#    description, not a hook or permission rule).
+#  - mcp-config-risk-check (0.12) checks an MCP server *launch config* for
+#    security risk patterns (broad shell/filesystem access, hardcoded
+#    secrets, missing version pins) -- a different object (how a server is
+#    launched, not how Claude Code's own hooks and permissions are
+#    configured) and a different question (is this server risky, vs. does
+#    this hook fire and does this rule match).
+# Also checked git log --oneline -30 origin/main and open PRs
+# (mcp__github__search_pull_requests, "is:pr is:open claude code settings
+# hooks permissions") for "claude-code"/"settings.json"/"hooks": zero
+# venture-directory or open-PR hits for any of the three. No open PR or
+# recent merge builds this niche.
+#
+# LIABILITY CONTAINMENT: every check is a deterministic, structural check
+# against text the user pastes -- no network call of any kind, no call to
+# an LLM, and no claim about Claude Code's actual runtime behaviour or
+# about which of two conflicting rules or files it honours. The two
+# checks with any time-dependence (the hook event names and the "command"
+# hook type) are dated against this tool's own documented reference and
+# framed as a caution ("not one this tool recognizes as of [date] -- check
+# for a typo, or this may be newer than this tool"), never as an
+# authoritative, exhaustive claim on Anthropic's behalf -- the same
+# discipline mcp-config-risk-check and skill-manifest-check already use
+# for their own dated thresholds. The UI/README/footer all say plainly
+# that a finding is "worth a look, not a verdict" and a clean result is
+# "not a guarantee of how Claude Code will behave at runtime."
+#
+# Bring-your-own-data compliance: the tool asserts nothing about a live,
+# time-varying vendor fact -- it classifies patterns in exactly the JSON
+# text the user pastes, the same discipline every structural-checker
+# venture in this portfolio uses. It does not assert which file or
+# permission list Claude Code's runtime actually honours when two rules
+# disagree, only that they disagree in the text as written.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- it exists only to
+# help a Claude Code user catch a hook or permission-rule authoring mistake
+# before it costs them a debugging session, with no adverse incentive on
+# our side (no affiliate link, no referral fee, donations-only same as the
+# rest of the portfolio). It does not scan, fingerprint, or contact any
+# third-party system or agent runtime -- it only reads text pasted directly
+# into the page.
+#
+# JUDGMENT CALLS flagged for review:
+#  - The hook event name and hook type lists (nine event names, one hook
+#    type) are this tool's own documented reference, not fetched from or
+#    verified against Anthropic's live documentation at check time -- they
+#    can go stale if Claude Code adds a new event or type, which is exactly
+#    why every finding against them is worded as a caution rather than an
+#    error. Dated explicitly (KNOWN_HOOK_EVENTS_AS_OF in calc.mjs) so a
+#    future session can tell at a glance whether the list needs updating.
+#  - The permission-rule grammar check (balanced parentheses, a single
+#    "(specifier)" group, no leading/trailing whitespace, a non-empty
+#    specifier) validates punctuation shape only -- it never judges
+#    whether a tool name or specifier is one Claude Code actually
+#    recognises, since MCP tool names and specifiers are open-ended and a
+#    fixed allowlist would produce false positives on every legitimate
+#    custom or MCP tool.
+#  - The cross-file contradiction check (a rule in one file's deny and the
+#    other's allow/ask) surfaces the disagreement without asserting a
+#    winner, because this tool has no way to verify Claude Code's actual
+#    precedence rule and getting that wrong in a security-adjacent tool
+#    would be worse than saying nothing about it.
+hypotheses:
+  - claim: A Claude Code user who has just written or edited a settings.json (hooks and/or permissions) wants the common authoring mistakes -- an uncompilable matcher, an empty hook command, a malformed permission rule, a rule that silently contradicts one in their local overrides -- flagged before they find out the hard way, and currently discovers them only when a hook doesn't fire or a command isn't blocked as expected.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The cross-file contradiction check (a rule disagreeing between settings.json and settings.local.json) catches a real, easy-to-introduce and hard-to-notice mistake, since neither file looks wrong read on its own.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: every check is client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors paste a settings.json and get at least one finding within 90 days.
+  - A finding's category (invalid-matcher-regex / empty-hook-command / unknown-hook-event / malformed-rule / duplicate-rule / cross-file-contradiction) is wrong for a real settings.json a user pastes, and cannot be fixed by tightening a pattern or threshold.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/claude-code-settings-check/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: r/ClaudeAI and r/LocalLLaMA agent-tooling
+  threads (where "my hook isn't firing" and "why did this command go
+  through" are recurring, currently-active questions), Anthropic's own
+  developer community/Discord, GitHub topic/code search for repositories
+  committing a .claude/settings.json, HN Show threads about Claude Code
+  tooling, and organic search for "claude code hooks not working", "claude
+  code settings.json validator", and "claude code permission rule syntax".
+  The hidden-unicode-check, mcp-config-risk-check, and skill-manifest-check
+  footer cross-links are themselves a channel: a visitor arriving at any of
+  the four for an agent-tooling structural check is a plausible visitor for
+  the others too, and all four now cross-link.
