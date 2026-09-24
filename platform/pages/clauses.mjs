@@ -1699,6 +1699,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "running curl -sI -L or reading DevTools' Network
+  // panel by hand" -- generic tools and habits any developer already has,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-httpstatus-io.html, which names a real hosted
+  // service and already carries the trademark disclaimer. Same reasoning
+  // as cache-control-check's vs-checking-headers-by-eye-in-devtools.html
+  // and source-map-leak-check's vs-checking-devtools-by-hand.html above.
+  'redirect-chain-check/vs-checking-a-chain-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

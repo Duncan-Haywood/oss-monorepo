@@ -48,9 +48,9 @@
 #   portfolio-front-tools-12: 117 files, 555514 bytes
 #   portfolio-front-tools-13: 129 files, 553464 bytes
 #   portfolio-front-tools-14: 124 files, 553079 bytes
-#   portfolio-front-tools-15: 132 files, 555848 bytes
-#   portfolio-front-tools-16: 106 files, 554705 bytes
-#   portfolio-front-tools-17: 116 files, 547280 bytes
+#   portfolio-front-tools-15: 132 files, 550624 bytes
+#   portfolio-front-tools-16: 105 files, 555898 bytes
+#   portfolio-front-tools-17: 118 files, 555549 bytes
 #   portfolio-front-tools-18: 128 files, 555616 bytes
 #   portfolio-front-tools-19: 80 files, 389033 bytes
 #   portfolio-front-tools-20: 51 files, 264764 bytes
@@ -2153,6 +2153,7 @@ configMapGenerator:
       - redirect-chain-check__fetch-chain.mjs.gz=redirect-chain-check__fetch-chain.mjs.gz
       - redirect-chain-check__index.html.gz=redirect-chain-check__index.html.gz
       - redirect-chain-check__usage.mjs.gz=redirect-chain-check__usage.mjs.gz
+      - redirect-chain-check__vs-checking-a-chain-by-hand.html.gz=redirect-chain-check__vs-checking-a-chain-by-hand.html.gz
       - redirect-chain-check__vs-httpstatus-io.html.gz=redirect-chain-check__vs-httpstatus-io.html.gz
       - redirect-chain-check__why-redirect-chains-matter.html.gz=redirect-chain-check__why-redirect-chains-matter.html.gz
       - required-checks-drift-check__check.py.gz=required-checks-drift-check__check.py.gz
@@ -2196,12 +2197,12 @@ configMapGenerator:
       - security-camera-bid-calculator__vs-d-tools.html.gz=security-camera-bid-calculator__vs-d-tools.html.gz
       - security-camera-bid-calculator__vs-housecall-pro.html.gz=security-camera-bid-calculator__vs-housecall-pro.html.gz
       - security-deposit-return-calculator__calculator.mjs.gz=security-deposit-return-calculator__calculator.mjs.gz
-      - security-deposit-return-calculator__index.html.gz=security-deposit-return-calculator__index.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-deposit-return-calculator__index.html.gz=security-deposit-return-calculator__index.html.gz
       - security-deposit-return-calculator__normal-wear-and-tear-vs-damage.html.gz=security-deposit-return-calculator__normal-wear-and-tear-vs-damage.html.gz
       - security-deposit-return-calculator__usage.mjs.gz=security-deposit-return-calculator__usage.mjs.gz
       - security-deposit-return-calculator__vs-a-spreadsheet.html.gz=security-deposit-return-calculator__vs-a-spreadsheet.html.gz
@@ -2306,13 +2307,13 @@ configMapGenerator:
       - sitemap-lastmod-freshness-check__usage.mjs.gz=sitemap-lastmod-freshness-check__usage.mjs.gz
       - sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz=sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz
       - sitemap-lastmod-freshness-check__why-sitemap-lastmod-matters.html.gz=sitemap-lastmod-freshness-check__why-sitemap-lastmod-matters.html.gz
-      - skylight-install-bid-calculator__calc.mjs.gz=skylight-install-bid-calculator__calc.mjs.gz
-      - skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz=skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - skylight-install-bid-calculator__calc.mjs.gz=skylight-install-bid-calculator__calc.mjs.gz
+      - skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz=skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz
       - skylight-install-bid-calculator__index.html.gz=skylight-install-bid-calculator__index.html.gz
       - skylight-install-bid-calculator__should-i-install-a-customer-supplied-skylight.html.gz=skylight-install-bid-calculator__should-i-install-a-customer-supplied-skylight.html.gz
       - skylight-install-bid-calculator__usage.mjs.gz=skylight-install-bid-calculator__usage.mjs.gz
