@@ -42473,3 +42473,55 @@ entries:
         confirms no steering document reports that null as an observed
         zero.
     mrr_end: 0
+  - venture: which-job-first
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-scoring-every-job-out-of-ten.html -- which-job-first was one of
+        82 ventures on `main` at 0/1 on surface-budget.mjs's generic-method
+        budget. The angle is lifted directly from the venture's own README
+        ("used to mean staring at a whiteboard or scoring every job out of
+        ten and getting twelve near-identical numbers back"): a 1-10 score
+        has fewer distinct values than a typical job list has entries, so
+        several jobs tie and the ranking isn't finished when the scoring
+        is, while this tool's pairwise merge sort (rank.mjs) returns a
+        complete order with nothing left to weigh -- and states the
+        honest tradeoff (assumes transitivity) rather than hiding it.
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (compares
+        against a manual ranking habit, not a named competitor, distinct
+        from this venture's own vs-jobber.html). Linked from index.html,
+        added to sitemap.xml, 9 new assertions in its own test file.
+      - >-
+        First attempt this session was
+        depop-fee-calculator/vs-assuming-the-old-flat-10-percent.html,
+        fully written, tested (39/39), and merge-conflict-resolved twice
+        against a fast-moving main -- discarded after a third fetch showed
+        #5715 had shipped an equivalent generic-method page for that same
+        venture while this branch was mid-verification (surface-budget.mjs
+        would have flagged it over budget at 2). Picked this venture
+        instead after confirming via surface-budget.mjs, duplicate_check.py,
+        and the open-PR list that its generic-method slot was free.
+      - >-
+        Verified locally (Actions confirmed starved via ci_starvation.py on
+        the latest portfolio-validate.yml push run: runner_id 0, no real
+        runner assigned): venture's own suite 37/37, clauses.mjs +
+        clauses.test.mjs, surface-budget.mjs --for and --check (no venture
+        over budget fleet-wide: 81 with 0, 268 with 1, 7 with 2),
+        checklist_coverage.py, a full platform/pages/build.mjs + check.mjs
+        build (356 products, no dead links), regen.mjs --verify clean
+        before and after regenerating the front-door mirror, gitops/tests
+        (613 passed, 25 skipped -- environmental), platform/ci's 27
+        unittest modules, agent_review's test_review, the
+        ledger/scoring/router/usage/pipeline/infra pytest suite (446
+        passed), and a full run_workflow_locally.py --for-changes sweep on
+        the depop-fee-calculator branch earlier in the session (13/17
+        selected workflows passed; the only real, non-environmental,
+        non-staleness finding was the #5715 collision itself, caught by
+        the venture-regression checker after a merge -- everything else
+        that did not pass was either held for a secret/write scope by
+        design, an artifact this local runner cannot build (_site,
+        pages-freshness), or an already-tracked, already-queued item
+        (#5712 covers republishing gh-pages)).
+    mrr_end: 0
