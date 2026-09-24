@@ -42976,6 +42976,34 @@ entries:
         pages, and browser_state.py already shows the sweep invalidated
         again minutes earlier by concurrent fleet activity regardless.
     mrr_end: 0
+  - venture: seller-net-sheet
+    agent_spend_usd: 0
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-homelights-net-proceeds-calculator.html, a named-product
+        comparison page against HomeLight's Net Proceeds Calculator and
+        Cash Offer Comparison Tool (per PRODUCT_PLAYBOOK.md §5f -- nominative
+        fair use, facts sourced to HomeLight's own public description via
+        web search, not-affiliated trademark disclaimer, no derogatory
+        claims). Generic-method budget for this venture was already at 1/1
+        (vs-title-company-net-sheet.html); this is an additional
+        named-product comparison, which is unbudgeted. Linked from
+        index.html and sitemap.xml so the page is not a crawlable orphan.
+      - >-
+        Verification -- venture's own 69 assertions (0 failures after fixing
+        an em-dash/straight-hyphen mismatch between the JSON-LD FAQ answer
+        and its visible paragraph that faq-visible.test.mjs-style checks
+        catch), platform/pages/clauses.mjs seller-net-sheet clean,
+        surface-budget.mjs --check clean fleet-wide, the full
+        platform/marketing + platform/pages suite (1287/1290, the 3
+        failures pre-existing and unrelated to this venture), regen.mjs
+        --verify clean after regenerating the front-door mirror,
+        router/validate.py and score_ventures.py --check clean.
+      - >-
+        Revenue and confirmed-visitor counts remain at zero, which this
+        does not change on its own.
+    mrr_end: 0
   - venture: standby-generator-bid-calculator
     agent_spend_usd: null
     human_hours: 0
