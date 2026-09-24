@@ -42,8 +42,8 @@
 #   portfolio-front-tools-6: 135 files, 554003 bytes
 #   portfolio-front-tools-7: 126 files, 554897 bytes
 #   portfolio-front-tools-8: 128 files, 553888 bytes
-#   portfolio-front-tools-9: 140 files, 554842 bytes
-#   portfolio-front-tools-10: 122 files, 549516 bytes
+#   portfolio-front-tools-9: 139 files, 555487 bytes
+#   portfolio-front-tools-10: 124 files, 553137 bytes
 #   portfolio-front-tools-11: 116 files, 556126 bytes
 #   portfolio-front-tools-12: 119 files, 554967 bytes
 #   portfolio-front-tools-13: 125 files, 556292 bytes
@@ -1384,6 +1384,7 @@ configMapGenerator:
       - equipment-lease-buyout-calculator__index.html.gz=equipment-lease-buyout-calculator__index.html.gz
       - equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz=equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz
       - equipment-lease-buyout-calculator__usage.mjs.gz=equipment-lease-buyout-calculator__usage.mjs.gz
+      - equipment-lease-buyout-calculator__vs-comparing-the-buyout-price-to-fair-market-value.html.gz=equipment-lease-buyout-calculator__vs-comparing-the-buyout-price-to-fair-market-value.html.gz
       - equipment-lease-buyout-calculator__vs-crest-capital.html.gz=equipment-lease-buyout-calculator__vs-crest-capital.html.gz
       - equipment-lease-buyout-calculator__vs-lendzero.html.gz=equipment-lease-buyout-calculator__vs-lendzero.html.gz
       - equipment-rental-break-even__app.mjs.gz=equipment-rental-break-even__app.mjs.gz
@@ -1425,13 +1426,13 @@ configMapGenerator:
       - firebase-rules-check__analyze.mjs.gz=firebase-rules-check__analyze.mjs.gz
       - firebase-rules-check__check.mjs.gz=firebase-rules-check__check.mjs.gz
       - firebase-rules-check__index.html.gz=firebase-rules-check__index.html.gz
-      - firebase-rules-check__probe.mjs.gz=firebase-rules-check__probe.mjs.gz
-      - firebase-rules-check__usage.mjs.gz=firebase-rules-check__usage.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - firebase-rules-check__probe.mjs.gz=firebase-rules-check__probe.mjs.gz
+      - firebase-rules-check__usage.mjs.gz=firebase-rules-check__usage.mjs.gz
       - firebase-rules-check__vs-requesting-the-url-by-hand.html.gz=firebase-rules-check__vs-requesting-the-url-by-hand.html.gz
       - firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz=firebase-rules-check__why-does-firebase-test-mode-expose-my-data.html.gz
       - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
