@@ -104,6 +104,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // habit any developer already has, not a company or product this could be
   // mistaken for.
   'source-map-leak-check/vs-checking-devtools-by-hand.html',
+  // Compares against "guessing a flat dollar no-show fee" -- a common habit
+  // among appointment-based service providers, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-acuity-scheduling.html, which names a real platform and carries the
+  // trademark disclaimer.
+  'no-show-fee-calculator/vs-a-flat-no-show-fee.html',
   // Compares against "checking response headers by eye in DevTools'
   // Network tab" -- a manual habit any web developer already has, not a
   // company or product this could be mistaken for. Same reasoning as
