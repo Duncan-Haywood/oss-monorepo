@@ -41045,3 +41045,30 @@ entries:
         trustworthy browser_state.json reading for the next session's
         freshness check to build on.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Re-ran the whole-catalogue Playwright/axe-core browser and
+        accessibility sweep: browser_state.py had all 8 checks marked STALE
+        again, since builder files (front-door-tools.mjs, launched.json,
+        surface-budget.mjs) kept moving under the run of generic-method
+        comparison pages and new ventures merged across 2026-09-24
+        (confirmed against `git log` on those paths -- this was the same
+        staleness trigger as #5648's run, not a duplicate check). Confirmed
+        Actions is starved this session too (ci_starvation.py against run
+        36023137429: runner_id 0, 5s, no steps), so this local run is the
+        checklist's own answer under CLAUDE.md's starvation block. All 8
+        checks (sideways, presets, roundtrip, highlight, contrast, optout,
+        sweep, journey) passed clean at f5b24635: 1536 sitemap URLs
+        resolve, 357 tools answered with no console/resource errors, 412
+        opt-out pages remember the visitor's choice, and 0 WCAG A/AA
+        violations across 1538 pages -- no regressions since the last
+        clean reading. Recorded into platform/ci/browser_state.json.
+      - >-
+        Net outcome: the catalogue's accessibility/correctness posture
+        stays independently re-verified clean after a batch of new
+        ventures and comparison pages, with no defect found this time, and
+        browser_state.json is current again for the next session.
+    mrr_end: 0
