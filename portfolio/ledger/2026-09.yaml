@@ -39265,3 +39265,56 @@ entries:
         append-only ledger's own conflict resolved by keeping both
         sessions' entries.
     mrr_end: 0
+  - venture: actions-cache-poisoning-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First attempt this session picked actions-injection-check for the
+        same generic-method comparison-page gap, but another session landed
+        the identical page (PR #5392, "vs. reading a workflow by hand")
+        while this session was mid-verification -- confirmed via `git log`
+        on origin/main before pushing, discarded the duplicate commit
+        (`git reset --hard origin/main`) per CLAUDE.md's duplicate-PR
+        guidance rather than push redundant work, and re-picked a different
+        under-budget venture in the same archetype family instead.
+      - >-
+        Added vs-checking-by-hand.html to actions-cache-poisoning-check,
+        comparing the checker against reviewing a workflow file by eye for
+        a fork-writable actions/cache step and an unscoped restore-keys
+        fallback. surface-budget.mjs reported 0 of the venture's budgeted 1
+        generic-method page (it only had vs-zizmor.html, a named-product
+        comparison). The angle: a reviewer scanning for the string
+        actions/cache can mis-flag a read-only actions/cache/restore step
+        or miss that bare/`/save` write, and restore-keys risk depends on
+        who else shares the key prefix rather than on which trigger fired
+        the restoring job -- so filtering by fork-trigger first, the
+        natural instinct, skips exactly the ordinary push workflows where a
+        prefix collision gets adopted. classify.mjs already applies both
+        distinctions on every line regardless.
+      - >-
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        method, names no product), linked from index.html, listed in
+        sitemap.xml, regen.mjs re-run. Caught and fixed two JSON-LD/visible
+        FAQ quote mismatches before verification (a straight vs. curly-
+        quoted "restore" in two different answers) -- faq-visible.test.mjs
+        flagged both; a naive substring self-check against the raw file
+        missed one because the JSON-LD's own <script> tag is trivially a
+        substring match of itself, so the real node --test run is the only
+        reliable check, not a script imitating it.
+      - >-
+        Verified: venture's own suite (39/39), platform/marketing +
+        platform/pages combined suite 1286/1286 (three iterations: stale
+        mirror before first regen, one more JSON-LD mismatch after the
+        first fix, clean on the third). `regen.mjs --verify` clean.
+        `checklist_coverage.py` and `surface-budget.mjs --check` clean.
+        Reused this session's earlier-in-the-day validator and pytest runs
+        (router/validate.py, front-door-tools.mjs --headroom, pipeline
+        validators, score_ventures.py --check, check_no_payment_code.py,
+        usage/validate_usage.py, gitops/tests + portfolio pytest suites,
+        run_workflow_locally.py --tree) rather than re-running them a
+        second time in the same session for an unrelated venture with no
+        changes to what they check. CI remains starved
+        (ci_starvation.py --run 35936631836: runner_id 0 earlier this
+        session), so this local verification stands in per CLAUDE.md.
+    mrr_end: 0
