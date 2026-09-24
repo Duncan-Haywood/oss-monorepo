@@ -2070,6 +2070,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // separately; the two comparison pages are deliberately different
   // classes, same shape as epk-generator's own by-hand page.
   'influencer-media-kit-generator/vs-assembling-one-by-hand.html',
+  // Compares against "picking a round salary number" -- the manual habit
+  // every S-corp owner without a paid report already has (a figure that
+  // sounds reasonable, matches a peer, or rolls last year's number forward),
+  // not a company or product this could be mistaken for. The page's own
+  // "Common questions" section says so explicitly. Distinct from this
+  // venture's own vs-rcreports-and-a-paid-valuation-report.html, which names
+  // RCReports specifically and already carries the trademark disclaimer.
+  's-corp-reasonable-compensation-calculator/vs-picking-a-round-number.html',
   // Compares against "a flat $2,999 special" -- the water-surface pricing
   // habit every vinyl-liner crew is shopped against, not a company or
   // product this could be mistaken for. Distinct from this venture's own

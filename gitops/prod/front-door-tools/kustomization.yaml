@@ -49,7 +49,7 @@
 #   portfolio-front-tools-13: 118 files, 545908 bytes
 #   portfolio-front-tools-14: 128 files, 543955 bytes
 #   portfolio-front-tools-15: 127 files, 554488 bytes
-#   portfolio-front-tools-16: 131 files, 553529 bytes
+#   portfolio-front-tools-16: 132 files, 556999 bytes
 #   portfolio-front-tools-17: 103 files, 554224 bytes
 #   portfolio-front-tools-18: 120 files, 554012 bytes
 #   portfolio-front-tools-19: 126 files, 554615 bytes
@@ -2259,6 +2259,7 @@ configMapGenerator:
       - retaining-wall-bid-calculator__vs-aspire.html.gz=retaining-wall-bid-calculator__vs-aspire.html.gz
       - s-corp-reasonable-compensation-calculator__calc.mjs.gz=s-corp-reasonable-compensation-calculator__calc.mjs.gz
       - s-corp-reasonable-compensation-calculator__index.html.gz=s-corp-reasonable-compensation-calculator__index.html.gz
+      - s-corp-reasonable-compensation-calculator__vs-picking-a-round-number.html.gz=s-corp-reasonable-compensation-calculator__vs-picking-a-round-number.html.gz
       - s-corp-reasonable-compensation-calculator__vs-rcreports-and-a-paid-valuation-report.html.gz=s-corp-reasonable-compensation-calculator__vs-rcreports-and-a-paid-valuation-report.html.gz
       - s-corp-reasonable-compensation-calculator__why-the-irs-tests-your-s-corp-salary.html.gz=s-corp-reasonable-compensation-calculator__why-the-irs-tests-your-s-corp-salary.html.gz
       - salary-range-posting-check__cli.mjs.gz=salary-range-posting-check__cli.mjs.gz
