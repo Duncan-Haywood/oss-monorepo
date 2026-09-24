@@ -144,6 +144,13 @@ const NO_SHARED_SHOP_RATES = {
     'same afternoon and independently landed on `laborRatePerHour`/`targetMarginPercent`, but the ' +
     'underlying quantities differ: that page carries two of the four via aliasing, this one carries ' +
     'zero because there is no crew wage or overhead-on-direct-cost concept here at all.)',
+  'window-tinting-bid-calculator':
+    'its per-installer rate is spelled `installerRate` rather than `hourlyWage`, but means the same ' +
+    'raw, loaded hourly rate for one installer\'s time -- SHOP_RATE_ALIASES maps it. Its "target ' +
+    'margin on price" is spelled `targetMarginPercent` and means the same net-margin-on-price concept ' +
+    'as `targetMargin` -- aliased too. It has no separate payroll-burden field, and its overhead ' +
+    '("Booth / shop overhead") is a flat dollar figure per job rather than a percentage of direct ' +
+    'cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {
