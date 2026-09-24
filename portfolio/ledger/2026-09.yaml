@@ -41865,6 +41865,73 @@ entries:
         test_manifests.py), and `regen.mjs --verify` clean after `regen.mjs`
         rewrote the mirror shard packing.
     mrr_end: 0
+  - venture: siding-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page, vs-a-flat-rate-per-square.html
+        (#5689), worked with real figures from the venture's own calc.mjs: a
+        one-story vinyl wrap ($4,892.04 cost, $6,794.49 price, $762.57/square)
+        vs. a two-story fiber-cement tear-off with housewrap ($22,874.89 cost,
+        $31,770.68 price) -- quoting the bigger job at the small job's flat
+        per-square rate prices it at $14,724.30, an $8,150.59 loss before it
+        clears its own build cost, not just a thinner margin.
+      - >-
+        First picked retaining-wall-bid-calculator for this same pattern and,
+        while verifying, tripped `test_generated_configmaps_stay_under_the_etcd_
+        object_ceiling` (944,015 bytes against the 943,718-byte budget) purely
+        from `regen.mjs` catching up a backlog of other sessions' unmirrored
+        comparison pages -- confirmed by reproducing the same overage with my
+        own venture page held out. Fixed it the way the code's own comments
+        predicted (`sitemapStoredKey`'s doc comment already named `llms.txt` as
+        the next key to gzip): added `llmsStoredKey`, gzipped the ConfigMap key,
+        updated the nginx block to `gzip_static`/`gunzip` and the kustomization
+        entry, and updated every front-door.test.mjs assertion that read the
+        file as plain UTF-8. Before pushing, `git fetch origin main` turned up
+        that two other concurrent sessions had independently shipped the exact
+        same retaining-wall page (#5672) and the exact same llms.txt gzip fix
+        (#5671/#5676/#5685) minutes earlier -- confirmed both were genuinely on
+        `main` (not a stale read), dropped that entire branch of work as a
+        duplicate per CLAUDE.md's "Duplicate PRs" section, reset to `origin/
+        main`, and picked siding-bid-calculator instead (not yet touched by any
+        other session at that point). One small drive-by survived from the
+        dropped work: a stale `default.conf` comment that still claimed
+        sitemap.xml/catalog.json/llms.txt were served plain, which the other
+        sessions' fixes had left uncorrected -- reapplied by hand onto the
+        fresh base.
+      - >-
+        Main advanced twice more while this was in flight (structured-data-
+        drift-check, water-softener-bid-calculator, then hidden-unicode-check),
+        each producing the documented front-door-mirror merge conflict
+        (kustomization.yaml + generated .gz blobs); resolved via `git checkout
+        --ours` on the generated paths followed by `node platform/marketing/
+        regen.mjs` and `--verify`, per resolve-mirror-merge.sh's own docstring,
+        plus one hand-resolved additive conflict in clauses.mjs's exemption set.
+      - >-
+        Verified locally (Actions confirmed starved on this PR's own checks via
+        ci_starvation.py across 10 check-run groups: runner_id 0, ~3s, no
+        steps): the venture's own 114-assertion suite (278/278 combined with
+        the two other ventures merged in), `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` (1289/1289, run three times across the two
+        merges), `clauses.mjs` and `surface-budget.mjs --check` clean,
+        `regen.mjs --verify` clean, `checklist_coverage.py` clean,
+        `check_venture_regression.py --base origin/main` clean,
+        `sync_tree_counts.py` clean, `python3 -m pytest gitops/tests -q` (631
+        passed, 7 skipped), all 15 `platform/ci` unittest modules +
+        `agent_review`'s, `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (446 passed), `run_workflow_locally.py --for-changes` (9/12 selected
+        workflows passed on real runners locally; the rest need `uses:` steps
+        or external hosts), and a real nginx pass via
+        `gitops/tests/test_front_door_serving.py` (19 passed, 1 skipped, after
+        installing nginx-light). Auto-merged as #5689 (green two-reviewer
+        cross-review, no red CI to wait out); refreshed the GitHub Pages branch
+        snapshot (publish-branch.sh) and recorded the reading (pages_state.py
+        --record) after merge -- though main had already moved again by the
+        time that ran, which is the expected shape of this fleet's collision
+        rate rather than something one session can chase to a stop.
+    mrr_end: 0
   - venture: pergola-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -41904,6 +41971,38 @@ entries:
         browser_state.py stops reporting them stale. Revenue and
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
+    mrr_end: 0
+  - venture: equipment-lease-buyout-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second generic-method comparison page,
+        vs-comparing-the-buyout-price-to-fair-market-value.html, worked with
+        real figures from the venture's own calc.mjs: an $8,000 buyout quoted
+        20% below a $10,000 fair-market-value estimate -- the naive check most
+        payoff letters get run against, and a number that reads as a clear
+        bargain -- on equipment with only 6 months of useful life left, against
+        a $15,000 replacement good for 60 months. Comparing to fair market
+        value alone says "great deal"; converting both paths to cost per month
+        of use says the buyout costs $1,333.33/month against $250.00/month to
+        replace -- 5.33 times more expensive, and $6,500 more over the
+        equipment's remaining life, despite pricing under market.
+      - >-
+        Checked open PRs and recent commits first (none touched this venture),
+        picked it from a fresh `surface-budget.mjs` zero-generic-method scan
+        run after the siding-bid-calculator PR above had already merged, to
+        avoid repeating the collision that branch hit. `git fetch origin main`
+        immediately before pushing turned up no new conflicting work.
+      - >-
+        Verified locally: the venture's own 54-assertion suite,
+        `platform/marketing/*.test.mjs` + `platform/pages/*.test.mjs`
+        (1289/1289), `clauses.mjs`'s own test file (21/21),
+        `surface-budget.mjs --check` clean, `regen.mjs --verify` clean,
+        `checklist_coverage.py` clean, `check_venture_regression.py --base
+        origin/main` clean, `sync_tree_counts.py` clean, and `python3 -m
+        pytest gitops/tests -q` (631 passed, 7 skipped) including the etcd
+        object-ceiling test specifically.
     mrr_end: 0
   - venture: platform
     agent_spend_usd: null

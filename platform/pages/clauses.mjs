@@ -1903,6 +1903,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
   // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
   'hidden-unicode-check/vs-reading-the-file-by-hand.html',
+  // Compares against "comparing the buyout price to fair market value" -- a
+  // generic sanity check any lessee already runs against a payoff letter,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-lendzero.html and vs-crest-capital.html, which name
+  // specific competitors and already carry the trademark disclaimer.
+  'equipment-lease-buyout-calculator/vs-comparing-the-buyout-price-to-fair-market-value.html',
   // Compares against "a flat $1,195 radon special" -- a common advertised
   // rate any radon mitigation contractor already runs, sized for the
   // smallest single-suction basement job, not a company or product this
