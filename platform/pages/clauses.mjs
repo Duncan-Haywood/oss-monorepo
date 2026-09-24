@@ -1791,6 +1791,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-jobber.html, which names Jobber specifically and already
   // carries the trademark disclaimer.
   'patio-door-bid-calculator/vs-a-flat-installed-price.html',
+  // Compares against "a sticky note or mental checklist" -- a manual
+  // tracking habit any contractor already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-jobtread.html, which names JobTread specifically and already
+  // carries the trademark disclaimer.
+  'contractor-bid-readiness/vs-a-sticky-note-checklist.html',
   // Compares against "picking a rate off the going local price" -- the
   // generic habit of copying a nearby studio's posted per-lesson price, not
   // a company or product this could be mistaken for. Distinct from this
