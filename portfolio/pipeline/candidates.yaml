@@ -1837,3 +1837,36 @@ candidates:
       surface past what this read covers.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: str-occupancy-tax-calculator
+    name: STR occupancy tax calculator
+    doc: candidates/str-occupancy-tax-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/str-occupancy-tax-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      No rate table ships -- every tax rate and every "platform collects"
+      percentage is a host-supplied input, so nothing here can be a stale
+      claim about a real jurisdiction's rate or a real platform's current
+      collection agreement. The output is arithmetic on those inputs,
+      never a determination about which authorities tax a specific
+      listing or what a platform's agreements cover; the page and footer
+      repeatedly direct the host to each taxing authority's own guidance,
+      the platform's own tax pages for that exact address, and a qualified
+      tax professional before relying on it. Nothing entered leaves the
+      browser.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
