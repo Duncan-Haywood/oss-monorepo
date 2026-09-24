@@ -1490,6 +1490,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against quoting a flat price from memory on the phone -- a
+  // habit every mobile locksmith already has, not a company or product this
+  // could be mistaken for. The page names no pricing app, franchise, or
+  // vendor at all -- distinct from this venture's own vs-jobber.html,
+  // vs-workiz.html, and vs-housecall-pro.html, which each name a product and
+  // already carry their own "not affiliated" clause for that reason.
+  'locksmith-bid-calculator/vs-a-flat-phone-quote.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
