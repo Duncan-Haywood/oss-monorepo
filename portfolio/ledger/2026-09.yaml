@@ -40541,3 +40541,38 @@ entries:
         workflow; the by-hand route has no egress from this sandbox, per
         indexnow_state.py.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py flagged the published GitHub Pages snapshot as
+        stale (built from 9b8d23fa, main at 58cbf4a3, 6 changed files
+        feeding the build). Refreshed it with
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`,
+        confirmed `pages_state.py` reports `gh-pages snapshot: current`
+        and the managed builder deployed it, and recorded the reading via
+        `pages_state.py --record`. indexnow_state.py confirmed no egress
+        from this sandbox to announce it; that step still needs a runner.
+  - venture: actions-permissions-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the venture's first generic-method comparison page,
+        vs-checking-permissions-by-hand.html (this checker vs. reading a
+        workflow's permissions blocks by hand), matching the pattern of
+        its existing vs-openssf-scorecard.html and following
+        actions-injection-check's own vs-checking-a-workflow-by-hand.html
+        as the closest sibling template. Linked from index.html, listed in
+        sitemap.xml, exempted from the trademark-disclaimer requirement in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no competing
+        product), and regenerated the front-door mirror
+        (`platform/marketing/regen.mjs`) so the apex serves the new page
+        immediately rather than going stale per CLAUDE.md's documented
+        mirror-drift defect. Verified: venture's own 54 node --test
+        assertions pass, clauses.mjs passes for the venture,
+        surface-budget.mjs --check reports no venture over budget, and
+        regen.mjs --verify reports the committed surface current after
+        the regen.
+    mrr_end: 0

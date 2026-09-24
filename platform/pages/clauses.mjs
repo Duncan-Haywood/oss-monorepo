@@ -1660,6 +1660,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (the test file asserts none of the sibling pages' named products
   // appear). Same reasoning as the other generic-method pages above.
   '3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html',
+  // Compares against "checking permissions by hand" -- a manual review
+  // habit every GitHub Actions user already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
+  // and already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other vs-checking-*-by-hand pages above (e.g.
+  // actions-injection-check's).
+  'actions-permissions-check/vs-checking-permissions-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

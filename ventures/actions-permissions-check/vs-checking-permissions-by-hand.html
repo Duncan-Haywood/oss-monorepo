@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Permissions Check vs. checking permissions by hand</title>
+  <meta name="description" content="Reading a workflow file for a missing or write-all permissions block catches the obvious case. It also depends on remembering that a job with no block inherits the workflow's grant, tracing every job across a file with several of them, and not stopping at the first permissions: line found.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-checking-permissions-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Permissions Check vs. checking permissions by hand">
+  <meta property="og:description" content="A careful read of a workflow file catches an obvious write-all grant or a missing block. This tool checks the workflow level and every job level the same way every time, including which jobs silently inherit the workflow's own grant.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/vs-checking-permissions-by-hand.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does checking a workflow's permissions by hand actually catch?","acceptedAnswer":{"@type":"Answer","text":"A reviewer who knows to look can spot a top-level permissions: write-all grant, or a workflow with no permissions: block at all, on a short file with one job. That review genuinely works, and it is the method most people already use -- this tool checks the same two classifications, explicit and write-all, plus unspecified for a block that is simply missing."}},{"@type":"Question","name":"Why is a job that inherits the workflow's grant easy to miss?","acceptedAnswer":{"@type":"Answer","text":"A job with no permissions: block of its own does not run with no permissions -- it inherits whatever the workflow-level block grants, or the repository's ambient default if the workflow has no block either. A reviewer has to hold the workflow-level grant in mind while reading every job below it and notice which ones never override it, and a workflow with several jobs makes that easy to lose track of partway through. This tool checks every job against the workflow-level grant it actually inherits, every time, and labels the inherited case explicitly rather than leaving it implicit."}},{"@type":"Question","name":"Why is checking every job in a file, not just the first permissions: line, easy to under-do?","acceptedAnswer":{"@type":"Answer","text":"A workflow file with five jobs can carry a tight, explicit permissions: block on the first job and no block at all on the other four -- and a reviewer who confirms the first block looks right has a natural stopping point that is not actually the end of the file. This tool scans every job's own body for the shallowest permissions: key inside it, independently, so a block on job one has no bearing on whether job four gets checked."}},{"@type":"Question","name":"Does this tool know my repository's actual default token permissions?","acceptedAnswer":{"@type":"Answer","text":"No, and neither can a reviewer looking only at the workflow file. There is no public GitHub API that reports a repository's or organization's default GITHUB_TOKEN permissions setting, so an unspecified finding here -- like an unspecified finding from a careful manual read -- is a prompt to check Settings -> Actions -> General yourself, not a claim that the ambient default is definitely too broad."}},{"@type":"Question","name":"Does this replace deciding what scopes a job actually needs?","acceptedAnswer":{"@type":"Answer","text":"No. This tool only classifies each grant as explicit, write-all, or unspecified -- it has no opinion on whether an explicit contents: read grant is itself more than a given job needs. Deciding the minimum scope a job actually requires, the way GitHub's own token-permissions hardening guidance describes, is still a job for reading the workflow yourself."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Permissions Check</a></p>
+    <h1>Actions Permissions Check vs. checking permissions by hand</h1>
+    <p class="lede">Reading a workflow file with the pattern already in mind -- a missing <code>permissions:</code>
+      block, or an explicit <code>write-all</code> -- genuinely works, and it is the method most people already
+      use. This page names no product or company being compared against: checking permissions by hand is a
+      generic manual habit, not a competing tool.</p>
+
+    <section class="card">
+      <h2>What each catches, side by side</h2>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Case</th><th scope="col">Reading the file by hand</th><th scope="col">This tool</th></tr></thead>
+        <tbody>
+          <tr><td>A workflow-level <code>permissions: write-all</code>, near the top of a short file</td><td>Correctly caught by a reviewer who already knows to look for it</td><td>Correctly caught the same way</td></tr>
+          <tr><td>A workflow with no <code>permissions:</code> block at all</td><td>Correctly caught if the reviewer checks for the block's absence, not just its content</td><td>Reported as <code>unspecified</code> every time, with the file and line it would have gone</td></tr>
+          <tr><td>A job with its own <code>permissions:</code> block that overrides the workflow's</td><td>Caught if the reviewer reads every job, not just the first one that matches</td><td>Checked independently, job by job, for the whole file</td></tr>
+          <tr><td>A job with no block of its own, quietly inheriting the workflow-level grant</td><td>Easy to read as "unchecked" when it is actually "inherits whatever the workflow granted" -- two different findings that look the same on the page</td><td>Labelled explicitly as inherited, and classified by what it actually inherits (<code>explicit</code> or <code>write-all</code>)</td></tr>
+          <tr><td>The fourth or fifth job in a file, after the first job's block already looked fine</td><td>Easy to stop checking once the file "looks handled"</td><td>Every job's own body is scanned for its shallowest <code>permissions:</code> key, independently of every other job</td></tr>
+          <tr><td>Checking every workflow file in a repository on every dependency-bump PR</td><td>Manual, and the first thing skipped under time pressure</td><td>Paste several files at once in the browser tool, or run <code>check.py --fail-on-risk</code> in CI to block the merge</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">The gap that matters most is not the obvious write-all grant -- most reviewers catch that
+        one -- it is the job that inherits a permission nobody re-checked at the job level, in a file with more
+        than one or two jobs.</p>
+      <p><a class="cta" href="./">Run the free permissions check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What does checking a workflow's permissions by hand actually catch?</h3>
+      <p>A reviewer who knows to look can spot a top-level <code>permissions: write-all</code> grant, or a workflow with no <code>permissions:</code> block at all, on a short file with one job. That review genuinely works, and it is the method most people already use -- this tool checks the same two classifications, explicit and write-all, plus unspecified for a block that is simply missing.</p>
+      <h3>Why is a job that inherits the workflow's grant easy to miss?</h3>
+      <p>A job with no <code>permissions:</code> block of its own does not run with no permissions -- it inherits whatever the workflow-level block grants, or the repository's ambient default if the workflow has no block either. A reviewer has to hold the workflow-level grant in mind while reading every job below it and notice which ones never override it, and a workflow with several jobs makes that easy to lose track of partway through. This tool checks every job against the workflow-level grant it actually inherits, every time, and labels the inherited case explicitly rather than leaving it implicit.</p>
+      <h3>Why is checking every job in a file, not just the first permissions: line, easy to under-do?</h3>
+      <p>A workflow file with five jobs can carry a tight, explicit <code>permissions:</code> block on the first job and no block at all on the other four -- and a reviewer who confirms the first block looks right has a natural stopping point that is not actually the end of the file. This tool scans every job's own body for the shallowest <code>permissions:</code> key inside it, independently, so a block on job one has no bearing on whether job four gets checked.</p>
+      <h3>Does this tool know my repository's actual default token permissions?</h3>
+      <p>No, and neither can a reviewer looking only at the workflow file. There is no public GitHub API that reports a repository's or organization's default <code>GITHUB_TOKEN</code> permissions setting, so an <code>unspecified</code> finding here -- like an unspecified finding from a careful manual read -- is a prompt to check Settings -> Actions -> General yourself, not a claim that the ambient default is definitely too broad.</p>
+      <h3>Does this replace deciding what scopes a job actually needs?</h3>
+      <p>No. This tool only classifies each grant as explicit, write-all, or unspecified -- it has no opinion on whether an explicit <code>contents: read</code> grant is itself more than a given job needs. Deciding the minimum scope a job actually requires, the way GitHub's own token-permissions hardening guidance describes, is still a job for reading the workflow yourself.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including deciding what scopes a job actually needs. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this checker makes no network call of its own. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>
