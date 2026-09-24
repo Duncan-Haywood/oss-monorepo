@@ -1892,6 +1892,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. Same shape as source-map-leak-check's
   // vs-checking-devtools-by-hand.html exemption above.
   'structured-data-drift-check/vs-checking-it-by-eye.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
+  // and already carries the "not affiliated" disclaimer.
+  'actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html',
   // Compares against "reading the file by hand" -- a manual review habit
   // every developer already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages

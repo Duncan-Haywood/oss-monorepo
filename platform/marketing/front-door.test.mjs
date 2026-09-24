@@ -53,6 +53,7 @@ import {
   PRIVACY_LOG_FIELDS,
   SPONSORS_URL,
   aboutOutputFile,
+  aboutStoredKey,
   apexAboutUrl,
   buildFrontDoor,
   categoryAnchor,
@@ -2060,8 +2061,14 @@ test('the About page is mounted by the kustomization and served by nginx', async
     'utf8',
   );
   assert.ok(
-    kustomization.includes(`- ${ABOUT_KEY}=front-door/${ABOUT_KEY}`),
-    `gitops/prod/kustomization.yaml must mount ${ABOUT_KEY}; without it /about/ is a 404`,
+    kustomization.includes(`- ${aboutStoredKey()}=front-door/${aboutStoredKey()}`),
+    `gitops/prod/kustomization.yaml must mount ${aboutStoredKey()}; without it /about/ is a 404`,
+  );
+  assert.ok(
+    !new RegExp(`- ${escapeForRegExp(ABOUT_KEY)}=front-door/${escapeForRegExp(ABOUT_KEY)}$`, 'm').test(
+      kustomization,
+    ),
+    'the plain about.html key must be gone, not listed alongside its .gz',
   );
   const conf = await fs.readFile(path.join(frontDoorDir, 'default.conf'), 'utf8');
   assert.match(
@@ -2069,10 +2076,20 @@ test('the About page is mounted by the kustomization and served by nginx', async
     /location ~ "\^\/about\/\?\$"/,
     'front-door/default.conf must route /about/, or the catch-all answers it with the front page',
   );
+  const aboutBlock = conf.match(/location ~ "\^\/about\/\?\$" \{[\s\S]*?\n {2}\}/);
+  assert.ok(aboutBlock, 'front-door/default.conf must have an /about/ block');
   assert.ok(
-    conf.includes(`try_files /${ABOUT_KEY} =404`),
-    `the /about/ block must rewrite to ${ABOUT_KEY}, the key the kustomization mounts`,
+    !/try_files/.test(aboutBlock[0]),
+    'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
   );
+  assert.match(aboutBlock[0], new RegExp(`rewrite \\^ /${escapeForRegExp(ABOUT_KEY)} break;`));
+  assert.match(aboutBlock[0], /gzip_static always;/);
+  assert.match(aboutBlock[0], /gunzip on;/);
+});
+
+test('the stored About key agrees with the compression suffix constant', () => {
+  assert.equal(aboutStoredKey(), `${ABOUT_KEY}${COMPRESSED_SUFFIX}`);
+  assert.equal(path.basename(aboutOutputFile()), aboutStoredKey());
 });
 
 test('the About page claim about the access log matches the log_format that ships', async () => {
@@ -2198,7 +2215,7 @@ test('the About page counts the tools and categories this host actually serves',
     'the facts list does not carry the live tool and category counts',
   );
   assert.equal(apexAboutUrl(), `${FRONT_DOOR_URL}${ABOUT_PATH}`);
-  assert.ok(aboutOutputFile().endsWith(ABOUT_KEY));
+  assert.ok(aboutOutputFile().endsWith(aboutStoredKey()));
 });
 
 test('the front page and the sitemap both lead to the About page', async () => {
