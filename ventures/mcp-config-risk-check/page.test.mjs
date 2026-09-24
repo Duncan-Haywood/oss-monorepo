@@ -102,7 +102,7 @@ test("the SoftwareApplication JSON-LD is valid", () => {
 
 test("sitemap lists every published page and no extras", () => {
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs.sort(), ["./", "./why-a-clean-scan-isnt-a-safety-guarantee.html"]);
+  assert.deepEqual(locs.sort(), ["./", "./vs-reading-the-config-by-hand.html", "./why-a-clean-scan-isnt-a-safety-guarantee.html"]);
 });
 
 test("robots.txt allows crawling", () => {

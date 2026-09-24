@@ -42260,3 +42260,114 @@ entries:
         (9/9 selected workflows, 70/70 run steps in portfolio-validate.yml)
         all clean -- main itself was genuinely green, not just starved.
     mrr_end: 0
+  - venture: skill-manifest-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session gate read PROCEED. Republished a stale GitHub Pages snapshot
+        early in the session (chased it through two more races as other
+        sessions kept merging during the same minute -- did not keep
+        re-publishing past the second attempt since the gap stays a single
+        merge and the fleet is actively maintaining it).
+      - >-
+        Ran the full whole-catalogue installed nginx-light/openssh-client
+        (clearing 24 previously-skipped gitops/tests assertions down to the
+        one genuinely environmental skip) and re-ran the 8-check Playwright/
+        axe-core accessibility sweep from scratch: 7/8 clean, the one
+        real finding (a WCAG AA contrast violation on pergola-bid-
+        calculator's comparison page) turned out to already be fixed by a
+        concurrent session (#5695) before a fix could be pushed here, so no
+        duplicate was made.
+      - >-
+        Confirmed this session's sandbox egress is unrestricted enough to
+        reach api.indexnow.org directly (`selective: false` per
+        `$HTTPS_PROXY/__agentproxy/status`) and re-announced the catalogue
+        -- `node platform/marketing/indexnow.mjs --submit --ref gh-pages`,
+        POST -> 200, 1556 URLs, the third by-hand announcement on record
+        (merged as #5707). Separately probed the egress-policy decision
+        queue item's other named hosts: formulae.brew.sh, api.wordpress.org
+        and www.federalregister.gov are all reachable from here, but
+        euvdservices.enisa.europa.eu returns a same-origin 403 from ENISA's
+        own WAF regardless of headers sent -- reachable at the network
+        layer, blocked at the application layer, so cra-evidence-desk's
+        EUVD wedge stays unbuilt rather than attempted with a spoofed
+        client identity.
+      - >-
+        Added vs-reading-the-skill-by-hand.html: fills the venture's 0/1
+        generic-method budget (surface-budget.mjs), following the
+        established vs-reading-*-by-hand pattern. Contrasts what a careful
+        read of a SKILL.md catches (a missing field, an obviously short
+        description) against what it structurally cannot -- whether a
+        description gives a dispatcher a real trigger cue, whether two
+        sibling skills' descriptions compete for the same request (a
+        property of the whole bundle, not one file), and a token estimate
+        that diverges from on-screen length. Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html's footer,
+        added to sitemap.xml, and updated page.test.mjs's sitemap-coverage
+        assertion.
+      - >-
+        Also checked whether 22 ventures without their own usage.mjs were
+        missing usage tracking (a false lead): platform/pages/build.mjs's
+        injectChrome wires the shared pf-site.js chrome, and its
+        tool_viewed:<slug> and sponsor_link_clicked counters, into every
+        published page regardless of a venture-specific usage.mjs, so this
+        was not a real gap and no PR was opened for it.
+      - >-
+        Verified on the final merged tree: the venture's own suite plus
+        freight-accessorial-auditor's (213/213), checklist_coverage.py,
+        surface-budget.mjs --check, regen.mjs --verify clean, the
+        platform/marketing + platform/pages suite (1290/1290, run twice
+        across two merges), gitops/tests (637 passed/1 skipped), every
+        platform/ci unittest module, agent_review's test_review, and
+        portfolio/ledger + scoring + router + usage + pipeline +
+        infra/tests pytest (446 passed). Revenue and confirmed-visitor
+        counts remain at zero, which this does not change on its own.
+    mrr_end: 0
+  - venture: mcp-config-risk-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. reading the config by
+        hand": the venture had zero generic-method and zero named-product
+        comparisons, one of 88 ventures at 0/1 per surface-budget.mjs at the
+        time. Names four things a manual read of an mcp.json misses that
+        this checker's own calc.mjs already computes deterministically: a
+        secret-shaped literal (sk-, ghp_/gho_, Slack xox-, AWS AKIA, bearer)
+        sitting under a key not named token/key/secret, so a reviewer whose
+        eye is drawn to suspiciously-named keys skips past it; a missing
+        version pin across four different package-manager syntaxes (npx
+        @version, uvx, pipx run, docker run :tag) mixed in one config;
+        confusing a live secret literal with a proper "${VAR}" environment
+        reference at a glance; and a tool name shadowed across two
+        connected servers once a config carries more than a handful.
+      - >-
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        manual method, no named product), linked from index.html, added to
+        sitemap.xml, wired into a dedicated test file mirroring this repo's
+        vs-checking-a-post-by-eye.test.mjs pattern (FAQ-schema/visible-
+        heading parity, verbatim-answer check, angle-reader h1 shape,
+        no-competitor-named check). Front-door mirror regenerated
+        (regen.mjs); two concurrent PRs' merges (#5710, #5716) each moved
+        the mirror out from under this branch mid-session, so
+        resolve-mirror-merge.sh's own recipe (checkout --ours on the
+        generated dirs, then regen.mjs --write) was applied by hand for the
+        stash-pop conflicts that produced (no MERGE_HEAD, so the script
+        itself declined to run) before landing.
+      - >-
+        Verified locally (ci_starvation.py on the latest portfolio-validate.yml
+        run on main, 36041055780: runner_id 0, 3s, no steps -- Actions
+        starved): venture's own suite 69/69, full platform/marketing +
+        platform/pages suite 1290/1290, gitops/tests 613 passed/25 skipped
+        (environmental -- nginx-light/openssh-client not installed this
+        session), the platform/ci unittest modules (27) and agent_review's
+        test_review (21) all pass, checklist_coverage.py clean,
+        surface-budget.mjs --check clean (venture now 1/1), regen.mjs
+        --verify clean after regen.mjs, router/validate.py,
+        scoring/score_ventures.py --check, usage/validate_usage.py,
+        pipeline/validate_doc_consistency.py, pipeline/validate_candidates.py,
+        pipeline/probes/validate_probe_index.py, pipeline/score_sensitivity.py,
+        front-door-tools.mjs --headroom all clean, and the
+        ledger/scoring/router/usage/pipeline/infra pytest suite (446 passed).
+    mrr_end: 0
