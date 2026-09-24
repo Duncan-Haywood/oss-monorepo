@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. checking the migration guide by hand | Kubernetes Deprecated API Check</title>
+<meta name="description" content="Kubernetes' own Deprecated API Migration Guide lists every removal, so a platform engineer can in principle read it and cross-check each manifest by hand. In practice that means holding four release waves and dozens of apiVersion+kind pairs in your head at once, across every manifest a Helm or Kustomize render produces -- and it is easy to over-generalize a removal wave to a kind that was actually spared for several releases longer than its siblings. This tool checks every document the same way every time.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-checking-the-migration-guide-by-hand.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This checker vs. checking the migration guide by hand">
+<meta property="og:description" content="Reading Kubernetes' Deprecated API Migration Guide and cross-checking it against a manifest repo by eye works for one file. It gets harder to trust across a whole render output, four release waves, and the one apiVersion that did not follow its siblings' removal date. This tool checks every document the same way every time.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/k8s-deprecated-api-check/vs-checking-the-migration-guide-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Doesn't reading the migration guide once tell you everything this checks?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It tells you the facts this tool's table encodes -- Kubernetes publishes the guide and this tool's DEPRECATED_APIS table is sourced from it, not guessed. What reading it once does not do is re-check every apiVersion+kind pair in every manifest your Helm chart or Kustomize overlay renders, every time you edit one, against every release wave. That cross-referencing is the part that stops happening under time pressure, not the reading." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is it easy to over-generalize a removal wave to a kind it did not apply to?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The guide groups removals by release, and most extensions/v1beta1 kinds (DaemonSet, Deployment, ReplicaSet, NetworkPolicy) were removed in 1.16 -- but Ingress under the same apiVersion stayed accepted for six more releases, until 1.22. A hand-check that remembers \"extensions/v1beta1 was the 1.16 wave\" and applies that to every kind under it will wrongly clear an Ingress manifest that is actually fine until 1.22, or wrongly flag it as already broken. This tool looks up the exact apiVersion+kind pair, never the apiVersion alone." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a rendered manifest repo make a hand-check harder than one file?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A Helm chart or Kustomize overlay can render dozens of documents across many templated files, and the apiVersion a reviewer needs to check is not always in the source template -- it can be set by a chart default, a values override, or a Kustomize patch, and only appears in the final helm template / kustomize build output. Reading the rendered output document by document, correctly, every time a chart version or values file changes, is the step a hand-check skips first under deadline pressure." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can a target-version comparison be done by hand?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, in principle: find each apiVersion+kind pair's removedIn release in the guide, then compare it against the target version you plan to upgrade to. In practice this means correctly parsing and comparing Kubernetes minor versions (is 1.22 before or after 1.9? -- string comparison gets this wrong) for every match, by hand, across every manifest. This tool does the version comparison the same way every time and reports removed versus merely deprecated-but-still-accepted." }
+    },
+    {
+      "@type": "Question",
+      "name": "When does reading the guide yourself still matter?",
+      "acceptedAnswer": { "@type": "Answer", "text": "This tool's table only lists removals Kubernetes has documented with a fixed release number -- it deliberately excludes in-progress or future-dated deprecations that have not shipped a removal release yet. If you want to plan ahead for a deprecation that is still beta, or want the full context and rationale behind a removal, the guide itself is still the source to read." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; line-height: 1.6; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; overflow-wrap: anywhere; }
+  h2 { color: #17324a; margin-top: 30px; }
+  code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #d5dbe3; padding: 0.5rem 0.7rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+  a { color: #17604a; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p><a href="./">&larr; Back to Kubernetes Deprecated API Check</a></p>
+
+<h1>This checker vs. checking the migration guide by hand</h1>
+
+<div class="card">
+<p>
+  Kubernetes publishes its own <a href="why-a-manifest-fails-a-kubernetes-upgrade.html">Deprecated API
+  Migration Guide</a>, so a platform engineer can, in principle, read it and cross-check a manifest
+  against it by eye. This page names no product or company: "reading the guide and checking by hand" is
+  a manual habit anyone maintaining Kubernetes manifests already has, not a competing tool.
+</p>
+<p>
+  It genuinely works for a single manifest file checked right after reading the guide. It gets harder to
+  trust the moment there is more than one file, more than one release wave to remember, or a kind that
+  did not follow its apiVersion siblings' removal date -- which is exactly the case the table below
+  covers.
+</p>
+</div>
+
+<table>
+  <thead><tr><th>Case</th><th>Reading the guide and checking by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>A single manifest, checked right after reading the guide</td><td>Works fine -- the guide is short enough to hold in your head for one file</td><td>Works the same way, instantly, with no re-reading required</td></tr>
+    <tr><td><code>extensions/v1beta1 Ingress</code> among other <code>extensions/v1beta1</code> kinds</td><td>Easy to over-generalize: most <code>extensions/v1beta1</code> kinds left in 1.16, but <code>Ingress</code> specifically stayed accepted until 1.22</td><td>Looks up the exact <code>apiVersion</code>+<code>kind</code> pair, never the <code>apiVersion</code> alone, so <code>Ingress</code> is never misclassified against its siblings</td></tr>
+    <tr><td>A Helm chart or Kustomize overlay's rendered output</td><td>The <code>apiVersion</code> a reviewer needs may only exist in the final render, not the source template -- has to be re-checked after every chart bump or values change</td><td>Reads the rendered <code>helm template</code> / <code>kustomize build</code> output directly, document by document, every time</td></tr>
+    <tr><td>Comparing a found <code>removedIn</code> release against a target upgrade version</td><td>Requires parsing and comparing Kubernetes minor versions correctly by hand for every match -- string comparison alone gets "1.9" vs "1.22" wrong</td><td>Parses and compares versions numerically every time, reporting <code>removed</code> versus merely <code>deprecated</code></td></tr>
+    <tr><td>Re-checking a manifest repo on every dependency bump or chart upgrade</td><td>Manual, and the first step skipped under deadline pressure</td><td>CLI scans a whole render output in one pass; exits non-zero to block a CI gate</td></tr>
+  </tbody>
+</table>
+
+<h2>The gap that matters most: one kind that did not follow its own apiVersion's removal date</h2>
+<p>
+  Four of the five kinds under <code>extensions/v1beta1</code> -- <code>DaemonSet</code>,
+  <code>Deployment</code>, <code>ReplicaSet</code>, <code>NetworkPolicy</code> -- were removed in
+  Kubernetes 1.16. <code>Ingress</code> under that same <code>apiVersion</code> stayed accepted for six
+  more releases, until 1.22, per Kubernetes' own migration guide. A reviewer who has correctly learned
+  "<code>extensions/v1beta1</code> means the 1.16 wave" from checking the other four kinds will apply
+  that same rule to an <code>Ingress</code> manifest and get the wrong answer in either direction --
+  clearing a manifest that is fine for six more releases as if it were already broken, or the reverse.
+  This tool's table keys on the exact <code>apiVersion</code>+<code>kind</code> pair, so <code>Ingress</code>
+  carries its own <code>removedIn</code> value independent of its siblings.
+</p>
+
+<h2>The gap that matters second: a rendered output nobody re-reads</h2>
+<p>
+  A source Helm chart template or Kustomize base often does not name a fixed <code>apiVersion</code> at
+  all -- it can come from a chart default, be overridden in <code>values.yaml</code>, or be patched by an
+  overlay, and only becomes visible once you run <code>helm template</code> or <code>kustomize build</code>.
+  Checking that rendered output by eye works the first time; it is the step most likely to be skipped
+  after a routine chart version bump that "shouldn't have changed anything." This tool reads the same
+  rendered output, document by document, with no dependency on remembering to re-run the check.
+</p>
+
+<h2>When to still read the guide yourself</h2>
+<p>
+  This tool's table lists only removals Kubernetes has documented with a fixed release number -- it
+  deliberately leaves out every in-progress or future-dated deprecation that has not shipped a removal
+  release yet, and it has no cluster access, so it cannot tell you what your cluster is actually running
+  today. Planning ahead for a still-beta deprecation, or understanding the reasoning behind a removal, is
+  still a job for reading Kubernetes' own guide.
+</p>
+
+<h2>Common questions</h2>
+<h3>Doesn't reading the migration guide once tell you everything this checks?</h3>
+<p>It tells you the facts this tool's table encodes -- Kubernetes publishes the guide and this tool's DEPRECATED_APIS table is sourced from it, not guessed. What reading it once does not do is re-check every apiVersion+kind pair in every manifest your Helm chart or Kustomize overlay renders, every time you edit one, against every release wave. That cross-referencing is the part that stops happening under time pressure, not the reading.</p>
+<h3>Why is it easy to over-generalize a removal wave to a kind it did not apply to?</h3>
+<p>The guide groups removals by release, and most extensions/v1beta1 kinds (DaemonSet, Deployment, ReplicaSet, NetworkPolicy) were removed in 1.16 -- but Ingress under the same apiVersion stayed accepted for six more releases, until 1.22. A hand-check that remembers "extensions/v1beta1 was the 1.16 wave" and applies that to every kind under it will wrongly clear an Ingress manifest that is actually fine until 1.22, or wrongly flag it as already broken. This tool looks up the exact apiVersion+kind pair, never the apiVersion alone.</p>
+<h3>Why does a rendered manifest repo make a hand-check harder than one file?</h3>
+<p>A Helm chart or Kustomize overlay can render dozens of documents across many templated files, and the apiVersion a reviewer needs to check is not always in the source template -- it can be set by a chart default, a values override, or a Kustomize patch, and only appears in the final helm template / kustomize build output. Reading the rendered output document by document, correctly, every time a chart version or values file changes, is the step a hand-check skips first under deadline pressure.</p>
+<h3>Can a target-version comparison be done by hand?</h3>
+<p>Yes, in principle: find each apiVersion+kind pair's removedIn release in the guide, then compare it against the target version you plan to upgrade to. In practice this means correctly parsing and comparing Kubernetes minor versions (is 1.22 before or after 1.9? -- string comparison gets this wrong) for every match, by hand, across every manifest. This tool does the version comparison the same way every time and reports removed versus merely deprecated-but-still-accepted.</p>
+<h3>When does reading the guide yourself still matter?</h3>
+<p>This tool's table only lists removals Kubernetes has documented with a fixed release number -- it deliberately excludes in-progress or future-dated deprecations that have not shipped a removal release yet. If you want to plan ahead for a deprecation that is still beta, or want the full context and rationale behind a removal, the guide itself is still the source to read.</p>
+
+<p><a href="./">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This is not infrastructure or compliance advice. It matches a fixed table of documented removals against the manifest you supplied -- it cannot prove your manifests will apply cleanly on every future release, only report the matches it found. You are responsible for reviewing and verifying its output before relying on it. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+  <p>Everything on the checker runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
