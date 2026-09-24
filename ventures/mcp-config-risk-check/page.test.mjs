@@ -71,6 +71,10 @@ test("links to mcp-supply-chain-watch as the complementary drift checker", () =>
   assert.match(html, /mcp-supply-chain-watch\/">/);
 });
 
+test("links to hidden-unicode-check as a complementary AI-agent-security checker", () => {
+  assert.match(html, /hidden-unicode-check\/">/);
+});
+
 test("the FAQPage JSON-LD is valid and matches the visible headings", () => {
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   assert.ok(match, "no FAQPage schema found");

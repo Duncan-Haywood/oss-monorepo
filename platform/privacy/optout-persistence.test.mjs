@@ -655,13 +655,22 @@ const RELATIVE_SELF = relative(
 // `auto-glass-bid-usage` storage name). Exactly one added `usage.mjs`
 // (`ventures/auto-glass-bid-calculator/usage.mjs`), no deletions.
 //
-// 331 -> 332: `k8s-resource-limits-check` also graduated -- adding one
+// 331 -> 332: `hidden-unicode-check` also graduated, concurrently on
+// `main` -- adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`,
+// keyed under its own `hidden-unicode-check:usage` storage name). Exactly
+// one added `usage.mjs` (`ventures/hidden-unicode-check/usage.mjs`), no
+// deletions.
+//
+// 332 -> 333: `k8s-resource-limits-check` also graduated -- adding one
 // `usage.mjs` following the same opt-out pattern as its siblings
 // (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
-// `k8s-resource-limits-check-usage` storage name). Exactly one added
-// `usage.mjs` (`ventures/k8s-resource-limits-check/usage.mjs`), no
-// deletions.
-const SWITCHES_IN_THE_CATALOGUE = 332;
+// `k8s-resource-limits-check-usage` storage name). This branch only ever
+// knew its own predecessor's number (331, before `hidden-unicode-check`
+// landed) until this merge -- the same ordinary collision shape recorded
+// throughout this list. Exactly one added `usage.mjs`
+// (`ventures/k8s-resource-limits-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 333;
 
 let counter = 0;
 function fixture(source) {

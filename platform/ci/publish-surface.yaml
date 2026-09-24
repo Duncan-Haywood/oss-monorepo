@@ -566,6 +566,9 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: hidden-unicode-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: hoa-reserve-fund-calculator-ci.yml
   classification: none
   publishes: []

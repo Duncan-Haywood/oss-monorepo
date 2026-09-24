@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 350 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 351 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator comparing the fully-loaded cost of a W-2 employee against a 1099 contractor for the same role — FICA, capped FUTA/SUTA, workers&#39; comp, PTO, benefits, payroll admin, and one-time onboarding, plus the contractor rate at which the two cost the same. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Hidden Unicode Check — find invisible and bidi characters in a file</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hidden-unicode-check/"/>
+    <id>tag:marisstella.dev,2026:tool/hidden-unicode-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a README, or any text and find zero-width characters, Unicode tag characters, and bidirectional (RLO/LRO) override characters hidden from human review -- the technique behind current AI-agent prompt-injection attacks and Trojan Source. Free, private, runs entirely in your browser.</summary>
   </entry>
   <entry>
     <title>Kubernetes Resource Limits Check — What Can Take Down a Node</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free CNC machining quote calculator for job shops: work out your real cost per part from bar or plate yield, cycle time, setup and programming, perishable tooling, first-article inspection and outside-process lot minimums — then see the break-even price, the margin at what you quoted, and the same part costed at 1, 5, 10, 25, 50, 100, 250 and 500 pieces. Runs entirely in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Deploy Concurrency Check — find the race that ships an older commit</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/deploy-concurrency-check/"/>
-    <id>tag:marisstella.dev,2026:tool/deploy-concurrency-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a GitHub Actions workflow and see every way it is allowed to apply an older revision over a newer one: no concurrency group, a group that changes every run, cancel-in-progress on a deploy, split groups on one environment, and a checkout of a moving branch. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>
