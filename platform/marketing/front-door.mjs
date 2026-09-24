@@ -544,8 +544,50 @@ export const EMPTY_FEED_UPDATED = '2026-08-28T00:00:00Z';
 /** The well-known path a model fetches without having to discover it first. */
 export const LLMS_FILE = 'llms.txt';
 
-/** Where `--write` puts it, beside the page it describes. */
-export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', LLMS_FILE);
+/**
+ * The ConfigMap key it is stored under, gzipped — see `COMPRESSED_SUFFIX`.
+ *
+ * `catalogStoredKey`'s and `sitemapStoredKey`'s own doc comments name this
+ * file as the next key over the same threshold, left plain deliberately
+ * until it was the one actually doing the tripping — "one at a time and
+ * against a measurement". That day came on 2026-09-24: a second named-product
+ * comparison page for `shop-rate-calculator` was the change on the desk when
+ * `portfolio-front-html` was measured at 943,895 bytes against the
+ * 943,718-byte budget in `gitops/tests/test_manifests.py` — already over by
+ * 177 bytes on `main`, before that change added a further 188. `llms.txt` was
+ * by then the only key left ungzipped that grows with the catalogue: 145,949
+ * bytes plain, the largest key in the object.
+ *
+ * Compresses on the same terms `sitemap.xml` does, and for the same reason:
+ * it is a bullet list, one line per mirrored tool, so it is mostly repeated
+ * structure. gzip -9 took it under 44 KB — over 100 KB of headroom bought
+ * back at once, even after the 4/3 base64 expansion `binaryData` imposes.
+ *
+ * The *URL* is unchanged and stays `/llms.txt` — `LLMS_FILE` is what
+ * `robots.txt` and the front page link, and a well-known path is not
+ * something to move to save bytes. Only the stored key changes.
+ */
+export const llmsStoredKey = () => `${LLMS_FILE}${COMPRESSED_SUFFIX}`;
+
+/**
+ * Where `--write` puts it, beside the page it describes.
+ *
+ * The suffix is spelled out rather than taken from `COMPRESSED_SUFFIX`, for
+ * the same reason `CATALOG_OUTPUT_FILE` and `SITEMAP_OUTPUT_FILE` spell it
+ * out: `COMPRESSED_SUFFIX` is declared several hundred lines below this, and
+ * a `const` is hoisted into the temporal dead zone, not initialised, so a
+ * forward reference here would throw at module load rather than read as a
+ * stale copy. `llmsStoredKey()` above is the accessor that does use the
+ * constant, and `front-door.test.mjs` asserts the two agree so this literal
+ * cannot drift.
+ */
+export const LLMS_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  `${LLMS_FILE}.gz`,
+);
 
 /** The structured half of the same handshake. See `renderFrontDoorCatalog`. */
 export const CATALOG_FILE = 'catalog.json';
@@ -1287,15 +1329,15 @@ export const COMPARE_KEY = 'compare.html';
  * KB. A mechanism is cheapest where it is applied narrowly and for a reason
  * that can be stated.
  *
- * `catalog.json` joined them on 2026-09-12, on that same stated criterion
- * rather than as an exception to it — it grows with the catalogue, and by then
- * it was both the largest key in the object and the one that took it over
- * budget. See `catalogStoredKey` for the measurement. `sitemap.xml` (113,830
- * bytes) and `llms.txt` (106,635) are the next two by the same test and are
- * deliberately left plain for now: one key bought roughly thirty ventures of
- * headroom, and compressing a well-known path is a change to how nginx
- * answers it, so it is worth doing one at a time and against a measurement
- * rather than all three on the strength of the first one working.
+ * `catalog.json` joined them on 2026-09-12, `sitemap.xml` on 2026-09-23 and
+ * `llms.txt` on 2026-09-24, each on the same stated criterion rather than as
+ * an exception to it — every one of the three grows with the catalogue, and
+ * each was the key that took the object over budget on the day it joined.
+ * See `catalogStoredKey`, `sitemapStoredKey` and `llmsStoredKey` for the
+ * measurements. Doing it one key at a time, against a measurement, rather
+ * than all three on the strength of the first one working, is why the front
+ * page, About and the category pages below are still evaluated on their own
+ * terms rather than swept in on the same change.
  *
  * nginx serves them with `gzip_static always; gunzip on;`, reached by a
  * `rewrite`, never a `try_files`. That is not style: `try_files` stats the
@@ -2874,8 +2916,15 @@ if (isMain) {
     // And once more: `llms.txt` lists the same mirrored tools the page and the
     // feed do, so a run that wrote one without the others would publish three
     // documents disagreeing about what this host serves.
-    await fs.writeFile(LLMS_OUTPUT_FILE, llms);
-    console.log(`wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${llms.length} bytes)`);
+    // Gzipped, unlike the writes above it: this is the key `catalogStoredKey`
+    // and `sitemapStoredKey` named as the next one over the etcd budget by
+    // this same test, and it is what took the object over on 2026-09-24. See
+    // `llmsStoredKey`. The URL is still `/llms.txt`.
+    const storedLlms = compress(llms);
+    await fs.writeFile(LLMS_OUTPUT_FILE, storedLlms);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${storedLlms.length} bytes, ${llms.length} uncompressed)`,
+    );
     // And once more, with one extra edge: `llms.txt` now *links* this file, so
     // a run that wrote the one without the other would publish a document
     // pointing a model at a path this host answers with the front page.
@@ -2968,7 +3017,10 @@ if (isMain) {
     // moved on. `SITEMAP_FILE` joins on 2026-09-23 for the identical reason,
     // one key over: a plain `sitemap.xml` left beside the new `.gz` would
     // keep answering `/sitemap.xml` with a sitemap that stopped growing.
-    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
+    // `LLMS_FILE` joins on 2026-09-24 for the identical reason, the next key
+    // over: a plain `llms.txt` left beside the new `.gz` would keep answering
+    // `/llms.txt` with a bullet list that stopped growing.
+    for (const stale of [COMPARE_KEY, CATALOG_FILE, SITEMAP_FILE, LLMS_FILE, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
       const file = path.join(path.dirname(OUTPUT_FILE), stale);
       if (await fs.stat(file).then(() => true, () => false)) {
         await fs.rm(file);

@@ -505,6 +505,27 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
         "the inflated sitemap differs from the gzip-encoded one"
     )
 
+    # And the same identity-encoding check for `/llms.txt`, gz-only since
+    # 2026-09-24 for the identical reason `catalog.json` and `sitemap.xml`
+    # went gz-only before it: it was the last remaining key in
+    # `portfolio-front-html` that grew with the catalogue and stayed plain,
+    # and it took the object over the etcd budget. A model fetching this path
+    # frequently sends no encoding header at all, so `gzip_static on;` with no
+    # `gunzip on;` would 404 exactly the audience this document exists for.
+    _, _, llms_gzip_body = _get(front_door + "/llms.txt", gzip_ok=True)
+    status, headers, llms_identity_body = _get(front_door + "/llms.txt", gzip_ok=False)
+    assert status == 200, (
+        f"/llms.txt returned {status} to a client sending Accept-Encoding: identity. "
+        "A gz-only key needs `gzip_static always` (not plain `on`) plus `gunzip on`, and no "
+        "`try_files` -- try_files stats the uncompressed name, which is not on disk."
+    )
+    assert headers.get("Content-Encoding") != "gzip", (
+        "nginx returned gzip to a client that did not accept it -- `gunzip on` is missing"
+    )
+    assert llms_identity_body == llms_gzip_body, (
+        "the inflated llms.txt differs from the gzip-encoded one"
+    )
+
 
 def test_every_category_page_is_served_at_the_url_it_claims(front_door: str) -> None:
     # The category pages are the one part of the apex whose URL and whose
