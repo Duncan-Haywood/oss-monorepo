@@ -1587,6 +1587,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // comparison is a reasonable first filter. Same reasoning as the other
   // generic-method pages above.
   'fleet-repair-or-replace-planner/vs-comparing-the-repair-bill-to-a-new-price.html',
+  // Compares against "working the formula out by hand with a datasheet and a
+  // calculator app" -- the generic method every user of these electronics
+  // calculators already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-omni-calculator.html, which
+  // names a real calculator site and already carries the trademark
+  // disclaimer via NOT_AFFILIATED; this page's own footer says explicitly
+  // that it names no specific product or company. Same reasoning as the
+  // other generic-method pages above.
+  'ai-engineering-academy/vs-doing-the-math-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
