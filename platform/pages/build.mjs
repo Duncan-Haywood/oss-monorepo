@@ -1179,7 +1179,18 @@ const CATEGORY_RULES = [
       // staffing-cost decision. It cross-links staffing-markup-calculator as
       // a sibling -- the same burden math, applied on the other side of who
       // pays it.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator)/.test(slug),
+      // `s-corp-reasonable-compensation-calculator` joined 2026-09-24, filed
+      // here on its first commit rather than after a spell in the catch-all
+      // -- what `build.test.mjs`'s catch-all bound is for. Same axis as
+      // `qbi-deduction-calculator` and `no-tax-on-tips-overtime-calculator`
+      // right above it: a downstream tax/compensation decision on business
+      // income already earned, not a quote to a client (that is `services`)
+      // and not pricing labour before a sale (that is `solo-earner`). It
+      // cross-links `qbi-deduction-calculator` as a sibling -- both are a
+      // federal-tax consequence of the same S-corp/pass-through income, one
+      // on the deduction side and one on the salary-vs-distribution split
+      // that feeds it.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator)/.test(slug),
   },
   {
     id: 'ci',

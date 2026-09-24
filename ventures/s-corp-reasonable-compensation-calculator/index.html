@@ -46,6 +46,8 @@
   <p class="intro">A single-shareholder S-corp that also performs services for the business must pay a "reasonable" W-2 salary before taking any profit out as a distribution. There is no IRS safe-harbor percentage — the test is a comparable-wage comparison: what an unrelated employer would pay someone else to do your job, for your hours. Enter your own numbers below and see where you stand, and what raising salary would cost in FICA tax.</p>
   <p class="value"><strong>After using this, you can now</strong> see whether your planned S-corp salary is defensible against the actual test the IRS and courts apply, and exactly how much closing the gap costs in FICA tax — which used to mean paying $200-900 for a third-party reasonable-compensation report or guessing at a mythical "60/40 rule" that isn't an IRS rule at all. See <a href="why-the-irs-tests-your-s-corp-salary.html">why the IRS cares</a>, or <a href="vs-rcreports-and-a-paid-valuation-report.html">how this compares to a paid reasonable-compensation report</a>.</p>
 
+  <p class="privacy">Lowering your salary also raises your Section 199A QBI deduction (wages reduce QBI) — see the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> for that side of the same pass-through income, and weigh it against the audit-risk flag below before deciding.</p>
+
   <section class="card"><h2>Your numbers</h2><p class="privacy">"Compensation pool" is your S-corp's net ordinary income for the year, before your own wages are subtracted. The comparable-wage figure is one you supply — from BLS OEWS wage data, a trade salary survey, or your own judgment of what a competing employer would pay for this exact role and these exact hours.</p><form id="entry-form"><div class="row">
     <label>Compensation pool this year ($, optional)<input name="compensationPool" type="number" min="0" step="100" placeholder="e.g. 180000"></label>
     <label>Planned or current W-2 salary ($)<input name="plannedSalary" type="number" min="0" step="100" value="0" required></label>
@@ -115,7 +117,7 @@
   filingSelect.innerHTML = FILING_STATUS_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
   const storageKey = 's-corp-reasonable-compensation-calculator-state';
   const escapeHtml = (v) => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const money = (n) => n == null ? '—' : `$${Math.round(n).toLocaleString('en-US')}`;
+  const money = (n) => { if (n == null) return '—'; const text = `$${Math.abs(Math.round(n)).toLocaleString('en-US')}`; return n < 0 && /[1-9]/.test(text) ? `-${text}` : text; };
   const track = (event) => { if (document.querySelector('#usage').checked && !navigator.doNotTrack && !navigator.globalPrivacyControl) { try { const key = 's-corp-reasonable-compensation-calculator-events'; const data = JSON.parse(localStorage.getItem(key) || '{}'); data[event] = (data[event] || 0) + 1; localStorage.setItem(key, JSON.stringify(data)); } catch {} } };
 
   const factorsEl = document.querySelector('#factors');
