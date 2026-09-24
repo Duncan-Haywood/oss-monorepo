@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Poshmark Fee Calculator vs. tracking payouts in a spreadsheet</title>
+  <meta name="description" content="A Poshmark seller pricing more than a handful of listings usually builds a spreadsheet: one cell for the flat $2.95 fee, one for the 20% rate, and an IF formula to switch between them at $15.00. This free calculator keeps that cliff, the $14.75 break-even, and the offer-negotiation risk on one screen, with a shareable link instead of a file to keep in sync.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-tracking-poshmark-payouts-in-a-spreadsheet.html">
+  <meta property="og:title" content="Poshmark Fee Calculator vs. tracking payouts in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can hold the same IF formula this calculator does. What it usually skips is the $14.75 break-even price and the offer/bundle-discount risk of crossing the $15.00 line, because neither shows up until someone thinks to check for it.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. The fee schedule is one IF formula — commission equals $2.95 when the sale price is under $15.00, otherwise 20% of the sale price — and payout is sale price minus commission. Anyone who can write =IF(A2<15,2.95,A2*0.2) has the core arithmetic. Building it means typing that formula once and copying it down."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Surface the $14.75 break-even price and the offer-negotiation risk without a second formula. A basic IF formula answers what you keep on a listed price; it does not, on its own, show that accepting an offer or bundle discount which drops the final price from just above $15.00 to just below it can cost more in lost commission-tier savings than the discount itself, because the fee jumps from 20% of the higher price straight to a flat $2.95 that is nearly as large. This calculator runs that comparison in one view and solves for the sale price needed to hit a target profit, instead of a goal-seek you set up yourself."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a wrinkle this calculator does not model — tracking dozens of listings across a season, reconciling against Poshmark's own payout CSV, or a bulk-discount promotion this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe and keep a running history. This calculator trades that flexibility for a form that already has the right cliff, break-even, and offer comparison wired in for a single sale."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your prices or costs."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #211327; background: #f6eef2; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); letter-spacing: -.03em; line-height: 1.1; color: #3a1024; }
+    h2 { font-size: 1.15rem; color: #3a1024; }
+    section.card { background: #fffef9; border: 1px solid #e3c6d4; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #2c14400d; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3c6d4; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #5c4351; }
+    code { background: #f6dde9; padding: 1px 5px; border-radius: 4px; }
+    .note { font-size: .9rem; color: #5c4351; }
+    footer { margin-top: 28px; font-size: .82rem; color: #5c4351; }
+    footer a { color: #b3175e; }
+    footer p { margin: .6rem 0; }
+    a { color: #b3175e; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Poshmark Fee Calculator</a></p>
+  <h1>Poshmark Fee Calculator vs. tracking payouts in a spreadsheet</h1>
+  <p>A seller listing more than a few pieces usually ends up with a spreadsheet: one cell for the flat $2.95 fee, one for the 20% rate, and an <code>IF</code> formula to pick between them at the $15.00 line. That formula is ordinary arithmetic. What it does not do by itself is flag the $14.75 price where the two rules cost the same, or catch the moment an offer or bundle discount drops a sale from just above $15.00 to just below it &mdash; the one case where accepting less money can also mean losing more of it to fees.</p>
+
+  <section class="card">
+  <h2>What each approach actually does</h2>
+  <p><strong>A spreadsheet</strong> can reproduce the whole fee schedule: <code>=IF(price&lt;15,2.95,price*0.2)</code> for commission, and price minus that for payout. Typing the formula once and copying it down handles any number of listings, and a spreadsheet keeps a running history a calculator does not.</p>
+  <p><strong>This calculator</strong> keeps that same formula, plus the $14.75 break-even price and the offer/bundle-discount comparison, on one screen, and solves for the price needed to hit a target profit instead of a goal-seek you build yourself. A shareable link carries the whole scenario in the URL, so a number checked before listing is the same link opened again after an offer comes in.</p>
+  <div style="overflow-x:auto">
+  <table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>What do I keep on this listing after fees?</td><td>This calculator's payout panel, or your own IF formula &mdash; both give the same number.</td></tr>
+  <tr><td>Does this offer or bundle discount cost more than it looks like once fees shift?</td><td>This calculator's offer comparison, not a second spreadsheet formula most sellers never write.</td></tr>
+  <tr><td>What price do I need to list at for a target profit?</td><td>This calculator's target-profit mode, solved for you instead of goal-seeked by hand.</td></tr>
+  <tr><td>I want a running history across a season of listings.</td><td>A spreadsheet you build yourself &mdash; it can track any number of rows over time.</td></tr>
+  <tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+  </tbody>
+  </table>
+  </div>
+  </section>
+
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet do this math instead?</h3>
+  <p>Yes. The fee schedule is one IF formula &mdash; commission equals $2.95 when the sale price is under $15.00, otherwise 20% of the sale price &mdash; and payout is sale price minus commission. Anyone who can write <code>=IF(A2&lt;15,2.95,A2*0.2)</code> has the core arithmetic. Building it means typing that formula once and copying it down.</p>
+  <h3>What does a spreadsheet not do that this calculator does?</h3>
+  <p>Surface the $14.75 break-even price and the offer-negotiation risk without a second formula. A basic IF formula answers what you keep on a listed price; it does not, on its own, show that accepting an offer or bundle discount which drops the final price from just above $15.00 to just below it can cost more in lost commission-tier savings than the discount itself, because the fee jumps from 20% of the higher price straight to a flat $2.95 that is nearly as large. This calculator runs that comparison in one view and solves for the sale price needed to hit a target profit, instead of a goal-seek you set up yourself.</p>
+  <h3>Is a spreadsheet ever the better choice?</h3>
+  <p>Yes, when your situation has a wrinkle this calculator does not model &mdash; tracking dozens of listings across a season, reconciling against Poshmark's own payout CSV, or a bulk-discount promotion this tool's inputs cannot represent. A spreadsheet you build yourself can represent any rule you can describe and keep a running history. This calculator trades that flexibility for a form that already has the right cliff, break-even, and offer comparison wired in for a single sale.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. A shareable link carries your numbers in the URL itself rather than sending them to a server, and the optional usage counter records only which features were used and the day, never your prices or costs.</p>
+  <p class="note">This page names no specific product &mdash; it compares against the generic method of tracking these payouts in a spreadsheet, not a competing calculator. Open <a href="./">the Poshmark Fee Calculator</a>, or see <a href="./how-much-does-poshmark-take.html">how much does Poshmark take per sale</a> for the worked $14.75 break-even example.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device and is never uploaded anywhere.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

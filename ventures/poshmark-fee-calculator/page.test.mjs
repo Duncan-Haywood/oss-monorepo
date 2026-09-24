@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { calculateSale, compareOffer, INPUT_IDS, OFFER_INPUT_IDS } from './calc.mjs';
+import { calculateSale, compareOffer, INPUT_IDS, OFFER_INPUT_IDS, FLAT_FEE, BREAK_EVEN_PRICE, COMMISSION_THRESHOLD } from './calc.mjs';
 
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
@@ -252,4 +252,16 @@ test('an edit updates the payout on screen rather than leaving the last one stan
   // portfolio/usage/ says that reading means.
   assert.doesNotMatch(listener[0], /showProblems/);
   assert.doesNotMatch(listener[0], /count\(/);
+});
+
+test('the generic-method comparison page names no product and its figures match the arithmetic', () => {
+  const html = page('vs-tracking-poshmark-payouts-in-a-spreadsheet.html');
+  assert.match(html, new RegExp(`\\$${FLAT_FEE.toFixed(2).replace('.', '\\.')}`));
+  assert.match(html, new RegExp(`\\$${BREAK_EVEN_PRICE.toFixed(2).replace('.', '\\.')}`));
+  assert.match(html, new RegExp(`\\$${COMMISSION_THRESHOLD}\\.00`));
+  assert.match(html, /names no specific product/);
+  assert.match(html, /<a href="\.\/">/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /Nothing leaves your browser/);
+  assert.doesNotMatch(html, /not affiliated with/i);
 });
