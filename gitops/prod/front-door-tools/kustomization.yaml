@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 118 files, 553747 bytes
 #   portfolio-front-tools-13: 124 files, 555616 bytes
 #   portfolio-front-tools-14: 129 files, 544232 bytes
-#   portfolio-front-tools-15: 129 files, 541818 bytes
+#   portfolio-front-tools-15: 130 files, 547099 bytes
 #   portfolio-front-tools-16: 100 files, 556534 bytes
 #   portfolio-front-tools-17: 116 files, 546332 bytes
 #   portfolio-front-tools-18: 129 files, 556330 bytes
@@ -2074,6 +2074,7 @@ configMapGenerator:
       - pool-plaster-bid-calculator__share.mjs.gz=pool-plaster-bid-calculator__share.mjs.gz
       - pool-plaster-bid-calculator__usage.mjs.gz=pool-plaster-bid-calculator__usage.mjs.gz
       - pool-plaster-bid-calculator__vs-buildxact.html.gz=pool-plaster-bid-calculator__vs-buildxact.html.gz
+      - pool-plaster-bid-calculator__vs-pricing-off-the-water-surface.html.gz=pool-plaster-bid-calculator__vs-pricing-off-the-water-surface.html.gz
       - popcorn-ceiling-bid-calculator__calc.mjs.gz=popcorn-ceiling-bid-calculator__calc.mjs.gz
       - popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz=popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz
       - popcorn-ceiling-bid-calculator__index.html.gz=popcorn-ceiling-bid-calculator__index.html.gz

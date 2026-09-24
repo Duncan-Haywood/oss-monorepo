@@ -1825,6 +1825,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same shape as docker-build-secrets-check's
   // vs-reading-a-dockerfile-by-hand.html.
   'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
+  // Compares against "pricing off the water surface" -- the generic
+  // per-square-foot quoting habit any pool plasterer is already shopped
+  // against, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-buildxact.html, which names Buildxact
+  // specifically and already carries the trademark disclaimer.
+  'pool-plaster-bid-calculator/vs-pricing-off-the-water-surface.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

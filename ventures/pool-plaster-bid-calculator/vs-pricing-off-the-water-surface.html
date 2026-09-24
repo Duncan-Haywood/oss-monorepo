@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. pricing a replaster off the water surface | Pool Plaster Bid Calculator</title>
+<meta name="description" content="A flat &quot;$8 a square foot&quot; plaster quote is priced off the homeowner's water-surface number (length x width). The plaster goes on the floor AND the walls, plus any spa, steps, tile, and chip-out -- so a 16x32 pool is about 1,064 square feet of plaster, not 512. This free calculator prices the full plaster takeoff, finish, chip-out, spa, tile, coping, and drain-and-refill separately, in your browser, with no account.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-pricing-off-the-water-surface.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. pricing a replaster off the water surface">
+<meta property="og:description" content="A per-square-foot plaster quote written against the homeowner's water-surface number misses the walls, the spa, the steps, the tile, and the chip-out. This calculator prices the full plaster takeoff instead.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-square-foot plaster quote get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because it is usually priced against the water surface -- length times width, the number on the homeowner's own pool permit or listing -- and plaster does not go on the water surface. It goes on the floor and the walls, plus a spa, steps, or benches if the pool has them. A 16x32 rectangle with a 3.5-foot shallow end and an 8-foot deep end has 512 square feet of water surface and about 1,064 square feet of plaster takeoff -- more than double. A rate multiplied against the smaller number is short before the crew drains the pool."}},{"@type":"Question","name":"What does a water-surface quote usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The walls, the chip-out, the spa, the steps and benches, the waterline tile, the coping, and the drain-and-refill. A published per-square-foot rate is set on the simplest job -- a rectangle, white plaster, no chip-out -- and has nowhere to put the extra hours and material for a full chip-out to gunite, a spa shell, waterline tile, coping, or an acid wash. A shop pricing off the water-surface number alone is short before the first drain day."}},{"@type":"Question","name":"How much does the full plaster takeoff actually add over a water-surface quote?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own worked examples, at the form's own default finish, chip-out, labor, and overhead rates: the brochure-special job -- a 16x32 rectangle, white plaster, no chip-out -- walks away at $7,825.99 against a $8-a-square-foot water-surface quote of $4,096.00, already $3,729.99 over. An 18x36 quartz job with partial chip-out and waterline tile walks away at $18,519.68, over $13,300 over the same $8-a-square-foot water-surface quote. A freeform pebble job with a full chip-out, spa, waterline tile, and coping -- the shape this calculator's own presets label \"the loss job\" -- walks away at $44,057.94, over $39,000 over. The walls, the chip-out, the spa, the tile, and the coping -- not the water-surface number -- are what move the price."}},{"@type":"Question","name":"Is a flat per-square-foot rate ever the right way to quote a replaster?","acceptedAnswer":{"@type":"Answer","text":"For the one job it was actually priced on -- a simple rectangle, the cheapest finish, no chip-out, no spa, no tile -- it can land close, and this calculator's own cheapest preset still clears an $8-a-square-foot water-surface quote by over $3,700 once the wall area and real costs are counted. A rate set from the water surface, or set without pricing the walls at all, keeps quoting a number the shop's own plaster order does not support, and the gap only grows with every chip-out, spa, tile foot, and coping foot the job actually has."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates, permit fees, or what competitors charge. It takes the pool's shape, finish, chip-out, spa, steps, tile, coping, and your loaded labor and overhead, and turns them into a walk-away price for the job you describe -- the arithmetic a water-surface rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1d6b7a; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #46565f; }
+  section { background: #fff; border: 1px solid #c5d0d6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1f2a320d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c5d0d6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #46565f; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .loses { color: #8a2a2a; font-weight: 700; }
+  .covers { color: #1d6b3a; font-weight: 700; }
+  .fine, .note { font-size: .88rem; color: #46565f; }
+  footer { color: #46565f; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Pool Plaster Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. pricing a replaster off the water surface</h1>
+<p class="lede">"$8 a square foot" is not a price for pool plaster &mdash; it is a price for the homeowner's water surface, quietly applied to a job whose plaster actually goes on the floor, the walls, and whatever else is in the shell.</p>
+</header>
+<section>
+<h2>What a water-surface quote is</h2>
+<p>
+A flat per-square-foot rate is the fastest way to quote: one number,
+multiplied by the length times width figure that is already on the
+homeowner's permit, listing, or pool-service invoice. It is easy for a
+homeowner to compare between bids, because every bidder is reading off
+the same water-surface number.
+</p>
+<p>
+The number behind it was set for the simplest shell &mdash; a rectangle,
+white plaster, no chip-out, no spa, no tile, no coping &mdash; and then
+reused for every replaster afterward, whether or not the next pool's
+shell, finish, or scope looks anything like that one.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+pool's shape and dimensions, finish, chip-out method, spa, steps or
+benches, waterline tile, coping, drain-and-refill, and your loaded labor
+and overhead. It prices the floor-plus-wall plaster takeoff separately
+from the water surface, adds the chip-out, spa, tile, and coping as
+their own hours and material, and returns a walk-away price for the job
+you describe &mdash; for this shell, not a generic one.
+</p>
+</section>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">Job</th><th class="num" scope="col">$8/sf water-surface quote</th><th class="num" scope="col">Walk-away price</th><th scope="col">Verdict</th></tr>
+</thead>
+<tbody>
+<tr><td>Brochure special: 16&times;32 rectangle, white plaster, no chip-out, 512 sf water / 1,064 sf plaster</td><td class="num">$4,096.00</td><td class="num">$7,825.99</td><td class="loses">Loses $3,729.99</td></tr>
+<tr><td>Mid job: 18&times;36 rectangle, quartz, partial chip-out, 70 lf waterline tile, 648 sf water / 1,293 sf plaster</td><td class="num">$5,184.00</td><td class="num">$18,519.68</td><td class="loses">Loses $13,335.68</td></tr>
+<tr><td>The loss job: freeform pebble, full chip-out, spa, tile, coping, 620 sf water / 1,275 sf plaster</td><td class="num">$4,960.00</td><td class="num">$44,057.94</td><td class="loses">Loses $39,097.94</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Worked using this calculator's own starting kits and job presets at the form's own default rates (a $36 crew wage, 30% payroll burden, 15% overhead on direct cost, and a 26% target margin), against an $8-a-square-foot rate multiplied by the water surface (length &times; width, or the entered water-surface figure for a freeform shape) &mdash; not a number invented for this page. Open the calculator's presets to check any row yourself.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">What a water-surface quote does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Multiplies a per-square-foot rate by the water surface (length &times; width), which is roughly half of the actual plaster takeoff once the walls are counted.</td>
+<td>Computes the floor, the wall area from the shell's depth profile, and the total plaster square footage from the entered dimensions, so the takeoff reflects what actually gets plastered.</td>
+</tr>
+<tr>
+<td>Prices "a replaster" as one blended rate, with no separate line for a full chip-out to gunite, a spa shell, steps or benches, waterline tile, or coping.</td>
+<td>Times the chip-out, spa, steps, tile, and coping as their own extra-work hours and material, so that work shows up instead of being absorbed into the per-square-foot number or skipped.</td>
+</tr>
+<tr>
+<td>Assumes the cheapest finish (white plaster), so quartz, pebble, and glass-bead upgrades get quoted the same as the base option even though their material and labor cost far more per square foot.</td>
+<td>Applies a finish cost and labor-hours factor from the entered finish, so a pebble or glass-bead job prices differently from a white-plaster overlay.</td>
+</tr>
+<tr>
+<td>Bakes payroll burden into a round hourly rate nobody re-derives, so the rate quietly drifts from the crew's real loaded cost.</td>
+<td>Loads the entered hourly wage by the entered payroll-burden percentage every time, so labor cost tracks the actual burden rather than a memorized rate.</td>
+</tr>
+<tr>
+<td>Gives the crew a price to quote, not a number to check a quote against when a homeowner asks to match a cheaper water-surface rate on a pool with a spa, tile, and a full chip-out.</td>
+<td>Reports a walk-away price built from the entered shell and scope, so a shopped price can be scored against real cost before the crew drains the pool.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>
+A water-surface rate is not wrong because it is simple &mdash; it is
+wrong when it is applied to a shell, finish, or scope bigger than the one
+it was built for, and nothing about a per-square-foot number tells you
+when that has happened. This calculator does not replace judgment about
+your market; it replaces the arithmetic a water-surface rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat per-square-foot plaster quote get the price wrong?</h3>
+<p>Because it is usually priced against the water surface -- length times width, the number on the homeowner's own pool permit or listing -- and plaster does not go on the water surface. It goes on the floor and the walls, plus a spa, steps, or benches if the pool has them. A 16x32 rectangle with a 3.5-foot shallow end and an 8-foot deep end has 512 square feet of water surface and about 1,064 square feet of plaster takeoff -- more than double. A rate multiplied against the smaller number is short before the crew drains the pool.</p>
+<h3>What does a water-surface quote usually leave out entirely?</h3>
+<p>The walls, the chip-out, the spa, the steps and benches, the waterline tile, the coping, and the drain-and-refill. A published per-square-foot rate is set on the simplest job -- a rectangle, white plaster, no chip-out -- and has nowhere to put the extra hours and material for a full chip-out to gunite, a spa shell, waterline tile, coping, or an acid wash. A shop pricing off the water-surface number alone is short before the first drain day.</p>
+<h3>How much does the full plaster takeoff actually add over a water-surface quote?</h3>
+<p>On this calculator's own worked examples, at the form's own default finish, chip-out, labor, and overhead rates: the brochure-special job -- a 16x32 rectangle, white plaster, no chip-out -- walks away at $7,825.99 against a $8-a-square-foot water-surface quote of $4,096.00, already $3,729.99 over. An 18x36 quartz job with partial chip-out and waterline tile walks away at $18,519.68, over $13,300 over the same $8-a-square-foot water-surface quote. A freeform pebble job with a full chip-out, spa, waterline tile, and coping -- the shape this calculator's own presets label "the loss job" -- walks away at $44,057.94, over $39,000 over. The walls, the chip-out, the spa, the tile, and the coping -- not the water-surface number -- are what move the price.</p>
+<h3>Is a flat per-square-foot rate ever the right way to quote a replaster?</h3>
+<p>For the one job it was actually priced on -- a simple rectangle, the cheapest finish, no chip-out, no spa, no tile -- it can land close, and this calculator's own cheapest preset still clears an $8-a-square-foot water-surface quote by over $3,700 once the wall area and real costs are counted. A rate set from the water surface, or set without pricing the walls at all, keeps quoting a number the shop's own plaster order does not support, and the gap only grows with every chip-out, spa, tile foot, and coping foot the job actually has.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates, permit fees, or what competitors charge. It takes the pool's shape, finish, chip-out, spa, steps, tile, coping, and your loaded labor and overhead, and turns them into a walk-away price for the job you describe -- the arithmetic a water-surface rate skips, not a market survey.</p>
+<p class="fine">Nothing here says or implies that quoting a per-square-foot water-surface rate is a bad-faith practice &mdash; it is a common, honest shortcut that works until the job stops matching the one the rate was set on. This page describes where that shortcut breaks down, not a fault in anyone who uses it.</p>
+<p class="note">
+  Open the <a href="index.html">Pool Plaster Bid Calculator</a> and price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it won you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
