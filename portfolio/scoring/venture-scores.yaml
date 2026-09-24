@@ -16795,3 +16795,73 @@ ventures:
       and it never scans or fingerprints third-party infrastructure since
       it only reads text the visitor pastes or a file they explicitly
       choose to load.
+  - slug: skill-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately, and no call to an LLM to judge
+      whether a skill actually would trigger. Every finding (missing or
+      malformed frontmatter, a description too vague or too generic, an
+      overlapping trigger vocabulary between two pasted skills, a rough
+      token estimate against a documented context-budget caution) is a
+      deterministic pattern match against the pasted text -- a factual
+      comparison, not a model judgment, and it never claims to know
+      whether a skill will actually trigger inside a real agent runtime.
+    basis: >-
+      Screened and scored per the venture's own VENTURE.yaml, written
+      2026-09-24 (this entry closes a gap: the venture graduated without
+      a same-session score row, caught by `score_ventures.py --check` on
+      a later merge). duplicate_check.py (run twice per the venture's own
+      notes, before starting and against the final description) found
+      nothing >= the 0.45 review bar; the closest hits share only the
+      generic "check a pasted manifest for missing fields" shape with an
+      entirely different subject (a WordPress plugin header, a Dockerfile
+      layer order, an iOS privacy manifest) -- none reads a SKILL.md,
+      checks frontmatter trigger-description vagueness, or checks
+      cross-file overlap between sibling skills. Same liability-
+      containment shape as mcp-config-risk-check and
+      hidden-unicode-check: a finding is "worth a look, not a verdict,"
+      stated in the UI, README, and tests.
+      Autonomous ops 10 / gross margin 10: every check runs client-side
+      against text the visitor pastes, nothing uploaded, no server of
+      ours in the loop, so serving one more visitor costs a static file.
+      Time to revenue 6, distribution 5: the niche was pre-validated in
+      the task brief (multiple independent developers reported building
+      ad-hoc "skill linters" in Jan 2026 because every existing checker
+      wanted a repo upload first), and named channels (Claude Code /
+      agent-skill developer communities, GitHub topic search for
+      SKILL.md) are real but narrower than an established platform-review
+      funnel -- matching mcp-config-risk-check's own distribution score
+      for the same reasoning.
+      Defensibility 4: donations-only; a deterministic frontmatter/
+      trigger-overlap checker is easy to reimplement, so defensibility
+      rests on being first and correct for this exact authoring mistake
+      set rather than on any moat -- matching mcp-config-risk-check's own
+      defensibility score for the same reason.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic pattern match against
+      text the user pastes -- no network call of any kind, no call to an
+      LLM to judge the skill, and no claim that a skill actually will or
+      will not trigger inside a real agent session. The UI, README, and
+      footer all state plainly that a finding is "worth a look, not a
+      verdict" and a clean result is "not a guarantee the skill will
+      trigger correctly" (`platform/pages/clauses.mjs` enforces the
+      clause; the page passes it).
+      Ethics: strictly beneficial as it scales -- helps a skill author
+      catch a real authoring mistake before shipping it, with no adverse
+      incentive on our side (no affiliate link, no referral fee,
+      donations-only same as the rest of the portfolio). It does not scan
+      or fingerprint any third party -- it only reads text the visitor
+      pastes or a file they explicitly choose to load.
