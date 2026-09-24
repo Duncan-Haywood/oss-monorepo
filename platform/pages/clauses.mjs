@@ -1844,6 +1844,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-buildxact.html, which names a specific estimating platform and
   // already carries the trademark disclaimer.
   'pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html',
+  // Compares against "a flat $249 windshield coupon" -- a common
+  // advertised rate any auto-glass shop already runs, not a company or
+  // product this could be mistaken for.
+  'auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
