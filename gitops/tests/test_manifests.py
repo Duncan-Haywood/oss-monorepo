@@ -2478,9 +2478,22 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # This branch only ever knew its own predecessor's number (359, from
     # `caa-record-check` above) until this merge -- the same ordinary
     # collision shape recorded throughout this list.
+    #
+    # 364 on this merge (PR #5768's own merge-into-main, against a `main`
+    # that had moved four further graduations past this branch's own base):
+    # `claude-skill-scaffold-generator`, `mega-backdoor-roth-calculator`,
+    # `senior-deduction-calculator` and `claude-code-subagent-check` each
+    # also graduated, concurrently on `main` -- a Claude Skill starter
+    # generator, an after-tax 401(k) headroom calculator, an OBBBA senior
+    # deduction calculator, and a Claude Code subagent-definition checker,
+    # each with a static `index.html` from its own first commit, same shape
+    # as the rest of this running count. This branch only ever knew its own
+    # predecessor's number (360, at `claude-code-settings-check`'s
+    # graduation) until this merge -- the same ordinary collision shape
+    # recorded throughout this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
+    total = 364  # `infra/OWNER_CHECKLIST.md`'s own "N of the 364 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -720,7 +720,19 @@ const RELATIVE_SELF = relative(
 // branch only ever knew its own predecessor's number (338, before
 // `caa-record-check` landed) until this merge -- the same ordinary
 // collision shape recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 340;
+//
+// 340 -> 343 (PR #5768's own merge-into-main, against a `main` that had
+// moved four further graduations past this branch's own base):
+// `claude-skill-scaffold-generator`, `senior-deduction-calculator` and
+// `claude-code-subagent-check` each also graduated, concurrently on
+// `main`, each adding one more `usage.mjs` following the same opt-out
+// pattern as their siblings, no deletions.
+// `mega-backdoor-roth-calculator`, which also graduated concurrently,
+// added no `usage.mjs` of its own, so it does not move this count. This
+// branch only ever knew its own predecessor's number (340, at
+// `claude-code-settings-check`'s graduation) until this merge -- the same
+// ordinary collision shape recorded throughout this list.
+const SWITCHES_IN_THE_CATALOGUE = 343;
 
 let counter = 0;
 function fixture(source) {
