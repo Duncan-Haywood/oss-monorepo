@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 100 files, 556521 bytes
 #   portfolio-front-tools-17: 116 files, 546417 bytes
 #   portfolio-front-tools-18: 129 files, 556240 bytes
-#   portfolio-front-tools-19: 117 files, 545855 bytes
+#   portfolio-front-tools-19: 118 files, 550286 bytes
 #   portfolio-front-tools-20: 51 files, 264886 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2649,6 +2649,7 @@ configMapGenerator:
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
+      - water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz=water-softener-bid-calculator__vs-a-flat-rate-water-softener-special.html.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - wedding-florist-proposal-calculator__calc.mjs.gz=wedding-florist-proposal-calculator__calc.mjs.gz
       - wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz=wedding-florist-proposal-calculator__how-many-wholesale-bunches-do-you-need-for-a-wedding.html.gz
