@@ -112,6 +112,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the trademark disclaimer, so the two comparison pages
   // are deliberately different classes.
   'cache-control-check/vs-checking-headers-by-eye-in-devtools.html',
+  // Compares against "reading the canonical tag by eye in view-source or
+  // DevTools' Elements panel" -- a manual habit any web developer already
+  // has, not a company or product this could be mistaken for. Same
+  // reasoning as cache-control-check's own devtools-by-eye page above;
+  // this venture's vs-screaming-frog.html is separately exempt-free
+  // (Screaming Frog is a named product) and already carries the trademark
+  // disclaimer, so the two comparison pages are deliberately different
+  // classes.
+  'canonical-tag-check/vs-checking-canonicals-by-eye-in-devtools.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',

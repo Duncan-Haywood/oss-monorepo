@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canonical Tag Checker vs. Checking Canonicals by Eye in DevTools</title>
+<meta name="description" content="View-source or DevTools' Elements panel shows you a canonical tag's raw href for free, no install. This free tool goes one step further: it resolves a relative href, fetches the canonical target for real, and classifies the result into eight named canonicalization mistakes -- instead of leaving you to notice a dead or noindexed target by eye.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/canonical-tag-check/vs-checking-canonicals-by-eye-in-devtools.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Canonical Tag Checker vs. checking canonicals by eye in DevTools">
+<meta property="og:description" content="DevTools shows you the raw canonical tag for free. This tool resolves it, fetches the target for real, and names the exact canonicalization mistake -- instead of leaving you to notice a dead or conflicting canonical by eye.">
+<meta property="og:url" content="https://example.invalid/canonical-tag-check/vs-checking-canonicals-by-eye-in-devtools.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this tool instead of view-source or DevTools?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Different jobs, and most people who use this tool still open view-source or DevTools first. The Elements panel (or a plain view-source) shows you the exact canonical tag markup a page shipped with -- free, already installed, and often the fastest way to glance at one page you're already looking at. What it does not do is resolve a relative href against the page's own URL, fetch that resolved URL for real, and tell you whether the target actually returns a usable page, or is itself marked noindex, or contradicts a second canonical tag elsewhere in the same head. Reading the raw tag and knowing whether it actually resolves cleanly are two different jobs." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why would I need more than view-source if I can already read the tag?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Reading the tag tells you what it says. It does not tell you what happens when a crawler follows it: whether a relative href resolves to a URL that 404s, whether the canonical points cross-domain, or whether the destination page itself carries a noindex directive that contradicts the canonical's own instruction to index it. Confirming any of those by eye means copying the href, resolving it against the page's own address in your head, opening it in a second tab, and checking what comes back -- for every page you check. This tool does that in one request and states which named pattern, if any, the evidence matches." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool see anything view-source or DevTools can't?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It sees the same canonical tag markup view-source already shows, plus one thing neither shows on its own: the response from actually following the canonical to its target. View-source and DevTools show you what a page's head element contains; they do not fetch a second URL on your behalf and report back what it returned." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my target URL or its response uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The CLI's requests go directly from your machine to the URL(s) it needs, exactly like the requests your browser already makes. The browser report viewer only parses JSON you paste into it yourself, locally in your browser -- nothing about the target or the results is sent anywhere. The only thing stored is an anonymous local count of which features were used, with no target URLs in it." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
+  a { overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); margin: 0.3rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+  code { font-size: 0.92em; }
+  .note, footer { font-size: 0.86rem; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Canonical Tag Checker</a></p>
+<h1>This checker vs. checking canonicals by eye in DevTools</h1>
+<p>
+  <strong>View-source or DevTools' Elements panel</strong> shows the exact
+  <code>&lt;link rel="canonical"&gt;</code> markup a page shipped with, for free, with nothing to
+  install. For a page you already have open, it is the fastest way there is to see what the tag
+  says. What it does not do is resolve a relative href against the page's own address, fetch that
+  resolved URL, and tell you what came back -- a 404, a redirect, a page that is itself marked
+  <code>noindex</code>, or a clean 200. Reading the tag and knowing whether it actually resolves
+  cleanly are two different jobs, and only the first one is visible in the markup.
+</p>
+<p>
+  <strong>This tool</strong> sends the request(s) needed to check both halves: it fetches the page
+  you name, reads its canonical tag(s), and -- when there is exactly one -- follows it and fetches
+  that too, then classifies the combined evidence into eight named, well-documented
+  canonicalization patterns. It does not replace view-source -- for a page open in your browser
+  right now, glancing at the markup is still the quickest way to see what tag is there at all. It
+  automates the second step: actually following the tag and checking what it leads to.
+</p>
+<div class="card">
+  <h2>A worked example</h2>
+  <p>
+    A product page at <code>https://shop.example.com/products/kids-rain-boots</code> carries
+    <code>&lt;link rel="canonical" href="/products/rain-boots-kids-old-name"&gt;</code>. Viewed by
+    eye in DevTools, that line looks entirely ordinary: a relative path, which is common and not
+    itself an error to notice. Resolving it in your head against the page's own address gives
+    <code>https://shop.example.com/products/rain-boots-kids-old-name</code> -- and only fetching
+    that URL shows it now 404s, left behind by a rename that updated the page's own path but not
+    the canonical pointing at the old one. This checker fetches both pages in one run and reports
+    two findings: <strong>a relative canonical URL</strong> (notice) and <strong>a canonical target
+    that does not return a usable page</strong> (danger, since the tag is telling search engines to
+    index a URL that no longer exists). Confirming the second finding by eye means copying the
+    href, resolving it yourself, opening a second tab, and checking the response -- for every page
+    you check this way.
+  </p>
+</div>
+<table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>I have a page open and want to see what its canonical tag actually says.</td>
+      <td>View-source or DevTools' Elements panel -- that quick raw look is exactly its job.</td>
+    </tr>
+    <tr>
+      <td>I want to know whether the canonical target actually resolves, or is dead, redirects, or is itself noindexed.</td>
+      <td>This checker -- it fetches the target and reports what came back, instead of leaving you to open a second tab yourself.</td>
+    </tr>
+    <tr>
+      <td>I have two canonical tags in the same head and want to know if they conflict.</td>
+      <td>This checker -- it compares every canonical link tag found and flags distinct targets, rather than relying on you to notice a second one further down the markup.</td>
+    </tr>
+    <tr>
+      <td>I want this checked automatically on every deploy, with a non-zero exit code on a real problem.</td>
+      <td>This checker's CLI -- <code>node cli/check.mjs &lt;url&gt; --json</code> exits non-zero on a danger-severity finding. View-source has no CLI to wire into CI.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Neither replaces the other, and in practice most people use both: view-source or DevTools for a
+  fast look at the markup on one page you're already looking at, this tool for the recurring,
+  automatable question of whether the tag it names actually holds up once followed.
+</p>
+<div class="card">
+  <h2>Try it</h2>
+  <pre><code>node cli/check.mjs https://example.com/some/page --json</code></pre>
+  <p class="note">Fetches directly from your machine. Paste the JSON into <a href="index.html">the checker</a> for the plain-English report.</p>
+</div>
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Should I use this tool instead of view-source or DevTools?</h3>
+  <p>Different jobs, and most people who use this tool still open view-source or DevTools first. The Elements panel (or a plain view-source) shows you the exact canonical tag markup a page shipped with -- free, already installed, and often the fastest way to glance at one page you're already looking at. What it does not do is resolve a relative href against the page's own URL, fetch that resolved URL for real, and tell you whether the target actually returns a usable page, or is itself marked noindex, or contradicts a second canonical tag elsewhere in the same head. Reading the raw tag and knowing whether it actually resolves cleanly are two different jobs.</p>
+  <h3>Why would I need more than view-source if I can already read the tag?</h3>
+  <p>Reading the tag tells you what it says. It does not tell you what happens when a crawler follows it: whether a relative href resolves to a URL that 404s, whether the canonical points cross-domain, or whether the destination page itself carries a noindex directive that contradicts the canonical's own instruction to index it. Confirming any of those by eye means copying the href, resolving it against the page's own address in your head, opening it in a second tab, and checking what comes back -- for every page you check. This tool does that in one request and states which named pattern, if any, the evidence matches.</p>
+  <h3>Does this tool see anything view-source or DevTools can't?</h3>
+  <p>It sees the same canonical tag markup view-source already shows, plus one thing neither shows on its own: the response from actually following the canonical to its target. View-source and DevTools show you what a page's head element contains; they do not fetch a second URL on your behalf and report back what it returned.</p>
+  <h3>Is my target URL or its response uploaded anywhere?</h3>
+  <p>No. The CLI's requests go directly from your machine to the URL(s) it needs, exactly like the requests your browser already makes. The browser report viewer only parses JSON you paste into it yourself, locally in your browser -- nothing about the target or the results is sent anywhere. The only thing stored is an anonymous local count of which features were used, with no target URLs in it.</p>
+  <p class="note">Need the whole-site picture instead of one URL? See <a href="vs-screaming-frog.html">this checker vs. Screaming Frog SEO Spider</a>.</p>
+</section>
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of
+  canonicalization patterns from one or two real fetches. It is not a full SEO audit and cannot see
+  a pattern it doesn't check for.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  You are responsible for reviewing and verifying its output before relying on it, and for having
+  authorisation to check any URL you point it at. To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
