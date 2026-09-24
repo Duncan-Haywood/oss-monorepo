@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 113 files, 541120 bytes
 #   portfolio-front-tools-17: 126 files, 550560 bytes
 #   portfolio-front-tools-18: 105 files, 478706 bytes
-#   portfolio-front-tools-19: 49 files, 268921 bytes
+#   portfolio-front-tools-19: 50 files, 273731 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2560,6 +2560,7 @@ configMapGenerator:
       - wildlife-exclusion-bid-calculator__calc.mjs.gz=wildlife-exclusion-bid-calculator__calc.mjs.gz
       - wildlife-exclusion-bid-calculator__index.html.gz=wildlife-exclusion-bid-calculator__index.html.gz
       - wildlife-exclusion-bid-calculator__usage.mjs.gz=wildlife-exclusion-bid-calculator__usage.mjs.gz
+      - wildlife-exclusion-bid-calculator__vs-a-flat-395-removal-fee.html.gz=wildlife-exclusion-bid-calculator__vs-a-flat-395-removal-fee.html.gz
       - wildlife-exclusion-bid-calculator__vs-pestpac.html.gz=wildlife-exclusion-bid-calculator__vs-pestpac.html.gz
       - wildlife-exclusion-bid-calculator__what-to-charge-for-wildlife-exclusion.html.gz=wildlife-exclusion-bid-calculator__what-to-charge-for-wildlife-exclusion.html.gz
       - window-cleaning-bid-calculator__calc.mjs.gz=window-cleaning-bid-calculator__calc.mjs.gz
