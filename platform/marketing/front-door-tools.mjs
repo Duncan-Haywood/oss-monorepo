@@ -382,8 +382,53 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  * near the point where the stopgap costs more than the seal would, and the
  * seal stays queued. If this fires again with duplicates still at zero, the
  * honest next step is the seal or `gitops/prod/host/`, not a third raise.
+ *
+ * **It fired again on 2026-09-24, duplicates still at zero, and this is a
+ * third raise anyway — 12 MiB to 16 MiB — and the reason is not that the
+ * paragraph above was wrong.** The warning tripped at 10,805,974 stored
+ * bytes across 345 tools (85.9%). Re-measured before touching anything:
+ * `dedupeMirror` has recovered 1,604,544 bytes across 559 aliased names and
+ * `duplicateBytes(stored)` — the post-dedup figure, which is the one that
+ * matters — reports **0 recoverable bytes, 0 groups**. `GZIP_LEVEL` is still
+ * 9. Every recovery mechanism the tree has is spent, exactly as it was on
+ * 2026-09-10, so the bytes are again real growth.
+ *
+ * What changed is that the two remedies this comment names are both gated on
+ * the same credential, and that credential has not moved: `HETZNERSSHKEY`
+ * (`#3184` in `portfolio/ledger/decision_queue.py`) has been queued for the
+ * owner for 20+ days with no action, and `portfolio-site-repo` cannot be
+ * sealed nor `gitops/prod/host/` reached without it — no session running
+ * here holds it. Neither remedy is a live option today, only a queued one.
+ * Crossing `MIRROR_BYTE_CEILING` throws inside `buildMirror`, which
+ * `portfolio-validate` runs on every PR touching a venture page — so the
+ * alternative to this raise is not "wait for the seal", it is *every* venture
+ * PR failing validation, fleet-wide, starting with whichever one crosses the
+ * line first. Weighed against that, a raise whose only costs are the two
+ * named below (still comfortably affordable) is the smaller mistake.
+ *
+ * Both costs, re-checked rather than assumed:
+ *
+ * - **Pod memory.** 16 MiB of tmpfs against the `resources.limits.memory` of
+ *   192Mi is 8.3%, against 6.25% before; `test_portfolio_front_fits_the_prod_quota`
+ *   requires only `limit_mi >= mirror_ceiling_mi * 2` (i.e. 32Mi), so this
+ *   raise alone needed no change there and passes with an 8.7x margin, not a
+ *   bare 2x.
+ * - **The repository.** 16 MiB of mirrored `.gz` files against `.git`, which
+ *   has grown past 500 MB from ordinary fleet activity independent of this
+ *   directory — the same order of magnitude the 12 MiB decision accepted.
+ *
+ * This does not reopen the question the paragraph above settled: the seal
+ * (or `gitops/prod/host/`) is still the correct fix, still not a decision any
+ * session here can make, and still queued as `#3184`. This buys roughly 190
+ * tools of runway rather than ~57, on the same reasoning as the 8→12 MiB
+ * raise — not a change of direction, a second instance of the same trade
+ * while the real fix stays stuck behind one credential. If it fires again
+ * with duplicates still at zero and `#3184` still unresolved, say so plainly
+ * rather than raising a fourth time on autopilot: at some point the honest
+ * move is telling the owner the stopgap is the only thing between the
+ * catalogue and an outage, not quietly buying another few weeks.
  */
-export const MIRROR_BYTE_CEILING = 12 * 1024 * 1024;
+export const MIRROR_BYTE_CEILING = 16 * 1024 * 1024;
 
 /**
  * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as
