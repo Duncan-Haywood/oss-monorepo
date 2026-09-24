@@ -585,7 +585,15 @@ const RELATIVE_SELF = relative(
 // this file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/cloud-bucket-exposure-check/usage.mjs`) beyond the merge base,
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 323;
+//
+// 323 -> 324 on 2026-09-24: `window-tinting-bid-calculator` graduated,
+// adding one `usage.mjs` following the same `usageAllowed`/`toggleUsage`
+// opt-out pattern as its siblings (`land-survey-bid-calculator`,
+// `biohazard-cleanup-bid-calculator`), keyed under its own
+// `window-tinting-bid-calculator-usage` storage name. Exactly one added
+// `usage.mjs` (`ventures/window-tinting-bid-calculator/usage.mjs`), no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 324;
 
 let counter = 0;
 function fixture(source) {

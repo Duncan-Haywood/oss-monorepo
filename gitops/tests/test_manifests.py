@@ -2284,7 +2284,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # collision shape recorded throughout this list. Total re-derived here
     # by `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
-    total = 341  # `infra/OWNER_CHECKLIST.md`'s own "N of the 341 tools" wording.
+    #
+    # 342 since this merge: `window-tinting-bid-calculator` graduated -- a
+    # deterministic bid calculator for independent auto window tinting
+    # installers pricing a vehicle film job by pane count, film tier, and
+    # old-tint removal time rather than a flat per-vehicle-size price. Same
+    # "browser-local bid worksheet, no AI, no network call" shape as
+    # `land-survey-bid-calculator` and `biohazard-cleanup-bid-calculator`,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count. Total re-derived here by
+    # `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 342  # `infra/OWNER_CHECKLIST.md`'s own "N of the 342 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
