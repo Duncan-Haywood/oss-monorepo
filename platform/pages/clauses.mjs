@@ -1825,6 +1825,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same shape as docker-build-secrets-check's
   // vs-reading-a-dockerfile-by-hand.html.
   'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
+  // Compares against "diffing package-lock.json by hand" -- a manual
+  // review habit any developer already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-socket.html,
+  // which names Socket, Inc. specifically and already carries the
+  // trademark disclaimer. Same shape as the other vs-*-by-hand pages above.
+  'npm-lifecycle-script-check/vs-diffing-package-lock-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
