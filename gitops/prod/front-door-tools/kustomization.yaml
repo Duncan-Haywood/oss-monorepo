@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 133 files, 554402 bytes
 #   portfolio-front-tools-4: 145 files, 553656 bytes
 #   portfolio-front-tools-5: 122 files, 553373 bytes
-#   portfolio-front-tools-6: 136 files, 549655 bytes
+#   portfolio-front-tools-6: 137 files, 554044 bytes
 #   portfolio-front-tools-7: 120 files, 548236 bytes
 #   portfolio-front-tools-8: 134 files, 551035 bytes
 #   portfolio-front-tools-9: 126 files, 551274 bytes
@@ -898,6 +898,7 @@ configMapGenerator:
       - cache-control-check__index.html.gz=cache-control-check__index.html.gz
       - cache-control-check__probe.mjs.gz=cache-control-check__probe.mjs.gz
       - cache-control-check__usage.mjs.gz=cache-control-check__usage.mjs.gz
+      - cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz=cache-control-check__vs-checking-headers-by-eye-in-devtools.html.gz
       - cache-control-check__vs-curl.html.gz=cache-control-check__vs-curl.html.gz
       - cache-control-check__why-isnt-my-cdn-caching-this.html.gz=cache-control-check__why-isnt-my-cdn-caching-this.html.gz
       - call-recording-consent-check__cli.mjs.gz=call-recording-consent-check__cli.mjs.gz

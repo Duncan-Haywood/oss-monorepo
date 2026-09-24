@@ -104,6 +104,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // habit any developer already has, not a company or product this could be
   // mistaken for.
   'source-map-leak-check/vs-checking-devtools-by-hand.html',
+  // Compares against "checking response headers by eye in DevTools'
+  // Network tab" -- a manual habit any web developer already has, not a
+  // company or product this could be mistaken for. Same reasoning as
+  // source-map-leak-check's own devtools-by-hand page above; this venture's
+  // vs-curl.html is separately exempt-free (curl is a named tool) and
+  // already carries the trademark disclaimer, so the two comparison pages
+  // are deliberately different classes.
+  'cache-control-check/vs-checking-headers-by-eye-in-devtools.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
