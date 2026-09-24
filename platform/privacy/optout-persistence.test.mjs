@@ -716,7 +716,9 @@ const RELATIVE_SELF = relative(
 // (`git diff --name-status fb60ce5d6b HEAD -- 'ventures/*/usage.mjs'`), no
 // deletions. `mega-backdoor-roth-calculator` (#5769) merged to `main`
 // concurrently but carries no `usage.mjs` of its own, so it does not move
-// this count.
+// this count. (A concurrent session recorded this same transition with a
+// shorter note before this merge landed; the two agree on 340 and this
+// entry supersedes the duplicate rather than stacking both.)
 const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;
