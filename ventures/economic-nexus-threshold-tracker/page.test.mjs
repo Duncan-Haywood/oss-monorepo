@@ -51,6 +51,10 @@ test("index links to the vs-paid-nexus-monitoring-software comparison page", () 
   assert.match(html, /href="vs-paid-nexus-monitoring-software\.html"/);
 });
 
+test("index links to the vs-tracking-it-in-a-spreadsheet comparison page", () => {
+  assert.match(html, /href="vs-tracking-it-in-a-spreadsheet\.html"/);
+});
+
 test("the comparison page links back to the tracker, carries the trademark disclaimer, and valid FAQPage JSON-LD matching visible text", () => {
   assert.match(vsPage, /href="\.\/"/);
   assert.match(vsPage, /not\s+affiliated\s+with/i);
