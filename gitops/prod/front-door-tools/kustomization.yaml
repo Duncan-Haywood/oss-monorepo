@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 124 files, 556719 bytes
 #   portfolio-front-tools-8: 137 files, 556663 bytes
 #   portfolio-front-tools-9: 122 files, 556665 bytes
-#   portfolio-front-tools-10: 119 files, 545897 bytes
+#   portfolio-front-tools-10: 120 files, 550762 bytes
 #   portfolio-front-tools-11: 115 files, 548444 bytes
 #   portfolio-front-tools-12: 126 files, 556138 bytes
 #   portfolio-front-tools-13: 125 files, 552317 bytes
@@ -1498,6 +1498,7 @@ configMapGenerator:
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
       - holiday-light-bid-calculator__index.html.gz=holiday-light-bid-calculator__index.html.gz
       - holiday-light-bid-calculator__usage.mjs.gz=holiday-light-bid-calculator__usage.mjs.gz
+      - holiday-light-bid-calculator__vs-a-flat-3-per-foot-hang-special.html.gz=holiday-light-bid-calculator__vs-a-flat-3-per-foot-hang-special.html.gz
       - holiday-light-bid-calculator__vs-realgreen.html.gz=holiday-light-bid-calculator__vs-realgreen.html.gz
       - home-elevator-bid-calculator__acrylic-vs-glass-home-elevator-cab.html.gz=home-elevator-bid-calculator__acrylic-vs-glass-home-elevator-cab.html.gz
       - home-elevator-bid-calculator__calc.mjs.gz=home-elevator-bid-calculator__calc.mjs.gz

@@ -1140,6 +1140,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // quoted for most bookings), not a company or product this could be
   // mistaken for. The page names no agency, platform, or vendor.
   'sign-language-interpreter-rate-calculator/vs-a-flat-fee-per-assignment.html',
+  // Compares against "a flat $3-a-foot, hang-only" holiday-light flyer rate --
+  // the published per-foot special holiday lighting contractors are shopped
+  // against every season, not a company or product this could be mistaken
+  // for. The page names no vendor or field-service platform (the venture's
+  // own named-product comparison, vs-realgreen.html, carries its own
+  // trademark disclaimer) and its copy opens by agreeing the flyer rate is
+  // the right tool for advertising. Same reasoning as
+  // gutter-install-bid-calculator's vs-a-flat-per-foot-special.html above.
+  'holiday-light-bid-calculator/vs-a-flat-3-per-foot-hang-special.html',
   // Compares against "a spreadsheet" -- a generic method every restaurant
   // operator already has access to, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-toast.html, which
