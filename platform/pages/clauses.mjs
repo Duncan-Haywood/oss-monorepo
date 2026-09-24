@@ -1365,6 +1365,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the "not affiliated" clause for that reason. Same
   // reasoning as the other vs-checking-*-by-hand/by-eye pages above.
   'slopsquatting-check/vs-checking-package-names-by-eye.html',
+  // Compares against "a flat per-acre quote" -- a generic pricing method
+  // every mapping pilot already has access to, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-dronedeploy.html, which names a specific reality-capture platform
+  // and already carries the "not affiliated" clause for that reason. Same
+  // reasoning as land-survey-bid-calculator's own
+  // vs-a-flat-per-acre-quote.html.
+  'drone-mapping-job-calculator/vs-a-flat-per-acre-quote.html',
   // Compares against "a flat $950/square metal-roof special" -- a generic
   // advertised price every metal-roofing crew is shopped against, not a
   // company or product this could be mistaken for. Distinct from this
@@ -1381,6 +1389,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same reasoning as the other flat-rate generic-method pages
   // above (e.g. pole-barn-bid-calculator's).
   'hardwood-refinishing-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against a flat "$150 a light installed" special -- a generic
+  // advertised pricing habit the trade is shopped against, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-aspire.html, which names a specific business-management
+  // platform and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as the other flat-rate generic-method pages
+  // above (e.g. hardwood-refinishing-bid-calculator's).
+  'landscape-lighting-bid-calculator/vs-a-flat-150-per-light-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
