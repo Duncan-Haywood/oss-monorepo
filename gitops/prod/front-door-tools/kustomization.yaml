@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 140 files, 524169 bytes
+#   portfolio-front-tools-0: 141 files, 527998 bytes
 #   portfolio-front-tools-1: 91 files, 550872 bytes
 #   portfolio-front-tools-2: 145 files, 556738 bytes
 #   portfolio-front-tools-3: 132 files, 555528 bytes
@@ -208,6 +208,7 @@ configMapGenerator:
       - grant-reporting-tracker__calc.mjs.gz=grant-reporting-tracker__calc.mjs.gz
       - grant-reporting-tracker__index.html.gz=grant-reporting-tracker__index.html.gz
       - grant-reporting-tracker__vs-granthub.html.gz=grant-reporting-tracker__vs-granthub.html.gz
+      - grant-reporting-tracker__vs-tracking-grants-in-a-spreadsheet.html.gz=grant-reporting-tracker__vs-tracking-grants-in-a-spreadsheet.html.gz
       - grant-reporting-tracker__when-is-my-grant-report-due.html.gz=grant-reporting-tracker__when-is-my-grant-report-due.html.gz
       - translator-project-quote__calc.mjs.gz=translator-project-quote__calc.mjs.gz
       - translator-project-quote__how-to-quote-a-translation-project.html.gz=translator-project-quote__how-to-quote-a-translation-project.html.gz
