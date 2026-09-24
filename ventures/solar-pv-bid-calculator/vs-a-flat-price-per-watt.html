@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price-per-watt quote | Solar PV Install Bid Calculator</title>
+<meta name="description" content="A flat '$2.12/W installed' quote is priced for one job: a 10.14 kW composition-roof array with a clean 200 A panel. Quote the same $2.12/W on a tile roof needing a 100 A to 200 A upgrade and the job runs $820.22 under its own cost before you take anything out of it -- on a bigger ground-mount job with a battery and a 400 A service upgrade, $13,669.59 under. This free, private browser calculator prices the array, the roof, and the electrical extras separately -- no account, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-a-flat-price-per-watt.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. a flat price-per-watt quote">
+<meta property="og:description" content="A flat dollars-per-watt quote clears cost on the easy composition-roof job it was set from -- and runs deeply underwater on a harder or bigger job quoted at the same rate. This calculator prices the array, the roof, and the electrical extras separately instead.">
+<meta property="og:url" content="https://example.invalid/solar-pv-bid-calculator/vs-a-flat-price-per-watt.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price-per-watt quote get the price wrong?","acceptedAnswer":{"@type":"Answer","text":"Because only part of a solar job scales with watts. Modules, racking, and balance-of-system cost roughly the same per watt on every roof. Roof difficulty and electrical extras do not — a tile roof needing hooks and flashings, or a panel that needs a service upgrade before the array can be interconnected, cost the same in labor and material whether the system is 6 kW or 12 kW. A flat $/W rate bakes in whatever roof and panel the rate was set from and then charges every other job as if it were that job."}},{"@type":"Question","name":"What job is the flat rate actually built around?","acceptedAnswer":{"@type":"Answer","text":"The easiest job that walks in the door: a composition-shingle roof at 4/12–6/12 pitch, one array, and a 200 A panel with room for the new breaker — this calculator's own default roof preset and the \"None\" electrical preset. On that job a rate set to clear cost and margin does exactly that. It is not derived from any particular roof being quoted; it is a number set on the easy job and then reused for every job afterward."}},{"@type":"Question","name":"How big does the pricing gap get on a harder or bigger job?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own numbers, at a $38 hourly wage, 30% payroll burden, 15% overhead, and a 20% target margin: a 10.14 kW composition-roof job with a clean 200 A panel costs $17,186.01 to run and correctly prices at $21,482.52, or $2.12/W. Quote that same $2.12/W on a same-size 10.14 kW job that instead has a tile roof and a 100 A to 200 A panel upgrade, and the job actually costs $22,302.73 to run — the flat quote comes in at $21,482.52, which is $820.22 under that job's own cost, before any profit at all, and $6,395.90 short of what it should have been priced at. Move to a 12.09 kW ground-mount job with a 200 A to 400 A service upgrade and a battery, and the same $2.12/W quotes $25,613.77 against a job that costs $39,283.36 to run — $13,669.59 under cost and $23,490.43 short of the correct price."}},{"@type":"Question","name":"Is a flat price-per-watt quote ever the right way to price a job?","acceptedAnswer":{"@type":"Answer","text":"On the easy roof and panel it was set from, since it clears that job's own cost and margin on this calculator's own numbers. The risk is reusing the same rate once the roof or the panel changes — a tile roof with a panel upgrade is not a bigger version of the easy composition-roof job, it is a different job, and nothing about a flat $/W rate tells the installer when that line has been crossed."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local module, racking, electrician, or permitting rates in your area, and it is not a PV design, a production estimate, a structural determination, or an interconnection or incentive approval. It takes the module count and wattage, roof factor, electrical and battery extras, permits, and your own wage, payroll burden, overhead, and target margin you enter, and turns that into a price for this job — the arithmetic a flat $/W rate skips, not a market survey."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1c2430;background:#f3efe6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#ac4f09;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#ac4f09;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#5a5246}section{background:#fff;border:1px solid #ddd4c4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #2a20100d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ddd4c4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5a5246}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}.bad{color:#a2332a;font-weight:700}.good{color:#1d6b3f;font-weight:700}.fine,.note{font-size:.88rem;color:#5a5246}footer{color:#5a5246;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Solar PV Install Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price-per-watt quote</h1>
+<p class="lede">A flat "$2.12/W installed" rate clears cost on the easy composition-roof job it was set from &mdash; and runs deeply underwater the moment the same rate is quoted on a tile roof needing a panel upgrade, or a bigger ground-mount job with a battery.</p>
+</header>
+<section>
+<h2>What a flat price-per-watt quote is</h2>
+<p>
+A flat $/W rate is the fastest number a solar company can put on a door-knock
+flyer or a phone quote: one rate, multiplied by system size, read back as the
+whole job. It is also the number homeowners compare between competing bids,
+since "$2.50 a watt" sounds like one job whatever the roof looks like.
+</p>
+<p>
+The rate behind it was set for one job &mdash; a composition-shingle roof at
+4/12&ndash;6/12 pitch, a single array, and a 200 A panel with room for the new
+breaker: this calculator's own default roof preset and "None" electrical
+preset. Modules, racking, and balance-of-system really do scale with watts,
+so a flat $/W rate prices them correctly on every job. Roof difficulty and
+electrical extras do not scale with watts at all &mdash; a tile roof needing
+hooks and flashings, or a panel that needs a service upgrade before the array
+can be interconnected, cost the same labor and material whether the system is
+6 kW or 12 kW. A flat rate has nowhere to put that cost.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Job</th><th scope="col" class="num">Actual cost</th><th scope="col" class="num">Correct price</th><th scope="col" class="num">Quoted at $2.12/W</th><th scope="col" class="num">Shortfall vs. cost</th></tr></thead>
+<tbody>
+<tr><td>10.14 kW, composition roof, clean 200 A panel (the rate's own job)</td><td class="num">$17,186.01</td><td class="num">$21,482.52</td><td class="num">$21,482.52</td><td class="num good">&mdash;</td></tr>
+<tr><td>10.14 kW, tile roof, 100 A&nbsp;&rarr;&nbsp;200 A panel upgrade</td><td class="num">$22,302.73</td><td class="num">$27,878.42</td><td class="num">$21,482.52</td><td class="num bad">&minus;$820.22</td></tr>
+<tr><td>12.09 kW, ground mount, 200 A&nbsp;&rarr;&nbsp;400 A upgrade, battery</td><td class="num">$39,283.36</td><td class="num">$49,104.20</td><td class="num">$25,613.77</td><td class="num bad">&minus;$13,669.59</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+On the rate's own job, $2.12/W clears cost with room for the full 20% target
+margin. Quote the same $2.12/W on the same-size job with a harder roof and a
+panel upgrade and the job comes in $820.22 <em>under its own cost</em> &mdash;
+a real loss before any profit, not just a thinner margin &mdash; and
+$6,395.90 short of the $27,878.42 the job should have been priced at. On the
+bigger ground-mount job with a battery, the shortfall against cost alone
+grows to $13,669.59.
+</p>
+<p>
+<strong>This calculator</strong> keeps the array, the roof factor, and the
+electrical and battery extras as separate lines, so the rate applied to
+modules and racking never has to also carry a panel upgrade or a battery
+install. Changing the roof or electrical preset refills the starting hours
+and material for that choice &mdash; a field you have already hand-edited is
+left alone &mdash; and the price, the dollars per watt, and the walk-away
+number update together.
+</p>
+<p class="fine">This page names no specific product or company &mdash; it compares against the generic method of quoting every job at the same flat price per watt.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price-per-watt quote get the price wrong?</h3>
+<p>Because only part of a solar job scales with watts. Modules, racking, and balance-of-system cost roughly the same per watt on every roof. Roof difficulty and electrical extras do not — a tile roof needing hooks and flashings, or a panel that needs a service upgrade before the array can be interconnected, cost the same in labor and material whether the system is 6 kW or 12 kW. A flat $/W rate bakes in whatever roof and panel the rate was set from and then charges every other job as if it were that job.</p>
+<h3>What job is the flat rate actually built around?</h3>
+<p>The easiest job that walks in the door: a composition-shingle roof at 4/12–6/12 pitch, one array, and a 200 A panel with room for the new breaker — this calculator's own default roof preset and the "None" electrical preset. On that job a rate set to clear cost and margin does exactly that. It is not derived from any particular roof being quoted; it is a number set on the easy job and then reused for every job afterward.</p>
+<h3>How big does the pricing gap get on a harder or bigger job?</h3>
+<p>On this calculator's own numbers, at a $38 hourly wage, 30% payroll burden, 15% overhead, and a 20% target margin: a 10.14 kW composition-roof job with a clean 200 A panel costs $17,186.01 to run and correctly prices at $21,482.52, or $2.12/W. Quote that same $2.12/W on a same-size 10.14 kW job that instead has a tile roof and a 100 A to 200 A panel upgrade, and the job actually costs $22,302.73 to run — the flat quote comes in at $21,482.52, which is $820.22 under that job's own cost, before any profit at all, and $6,395.90 short of what it should have been priced at. Move to a 12.09 kW ground-mount job with a 200 A to 400 A service upgrade and a battery, and the same $2.12/W quotes $25,613.77 against a job that costs $39,283.36 to run — $13,669.59 under cost and $23,490.43 short of the correct price.</p>
+<h3>Is a flat price-per-watt quote ever the right way to price a job?</h3>
+<p>On the easy roof and panel it was set from, since it clears that job's own cost and margin on this calculator's own numbers. The risk is reusing the same rate once the roof or the panel changes — a tile roof with a panel upgrade is not a bigger version of the easy composition-roof job, it is a different job, and nothing about a flat $/W rate tells the installer when that line has been crossed.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local module, racking, electrician, or permitting rates in your area, and it is not a PV design, a production estimate, a structural determination, or an interconnection or incentive approval. It takes the module count and wattage, roof factor, electrical and battery extras, permits, and your own wage, payroll burden, overhead, and target margin you enter, and turns that into a price for this job — the arithmetic a flat $/W rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Solar PV Install Bid Calculator</a> to price your own job, or read <a href="how-much-to-charge-to-install-solar-panels.html">how much to charge to install solar panels</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or electrical-code advice, and it does not tell you what to charge. It is not a structural, interconnection, or incentive determination. Verify every figure against your own payroll, invoices, AHJ and utility requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page names no specific product or company &mdash; it compares against the generic method of quoting every job at the same flat price per watt.</p>
+<p>Free and open source. If it keeps you from matching a losing per-watt quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
