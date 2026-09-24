@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const guide = readFileSync(new URL('./which-conversion-cadence-should-i-use.html', import.meta.url), 'utf8');
+const vsByHand = readFileSync(new URL('./vs-doing-the-math-by-hand.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 const calcSource = readFileSync(new URL('./calc.mjs', import.meta.url), 'utf8');
 
@@ -66,6 +67,36 @@ test('the guide page names no vendor or competing product', () => {
   assert.doesNotMatch(guide, /Fidelity|Vanguard|Schwab|Empower|Voya|Principal/i);
 });
 
+test('the entry page links to the by-hand comparison, and it links back', () => {
+  assert.match(html, /href="vs-doing-the-math-by-hand\.html"/);
+  assert.match(vsByHand, /<a href="\.\/">/);
+});
+
+test('the by-hand comparison page names no vendor or competing product', () => {
+  assert.doesNotMatch(vsByHand, /Fidelity|Vanguard|Schwab|Empower|Voya|Principal/i);
+  assert.match(vsByHand, /names no specific plan provider/i);
+});
+
+test('the by-hand comparison page stays crawlable and is listed in the sitemap', () => {
+  assert.match(vsByHand, /<title>This calculator vs\. working out/);
+  assert.match(vsByHand, /name="robots" content="index,follow"/);
+  assert.match(sitemap, /vs-doing-the-math-by-hand\.html/);
+});
+
+test('the by-hand comparison page carries the no-warranty disclaimer', () => {
+  assert.match(vsByHand, /<strong>No warranty\.<\/strong>/);
+});
+
+test('the by-hand comparison page carries FAQPage JSON-LD that parses as valid JSON and matches visible headings', () => {
+  const match = vsByHand.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, 'no FAQPage schema found on the by-hand comparison page');
+  const schema = JSON.parse(match[1]);
+  assert.ok(schema.mainEntity.length >= 4);
+  for (const question of schema.mainEntity) {
+    assert.ok(vsByHand.includes(`<h3>${question.name}</h3>`), `by-hand FAQ schema question "${question.name}" has no matching <h3>`);
+  }
+});
+
 test('the entry page distinguishes this from a regular backdoor Roth IRA', () => {
   assert.match(html, /backdoor Roth IRA/i);
   assert.match(html, /pro-rata/i);
@@ -79,7 +110,11 @@ test('every input has an associated label', () => {
   }
 });
 
-test('index links one hop to the senior-deduction-calculator sibling', () => {
+// Closest sibling: both are new 2025-2026 individual tax-planning moves,
+// stackable rather than mutually exclusive. Related-tool chrome rotates
+// inside the catch-all category, so without an explicit one-hop a crawler
+// on this page may never land on that tool -- see siblings.mjs.
+test('the entry page links one hop to the senior-deduction-calculator sibling', () => {
   assert.match(
     html,
     /href="\.\.\/senior-deduction-calculator\/"/,
@@ -87,13 +122,11 @@ test('index links one hop to the senior-deduction-calculator sibling', () => {
   );
 });
 
-// Closest sibling per platform/pages/siblings.mjs's own nearest-sibling
-// scoring, in the same "Back-office money & contracts" category: both
-// reconcile a figure the filer already has (a marketplace's 1099-K, an
-// employer plan's after-tax headroom) against what they actually kept or
-// can still contribute. Closes the crawlable-orphan gap
-// siblings.test.mjs's committed budget (0) would otherwise flag on this
-// venture's first commit.
+// A second, concurrently-landed sibling link (both reconcile a figure the
+// filer already has against what they actually kept or can still
+// contribute), independently added to close the same crawlable-orphan gap
+// siblings.test.mjs's committed budget (0) flags. Kept alongside the link
+// above rather than picking one -- both are real, correct one-hop paths.
 test('index links one hop to the 1099k-reconciliation-worksheet sibling', () => {
   assert.match(
     html,
