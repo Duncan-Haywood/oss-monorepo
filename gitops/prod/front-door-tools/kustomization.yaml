@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 123 files, 553584 bytes
 #   portfolio-front-tools-11: 118 files, 552996 bytes
 #   portfolio-front-tools-12: 118 files, 551615 bytes
-#   portfolio-front-tools-13: 122 files, 548601 bytes
+#   portfolio-front-tools-13: 123 files, 553332 bytes
 #   portfolio-front-tools-14: 130 files, 553629 bytes
 #   portfolio-front-tools-15: 131 files, 555502 bytes
 #   portfolio-front-tools-16: 120 files, 553075 bytes
@@ -1846,6 +1846,7 @@ configMapGenerator:
       - mcp-config-risk-check__calc.mjs.gz=mcp-config-risk-check__calc.mjs.gz
       - mcp-config-risk-check__index.html.gz=mcp-config-risk-check__index.html.gz
       - mcp-config-risk-check__usage.mjs.gz=mcp-config-risk-check__usage.mjs.gz
+      - mcp-config-risk-check__vs-reading-the-config-by-hand.html.gz=mcp-config-risk-check__vs-reading-the-config-by-hand.html.gz
       - mcp-config-risk-check__why-a-clean-scan-isnt-a-safety-guarantee.html.gz=mcp-config-risk-check__why-a-clean-scan-isnt-a-safety-guarantee.html.gz
       - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
       - mcp-supply-chain-watch__index.html.gz=mcp-supply-chain-watch__index.html.gz
