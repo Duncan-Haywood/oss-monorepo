@@ -1413,6 +1413,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against a flat "$8 a stall" / "$400 for a 50-space lot"
+  // striping special -- a generic advertised pricing habit the trade is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-saasphalt.html, which names a
+  // specific estimating platform and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other flat-rate
+  // generic-method pages above (e.g. mini-split-bid-calculator's).
+  'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
