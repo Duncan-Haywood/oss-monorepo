@@ -212,6 +212,9 @@ workflows:
 - workflow: browser-checks-ci.yml
   classification: none
   publishes: []
+- workflow: caa-record-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cabinet-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -483,6 +486,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: exterior-painting-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: facebook-marketplace-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: faire-wholesale-calculator-ci.yml

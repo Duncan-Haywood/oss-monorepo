@@ -17212,6 +17212,85 @@ ventures:
       useful to an owner the more accurately they describe their own
       roster -- unlike a compliance product sold on alert volume, there is
       no party here whose incentive runs the other way.
+
+  - slug: caa-record-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Which CAs are authorized is
+      decided by applying RFC 8659's own processing rules (the tree-walk,
+      the issuewild fallback, the critical-unknown-tag block) to the
+      record set a real DNS lookup returns -- a factual, deterministic
+      application of a published standard, not a model judgment.
+    basis: >-
+      Screened and built 2026-09-24 per portfolio/pipeline/README.md's
+      "archetype itself" section: a zero-dependency browser tool + CLI, in
+      the same "read what's actually there, apply the real processing
+      rules" shape as email-auth-check and subdomain-takeover-check, not
+      another <trade>-bid-calculator. duplicate_check.py scored every
+      existing venture, screened-out.md row, and pipeline candidate at
+      0.12 or below against the final description --
+      subdomain-takeover-check closest (a different DNS-hygiene footgun:
+      dangling CNAMEs, not certificate-issuance authorization) and
+      email-auth-check next (SPF/DKIM/DMARC/BIMI mail authentication, not
+      TLS certificate authorization). Nothing in screened-out.md covers
+      CAA or certificate-authority authorization.
+      Autonomous ops 10 / gross margin 10: every request runs from the
+      visitor's own browser or the user's own machine (for the CLI) to a
+      public DNS resolver -- this tool never contacts the hostname being
+      checked at all -- so serving one more user costs a static file and
+      needs no human review of any output.
+      Distribution 6: "CAA record prevents issuance" and "Blocking CAA
+      record(s) found" are recurring, actively-answered threads on
+      community.letsencrypt.org and a recurring certbot GitHub issue
+      category, plus hosting-panel forum threads (DirectAdmin and others)
+      showing the same error across unrelated stacks -- a real, ongoing
+      channel. Scored below the sibling checker family's typical 7
+      because several free CAA *lookup* tools already rank for the
+      generic search term (UptimeRobot, DNS Spy, Pulsetic, nslookup.io,
+      whatsmydns.net, and others); none of them apply RFC 8659's
+      tree-walk, the issuewild fallback, or the critical-flag rule, and a
+      DNSControl GitHub issue independently confirms the RFC 8657
+      multi-parameter value shape is a real parsing failure mode ("CAA
+      value does not contain 3 fields") -- so the differentiation is
+      diagnostic depth on a crowded term, not being first to it.
+      Time to revenue 6, defensibility 3: donations-only; the RFC 8659
+      tree-walk and the issuewild/critical-flag fallback-rule interactions
+      are a genuine, if narrow, correctness surface to get right (matching
+      security-headers-check's CSP-fallback-rule precedent for a 3 rather
+      than the flatter 2-scored checkers), but a determined competitor
+      could still reimplement it from the same published RFCs.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and structurally safer than most of the sibling checker
+      family: this tool never sends any request of any kind to the
+      hostname being checked, only to a public DNS-over-HTTPS resolver,
+      reading CAA and CNAME records the domain owner already published for
+      anyone to see -- there is no live-request-to-a-third-party surface
+      to contain at all. A malformed record or an unrecognized data format
+      is reported as such rather than guessed at or silently dropped, and
+      the CA issuer-domain shortlist is disclosed as a helpful list rather
+      than an authoritative registry, with the page and README both
+      stating a clean report is evidence about published DNS data, not a
+      guarantee a given CA will issue. Ethically: donations-only with no
+      per-use fee and no revenue model that would reward misclassifying a
+      CA's authorization in either direction; the tool gets strictly more
+      useful to a domain owner as it is used, since a false "authorized"
+      reading would only surface as their own next renewal failing, which
+      is the same self-correcting incentive structure this portfolio's
+      other read-only DNS/HTTP checkers already rely on.
+
   - slug: claude-code-settings-check
     scores:
       ai_leverage: 1
@@ -17271,66 +17350,6 @@ ventures:
       debugging session, no affiliate link, no referral fee,
       donations-only, and it does not scan, fingerprint, or contact any
       third-party system or agent runtime.
-  - slug: claude-skill-scaffold-generator
-    scores:
-      ai_leverage: 1
-      autonomous_ops: 10
-      time_to_revenue: 6
-      gross_margin: 10
-      defensibility: 3
-      distribution: 5
-    composite: 5.833
-    rater_b: null
-    floor: 1
-    floor_dimension: ai_leverage
-    floor_note: >-
-      No AI in the product, deliberately. The generated SKILL.md is
-      assembled by a fixed string template from the fields the visitor
-      types, and every finding (empty field, non-slug name, first-person
-      opening, over/under-length description) is a deterministic string
-      or regex check -- never a model judgment, and it never claims to
-      know whether Claude will actually load or invoke the finished skill
-      at runtime.
-    basis: >-
-      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml
-      for the full duplicate_check.py run, nothing clearing the 0.45
-      bar). Autonomous ops 10 / gross margin 10: every check and every
-      generated byte runs client-side against text the visitor types,
-      nothing uploaded, no server of ours in the loop, so serving one
-      more visitor costs a static file -- same shape as the other four
-      AI-agent-tooling ventures. Defensibility 3, one point below
-      claude-code-settings-check's 4: the first-person-description
-      heuristic is tuned pattern-matching over free text (closer to
-      skill-manifest-check's own vagueness-tuning defensibility of 3)
-      rather than claude-code-settings-check's fixed JSON-schema/regex-
-      compile checks, so it is easier to reproduce at the same quality.
-      Distribution 5: named, current developer-tooling channels (r/
-      ClaudeAI and r/LocalLLaMA agent-tooling threads, where "my skill
-      isn't triggering" is a recurring live question, Anthropic's own
-      developer community, HN Show threads on Claude Code / Agent Skills
-      tooling, GitHub topic search for committed SKILL.md files) plus
-      footer cross-links with skill-manifest-check, claude-code-settings-
-      check, and mcp-config-risk-check, matching their own distribution
-      score for the same reasoning. No search-volume tool was queried to
-      confirm magnitude.
-    gates:
-      liability_containment: pass
-      ethical_robustness: pass
-    gate_note: >-
-      Liability: every generated byte and every finding is deterministic
-      template assembly or a structural/regex check against text the user
-      types, no network call of any kind, no LLM call, and no claim that
-      the generated skill will be loaded or invoked correctly by Claude at
-      runtime -- the two checks with any time-dependence (name/description
-      length limits) are dated and framed as a caution, never an
-      authoritative claim on Anthropic's behalf, mirroring the other four
-      AI-agent-tooling ventures' own liability framing.
-      Ethics: strictly beneficial as it scales -- helps a Claude Skill
-      author start from a correctly-shaped file and catch the description
-      mistakes that silently cost them a debugging session, no affiliate
-      link, no referral fee, donations-only, and it does not scan,
-      fingerprint, or contact any third-party system or agent runtime.
-
   - slug: senior-deduction-calculator
     scores:
       ai_leverage: 1
@@ -17380,6 +17399,7 @@ ventures:
       entitled to), holds no personal or scraped data, and there is no
       revenue model that would reward mistuning the arithmetic in either
       direction (donations only).
+
   - slug: mega-backdoor-roth-calculator
     scores:
       ai_leverage: 1
@@ -17442,6 +17462,134 @@ ventures:
       toward evading an obligation, no personal or scraped data, no
       referral fee or affiliate link to any of the competing calculators
       or plan providers named in the research above.
+
+  - slug: facebook-marketplace-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is Facebook
+      Marketplace's own shipped-vs-local fee split (10% of the buyer-paid
+      total with an $0.80 minimum on a shipped order, $0 for local
+      pickup) plus the flat $20 dispute penalty, applied correctly and
+      including the minimum-fee floor most spreadsheet versions of this
+      math skip -- deterministic arithmetic a language model adds
+      nothing to.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match against
+      an existing venture 0.25 (ebay-fee-calculator), well under the
+      0.45 read-this-first bar -- no existing venture prices Facebook
+      Marketplace specifically, though several (depop-fee-calculator,
+      mercari-fee-calculator, poshmark-fee-calculator) share the
+      resale-marketplace-fee shape. Rates confirmed via multiple
+      independent web searches agreeing on the current schedule: 10% of
+      the buyer-paid total (item price, buyer-paid shipping, and any
+      sales tax Facebook collected) on a shipped checkout order with an
+      $0.80 minimum fee, $0 for local pickup, and a flat $20 chargeback
+      penalty on a disputed order ruled against the seller. Several
+      independent third-party blogs and calculator sites cover this
+      exact question with inconsistent, sometimes stale rates (a flat
+      percentage with no minimum, or an extra processing-fee line most
+      current sources no longer show) -- evidence of real search demand
+      and a live staleness problem this tool corrects.
+      Autonomous ops 10 / gross margin 10: static ES modules, no build
+      step, no network call, no server -- same shape as every other
+      browser-local calculator in this portfolio.
+      Time to revenue 5, distribution 5: r/FacebookMarketplace and
+      general reselling subreddits are real, named communities, and the
+      search phrases "facebook marketplace fee calculator" and "does
+      facebook marketplace charge a fee" show real, if modest, existing
+      competition -- matching depop-fee-calculator's own distribution
+      score for the same reasoning (a proven-demand niche, not a blind
+      guess). Defensibility 3: one flat rate and a floor are trivially
+      reproducible, matching depop-fee-calculator's own defensibility
+      score for the same single-storefront fee-schedule shape.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every figure is a constant corroborated against
+      Facebook's own Commerce/Seller Help pages and multiple independent
+      third-party breakdowns, not a live fetch, and the page tells the
+      visitor to verify against their own payout statement before
+      pricing a listing -- the same framing depop-fee-calculator and its
+      siblings already use for a schedule a platform can change without
+      notice. No network call of any kind, nothing uploaded, no account,
+      no tracking cookie.
+      Ethics: strictly beneficial as it scales -- helps a seller price a
+      listing correctly instead of guessing from a stale blog post, no
+      affiliate link, no referral fee, donations-only, and it does not
+      scan, fingerprint, or contact Facebook or any third-party system.
+      third-party system or agent runtime.
+  - slug: claude-skill-scaffold-generator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The generated SKILL.md is
+      assembled by a fixed string template from the fields the visitor
+      types, and every finding (empty field, non-slug name, first-person
+      opening, over/under-length description) is a deterministic string
+      or regex check -- never a model judgment, and it never claims to
+      know whether Claude will actually load or invoke the finished skill
+      at runtime.
+    basis: >-
+      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml
+      for the full duplicate_check.py run, nothing clearing the 0.45
+      bar). Autonomous ops 10 / gross margin 10: every check and every
+      generated byte runs client-side against text the visitor types,
+      nothing uploaded, no server of ours in the loop, so serving one
+      more visitor costs a static file -- same shape as the other four
+      AI-agent-tooling ventures. Defensibility 3, one point below
+      claude-code-settings-check's 4: the first-person-description
+      heuristic is tuned pattern-matching over free text (closer to
+      skill-manifest-check's own vagueness-tuning defensibility of 3)
+      rather than claude-code-settings-check's fixed JSON-schema/regex-
+      compile checks, so it is easier to reproduce at the same quality.
+      Distribution 5: named, current developer-tooling channels (r/
+      ClaudeAI and r/LocalLLaMA agent-tooling threads, where "my skill
+      isn't triggering" is a recurring live question, Anthropic's own
+      developer community, HN Show threads on Claude Code / Agent Skills
+      tooling, GitHub topic search for committed SKILL.md files) plus
+      footer cross-links with skill-manifest-check, claude-code-settings-
+      check, and mcp-config-risk-check, matching their own distribution
+      score for the same reasoning. No search-volume tool was queried to
+      confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every generated byte and every finding is deterministic
+      template assembly or a structural/regex check against text the user
+      types, no network call of any kind, no LLM call, and no claim that
+      the generated skill will be loaded or invoked correctly by Claude at
+      runtime -- the two checks with any time-dependence (name/description
+      length limits) are dated and framed as a caution, never an
+      authoritative claim on Anthropic's behalf, mirroring the other four
+      AI-agent-tooling ventures' own liability framing.
+      Ethics: strictly beneficial as it scales -- helps a Claude Skill
+      author start from a correctly-shaped file and catch the description
+      mistakes that silently cost them a debugging session, no affiliate
+      link, no referral fee, donations-only, and it does not scan,
+      fingerprint, or contact any third-party system or agent runtime.
+
   - slug: claude-code-subagent-check
     scores:
       ai_leverage: 1

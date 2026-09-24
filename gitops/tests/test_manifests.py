@@ -2467,31 +2467,45 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
     #
-    # 360 on this merge: `claude-skill-scaffold-generator` also graduated,
-    # concurrently on `main` -- a zero-dependency browser tool that turns a
-    # plain-language description of a Claude Agent Skill into a starter
-    # SKILL.md with valid YAML frontmatter and a suggested folder layout,
-    # flagging a non-slug name, a first-person description, and a missing
-    # trigger condition. The generator half of the pair
+    # 359: `caa-record-check` graduates -- a browser tool + CLI resolving
+    # the CAA DNS record set that governs certificate issuance, following
+    # RFC 8659's tree-walk. Static `index.html`, a HowTo guide page and a
+    # generic-method comparison page, all from its first commit.
+    #
+    # 360 on this merge: `claude-code-settings-check` also graduated,
+    # concurrently on `main` -- a browser tool checking a pasted Claude
+    # Code settings.json for structural mistakes in hooks and permissions.
+    # This branch only ever knew its own predecessor's number (359, from
+    # `caa-record-check` above) until this merge -- the same ordinary
+    # collision shape recorded throughout this list.
+    #
+    # 361 on a later merge: `claude-code-subagent-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser checker for
+    # Claude Code subagent definitions (.claude/agents/*.md) that flags a
+    # malformed/mismatched name, a description too vague for reliable
+    # orchestrator delegation, a malformed `tools` list, an unrecognized
+    # `model` alias, and a missing or near-empty system prompt. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 362 on a later merge: `claude-skill-scaffold-generator` also
+    # graduated, concurrently on `main` -- a zero-dependency browser tool
+    # that turns a plain-language description of a Claude Agent Skill into
+    # a starter SKILL.md with valid YAML frontmatter and a suggested folder
+    # layout, flagging a non-slug name, a first-person description, and a
+    # missing trigger condition. The generator half of the pair
     # `skill-manifest-check` started as the checker half. Static
     # `index.html` from its first commit, same shape as the rest of this
-    # running count. This branch only ever knew its own predecessor's
-    # number (358, at graduation) until this merge -- the same ordinary
-    # collision shape recorded throughout this list; the intervening 359
-    # was another concurrent graduation this branch never observed.
+    # running count.
     #
-    # 361 on this merge: `claude-code-subagent-check` also graduated,
-    # independently on `main` at the same 359 predecessor -- a
-    # zero-dependency browser checker for Claude Code subagent definitions
-    # (.claude/agents/*.md) that flags a malformed/mismatched name, a
-    # description too vague for reliable orchestrator delegation, a
-    # malformed `tools` list, an unrecognized `model` alias, and a missing
-    # or near-empty system prompt. Static `index.html` from its first
-    # commit, same shape as the rest of this running count. Both this
-    # venture and `claude-skill-scaffold-generator` above claimed the same
-    # next number (360) from the same 359 predecessor -- the same ordinary
-    # collision shape recorded throughout this list, this time with both
-    # additions real and neither superseding the other.
+    # 363 on a later merge: `mega-backdoor-roth-calculator` also graduated,
+    # concurrently on `main` -- a browser calculator computing after-tax
+    # 401(k) headroom under the IRS 415(c) limit, static index.html plus a
+    # which-conversion-cadence-should-i-use.html guide page, both from
+    # their first commit. This branch only ever knew its own predecessor's
+    # number (360, from `claude-code-settings-check` above) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list.
     #
     # 362 on this merge: `mega-backdoor-roth-calculator` also graduated,
     # concurrently on `main` -- a browser-local calculator computing
@@ -2510,11 +2524,33 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # each recorded their own half of this transition independently, one
     # only seeing claude-skill-scaffold-generator and the other only
     # seeing claude-code-subagent-check -- neither could see the other's
-    # addition. All four additions above are real, so the merged total is
-    # 363.
+    # addition. All four additions above are real.
+    #
+    # 364 on this later merge: `facebook-marketplace-fee-calculator` also
+    # graduated -- a browser-local calculator that prices a Facebook
+    # Marketplace sale against the current shipped-checkout 10% fee (with
+    # an $0.80 minimum) vs. the $0 local-pickup fee, plus the flat $20
+    # dispute penalty. Static `index.html` and a
+    # `vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html`
+    # comparison page, both from their first commit, same shape as the
+    # rest of this running count. This branch only ever knew its own
+    # predecessor's number (362, from its own earlier merges of
+    # `mega-backdoor-roth-calculator` and `senior-deduction-calculator`)
+    # until this merge revealed two further concurrent graduations
+    # (`claude-skill-scaffold-generator`, `claude-code-subagent-check`) it
+    # had never observed -- the same ordinary collision shape recorded
+    # throughout this list, one merge later. `senior-deduction-calculator`
+    # was independently recorded again by a fourth concurrent session at
+    # this same 364; the addition is the same one already counted above,
+    # not a fifth.
+    #
+    # 365 on this later merge: `caa-record-check` also graduated,
+    # concurrently on `main` -- a browser checker for CAA (Certification
+    # Authority Authorization) DNS records, static `index.html` from its
+    # first commit, same shape as the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 363  # `infra/OWNER_CHECKLIST.md`'s own "N of the 363 tools" wording.
+    total = 365  # `infra/OWNER_CHECKLIST.md`'s own "N of the 365 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
