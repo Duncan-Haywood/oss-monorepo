@@ -1880,6 +1880,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "a flat rate per square" -- a common pricing habit any
+  // siding contractor already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-jobnimbus.html, which
+  // names JobNimbus specifically and already carries the trademark
+  // disclaimer.
+  'siding-bid-calculator/vs-a-flat-rate-per-square.html',
   // Compares against "checking it by eye" -- reading view-source and
   // comparing a page's JSON-LD against its rendered text by hand, a manual
   // habit any developer already has, not a company or product this could be

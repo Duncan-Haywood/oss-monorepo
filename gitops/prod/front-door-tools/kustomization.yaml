@@ -50,10 +50,10 @@
 #   portfolio-front-tools-14: 129 files, 554829 bytes
 #   portfolio-front-tools-15: 134 files, 555246 bytes
 #   portfolio-front-tools-16: 108 files, 553270 bytes
-#   portfolio-front-tools-17: 114 files, 552686 bytes
-#   portfolio-front-tools-18: 124 files, 555898 bytes
-#   portfolio-front-tools-19: 122 files, 556705 bytes
-#   portfolio-front-tools-20: 70 files, 355686 bytes
+#   portfolio-front-tools-17: 114 files, 553108 bytes
+#   portfolio-front-tools-18: 123 files, 541162 bytes
+#   portfolio-front-tools-19: 119 files, 548723 bytes
+#   portfolio-front-tools-20: 75 files, 382479 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2347,6 +2347,7 @@ configMapGenerator:
       - siding-bid-calculator__index.html.gz=siding-bid-calculator__index.html.gz
       - siding-bid-calculator__share.mjs.gz=siding-bid-calculator__share.mjs.gz
       - siding-bid-calculator__usage.mjs.gz=siding-bid-calculator__usage.mjs.gz
+      - siding-bid-calculator__vs-a-flat-rate-per-square.html.gz=siding-bid-calculator__vs-a-flat-rate-per-square.html.gz
       - siding-bid-calculator__vs-jobnimbus.html.gz=siding-bid-calculator__vs-jobnimbus.html.gz
       - sign-language-interpreter-rate-calculator__calc.mjs.gz=sign-language-interpreter-rate-calculator__calc.mjs.gz
       - sign-language-interpreter-rate-calculator__how-much-should-i-charge-for-an-interpreting-assignment.html.gz=sign-language-interpreter-rate-calculator__how-much-should-i-charge-for-an-interpreting-assignment.html.gz
@@ -2431,12 +2432,12 @@ configMapGenerator:
       - sri-check__index.html.gz=sri-check__index.html.gz
       - sri-check__sri.mjs.gz=sri-check__sri.mjs.gz
       - sri-check__usage.mjs.gz=sri-check__usage.mjs.gz
-      - sri-check__vs-checking-tags-by-hand.html.gz=sri-check__vs-checking-tags-by-hand.html.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sri-check__vs-checking-tags-by-hand.html.gz=sri-check__vs-checking-tags-by-hand.html.gz
       - sri-check__vs-srihash.html.gz=sri-check__vs-srihash.html.gz
       - sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz=sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz
       - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
@@ -2559,13 +2560,13 @@ configMapGenerator:
       - toilet-replacement-bid-calculator__vs-servicetitan.html.gz=toilet-replacement-bid-calculator__vs-servicetitan.html.gz
       - tree-service-bid-calculator__calc.mjs.gz=tree-service-bid-calculator__calc.mjs.gz
       - tree-service-bid-calculator__how-to-bid-tree-removal.html.gz=tree-service-bid-calculator__how-to-bid-tree-removal.html.gz
-      - tree-service-bid-calculator__index.html.gz=tree-service-bid-calculator__index.html.gz
-      - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tree-service-bid-calculator__index.html.gz=tree-service-bid-calculator__index.html.gz
+      - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
       - tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz=tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
@@ -2683,16 +2684,16 @@ configMapGenerator:
       - wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz=wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
-      - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
-      - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
-      - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
-      - well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz=well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz
-      - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
+      - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
+      - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
+      - well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz=well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz
+      - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - whatnot-seller-payout__calc.mjs.gz=whatnot-seller-payout__calc.mjs.gz
       - whatnot-seller-payout__how-much-does-whatnot-take-on-a-pallet.html.gz=whatnot-seller-payout__how-much-does-whatnot-take-on-a-pallet.html.gz
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
