@@ -16500,3 +16500,74 @@ ventures:
       referral fee, donations-only), and it never scans or fingerprints
       third-party infrastructure since it only reads a pasted launch
       config and contacts no server, connected or not.
+
+  - slug: auto-glass-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model --
+      loaded labor plus glass/calibration/trip material cost against a target
+      margin, and a mechanical flag when a selected ADAS calibration
+      requirement carries zero priced hours and zero priced cost -- which is
+      arithmetic and pattern-matching on the shop's own inputs, not inference.
+    basis: >-
+      Graduated on 2026-09-24 as a browser-local auto-glass replacement bid
+      calculator: windshield/door/back glass position, OEM/OEE/economy glass
+      source, no/dynamic/static/dual ADAS calibration, in-shop/mobile
+      service, and cash-discount-vs-insurance-deductible billing. Screened
+      against `portfolio/pipeline/screened-out.md` and the `ventures/`
+      listing with `duplicate_check.py` (top unrelated match 0.16) before
+      writing this row -- no existing venture prices auto glass, and the
+      nearest neighbours (`auto-repair-effective-labor-rate`, a shop-wide
+      labor-rate tool, and the many other `<trade>-bid-calculator` ventures)
+      price a different job entirely.
+      Autonomous ops 10 / gross margin 10: static ES modules, no build step,
+      no server of ours in the loop, no per-user cost -- serving one more
+      shop costs a static file, the same as every other browser-local bid
+      calculator in the portfolio.
+      Time to revenue 7: donations-only via the standing Sponsors link;
+      matches the other trade bid calculators' score for the same reason --
+      no paid tier, revenue depends on real usage first.
+      Defensibility 5: incumbents are paid field-service/estimating suites
+      (ServiceTitan-class) and glass-network TPA billing portals (Safelite
+      Solutions/LYNX-adjacent), neither of which publishes a free public bid
+      calculator for an independent or mobile shop; the ADAS-calibration
+      missing-line flag is the one piece of domain modelling a generic
+      quoting tool does not have, which is a real but easily-copied edge
+      rather than a moat.
+      Distribution 6: "windshield replacement cost calculator" and "ADAS
+      calibration cost" carry real, demonstrable search volume (both surface
+      autocomplete suggestions and dedicated cost-guide pages from
+      Kelley Blue Book, Angi, and glass-network sites), but the SERP is
+      more contested than most trade-bid niches in this portfolio because
+      several big-brand aggregators (Safelite, Glass.com, JustGlass) already
+      rank for the head term -- the guide page targets the narrower,
+      less-contested "how much to charge for ADAS calibration" phrase a
+      technician rather than a consumer types, which is the actual channel
+      this row counts on.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: output is arithmetic on the shop's own inputs -- never a
+      recommended market price, a determination that any ADAS or safety
+      system is functioning correctly after the work, or a substitute for
+      the vehicle manufacturer's own calibration procedure. The calculator,
+      guide page, and README all disclaim this explicitly, and the
+      missing-calibration flag is a warning to price a line, not a claim
+      about whether the work itself was done correctly.
+      Ethics: strictly beneficial as it scales -- a free tool that helps an
+      independent or mobile shop price a job correctly and catch an unpriced
+      safety-relevant calibration line before the bid goes out, no adverse
+      incentive on our side (no affiliate link to any glass supplier or
+      calibration network, no referral fee, donations-only), and it names no
+      competitor or platform by trademark.
