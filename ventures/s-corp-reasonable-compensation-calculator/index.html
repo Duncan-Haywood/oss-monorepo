@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S-Corp Reasonable Compensation Calculator — Free Salary Range Estimator</title>
+  <meta name="description" content="Free calculator for an S-corp owner's reasonable-compensation salary range. Applies the IRS's three cited approaches (cost, market, independent-investor income test) against a reference occupational wage table, plus the FICA/SECA payroll-tax delta across the range. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="S-Corp Reasonable Compensation Calculator — free salary range estimator">
+  <meta property="og:description" content="Estimate a defensible S-corp owner salary range across the cost, market, and independent-investor-test approaches, plus what each point of the range costs in payroll tax. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"S-Corp Reasonable Compensation Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates a defensible reasonable-compensation salary range for an S-corp owner-employee using the three approaches IRS guidance and Tax Court cases cite: the cost approach (sum of duties actually performed, at reference occupational wages), the market approach (what an outside hire would cost to fill the owner's primary role), and the income approach / independent-investor test (net profit before compensation minus a fair return on invested capital). Reports a low-to-high range rather than a single number, names which approach binds at each end, and computes the combined FICA/SECA payroll-tax cost delta between the low and high ends of that range for a chosen tax year and filing status. Entirely client-side; nothing is uploaded.","featureList":"Cost approach across up to three duty rows, market approach from a reference occupational wage table, income approach / independent-investor ceiling, 2025 and 2026 Social Security wage base, Additional Medicare Tax by filing status, payroll-tax delta across the estimated range"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does an S-corp owner need a \"reasonable\" salary at all?","acceptedAnswer":{"@type":"Answer","text":"An S-corp owner-employee must be paid reasonable W-2 compensation for services performed before any remaining profit is taken as a distribution. Only the W-2 wage is subject to FICA payroll tax (Social Security and Medicare); a distribution is not. Set the salary too low relative to the work performed and the IRS can recharacterize distributions as wages, assessing back payroll tax, interest, and an accuracy-related penalty — the fact pattern behind the IRS's own S-corporation compensation guidance and Tax Court cases such as Watson v. Commissioner."}},{"@type":"Question","name":"What are the three approaches this calculator uses?","acceptedAnswer":{"@type":"Answer","text":"The cost approach sums what it would cost to hire separate employees to perform each duty the owner actually performs. The market approach is what an outside, unrelated employer would pay someone else to fill the owner's primary role. The income approach (the \"independent investor\" test) takes net profit before owner compensation and subtracts a fair rate of return on the shareholder's invested capital — the residual is what is available for compensation without shortchanging an outside investor. This tool reports the low-to-high span across all three, never their average."}},{"@type":"Question","name":"Can the income approach make the reasonable range LOWER than the market rate?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is one of the more commonly missed parts of this methodology. If paying the cost- or market-approach salary would leave less than a fair return on the capital invested in the business, the independent-investor test caps a defensible salary below that figure, with the remainder available as distribution instead. This calculator flags explicitly whenever the income approach is the binding constraint."}},{"@type":"Question","name":"Where do the occupational wage figures come from?","acceptedAnswer":{"@type":"Answer","text":"They are approximate national median annual wages for common owner-operator roles, rounded to the nearest $1,000, in the range published by the Bureau of Labor Statistics' Occupational Employment and Wage Statistics (OEWS) program. They are reference figures for a starting estimate, not a live BLS data feed and not specific to your metro area — check bls.gov/oes for the closest SOC code and location before treating a number from this table as your final market-approach figure."}},{"@type":"Question","name":"Is this tax or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator produces a documented estimate range using a published methodology and a reference wage table — it never asserts a single \"correct\" salary, does not touch payroll or filing, and is not a substitute for a qualified CPA or tax attorney reviewing your specific facts. You remain responsible for setting, documenting, and running your own payroll."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f1; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5c35; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #17422a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17422a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a54; }
+    .card { background: #fff; border: 1px solid #d8e0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17422a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9c6ba; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .duty-row { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; align-items: end; margin: 10px 0; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5c35; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edea; color: #17422a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a54; }
+    .price { font-weight: 800; font-size: 1.2rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #17422a; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d8e0da; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">S-CORP REASONABLE COMPENSATION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's a defensible reasonable-compensation salary for your S-corp?</h1>
+    <p>An S-corp owner-employee has to be paid a <strong>reasonable W-2
+    salary</strong> before the rest of the profit can be taken as a
+    distribution — and only the salary portion pays FICA payroll tax. This
+    estimates a <strong>low-to-high range</strong> across the three
+    approaches IRS guidance and Tax Court cases cite (cost, market, and the
+    independent-investor income test), plus what each end of that range
+    costs in payroll tax. Never a single asserted number.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Business profit &amp; capital</h2>
+    <div class="grid">
+      <div>
+        <label for="net-profit">Net business profit before your compensation ($)</label>
+        <input type="number" id="net-profit" min="0" step="1000" placeholder="e.g. 300000">
+      </div>
+      <div>
+        <label for="capital-invested">Capital you have invested in the business ($)</label>
+        <input type="number" id="capital-invested" min="0" step="1000" placeholder="e.g. 150000">
+      </div>
+      <div>
+        <label for="required-return">Fair rate of return on that capital (%)</label>
+        <input type="number" id="required-return" min="0" max="100" step="0.5" value="10">
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+        </select>
+      </div>
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="joint">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="hours-per-week">Hours you work per week in this role</label>
+        <input type="number" id="hours-per-week" min="1" max="80" step="1" value="40">
+      </div>
+    </div>
+    <p class="note">"Net business profit before your compensation" is the
+    S-corp's ordinary business income for the year before any W-2 wage is
+    paid to you — the pool your salary and distribution both come from.
+    "Capital invested" is your basis in the business (cash and property you
+    put in, plus retained undistributed profit), used only for the
+    independent-investor test in section 3 below.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. What you actually do (cost approach)</h2>
+    <p class="note">List the duties you perform and roughly what share of
+    your working time each takes, using the closest reference role. Row 1
+    also doubles as your <strong>primary role</strong> for the market
+    approach — what an outside hire would cost to fill your main job title.
+    Percentages should add to 100%.</p>
+    <div class="duty-row">
+      <div>
+        <label for="duty1-occupation">Duty 1 (primary role)</label>
+        <select id="duty1-occupation"></select>
+      </div>
+      <div>
+        <label for="duty1-percent">% of time</label>
+        <input type="number" id="duty1-percent" min="0" max="100" step="1" value="100">
+      </div>
+    </div>
+    <div class="duty-row">
+      <div>
+        <label for="duty2-occupation">Duty 2 (optional)</label>
+        <select id="duty2-occupation"></select>
+      </div>
+      <div>
+        <label for="duty2-percent">% of time</label>
+        <input type="number" id="duty2-percent" min="0" max="100" step="1" value="0">
+      </div>
+    </div>
+    <div class="duty-row">
+      <div>
+        <label for="duty3-occupation">Duty 3 (optional)</label>
+        <select id="duty3-occupation"></select>
+      </div>
+      <div>
+        <label for="duty3-percent">% of time</label>
+        <input type="number" id="duty3-percent" min="0" max="100" step="1" value="0">
+      </div>
+    </div>
+    <p class="note" id="duty-total-note"></p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate my range</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in the sections above, then click Calculate my range.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>3. Estimated range</h2>
+    <p class="stats" id="report-stats"></p>
+    <table>
+      <thead><tr><th>Approach</th><th>Amount</th></tr></thead>
+      <tbody id="report-body"></tbody>
+    </table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a determination.</strong> This produces a documented
+      range from a stated methodology, not "your salary should be exactly
+      $X" — the same evidence-not-advice positioning every calculator in
+      this portfolio uses. The IRS itself applies no single formula;
+      compensation is judged against all the facts (training and
+      experience, time devoted, dividend history, payments to non-owner
+      employees, and more).</li>
+      <li><strong>Reference wages, not a live feed.</strong> The
+      occupational wage table is an approximate, rounded reference — verify
+      against BLS's own current OEWS figures for your metro area at
+      <a href="https://www.bls.gov/oes/" rel="noopener">bls.gov/oes</a>
+      before treating a number here as final.</li>
+      <li><strong>One tax year of payroll tax only.</strong> The delta shown
+      is the combined employee + employer FICA cost of the salary alone; it
+      is not your full tax liability, does not include state payroll tax or
+      unemployment insurance, and does not model income tax (which applies
+      to wages and distributions alike, so it does not change this
+      decision).</li>
+      <li><strong>Single owner-employee.</strong> This does not combine or
+      allocate compensation across multiple shareholder-employees.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does an S-corp owner need a "reasonable" salary at all?</h3>
+    <p>An S-corp owner-employee must be paid reasonable W-2 compensation for services performed before any remaining profit is taken as a distribution. Only the W-2 wage is subject to FICA payroll tax (Social Security and Medicare); a distribution is not. Set the salary too low relative to the work performed and the IRS can recharacterize distributions as wages, assessing back payroll tax, interest, and an accuracy-related penalty — the fact pattern behind the IRS's own S-corporation compensation guidance and Tax Court cases such as Watson v. Commissioner.</p>
+    <h3>What are the three approaches this calculator uses?</h3>
+    <p>The cost approach sums what it would cost to hire separate employees to perform each duty the owner actually performs. The market approach is what an outside, unrelated employer would pay someone else to fill the owner's primary role. The income approach (the "independent investor" test) takes net profit before owner compensation and subtracts a fair rate of return on the shareholder's invested capital — the residual is what is available for compensation without shortchanging an outside investor. This tool reports the low-to-high span across all three, never their average.</p>
+    <h3>Can the income approach make the reasonable range LOWER than the market rate?</h3>
+    <p>Yes, and that is one of the more commonly missed parts of this methodology. If paying the cost- or market-approach salary would leave less than a fair return on the capital invested in the business, the independent-investor test caps a defensible salary below that figure, with the remainder available as distribution instead. This calculator flags explicitly whenever the income approach is the binding constraint.</p>
+    <h3>Where do the occupational wage figures come from?</h3>
+    <p>They are approximate national median annual wages for common owner-operator roles, rounded to the nearest $1,000, in the range published by the Bureau of Labor Statistics' Occupational Employment and Wage Statistics (OEWS) program. They are reference figures for a starting estimate, not a live BLS data feed and not specific to your metro area — check bls.gov/oes for the closest SOC code and location before treating a number from this table as your final market-approach figure.</p>
+    <h3>Is this tax or legal advice?</h3>
+    <p>No. This calculator produces a documented estimate range using a published methodology and a reference wage table — it never asserts a single "correct" salary, does not touch payroll or filing, and is not a substitute for a qualified CPA or tax attorney reviewing your specific facts. You remain responsible for setting, documenting, and running your own payroll.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for documenting and defending whatever compensation figure you ultimately choose. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>range_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Already sized your Section 199A deduction? The <a href="../qbi-deduction-calculator/">QBI deduction calculator</a> is the other number most S-corp owners need the same filing season — this one sets the salary, that one sizes the deduction on what's left as pass-through income.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { estimateReasonableCompensation, money, OCCUPATION_WAGES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const dutySelects = [$("#duty1-occupation"), $("#duty2-occupation"), $("#duty3-occupation")];
+    for (const select of dutySelects) {
+      select.innerHTML = OCCUPATION_WAGES.map((o) => `<option value="${o.value}">${o.label} (~${money(o.wage)}/yr)</option>`).join("");
+    }
+
+    const els = {
+      netProfit: $("#net-profit"), capitalInvested: $("#capital-invested"), requiredReturn: $("#required-return"),
+      taxYear: $("#tax-year"), filingStatus: $("#filing-status"), hoursPerWeek: $("#hours-per-week"),
+      duty1Occ: $("#duty1-occupation"), duty1Pct: $("#duty1-percent"),
+      duty2Occ: $("#duty2-occupation"), duty2Pct: $("#duty2-percent"),
+      duty3Occ: $("#duty3-occupation"), duty3Pct: $("#duty3-percent"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      body: $("#report-body"), findings: $("#report-findings"), dutyTotalNote: $("#duty-total-note"),
+    };
+
+    function readDuties() {
+      return [
+        { occupation: els.duty1Occ.value, percentOfTime: Number(els.duty1Pct.value) || 0 },
+        { occupation: els.duty2Occ.value, percentOfTime: Number(els.duty2Pct.value) || 0 },
+        { occupation: els.duty3Occ.value, percentOfTime: Number(els.duty3Pct.value) || 0 },
+      ].filter((d) => d.percentOfTime > 0);
+    }
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const duties = readDuties();
+      const result = estimateReasonableCompensation({
+        duties,
+        primaryOccupation: els.duty1Occ.value,
+        hoursPerWeek: Number(els.hoursPerWeek.value) || 40,
+        netProfitBeforeComp: Number(els.netProfit.value) || 0,
+        capitalInvested: Number(els.capitalInvested.value) || 0,
+        requiredReturnPercent: Number(els.requiredReturn.value) || 0,
+        taxYear: Number(els.taxYear.value),
+        filingStatus: els.filingStatus.value,
+      });
+
+      els.dutyTotalNote.textContent = Math.round(result.costPercentTotal) === 100
+        ? ""
+        : `Duty percentages currently add to ${Math.round(result.costPercentTotal)}%, not 100% — see the note below the results.`;
+
+      els.stats.innerHTML = `Estimated reasonable-compensation range: <strong><span class="price">${money(result.low)} – ${money(result.high)}</span></strong> — payroll tax on the salary alone ranges from <strong>${money(result.payrollTaxAtLow)}</strong> to <strong>${money(result.payrollTaxAtHigh)}</strong> (a difference of ${money(result.payrollTaxDelta)}).`;
+      els.body.innerHTML = `
+        <tr><td>Cost approach (duties performed)</td><td>${money(result.cost)}</td></tr>
+        <tr><td>Market approach (primary role, outside hire)</td><td>${money(result.market)}</td></tr>
+        <tr><td>Income approach (independent-investor ceiling)</td><td>${money(result.income)}</td></tr>
+        <tr><td><strong>Range</strong></td><td><strong>${money(result.low)} – ${money(result.high)}</strong></td></tr>`;
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("range_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.netProfit.value = "300000";
+      els.capitalInvested.value = "150000";
+      els.requiredReturn.value = "10";
+      els.taxYear.value = "2026";
+      els.filingStatus.value = "single";
+      els.hoursPerWeek.value = "40";
+      els.duty1Occ.value = "general-operations-manager";
+      els.duty1Pct.value = "70";
+      els.duty2Occ.value = "bookkeeping-clerk";
+      els.duty2Pct.value = "30";
+      els.duty3Occ.value = "attorney";
+      els.duty3Pct.value = "0";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $300,000 net profit, $150,000 invested capital, an owner splitting time 70% general manager / 30% bookkeeper, 2026.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.netProfit.value = "";
+      els.capitalInvested.value = "";
+      els.requiredReturn.value = "10";
+      els.hoursPerWeek.value = "40";
+      els.duty1Pct.value = "100";
+      els.duty2Pct.value = "0";
+      els.duty3Pct.value = "0";
+      els.report.hidden = true;
+      els.dutyTotalNote.textContent = "";
+      els.status.textContent = "Fill in the sections above, then click Calculate my range.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

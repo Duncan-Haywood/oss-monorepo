@@ -569,7 +569,16 @@ const RELATIVE_SELF = relative(
 // `subdomain-takeover-check-usage` storage name). Verified the way this
 // file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/subdomain-takeover-check/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 321;
+//
+// 321 -> 322: `s-corp-reasonable-compensation-calculator` graduated (this
+// branch), adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed
+// under its own `s-corp-reasonable-compensation-calculator-usage` storage
+// name). Verified the way this file's error message prescribes: exactly
+// one added `usage.mjs`
+// (`ventures/s-corp-reasonable-compensation-calculator/usage.mjs`) and no
+// deletions.
+const SWITCHES_IN_THE_CATALOGUE = 322;
 
 let counter = 0;
 function fixture(source) {

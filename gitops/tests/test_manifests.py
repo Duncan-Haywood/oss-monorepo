@@ -2257,7 +2257,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # static `index.html` from its first commit, same shape as the rest of
     # this running count. Total re-derived here by `sync_tree_counts.py`
     # against the fully merged tree rather than by hand.
-    total = 339  # `infra/OWNER_CHECKLIST.md`'s own "N of the 339 tools" wording.
+    #
+    # 340 since this merge: `s-corp-reasonable-compensation-calculator`
+    # graduated (this branch) -- a browser calculator estimating an S-corp
+    # owner-employee's reasonable-compensation salary range across the
+    # cost, market, and independent-investor-income IRS-cited approaches,
+    # plus the FICA/SECA payroll-tax delta across that range. A static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    total = 340  # `infra/OWNER_CHECKLIST.md`'s own "N of the 340 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

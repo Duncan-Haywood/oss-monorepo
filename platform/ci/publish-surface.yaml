@@ -941,6 +941,9 @@ workflows:
 - workflow: roofing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: s-corp-reasonable-compensation-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []

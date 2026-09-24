@@ -1,0 +1,96 @@
+name: s-corp-reasonable-compensation-calculator
+description: >-
+  Free browser calculator for an S-corp owner-employee's reasonable-
+  compensation salary range. Applies the three approaches IRS guidance and
+  Tax Court cases cite (cost, market, independent-investor income test)
+  against a reference occupational wage table, reports a low-to-high range
+  rather than a single number, and computes the combined FICA/SECA
+  payroll-tax delta between the low and high ends of that range for a
+  chosen 2025/2026 tax year and filing status. Entirely client-side;
+  nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened and scored 2026-09-24 in
+# portfolio/pipeline/candidates/s-corp-reasonable-compensation-calculator.md
+# (composite 6.375, floor 1/ai_leverage, both gates clear:
+# liability_containment 6, ethical_robustness 8). duplicate_check.py
+# against the final description scored every OTHER existing venture and
+# candidate at or below 0.14 -- the closest was qbi-deduction-calculator
+# (a different mechanism: a federal deduction on business income already
+# earned, not an owner's own pre-payroll salary/distribution split; it is
+# this venture's cross-linked sibling for that reason). screened-out.md
+# has no row for S-corp compensation, payroll-tax splits, or
+# reasonable-salary methodology.
+#
+# Distribution evidence: WebSearch on 2026-09-24 found a live,
+# commercially validated market for exactly this calculator shape.
+# RCReports (rcreports.com) sells "reasonable compensation" analysis
+# reports to CPAs/preparers for $100-400/report, who in turn charge their
+# own clients $400-1,200/report. ReasonableCompCalc (reasonablecompcalc.com)
+# sells the same category starting at $199. At least five CPA/tax-advisory
+# firms (madsencpa.com, taxstra.com, sdocpa.com, slpwealth.com,
+# evergreensmallbusiness.com) each publish their own free "S-Corp
+# Reasonable Salary Calculator" as a lead-generation tool competing for
+# the identical search phrase -- the same "several independent competitors
+# building the same free tool to capture the same search traffic" evidence
+# this portfolio already used successfully for qbi-deduction-calculator,
+# and the same free-without-the-lead-gen-wall wedge.
+#
+# Recurs annually, unlike most one-time tax situations this portfolio has
+# built calculators for: the salary/distribution split is set every payroll
+# year an S-corp election stays in effect, not once per life event.
+
+hypotheses:
+  - claim: >-
+      S-corp owners and their bookkeepers will search plain-language
+      phrases ("s corp reasonable salary calculator", "s corp reasonable
+      compensation calculator", "how much should I pay myself s corp")
+      ahead of setting up payroll for a new tax year, and will use a free,
+      no-signup, three-methodology calculator rather than filling out a
+      CPA firm's contact form to see a number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      An owner whose business is thinly capitalized relative to its
+      profit will specifically value the income-approach/independent-
+      investor-test finding -- the case where this tool's range is LOWER
+      than a naive market-rate lookup -- because that is the one
+      methodology detail a plain BLS wage lookup on its own would miss.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A visitor will use the payroll-tax-delta figure specifically to
+      decide where inside the estimated range to set their actual salary,
+      rather than only reading the range itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 90 days
+    of the 2027 January filing season (the first full payroll-setup season
+    this tool would be live for).
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of the 2027 filing season closing.
+  - The reference occupational wage table goes a full filing season
+    without being checked against current BLS OEWS figures and the page
+    is not updated to disclose the staleness.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/s-corp-reasonable-compensation-calculator/
+  analytics: null

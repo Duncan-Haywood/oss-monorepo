@@ -1795,3 +1795,35 @@ candidates:
       implementation surface.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: s-corp-reasonable-compensation-calculator
+    name: S-corp reasonable compensation calculator
+    doc: candidates/s-corp-reasonable-compensation-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/s-corp-reasonable-compensation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Report a low-to-high range across three disclosed IRS-cited
+      approaches (cost, market, independent-investor-test income) and never
+      collapse it into one asserted "correct" salary -- the reference wage
+      table carries an explicit as-of date and BLS citation next to every
+      figure that uses it, and a kill criterion fires if it goes a full
+      filing season without being refreshed. The tool never touches
+      payroll, filing, or any user account; it produces evidence and a
+      documented range for the user and their own CPA to act on, the same
+      positioning as every other tax calculator already in this portfolio.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

@@ -15992,3 +15992,69 @@ ventures:
       own HTTP response, no crawling, no enumeration of a domain's other
       subdomains, and the report is explicit that a clean result describes
       only the hostnames checked, not a full DNS-zone audit.
+
+  - slug: s-corp-reasonable-compensation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic across three IRS-cited approaches (a
+      weighted sum against a static reference wage table, a hours-scaled
+      lookup, and a profit-minus-required-return residual) plus a
+      combined-FICA payroll-tax computation against published wage-base
+      and threshold figures. There is no inference step anywhere in the
+      tool, and no salary figure is ever asserted as "the" correct one --
+      the output is a low-to-high range with the binding approach named.
+    basis: >-
+      Graduated 2026-09-24 per
+      portfolio/pipeline/candidates/s-corp-reasonable-compensation-calculator.md.
+      duplicate_check.py scored every OTHER existing venture and
+      candidate at or below 0.14 against the final description
+      (qbi-deduction-calculator closest, a different mechanism -- a
+      federal deduction on income already earned, not a pre-payroll
+      salary/distribution split; cross-linked as a sibling for that
+      reason). screened-out.md has no row for S-corp compensation,
+      payroll-tax splits, or reasonable-salary methodology.
+      Distribution 8: WebSearch found a live, commercially validated
+      market for exactly this calculator -- RCReports sells this
+      analysis for $100-400/report to preparers (who charge clients
+      $400-1,200), ReasonableCompCalc sells the same category starting
+      at $199, and at least five CPA firms (madsencpa.com, taxstra.com,
+      sdocpa.com, slpwealth.com, evergreensmallbusiness.com) each
+      publish their own free lead-generation version competing for the
+      identical search phrase -- the strongest, most directly priced
+      distribution evidence gathered for a new candidate in this file,
+      scored a point above the sibling tax calculators' typical 6-7.
+      Time to revenue 6, defensibility 2: donations-only, no paid tier;
+      the arithmetic and reference table are easy to reimplement, same
+      as every sibling calculator -- scored in line with them rather
+      than above them, since the niche's proven willingness to pay a
+      third party is evidence the problem is real, not evidence this
+      free tool converts faster than its siblings.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never touches payroll, filing, or any account of
+      the user's -- it produces a disclosed range from a stated
+      methodology and a dated, sourced reference wage table, and every
+      page states explicitly that this is not a determination and not a
+      substitute for a CPA or tax attorney. The worst case is a
+      suboptimal or under-documented salary choice the user's own CPA
+      still has to sign off on before payroll runs, not a filing made on
+      the user's behalf, the same risk envelope as this portfolio's other
+      tax-adjacent evidence tools (no-tax-on-tips-overtime-calculator,
+      qbi-deduction-calculator). Ethically: free and no-signup, so unlike
+      the paid-report competitors in this niche there is no engagement
+      fee that could reward biasing the range toward a lower headline
+      number, and the income-approach logic can only ever pull the range
+      down (never inflate it) when a business's own numbers call for
+      that -- the tool has no incentive misaligned with the user's.

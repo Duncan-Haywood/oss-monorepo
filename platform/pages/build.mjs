@@ -1088,7 +1088,18 @@ const CATEGORY_RULES = [
       // rule, just a deduction tied to QBI instead of tips/overtime, and it
       // cross-links `quarterly-estimated-tax-calendar` as a sibling for the
       // same reason that tool does.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator)/.test(slug),
+      // `s-corp-reasonable-compensation-calculator` joined 2026-09-24, filed
+      // here on its first commit rather than after a spell in the catch-all
+      // -- what `build.test.mjs`'s catch-all bound is for. It is a slightly
+      // different axis than its neighbours above (a salary/distribution
+      // split set *before* payroll runs, not a deduction computed on income
+      // already earned) but the same buyer and the same "back-office tax
+      // arithmetic a small-business owner would otherwise pay a CPA $100-
+      // 1,200 for" shape as `qbi-deduction-calculator` right above it, which
+      // it cross-links as a sibling: both are S-corp/pass-through-entity
+      // owner tools, one sizes the deduction, this one sizes the paycheck
+      // the deduction is computed from.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|s-corp-reasonable-compensation)/.test(slug),
   },
   {
     id: 'ci',

@@ -99,6 +99,15 @@ test("the comparison page names no specific tax-prep company or competing calcul
   assert.match(html, /No warranty/);
 });
 
+test("index links one hop to the s-corp-reasonable-compensation-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/s-corp-reasonable-compensation-calculator\/"/,
+    'index must link ../s-corp-reasonable-compensation-calculator/ so crawlers reach it in one hop',
+  );
+});
+
 test("index links the why-is-my-qbi-deduction-0 guide", () => {
   const html = page("index.html");
   assert.match(html, /href="\.\/why-is-my-qbi-deduction-0\.html"/);

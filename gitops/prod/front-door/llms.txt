@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 339 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 340 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 339 of them — and
+Every tool in the collection is listed below — all 340 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -316,6 +316,7 @@ page that hosts it.
 - [Payment Reconciliation — Match Payouts to Bank Deposits](https://marisstella.dev/tools/payment-reconciliation-workbench/): Free private CSV tool for small businesses to match Stripe, Square, or PayPal payouts to bank deposits and find reconciliation gaps without QuickBooks.
 - [QBI Deduction Calculator — Section 199A, 2025 & 2026, Free](https://marisstella.dev/tools/qbi-deduction-calculator/): Free calculator for the Section 199A qualified business income (QBI) deduction: applies the 20% deduction, the taxable-income threshold and phase-in range for 2025 and 2026 (including the OBBBA-widened 2026 range and new $400 minimum deduction), the specified-service-business (SSTB) phase-out, and the W-2 wage / UBIA limitation. Entirely client-side, nothing uploaded.
 - [Quarterly Estimated Tax Calendar — Free, No Sign-Up](https://marisstella.dev/tools/quarterly-estimated-tax-calendar/): Free calculator for US freelancers, 1099 contractors, and gig workers: computes the IRS safe-harbor quarterly estimated tax payment from your own numbers, gives the four real (weekend/holiday-adjusted) due dates, and exports a downloadable calendar file. Nothing uploaded.
+- [S-Corp Reasonable Compensation Calculator — Free Salary Range Estimator](https://marisstella.dev/tools/s-corp-reasonable-compensation-calculator/): Free calculator for an S-corp owner's reasonable-compensation salary range. Applies the IRS's three cited approaches (cost, market, independent-investor income test) against a reference occupational wage table, plus the FICA/SECA payroll-tax delta across the range. Entirely client-side, nothing uploaded.
 - [Security Deposit Refund & Prorated Rent Calculator — Free, No Sign-Up](https://marisstella.dev/tools/security-deposit-return-calculator/): Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.
 - [Self-Storage Rate Increase Calculator](https://marisstella.dev/tools/self-storage-rate-increase-calculator/): Price an existing-customer rate increase (ECRI) at your storage facility: what one induced move-out really costs once the unit re-rents at street rate, and the move-out rate at which the increase stops paying. Free, private, nothing leaves your browser.
 
