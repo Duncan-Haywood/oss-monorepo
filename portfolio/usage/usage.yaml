@@ -7054,3 +7054,23 @@ products:
           `assessed` is the signal worth watching first: it is the one act
           every visitor with a real question can complete regardless of
           the answer they get.
+  - slug: mega-backdoor-roth-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          recalculated: 0
+        note: >-
+          Baseline at graduation. A browser-local calculator computing
+          after-tax 401(k) headroom under the IRS 415(c) limit.
+          `live_url_visitors` is null, not zero -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in, so nobody
+          has measured yet. Named channel to watch: the Bogleheads wiki
+          and forum, which carry a dedicated page and recurring threads on
+          this exact mechanic (found via WebSearch/WebFetch 2026-09-24,
+          which also found at least six existing competing free
+          calculators already targeting the phrase -- see VENTURE.yaml's
+          "Competitive honesty" note). `recalculated` is the signal worth
+          watching first: it fires on every input change, so it is the one
+          act every visitor who actually uses the form completes.
