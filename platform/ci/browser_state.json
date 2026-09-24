@@ -429,6 +429,28 @@
         "sideways",
         "sweep"
       ],
+      "commit": "891a3ac5afb6c383e3cb85fbd26f8f6de487f147",
+      "measured": "2026-09-24",
+      "pages": 1400,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "1cfe6210bb4d5bff71aa6e3edeae9d3a68a34f4f",
+        "platform/pages": "2b10b6a60bdd9569e1cb9fa243504f001af34a5f",
+        "ventures": "687942f4a9651bee082af138ca8d61135b27593d"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
       "commit": "c063a330516004fc2410d45651a51cf6326af2cf",
       "measured": "2026-09-24",
       "pages": 1404,
