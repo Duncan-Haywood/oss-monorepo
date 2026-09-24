@@ -2478,9 +2478,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `tip-pool-compliance-calculator` and this one graduated without a
     # comment recording it here; not reconstructed since this entry only
     # speaks to this session's own change.)
+    #
+    # 361 on this merge: `mega-backdoor-roth-calculator` also graduated,
+    # concurrently on `main` while this branch was in flight -- a
+    # zero-dependency browser calculator for after-tax 401(k)/415(c)
+    # headroom. This branch only ever knew its own predecessor's number
+    # (360) until this merge -- the same ordinary collision shape recorded
+    # throughout this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
+    total = 361  # `infra/OWNER_CHECKLIST.md`'s own "N of the 361 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

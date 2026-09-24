@@ -1218,7 +1218,18 @@ const CATEGORY_RULES = [
       // as a sibling: same section of the tipped-wage workforce, a
       // different obligation (a federal income-tax deduction there, a
       // federal wage-and-hour rule here).
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator)/.test(slug),
+      //
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, concurrently on
+      // `main` while a sibling session's branch was in flight -- filed here
+      // rather than left in the catch-all (`build.test.mjs`'s bound is what
+      // that guard is for). Same "IRS dollar-limit lookup against a filer's
+      // own numbers" axis as `qbi-deduction-calculator` and
+      // `depreciation-recapture-calculator` right above it in this rule --
+      // after-tax 401(k)/415(c) headroom instead of a deduction, but the
+      // same shape: a published, dated table plus arithmetic on figures the
+      // saver already has, never a filed election or plan-compliance
+      // determination.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|mega-backdoor-roth-calculator)/.test(slug),
   },
   {
     id: 'ci',
