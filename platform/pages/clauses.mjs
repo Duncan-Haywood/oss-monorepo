@@ -1060,11 +1060,6 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // file's own git-exposure-check/vs-checking-the-url-by-hand.html entry
   // above.
   'graphql-introspection-exposure-check/vs-checking-introspection-by-hand.html',
-  // Compares against "a flat price per window" -- a generic pricing habit
-  // any window-cleaning operator already reaches for, not a company or
-  // product this could be mistaken for. Same reasoning as this file's own
-  // git-exposure-check/vs-checking-the-url-by-hand.html entry above.
-  'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
   // Compares against "doing the math yourself" -- a generic method (adding
   // up wall-clock minutes by hand) every repository maintainer already
   // does, not a company or product this could be mistaken for. Distinct
@@ -1191,12 +1186,6 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-spreadsheet pages above (e.g. bounce-house-rental-calculator's).
   'apparel-decoration-price-calculator/vs-a-spreadsheet.html',
-  // Compares against "a per-job pricing spreadsheet" -- a generic method
-  // every operator already has access to, not a company or product this
-  // could be mistaken for. Distinct from this venture's own vs-jobber.html,
-  // which names a specific field-service platform and already carries the
-  // "not affiliated" clause for that reason.
-  'dumpster-rental-margin-calculator/vs-a-spreadsheet.html',
   // Compares against "reading the workflow file by hand" -- a manual
   // review habit every GitHub Actions user already has, not a company or
   // product this could be mistaken for. Distinct from this venture's own
@@ -1205,13 +1194,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-checking-*-by-hand pages above (e.g.
   // graphql-introspection-exposure-check's).
   'actions-injection-check/vs-checking-a-workflow-by-hand.html',
-  // Compares against "reading a Dockerfile by hand" -- a manual review
-  // habit every Docker user already has, not a company or product this
-  // could be mistaken for. Distinct from this venture's own vs-hadolint.html,
-  // which names a specific open-source tool and already carries the "not
+  // Compares against "a flat installed price per square foot" -- a generic
+  // pricing habit every shed dealer already shops against (the "$X.XX
+  // installed" Facebook-special quote), not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html, which
+  // names a specific field-service platform and already carries the "not
   // affiliated" clause for that reason. Same reasoning as the other
-  // vs-checking-*-by-hand pages above.
-  'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // vs-a-flat-rate-per-square-foot pages above (e.g.
+  // artificial-turf-bid-calculator's).
+  'shed-install-bid-calculator/vs-a-flat-price-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
