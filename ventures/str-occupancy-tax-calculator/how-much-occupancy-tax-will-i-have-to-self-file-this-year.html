@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Occupancy Tax Will You Have to Self-File This Year? | STR Occupancy Tax Calculator</title>
+  <meta name="description" content="A platform's payout summary shows the tax it collected, not the tax you still owe. Worked with the calculator's own numbers: the county layer a collection agreement doesn't cover adds up to a real annual total, and the monthly rollup is what shows it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./how-much-occupancy-tax-will-i-have-to-self-file-this-year.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="How much occupancy tax will you have to self-file this year?">
+  <meta property="og:description" content="A platform's payout summary reports what it collected, not what's left over. The monthly rollup on a per-stay split turns that gap into an annual number worth setting cash aside for.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much occupancy tax will I have to self-file this year?","acceptedAnswer":{"@type":"Answer","text":"Whatever your uncovered tax layers add up to across every stay, not just one. On this calculator's own worked example -- a $250/night, 4-night stay with a $150 cleaning fee at 6 bookings a month -- the host-must-remit share is $57.50 per stay and $345.00 a month. Held steady across a full year, that is $4,140.00 the host has to track and file directly, none of it withheld by the platform at checkout."}},{"@type":"Question","name":"Why doesn't my 1099-K or payout summary already show this?","acceptedAnswer":{"@type":"Answer","text":"Because it reports what the platform paid out and, separately, what it remitted on your behalf -- it doesn't reconcile the two against what was actually owed on every stay. In the worked example, the platform's own tax summary shows $69.00 collected per stay for the state layer and calls that handled. It has no reason to surface the $57.50 county layer it never had a collection agreement for, so that figure exists nowhere in the platform's paperwork -- only in a calculation like this one."}},{"@type":"Question","name":"If the platform's summary says tax was collected, am I covered?","acceptedAnswer":{"@type":"Answer","text":"Only for the layers that summary actually names. A platform's collection agreement is set per taxing authority, so “tax collected: yes” on a payout statement can mean the state layer alone. On the worked example, $69.00 of the $126.50 owed per stay is genuinely handled -- the remaining $57.50 is not covered by that same sentence, and a host who reads “collected” as “all of it” misses the county filing entirely."}},{"@type":"Question","name":"My bookings aren't the same every month -- does the annual figure still work?","acceptedAnswer":{"@type":"Answer","text":"Only as a planning estimate, not a forecast. The calculator's monthly rollup is explicitly illustrative -- it multiplies one stay's tax by a flat bookings-per-month figure you supply, and a year at that same pace is twelve of that number. A host with a strong summer season and a quiet winter should run the calculator separately for each season's own booking pace rather than annualizing one month, since the flat multiplication assumes a steadiness most calendars don't have."}},{"@type":"Question","name":"How often do I actually have to file and pay the host-remit amount?","acceptedAnswer":{"@type":"Answer","text":"That depends entirely on the taxing authority, and this calculator doesn't know it -- filing frequency (monthly, quarterly, or annual) is set by the specific county or city tax office, not by the platform or by this tool. What this page gives you is the total to expect over a year; the authority's own registration paperwork, from when you set up the account you file under, states how often a return is due."}},{"@type":"Question","name":"Does this replace keeping records for an actual filing?","acceptedAnswer":{"@type":"Answer","text":"No. This is a planning total from one representative stay and a monthly average, useful for deciding how much cash to set aside -- it is not a substitute for totaling each stay's actual county-layer tax off your own booking records when a return is due. Use the per-stay calculator on every real booking if you need a number to file, not this page's annualized estimate."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eef0f2; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #143a5e; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; margin: 0 0 14px; color: #143a5e; }
+    h2 { color: #143a5e; margin: 1.6rem 0 .6rem; }
+    section { background: #fff; border: 1px solid #ccd4da; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #12283310; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dce1; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #47535e; }
+    td.hit { font-weight: 700; color: #8c2318; }
+    .note { font-size: .85rem; color: #47535e; }
+    .cta { display: inline-block; margin-top: .4rem; padding: 10px 15px; border-radius: 8px; background: #143a5e; color: #fff; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #47535e; }
+    footer p { margin: .6rem 0; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; STR Occupancy Tax Calculator</a></p>
+  <h1>How much occupancy tax will you have to self-file this year?</h1>
+  <p>
+    A platform's payout summary and 1099-K report what it paid you and what
+    it remitted on your behalf -- not what's left over. Every figure below is
+    the calculator's own worked example, run through its monthly rollup and
+    held steady across a year, and checked against <code>calc.mjs</code> in
+    this page's test file.
+  </p>
+  <p><a class="cta" href="./">Run this on your own stay</a></p>
+
+  <section>
+    <h2>The worked example, per stay</h2>
+    <p>
+      This calculator's own defaults: a <strong>$250</strong> nightly rate,
+      <strong>4</strong> nights, a <strong>$150</strong> cleaning fee &mdash;
+      a <strong>$1,150.00</strong> taxable base &mdash; taxed at a 6% state
+      layer the platform fully collects and a 5% county layer it does not.
+      That's <strong>$126.50</strong> in total tax per stay: the platform
+      collects <strong>$69.00</strong> of it, and <strong>$57.50</strong> is
+      left for the host to track and remit directly.
+    </p>
+  </section>
+
+  <section>
+    <h2>The monthly rollup turns it into a real number</h2>
+    <p>
+      One $57.50 gap per stay is easy to shrug off. The calculator's monthly
+      rollup multiplies it by the bookings-per-month figure you supply --
+      <strong>6</strong> in the worked example &mdash; and the gap stops
+      looking small: <strong>$345.00</strong> a month is not covered by the
+      platform's own tax remittance, on top of the <strong>$414.00</strong> a
+      month it does collect.
+    </p>
+  </section>
+
+  <section>
+    <h2>Held steady across a year</h2>
+    <p>
+      Twelve months at that same pace is the annual planning total: multiply
+      each monthly figure by 12.
+    </p>
+    <div>
+      <table>
+        <thead><tr><th>Figure</th><th>Per stay</th><th>Per month (&times;6)</th><th>Per year (&times;12 months)</th></tr></thead>
+        <tbody>
+          <tr><td>Total tax owed</td><td>$126.50</td><td>$759.00</td><td>$9,108.00</td></tr>
+          <tr><td>Platform collects</td><td>$69.00</td><td>$414.00</td><td>$4,968.00</td></tr>
+          <tr><td>Host must self-file</td><td class="hit">$57.50</td><td class="hit">$345.00</td><td class="hit">$4,140.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      $4,140.00 a year is the county layer alone, from one listing at a
+      steady 6-bookings-a-month pace. A host reading only the platform's own
+      tax-collected total ($4,968.00 a year in this example) would budget for
+      the wrong number -- the total tax owed across the year is $9,108.00,
+      and just over half of it never touches the platform's remittance at
+      all.
+    </p>
+  </section>
+
+  <section>
+    <h2>This is a planning total, not a filing figure</h2>
+    <p>
+      The annual number above assumes every month looks like the one you
+      entered, which is the same assumption the calculator's own "illustrative
+      rollup only" label next to Bookings per month already warns about. A
+      seasonal host should run the calculator once per season at that
+      season's own pace rather than annualizing a single busy or quiet month.
+      And when an actual return is due, total the real county-layer tax off
+      your own booking records for the filing period -- this page exists to
+      answer "how much should I be setting aside," not to replace that
+      record-by-record total.
+    </p>
+  </section>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>How much occupancy tax will I have to self-file this year?</h3>
+    <p>Whatever your uncovered tax layers add up to across every stay, not just one. On this calculator's own worked example -- a $250/night, 4-night stay with a $150 cleaning fee at 6 bookings a month -- the host-must-remit share is $57.50 per stay and $345.00 a month. Held steady across a full year, that is $4,140.00 the host has to track and file directly, none of it withheld by the platform at checkout.</p>
+    <h3>Why doesn't my 1099-K or payout summary already show this?</h3>
+    <p>Because it reports what the platform paid out and, separately, what it remitted on your behalf -- it doesn't reconcile the two against what was actually owed on every stay. In the worked example, the platform's own tax summary shows $69.00 collected per stay for the state layer and calls that handled. It has no reason to surface the $57.50 county layer it never had a collection agreement for, so that figure exists nowhere in the platform's paperwork -- only in a calculation like this one.</p>
+    <h3>If the platform's summary says tax was collected, am I covered?</h3>
+    <p>Only for the layers that summary actually names. A platform's collection agreement is set per taxing authority, so &ldquo;tax collected: yes&rdquo; on a payout statement can mean the state layer alone. On the worked example, $69.00 of the $126.50 owed per stay is genuinely handled -- the remaining $57.50 is not covered by that same sentence, and a host who reads &ldquo;collected&rdquo; as &ldquo;all of it&rdquo; misses the county filing entirely.</p>
+    <h3>My bookings aren't the same every month -- does the annual figure still work?</h3>
+    <p>Only as a planning estimate, not a forecast. The calculator's monthly rollup is explicitly illustrative -- it multiplies one stay's tax by a flat bookings-per-month figure you supply, and a year at that same pace is twelve of that number. A host with a strong summer season and a quiet winter should run the calculator separately for each season's own booking pace rather than annualizing one month, since the flat multiplication assumes a steadiness most calendars don't have.</p>
+    <h3>How often do I actually have to file and pay the host-remit amount?</h3>
+    <p>That depends entirely on the taxing authority, and this calculator doesn't know it -- filing frequency (monthly, quarterly, or annual) is set by the specific county or city tax office, not by the platform or by this tool. What this page gives you is the total to expect over a year; the authority's own registration paperwork, from when you set up the account you file under, states how often a return is due.</p>
+    <h3>Does this replace keeping records for an actual filing?</h3>
+    <p>No. This is a planning total from one representative stay and a monthly average, useful for deciding how much cash to set aside -- it is not a substitute for totaling each stay's actual county-layer tax off your own booking records when a return is due. Use the per-stay calculator on every real booking if you need a number to file, not this page's annualized estimate.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about which taxing authorities apply to a specific listing, what a platform's current collection agreements cover, or what you owe. It is arithmetic on the numbers you type, including the annualized planning total above. Verify every figure against each taxing authority's own guidance, the platform's tax pages for that specific address, and a qualified tax professional before you rely on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p class="support">Free and open source. If it saves you from a surprise county tax bill, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p><a href="./">Open the calculator</a></p>
+  </footer>
+</body>
+</html>
