@@ -397,6 +397,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page's own footer says so explicitly ("names no specific product").
   // Same reasoning as the other manual-method pages above.
   'call-recording-consent-check/vs-checking-each-states-statute-by-hand.html',
+  // Compares against "checking each state's law by hand" (a one-off web
+  // search) -- a generic manual method anyone can do with a search engine,
+  // not a company or product this could be mistaken for. The page's own
+  // footer says so explicitly ("names no specific product"). Same reasoning
+  // as the other manual-method pages above.
+  'salary-range-posting-check/vs-checking-each-states-law-by-hand.html',
   // Compares against "a flat price per square foot" -- a generic pricing
   // method every insulation crew already has access to, not a company or
   // product this could be mistaken for. Same reasoning as the other
@@ -1857,6 +1863,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-buildxact.html, which names a specific estimating platform and
   // already carries the trademark disclaimer.
   'pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html',
+  // Compares against "a flat rate per linear foot" -- the generic
+  // per-foot quoting habit hardscape and retaining-wall contractors are
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-aspire.html, which names Aspire
+  // specifically and already carries the trademark disclaimer.
+  'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

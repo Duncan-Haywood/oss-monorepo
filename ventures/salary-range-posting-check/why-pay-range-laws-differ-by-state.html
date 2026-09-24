@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why pay-range posting laws differ by state — Salary Range Posting Check</title>
+<meta name="description" content="Fourteen US jurisdictions currently require a job posting to state a pay range; the rest do not, or require disclosure at a different point in the process instead. What this tool models, what it deliberately leaves out, and how to read a stale reading.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./why-pay-range-laws-differ-by-state.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do some states require a range \"upon request\" instead of in the posting?","acceptedAnswer":{"@type":"Answer","text":"Connecticut, Nevada, Rhode Island, and a few others were early movers that required disclosure at a different point — when a candidate asks, before the first interview, or after an offer is made — rather than baking it into the ad itself. Those laws answer a related but different question than \"does this posting have a range,\" so this tool's posting-text scan deliberately does not check them: reporting \"not required\" for a rule that fires later in the process would be a false negative on the actual question those states ask."}},{"@type":"Question","name":"Does this cover city or county ordinances?","acceptedAnswer":{"@type":"Answer","text":"No. Several cities and counties — Cincinnati, Toledo, Columbus, and Jersey City among them — run their own posting ordinances independent of their state's law, sometimes with a different threshold or scope. A posting can clear every state-level check this tool runs and still need a separate local check this tool does not do."}},{"@type":"Question","name":"How was the effective-date and threshold data checked?","acceptedAnswer":{"@type":"Answer","text":"Cross-checked against multiple current employment-law-firm and HR-vendor summaries at build time (September 2026), not against a single source or a pinpoint statute citation. Entries marked with a lower-confidence threshold say so explicitly rather than asserting a number this build is not sure of."}},{"@type":"Question","name":"What does the posting-text scan actually look for?","acceptedAnswer":{"@type":"Answer","text":"Two dollar amounts close together in the text, joined by a dash, en dash, or the word \"to\" or \"through.\" It has no idea whether that number is a good-faith range as the statute defines it, a base wage versus a signing bonus, or whether the role is exempt from the law entirely — it is a literal pattern match on the wording, nothing more."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1a4560; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the checker</a></p>
+<h1>Why pay-range posting laws differ by state</h1>
+<p class="lede">"Does my state require a salary range in job postings?" has a different answer depending on exactly what you mean by "require" and "in job postings" — this page is the scope this tool actually checks, and the parts it deliberately leaves for you to verify.</p>
+
+<section class="card">
+<h2>What "requires a range" means here</h2>
+<p>Fourteen states and DC currently require the job posting or advertisement itself to state a good-faith pay range: Colorado, California, Washington, New York, Hawaii, Illinois, Maryland, Minnesota, New Jersey, Vermont, the District of Columbia, Massachusetts, Virginia, and Maine. Each has its own effective date and, in most cases, an employer-size threshold below which the law does not apply — both shown in the table on the checker page.</p>
+<h3>What is deliberately not modeled</h3>
+<ul>
+<li><strong>Disclose-at-a-different-point laws.</strong> Connecticut, Nevada, Rhode Island, and a few others require disclosure when a candidate asks, before an interview, or after an offer — not in the ad itself. Reporting these as "not required" for a posting-scan question would misread the actual rule; they are out of scope rather than answered incorrectly.</li>
+<li><strong>City and county ordinances.</strong> Cincinnati, Toledo, Columbus, Jersey City, and others run their own local posting rules independent of state law, sometimes with a different threshold. A posting can pass every state-level check here and still need a separate local check.</li>
+<li><strong>Exemptions and edge cases.</strong> Some states exempt commission-only roles, certain government positions, or internal transfers. This table does not encode those carve-outs.</li>
+<li><strong>Whether your employer actually meets the threshold.</strong> The table states each threshold this build is confident of; it has no way to know your employer's actual headcount or where your employees are.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>What the text scan actually checks</h2>
+<p>The scan looks for two dollar amounts close together in your pasted text, joined by a dash, en dash, or the word "to" or "through" — the shape of "$60,000 - $80,000" or "$28.50 to $34.00 per hour." That is a literal pattern match, not an understanding of the sentence. It cannot tell a good-faith range from two unrelated figures that happen to land near each other, and it has no idea whether the number it found is a base wage, a bonus target, or a total-comp estimate. Read the sentence yourself before trusting the classification for anything that matters.</p>
+</section>
+
+<section class="card">
+<h2>How this can be wrong</h2>
+<p>Three ways, in order of how often they matter: (1) the scan misreads adjacent-but-unrelated figures as a range, or reads a genuine range as unrelated figures, because it has no understanding of sentence structure; (2) a threshold or effective date drifts after this table was last checked — state legislatures amend these rules most heavily at the start of each year; (3) a jurisdiction adds or repeals a posting-range requirement entirely and this table has not yet been updated to reflect it. None of these is caught automatically — verify against your state's labor agency or current counsel before relying on a specific posting decision.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Why do some states require a range "upon request" instead of in the posting?</h3>
+<p>Connecticut, Nevada, Rhode Island, and a few others were early movers that required disclosure at a different point — when a candidate asks, before the first interview, or after an offer is made — rather than baking it into the ad itself. Those laws answer a related but different question than "does this posting have a range," so this tool's posting-text scan deliberately does not check them: reporting "not required" for a rule that fires later in the process would be a false negative on the actual question those states ask.</p>
+<h3>Does this cover city or county ordinances?</h3>
+<p>No. Several cities and counties — Cincinnati, Toledo, Columbus, and Jersey City among them — run their own posting ordinances independent of their state's law, sometimes with a different threshold or scope. A posting can clear every state-level check this tool runs and still need a separate local check this tool does not do.</p>
+<h3>How was the effective-date and threshold data checked?</h3>
+<p>Cross-checked against multiple current employment-law-firm and HR-vendor summaries at build time (September 2026), not against a single source or a pinpoint statute citation. Entries marked with a lower-confidence threshold say so explicitly rather than asserting a number this build is not sure of.</p>
+<h3>What does the posting-text scan actually look for?</h3>
+<p>Two dollar amounts close together in the text, joined by a dash, en dash, or the word "to" or "through." It has no idea whether that number is a good-faith range as the statute defines it, a base wage versus a signing bonus, or whether the role is exempt from the law entirely — it is a literal pattern match on the wording, nothing more.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked checker are provided free and as-is, without warranty of any kind, express or implied. They are not legal advice, and they do not replace a qualified employment attorney. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The checker this page links to runs entirely client-side; nothing you paste is uploaded anywhere.</p>
+<p><a href="./">Back to the checker</a></p>
+</footer>
+</body>
+</html>
