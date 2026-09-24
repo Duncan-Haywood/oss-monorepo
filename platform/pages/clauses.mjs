@@ -1916,6 +1916,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-oneradon.html, which names Sun Nuclear's OneRADON software
   // specifically and already carries the trademark disclaimer.
   'radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html',
+  // Compares against "re-reading a post and checking it by eye for a
+  // disclosure" -- a manual habit any blogger already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
+  // specifically and already carries the trademark disclaimer.
+  'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
