@@ -44,8 +44,8 @@
 #   portfolio-front-tools-8: 128 files, 553888 bytes
 #   portfolio-front-tools-9: 140 files, 554842 bytes
 #   portfolio-front-tools-10: 122 files, 549516 bytes
-#   portfolio-front-tools-11: 116 files, 555947 bytes
-#   portfolio-front-tools-12: 118 files, 551052 bytes
+#   portfolio-front-tools-11: 116 files, 556126 bytes
+#   portfolio-front-tools-12: 119 files, 554967 bytes
 #   portfolio-front-tools-13: 125 files, 556292 bytes
 #   portfolio-front-tools-14: 130 files, 554919 bytes
 #   portfolio-front-tools-15: 131 files, 555439 bytes
@@ -1603,6 +1603,7 @@ configMapGenerator:
       - hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz=hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz
       - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
       - hidden-unicode-check__usage.mjs.gz=hidden-unicode-check__usage.mjs.gz
+      - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
@@ -1674,12 +1675,12 @@ configMapGenerator:
       - ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz=ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz
       - import-landed-cost-calculator__calc.mjs.gz=import-landed-cost-calculator__calc.mjs.gz
       - import-landed-cost-calculator__does-the-de-minimis-exemption-still-apply.html.gz=import-landed-cost-calculator__does-the-de-minimis-exemption-still-apply.html.gz
-      - import-landed-cost-calculator__formal-vs-informal-entry.html.gz=import-landed-cost-calculator__formal-vs-informal-entry.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - import-landed-cost-calculator__formal-vs-informal-entry.html.gz=import-landed-cost-calculator__formal-vs-informal-entry.html.gz
       - import-landed-cost-calculator__index.html.gz=import-landed-cost-calculator__index.html.gz
       - import-landed-cost-calculator__share.mjs.gz=import-landed-cost-calculator__share.mjs.gz
       - import-landed-cost-calculator__usage.mjs.gz=import-landed-cost-calculator__usage.mjs.gz
