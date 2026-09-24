@@ -1823,6 +1823,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-marginedge.html, which names MarginEdge specifically and already
   // carries the trademark disclaimer.
   'menu-engineering-calculator/vs-ranking-by-food-cost-percent.html',
+  // Compares against "a flat rate per square foot" -- the generic "$X a
+  // square foot installed" quoting habit hardscape contractors are shopped
+  // against, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-aspire.html, which names Aspire specifically
+  // and already carries the trademark disclaimer.
+  'paver-patio-bid-calculator/vs-a-flat-rate-per-square-foot.html',
   // Compares against "reading the migration file by hand" -- a manual
   // review habit any developer applying a schema change already has, not
   // a company or product this could be mistaken for. Distinct from this
@@ -1831,6 +1837,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same shape as docker-build-secrets-check's
   // vs-reading-a-dockerfile-by-hand.html.
   'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
+  // Compares against "a flat 3-hour, $500 package" -- the generic
+  // flat-rate booking pattern any mobile photo booth operator already
+  // uses, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-photobooth-supply-co.html, which names
+  // Photobooth Supply Co specifically and already carries the "not
+  // affiliated" clause for that reason.
+  'photo-booth-event-quote/vs-a-flat-package-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

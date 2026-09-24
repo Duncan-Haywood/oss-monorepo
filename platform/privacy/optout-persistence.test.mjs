@@ -654,9 +654,17 @@ const RELATIVE_SELF = relative(
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
 // `auto-glass-bid-usage` storage name). Exactly one added `usage.mjs`
 // (`ventures/auto-glass-bid-calculator/usage.mjs`), no deletions.
-// 2026-09-24: +1, `ventures/salary-range-posting-check/usage.mjs` (new
-// venture graduated this session), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 332;
+//
+// 331 -> 332: `hidden-unicode-check` also graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
+// own `hidden-unicode-check:usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/hidden-unicode-check/usage.mjs`), no deletions.
+//
+// 332 -> 333: a concurrent branch merge -- `salary-range-posting-check`
+// also graduated the same session, adding one more `usage.mjs`
+// (`ventures/salary-range-posting-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 333;
 
 let counter = 0;
 function fixture(source) {

@@ -16699,3 +16699,45 @@ ventures:
       Ethics: donations-only, no per-scan fee, no incentive to bias a
       classification toward any outcome, and it gets strictly more useful
       the more states a visitor selects rather than steering toward fewer.
+
+  - slug: hidden-unicode-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every finding is a mechanical
+      Unicode codepoint classification against the Unicode Standard's own
+      stable character properties -- never a model judgment about intent.
+    basis: >-
+      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml for
+      the full duplicate_check.py run against agent-instructions-drift-check
+      and others, none clearing the 0.45 bar). Defensibility 2,
+      distribution 6: scored deliberately modest on defensibility -- a
+      zero-width/Unicode-Tag/bidi-override codepoint table is easy to
+      reproduce once someone thinks to -- while distribution reflects
+      named, current (2024-2026) security-community channels (r/netsec,
+      Hacker News threads on Trojan Source and ASCII-smuggling
+      prompt-injection writeups) rather than a channel invented from
+      nothing. No search-volume tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a mechanical codepoint match against text
+      the user pastes or a file they load locally, no network call, and
+      every finding is framed as "worth a look, not a verdict" with a
+      clean result explicitly stated as not a safety guarantee, mirroring
+      mcp-config-risk-check's and actions-permissions-check's own liability
+      framing.
+      Ethics: strictly beneficial as it scales -- helps a reviewer catch a
+      real, current hiding technique before an AI agent or human reviewer
+      is fooled by it, no affiliate link, no referral fee, donations-only,
+      and it does not scan or fingerprint any third party.

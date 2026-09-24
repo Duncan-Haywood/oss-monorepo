@@ -2371,15 +2371,26 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # actually priced. Static `index.html` from its first commit, same
     # shape as the rest of this running count.
     #
-    # 350 on this merge: `salary-range-posting-check` also graduated -- a
-    # zero-dependency browser + CLI tool that scans pasted job-posting text
-    # for a stated dollar range and cross-references a chosen set of US
-    # states against a fixed table of which ones currently require a
-    # posted pay range. Static `index.html` from its first commit, same
-    # shape as the rest of this running count.
+    # 350 on this merge: `hidden-unicode-check` also graduated -- a
+    # zero-dependency browser tool that scans pasted text (CLAUDE.md,
+    # AGENTS.md, .cursorrules, copilot-instructions.md, a README, or any
+    # text) for zero-width/invisible Unicode characters, Unicode Tag
+    # characters (decoding any hidden ASCII message they spell out), and
+    # bidirectional override/control characters from the Trojan Source
+    # family -- the technique behind current AI-agent prompt-injection
+    # attacks. Static `index.html` from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 351 on this merge: a concurrent branch merge -- `salary-range-posting-
+    # check` also graduated the same session -- a zero-dependency browser +
+    # CLI tool that scans pasted job-posting text for a stated dollar range
+    # and cross-references a chosen set of US states against a fixed table
+    # of which ones currently require a posted pay range. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 350  # `infra/OWNER_CHECKLIST.md`'s own "N of the 350 tools" wording.
+    total = 351  # `infra/OWNER_CHECKLIST.md`'s own "N of the 351 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
