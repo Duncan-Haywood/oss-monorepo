@@ -707,7 +707,7 @@ const RELATIVE_SELF = relative(
 // `auto-loan-interest-deduction-calculator` landed) until this merge -- the
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
-const SWITCHES_IN_THE_CATALOGUE = 339;
+const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;
 function fixture(source) {
