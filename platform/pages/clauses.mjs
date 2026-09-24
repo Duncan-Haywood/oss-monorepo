@@ -1991,6 +1991,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "a flat $8,000 generator special" -- the postcard/
+  // search-result pricing habit every generator installer is shopped
+  // against, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-servicetitan.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'standby-generator-bid-calculator/vs-a-flat-8000-generator-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
