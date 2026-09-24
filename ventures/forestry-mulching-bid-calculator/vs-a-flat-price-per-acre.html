@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat price per acre | Forestry Mulching Bid Calculator</title>
+<meta name="description" content="A flat '$X an acre' mulching rate cannot see what is standing on the ground. This free, private browser calculator prices light brush, medium brush, heavy brush, and heavy timber separately by production rate -- no account, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-a-flat-price-per-acre.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat price per acre">
+<meta property="og:description" content="Three acres of light brush and three acres of heavy timber are not the same job. A flat per-acre special prices them off the same number; this calculator prices the production rate -- acres per machine-hour -- separately for each density instead.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat price per acre get a mulching bid wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is the production rate -- acres cut per machine-hour -- and that rate is set by what is standing on the ground, not by the acreage. Light brush under 2 inches clears roughly nine times faster than heavy understory with stems up to 12 inches on this calculator's own defaults, so the same flat rate that is profitable on a light job can lose money outright on a dense one, and a per-acre number has no way to say which job it is looking at."}},{"@type":"Question","name":"What does a flat price per acre usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Stem density and size. A quote of dollars per acre treats a fence line growing back in the same as heavy understory with stems up to 12 inches, when the second takes more than nine times as many machine-hours to clear as the first on the same acreage -- production rate, not acreage, is what the machine is actually paid for."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped defaults, a flat $1,000-an-acre quote on a 3-acre lot earns $2,059.29 on light brush -- a 68.6% margin -- but loses $508.70 on heavy brush and $3,810.40 on heavy understory with stems up to 12 inches, a -127.0% margin against a job whose own break-even cost is $2,270.13 an acre."}},{"@type":"Question","name":"Is a flat price per acre ever the right way to quote?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of jobs at nearly the same density, a per-acre rate can land close. The risk is carrying the same rate onto a denser job without re-checking it, because the rate does not know what is standing on the next lot and neither does the estimator until density and stem size are actually spelled out."}},{"@type":"Question","name":"Does this calculator know what materials or labor cost in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local labor, fuel, or equipment rates. It takes the acreage, the mulching head's width, the advance speed and passes for the density you describe, and your own wage, fuel, tooth, maintenance, and ownership costs, and turns that into a price for this job -- the arithmetic a flat per-acre rate skips, not a market survey."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2415; background: #eef1e6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #3f6b1c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #3a4030; }
+  section { background: #fff; border: 1px solid #c3cfae; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #14230a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c3cfae; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3a4030; }
+  .loss { color: #8a1f1f; font-weight: 600; }
+  .fine, .note { font-size: .88rem; color: #3a4030; }
+  footer { font-size: .86rem; color: #3a4030; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Forestry Mulching Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat price per acre</h1>
+<p class="lede">&ldquo;$X an acre&rdquo; is not a price for a mulching job &mdash; it is a price for one specific density, quietly applied to every lot that calls in.</p>
+</header>
+<section>
+<h2>What a flat price per acre is</h2>
+<p>
+A flat rate per acre is the fastest way to quote forestry mulching or land
+clearing: multiply the acreage by a number and read off a price. It is the
+number a landowner holding a competitor's flyer will call and ask you to
+match, whatever is actually standing on their lot.
+</p>
+<p>
+The number behind it was set for one density class and then reused for every
+lot afterward, whether or not the next job looks anything like the one the
+rate was built on.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+acreage, the mulching head's width, a density class (light brush, medium
+brush, heavy brush, or heavy timber, or your own timed advance speed and pass
+count), terrain, machine cost inputs, and mobilization, and it computes hours
+first, from head width, advance speed, and pass count, then reports the
+per-acre price last &mdash; as the quotient it actually is &mdash; for this
+job, not a generic one.
+</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">What a flat price per acre does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same $/acre on a fence line growing back in and on heavy understory with stems up to 12 inches, even though the second takes more than nine times as many machine-hours per acre to clear.</td>
+<td>Computes acres per machine-hour from head width, advance speed, and passes for the density actually on the ground, so a denser job costs more per acre than a lighter one.</td>
+</tr>
+<tr>
+<td>Has no line for tooth wear, ownership cost per billable hour, or mobilization, regardless of how far the machine has to travel or how many hours a month it actually bills.</td>
+<td>Prices operator wage, fuel, tooth wear, maintenance, and ownership separately, then adds mobilization as its own line because it does not scale with acreage.</td>
+</tr>
+<tr>
+<td>Gives the estimator a number to quote, not a number to check a quote against.</td>
+<td>Reports the break-even price per acre and the dollar gap against a flat per-acre rate for each density, so a shopped price can be scored against real cost before you commit to it.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<h2>Four lots, the same density-blind rate</h2>
+<p>
+Using this calculator's own shipped defaults (a 6-foot head, 85% terrain
+factor, 80% cutting efficiency, $45/hr operator, $3.90/gal diesel, a $1,800
+tooth set every 250 hours, one mobilization trip, and a 35% target margin) on
+the same 3-acre lot, quoted at the page's own default flat rate of
+<strong>$1,000 an acre</strong> ($3,000 revenue on every row below) and
+priced at each density class:
+</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">Density</th><th scope="col">Machine hours</th><th scope="col">This calculator's break-even cost</th><th scope="col">Result at the flat $1,000/acre rate</th></tr>
+</thead>
+<tbody>
+<tr><td>Light brush, grass and saplings under 2 in</td><td>5.9</td><td>$940.71 total, $313.57/acre</td><td>+$2,059.29 profit, 68.6% margin</td></tr>
+<tr><td>Medium brush, stems 2-4 in &mdash; the most commonly quoted job</td><td>12.7</td><td>$1,779.24 total, $593.08/acre</td><td>+$1,220.76 profit, 40.7% margin</td></tr>
+<tr><td>Heavy brush and small trees, stems 4-8 in</td><td>26.7</td><td>$3,508.70 total, $1,169.57/acre</td><td class="loss">&minus;$508.70, a &minus;17.0% margin</td></tr>
+<tr><td>Heavy understory, stems 8-12 in</td><td>53.4</td><td>$6,810.40 total, $2,270.13/acre</td><td class="loss">&minus;$3,810.40, a &minus;127.0% margin</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">The $1,000/acre rate is not invented &mdash; it is this calculator's own shipped default quote, the number the page shows before you change anything. On its own default density (medium brush) that rate still clears a real margin. Carried onto heavy brush or heavy understory on the same acreage, the identical rate does not know the machine is now running four to nine times slower over the same ground, and it quotes both jobs below their own break-even cost. Run your own lot's density and acreage in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat per-acre rate is not wrong because it is simple &mdash; it is wrong
+when it is carried from the job it was set on to a denser one without
+checking, and nothing about a flat number tells you when that has happened.
+This calculator does not know your local market; it replaces the arithmetic
+a flat rate skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat price per acre get a mulching bid wrong?</h3>
+<p>Because the cost driver is the production rate -- acres cut per machine-hour -- and that rate is set by what is standing on the ground, not by the acreage. Light brush under 2 inches clears roughly nine times faster than heavy understory with stems up to 12 inches on this calculator's own defaults, so the same flat rate that is profitable on a light job can lose money outright on a dense one, and a per-acre number has no way to say which job it is looking at.</p>
+<h3>What does a flat price per acre usually leave out entirely?</h3>
+<p>Stem density and size. A quote of dollars per acre treats a fence line growing back in the same as heavy understory with stems up to 12 inches, when the second takes more than nine times as many machine-hours to clear as the first on the same acreage -- production rate, not acreage, is what the machine is actually paid for.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>On this calculator's own shipped defaults, a flat $1,000-an-acre quote on a 3-acre lot earns $2,059.29 on light brush -- a 68.6% margin -- but loses $508.70 on heavy brush and $3,810.40 on heavy understory with stems up to 12 inches, a -127.0% margin against a job whose own break-even cost is $2,270.13 an acre.</p>
+<h3>Is a flat price per acre ever the right way to quote?</h3>
+<p>For a narrow band of jobs at nearly the same density, a per-acre rate can land close. The risk is carrying the same rate onto a denser job without re-checking it, because the rate does not know what is standing on the next lot and neither does the estimator until density and stem size are actually spelled out.</p>
+<h3>Does this calculator know what materials or labor cost in my market?</h3>
+<p>No. It has no data on local labor, fuel, or equipment rates. It takes the acreage, the mulching head's width, the advance speed and passes for the density you describe, and your own wage, fuel, tooth, maintenance, and ownership costs, and turns that into a price for this job -- the arithmetic a flat per-acre rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="index.html">Forestry Mulching Bid Calculator</a> to price your own job, read <a href="how-much-to-charge-for-forestry-mulching.html">how much should you charge for forestry mulching</a>, or see <a href="vs-aspire.html">this calculator vs. Aspire</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not equipment, safety, legal, tax, or financial advice, and it does not replace a qualified professional, a site visit, or your own insurance and payroll numbers. Verify every figure against your own costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a job.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

@@ -104,6 +104,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // habit any developer already has, not a company or product this could be
   // mistaken for.
   'source-map-leak-check/vs-checking-devtools-by-hand.html',
+  // Compares against "checking response headers by eye in DevTools'
+  // Network tab" -- a manual habit any web developer already has, not a
+  // company or product this could be mistaken for. Same reasoning as
+  // source-map-leak-check's own devtools-by-hand page above; this venture's
+  // vs-curl.html is separately exempt-free (curl is a named tool) and
+  // already carries the trademark disclaimer, so the two comparison pages
+  // are deliberately different classes.
+  'cache-control-check/vs-checking-headers-by-eye-in-devtools.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -1332,6 +1340,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // flat-rate generic-method pages above.
   'pole-barn-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against a flat "$X an acre" mulching rate -- a generic
+  // advertised pricing habit the trade is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-aspire.html, which names a specific field-service platform and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other flat-rate generic-method pages above.
+  'forestry-mulching-bid-calculator/vs-a-flat-price-per-acre.html',
   // Compares against "a flat $3/LF Christmas light special" -- a generic
   // advertised price every holiday lighting contractor is shopped against,
   // not a company or product this could be mistaken for. Distinct from
@@ -1432,6 +1447,28 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'painting-bid-calculator/vs-a-flat-2-per-square-foot-bid.html',
+  // Compares against "a flat burden-percentage rule of thumb" -- a generic
+  // budgeting habit ("add 20-30% on top of wages") every small business
+  // owner already has, not a company or product this could be mistaken
+  // for. The page names no payroll or HR vendor at all.
+  'employee-cost-calculator/vs-a-flat-burden-percentage.html',
+  // Compares against "a flat per-vehicle price" (a posted "$180 sedan /
+  // $220 SUV / $250 truck" list) -- a pricing habit every independent tint
+  // shop already posts, not a company or product this could be mistaken
+  // for. The page names no specific tint franchise, film brand, or
+  // competing calculator at all. Same reasoning as this venture's sibling
+  // vs-a-flat-*-price pages above (mobile-detailing-bid-calculator's
+  // vs-a-flat-per-vehicle-price.html, pet-grooming-bid-calculator's
+  // vs-a-flat-per-breed-price.html).
+  'window-tinting-bid-calculator/vs-a-flat-per-vehicle-size-price.html',
+  // Compares against a flat "$8 a stall" / "$400 for a 50-space lot"
+  // striping special -- a generic advertised pricing habit the trade is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-saasphalt.html, which names a
+  // specific estimating platform and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other flat-rate
+  // generic-method pages above (e.g. mini-split-bid-calculator's).
+  'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
