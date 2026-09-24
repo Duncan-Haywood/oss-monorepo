@@ -41301,6 +41301,44 @@ entries:
         and the 27-module platform/ci unittest suite. Squash-merged as
         #5668.
     mrr_end: 0
+  - venture: retaining-wall-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-140-per-linear-foot-rate.html, a generic-method
+        comparison page ("vs. a flat rate per linear foot") -- the venture
+        previously had only a named-product comparison (vs-aspire.html) and
+        showed 0/1 on its generic-method budget. Selected via
+        portfolio/router/allocate.py's merit ranking intersected with
+        surface-budget.mjs's 0-generic-method ventures.
+      - >-
+        Worked examples pinned against calc.mjs: at the form's own defaults
+        ($38 wage, 30% burden, 15% overhead, 22% target margin), a flat
+        $140/lf rate clears 23.8% margin on the 40x3 garden wall it is
+        implicitly priced around, then loses money outright on a 40x4 wall
+        needing its first geogrid layer (-4.3%, a $240.12 loss) and loses
+        $3,093.35 (-44.2%) on a 50x6 engineered wall with two geogrid
+        layers, landing a thin 1.8% margin on an 80x4 wall with two
+        corners.
+      - >-
+        Hit the generated front-door mirror's sequential-packing merge
+        conflict twice while main absorbed several sibling PRs during this
+        session (a ~7-session-per-15-minute window per session_gate.py);
+        resolved both times with resolve-mirror-merge.sh plus a full
+        regen.mjs run against the merged tree, verified clean with
+        --verify each time, per the tool's own guidance that picking a
+        side is never correct for generated output.
+      - >-
+        Verified locally (Actions starved for the session, confirmed via
+        ci_starvation.py): the venture's own 117-assertion suite,
+        checklist_coverage.py, surface-budget.mjs --check, regen.mjs
+        --verify clean, the platform/marketing + platform/pages suite
+        (1287/1287), and portfolio/ledger + scoring + router + usage +
+        pipeline + infra/tests pytest (446 passed). Squash-merged as
+        #5672. Republished the gh-pages snapshot afterward
+        (publish-branch.sh) and recorded the reading.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
