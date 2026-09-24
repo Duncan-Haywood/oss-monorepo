@@ -78,6 +78,14 @@ test("index links one hop to the no-tax-on-tips-overtime-calculator sibling", ()
   );
 });
 
+test("index links one hop to the senior-deduction-calculator sibling", () => {
+  assert.match(
+    page("index.html"),
+    /href="\.\.\/senior-deduction-calculator\/"/,
+    'index must link ../senior-deduction-calculator/ so crawlers reach the sibling deduction calculator in one hop',
+  );
+});
+
 test("index links to the vs-estimating-the-deduction-by-hand comparison page", () => {
   assert.match(page("index.html"), /href="\.\/vs-estimating-the-deduction-by-hand\.html"/);
 });
