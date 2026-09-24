@@ -152,6 +152,40 @@ export const ENTRY_OVERRIDES = {
   'ai-engineering-academy': 'tools',
 };
 
+// Ventures whose own page offers a specific `.py` CLI as a download --
+// "get check.py from the repo, run it yourself, no network calls." `.py` is
+// in `NON_WEB_EXTENSIONS` (a browser visitor downloads none of a venture's
+// CLI source), so `copyTree` never publishes these, and every one of these
+// 18 ventures linked its CTA at `github.com/.../blob/main/...` instead --
+// which 404s for every visitor, because this repository is private. That is
+// the same defect #5515 fixed for `license-drift-check`'s `cli.mjs`, except
+// `cli.mjs` was already published (not a NON_WEB_EXTENSIONS extension) so a
+// relative link was already enough; a `.py` deliverable needs publishing
+// too. Listed explicitly, like `ENTRY_OVERRIDES` above, rather than by a
+// name-based rule (`check.py` is a common filename and most ventures that
+// have one do NOT offer it as a public download), so publishing stays
+// opt-in per file rather than quietly widening to every `.py` in the tree.
+export const DOWNLOADABLE_CLI_FILES = {
+  'actions-artifact-poisoning-check': ['check.py'],
+  'actions-cache-poisoning-check': ['check.py'],
+  'actions-injection-check': ['check.py'],
+  'actions-permissions-check': ['check.py'],
+  'actions-runner-starvation-check': ['check.py'],
+  'actions-secret-leak-check': ['check.py'],
+  'actions-secrets-inherit-check': ['check.py'],
+  'actions-self-hosted-exposure-check': ['check.py'],
+  'coverage-drop-check': ['check.py'],
+  'dependency-confusion-check': ['check.py'],
+  'docker-base-image-eol-check': ['check.py'],
+  'docker-base-image-pin-check': ['check.py'],
+  'docker-build-secrets-check': ['check.py'],
+  'flaky-test-finder': ['check.py'],
+  'openapi-breaking-change-check': ['openapi_diff.py'],
+  'pinned-actions-check': ['check.py'],
+  'required-checks-drift-check': ['check.py'],
+  'sbom-diff-check': ['sbom_diff.py'],
+};
+
 // Not products a stranger should land on.
 const EXCLUDED_SLUGS = new Set([
   // Passcode-gated internal docs that need a pnpm build of its own; it keeps
@@ -7871,6 +7905,21 @@ export async function buildSite({
     const to = path.join(outDir, surface.slug, 'LICENSE');
     if (existsSync(to) || !(await exists(from))) continue;
     await fs.copyFile(from, to);
+  }
+
+  // Same reasoning as the LICENSE loop just above, for the `.py` CLI files
+  // `DOWNLOADABLE_CLI_FILES` names: `NON_WEB_EXTENSIONS` drops `.py` from
+  // `copyTree` on purpose (most ventures' CLI source is not a public
+  // deliverable), so the specific files a venture's own page offers as a
+  // download have to be published here instead, ahead of `repairLinks`, or
+  // the CTA's link 404s for every visitor against this private repository.
+  for (const [slug, files] of Object.entries(DOWNLOADABLE_CLI_FILES)) {
+    for (const name of files) {
+      const from = path.join(venturesDir, slug, name);
+      const to = path.join(outDir, slug, name);
+      if (existsSync(to) || !(await exists(from))) continue;
+      await fs.copyFile(from, to);
+    }
   }
 
   // Pass 2: everything that has to read a complete site.

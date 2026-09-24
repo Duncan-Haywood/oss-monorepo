@@ -806,9 +806,12 @@ test('the nginx config serves every shape of path the mirror produces', async ()
   const redirectBlocks = allToolBlocks.filter((b) => /return 301/.test(b));
   const toolBlocks = allToolBlocks.filter((b) => !/return 301/.test(b));
   assert.equal(redirectBlocks.length, 1, 'exactly one /tools/ block is a redirect');
-  // Eight since page subdirectories landed: four for a flat venture (root,
-  // `.mjs`, `LICENSE`, anything else) and the same four one level down.
-  assert.equal(toolBlocks.length, 8, 'the mirror is routed by eight location blocks');
+  // Nine since 18 ventures' own pages started offering a same-origin `.py`
+  // CLI download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`): five for a flat
+  // venture (root, `.mjs`, `LICENSE`, `.py`, anything else) and the same
+  // four one level down -- no venture nests its downloadable CLI inside a
+  // page subdirectory, so there is no tenth block for that shape yet.
+  assert.equal(toolBlocks.length, 9, 'the mirror is routed by nine location blocks');
   for (const block of toolBlocks) {
     // `gzip_static always`, not `on`: `on` only consults the stored `.gz` when
     // the client sent `Accept-Encoding: gzip`, and falls through to a plain
