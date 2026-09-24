@@ -1825,6 +1825,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same shape as docker-build-secrets-check's
   // vs-reading-a-dockerfile-by-hand.html.
   'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
+  // Compares against "a flat $65-a-linear-foot price" -- a generic
+  // per-foot pricing shortcut any hardscape shop already uses, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-aspire.html, which names Aspire specifically and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other generic-method pages above.
+  'retaining-wall-bid-calculator/vs-a-flat-per-foot-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
