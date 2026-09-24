@@ -12,4 +12,8 @@
     <loc>./vs-snyk.html</loc>
     <changefreq>monthly</changefreq>
   </url>
+  <url>
+    <loc>./vs-comparing-manifests-by-eye.html</loc>
+    <changefreq>monthly</changefreq>
+  </url>
 </urlset>
