@@ -1714,6 +1714,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "running curl -sI -L or reading DevTools' Network
+  // panel by hand" -- generic tools and habits any developer already has,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-httpstatus-io.html, which names a real hosted
+  // service and already carries the trademark disclaimer. Same reasoning
+  // as cache-control-check's vs-checking-headers-by-eye-in-devtools.html
+  // and source-map-leak-check's vs-checking-devtools-by-hand.html above.
+  'redirect-chain-check/vs-checking-a-chain-by-hand.html',
   // Compares against "averaging margins in a spreadsheet" -- the generic
   // =AVERAGE() formula an operator builds by hand, not a company or product
   // this could be mistaken for. Distinct from this venture's own
@@ -1750,6 +1758,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // ServiceTitan specifically and already carries the trademark
   // disclaimer. Same reasoning as the other generic-method pages above.
   'sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html',
+  // Compares against "just checking whether the invoice cleared the bid" --
+  // the generic before/after gut check every contractor already runs
+  // without any tool, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-quickbooks-job-costing.html, which
+  // names QuickBooks/Intuit specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'job-margin-variance/vs-checking-if-you-still-made-money.html',
   // Compares against "a flat pump special" -- the generic coupon pricing
   // ($X, any tank, pumped) that septic pump specials are shopped against,
   // not a company or product this could be mistaken for. Distinct from
@@ -1768,6 +1783,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which names Jobber specifically and
   // already carries the trademark disclaimer.
   'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "picking a rate off the going local price" -- the
+  // generic habit of copying a nearby studio's posted per-lesson price, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-mymusicstaff.html, which names My Music Staff
+  // specifically and already carries the trademark disclaimer.
+  'music-lesson-break-even/vs-picking-a-rate-off-the-going-local-price.html',
   // Compares against "grepping the codebase by hand" -- a manual audit
   // habit any developer already has, not a company or product this could
   // be mistaken for. Distinct from this venture's own vs-dotenv-linter.html,
