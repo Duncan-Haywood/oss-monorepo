@@ -51,7 +51,7 @@
 #   portfolio-front-tools-15: 131 files, 555439 bytes
 #   portfolio-front-tools-16: 107 files, 551314 bytes
 #   portfolio-front-tools-17: 115 files, 555810 bytes
-#   portfolio-front-tools-18: 123 files, 542954 bytes
+#   portfolio-front-tools-18: 124 files, 548444 bytes
 #   portfolio-front-tools-19: 121 files, 549188 bytes
 #   portfolio-front-tools-20: 67 files, 345927 bytes
 #
@@ -2480,6 +2480,7 @@ configMapGenerator:
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
       - structured-data-drift-check__usage.mjs.gz=structured-data-drift-check__usage.mjs.gz
+      - structured-data-drift-check__vs-checking-it-by-eye.html.gz=structured-data-drift-check__vs-checking-it-by-eye.html.gz
       - structured-data-drift-check__vs-google-rich-results-test.html.gz=structured-data-drift-check__vs-google-rich-results-test.html.gz
       - structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz=structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz
       - stucco-repair-bid-calculator__calc.mjs.gz=stucco-repair-bid-calculator__calc.mjs.gz
