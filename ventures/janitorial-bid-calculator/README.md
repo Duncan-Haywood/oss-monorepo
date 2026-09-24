@@ -116,6 +116,11 @@ month-1 profit if you throw it in, and the cash if they cancel early. A
 crawlable explainer lives at
 [`should-i-throw-in-the-initial-clean.html`](should-i-throw-in-the-initial-clean.html).
 
+A flat rate per square foot cannot see a building's own mix of space types —
+see [`vs-a-flat-rate-per-square-foot.html`](vs-a-flat-rate-per-square-foot.html)
+for a worked example of two identically sized buildings priced apart by
+restroom share alone.
+
 A second building is a different question. Open
 [`second-site.html`](second-site.html) to price the new site the same way,
 then add the drive as loaded labor and extra fuel. The first-building bid
