@@ -16644,7 +16644,86 @@ ventures:
       affiliate link, no referral fee, donations-only same as the rest of
       the portfolio, no reward tier or pledge size favored since the
       arithmetic is symmetric and user-entered).
-
+  - slug: depop-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is Depop's own
+      three-way regional fee schedule (0% selling fee plus a processing
+      fee for US/UK, a flat 10% selling fee everywhere else, plus a
+      separate 12% Boosted Listings surcharge) applied correctly and
+      kept distinct from the buyer-paid checkout Marketplace fee that
+      never touches seller payout -- deterministic arithmetic a language
+      model adds nothing to.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match against
+      an existing venture 0.39 (stockx-seller-payout-calculator) before
+      this venture existed, well under the 0.45 read-this-first bar --
+      no existing venture prices Depop specifically, though several
+      (mercari-fee-calculator, poshmark-fee-calculator,
+      ebay-fee-calculator) share the resale-marketplace-fee shape.
+      Rates confirmed via multiple independent web searches agreeing on
+      Depop's 2024 fee restructure: 0% selling fee plus 3.3%+$0.45 (US)
+      or 2.9%+£0.30 (UK) payment processing on item price plus buyer-paid
+      shipping, a 10% flat selling fee for sellers outside the US/UK, a
+      12% Boosted Listings surcharge, and a buyer-side Marketplace fee
+      (up to 5%+$1) that is charged to the buyer and never reduces
+      seller payout.
+      Autonomous ops 10 / gross margin 10: static ES modules, no build
+      step, no network call, no server -- same shape as every other
+      browser-local calculator in this portfolio.
+      Time to revenue 5, distribution 5: r/Depop and r/DepopSuccess are
+      real, named communities where "how much does Depop actually take"
+      is a recurring thread, and the fee restructure (flat 10% to
+      0%-plus-processing) is exactly the kind of "everyone still quotes
+      the old number" confusion this portfolio's other fee calculators
+      have found real search volume around -- but the search results
+      also surfaced at least six existing third-party Depop fee
+      calculators (sellerfeecalc.com, underpriced.app, feecalculator.us,
+      margeoapp.com, selleraider.com, shopfront.app), making this a more
+      contested query than kickstarter-fee-calculator's at the time that
+      one was scored. Scored below kickstarter-fee-calculator's 6/6 on
+      both dimensions for exactly that reason.
+      Defensibility 3: a percentage-plus-flat-fee schedule is easy to
+      copy, same as every fee calculator in this portfolio, and the
+      three-region split plus the buyer-fee/seller-fee distinction this
+      tool makes explicit is a framing choice on top of public
+      arithmetic that a competitor could add just as easily -- scored a
+      point below kickstarter-fee-calculator because more competitors
+      already exist for this exact query.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: pure arithmetic over an item price, shipping charge, or
+      cost the visitor supplies, against Depop's own public, non-personal
+      fee schedule. No advice-of-record (it computes, the seller
+      decides), no compliance claim, no PII, no payment code, no
+      account. The only failure mode is a stale constant if Depop
+      changes its published schedule again, which is why the no-warranty
+      clause explicitly tells the visitor to verify against their own
+      payout statement before relying on this for a real sale
+      (`platform/pages/clauses.mjs` enforces the clause; the page
+      passes it). The buyer-side Marketplace fee is deliberately left
+      uncomputed rather than estimated, because Depop has not published
+      its sliding scale precisely enough to model without risking a
+      specific wrong number.
+      Ethics: gets strictly better for the visitor as it scales -- it
+      exists only to help a seller see the true net payout and price
+      listings accordingly, with no adverse incentive on our side (no
+      affiliate link, no referral fee, donations-only same as the rest of
+      the portfolio, no region or listing type favored since the
+      arithmetic is symmetric and user-entered).
   - slug: salary-range-posting-check
     scores:
       ai_leverage: 1
@@ -16771,7 +16850,6 @@ ventures:
       and it never scans or fingerprints third-party infrastructure since
       it only reads text the visitor pastes or a file they explicitly
       choose to load.
-
   - slug: skill-manifest-check
     scores:
       ai_leverage: 1

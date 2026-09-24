@@ -467,7 +467,13 @@ const CATEGORY_RULES = [
     // section already answers. Its slug names neither a marketplace nor a
     // storefront keyword this rule already recognised, so it would
     // otherwise have swelled the catch-all.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter)/.test(slug),
+    // `depop-fee-calculator` is the same single-channel fee-schedule shape
+    // as `mercari` and `poshmark` above — a per-region selling/processing
+    // fee split on one storefront, with an older flat schedule some sellers
+    // still run — and would otherwise sit in the catch-all for the same
+    // reason those two did: the slug names the storefront, not a
+    // marketplace keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop)/.test(slug),
   },
   {
     id: 'trades',
