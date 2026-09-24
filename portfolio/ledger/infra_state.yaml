@@ -572,7 +572,7 @@ readings:
   github-pages-branch-route:
     verdict: up
     measured: "2026-09-24"
-    run: 36042180152
+    run: 36043462802
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
@@ -923,3 +923,19 @@ readings:
       route stays starved and un-runnable, and `indexnow_state.py`'s `never`
       verdict remains correct-as-designed for the reason already stated
       above. Re-announce again after further catalogue growth.
+      **2026-09-24 (still the same day, ~18:06-18:10Z), fourth by-hand
+      announcement, same `selective: false` environment --
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages` succeeded
+      again** (`POST https://api.indexnow.org/indexnow -> 200`, 1567 URLs
+      announced from the `gh-pages` snapshot at `7a82f64b9`, run by hand as
+      part of that session's own `publish-branch.sh` publish). Fourth
+      instance of the identical shape in two days: the by-hand route keeps
+      working every time it is tried, the count keeps moving with the
+      catalogue (1234 -> 1557 -> 1556 -> 1567 across four readings, net
+      growth with some session-to-session noise from what each snapshot
+      happened to contain), and `publish-pages-branch.yml` remains the only
+      route with real egress that has never once fired. Nothing here changes
+      `indexnow_state.py`'s `never` verdict or the reasoning above for why
+      that is correct-as-designed. Re-announce again after further
+      catalogue growth rather than treating any one of these four readings
+      as still current.

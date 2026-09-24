@@ -258,6 +258,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific tax-prep company or
   // competing calculator at all.
   'no-tax-on-tips-overtime-calculator/vs-estimating-the-deduction-by-hand.html',
+  // Compares against "estimating the auto loan interest deduction by hand"
+  // -- a generic method every filer already has, not a company or product
+  // this could be mistaken for. The page names no specific tax-prep
+  // company or competing calculator at all.
+  'auto-loan-interest-deduction-calculator/vs-estimating-the-deduction-by-hand.html',
   // Compares against "the Form 8995-A worksheet by hand" -- the IRS's own
   // published worksheet, a generic method every filer already has, not a
   // company or product this could be mistaken for. The page names no
@@ -1953,6 +1958,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-trax.html and vs-cass.html, which name specific freight audit and
   // payment providers and already carry the "not affiliated" disclaimer.
   'freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html',
+  // Compares against "reading the SKILL.md by hand" -- a manual review
+  // habit every skill author already has, not a company or product this
+  // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
+  // pages above (e.g. hidden-unicode-check's, docker-build-secrets-check's).
+  'skill-manifest-check/vs-reading-the-skill-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
