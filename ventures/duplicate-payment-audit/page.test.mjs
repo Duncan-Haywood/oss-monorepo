@@ -84,3 +84,51 @@ test('the worked example is reachable from a control on the page', () => {
   assert.match(html, /id="loadExample"/);
   assert.match(html, /Load a worked example/);
 });
+
+test('index links to the same-invoice-two-amounts guide page, and the page exists with the required disclosures', () => {
+  assert.match(html, /href="why-does-the-same-invoice-at-two-amounts-get-flagged\.html"/);
+  const guideHtml = fs.readFileSync(new URL('./why-does-the-same-invoice-at-two-amounts-get-flagged.html', import.meta.url), 'utf8');
+  assert.match(guideHtml, /No warranty/);
+  assert.match(guideHtml, /Nothing leaves your browser/);
+  assert.match(guideHtml, /href="\.\/"/, 'the guide page must link back to the calculator');
+  assert.match(guideHtml, /href="LICENSE"/);
+});
+
+test('the same-invoice-two-amounts guide page is listed in the sitemap', () => {
+  const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /why-does-the-same-invoice-at-two-amounts-get-flagged\.html/);
+});
+
+test("the same-invoice-two-amounts guide page's worked example matches the bundled EXAMPLE_CSV and detectDuplicates exactly", async () => {
+  const app = fs.readFileSync(new URL('./app.mjs', import.meta.url), 'utf8');
+  const match = app.match(/const EXAMPLE_CSV = `([\s\S]*?)`;/);
+  assert.ok(match, 'app.mjs must carry an inline EXAMPLE_CSV fixture');
+
+  const { readRecords, detectDuplicates } = await import('./detect.mjs');
+  const { records } = readRecords(match[1]);
+  const flags = detectDuplicates(records, { dateWindowDays: 7 });
+  const flag = flags.find(f => f.tier === 'same-invoice-different-amount');
+  assert.ok(flag, 'the bundled example must still produce a same-invoice-different-amount finding');
+  assert.equal(flag.a.vendor, 'Cascade Freight Lines');
+  assert.equal(flag.a.invoice, 'INV-88120');
+
+  const guideHtml = fs.readFileSync(new URL('./why-does-the-same-invoice-at-two-amounts-get-flagged.html', import.meta.url), 'utf8');
+  assert.ok(guideHtml.includes(flag.reason), "the guide page must quote detectDuplicates's own reason text verbatim");
+  assert.match(guideHtml, /\$2,450\.00/);
+  assert.match(guideHtml, /\$245\.00/);
+});
+
+test('every visible FAQ question and answer on the same-invoice-two-amounts guide page also appears in its FAQPage block', () => {
+  const guideHtml = fs.readFileSync(new URL('./why-does-the-same-invoice-at-two-amounts-get-flagged.html', import.meta.url), 'utf8');
+  const questions = [...guideHtml.matchAll(/<h3>([^<]+)<\/h3>/g)].map(m => m[1]);
+  assert.ok(questions.length >= 4);
+  const blocks = [...guideHtml.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+  const faq = blocks.find(b => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the guide page');
+  const faqNames = faq.mainEntity.map(q => q.name);
+  for (const question of questions) assert.ok(faqNames.includes(question), `question not in FAQPage: ${question}`);
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(guideHtml.includes(name), `question not found verbatim: ${name}`);
+    assert.ok(guideHtml.includes(acceptedAnswer.text), `answer not found verbatim for: ${name}`);
+  }
+});
