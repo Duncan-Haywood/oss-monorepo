@@ -1191,6 +1191,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-spreadsheet pages above (e.g. bounce-house-rental-calculator's).
   'apparel-decoration-price-calculator/vs-a-spreadsheet.html',
+  // Compares against "a per-job pricing spreadsheet" -- a generic method
+  // every operator already has access to, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-jobber.html,
+  // which names a specific field-service platform and already carries the
+  // "not affiliated" clause for that reason.
+  'dumpster-rental-margin-calculator/vs-a-spreadsheet.html',
   // Compares against "reading the workflow file by hand" -- a manual
   // review habit every GitHub Actions user already has, not a company or
   // product this could be mistaken for. Distinct from this venture's own
