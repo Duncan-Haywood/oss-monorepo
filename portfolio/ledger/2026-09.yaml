@@ -42283,3 +42283,50 @@ entries:
         infra/tests pytest (446 passed). Revenue and confirmed-visitor
         counts remain at zero, which this does not change on its own.
     mrr_end: 0
+  - venture: mcp-config-risk-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. reading the config by
+        hand": the venture had zero generic-method and zero named-product
+        comparisons, one of 88 ventures at 0/1 per surface-budget.mjs at the
+        time. Names four things a manual read of an mcp.json misses that
+        this checker's own calc.mjs already computes deterministically: a
+        secret-shaped literal (sk-, ghp_/gho_, Slack xox-, AWS AKIA, bearer)
+        sitting under a key not named token/key/secret, so a reviewer whose
+        eye is drawn to suspiciously-named keys skips past it; a missing
+        version pin across four different package-manager syntaxes (npx
+        @version, uvx, pipx run, docker run :tag) mixed in one config;
+        confusing a live secret literal with a proper "${VAR}" environment
+        reference at a glance; and a tool name shadowed across two
+        connected servers once a config carries more than a handful.
+      - >-
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        manual method, no named product), linked from index.html, added to
+        sitemap.xml, wired into a dedicated test file mirroring this repo's
+        vs-checking-a-post-by-eye.test.mjs pattern (FAQ-schema/visible-
+        heading parity, verbatim-answer check, angle-reader h1 shape,
+        no-competitor-named check). Front-door mirror regenerated
+        (regen.mjs); two concurrent PRs' merges (#5710, #5716) each moved
+        the mirror out from under this branch mid-session, so
+        resolve-mirror-merge.sh's own recipe (checkout --ours on the
+        generated dirs, then regen.mjs --write) was applied by hand for the
+        stash-pop conflicts that produced (no MERGE_HEAD, so the script
+        itself declined to run) before landing.
+      - >-
+        Verified locally (ci_starvation.py on the latest portfolio-validate.yml
+        run on main, 36041055780: runner_id 0, 3s, no steps -- Actions
+        starved): venture's own suite 69/69, full platform/marketing +
+        platform/pages suite 1290/1290, gitops/tests 613 passed/25 skipped
+        (environmental -- nginx-light/openssh-client not installed this
+        session), the platform/ci unittest modules (27) and agent_review's
+        test_review (21) all pass, checklist_coverage.py clean,
+        surface-budget.mjs --check clean (venture now 1/1), regen.mjs
+        --verify clean after regen.mjs, router/validate.py,
+        scoring/score_ventures.py --check, usage/validate_usage.py,
+        pipeline/validate_doc_consistency.py, pipeline/validate_candidates.py,
+        pipeline/probes/validate_probe_index.py, pipeline/score_sensitivity.py,
+        front-door-tools.mjs --headroom all clean, and the
+        ledger/scoring/router/usage/pipeline/infra pytest suite (446 passed).
+    mrr_end: 0
