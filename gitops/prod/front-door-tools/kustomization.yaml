@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 122 files, 549516 bytes
 #   portfolio-front-tools-11: 115 files, 552299 bytes
 #   portfolio-front-tools-12: 118 files, 551052 bytes
-#   portfolio-front-tools-13: 124 files, 551811 bytes
+#   portfolio-front-tools-13: 125 files, 556573 bytes
 #   portfolio-front-tools-14: 129 files, 551217 bytes
 #   portfolio-front-tools-15: 131 files, 555439 bytes
 #   portfolio-front-tools-16: 107 files, 553418 bytes
@@ -1912,6 +1912,7 @@ configMapGenerator:
       - npm-lifecycle-script-check__engine.mjs.gz=npm-lifecycle-script-check__engine.mjs.gz
       - npm-lifecycle-script-check__index.html.gz=npm-lifecycle-script-check__index.html.gz
       - npm-lifecycle-script-check__usage.mjs.gz=npm-lifecycle-script-check__usage.mjs.gz
+      - npm-lifecycle-script-check__vs-diffing-package-lock-by-hand.html.gz=npm-lifecycle-script-check__vs-diffing-package-lock-by-hand.html.gz
       - npm-lifecycle-script-check__vs-socket.html.gz=npm-lifecycle-script-check__vs-socket.html.gz
       - npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz=npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz
       - ny-llc-transparency-act-tracker__calc.mjs.gz=ny-llc-transparency-act-tracker__calc.mjs.gz
