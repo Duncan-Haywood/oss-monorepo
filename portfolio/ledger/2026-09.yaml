@@ -42874,3 +42874,38 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: snow-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-seasonal-rate.html, the venture's first
+        generic-method comparison page (it had a named-product page,
+        vs-aspire.html, but none against the generic pricing habit).
+        Chosen via surface-budget.mjs's own zero-generic-method list
+        cross-checked against open PRs (none touching this venture) to
+        avoid the collision #5744's own ledger entry records for
+        depop-fee-calculator. The angle is the venture's own README
+        problem statement, stated in its own terms: a flat $250-400
+        seasonal copied from what the driveway next door paid carries no
+        storm count behind it, so nobody knows how many events it
+        survives until a heavy winter or an unlimited-ice clause finds
+        out for them; this tool builds the price from stop minutes,
+        salt, loaded hourly, and expected storms and reports the exact
+        storm count a seasonal quote survives once ice is paid -- the
+        number a flat rate never produces. Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (compares a generic habit, not a
+        named product), linked from index.html, listed in sitemap.xml.
+      - >-
+        Verified: the venture's own suite (91/91), clauses.mjs +
+        clauses.test.mjs (21/21), surface-budget.mjs --for and --check
+        (no venture over budget fleet-wide), checklist_coverage.py,
+        regen.mjs --verify clean before and after regenerating the
+        gitops mirror (front-door-tools kustomization, catalog.json,
+        compare.html, llms.txt, sitemap.xml), and the full
+        platform/marketing + platform/pages suite (1290/1290 -- the
+        first run, taken before the mirror regen, correctly failed 6 on
+        the stale front-door mount; a second run after `regen.mjs`
+        passed clean). Revenue and confirmed-visitor counts remain at
+        zero, which this does not change on its own.
+    mrr_end: 0

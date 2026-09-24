@@ -213,6 +213,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // be mistaken for. Distinct from this venture's own vs-jobber.html,
   // which names Jobber specifically and carries the trademark disclaimer.
   'which-job-first/vs-scoring-every-job-out-of-ten.html',
+  // Compares against "a flat seasonal rate" copied from what the driveway
+  // next door paid -- a generic pricing habit any snow contractor already
+  // uses, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-aspire.html, which names Aspire
+  // specifically and carries the trademark disclaimer.
+  'snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html',
   // Compares against "multiplying filament cost by three" -- a pricing
   // habit passed around among makers, not a company or product this could
   // be mistaken for. The page names no vendor at all.
