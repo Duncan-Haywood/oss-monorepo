@@ -1935,6 +1935,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
   // specifically and already carries the trademark disclaimer.
   'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
+  // Compares against "reviewing an invoice by eye" -- a manual review habit
+  // any shipper, broker, or AP clerk already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-trax.html and vs-cass.html, which name specific freight audit and
+  // payment providers and already carry the "not affiliated" disclaimer.
+  'freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html',
   // Compares against "reading the SKILL.md by hand" -- a manual review
   // habit every skill author already has, not a company or product this
   // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
