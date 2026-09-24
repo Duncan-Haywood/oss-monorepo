@@ -76,6 +76,15 @@ test("index links one hop to the helm-values-schema-check sibling", async () => 
   );
 });
 
+test("index links one hop to the k8s-resource-limits-check sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/k8s-resource-limits-check\/"/,
+    "index must link ../k8s-resource-limits-check/ so crawlers reach this new sibling in one hop -- it ships with no inbound link otherwise, per platform/pages/siblings-budget.json's orphanBudget: 0",
+  );
+});
+
 test("sitemap lists all published pages", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
   for (const loc of [
