@@ -2556,9 +2556,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # publishing / --provenance), static index.html plus a
     # why-not-just-npm-audit-signatures.html docs page, both from their
     # first commit, same shape as the rest of this running count.
+    # 367 on this later merge: `trump-account-calculator` also graduated --
+    # a browser-local calculator projecting a federal "Trump Account" child
+    # savings account (One Big Beautiful Bill Act, 26 U.S.C. 530A) to age
+    # 18 or later, applying the IRA-style pro-rata withdrawal rule against
+    # the published $1,000 seed deposit and $5,000/$2,500 contribution
+    # caps. Static `index.html` plus a `vs-doing-the-math-by-hand.html`
+    # comparison page, both from their first commit, same shape as the
+    # rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 366  # `infra/OWNER_CHECKLIST.md`'s own "N of the 366 tools" wording.
+    total = 367  # `infra/OWNER_CHECKLIST.md`'s own "N of the 367 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

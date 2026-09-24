@@ -134,3 +134,14 @@ test('index links one hop to the 1099k-reconciliation-worksheet sibling', () => 
     'index must link ../1099k-reconciliation-worksheet/ so crawlers reach it in one hop',
   );
 });
+
+// trump-account-calculator joined the same category on 2026-09-24 with no
+// inbound link of its own (a brand-new venture's first commit) -- this link
+// is what keeps it off siblings.test.mjs's committed orphan budget (0).
+test('index links one hop to the trump-account-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/trump-account-calculator\/"/,
+    'index must link ../trump-account-calculator/ so crawlers reach it in one hop',
+  );
+});

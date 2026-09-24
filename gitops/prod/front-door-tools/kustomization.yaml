@@ -33,28 +33,28 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 140 files, 524145 bytes
-#   portfolio-front-tools-1: 91 files, 550859 bytes
-#   portfolio-front-tools-2: 145 files, 556721 bytes
-#   portfolio-front-tools-3: 132 files, 555602 bytes
-#   portfolio-front-tools-4: 143 files, 556693 bytes
-#   portfolio-front-tools-5: 123 files, 554765 bytes
-#   portfolio-front-tools-6: 133 files, 553513 bytes
-#   portfolio-front-tools-7: 128 files, 544401 bytes
-#   portfolio-front-tools-8: 127 files, 551942 bytes
-#   portfolio-front-tools-9: 133 files, 554310 bytes
-#   portfolio-front-tools-10: 126 files, 554951 bytes
-#   portfolio-front-tools-11: 121 files, 553824 bytes
-#   portfolio-front-tools-12: 119 files, 556094 bytes
-#   portfolio-front-tools-13: 121 files, 548935 bytes
-#   portfolio-front-tools-14: 129 files, 554534 bytes
-#   portfolio-front-tools-15: 125 files, 554512 bytes
-#   portfolio-front-tools-16: 136 files, 554332 bytes
-#   portfolio-front-tools-17: 103 files, 556197 bytes
-#   portfolio-front-tools-18: 117 files, 554526 bytes
-#   portfolio-front-tools-19: 129 files, 554336 bytes
-#   portfolio-front-tools-20: 102 files, 485067 bytes
-#   portfolio-front-tools-21: 50 files, 264216 bytes
+#   portfolio-front-tools-0: 140 files, 524169 bytes
+#   portfolio-front-tools-1: 91 files, 550872 bytes
+#   portfolio-front-tools-2: 145 files, 556738 bytes
+#   portfolio-front-tools-3: 132 files, 555672 bytes
+#   portfolio-front-tools-4: 143 files, 556700 bytes
+#   portfolio-front-tools-5: 123 files, 554769 bytes
+#   portfolio-front-tools-6: 133 files, 553504 bytes
+#   portfolio-front-tools-7: 128 files, 544408 bytes
+#   portfolio-front-tools-8: 127 files, 551940 bytes
+#   portfolio-front-tools-9: 133 files, 554280 bytes
+#   portfolio-front-tools-10: 126 files, 554912 bytes
+#   portfolio-front-tools-11: 121 files, 553841 bytes
+#   portfolio-front-tools-12: 119 files, 556109 bytes
+#   portfolio-front-tools-13: 121 files, 549060 bytes
+#   portfolio-front-tools-14: 129 files, 554528 bytes
+#   portfolio-front-tools-15: 125 files, 554486 bytes
+#   portfolio-front-tools-16: 136 files, 554360 bytes
+#   portfolio-front-tools-17: 103 files, 556263 bytes
+#   portfolio-front-tools-18: 117 files, 554528 bytes
+#   portfolio-front-tools-19: 128 files, 556675 bytes
+#   portfolio-front-tools-20: 107 files, 498831 bytes
+#   portfolio-front-tools-21: 50 files, 264243 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2652,6 +2652,10 @@ configMapGenerator:
       - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
       - tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz=tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
+      - trump-account-calculator__calc.mjs.gz=trump-account-calculator__calc.mjs.gz
+      - trump-account-calculator__index.html.gz=trump-account-calculator__index.html.gz
+      - trump-account-calculator__usage.mjs.gz=trump-account-calculator__usage.mjs.gz
+      - trump-account-calculator__vs-doing-the-math-by-hand.html.gz=trump-account-calculator__vs-doing-the-math-by-hand.html.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
       - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
       - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
@@ -2688,16 +2692,16 @@ configMapGenerator:
       - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
       - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
       - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
-      - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
-      - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
-      - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
-      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
-      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
+      - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
+      - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
+      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
+      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
       - vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz=vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz

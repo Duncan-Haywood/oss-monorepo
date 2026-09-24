@@ -1193,6 +1193,9 @@ workflows:
 - workflow: tree-service-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: trump-account-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: tuckpointing-bid-calculator-ci.yml
   classification: none
   publishes: []
