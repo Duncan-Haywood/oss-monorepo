@@ -1,0 +1,176 @@
+name: mcp-config-risk-check
+description: Free browser tool that checks a pasted MCP server config (mcp.json, claude_desktop_config.json, VS Code's servers shape, or a generic list of entries) for structural risk patterns -- servers granted broad filesystem/shell access, API keys or tokens hardcoded in the config instead of referenced from an environment variable, launched packages/images with no version pin, and tool names shadowed across servers when a tool list is present. Runs entirely client-side; nothing uploaded, no account, no network call.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-24)
+#
+# Candidate 1 of 3 offered this session, and the top-ranked one. Checked
+# ventures/mcp-supply-chain-watch/VENTURE.yaml and README.md in full before
+# starting, per the brief's explicit instruction, because that venture's
+# name and domain (MCP) overlap heavily. Its actual scope is a *temporal
+# diff*: it compares two captured tool manifests (server + tools[] with
+# name/description/inputSchema, each carrying a `captured` timestamp) and
+# reports additions, removals, schema changes, description changes, and a
+# small set of model-directed instruction signals in a *changed*
+# description. It does not read a server *launch* config at all (no
+# command/args/env), does not check for hardcoded secrets, does not check
+# for a missing version pin, and does not flag broad filesystem/shell
+# access -- none of those are in its scope or its tests. This venture reads
+# the opposite input (a single current launch config, not two manifest
+# snapshots) and answers a different question ("is today's config risky?"
+# vs. "what changed since I approved this server?"). Not a duplicate;
+# cross-linked from both README/footer as complementary tools, following
+# the same pattern already live between pinned-actions-check and
+# actions-injection-check.
+#
+# duplicate_check.py (run this session) against "MCP server config auditor:
+# paste a mcp.json or claude_desktop_config.json (or list of MCP server
+# entries) and flag risky patterns in that single config -- servers granted
+# broad filesystem or shell access, API keys/tokens hardcoded in the config
+# instead of referenced from an env var, servers with no version pin, and
+# duplicate or shadowing tool names across servers":
+#
+#   score  source                    label
+#    0.10  venture                   k8s-rollout-safety-check
+#    0.09  pipeline candidate        mcp-supply-chain-watch
+#    0.08  pipeline candidate        chrome-extension-permission-check
+#    0.08  venture                   chrome-extension-permission-check
+#    0.08  venture                   security-txt-check
+#    0.08  venture                   docker-cache-order-check
+#    0.08  pipeline candidate        cors-misconfig-check
+#    0.07  venture                   redirect-chain-check
+#    0.07  venture                   ai-coding-plan-cost-calculator
+#    0.07  venture                   llm-api-pricing-calculator
+#
+# Nothing scored >= 0.45 (the review bar), and mcp-supply-chain-watch itself
+# -- the closest-domain hit by construction -- scored only 0.09. Also ran
+# the check against the two other candidates offered this session before
+# picking this one:
+#
+#   "AI agent tool-permission diff checker" (given two versions of an
+#   agent's tool/permission manifest, show what permissions were added or
+#   widened) -- top hits obsidian-plugin-review-check 0.17, sbom-diff-check
+#   0.15, mcp-supply-chain-watch 0.13. Also below the bar, but read as
+#   thin over mcp-supply-chain-watch's existing diff engine (same
+#   add/remove/widen-between-two-snapshots mechanic, applied to a different
+#   manifest shape) rather than a clearly distinct check the way this
+#   candidate is a single-snapshot audit vs. mcp-supply-chain-watch's
+#   temporal diff. Also close to screened-out.md's parked
+#   `agent-permission-harness` row in subject matter (agent tool
+#   permissions), though that row was screened as a *hosted platform*
+#   competing with funded observability incumbents -- a different shape
+#   from a narrow static diff tool -- so the shape objection did not apply
+#   directly; picked candidate 1 anyway as the cleaner differentiation.
+#
+#   "Context window / token budget calculator for RAG and agent pipelines"
+#   -- top hit fire-extinguisher-inspection-route-margin at 0.14, nothing
+#   domain-adjacent. Clean on duplication but a weaker fit for this
+#   session's checker-family push (it is a calculator, and this session's
+#   sibling llm-api-pricing-calculator already shipped a calculator;
+#   picking the checker/auditor shape here keeps the two sessions'
+#   ventures distinct in archetype as well as niche).
+#
+# Also checked `git log --oneline -20 origin/main` and grepped ventures/ for
+# "mcp"/"agent"/"permission"/"token"/"context"/"budget"/"rag" in the slug
+# (see the brief's own grep, reproduced): only mcp-supply-chain-watch,
+# agent-instructions-drift-check (an unrelated object -- lints AGENTS.md/
+# CLAUDE.md file references, not server configs), actions-permissions-check
+# (GitHub Actions workflow token permissions, not MCP), chrome-extension-
+# permission-check and shopify-permission-drift (different platforms
+# entirely) matched. No open PR or recent merge builds this niche.
+#
+# LIABILITY CONTAINMENT: every check is a mechanical pattern match against
+# text the user pastes -- no network call of any kind, no claim that a
+# server's actual published version, code, or compromise status was
+# checked, and the UI/README/footer all say plainly that a finding is "not
+# a verdict" and a clean result is "not a safety guarantee". This mirrors
+# actions-permissions-check's and mcp-supply-chain-watch's own liability
+# framing (both already graduated on the same reasoning): the tool never
+# claims to know the one thing it cannot see (whether a server is actually
+# malicious), only that a structural pattern was or was not observed in the
+# pasted text. No advice-of-record, no compliance claim, no PII, no payment
+# code, no account.
+#
+# Bring-your-own-data compliance: the tool asserts nothing about a live,
+# time-varying fact (a package's current published version, a server's
+# actual permission grant on disk, a vendor's current pricing) -- it only
+# classifies patterns in the exact text the user supplies, the same
+# discipline llm-api-pricing-calculator and vector-db-cost-calculator use
+# for vendor rates. The "no version pin" check does not claim to know what
+# version *would* be resolved; it only observes whether the config names one.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- it exists only to
+# help a developer or team catch a risky config line before approving a
+# server, with no adverse incentive on our side (no affiliate link, no
+# referral fee, donations-only same as the rest of the portfolio). It does
+# not scan or fingerprint third-party infrastructure (mcp-supply-chain-
+# watch's own write-up flags unrequested scanning of servers the customer
+# has not connected as out of scope; this tool goes further -- it never
+# even contacts a server, connected or not, since it only reads a pasted
+# launch config).
+#
+# JUDGMENT CALLS flagged for review:
+#  - The "broad filesystem/shell access" check flags an exact match against
+#    a small literal path set (/, ~, $HOME, %USERPROFILE%, C:\, C:/, /root)
+#    plus a known-flag-substring list, rather than attempting a general
+#    path-scope analysis (e.g. "is /home/user/projects narrower than
+#    /home/user?"). A narrower-but-still-broad path will not be flagged;
+#    documented in the README as a mechanical, not exhaustive, check.
+#  - The docker version-pin check's argument parser is a best-effort
+#    heuristic (skips a fixed list of known value-taking flags like -e/-v/-w
+#    to find the image reference after `run`) rather than a full docker CLI
+#    grammar. Covered by calc.test.mjs including a case with interleaved
+#    flags; a sufficiently unusual invocation could still be misread, which
+#    is why every finding is presented as "worth a look", never a fact.
+#  - Duplicate-tool-name detection only fires when the pasted data happens
+#    to carry each server's own `tools` list, which an ordinary mcp.json
+#    launch config does not. This is stated plainly in the UI and README
+#    rather than silently doing nothing -- the check activates opportunistically
+#    when richer data (e.g. a manifest export) is pasted instead of a bare
+#    launch config.
+hypotheses:
+  - claim: A developer or team reviewing an MCP server config before approving it -- or auditing one already in use -- wants every risky structural pattern (broad access, hardcoded secrets, unpinned versions, shadowed tool names) surfaced in one pass, and currently does this by reading each server's command/args/env block by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Flagging a hardcoded-secret-shaped literal regardless of the env key's name (not just a key literally named "token" or "key") catches real cases a key-name-only scan would miss, since a server author can name the env var anything.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all checks are client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors paste a config and get at least one finding within 90 days.
+  - A finding's stated category (broad-access / hardcoded-secret / unpinned-version / duplicate-tool-name) is wrong for a config a real user pastes, and cannot be fixed by tightening a pattern.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: developer communities actively discussing
+  MCP server security day to day as the protocol has matured through 2025 --
+  r/ClaudeAI, r/LocalLLaMA MCP threads, Hacker News "Show HN" and MCP-security
+  threads, and the GitHub topic/search surface for repositories publishing an
+  mcp.json or claude_desktop_config.json; organic search for "mcp.json
+  security check", "audit mcp server config", "mcp server permissions
+  checker", and "claude desktop config security" -- current search terms
+  given how often MCP tool-poisoning and over-broad-server-access writeups
+  have circulated in the same communities mcp-supply-chain-watch already
+  targets. The two tools' footer cross-link is itself a channel: a visitor
+  arriving at one for a drift check is a plausible visitor for the other's
+  config audit, and vice versa.
