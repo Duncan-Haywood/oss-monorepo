@@ -1578,6 +1578,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark-free framing. Same reasoning as the other vs-spreadsheet
   // pages above.
   'fleet-repair-or-replace-planner/vs-spreadsheet.html',
+  // Compares against "holding this year's repair invoice up against a new
+  // price" -- the default comparison every fleet owner already runs in their
+  // head, not a company or product this could be mistaken for. The page
+  // names no vendor or fleet-management platform (the venture's own
+  // named-product comparison, vs-fleet-management-software, carries its own
+  // framing already) and its copy opens by agreeing the repair-bill
+  // comparison is a reasonable first filter. Same reasoning as the other
+  // generic-method pages above.
+  'fleet-repair-or-replace-planner/vs-comparing-the-repair-bill-to-a-new-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
