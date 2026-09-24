@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { decodeEntities } from '../../platform/pages/entities.mjs';
 
 const html = readFileSync(new URL('./why-two-canonical-tags-is-worse-than-none.html', import.meta.url), 'utf8');
 const indexHtml = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -107,17 +108,14 @@ test('every FAQPage schema question has a matching visible heading', () => {
   }
 });
 
-// The JSON-LD carries real "<" and ">" characters where the visible markup
-// spells the same tag names as HTML entities (&lt;/&gt;) so the page stays
-// valid HTML -- a browser renders both identically, but a raw string
-// comparison needs the visible side decoded first. See
-// platform/pages/faq-visible.test.mjs for the whole-portfolio version of
-// this check.
-const decodeEntities = (text) => text
-  .replace(/&lt;/g, '<')
-  .replace(/&gt;/g, '>')
-  .replace(/&mdash;/g, '—')
-  .replace(/&amp;/g, '&');
+// The JSON-LD carries real "<", ">", and '"' characters where the visible
+// markup spells the same tag names as HTML entities (&lt;/&gt;/&quot;) so the
+// page stays valid HTML and this page's own <link rel="canonical"> count
+// stays at one -- a browser renders both identically, but a raw string
+// comparison needs the visible side decoded first. Uses the shared decoder
+// rather than a bespoke one: platform/pages/entities.mjs's own docstring
+// records a page reading as missing its own visible copy because two
+// hand-rolled decoders each knew only a few entity names.
 
 test('the FAQPage answers appear verbatim on the visible page, not only in the script tag', () => {
   const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);

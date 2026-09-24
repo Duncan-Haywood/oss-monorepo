@@ -1653,6 +1653,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (the test file asserts none of the sibling pages' named products
   // appear). Same reasoning as the other generic-method pages above.
   '3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html',
+  // Compares against "a flat per-foot rate card" -- a generic pricing
+  // method every ice dam removal contractor already has access to, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html, which names Jobber specifically and
+  // already carries the trademark disclaimer. Same reasoning as
+  // irrigation-winterization-bid-calculator's own flat-rate exemption
+  // above.
+  'ice-dam-removal-bid-calculator/vs-a-flat-rate-per-linear-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

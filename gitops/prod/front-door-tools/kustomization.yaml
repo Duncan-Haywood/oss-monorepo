@@ -39,12 +39,12 @@
 #   portfolio-front-tools-3: 135 files, 556477 bytes
 #   portfolio-front-tools-4: 145 files, 556860 bytes
 #   portfolio-front-tools-5: 117 files, 554373 bytes
-#   portfolio-front-tools-6: 136 files, 555310 bytes
+#   portfolio-front-tools-6: 136 files, 555322 bytes
 #   portfolio-front-tools-7: 127 files, 554622 bytes
 #   portfolio-front-tools-8: 132 files, 556251 bytes
 #   portfolio-front-tools-9: 135 files, 556892 bytes
 #   portfolio-front-tools-10: 121 files, 554253 bytes
-#   portfolio-front-tools-11: 118 files, 544780 bytes
+#   portfolio-front-tools-11: 119 files, 549395 bytes
 #   portfolio-front-tools-12: 115 files, 552447 bytes
 #   portfolio-front-tools-13: 129 files, 553712 bytes
 #   portfolio-front-tools-14: 124 files, 545705 bytes
@@ -1636,6 +1636,7 @@ configMapGenerator:
       - ice-dam-removal-bid-calculator__index.html.gz=ice-dam-removal-bid-calculator__index.html.gz
       - ice-dam-removal-bid-calculator__share.mjs.gz=ice-dam-removal-bid-calculator__share.mjs.gz
       - ice-dam-removal-bid-calculator__usage.mjs.gz=ice-dam-removal-bid-calculator__usage.mjs.gz
+      - ice-dam-removal-bid-calculator__vs-a-flat-rate-per-linear-foot.html.gz=ice-dam-removal-bid-calculator__vs-a-flat-rate-per-linear-foot.html.gz
       - ice-dam-removal-bid-calculator__vs-jobber.html.gz=ice-dam-removal-bid-calculator__vs-jobber.html.gz
       - ice-dam-removal-bid-calculator__why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html.gz=ice-dam-removal-bid-calculator__why-a-flat-rate-card-can-lose-money-on-a-short-ice-dam-job.html.gz
       - ifta-quarterly-fuel-tax-calculator__calc.mjs.gz=ifta-quarterly-fuel-tax-calculator__calc.mjs.gz
