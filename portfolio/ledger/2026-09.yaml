@@ -39570,4 +39570,39 @@ entries:
         running unbounded. `nginx-light` and `openssh-client` installed via
         `apt-get update && apt-get install` per CLAUDE.md's documented
         workaround (both fetches 404 without the update step first).
+      - >-
+        Follow-up (separate session): the branch carrying both ventures
+        had its remote deleted (its prior PR had already merged), so it
+        was restarted from `origin/main` per this account's standing
+        branch-reuse instruction. Landing it required resolving the
+        concurrent-graduation collision both ledger entries above
+        describe in prose: `candidates.yaml` and `venture-scores.yaml`
+        (both append-only lists, no numbering) merged cleanly by keeping
+        both slugs' entries; `portfolio/pipeline/README.md`'s ranked
+        table needed both new rows inserted in composite order and every
+        subsequent row renumbered by hand (`validate_doc_consistency.py`
+        enforces rank == table position); this ledger file's own append
+        conflict was resolved by keeping both ventures' full entries as
+        separate list items. `sync_tree_counts.py` and
+        `gitops/ci/sync_readme_counts.py` re-run after the merge (mirror
+        count 340->341, opt-out-switch count 322->323, runs-on
+        434/436->435/437), each with its own running-comment "why" entry
+        added by hand as the tooling requires. `main` moved twice more
+        during this cleanup (comparison-page PRs only); each merge's
+        `gitops/prod/` binary conflicts resolved by `git checkout
+        --theirs` + `node platform/marketing/regen.mjs`, verified with
+        `--verify` after every regen. Re-verified on the final merged
+        tree: both ventures' own suites 108/108; `platform/marketing` +
+        `platform/pages` 1286/1286; `platform/proposal` 101/101;
+        `platform/privacy` + `platform/webcheck` 142/142; `gitops/tests`
+        via pytest 637/1 skipped; `portfolio/ledger` + `scoring` +
+        `router` + `usage` + `pipeline` + `infra/tests` via pytest
+        446/446; all 27 `platform/ci` unittest modules +
+        `agent_review/test_review` (21/21); `checklist_coverage.py`,
+        `validate_doc_consistency.py` (58 candidates), `validate_candidates.py`,
+        `router/validate.py` (348/348), `score_ventures.py --check`
+        (349/349), `usage/validate_usage.py`, `surface-budget.mjs --check`,
+        `siblings.mjs --check` (0 orphans), `publish_surface.py --check`,
+        `regen.mjs --verify`: all clean. Fast-forwarded
+        `claude/keen-cerf-w0x7p2` onto the resolved tip and pushed.
     mrr_end: 0
