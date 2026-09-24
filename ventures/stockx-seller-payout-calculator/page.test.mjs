@@ -201,3 +201,12 @@ test('index links one hop to the marketplace-fee-compare sibling', () => {
   );
   assert.match(html, /marketplace fee compare/i);
 });
+
+test('index links one hop to the kickstarter-fee-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/kickstarter-fee-calculator\/"/,
+    'index must link ../kickstarter-fee-calculator/ so crawlers reach that calculator in one hop',
+  );
+  assert.match(html, /Kickstarter fee calculator/i);
+});
