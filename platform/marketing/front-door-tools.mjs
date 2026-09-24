@@ -91,6 +91,7 @@ import { fileURLToPath } from 'node:url';
 // copy here has twice gone stale against the original.
 import {
   ABOUT_PATH,
+  DOWNLOADABLE_CLI_FILES,
   ENTRY_CANDIDATES,
   ENTRY_OVERRIDES,
   maskScriptAndStyleBodies,
@@ -1480,6 +1481,19 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
       if (await fs.access(path.join(venturesDir, slug, name)).then(() => true, () => false)) {
         files.push(name);
       }
+    }
+  }
+  // Same reasoning as `build.mjs`'s own `DOWNLOADABLE_CLI_FILES` loop: a `.py`
+  // CLI a venture's own page offers as a same-origin download is not
+  // `isServable` (`.py` is not in `SERVABLE_EXTENSIONS`, on purpose -- most
+  // ventures' CLI source is not a public deliverable), so the specific files
+  // named there have to be added back explicitly, imported rather than
+  // restated, or the mirror's own copy of these 18 pages links to a file the
+  // mirror itself never serves.
+  for (const name of DOWNLOADABLE_CLI_FILES[slug] ?? []) {
+    if (files.includes(name)) continue;
+    if (await fs.access(path.join(venturesDir, slug, name)).then(() => true, () => false)) {
+      files.push(name);
     }
   }
   for (const entry of entries) {
