@@ -39525,3 +39525,89 @@ entries:
         `apt-get update && apt-get install` per CLAUDE.md's documented
         workaround (both fetches 404 without the update step first).
     mrr_end: 0
+  - venture: backup-file-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture graduated: a free browser tool + zero-dependency CLI
+        sending real GET requests to eight well-known backup-file paths
+        (backup.zip, backup.tar.gz, backup.sql, backup.sql.gz, db.sql,
+        database.sql, dump.sql, site.zip) at a site's root, classifying the
+        response against a real archive's magic bytes (ZIP/gzip/bzip2/
+        7-Zip/tar) or a real SQL dump's line shape (a dump-tool header
+        comment, or a structural ratio of CREATE/INSERT-style statement
+        lines) -- never a bare HTTP status, so a soft-404 catch-all page is
+        never misread as an exposure. Never extracts, lists, or reads a
+        file from inside a matched archive; never quotes a SQL dump's
+        row-data statements (INSERT/REPLACE/COPY ... FROM stdin) anywhere,
+        only schema statements (table/column structure), pinned by
+        analyze.test.mjs asserting a worked example's fake row values never
+        appear in the serialized report.
+      - >-
+        `portfolio/pipeline/duplicate_check.py` scored every existing
+        venture, screened-out row, and pipeline candidate at 0.29 or below
+        against the final description -- dotenv-exposure-check closest (a
+        different static-file exposure class: a project's own
+        environment-variable secrets file, not a backup archive or
+        database dump), git-exposure-check next (git-internal plumbing,
+        not a backup file's own content). Nothing in the tree covered
+        backup-file or database-dump exposure. Same "read what's actually
+        there, name the exact evidence" checker family as
+        git-exposure-check, dotenv-exposure-check, cloud-bucket-exposure-check,
+        and subdomain-takeover-check -- the family `pipeline/README.md`
+        names as the safer bet after 141 tries at the
+        `<trade>-bid-calculator` archetype with zero confirmed visitors.
+        Channel: OWASP's Web Security Testing Guide names "Review Old
+        Backup and Unreferenced Files" explicitly as a standard
+        reconnaissance step, SecLists' own wordlists carry this exact short
+        set of backup filenames, and "found an exposed backup.zip / SQL
+        dump" is a recurring HackerOne/Bugcrowd report category and
+        dorking search term -- the same evergreen-footgun channel this
+        portfolio's sibling checkers already rely on.
+      - >-
+        Found and fixed two defects the venture's own addition exposed in
+        shared infrastructure, both real and both verified: (1)
+        `platform/pages/build.mjs`'s `evidence` category carried a `backup`
+        prefix rule written for `backup-verification-evidence` alone --
+        narrowed to `backup-verification` so the new venture correctly
+        lands in the `ci` (developer-checker) category instead of being
+        swept into compliance evidence records by slug alone; verified via
+        `categoryFor()` before and after. (2) `platform/pages/siblings.mjs`
+        flagged the new venture as a crawlable orphan (nothing linked back
+        to it) -- closed with a reciprocal footer link from
+        git-exposure-check plus a pinning test in its page.test.mjs;
+        siblings.mjs reports 0/342 orphans after.
+      - >-
+        Full checklist run: venture's own suite 63/63; platform/marketing +
+        platform/pages 1286/1285 (one pre-existing, unrelated failure
+        remains in `depreciation-recapture-calculator`, introduced by
+        another session's merge that landed mid-session here -- not this
+        venture, out of scope, reported rather than fixed); regen.mjs +
+        --verify clean; sync_tree_counts.py clean (342 mirrored tools, 324
+        opt-out switches, running-comment entries added); checklist_coverage
+        clean; gitops/tests 637 passed/1 skipped (environmental only, after
+        installing nginx-light + openssh-client per CLAUDE.md's documented
+        `apt-get update &&` workaround); platform/ci unittest (27 modules)
+        + agent_review/test_review all pass except one pre-existing,
+        unrelated failure: `ventures/slopsquatting-check` (committed before
+        this branch, by #5421) ships four `*.test.mjs` files with no CI
+        workflow of its own -- confirmed via `git log` that this predates
+        this branch and is not touched by it; left unfixed as out of scope
+        for a single-venture PR and reported here instead. portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446 passed;
+        router/validate.py 349/349; score_ventures.py --check 350/350
+        (new score entry added); `run_workflow_locally.py --for-changes`
+        completed: 11/15 selected workflows passed, the same
+        slopsquatting-check defect the only real failure, the rest held by
+        design (write-permission/secret-gated jobs: agent-cross-review,
+        hetzner-gitops-ci, portfolio-pages/publish-pages-branch deploy
+        steps). Browser checks (Playwright + axe-core) run `--only
+        backup-file-exposure-check`: sideways, presets, roundtrip,
+        contrast, optout, sweep, journey all ok; `highlight` skipped (no
+        highlight promise on this venture, expected). The whole-catalogue
+        browser-check state (`browser_state.py`) is STALE after this
+        session's `build.mjs`/`clauses.mjs` edits, same as any venture
+        addition that touches the builder -- a full ~25 minute
+        whole-catalogue run is a separate task, not this session's.
+    mrr_end: 0

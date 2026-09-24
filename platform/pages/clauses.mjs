@@ -1086,6 +1086,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or product this could be mistaken for. This page names no git-hosting
   // platform, IDE, or scanning tool.
   'dotenv-exposure-check/vs-checking-by-hand.html',
+  // Compares against "typing the URL into a browser tab and downloading the
+  // file by hand" -- a manual habit every developer already has, not a
+  // company or product this could be mistaken for. This page names no
+  // hosting platform, backup tool, or scanning tool. Same reasoning as this
+  // file's own dotenv-exposure-check/vs-checking-by-hand.html and
+  // git-exposure-check/vs-checking-the-url-by-hand.html entries above.
+  'backup-file-exposure-check/vs-checking-by-hand.html',
   // Compares against "running dig CNAME by hand" -- a generic DNS-lookup
   // habit every developer already has, not a company or product this could
   // be mistaken for. The page names third-party hosting providers (S3,
