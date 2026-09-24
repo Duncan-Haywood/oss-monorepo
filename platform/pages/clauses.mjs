@@ -1942,6 +1942,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
   // specifically and already carries the trademark disclaimer.
   'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
+  // Compares against "reading the command/args/env blocks by hand before
+  // approving a server" -- a manual habit anyone reviewing an MCP config
+  // already has, not a company or product this could be mistaken for.
+  // This venture names no named-product comparison at all.
+  'mcp-config-risk-check/vs-reading-the-config-by-hand.html',
   // Compares against "reviewing an invoice by eye" -- a manual review habit
   // any shipper, broker, or AP clerk already has, not a company or product
   // this could be mistaken for. Distinct from this venture's own
