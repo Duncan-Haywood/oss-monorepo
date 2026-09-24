@@ -2489,6 +2489,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # number (360, at its own graduation) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
     #
+    # mega-backdoor-roth-calculator's own graduation also added a
+    # which-conversion-cadence-should-i-use.html guide page from its first
+    # commit, per a sibling branch's independent count-sync of the same
+    # venture -- folded into the entry above rather than duplicated, since
+    # both branches are counting the same single new tool.
+    #
     # 362 on this merge: `senior-deduction-calculator` also graduated,
     # concurrently on `main` -- a browser-local calculator for the new
     # federal "senior bonus" deduction (OBBBA, tax years 2025-2028),
