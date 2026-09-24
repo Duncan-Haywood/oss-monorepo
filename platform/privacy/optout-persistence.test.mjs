@@ -708,9 +708,17 @@ const RELATIVE_SELF = relative(
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
 //
-// 339 -> 340: `senior-deduction-calculator` graduated (#5765), concurrently
-// on `main` -- adding one more `usage.mjs`
-// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions.
+// 339 -> 340: `senior-deduction-calculator` graduates (#5765) -- adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `senior-deduction-calculator-usage` storage name). Exactly one added
+// `usage.mjs` since the constant was last set at 339
+// (`git diff --name-status fb60ce5d6b HEAD -- 'ventures/*/usage.mjs'`), no
+// deletions. `mega-backdoor-roth-calculator` (#5769) merged to `main`
+// concurrently but carries no `usage.mjs` of its own, so it does not move
+// this count. (A concurrent session recorded this same transition with a
+// shorter note before this merge landed; the two agree on 340 and this
+// entry supersedes the duplicate rather than stacking both.)
 const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;
