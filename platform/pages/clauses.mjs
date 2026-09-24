@@ -1692,6 +1692,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "averaging margins in a spreadsheet" -- the generic
+  // =AVERAGE() formula an operator builds by hand, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-marginedge.html, which names MarginEdge specifically and already
+  // carries the trademark disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'menu-engineering-calculator/vs-averaging-margins-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
