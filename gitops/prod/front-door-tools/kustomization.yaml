@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 136 files, 556203 bytes
 #   portfolio-front-tools-7: 127 files, 555448 bytes
 #   portfolio-front-tools-8: 127 files, 554868 bytes
-#   portfolio-front-tools-9: 141 files, 551554 bytes
+#   portfolio-front-tools-9: 142 files, 555336 bytes
 #   portfolio-front-tools-10: 119 files, 546780 bytes
 #   portfolio-front-tools-11: 118 files, 555683 bytes
 #   portfolio-front-tools-12: 117 files, 555514 bytes
@@ -1390,6 +1390,7 @@ configMapGenerator:
       - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
       - ev-charger-bid-calculator__index.html.gz=ev-charger-bid-calculator__index.html.gz
       - ev-charger-bid-calculator__share.mjs.gz=ev-charger-bid-calculator__share.mjs.gz
+      - ev-charger-bid-calculator__should-i-hardwire-or-use-a-nema-14-50.html.gz=ev-charger-bid-calculator__should-i-hardwire-or-use-a-nema-14-50.html.gz
       - ev-charger-bid-calculator__usage.mjs.gz=ev-charger-bid-calculator__usage.mjs.gz
       - ev-charger-bid-calculator__vs-a-flat-hang-fee.html.gz=ev-charger-bid-calculator__vs-a-flat-hang-fee.html.gz
       - ev-charger-bid-calculator__vs-servicetitan.html.gz=ev-charger-bid-calculator__vs-servicetitan.html.gz
