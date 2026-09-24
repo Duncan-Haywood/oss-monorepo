@@ -2453,9 +2453,22 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # that survived reconciling the two.
     # Static `index.html` from its first commit, same shape as the rest of
     # this running count.
+    #
+    # 358 on this merge: `tip-pool-compliance-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator for
+    # restaurant/bar owners that checks a mandatory tip pool against the
+    # two federal FLSA tip-pooling rules (a manager/supervisor is never
+    # eligible; back-of-house staff are eligible only when no tip credit
+    # is taken) and computes the tip-credit back-wage exposure a
+    # violation creates. Static `index.html` and a
+    # `vs-guessing-from-a-staff-meeting.html` comparison page, both from
+    # their first commit, same shape as the rest of this running count.
+    # This branch only ever knew its own predecessor's number (357) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 357  # `infra/OWNER_CHECKLIST.md`'s own "N of the 357 tools" wording.
+    total = 358  # `infra/OWNER_CHECKLIST.md`'s own "N of the 358 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
