@@ -40019,3 +40019,50 @@ entries:
         Playwright/axe-core browser-check line was not run -- nothing this
         change touches is markup a user types into.
     mrr_end: 0
+  - venture: window-tinting-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Filled the venture's 0/1 generic-method comparison-page budget
+        (surface-budget.mjs --for window-tinting-bid-calculator, which had
+        reported "no marketing surface yet") with
+        vs-a-flat-per-vehicle-size-price.html. calc.mjs already exported
+        naiveFlatQuote() and pricingGap() for exactly this comparison but
+        had no dedicated page. Three worked examples -- a front-two-only
+        dyed-film job (floors at the $120 minimum, $80 below the $200 flat
+        rate), the calculator's own default full seven-pane ceramic kit
+        ($370.27, $170.27/85% above the flat rate), and the same kit with
+        old tint stripped first ($429.14, $229.14/115% above) -- are
+        computed straight from calculateTintBid()/pricingGap() and pinned
+        by a test that re-derives them, so the numbers cannot go stale
+        unnoticed. Linked from index.html, added to sitemap.xml, and
+        registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (compares against a generic
+        flat-per-vehicle pricing habit, not a named competitor). Regenerated
+        the front-door mirror so the apex serves the new page.
+        Verified: ventures/window-tinting-bid-calculator suite 97/97;
+        surface-budget.mjs --check clean (0/1 -> 1/1, no venture over
+        budget); checklist_coverage.py clean; sync_tree_counts.py clean (345
+        mirrored tools, 327 opt-out switches, no drift); regen.mjs --verify
+        clean after the final commit; platform/marketing +
+        platform/pages suite 1285/1286 -- the one failure is
+        front-door-tools.test.mjs's mirror-capacity warning (85.5-85.6% of
+        ceiling, over the 85% warn ratio, 0 bytes recoverable duplicates),
+        confirmed pre-existing on origin/main by re-running it with this
+        branch's changes stashed out -- a portfolio-wide capacity signal
+        from concurrent sessions' merges today (also recorded in this
+        file's hood-cleaning-bid-calculator entry above), not something
+        this one-page PR caused or can fix on its own; reported here rather
+        than addressed. Also clean: platform/proposal (101/101),
+        platform/privacy + platform/webcheck (140/142, 2 skipped for a
+        shallow clone, documented and expected); gitops/tests (637
+        passed/1 skipped, after installing nginx-light + openssh-client per
+        CLAUDE.md's apt-get workaround); platform/ci unittest (27 modules,
+        all OK) + agent_review/test_review (21/21); portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446 passed. CI
+        confirmed starved this session (ci_starvation.py --run 35958571972:
+        runner_id 0, 3s, no steps). No form inputs added (a static
+        comparison page), so the Playwright/axe-core browser-check line was
+        not run -- nothing this change touches is markup a user types into.
+    mrr_end: 0
