@@ -693,7 +693,13 @@ const RELATIVE_SELF = relative(
 // above landed) until this merge -- the same ordinary collision shape
 // recorded throughout this list. Exactly one added `usage.mjs`
 // (`ventures/k8s-resource-limits-check/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 336;
+//
+// 336 -> 337: `auto-loan-interest-deduction-calculator` graduates -- adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `auto-loan-interest-deduction-calculator-usage` storage name). Exactly
+// one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 337;
 
 let counter = 0;
 function fixture(source) {
