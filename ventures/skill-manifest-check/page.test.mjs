@@ -71,6 +71,10 @@ test("links to mcp-config-risk-check and hidden-unicode-check as complementary A
   assert.match(html, /hidden-unicode-check\/">/);
 });
 
+test("links to claude-code-subagent-check as a complementary AI-agent-tooling checker", () => {
+  assert.match(html, /claude-code-subagent-check\/">/);
+});
+
 test("supports pasting more than one skill for the overlap check", () => {
   assert.match(scriptSource, /addSkillBox/);
   assert.match(scriptSource, /overlapFindings/);

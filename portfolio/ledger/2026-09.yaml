@@ -43174,3 +43174,89 @@ entries:
         confirmed-visitor counts remain at zero, which this does not change
         on its own.
     mrr_end: 0
+  - venture: claude-code-subagent-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture end-to-end: a free, zero-dependency
+        browser tool that checks a pasted Claude Code subagent definition
+        (.claude/agents/*.md) for structural authoring mistakes that
+        stop the orchestrator delegating to it -- a name that isn't
+        kebab-case or doesn't match the filename, a missing or too-vague
+        description (the one field delegation is matched against), a
+        `tools` entry that's empty/duplicated/unrecognized, an
+        unrecognized `model` alias, and a missing or near-empty system
+        prompt. Extends the same-day AI-agent-tooling cluster
+        (hidden-unicode-check, mcp-config-risk-check, skill-manifest-check,
+        claude-code-settings-check) with the one Claude Code file those
+        four leave unchecked; sourced and built by this session for the
+        same reason claude-code-settings-check was -- this session is
+        Claude Code itself, with direct, current knowledge of the exact
+        schema being checked (frontmatter fields, built-in tool names,
+        model aliases).
+      - >-
+        duplicate_check.py cleared with nothing scoring above 0.30
+        (skill-manifest-check, the closest -- a different object: no
+        tools/model fields, loaded by name rather than matched for
+        delegation). Cross-linked all four sibling AI-agent-tooling
+        checkers' footers reciprocally (hidden-unicode-check,
+        mcp-config-risk-check, skill-manifest-check,
+        claude-code-settings-check), each with a matching page.test.mjs
+        assertion. Registered in launched.json, filed in build.mjs's
+        developer-tooling category, added a merit score to
+        venture-scores.yaml (composite 5.833, gates pass/pass), added a
+        CI workflow, and regenerated the front-door mirror
+        (platform/marketing/regen.mjs) so the apex serves the new page
+        immediately rather than 404ing on its own sitemap entry.
+      - >-
+        Two concurrent sessions each graduated a new venture into the same
+        `backoffice` category while this branch was in flight
+        (mega-backdoor-roth-calculator, then senior-deduction-calculator),
+        neither filed into build.mjs's category rules. Merging both in
+        turn pushed the catch-all category to 6 tools against its
+        committed bound of 5 (build.test.mjs), and
+        mega-backdoor-roth-calculator also carried a JSON-LD/visible-copy
+        em-dash divergence (faq-visible.test.mjs) and no inbound sibling
+        link (siblings.test.mjs's crawlable-orphan budget of 0). Fixed
+        forward rather than left for a later session: filed both into
+        `backoffice` alongside qbi-deduction-calculator and
+        depreciation-recapture-calculator, matched the JSON-LD punctuation
+        to the pages' own visible prose, and added a reciprocal footer
+        link (plus page.test.mjs assertion) with
+        1099k-reconciliation-worksheet, siblings.mjs's own nearest-sibling
+        pick.
+      - >-
+        Resynced the mirrored-tool count (359->362 across two merges) and
+        opt-out-switch count (339->341) via sync_tree_counts.py, and the
+        `runs-on` count via gitops/ci/sync_readme_counts.py, after this
+        venture's own CI workflow and the two concurrently-graduated
+        ventures each added a self-hosted-eligible job; each rewrite's
+        running-comment entry names the venture responsible for each step
+        of the count.
+      - >-
+        Verified on the final, twice-merged tree: the venture's own suite
+        (56/56), clauses.mjs for all five AI-agent-tooling ventures,
+        mega-backdoor-roth-calculator's suite (26/26) and
+        1099k-reconciliation-worksheet's suite (39/39) after the sibling-
+        link fix, the previously-failing trio together
+        (platform/pages/build.test.mjs + faq-visible.test.mjs +
+        siblings.test.mjs, 307/307), the full platform/pages suite
+        (1015/1015) and platform/marketing suite (275/275, confirming the
+        mirror regen), platform/pages/siblings.mjs (0 of 361 tools
+        orphaned), gitops/tests (613 passed/25 skipped), every
+        platform/ci unittest module (1014 passed) plus agent_review's
+        test_review (21 passed), portfolio/ledger + scoring + router +
+        usage + pipeline + infra/tests pytest (446 passed),
+        router/validate.py, score_ventures.py --check,
+        surface-budget.mjs --check, front-door-tools.mjs --headroom, the
+        pipeline/usage validators, regen.mjs --verify clean, and
+        run_workflow_locally.py --for-changes (portfolio-validate.yml
+        71/71, sibling-links-ci.yml 2/2, every sibling checker's own CI
+        green; unrun selections were GitHub-hosted-runner-only jobs this
+        tool cannot execute locally, plus one pre-existing, unrelated
+        pages.yml tool limitation). Revenue and confirmed-visitor counts
+        remain at zero, which a single new venture does not change on its
+        own -- see its VENTURE.yaml `channel_notes` for the named
+        first-visitor channels.
+    mrr_end: 0
