@@ -42819,3 +42819,58 @@ entries:
         pages-freshness), or an already-tracked, already-queued item
         (#5712 covers republishing gh-pages)).
     mrr_end: 0
+  - venture: claude-code-settings-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, sourced by this session rather than a pipeline
+        candidate: a free browser tool checking a pasted Claude Code
+        settings.json (and optionally settings.local.json) for the
+        structural mistakes in hooks and permissions that fail silently --
+        an uncompilable matcher regex, a hook with no command, an event/
+        hook-type name outside this tool's dated, documented list, a
+        permission rule with unbalanced parentheses or an empty specifier,
+        a rule duplicated across allow/deny/ask, and a rule that
+        contradicts itself across the two settings files. Same
+        deterministic, client-side, no-upload shape as this session's
+        sibling AI-agent-tooling checkers (hidden-unicode-check,
+        mcp-config-risk-check, skill-manifest-check), justified the same
+        way: this session is Claude Code itself, with unusually direct
+        knowledge of the exact schema being checked.
+        duplicate_check.py cleared with nothing scoring above 0.13 (see
+        the venture's own VENTURE.yaml for the full table and channel
+        notes). Registered in launched.json, filed in build.mjs's
+        developer-tooling category, scored in venture-scores.yaml,
+        cross-linked reciprocally with all three sibling checkers'
+        footers, and given its own CI workflow (recorded in
+        publish-surface.yaml as publishing "none").
+      - >-
+        Found and fixed a real, pre-existing production defect while
+        verifying the merge: gitops/prod/kustomization.yaml's per-product
+        comparison-page mount list is hand-maintained, and
+        mcp-config-risk-check's vs-mcp-scan.html (#5730) had crossed the
+        two-comparison threshold that makes a product page mounted --
+        without the mount line ever being added. The rendered
+        vs__mcp-scan.html.gz existed in gitops/prod/front-door/ but was
+        never reachable through the served kustomization. Added the
+        missing line; front-door.test.mjs's own guard for exactly this
+        case now passes.
+      - >-
+        Also resynced the mirrored-tool and runs-on counts
+        (sync_tree_counts.py, sync_readme_counts.py) after two other
+        ventures graduated concurrently during the session
+        (auto-loan-interest-deduction-calculator and this one).
+      - >-
+        Verified on the final merged tree: the venture's own suite
+        (60/60), checklist_coverage.py, router/validate.py,
+        score_ventures.py --check, clauses.mjs, surface-budget.mjs
+        --check, regen.mjs --verify clean, front-door.test.mjs (118/118,
+        confirming the kustomization fix), the full platform/marketing +
+        platform/pages suite (1290/1290), gitops/tests (637 passed/1
+        skipped), every platform/ci unittest module, agent_review's
+        test_review, and portfolio/ledger + scoring + router + usage +
+        pipeline + infra/tests pytest (446 passed). Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.
+    mrr_end: 0
