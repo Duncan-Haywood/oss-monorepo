@@ -1768,6 +1768,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which names Jobber specifically and
   // already carries the trademark disclaimer.
   'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "ranking dishes by food cost percentage" -- the
+  // ordinary per-dish metric every restaurant kitchen already tracks off
+  // its own recipe cards and POS reports, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-marginedge.html, which names MarginEdge specifically and already
+  // carries the trademark disclaimer.
+  'menu-engineering-calculator/vs-ranking-by-food-cost-percent.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
