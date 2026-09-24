@@ -725,6 +725,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-servicetitan.html, which does name a
   // product and carries its own "not affiliated" clause.
   'water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html',
+  // Compares against "a flat $799 installed" special -- the postcard
+  // water-softener price every plumbing and water-treatment shop is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'water-softener-bid-calculator/vs-a-flat-rate-water-softener-special.html',
   // Compares against "a flat per-window special" -- the "$250 a window
   // installed" price every window-treatment shop is shopped against, not a
   // company or product this could be mistaken for. The page names no vendor
@@ -1837,6 +1844,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same shape as docker-build-secrets-check's
   // vs-reading-a-dockerfile-by-hand.html.
   'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
+  // Compares against "diffing package-lock.json by hand" -- a manual
+  // review habit any developer already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-socket.html,
+  // which names Socket, Inc. specifically and already carries the
+  // trademark disclaimer. Same shape as the other vs-*-by-hand pages above.
+  'npm-lifecycle-script-check/vs-diffing-package-lock-by-hand.html',
   // Compares against "reading values.yaml next to values.schema.json by
   // eye" -- a manual review habit any chart author already has, not a
   // company or product this could be mistaken for. Distinct from this
@@ -1857,12 +1870,33 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-buildxact.html, which names a specific estimating platform and
   // already carries the trademark disclaimer.
   'pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html',
+  // Compares against "a flat $249 windshield coupon" -- a common
+  // advertised rate any auto-glass shop already runs, not a company or
+  // product this could be mistaken for.
+  'auto-glass-bid-calculator/vs-a-flat-249-windshield-coupon.html',
   // Compares against "a flat rate per linear foot" -- the generic
   // per-foot quoting habit hardscape and retaining-wall contractors are
   // shopped against, not a company or product this could be mistaken for.
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "a flat rate per square" -- a common pricing habit any
+  // siding contractor already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-jobnimbus.html, which
+  // names JobNimbus specifically and already carries the trademark
+  // disclaimer.
+  'siding-bid-calculator/vs-a-flat-rate-per-square.html',
+  // Compares against "checking it by eye" -- reading view-source and
+  // comparing a page's JSON-LD against its rendered text by hand, a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for. Same shape as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html exemption above.
+  'structured-data-drift-check/vs-checking-it-by-eye.html',
+  // Compares against "reading the file by hand" -- a manual review habit
+  // every developer already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
+  // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
+  'hidden-unicode-check/vs-reading-the-file-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
