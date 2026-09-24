@@ -711,6 +711,9 @@ const RELATIVE_SELF = relative(
 // 338 -> 339: `claude-code-settings-check` also graduated, concurrently on
 // `main` -- adding one more `usage.mjs`
 // (`ventures/claude-code-settings-check/usage.mjs`), no deletions.
+// `mega-backdoor-roth-calculator`'s own `vs-doing-the-math-by-hand.html`
+// comparison page adds no switch of its own -- a static comparison page,
+// not a `usage.mjs` -- so it does not move this count.
 //
 // 339 -> 340: `claude-skill-scaffold-generator` also graduated,
 // concurrently on `main` -- adding one more `usage.mjs`
