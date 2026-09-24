@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 132 files, 556087 bytes
 #   portfolio-front-tools-7: 128 files, 551582 bytes
 #   portfolio-front-tools-8: 127 files, 556798 bytes
-#   portfolio-front-tools-9: 138 files, 541801 bytes
+#   portfolio-front-tools-9: 139 files, 546523 bytes
 #   portfolio-front-tools-10: 119 files, 549775 bytes
 #   portfolio-front-tools-11: 119 files, 556069 bytes
 #   portfolio-front-tools-12: 122 files, 551776 bytes
@@ -1386,6 +1386,7 @@ configMapGenerator:
       - epk-generator__index.html.gz=epk-generator__index.html.gz
       - epk-generator__state.mjs.gz=epk-generator__state.mjs.gz
       - epk-generator__usage.mjs.gz=epk-generator__usage.mjs.gz
+      - epk-generator__vs-assembling-one-by-hand.html.gz=epk-generator__vs-assembling-one-by-hand.html.gz
       - epk-generator__vs-presskit.html.gz=epk-generator__vs-presskit.html.gz
       - epk-generator__what-is-an-epk.html.gz=epk-generator__what-is-an-epk.html.gz
       - epoxy-garage-floor-bid-calculator__calc.mjs.gz=epoxy-garage-floor-bid-calculator__calc.mjs.gz
