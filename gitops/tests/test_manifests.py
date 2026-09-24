@@ -2447,7 +2447,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # federal "qualified passenger vehicle loan interest" deduction (OBBBA,
     # tax years 2025-2028). This branch only ever knew its own predecessor's
     # number (356, from the graduation two entries above) until this merge --
-    # the same ordinary collision shape recorded throughout this list.
+    # the same ordinary collision shape recorded throughout this list; a
+    # sibling branch independently reached the same 357 and the same
+    # narration one merge later (#5733), which is why this entry is the one
+    # that survived reconciling the two.
     # Static `index.html` from its first commit, same shape as the rest of
     # this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
