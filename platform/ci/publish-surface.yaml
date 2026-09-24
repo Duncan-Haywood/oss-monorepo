@@ -362,6 +362,9 @@ workflows:
 - workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
+- workflow: depop-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: depreciation-recapture-calculator-ci.yml
   classification: none
   publishes: []
@@ -414,6 +417,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ebay-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: economic-nexus-threshold-tracker-ci.yml
   classification: none
   publishes: []
 - workflow: egress-window-bid-calculator-ci.yml
@@ -636,6 +642,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: k8s-deprecated-api-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: k8s-resource-limits-check-ci.yml
   classification: none
   publishes: []
 - workflow: k8s-rollout-safety-check-ci.yml

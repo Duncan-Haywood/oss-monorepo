@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 353 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 356 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -35,6 +35,24 @@
     <summary type="text">Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a plain-English report on whether anyone on the internet can list its contents with no credentials. Never fetches an object&#39;s own content, only the listing. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Depop Fee Calculator — What You Actually Keep After Depop&#39;s Fee</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/depop-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/depop-fee-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Depop seller fee calculator for the US and UK schedule (0% selling fee, 3.3%+$0.45 or 2.9%+£0.30 processing on item price + shipping) and the rest-of-world flat 10% schedule, plus Boosted Listings. Real profit, price for a target profit, and a region-by-region comparison. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Economic Nexus Threshold Tracker — Which States Have You Crossed?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/economic-nexus-threshold-tracker/"/>
+    <id>tag:marisstella.dev,2026:tool/economic-nexus-threshold-tracker</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free browser tracker for online and multi-channel sellers: enter trailing-12-month gross sales and transaction count by state, and see which states&#39; economic-nexus sales-tax-registration thresholds you&#39;ve crossed, per state, against each state&#39;s own published $100k/$250k/$500k and 200-transaction figures. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Employee vs. Contractor Cost Calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employee-cost-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/employee-cost-calculator</id>
@@ -60,6 +78,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a JWT and get its header and payload decoded, plus every common security misconfiguration flagged: alg:none, embedded jwk/jku/x5u/x5c key material, symmetric-vs-asymmetric algorithm confusion, a kid header shaped like path traversal or SQL injection, missing/excessive exp, and sensitive-looking fields in the unencrypted payload. Free JWT decoder and security checker, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Kubernetes Resource Limits Check — What Can Take Down a Node</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-resource-limits-check/"/>
+    <id>tag:marisstella.dev,2026:tool/k8s-resource-limits-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste or load Kubernetes manifest YAML and get a deterministic report of every container missing a memory limit, memory request, CPU request, or ephemeral-storage limit -- the specific gaps that let one container starve or crowd out everything else on its node -- plus any request set above its own limit, which kubectl apply rejects outright. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Kickstarter Fee Calculator — What a Funded Campaign Actually Keeps</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you&#39;ve already declared in Play Console -- so a missed declaration doesn&#39;t cost you a policy warning or listing removal. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Asbestos Abatement Bid Calculator — Containment-Class Pricing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/asbestos-abatement-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/asbestos-abatement-bid-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free bid calculator for licensed asbestos abatement contractors: price a removal job by OSHA/EPA containment class (I/II/III), square footage, crew and supervisor rates, air monitoring, and waste disposal — and see the gap against a flat rate per square foot.</summary>
-  </entry>
-  <entry>
-    <title>Biohazard Cleanup Bid Calculator — Trauma &amp; Crime-Scene Job Pricing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/biohazard-cleanup-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/biohazard-cleanup-bid-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for biohazard and trauma-scene remediation technicians: price a job from crew labor, PPE decon cycles, and regulated-waste disposal billed per container (not per pound), then check whether a quote you&#39;re already giving clears cost.</summary>
-  </entry>
-  <entry>
-    <title>Branch Protection Drift Check — Does Your Repo Still Match Its Own Policy?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/branch-protection-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/branch-protection-drift-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a repo&#39;s actual GitHub branch protection settings (gh api branches/:branch/protection) and your declared policy to find every rule that has drifted weaker than intended — a temporarily disabled review requirement, force pushes turned back on, admin enforcement quietly off. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

@@ -2371,39 +2371,78 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # actually priced. Static `index.html` from its first commit, same
     # shape as the rest of this running count.
     #
-    # 350 on this merge: `hidden-unicode-check` also graduated -- a
-    # zero-dependency browser tool that scans pasted text (CLAUDE.md,
-    # AGENTS.md, .cursorrules, copilot-instructions.md, a README, or any
-    # text) for zero-width/invisible Unicode characters, Unicode Tag
-    # characters (decoding any hidden ASCII message they spell out), and
-    # bidirectional override/control characters from the Trojan Source
-    # family -- the technique behind current AI-agent prompt-injection
-    # attacks. Static `index.html` from its first commit, same shape as
-    # the rest of this running count.
+    # 350 on this merge: `depop-fee-calculator` also graduated -- a
+    # zero-dependency browser calculator pricing a Depop sale against the
+    # 0%-selling-fee-plus-processing schedule US and UK sellers now run,
+    # the older flat 10% schedule still used elsewhere, and the Boosted
+    # Listings surcharge, keeping the buyer-paid Marketplace fee separate
+    # from seller payout. Static `index.html` from its first commit, same
+    # shape as the rest of this running count.
     #
-    # 351 on this merge: a concurrent branch merge -- `salary-range-posting-
-    # check` also graduated the same session -- a zero-dependency browser +
-    # CLI tool that scans pasted job-posting text for a stated dollar range
-    # and cross-references a chosen set of US states against a fixed table
-    # of which ones currently require a posted pay range. Static
-    # `index.html` from its first commit, same shape as the rest of this
-    # running count. This merge also gzip-compressed `llms.txt` (joining
-    # `catalog.json` and `sitemap.xml`) to buy back etcd-object headroom --
-    # written independently on this branch and on `main` in the same
-    # session, for the identical reason; see `llmsStoredKey` in
+    # 351 on this merge: `hidden-unicode-check` also graduated, concurrently
+    # on `main` -- a zero-dependency browser tool that scans pasted text
+    # (CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a
+    # README, or any text) for zero-width/invisible Unicode characters,
+    # Unicode Tag characters (decoding any hidden ASCII message they spell
+    # out), and bidirectional override/control characters from the Trojan
+    # Source family -- the technique behind current AI-agent
+    # prompt-injection attacks. Static `index.html` from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 352 on this merge: `skill-manifest-check` also graduated, concurrently
+    # on `main` -- a zero-dependency browser tool that lints one or more
+    # pasted SKILL.md agent-skill manifests (the frontmatter-plus-Markdown
+    # format Claude Code and similar agent systems use) for missing/
+    # malformed frontmatter, a description too vague to trigger reliably,
+    # overlapping triggers between two or more pasted skills, and a
+    # body-size context-budget caution. Static `index.html` from its first
+    # commit, same shape as the rest of this running count. That merge
+    # also gzip-compressed `llms.txt` (joining `catalog.json`,
+    # `sitemap.xml`, and this branch's own `about.html`) to buy back
+    # etcd-object headroom -- see `llmsStoredKey` and `aboutStoredKey` in
     # `platform/marketing/front-door.mjs`.
     #
-    # 352 on this merge: another concurrent branch merge --
-    # `skill-manifest-check` also graduated -- a zero-dependency browser
-    # tool that lints one or more pasted SKILL.md agent-skill manifests (the
-    # frontmatter-plus-Markdown format Claude Code and similar agent systems
-    # use) for missing/malformed frontmatter, a description too vague to
-    # trigger reliably, overlapping triggers between two or more pasted
-    # skills, and a body-size context-budget caution. Static `index.html`
+    # 353 on this merge: `salary-range-posting-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser + CLI tool that
+    # scans pasted job-posting text for a stated dollar range and
+    # cross-references a chosen set of US states against a fixed table of
+    # which ones currently require a posted pay range. Static `index.html`
     # from its first commit, same shape as the rest of this running count.
+    # That merge separately, and independently, also gzip-compressed
+    # `llms.txt` for the identical etcd-headroom reason as the merge two
+    # entries above -- the second write is a no-op once the first is
+    # already committed.
+    #
+    # 354 on this merge: `economic-nexus-threshold-tracker` also
+    # graduated -- a zero-dependency browser tracker letting a
+    # multi-state online seller enter trailing-12-month sales by state
+    # and flag which states' economic-nexus sales-tax-registration
+    # thresholds they've crossed, against each state's own published
+    # revenue figure ($100k/$250k/$500k) and, where the state pairs one
+    # on, its transaction-count test (AND or OR). Static `index.html`
+    # from its first commit, same shape as the rest of this running
+    # count.
+    #
+    # 355 on this merge: `k8s-resource-limits-check` also graduates -- a
+    # zero-dependency browser + CLI checker that reads Kubernetes workload
+    # YAML and reports every container missing a memory limit, memory
+    # request, CPU request, or ephemeral-storage limit, plus any request set
+    # above its own limit. This branch only ever knew its own predecessor's
+    # number (349, before any of the five merges above landed) until this
+    # merge -- the same ordinary collision shape recorded throughout this
+    # list. Static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    #
+    # 356 on this merge: `jwt-security-check` also graduates -- a
+    # zero-dependency browser JWT decoder and security checker (alg:none,
+    # embedded jwk/jku/x5u/x5c key headers, algorithm-confusion risk, a
+    # kid header shaped like path traversal or SQL injection, exp/iat/nbf
+    # timing-claim problems, and sensitive-looking payload field names).
+    # Static `index.html` from its first commit, same shape as the rest
+    # of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 353  # `infra/OWNER_CHECKLIST.md`'s own "N of the 353 tools" wording.
+    total = 356  # `infra/OWNER_CHECKLIST.md`'s own "N of the 356 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

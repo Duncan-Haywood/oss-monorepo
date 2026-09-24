@@ -1880,12 +1880,24 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "a flat rate per square" -- a common pricing habit any
+  // siding contractor already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-jobnimbus.html, which
+  // names JobNimbus specifically and already carries the trademark
+  // disclaimer.
+  'siding-bid-calculator/vs-a-flat-rate-per-square.html',
   // Compares against "checking it by eye" -- reading view-source and
   // comparing a page's JSON-LD against its rendered text by hand, a manual
   // habit any developer already has, not a company or product this could be
   // mistaken for. Same shape as source-map-leak-check's
   // vs-checking-devtools-by-hand.html exemption above.
   'structured-data-drift-check/vs-checking-it-by-eye.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
+  // and already carries the "not affiliated" disclaimer.
+  'actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html',
   // Compares against "reading the file by hand" -- a manual review habit
   // every developer already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
@@ -1898,6 +1910,25 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-*-by-hand/by-eye exemptions above. The page's own first paragraph
   // says it names no specific decoder site or library.
   'jwt-security-check/vs-eyeballing-the-payload.html',
+  // Compares against "comparing the buyout price to fair market value" -- a
+  // generic sanity check any lessee already runs against a payoff letter,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-lendzero.html and vs-crest-capital.html, which name
+  // specific competitors and already carry the trademark disclaimer.
+  'equipment-lease-buyout-calculator/vs-comparing-the-buyout-price-to-fair-market-value.html',
+  // Compares against "a flat $1,195 radon special" -- a common advertised
+  // rate any radon mitigation contractor already runs, sized for the
+  // smallest single-suction basement job, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-oneradon.html, which names Sun Nuclear's OneRADON software
+  // specifically and already carries the trademark disclaimer.
+  'radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html',
+  // Compares against "re-reading a post and checking it by eye for a
+  // disclosure" -- a manual habit any blogger already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
+  // specifically and already carries the trademark disclaimer.
+  'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
