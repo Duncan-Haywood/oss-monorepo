@@ -1332,6 +1332,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // flat-rate generic-method pages above.
   'pole-barn-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against a flat "$X an acre" mulching rate -- a generic
+  // advertised pricing habit the trade is shopped against, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-aspire.html, which names a specific field-service platform and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other flat-rate generic-method pages above.
+  'forestry-mulching-bid-calculator/vs-a-flat-price-per-acre.html',
   // Compares against "a flat $3/LF Christmas light special" -- a generic
   // advertised price every holiday lighting contractor is shopped against,
   // not a company or product this could be mistaken for. Distinct from
