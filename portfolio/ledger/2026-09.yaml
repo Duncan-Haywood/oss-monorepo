@@ -40260,3 +40260,44 @@ entries:
         Playwright/axe-core browser-check line was not run. Portfolio
         pytest (ledger/scoring/router/usage/pipeline/infra) 446 passed.
     mrr_end: 0
+  - venture: backflow-test-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added how-to-price-a-multi-device-backflow-test-visit.html, an
+        unbudgeted guide page (surface-budget.mjs --for
+        backflow-test-fee-calculator showed the venture at its 1/1
+        generic-method comparison-page budget but 0 guide pages -- guide
+        pages are unbudgeted). Worked a full 6-device strip-mall visit
+        (three RPZ across domestic/fire lines, two irrigation
+        double-checks, one landscape PVB, one failure) through
+        computeJobQuote() directly rather than inventing numbers: first
+        device full price, a 20% additional-device discount on the other
+        five, a $15/device filing fee on all six regardless of discount or
+        pass/fail, a $35 retest fee on the one failure, and a $40 one-time
+        travel fee, totalling $458.00. Added a callout comparing that to a
+        naive flat per-device quote (6 x the first device's own $65 rate,
+        no filing, travel, or retest) at $390.00 -- $68.00 below the real
+        total despite that flat number itself over-charging the
+        discount-eligible devices. Linked from index.html, added to
+        sitemap.xml, README's dev command updated to include the new test
+        file.
+      - >-
+        Every dollar figure on the page is asserted against
+        computeJobQuote()'s own return value in a new test file, not
+        transcribed. Verified: venture suite (58/58, including the 7 new
+        tests); platform/pages/faq-visible.test.mjs (4/4) and
+        faq-duplicate.mjs (1409 pages, no duplicates); clauses.mjs clean (a
+        guide page carries no comparison-disclaimer requirement);
+        checklist_coverage.py and sync_tree_counts.py clean; regen.mjs
+        --verify clean after regen; platform/marketing + platform/pages
+        suite 1286/1286; platform/proposal + platform/privacy +
+        platform/webcheck 243/243; gitops/tests 637 passed/1 skipped
+        (environmental, documented); platform/ci unittest (all modules) +
+        agent_review's test_review clean. CI confirmed starved this session
+        (ci_starvation.py: runner_id 0, 3s, no steps on recent Portfolio
+        validate runs), so verification ran locally per CLAUDE.md's
+        starvation checklist. No form input added (a static guide page), so
+        the Playwright/axe-core browser-check line was not run.
+    mrr_end: 0
