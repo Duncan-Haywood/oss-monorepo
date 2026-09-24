@@ -208,6 +208,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-binwise.html and vs-wisk.html,
   // which name real inventory platforms and carry the trademark disclaimer.
   'pour-cost-calculator/vs-a-spreadsheet.html',
+  // Compares against scoring each job on a 1-10 scale -- a generic ranking
+  // habit any contractor already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html,
+  // which names Jobber specifically and carries the trademark disclaimer.
+  'which-job-first/vs-scoring-every-job-out-of-ten.html',
   // Compares against "multiplying filament cost by three" -- a pricing
   // habit passed around among makers, not a company or product this could
   // be mistaken for. The page names no vendor at all.
