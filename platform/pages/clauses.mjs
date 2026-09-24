@@ -1714,6 +1714,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "a flat per-room rate" -- the generic quoting habit
+  // ("$X a room, however long it takes") every independent home stager is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-hutch.html and vs-honeybook.html,
+  // which name real products and already carry the trademark disclaimer.
+  // Same reasoning as the other generic-method pages above.
+  'home-staging-bid-calculator/vs-a-flat-per-room-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
