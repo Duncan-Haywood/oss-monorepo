@@ -39735,3 +39735,54 @@ entries:
         running unbounded, the same call `backup-file-exposure-check`'s
         entry above records for the identical reason.
     mrr_end: 0
+  - venture: employee-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the published Pages snapshot first (`session_gate.py`
+        reported it stale, built from `cef81ed0` while `main` was at
+        `71e7a30e`): `CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh`, then
+        `pages_state.py --require-current` (exit 0) and `--record`
+        (`github-pages-branch-route: up`, run 35957597378).
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        `vs-a-flat-30-percent-burden-rule.html` -- it had zero marketing
+        surface (`surface-budget.mjs --for employee-cost-calculator`) and
+        its own `VENTURE.yaml` hypothesis already names the angle: owners
+        underestimate employer burden with a flat percentage rule of
+        thumb. Computed the worked numbers from `calc.mjs` directly
+        (`compareCosts`) rather than inventing them, at the venture's own
+        shipped default rates (7.65% FICA, 0.6% FUTA capped at $7,000,
+        2.7% SUTA capped at $9,500, 1.5% workers' comp, 5.8% PTO, $500/mo
+        health, $600/yr admin) across three wage levels: the calculator's
+        own $28/hr default (26.8% true burden vs. a flat 30% guess of
+        $75,712, 2.5% high), a $16/hr part-time role (56.4% true burden --
+        a flat 30% rule understates it by $4,394, >16% low, because health
+        insurance and payroll admin are fixed dollar amounts that do not
+        shrink with wage), and a $55/hr role (21.0% true burden -- the
+        flat rule overstates it by $10,319, 7.5% high). Added the page to
+        `COMPARISON_DISCLAIMER_EXEMPT` in `clauses.mjs` (names no company,
+        a generic rule of thumb) and to the venture's `sitemap.xml`.
+      - >-
+        Validation: venture's own suite 41/41
+        (`calc.test.mjs`/`page.test.mjs`/`usage.test.mjs`, unaffected by
+        this change but re-run to confirm no regression). `clauses.mjs
+        employee-cost-calculator` clean. `surface-budget.mjs --check`
+        clean (no venture over budget). `platform/pages/
+        venture-sitemap-coverage.test.mjs` caught the missing `<loc>` on
+        first run, fixed, re-run clean (3/3). `regen.mjs --verify` found
+        the front-door mirror stale (the new page + its front-door-tools
+        shard, exactly the 6 artifacts the new file touches); `regen.mjs`
+        re-ran and `--verify` came back clean. `checklist_coverage.py`
+        clean (2011 venture test files, all reachable). A full
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` run
+        started concurrently with the `regen.mjs` rewrite above raced the
+        mirror directory mid-write -- the exact hazard CLAUDE.md's
+        `regen.mjs --verify` section documents for #5032 -- and came back
+        1277/1286 with the sitemap-coverage failure already named above
+        plus assorted spurious mirror-diff failures; a clean sequential
+        re-run (never overlapping the regen rewrite) was in progress at
+        push time.
+    mrr_end: 0

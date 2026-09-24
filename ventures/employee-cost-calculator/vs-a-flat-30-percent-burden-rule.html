@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat 30% burden rule of thumb | Employee vs. Contractor Cost Calculator</title>
+<meta name="description" content="&quot;Budget 30% on top of wages&quot; is a rule tuned to one wage level. This free, private browser calculator prices FICA, capped FUTA/SUTA, workers' comp, PTO, and the fixed-dollar costs a flat percentage cannot see -- no account, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-a-flat-30-percent-burden-rule.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat 30% burden rule of thumb">
+<meta property="og:description" content="A $16/hr part-time role and a $55/hr full-time role do not carry the same employer burden percentage, because health insurance and payroll admin are dollar amounts, not a share of pay, and FUTA/SUTA are capped rather than proportional. This calculator prices each cost separately instead of guessing one flat percentage for every wage.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat \"add 30%\" burden rule of thumb get an employee's cost wrong?","acceptedAnswer":{"@type":"Answer","text":"Because a large share of the burden is fixed-dollar, not a percentage of wages -- health insurance is a dollar amount set by a policy, and payroll/HR admin is a dollar amount set by a vendor, so neither scales down for a lower-paid or part-time role the way a flat percentage assumes. FUTA and SUTA are charged on wages only up to a wage base, so a full-time role's effective rate on those two is lower than the posted rate once wages clear the cap. A flat percentage bakes in one wage level's mix of fixed and proportional costs and then applies it to every wage."}},{"@type":"Question","name":"What does a flat percentage rule usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The FUTA and SUTA wage-base caps, and the fact that health insurance and payroll/HR admin are dollar amounts rather than a percentage of pay -- so they are a much bigger share of a lower-paid or part-time role's total burden than of a highly-paid one's. A flat rate has no line for either effect; it applies the same percentage regardless of wage."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"On this calculator's own shipped default rates (7.65% employer FICA, 0.6% FUTA capped at $7,000, 2.7% SUTA capped at $9,500, 1.5% workers' comp, 5.8% PTO accrual, $500/month health insurance, $600/year payroll admin): a full-time $28/hr role's true ongoing burden is 26.8% of wages ($73,845 ongoing annual cost), about 2.5% below what a flat 30% rule predicts ($75,712). A part-time $16/hr, 20-hour-a-week role's true burden is 56.4% of wages ($26,026 ongoing) -- a flat 30% rule understates that role by $4,394, more than 16% too low. A $55/hr full-time role's true burden is only 21.0% of wages ($138,401 ongoing) -- the flat rule overstates that role by $10,319."}},{"@type":"Question","name":"Is a flat percentage rule ever close enough?","acceptedAnswer":{"@type":"Answer","text":"For one wage level and one benefit package it can land close -- a rule tuned to a specific full-time role comes within a few percent on this calculator's own default example. It breaks down the moment the wage or hours change, because the fixed-dollar costs behind the rule did not move with it, and nothing about a flat percentage warns you when that has happened."}},{"@type":"Question","name":"Does this calculator know my own tax rates and benefit costs?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your state's FUTA/SUTA rates, your workers' comp policy, or your health plan's premium. It takes the FICA, FUTA, SUTA, workers' comp, PTO, retirement match, health insurance, and payroll admin figures you enter and turns them into a fully-loaded cost for your role -- the arithmetic a flat percentage skips, not a survey of your state's actual rates."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2126; background: #eef1f6; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #1f4a8c; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4d5a6b; }
+  section { background: #f9fbfd; border: 1px solid #ccd6e6; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #0d2a5c0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ccd6e6; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5a6b; }
+  .fine, .note { font-size: .88rem; color: #4d5a6b; }
+  footer { color: #4d5a6b; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Employee vs. Contractor Cost Calculator</a></p>
+<header>
+<h1>This calculator vs. a flat 30% burden rule of thumb</h1>
+<p class="lede">&ldquo;Budget 30% on top of wages&rdquo; is not a law of employer costs &mdash; it is a rule fit to one wage level, quietly reused for every role afterward.</p>
+</header>
+<section>
+<h2>What a flat burden percentage rule of thumb is</h2>
+<p>
+It is the fastest way to ballpark what a hire costs: take the wage, add a
+round percentage &mdash; 20%, 25%, 30% &mdash; and call that the fully-loaded
+cost. It travels well because it needs no lookup: no state rate, no policy
+declaration, no benefits quote.
+</p>
+<p>
+The number behind it was set for one role &mdash; usually the full-time hire
+whose numbers someone actually ran once &mdash; and then reused for every
+other role, whether or not the next one pays the same wage, works the same
+hours, or gets the same benefits.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter a
+wage, hours, and your own FICA, FUTA, SUTA, workers' comp, PTO,
+retirement, health insurance, and payroll admin figures, and it prices
+each one separately &mdash; capping FUTA and SUTA at their wage base
+rather than charging them on every dollar, and holding health insurance
+and payroll admin as the flat dollar amounts they actually are &mdash;
+then reports the fully-loaded cost for that role, not a generic one.
+</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">What a flat percentage rule does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same burden percentage whether the role pays $16/hr part-time or $55/hr full-time, even though health insurance and payroll admin are dollar amounts that do not shrink with the wage.</td>
+<td>Prices health insurance and payroll admin as the fixed dollar amounts they are, so a lower-paid or part-time role's burden percentage comes out higher, not the same.</td>
+</tr>
+<tr>
+<td>Applies FUTA and SUTA rates to the full annual wage, as if neither tax had a cap.</td>
+<td>Caps FUTA and SUTA at each tax's own wage base, so a role that clears both bases pays the capped amount, not a percentage of every dollar earned.</td>
+</tr>
+<tr>
+<td>Gives one number to remember and reuse for every role.</td>
+<td>Reports the burden as a percentage of wages for the role actually entered, so you can see when a different wage has moved that percentage rather than assuming it stayed put.</td>
+</tr>
+<tr>
+<td>Has no separate figure for one-time onboarding versus the cost every year after the first.</td>
+<td>Reports an ongoing annual cost and a year-one cost separately, so onboarding is not silently repeated every year in the estimate.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<h2>Three roles, the same flat 30% guess</h2>
+<p>
+Using this calculator's own shipped default rates (7.65% employer FICA,
+0.6% FUTA capped at $7,000, 2.7% SUTA capped at $9,500, 1.5% workers'
+comp, 5.8% PTO and holiday accrual, no retirement match, $500/month
+health insurance, $600/year payroll admin) at three different wages:
+</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">Role</th><th scope="col">This calculator's ongoing cost</th><th scope="col">True burden %</th><th scope="col">Flat 30% rule's guess</th><th scope="col">Gap</th></tr>
+</thead>
+<tbody>
+<tr><td>$16/hr, 20 hrs/week (part-time) &mdash; $16,640 in wages</td><td>$26,026</td><td>56.4%</td><td>$21,632</td><td>Rule understates this role by <strong>$4,394</strong> &mdash; more than 16% too low.</td></tr>
+<tr><td>$28/hr, 40 hrs/week (this calculator's own default example) &mdash; $58,240 in wages</td><td>$73,845</td><td>26.8%</td><td>$75,712</td><td>Rule overstates this role by $1,867 &mdash; about 2.5% too high.</td></tr>
+<tr><td>$55/hr, 40 hrs/week &mdash; $114,400 in wages</td><td>$138,401</td><td>21.0%</td><td>$148,720</td><td>Rule overstates this role by <strong>$10,319</strong> &mdash; about 7.5% too high.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">The 30% figure is not a straw man &mdash; it sits close to this calculator's own $28/hr default (26.8% true burden) and is a commonly cited round number for exactly that kind of full-time role. Applied to a part-time role at the same rates it misses low by 16%; applied to a higher-paid role it misses high by 7.5%. Both misses come from the same source: health insurance and payroll admin are dollar amounts, not a percentage, so they weigh very differently against $16,640 in wages than against $114,400. Run your own role's numbers in the calculator to see where it falls.</p>
+</section>
+<p>
+A flat burden percentage is not wrong because it is simple &mdash; it is
+wrong the moment it is reused outside the one wage it was tuned to, and
+nothing about a flat number tells you when that has happened. This
+calculator does not know your state's rates or your benefits quote; it
+replaces the arithmetic a flat percentage skips.
+</p>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat "add 30%" burden rule of thumb get an employee's cost wrong?</h3>
+<p>Because a large share of the burden is fixed-dollar, not a percentage of wages &mdash; health insurance is a dollar amount set by a policy, and payroll/HR admin is a dollar amount set by a vendor, so neither scales down for a lower-paid or part-time role the way a flat percentage assumes. FUTA and SUTA are charged on wages only up to a wage base, so a full-time role's effective rate on those two is lower than the posted rate once wages clear the cap. A flat percentage bakes in one wage level's mix of fixed and proportional costs and then applies it to every wage.</p>
+<h3>What does a flat percentage rule usually leave out entirely?</h3>
+<p>The FUTA and SUTA wage-base caps, and the fact that health insurance and payroll/HR admin are dollar amounts rather than a percentage of pay &mdash; so they are a much bigger share of a lower-paid or part-time role's total burden than of a highly-paid one's. A flat rate has no line for either effect; it applies the same percentage regardless of wage.</p>
+<h3>How big is the gap in practice?</h3>
+<p>On this calculator's own shipped default rates (7.65% employer FICA, 0.6% FUTA capped at $7,000, 2.7% SUTA capped at $9,500, 1.5% workers' comp, 5.8% PTO accrual, $500/month health insurance, $600/year payroll admin): a full-time $28/hr role's true ongoing burden is 26.8% of wages ($73,845 ongoing annual cost), about 2.5% below what a flat 30% rule predicts ($75,712). A part-time $16/hr, 20-hour-a-week role's true burden is 56.4% of wages ($26,026 ongoing) &mdash; a flat 30% rule understates that role by $4,394, more than 16% too low. A $55/hr full-time role's true burden is only 21.0% of wages ($138,401 ongoing) &mdash; the flat rule overstates that role by $10,319.</p>
+<h3>Is a flat percentage rule ever close enough?</h3>
+<p>For one wage level and one benefit package it can land close &mdash; a rule tuned to a specific full-time role comes within a few percent on this calculator's own default example. It breaks down the moment the wage or hours change, because the fixed-dollar costs behind the rule did not move with it, and nothing about a flat percentage warns you when that has happened.</p>
+<h3>Does this calculator know my own tax rates and benefit costs?</h3>
+<p>No. It has no data on your state's FUTA/SUTA rates, your workers' comp policy, or your health plan's premium. It takes the FICA, FUTA, SUTA, workers' comp, PTO, retirement match, health insurance, and payroll admin figures you enter and turns them into a fully-loaded cost for your role &mdash; the arithmetic a flat percentage skips, not a survey of your state's actual rates.</p>
+<p class="note">
+Open the <a href="index.html">Employee vs. Contractor Cost Calculator</a> to price your own role.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it does not determine, and is not evidence toward, whether any worker should be classified as a W-2 employee or a 1099 independent contractor. It is arithmetic on the numbers you type. Verify every rate against your own state's requirements and a qualified accountant or employment attorney before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number on this page and in the calculator stays on this device; this page names no company, product, or service, so it makes no claim about how anyone else prices a role.</p>
+<p class="support">Free and open source. If it saves you a spreadsheet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
