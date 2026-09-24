@@ -41045,6 +41045,42 @@ entries:
         trustworthy browser_state.json reading for the next session's
         freshness check to build on.
     mrr_end: 0
+  - venture: npm-lifecycle-script-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-diffing-package-lock-by-hand.html, this venture's first
+        generic-method comparison page (surface-budget.mjs's own 0/1
+        budget). session_gate.py read PROCEED with the build-now pipeline
+        empty; router/allocate.py's top merit-ranked prototypes were all
+        already picked up by the ~7 concurrent sessions committing in the
+        same 15-minute window, so the candidate was selected by
+        intersecting router merit with surface-budget.mjs's list of
+        ventures still at 0 generic-method pages, avoiding that collision
+        rather than re-deriving the router's own top row.
+      - >-
+        Page explains why grepping package-lock.json for
+        hasInstallScript: true and diffing two copies by eye stops working
+        past a few hundred packages, and why the lockfile's boolean alone
+        never reveals the actual script text (only node cli.mjs snapshot's
+        local node_modules read does). Wired into index.html, sitemap.xml,
+        page.test.mjs, and clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (generic method, not a named competitor -- distinct from this
+        venture's own vs-socket.html).
+      - >-
+        Regenerated the front-door mirror (regen.mjs): the apex serves this
+        venture as a projected ConfigMap and does not update itself when a
+        venture page is only committed under ventures/.
+      - >-
+        main advanced 12 commits while this was in flight, producing the
+        documented front-door-mirror merge conflict (kustomization.yaml +
+        catalog/compare/sitemap/llms.txt) plus an additive conflict in
+        clauses.mjs and this ledger file; resolved via `git checkout
+        --ours` on the generated mirror paths followed by
+        `node platform/marketing/regen.mjs` and `--verify`, and by keeping
+        both sides' entries in clauses.mjs and here.
+    mrr_end: 0
   - venture: hidden-unicode-check
     agent_spend_usd: null
     human_hours: 0
@@ -41237,4 +41273,156 @@ entries:
         by a sibling session, and this etcd-budget CI regression), and ran
         one fleet-wide accessibility re-verification. Portfolio-wide
         revenue and confirmed-visitor counts remain at zero.
+    mrr_end: 0
+  - venture: salary-range-posting-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a free, zero-dependency CLI +
+        browser tool that scans pasted job-posting text for a stated
+        dollar range and cross-references a chosen set of US states
+        against a fixed table of the 14 jurisdictions that currently
+        require a posted pay range in the ad itself, citing the law,
+        effective date, and employer-size threshold. Follows
+        call-recording-consent-check's liability-mitigation posture: heavy
+        disclosure of scope (excludes disclose-at-a-different-point laws
+        and city/county ordinances) and confidence (thresholds not fully
+        certain are marked "commonly reported" rather than asserted).
+        Channel: a real, named, fast-growing compliance search topic (14
+        states now covered, up from 4 in 2021; Virginia and Maine add a
+        requirement in July 2026), verified via live web search since the
+        topic is outside training-data currency. duplicate_check.py: no
+        match >= 0.15. Full test coverage (67 assertions across
+        engine/cli/usage/share/page), category evidence, cross-linked
+        reciprocally with call-recording-consent-check, deployed to the
+        published site (PR #5671).
+      - >-
+        Along the way, independently discovered and fixed a real
+        regression: two ventures graduating in the same merge window took
+        the portfolio-front-html ConfigMap over its etcd-budget CI guard.
+        Applied the proven sitemap.xml/catalog.json gzip-storage mechanism
+        to llms.txt. A concurrent session on main shipped the identical
+        fix moments later (same function name, same approach); reconciled
+        by taking main's version during merge rather than restating a
+        duplicate. Portfolio-wide revenue and confirmed-visitor counts
+        remain at zero.
+    mrr_end: 0
+  - venture: helm-values-schema-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-checking-it-by-eye.html, a generic-method comparison page
+        ("vs. eyeballing values.yaml against the schema") -- the venture
+        previously had only a named-product comparison (vs-helm-lint.html).
+      - >-
+        Independently hit and fixed the same etcd-budget overflow the
+        skill-manifest-check entry above describes in full (gzipping
+        llms.txt): this branch's own page pushed portfolio-front-html over
+        the 943,718-byte budget, confirmed against main's own tip in a
+        worktree first to rule out a pre-existing regression. While
+        preparing that fix, main independently gained the identical one via
+        #5667 a few minutes ahead of this PR; resolved on merge by taking
+        main's implementation whole rather than reconciling two copies of
+        the same mechanism -- recorded here mainly as a second, independent
+        confirmation of the same root cause and fix.
+      - >-
+        Verified locally (Actions starved on this PR's own check, confirmed
+        via ci_starvation.py): the venture's own 44-assertion suite,
+        clauses.mjs, faq-coverage.mjs (349/349), faq-duplicate.mjs,
+        surface-budget.mjs --check, checklist_coverage.py, regen.mjs
+        --verify clean, platform/marketing + platform/pages suite
+        (1289/1289), gitops/tests (637 passed, 1 skipped -- environmental),
+        and the 27-module platform/ci unittest suite. Squash-merged as
+        #5668.
+    mrr_end: 0
+  - venture: retaining-wall-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-140-per-linear-foot-rate.html, a generic-method
+        comparison page ("vs. a flat rate per linear foot") -- the venture
+        previously had only a named-product comparison (vs-aspire.html) and
+        showed 0/1 on its generic-method budget. Selected via
+        portfolio/router/allocate.py's merit ranking intersected with
+        surface-budget.mjs's 0-generic-method ventures.
+      - >-
+        Worked examples pinned against calc.mjs: at the form's own defaults
+        ($38 wage, 30% burden, 15% overhead, 22% target margin), a flat
+        $140/lf rate clears 23.8% margin on the 40x3 garden wall it is
+        implicitly priced around, then loses money outright on a 40x4 wall
+        needing its first geogrid layer (-4.3%, a $240.12 loss) and loses
+        $3,093.35 (-44.2%) on a 50x6 engineered wall with two geogrid
+        layers, landing a thin 1.8% margin on an 80x4 wall with two
+        corners.
+      - >-
+        Hit the generated front-door mirror's sequential-packing merge
+        conflict twice while main absorbed several sibling PRs during this
+        session (a ~7-session-per-15-minute window per session_gate.py);
+        resolved both times with resolve-mirror-merge.sh plus a full
+        regen.mjs run against the merged tree, verified clean with
+        --verify each time, per the tool's own guidance that picking a
+        side is never correct for generated output.
+      - >-
+        Verified locally (Actions starved for the session, confirmed via
+        ci_starvation.py): the venture's own 117-assertion suite,
+        checklist_coverage.py, surface-budget.mjs --check, regen.mjs
+        --verify clean, the platform/marketing + platform/pages suite
+        (1287/1287), and portfolio/ledger + scoring + router + usage +
+        pipeline + infra/tests pytest (446 passed). Squash-merged as
+        #5672. Republished the gh-pages snapshot afterward
+        (publish-branch.sh) and recorded the reading.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed a real CI-red during a starvation window:
+        `gitops/tests/test_manifests.py::test_generated_configmaps_stay_under_the_etcd_object_ceiling`
+        was failing on `main` -- `portfolio-front-html` serialised to
+        943,895 bytes against a 943,718-byte budget, 177 bytes over. None of
+        the ten `c__<id>.html` category browse pages had been touched
+        directly; the flurry of comparison pages and new ventures merged
+        across 2026-09-24 grew catalog.json.gz/compare.html.gz/sitemap.xml.gz
+        enough on their own to tip the object over. A sibling session
+        independently fixed the same overflow by gzipping llms.txt (#5671,
+        merged first) while this was in flight -- confirmed complementary
+        (different files) rather than duplicate, merged cleanly on top.
+      - >-
+        Stored the ten category pages gzipped, the same mechanism already
+        used for compare.html.gz/vs__<product>.html.gz/catalog.json.gz/
+        sitemap.xml.gz: `categoryPageStoredKey()` in front-door.mjs, the
+        kustomization.yaml file list, and the `^/c/(?<cat>...)/?$` nginx
+        block (rewrite + gzip_static + gunzip, mirroring `/compare/` --
+        `try_files` would stat the now-absent plain name and 404 before
+        gzip_static ran). Updated front-door.test.mjs's write/sweep/
+        kustomization/nginx-rewrite coverage to match. Verified against
+        real nginx (test_front_door_serving.py, nginx-light installed):
+        every category page still serves at its /c/<id>/ URL with identity
+        and gzip encoding alike, and an unknown category still 404s rather
+        than falling through to the front page. Squash-merged as #5676.
+      - >-
+        Also ran a fresh whole-catalogue Playwright/axe-core accessibility
+        sweep earlier in the session (browser_state.py had all 8 checks
+        STALE again after the same flurry of merges): clean, 0 WCAG A/AA
+        violations across 1538 pages. Superseded within the hour by three
+        other sessions re-running the identical check as the tree kept
+        moving, so that reading was dropped from this branch rather than
+        pushed as a fourth near-duplicate in under an hour.
+      - >-
+        Post-merge: refreshed the GitHub Pages branch snapshot
+        (publish-branch.sh) and recorded the reading
+        (pages_state.py --record, github-pages-branch-route now current at
+        dbda8a71). indexnow announcement deferred -- this sandbox's egress
+        proxy 403s api.indexnow.org, the documented limitation.
+      - >-
+        Net outcome: a real, silent CI failure on the production front-door
+        manifest (the ConfigMap Argo CD applies to serve the whole
+        catalogue) is fixed and verified end-to-end against real nginx,
+        with headroom added against the next round of merges. Revenue and
+        confirmed-visitor counts remain at zero, which this fix does not
+        change on its own.
     mrr_end: 0

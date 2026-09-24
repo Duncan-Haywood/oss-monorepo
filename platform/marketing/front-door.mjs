@@ -1112,9 +1112,30 @@ export const categoryAnchor = (id) => `open-${id}`;
  */
 export const categoryPageKey = (id) => `c__${id}.html`;
 
+/**
+ * The ConfigMap key one category page is actually stored under, gzipped.
+ *
+ * **Stored gzipped since 2026-09-24**, same reason and same mechanism as
+ * `compareStoredKey`/`compareProductStoredKey`: these ten pages were the
+ * largest still-plain keys in `portfolio-front-html` and the ones every new
+ * trades venture grows fastest (`c__trades.html` alone carries one card per
+ * mirrored trades tool), and on that day they took the built object to
+ * 943,895 bytes against the 943,718-byte budget in
+ * `gitops/tests/test_manifests.py` — over by 177 bytes, on a commit that
+ * added no category and touched none of these pages by hand; the flurry of
+ * comparison pages and new ventures merged that hour did it by itself.
+ *
+ * `categoryPageKey` above stays the *plain* name: it is still what the nginx
+ * rewrite target names (`gzip_static` appends `.gz` to `$uri` itself, the
+ * same trap `COMPRESSED_SUFFIX` documents for `compare.html`) and what the
+ * "served vs. generator" test in `front-door.test.mjs` compares the sitemap
+ * path against. This function is the other half — the name actually on disk.
+ */
+export const categoryPageStoredKey = (id) => `${categoryPageKey(id)}${COMPRESSED_SUFFIX}`;
+
 /** Where `--write` puts one rendered category page. */
 export const categoryOutputFile = (id) =>
-  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', categoryPageKey(id));
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', categoryPageStoredKey(id));
 
 /**
  * A category page's URL *on this host*.
@@ -2964,17 +2985,30 @@ if (isMain) {
     // mirrored tool stops being rendered, and its page would otherwise stay in
     // git, stay in the ConfigMap, and stay in nobody's sitemap while still
     // answering its URL with a list of tools this host no longer serves.
-    const wanted = new Set(categoryPages.map((page) => categoryPageKey(page.id)));
+    //
+    // Matches both `.html` and `.html.gz` so this sweep also carries the
+    // 2026-09-24 migration to gzip: every plain `c__*.html` predates
+    // `categoryPageStoredKey` and is stale the first time this runs, exactly
+    // like the plain `compare.html`/`vs__*.html` siblings the compression
+    // note on `COMPRESSED_SUFFIX` describes sweeping the same way.
+    const wanted = new Set(categoryPages.map((page) => categoryPageStoredKey(page.id)));
     for (const name of await fs.readdir(path.dirname(OUTPUT_FILE))) {
-      if (name.startsWith('c__') && name.endsWith('.html') && !wanted.has(name)) {
+      if (
+        name.startsWith('c__') &&
+        (name.endsWith('.html') || name.endsWith(`.html${COMPRESSED_SUFFIX}`)) &&
+        !wanted.has(name)
+      ) {
         await fs.rm(path.join(path.dirname(OUTPUT_FILE), name));
         console.log(`removed ${name} (no mirrored tools in that category)`);
       }
     }
     for (const page of categoryPages) {
       const file = categoryOutputFile(page.id);
-      await fs.writeFile(file, page.html);
-      console.log(`wrote ${path.relative(REPO_ROOT, file)} (${page.html.length} bytes)`);
+      const stored = compress(page.html);
+      await fs.writeFile(file, stored);
+      console.log(
+        `wrote ${path.relative(REPO_ROOT, file)} (${stored.length} bytes, ${page.html.length} uncompressed)`,
+      );
     }
     // Same run as the sitemap that lists it and the front page that links to
     // it, for the reason every other artifact here is written together: a page
