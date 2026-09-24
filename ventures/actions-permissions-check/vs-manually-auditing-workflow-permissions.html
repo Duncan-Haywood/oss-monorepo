@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Permissions Check vs. auditing workflow permissions by hand</title>
+  <meta name="description" content="This checker's own README names the job it replaces: opening each workflow file by hand and checking whether permissions: was set on the workflow and on every one of its jobs. A worked 3-file, 5-job example shows what that manual read misses -- free, in your browser, no upload.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-manually-auditing-workflow-permissions.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Permissions Check vs. auditing workflow permissions by hand">
+  <meta property="og:description" content="Opening each workflow file and checking permissions: on the workflow and on every job, by eye, is the job this checker replaces. A 3-file, 5-job worked example shows the two ways that manual read goes wrong.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/vs-manually-auditing-workflow-permissions.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just read the workflow files myself?","acceptedAnswer":{"@type":"Answer","text":"You can, and for one small file it is fast. The cost shows up as files and jobs multiply: this tool's own worked example is only 3 workflow files and 5 jobs, and answering the permissions question by hand there already means opening 3 files and checking a workflow-level block plus every one of 5 job-level blocks separately -- 8 separate places to read, cross-reference, and remember, before you have found a single risky grant. A repository with 20 workflow files averaging 3 jobs each is the same read done 60-plus times, and it has to be redone after every edit."}},{"@type":"Question","name":"What does a manual read actually miss?","acceptedAnswer":{"@type":"Answer","text":"Two specific, opposite mistakes, both present in this page's own worked example. First, a job with no permissions block of its own looks identical on the page whether it is inheriting the repository's ambient default or inheriting an explicit workflow-level permissions: write-all -- nothing is written on the job either way, so a reviewer has to hold the workflow-level line in mind while reading every job below it, and a job added later, after the reviewer's eyes have moved on, inherits write-all with nothing on the job itself to flag it. Second, the reverse: a workflow-level permissions: contents: read reads as safe, and a reviewer who stops at the top of the file misses that one job further down re-declares its own broader permissions: block -- adding write access the workflow-level line never granted. Both mistakes are about permissions declared somewhere other than where the reviewer is currently looking, which is exactly what a single eyeball pass over one file at a time does not surface."}},{"@type":"Question","name":"Are these findings invented for this page, or did the tool actually produce them?","acceptedAnswer":{"@type":"Answer","text":"They come from running this checker's own classify.mjs against the three workflow snippets shown below, the same module the browser page runs and that check.py mirrors line for line. Every count on this page -- 3 files, 5 jobs, 7 findings, 4 flagged as write-all or unspecified, 3 explicit -- is that function's real return value on that exact input, asserted in this venture's own test suite, not typed in by hand."}},{"@type":"Question","name":"Does this replace reading the workflow file at all?","acceptedAnswer":{"@type":"Answer","text":"No. The checker tells you which workflow or job has no explicit permissions block, or has write-all, and where -- file and line. It does not know whether the scopes a job does declare are the minimum that job's steps actually need, and it does not replace understanding what a workflow does. What it removes is the part that does not need judgment: finding every place a grant is missing, ambient, or wider than the line above it suggested, across every file at once instead of one file, one job, at a time."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { background: #eef1f5; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    pre { background: #17324a; color: #e8edf3; padding: 12px 14px; border-radius: 10px; overflow-x: auto; font-size: .8rem; line-height: 1.5; }
+    .risky { color: #9a3b12; font-weight: 700; }
+    .explicit { color: #17604a; font-weight: 700; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Permissions Check</a></p>
+    <h1>Actions Permissions Check vs. auditing workflow permissions by hand</h1>
+    <p class="lede">This checker's own README states the job it replaces: opening each workflow file by hand and
+      checking whether <code>permissions:</code> was set on the workflow and on every one of its jobs. Below is a
+      worked example -- 3 small workflow files, 5 jobs -- run through the checker's own code, showing exactly what
+      that manual read has to track and the two ways it goes wrong.</p>
+
+    <section class="card">
+      <h2>What each approach does</h2>
+      <p>
+        <strong>Reading the files by hand</strong> means opening every workflow under
+        <code>.github/workflows/</code>, checking whether it has a top-level <code>permissions:</code> key, then
+        opening each job inside it and checking whether that job has its own <code>permissions:</code> key too --
+        because a job's grant can be absent (it inherits the workflow's, or the repository's ambient default if the
+        workflow has none either), explicit, or wider than the workflow-level line above it. Nothing marks which
+        case you are in except by comparing the job to the workflow yourself, file by file.
+      </p>
+      <p>
+        <strong>This checker</strong> runs the same classification -- <code>explicit</code>, <code>write-all</code>,
+        or <code>unspecified</code> -- against every workflow and job you paste at once, and prints a file:line
+        table instead of asking you to hold the workflow-level grant in memory while you read down through its jobs.
+        It runs entirely in your browser; nothing you paste is uploaded, and it makes no network call of its own.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>Does this one workflow file set <code>permissions:</code>?</td><td>Either -- reading one small file by eye is fast and this tool does not claim otherwise.</td></tr>
+          <tr><td>Does every job in a file with a workflow-level grant still need checking individually?</td><td>Yes either way, but this checker does it for every job in every file you paste in one pass, instead of you re-reading each job against the workflow-level line above it.</td></tr>
+          <tr><td>Which jobs are silently inheriting <code>write-all</code> because they declare nothing of their own?</td><td>This checker's file:line table marks these explicitly ("inherited from the workflow-level permissions"). By hand, an inheriting job looks identical to one inheriting a safe ambient default -- nothing is written on the job either way.</td></tr>
+          <tr><td>Which jobs re-declare broader permissions than the workflow-level block suggested?</td><td>This checker lists every job-level grant on its own line, including ones that widen what the workflow declared. By hand this requires re-checking every job even after confirming the workflow-level block looks safe.</td></tr>
+          <tr><td>I need this to work on a private repository's workflow, or a file I have not pushed anywhere.</td><td>This checker -- no token, no repository access, nothing leaves your browser.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><a class="cta" href="./">Run the free permissions check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>A worked example: 3 files, 5 jobs</h2>
+      <p>Three small, realistic workflow files. Pasting all three into the checker at once, or running
+        <code>check.py</code> against a directory containing them, produces the same file:line table shown below --
+        computed by this venture's own <code>classify.mjs</code>, not typed in by hand.</p>
+
+      <h3>ci.yml -- no <code>permissions:</code> anywhere in the file</h3>
+      <pre>name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm test
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run lint</pre>
+      <p>Neither the workflow nor either job declares a <code>permissions:</code> key, so both jobs run with
+        whatever the repository or organization's ambient default token permissions are -- <span class="risky">2
+        unspecified findings</span> (<code>job:test</code>, <code>job:lint</code>). Nothing in the file itself
+        says so; you would have to already know the repository's Settings &rarr; Actions &rarr; General default to
+        know how much access that ambient grant actually is.</p>
+
+      <h3>release.yml -- workflow-level <code>write-all</code></h3>
+      <pre>name: Release
+on:
+  push:
+    tags: ['v*']
+permissions: write-all
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run build
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - run: npm publish</pre>
+      <p>The workflow-level grant is <span class="risky"><code>write-all</code></span> -- every scope's write
+        access. <code>job:publish</code> narrows its own grant to <code>contents: read, packages: write</code>, an
+        <span class="explicit">explicit</span> finding, exactly the fix you would want. But <code>job:build</code>
+        declares nothing of its own, so it silently <span class="risky">inherits <code>write-all</code></span> --
+        and on the page, a job with no <code>permissions:</code> block looks exactly like <code>job:test</code>
+        above, even though one inherits an unknown ambient default and the other inherits every scope's write
+        access. Reading the file top to bottom, it is easy to see <code>publish</code> narrowed correctly, credit
+        the file as "fixed," and never notice <code>build</code> never got its own block.</p>
+
+      <h3>deploy.yml -- workflow-level grant looks safe, a job widens it</h3>
+      <pre>name: Deploy
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - run: ./deploy.sh</pre>
+      <p>Here the workflow-level block reads as the safe case -- <code>contents: read</code> only, an
+        <span class="explicit">explicit</span> finding, and a reviewer checking just the top of the file has every
+        reason to move on. But <code>job:deploy</code> re-declares its own <code>permissions:</code> block adding
+        <code>deployments: write</code> -- also <span class="explicit">explicit</span>, and not wrong on its own
+        terms, but it is a real grant the workflow-level line never mentioned. A read that stops at the
+        workflow-level block, which is the one place most eyes land first, misses it entirely.</p>
+
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Every finding across all 3 files, from <code>classify.mjs</code>.</caption>
+        <thead><tr><th scope="col">File</th><th scope="col">Scope</th><th scope="col">Classification</th><th scope="col">Detail</th></tr></thead>
+        <tbody>
+          <tr><td>ci.yml</td><td>job:test</td><td class="risky">unspecified</td><td>no permissions block on this job or the workflow</td></tr>
+          <tr><td>ci.yml</td><td>job:lint</td><td class="risky">unspecified</td><td>no permissions block on this job or the workflow</td></tr>
+          <tr><td>release.yml</td><td>workflow</td><td class="risky">write-all</td><td>write-all</td></tr>
+          <tr><td>release.yml</td><td>job:build</td><td class="risky">write-all</td><td>inherited from the workflow-level permissions</td></tr>
+          <tr><td>release.yml</td><td>job:publish</td><td class="explicit">explicit</td><td>contents: read, packages: write</td></tr>
+          <tr><td>deploy.yml</td><td>workflow</td><td class="explicit">explicit</td><td>contents: read</td></tr>
+          <tr><td>deploy.yml</td><td>job:deploy</td><td class="explicit">explicit</td><td>contents: read, deployments: write</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>7 findings across 3 files and 5 jobs: 4 risky findings (unspecified or write-all), 3 already
+        explicit</strong> -- the checker's own <code>summaryLine()</code> on this exact input. Getting there by
+      hand meant reading 3 workflow-level blocks (one absent, one <code>write-all</code>, one narrowly scoped) and
+      cross-referencing all 5 jobs against whichever of those three applied to each one -- 8 separate reads, for a
+      3-file example. A real repository with dozens of workflow files and several jobs each is the same read
+      repeated dozens of times over, and it has to be redone by hand after every edit to any one of them.</p>
+      <p><a class="cta" href="./">Paste your own workflows into the checker</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Why not just read the workflow files myself?</h3>
+      <p>You can, and for one small file it is fast. The cost shows up as files and jobs multiply: this tool's own worked example is only 3 workflow files and 5 jobs, and answering the permissions question by hand there already means opening 3 files and checking a workflow-level block plus every one of 5 job-level blocks separately -- 8 separate places to read, cross-reference, and remember, before you have found a single risky grant. A repository with 20 workflow files averaging 3 jobs each is the same read done 60-plus times, and it has to be redone after every edit.</p>
+      <h3>What does a manual read actually miss?</h3>
+      <p>Two specific, opposite mistakes, both present in this page's own worked example. First, a job with no permissions block of its own looks identical on the page whether it is inheriting the repository's ambient default or inheriting an explicit workflow-level <code>permissions: write-all</code> -- nothing is written on the job either way, so a reviewer has to hold the workflow-level line in mind while reading every job below it, and a job added later, after the reviewer's eyes have moved on, inherits write-all with nothing on the job itself to flag it. Second, the reverse: a workflow-level <code>permissions: contents: read</code> reads as safe, and a reviewer who stops at the top of the file misses that one job further down re-declares its own broader <code>permissions:</code> block -- adding write access the workflow-level line never granted. Both mistakes are about permissions declared somewhere other than where the reviewer is currently looking, which is exactly what a single eyeball pass over one file at a time does not surface.</p>
+      <h3>Are these findings invented for this page, or did the tool actually produce them?</h3>
+      <p>They come from running this checker's own <code>classify.mjs</code> against the three workflow snippets shown below, the same module the browser page runs and that <code>check.py</code> mirrors line for line. Every count on this page -- 3 files, 5 jobs, 7 findings, 4 flagged as write-all or unspecified, 3 explicit -- is that function's real return value on that exact input, asserted in this venture's own test suite, not typed in by hand.</p>
+      <h3>Does this replace reading the workflow file at all?</h3>
+      <p>No. The checker tells you which workflow or job has no explicit permissions block, or has write-all, and where -- file and line. It does not know whether the scopes a job does declare are the minimum that job's steps actually need, and it does not replace understanding what a workflow does. What it removes is the part that does not need judgment: finding every place a grant is missing, ambient, or wider than the line above it suggested, across every file at once instead of one file, one job, at a time.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including deciding what scopes a job actually needs. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no network call of its own -- the workflow snippets above are a static worked example computed once while writing this page, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

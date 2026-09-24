@@ -40355,3 +40355,52 @@ entries:
         starvation checklist. No form input added (a static guide page), so
         the Playwright/axe-core browser-check line was not run.
     mrr_end: 0
+  - venture: actions-permissions-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-manually-auditing-workflow-permissions.html, filling the
+        venture's 0/1 generic-method comparison budget (surface-budget.mjs
+        --for actions-permissions-check showed a guide and a named-product
+        page against OpenSSF Scorecard, but no generic-method page).
+        Re-confirmed headroom was still real immediately before starting
+        (git fetch origin main; no sibling had claimed it) and again
+        immediately before committing (main unchanged at 2f207ba3ab). The
+        angle is this venture's own README sentence naming the job it
+        replaces -- "opening each workflow file by hand and checking
+        whether permissions: was set on the workflow and on every one of
+        its jobs" -- worked through a concrete 3-file, 5-job fixture (a
+        workflow with no permissions: anywhere, one with workflow-level
+        write-all where one job narrows it and one silently inherits it,
+        and one where a safe-looking workflow-level contents: read is
+        widened by a job re-declaring its own broader grant). Every figure
+        on the page (7 findings, 4 risky, 3 explicit, the exact
+        classification and detail string per finding) is
+        classify.mjs's/scanFiles's real return value on that fixture,
+        asserted in a new test file, not hand-typed. Linked from
+        index.html, added to sitemap.xml, and registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (compares against a manual habit,
+        not a named product, distinct from this venture's own
+        vs-openssf-scorecard.html which keeps the trademark disclaimer).
+      - >-
+        Verified: node --test 'ventures/actions-permissions-check/**/*.test.mjs'
+        59/59 (including the 15 new tests, several pinning classify.mjs's
+        output on the exact worked-example YAML against the figures quoted
+        on the page); regen.mjs --verify caught the new page and mirror
+        stale, fixed by regen.mjs (no --verify) and reverified clean;
+        node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        1286/1286; surface-budget.mjs --check clean (no venture over
+        budget, this venture now 1/1); clauses.mjs clean (1414 pages);
+        faq-duplicate.mjs clean (1414 pages, no duplicates);
+        checklist_coverage.py and sync_tree_counts.py clean; gitops/tests
+        637 passed/1 skipped; portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446 passed;
+        platform/ci unittest sweep (all modules) + agent_review's
+        test_review all OK; platform/proposal 101/101; platform/privacy +
+        platform/webcheck 142/142. CI confirmed starved this session
+        (ci_starvation.py --run 35972347038: runner_id 0, 3s, no steps), so
+        verification ran locally per CLAUDE.md's starvation checklist. No
+        form input added (a static comparison page), so the
+        Playwright/axe-core browser-check line was not run.
+    mrr_end: 0

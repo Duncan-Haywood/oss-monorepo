@@ -1555,6 +1555,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-codecov.html, which names a specific hosted service
   // and already carries the trademark disclaimer.
   'coverage-drop-check/vs-a-flat-coverage-floor.html',
+  // Compares against "opening each workflow file by hand and checking
+  // whether permissions: was set on the workflow and on every one of its
+  // jobs" -- the manual habit this venture's own README names as the job it
+  // replaces, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-openssf-scorecard.html, which names a real
+  // project (OpenSSF Scorecard) and carries the trademark disclaimer.
+  'actions-permissions-check/vs-manually-auditing-workflow-permissions.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
