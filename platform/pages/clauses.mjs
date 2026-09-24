@@ -1535,6 +1535,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // franchise brand either. Same reasoning as the other flat-rate
   // generic-method pages above.
   'home-inspection-fee-calculator/vs-a-flat-per-square-foot-rate.html',
+  // Compares against "building your own Faire payout spreadsheet" -- a
+  // generic method every seller already has access to, not a company or
+  // product this could be mistaken for. This venture's own vs-ankorstore.html
+  // is separately exempt-free (Ankorstore is a named competitor marketplace)
+  // and carries the trademark disclaimer; the two comparison pages are
+  // deliberately different classes, same as cache-control-check's pairing
+  // of vs-curl.html and vs-checking-headers-by-eye-in-devtools.html above.
+  'faire-wholesale-calculator/vs-building-your-own-spreadsheet.html',
   // Compares against a flat coverage floor (--cov-fail-under and
   // equivalents) -- a generic CI-gating habit any project already has, not
   // a company or product this could be mistaken for. Distinct from this
