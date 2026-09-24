@@ -1157,6 +1157,9 @@ workflows:
 - workflow: tiktok-shop-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tip-pool-compliance-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []

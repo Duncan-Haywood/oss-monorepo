@@ -16977,6 +16977,7 @@ ventures:
       catch an authoring mistake before publishing, no affiliate link, no
       referral fee, donations-only, and it does not scan, fingerprint, or
       contact any third-party system, registry, or agent runtime.
+
   - slug: economic-nexus-threshold-tracker
     scores:
       ai_leverage: 1
@@ -17154,3 +17155,60 @@ ventures:
       they might otherwise miss or misapply, holds no personal or scraped
       data, and there is no revenue model that would reward mistuning the
       arithmetic in either direction (donations only).
+
+  - slug: tip-pool-compliance-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Eligibility is decided by two
+      fixed rules (a manager/supervisor test and a tip-credit-conditioned
+      back-of-house test) applied to a roster the owner types, and the
+      exposure figure is arithmetic on that roster's own hours -- never a
+      model judgment about a specific restaurant.
+    basis: >-
+      Screened and built 2026-09-24; duplicate_check.py scored every
+      venture, screened-out row, and pipeline candidate at or below 0.10
+      against the final description (see the venture's own VENTURE.yaml).
+      Not the same business as no-tax-on-tips-overtime-calculator (a
+      federal income-tax deduction on tip and overtime income) or any
+      existing checker -- no venture in the tree checks FLSA tip-pooling
+      eligibility. Defensibility 3: the two-rule eligibility test and the
+      clawback arithmetic are easy to reproduce once someone reads DOL
+      Fact Sheet #15, matching str-occupancy-tax-calculator's own
+      defensibility for the same reason -- the moat is being first with
+      the specific "which roles, which rule, how much exposure" framing,
+      not the arithmetic itself. Distribution 6: a real, recurring
+      restaurant-industry search topic ("can managers be in a tip pool",
+      "can dishwashers be in a tip pool") that payroll and POS vendors
+      write blog content about but do not turn into a roster-level
+      checker; scored below call-recording-consent-check's 6 story only in
+      that this is a single federal rule rather than a 50-state table, so
+      matched rather than exceeded. No search-volume tool was queried to
+      confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool checks a roster against one well-established federal
+      rule (29 U.S.C. 203(m) as amended by the 2018 CAA, and DOL's 2021
+      final rule at 29 CFR 531.54) and computes arithmetic on the hours
+      and wage the owner supplies -- never a determination about a
+      specific role's real-world classification, and it explicitly
+      excludes state law, which several states make stricter. Every page
+      states this is not legal advice, names DOL Fact Sheet #15 and a
+      qualified employment attorney as the sources to verify against, and
+      nothing entered leaves the browser. Ethically: donations-only with
+      no per-use fee, so the tool has no incentive to bias a role's
+      classification in either direction, and it gets strictly more
+      useful to an owner the more accurately they describe their own
+      roster -- unlike a compliance product sold on alert volume, there is
+      no party here whose incentive runs the other way.

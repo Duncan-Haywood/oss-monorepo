@@ -699,7 +699,15 @@ const RELATIVE_SELF = relative(
 // (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
 // `auto-loan-interest-deduction-calculator-usage` storage name). Exactly
 // one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 337;
+//
+// 337 -> 338: `tip-pool-compliance-calculator` also graduated, concurrently
+// on `main` -- adding one more `usage.mjs`
+// (`ventures/tip-pool-compliance-calculator/usage.mjs`), no deletions. This
+// branch only ever knew its own predecessor's number (336, before
+// `auto-loan-interest-deduction-calculator` landed) until this merge -- the
+// same ordinary collision shape recorded throughout this list, this time
+// with both sides claiming the same next number.
+const SWITCHES_IN_THE_CATALOGUE = 338;
 
 let counter = 0;
 function fixture(source) {
