@@ -2479,9 +2479,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # number (358, at graduation) until this merge -- the same ordinary
     # collision shape recorded throughout this list; the intervening 359
     # was another concurrent graduation this branch never observed.
+    #
+    # 361 on this merge: `mega-backdoor-roth-calculator` also graduated,
+    # concurrently on `main` -- a browser-local calculator computing
+    # after-tax 401(k)/415(c) contribution headroom for the mega-backdoor
+    # Roth strategy against the published, dated IRS dollar limits. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (360, at its own graduation) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 360  # `infra/OWNER_CHECKLIST.md`'s own "N of the 360 tools" wording.
+    total = 361  # `infra/OWNER_CHECKLIST.md`'s own "N of the 361 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
