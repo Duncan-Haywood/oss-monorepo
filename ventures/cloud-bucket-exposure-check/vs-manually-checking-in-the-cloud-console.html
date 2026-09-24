@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console</title>
+<meta name="description" content="Clicking through your own AWS/GCS/Azure console shows you the access setting you think you set. It does not show you what an anonymous outsider actually receives -- a bucket policy, an account-level Block Public Access setting, and an ACL can each override the others, and only a real unauthenticated request proves which one wins.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cloud-bucket-exposure-check/vs-manually-checking-in-the-cloud-console.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does checking the console by hand actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Your cloud provider's console shows you the settings you (or someone on your team) configured: a bucket policy document, an ACL grant list, an account-level \"Block Public Access\" toggle. That is a real, useful read of intent -- what the configuration says should happen." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the by-hand check fall short?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Several independent settings can each grant or block public listing, and the console shows each one separately -- it does not always make obvious which one actually wins for an anonymous, unauthenticated request. A bucket policy statement can grant s3:ListBucket to a wildcard principal while a different admin reads only the account-level Block Public Access toggle and sees it enabled, not realising a resource-level policy can still take effect depending on how it was applied. An old ACL grant from before a stricter policy was added can persist unnoticed. A storage account's container-level \"Public access level\" in Azure can be set independently of the account's own \"Allow Blob public access\" setting, and either alone reading \"restricted\" does not confirm the other agrees. The only way to know for certain what an anonymous outsider receives is to actually send the anonymous request they would send -- which is what this tool does, and reading five separate settings correctly by hand does not replace." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A console check is a point-in-time, manual look. A new bucket policy statement, a fresh IaC deploy, or a teammate widening an ACL for a one-off debugging session can reopen a bucket at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to open the console." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Cloud Bucket Exposure Checker vs. Manually Checking in the Cloud Console</h1>
+<p>Names no specific company or product — this compares against clicking through your own
+provider's console, a manual habit every bucket owner already has, not a company or product this
+could be mistaken for.</p>
+
+<table>
+  <thead><tr><th></th><th>Checking the console by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>What it reads</td><td>The settings a person configured — bucket policy, ACLs, the account-level public-access toggle</td><td>The actual response an anonymous, unauthenticated request receives</td></tr>
+    <tr><td>Catches a policy/ACL/account-toggle conflict</td><td>Only if you know which layer wins and check the right one</td><td>Yes — it sends the real request, so it reports what wins, not what any one setting says in isolation</td></tr>
+    <tr><td>Repeatable in CI</td><td>No — a manual click-through</td><td>Yes — a scriptable exit code (0 private/not-found, 1 exposed)</td></tr>
+    <tr><td>Catches drift after a deploy or a policy edit</td><td>Only the next time someone happens to look</td><td>Every run, on demand or on a schedule</td></tr>
+  </tbody>
+</table>
+
+<h2>What does checking the console by hand actually show you?</h2>
+<p>Your cloud provider's console shows you the settings you (or someone on your team) configured: a bucket policy document, an ACL grant list, an account-level "Block Public Access" toggle. That is a real, useful read of intent -- what the configuration says should happen.</p>
+
+<h2>Where does the by-hand check fall short?</h2>
+<p>Several independent settings can each grant or block public listing, and the console shows each one separately -- it does not always make obvious which one actually wins for an anonymous, unauthenticated request. A bucket policy statement can grant s3:ListBucket to a wildcard principal while a different admin reads only the account-level Block Public Access toggle and sees it enabled, not realising a resource-level policy can still take effect depending on how it was applied. An old ACL grant from before a stricter policy was added can persist unnoticed. A storage account's container-level "Public access level" in Azure can be set independently of the account's own "Allow Blob public access" setting, and either alone reading "restricted" does not confirm the other agrees. The only way to know for certain what an anonymous outsider receives is to actually send the anonymous request they would send -- which is what this tool does, and reading five separate settings correctly by hand does not replace.</p>
+
+<h2>Why does this matter for CI, not just a one-time check?</h2>
+<p>A console check is a point-in-time, manual look. A new bucket policy statement, a fresh IaC deploy, or a teammate widening an ACL for a one-off debugging session can reopen a bucket at any point after the last time someone happened to look. The CLI here returns a real exit code, so it can gate a deploy the same way a linter or test suite does -- catching a regression the day it ships rather than the next time someone thinks to open the console.</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  exposure class — anonymous public listing at the one bucket or container you give it. A clean
+  report describes what one request found, not a guarantee the bucket has no exposure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice. You are responsible for reviewing and
+  verifying its output before relying on it, and for having authorisation to test any bucket or
+  container you point the CLI at. To the maximum extent permitted by law, the authors accept no
+  liability for any loss or damage arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

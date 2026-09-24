@@ -37,16 +37,16 @@ import {
 
 import {
   ICONS,
-  OFFLINE_SIZE_MARKER,
-  OFFLINE_WIDGET_HTML,
   OFFLINE_WIDGET_SCRIPT,
   THEME_COLOR,
   injectOfflineSupport,
   offlineBundleSizeLabel,
+  offlineSizeMarker,
   renderIcon,
   renderKillSwitchWorker,
   renderManifest,
   renderOfflinePage,
+  renderOfflineWidgetHtml,
   renderServiceWorker,
   renderSocialCard,
 } from './offline.mjs';
@@ -81,10 +81,18 @@ import {
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  maskScriptAndStyleBodies,
   renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
+
+// Re-exported so callers outside `platform/pages/` (the mirror generator,
+// `platform/marketing/front-door-tools.mjs`) get it from the module they
+// already import other build-time helpers from, rather than reaching into
+// `embed.mjs` -- an implementation detail of where this file's own version of
+// the same defect (see the export's own doc comment) happened to need it too.
+export { maskScriptAndStyleBodies };
 import {
   INVALID_MODULE_FILE,
   INVALID_STYLE_FILE,
@@ -142,6 +150,40 @@ export const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
 export const ENTRY_OVERRIDES = {
   // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
+};
+
+// Ventures whose own page offers a specific `.py` CLI as a download --
+// "get check.py from the repo, run it yourself, no network calls." `.py` is
+// in `NON_WEB_EXTENSIONS` (a browser visitor downloads none of a venture's
+// CLI source), so `copyTree` never publishes these, and every one of these
+// 18 ventures linked its CTA at `github.com/.../blob/main/...` instead --
+// which 404s for every visitor, because this repository is private. That is
+// the same defect #5515 fixed for `license-drift-check`'s `cli.mjs`, except
+// `cli.mjs` was already published (not a NON_WEB_EXTENSIONS extension) so a
+// relative link was already enough; a `.py` deliverable needs publishing
+// too. Listed explicitly, like `ENTRY_OVERRIDES` above, rather than by a
+// name-based rule (`check.py` is a common filename and most ventures that
+// have one do NOT offer it as a public download), so publishing stays
+// opt-in per file rather than quietly widening to every `.py` in the tree.
+export const DOWNLOADABLE_CLI_FILES = {
+  'actions-artifact-poisoning-check': ['check.py'],
+  'actions-cache-poisoning-check': ['check.py'],
+  'actions-injection-check': ['check.py'],
+  'actions-permissions-check': ['check.py'],
+  'actions-runner-starvation-check': ['check.py'],
+  'actions-secret-leak-check': ['check.py'],
+  'actions-secrets-inherit-check': ['check.py'],
+  'actions-self-hosted-exposure-check': ['check.py'],
+  'coverage-drop-check': ['check.py'],
+  'dependency-confusion-check': ['check.py'],
+  'docker-base-image-eol-check': ['check.py'],
+  'docker-base-image-pin-check': ['check.py'],
+  'docker-build-secrets-check': ['check.py'],
+  'flaky-test-finder': ['check.py'],
+  'openapi-breaking-change-check': ['openapi_diff.py'],
+  'pinned-actions-check': ['check.py'],
+  'required-checks-drift-check': ['check.py'],
+  'sbom-diff-check': ['sbom_diff.py'],
 };
 
 // Not products a stranger should land on.
@@ -410,7 +452,14 @@ const CATEGORY_RULES = [
     // listing may still be running — and would otherwise sit in the
     // catch-all for the same reason those two did: the slug names the
     // storefront, not a marketplace keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
+    // `str-occupancy-tax-calculator` is `str-host`'s exact sibling on the
+    // other side of the same booking: instead of what a host is paid, it
+    // is what a host must remit once a platform's collection agreement is
+    // netted out, on the same Airbnb/Vrbo stay this section already prices.
+    // Broadened the `str-host` match to `str-` rather than adding a second
+    // alternative, since both slugs share the audience and the storefront
+    // prefix.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',
@@ -955,9 +1004,18 @@ const CATEGORY_RULES = [
     // real-estate tools. Slug ends in `-calculator`, not any suffix this
     // rule already catches, so it is added by exact match rather than
     // widening the suffix list to a word this is the only user of.
+    //
+    // The `backup` prefix narrowed to `backup-verification` on 2026-09-24,
+    // when `backup-file-exposure-check` graduated and `categoryFor` swept
+    // it in here on the strength of its slug alone -- it is the `git-
+    // exposure-check`/`dotenv-exposure-check` "read what's actually there,
+    // name the exact evidence" checker family filed under `ci` below, not a
+    // compliance evidence record, and this category's own test ran before
+    // that one's and won on prefix order. `backup-verification-evidence`
+    // is still the only venture the narrower prefix needs to reach.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
+      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator',
   },
@@ -1080,7 +1138,22 @@ const CATEGORY_RULES = [
       // rule, just a deduction tied to QBI instead of tips/overtime, and it
       // cross-links `quarterly-estimated-tax-calendar` as a sibling for the
       // same reason that tool does.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator)/.test(slug),
+      // `employee-cost-calculator` joined 2026-09-24, filed here on its first
+      // commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for, which was already sitting
+      // at its bound of 5 the day this venture graduated. It is a back-office
+      // money decision like the rest of this section -- the fully-loaded
+      // annual cost of a role, W-2 versus 1099, computed with the same
+      // capped-FUTA/SUTA employer-burden arithmetic
+      // `ventures/staffing-markup-calculator/calc.mjs` uses for a billed
+      // placement -- just for a direct hire's own payroll rather than a
+      // staffing agency's invoice. Not `services` (staffing-markup-calculator
+      // itself sits there): that section groups a business quoting *billed*
+      // work to a client, and this tool has no client, only an internal
+      // staffing-cost decision. It cross-links staffing-markup-calculator as
+      // a sibling -- the same burden math, applied on the other side of who
+      // pays it.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -1797,8 +1870,59 @@ const CATEGORY_RULES = [
     // reading a response body instead of headers. Its slug does not start
     // with a keyword this rule already recognised, so it would otherwise
     // have swelled the catch-all the way `supabase-rls-check` once did.
+    //
+    // `dotenv-exposure-check` joined 2026-09-23, the same session: the same
+    // "read what's actually there, name the exact evidence" shape as
+    // `git-exposure-check` immediately above -- five real GET requests to a
+    // site's own well-known dotenv paths, the response body classified
+    // against the real KEY=VALUE line shape rather than just an HTTP status.
+    // Its slug does not start with a keyword this rule already recognised
+    // either, so it landed in the catch-all on its first commit and pushed
+    // it past `build.test.mjs`'s bound the same way `git-exposure-check`
+    // would have on its own. It cross-links `git-exposure-check` as Related
+    // (same family, a different static-file exposure class).
+    //
+    // `subdomain-takeover-check` joined 2026-09-23: the same "read what's
+    // actually there, name the exact evidence" shape as `git-exposure-check`
+    // and `dotenv-exposure-check` immediately above -- a real DNS lookup
+    // plus one real GET request, the response classified against a
+    // provider's own fingerprint rather than escalated from the DNS match
+    // alone. Its slug does not start with a keyword this rule already
+    // recognised, so it landed in the catch-all on its first commit and
+    // pushed it past `build.test.mjs`'s bound the same way its two
+    // predecessors above did.
+    //
+    // `slopsquatting-check` joined 2026-09-24: the same "browser-local
+    // checker plus a matching CLI, run by a developer against a manifest
+    // they already have" shape as `license-drift-check`,
+    // `npm-lifecycle-script-check`, and `dependency-confusion-check` --
+    // just for a dependency name that looks hallucinated or freshly
+    // squatted instead of a declared license, an install-time script, or a
+    // registry-substitution config mistake. It cross-links
+    // `dependency-confusion-check` and `npm-lifecycle-script-check` as
+    // Related, reciprocally. Its slug does not start with a keyword this
+    // rule already recognised, so it would otherwise have landed in the
+    // catch-all on its first commit.
+    //
+    // `cloud-bucket-exposure-check` also joined 2026-09-24, concurrently on
+    // `main`, same shape again: one real read-only request to a cloud
+    // provider's own anonymous bucket-listing endpoint, classified against
+    // that provider's documented response body rather than a bare status
+    // code. Filed here on its first commit rather than after a spell in
+    // the catch-all, the lesson `build.test.mjs`'s bound and this rule's
+    // own history exist to encode.
+    //
+    // `backup-file-exposure-check` joined 2026-09-24: the same "read what's
+    // actually there, name the exact evidence" shape as `git-exposure-check`
+    // and `dotenv-exposure-check` -- real GET requests to a site's own
+    // well-known paths, the response classified against a real archive's
+    // magic bytes or a real SQL dump's line shape rather than a bare status
+    // code, just for backup archives and database dumps instead of
+    // git-internal plumbing or a dotenv file. Filed here on its first commit
+    // rather than after a spell in the catch-all. It cross-links both as
+    // Related (same static-file exposure family, different file classes).
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check)/.test(
         slug,
       ),
   },
@@ -2696,7 +2820,11 @@ const SUBCATEGORY_RULES = {
       // hazard-removal or remediation job (containment, protective
       // procedures, testing/monitoring, special disposal) rather than an
       // installed product or a takeoff.
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
+      // `window-tinting` joins beside `vehicle-wrap` and `mobile-detailing`:
+      // it applies a film treatment to a vehicle's own surface rather than
+      // installing or replacing a fixed building product, the same "vehicle
+      // care/treatment" shape this group already groups those two under.
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|window-tinting|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
     },
     {
       id: 'trades-roof',
@@ -3652,6 +3780,30 @@ export function groupByCategory(surfaces) {
       items: surfaces.filter((s) => categoryFor(s.slug).id === category.id),
     }))
     .filter((group) => group.items.length > 0);
+}
+
+/** The bucket a tool's offline download falls into: its sub-group where its
+ *  category has `SUBCATEGORY_RULES` (only `trades` does, at 131 tools and
+ *  growing), its category otherwise. Used by both the hub's "save this
+ *  category" picker and `collectOfflineBundle`, so the two can never name
+ *  different buckets -- a category on its own is the coarsest partition that
+ *  scales with the catalog rather than a fixed ceiling (see
+ *  `collectOfflineBundle`), and `trades` alone had already outgrown that once
+ *  the fleet's dominant shape (bid calculators) concentrated there. */
+export function offlineBucketFor(slug) {
+  return subcategoryFor(slug) ?? categoryFor(slug);
+}
+
+/** Every offline bucket, in the order the hub picker should list them. */
+export function offlineBuckets(surfaces) {
+  const buckets = [];
+  for (const { category, items } of groupByCategory(surfaces)) {
+    for (const { subcategory } of groupBySubcategory(category.id, items)) {
+      const { id, title } = subcategory ?? category;
+      buckets.push({ id, title });
+    }
+  }
+  return buckets;
 }
 
 /**
@@ -5147,6 +5299,9 @@ ${subgroups
                padding: 15px 18px; margin-top: 26px; }
     .optout { margin-top: 18px; font-size: .84rem; }
     .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .offline select { max-width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px;
+                      border-radius: 9px; border: 1px solid var(--line); background: var(--panel);
+                      color: var(--ink); margin-bottom: 10px; }
     .offline button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
                       border: 1px solid var(--accent); background: var(--accent);
                       color: var(--accent-ink); cursor: pointer; }
@@ -5295,7 +5450,7 @@ ${sections}
 
     <p class="empty" id="empty">No tool matches that. Try a marketplace, a trade, or the thing you are pricing.</p>
 
-${OFFLINE_WIDGET_HTML}
+${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
 
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
@@ -6760,10 +6915,58 @@ export function faqEntries(html) {
     .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
+// Finds the document's real `<body ...>`/`</body>` pair by position, not by
+// literal text. `html.match(/<body[^>]*>/i)` (the previous implementation)
+// finds the *first* occurrence of that shape anywhere in the string, which is
+// wrong the moment a page's own content quotes an example HTML document
+// earlier than its real body tag -- exactly what a security checker's own
+// copy does when it shows what a soft-404 error page looks like, e.g. a
+// FAQPage JSON-LD answer containing the literal text
+// `<html><body>404 Not Found</body></html>`. `git-exposure-check`'s own
+// "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html" page hit
+// this: the fake `<body>`/`</body>` inside its head's JSON-LD matched first,
+// and the topBar/footer this function inserts landed *inside the JSON
+// string*, corrupting it (`check.mjs` and `page-integrity.mjs` both catch
+// invalid JSON-LD, but only after the page ships broken to a crawler until
+// caught -- and it blocked `publish-branch.sh`'s own build-artifact check the
+// day this was found, for the same reason). The real `<body>` tag can only
+// legitimately appear after the real `</head>`, so searching from there skips
+// any earlier, textually-identical example inside the head's own scripts.
+//
+// `</body>` is the *last* match after that real opening tag, not the first --
+// added after the first version of this fix (which took the first match
+// after `openEnd`) still corrupted a page whose fake example sits inside the
+// real `<body>` rather than in `<head>`: the fake `</body>` inside it then
+// preceded the page's own real closing tag, and "first after the open tag"
+// found that one instead. Nothing legitimate ever follows the document's real
+// `</body>` but `</html>`, so the last match in the document is always the
+// real one, regardless of where an earlier quoted example -- in `<head>` or
+// in `<body>` -- happens to place its own fake `<body>`/`</body>` text.
+// Every insertion below uses this function's indices with plain string
+// slicing rather than `String.prototype.replace(literalOrRegex, ...)`,
+// because that method also matches by content rather than position and would
+// reintroduce the identical bug at each call site.
+function locateBody(html) {
+  const headEnd = /<\/head\s*>/i.exec(html);
+  const searchFrom = headEnd ? headEnd.index + headEnd[0].length : 0;
+  const open = /<body[^>]*>/i.exec(html.slice(searchFrom));
+  if (!open) return null;
+  const openIndex = searchFrom + open.index;
+  const openEnd = openIndex + open[0].length;
+  const closes = [...html.slice(openEnd).matchAll(/<\/body\s*>/gi)];
+  if (!closes.length) return null;
+  const lastClose = closes[closes.length - 1];
+  return { openTag: open[0], openIndex, openEnd, closeIndex: openEnd + lastClose.index };
+}
+
+function spliceAt(html, index, text) {
+  return html.slice(0, index) + text + html.slice(index);
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = html.match(/<body[^>]*>/i);
-  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+  const initialBody = locateBody(html);
+  if (!initialBody) return html;
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6821,7 +7024,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   if (headExtras) {
     html = /<\/head>/i.test(html)
       ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
-      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+      : spliceAt(html, initialBody.openIndex, `${headExtras}\n`);
   }
 
   const hub = `${toRoot}`;
@@ -6869,9 +7072,20 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
   const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
-  return withStyle
-    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n</body>`);
+  // Re-located rather than reusing `initialBody`: the head-extras/stylesheet
+  // insertions above may have shifted every index that followed them. Two
+  // separate `locateBody` calls, not one reused across both splices below,
+  // because inserting the top bar shifts `closeIndex` by exactly the bar's
+  // length -- reusing the first call's stale index would put the footer that
+  // many characters into the wrong place on every page long enough for it to
+  // matter.
+  const bodyAfterHead = locateBody(withStyle);
+  if (!bodyAfterHead) return withStyle; // defensive: entry already required a body pair
+  const withTopBar = spliceAt(withStyle, bodyAfterHead.openEnd, `\n${stylePrefix}${topBar}`);
+
+  const bodyBeforeFooter = locateBody(withTopBar);
+  if (!bodyBeforeFooter) return withTopBar; // defensive: same structure, just shifted
+  return spliceAt(withTopBar, bodyBeforeFooter.closeIndex, `${footer}\n`);
 }
 
 /**
@@ -7445,48 +7659,68 @@ export function renderNotFound(baseUrl) {
 // Offline support
 // ---------------------------------------------------------------------------
 
-/** Files a visitor asking to "save all tools" needs: each tool's entry page and
- *  the modules and styles that page loads. Not the whole tree — the SEO
+/** Files a visitor asking to "save a category" needs: each tool's entry page
+ *  and the modules and styles that page loads. Not the whole tree — the SEO
  *  articles and sitemaps are not what someone with no signal is reaching for,
  *  and this runs on a phone's data. */
 const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 
+/**
+ * Partitioned by category rather than one bundle of every tool: see
+ * `renderServiceWorker`'s `bundles` param for why. Returns `{ shared,
+ * categories }` — `shared` is fetched alongside whichever category the
+ * visitor picks, and each category's own `assets` are that category's tool
+ * pages and their scripts.
+ */
 export async function collectOfflineBundle(outDir, surfaces) {
-  // The shared scripts and stylesheets are loaded by every tool page in this
-  // bundle, so a tool cached for offline use without them opens with no band at
-  // all — or, for the stylesheets, with an unstyled one bolted to the page.
-  // That is the cost of extracting them: what used to be inline and therefore
-  // cached with the page is now a separate request the cache has to know about.
-  const assets = new Set([
-    './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
-    BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
+  // The shared scripts and stylesheets are loaded by every tool page, so a
+  // tool cached for offline use without them opens with no band at all — or,
+  // for the stylesheets, with an unstyled one bolted to the page. That is the
+  // cost of extracting them: what used to be inline and therefore cached with
+  // the page is now a separate request the cache has to know about. `./`,
+  // `index.html`, `offline.html` and `manifest.webmanifest` are not here —
+  // they are already in `shell` and precached on install regardless of
+  // whether a visitor ever asks to save a category.
+  const shared = [
+    SAVED_BIDS_MODULE_FILE, BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
     INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
     // Not loaded by any page on this site — it runs on the embedder's — but
     // precached all the same so the snippet's second line is served from the
     // same revision as the first.
     EMBED_HOST_FILE,
-  ]);
+  ].sort();
 
+  const byCategory = new Map();
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
     // copyTree publishes the directory holding the entry point as `slug/`, so
     // the tool's front page is always exactly here.
     const entry = path.join(dir, 'index.html');
     const rel = (file) => path.relative(outDir, file).split(path.sep).join('/');
+    const assets = new Set();
     if (existsSync(entry)) {
       assets.add(rel(entry));
       // A visitor can arrive at either form; a cache entry under one does not
       // answer a request for the other.
       assets.add(`${surface.slug}/`);
     }
-
     for (const file of await listFiles(dir)) {
       if (BUNDLE_EXTENSIONS.has(path.extname(file))) assets.add(rel(file));
     }
+    if (assets.size === 0) continue;
+
+    const { id, title } = offlineBucketFor(surface.slug);
+    if (!byCategory.has(id)) byCategory.set(id, { id, title, assets: new Set() });
+    const bucket = byCategory.get(id).assets;
+    for (const asset of assets) bucket.add(asset);
   }
 
-  return [...assets].sort();
+  const categories = [...byCategory.values()]
+    .map((category) => ({ id: category.id, title: category.title, assets: [...category.assets].sort() }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  return { shared, categories };
 }
 
 /**
@@ -7510,7 +7744,7 @@ export async function addOfflineSupport({
   // forever. Hashing the generator closes that.
   codeVersion,
 } = {}) {
-  const bundle = await collectOfflineBundle(outDir, surfaces);
+  const { shared, categories } = await collectOfflineBundle(outDir, surfaces);
 
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
@@ -7541,7 +7775,8 @@ export async function addOfflineSupport({
         // Enough for the front door to open with no signal on a device that has
         // been here once. Everything else is cached as it is visited.
         shell: ['./', 'index.html', 'offline.html', 'manifest.webmanifest', 'icon-192.png'],
-        bundle,
+        shared,
+        bundles: Object.fromEntries(categories.map((c) => [c.id, c.assets])),
       }),
   );
 
@@ -7555,34 +7790,48 @@ export async function addOfflineSupport({
     injected += 1;
   }
 
-  // The real weight of everything "Save all tools for offline" fetches, over
+  // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front
   // door's own nginx both gzip text responses in transit, so raw bytes
   // overstate what a visitor's mobile data plan is actually charged (see
   // build.test.mjs's "stays small enough to fetch on mobile data" for the
   // same measurement). Taken after the head injection above, so it matches
-  // what a browser really downloads. Patched into the hub's own copy so it
-  // can never drift from reality: see OFFLINE_SIZE_MARKER in offline.mjs for
-  // the stale "about 3 MB" claim this replaces, which stood while the
-  // catalog grew to 174 tools and 16.8 MB raw (5.2 MB gzipped).
-  let bundleBytes = 0;
-  for (const asset of bundle) {
-    if (asset.endsWith('/')) continue; // directory alias of a page already counted
-    const buf = await fs.readFile(path.join(outDir, asset));
-    bundleBytes += zlib.gzipSync(buf, { level: 9 }).length;
+  // what a browser really downloads. `shared` and `index.html` are not
+  // patch-order-sensitive here the way the old single whole-catalog number
+  // was: neither carries a size marker, so nothing this loop reads is a file
+  // the patch below is about to rewrite.
+  const gzipBytesOf = async (assets) => {
+    let bytes = 0;
+    for (const asset of assets) {
+      if (asset.endsWith('/')) continue; // directory alias of a page already counted
+      const buf = await fs.readFile(path.join(outDir, asset));
+      bytes += zlib.gzipSync(buf, { level: 9 }).length;
+    }
+    return bytes;
+  };
+  const sharedBytes = await gzipBytesOf(shared);
+  const categorySizes = [];
+  for (const category of categories) {
+    categorySizes.push({
+      id: category.id,
+      title: category.title,
+      assets: category.assets,
+      bundleBytes: sharedBytes + (await gzipBytesOf(category.assets)),
+    });
   }
-  const hubIndex = path.join(outDir, 'index.html');
-  const beforePatch = await fs.readFile(hubIndex, 'utf8');
-  const afterPatch = beforePatch.replaceAll(OFFLINE_SIZE_MARKER, offlineBundleSizeLabel(bundleBytes));
-  await fs.writeFile(hubIndex, afterPatch);
-  // index.html is itself one of the stated assets; account for the patch's own
-  // size delta so bundleBytes matches the bytes actually on disk afterward,
-  // rather than the pre-patch state it was measured from.
-  bundleBytes +=
-    zlib.gzipSync(Buffer.from(afterPatch), { level: 9 }).length -
-    zlib.gzipSync(Buffer.from(beforePatch), { level: 9 }).length;
 
-  return { cacheName, bundle, bundleBytes, injected };
+  // Patched into the hub's own copy so the picker's per-category size can
+  // never drift from reality: see offlineSizeMarker in offline.mjs for the
+  // stale "about 3 MB" whole-catalog claim this replaces, which stood while
+  // the catalog grew to 174 tools and 16.8 MB raw (5.2 MB gzipped).
+  const hubIndex = path.join(outDir, 'index.html');
+  let hub = await fs.readFile(hubIndex, 'utf8');
+  for (const { id, bundleBytes } of categorySizes) {
+    hub = hub.replaceAll(offlineSizeMarker(id), offlineBundleSizeLabel(bundleBytes));
+  }
+  await fs.writeFile(hubIndex, hub);
+
+  return { cacheName, shared, categories: categorySizes, injected };
 }
 
 // ---------------------------------------------------------------------------
@@ -7656,6 +7905,21 @@ export async function buildSite({
     const to = path.join(outDir, surface.slug, 'LICENSE');
     if (existsSync(to) || !(await exists(from))) continue;
     await fs.copyFile(from, to);
+  }
+
+  // Same reasoning as the LICENSE loop just above, for the `.py` CLI files
+  // `DOWNLOADABLE_CLI_FILES` names: `NON_WEB_EXTENSIONS` drops `.py` from
+  // `copyTree` on purpose (most ventures' CLI source is not a public
+  // deliverable), so the specific files a venture's own page offers as a
+  // download have to be published here instead, ahead of `repairLinks`, or
+  // the CTA's link 404s for every visitor against this private repository.
+  for (const [slug, files] of Object.entries(DOWNLOADABLE_CLI_FILES)) {
+    for (const name of files) {
+      const from = path.join(venturesDir, slug, name);
+      const to = path.join(outDir, slug, name);
+      if (existsSync(to) || !(await exists(from))) continue;
+      await fs.copyFile(from, to);
+    }
   }
 
   // Pass 2: everything that has to read a complete site.

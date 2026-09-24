@@ -167,6 +167,9 @@ workflows:
 - workflow: backflow-test-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: backup-file-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
@@ -261,6 +264,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: cleaning-dilution-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: cloud-bucket-exposure-check-ci.yml
   classification: none
   publishes: []
 - workflow: cloud-egress-calculator-ci.yml
@@ -377,6 +383,9 @@ workflows:
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: dotenv-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: drone-mapping-job-calculator-ci.yml
   classification: none
   publishes: []
@@ -414,6 +423,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: email-auth-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: employee-cost-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: entry-door-bid-calculator-ci.yml
@@ -1004,6 +1016,9 @@ workflows:
 - workflow: skylight-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: slopsquatting-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: snow-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1058,6 +1073,9 @@ workflows:
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-occupancy-tax-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: structured-data-drift-check-ci.yml
   classification: none
   publishes: []
@@ -1065,6 +1083,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: subcontractor-cashflow-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: subdomain-takeover-check-ci.yml
   classification: none
   publishes: []
 - workflow: subpath-robots-check-ci.yml
@@ -1200,6 +1221,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: window-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: window-tinting-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: wordpress-plugin-review-check-ci.yml

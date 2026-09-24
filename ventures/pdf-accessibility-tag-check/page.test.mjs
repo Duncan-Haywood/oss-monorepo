@@ -168,3 +168,47 @@ test('the batch command the comparison page advertises is the one the CLI actual
   assert.match(cli, /--json/);
   assert.match(cli, /process\.exitCode|process\.exit\(/);
 });
+
+// --- "Why does my PDF fail when it looks fine" guide page ------------------
+
+const guideHtml = readFileSync(
+  join(HERE, 'why-does-my-pdf-fail-when-it-looks-fine.html'),
+  'utf8',
+);
+
+test('the guide page carries the disclaimer and the sponsor link', () => {
+  assert.match(guideHtml, /No warranty/);
+  assert.match(guideHtml, /not legal, accessibility-consulting, or compliance advice/);
+  assert.match(guideHtml, /Evidence, not a determination/);
+  assert.match(guideHtml, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the guide page links back to the checker and is linked from it', () => {
+  assert.match(guideHtml, /href="index\.html"/);
+  assert.match(html, /href="why-does-my-pdf-fail-when-it-looks-fine\.html"/);
+});
+
+test('the guide page is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /why-does-my-pdf-fail-when-it-looks-fine\.html/);
+});
+
+test("the guide page's FAQPage answers appear verbatim in its visible prose", () => {
+  const blocks = jsonLdBlocks(guideHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'expected a FAQPage block');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const q of faq.mainEntity) {
+    assert.ok(
+      guideHtml.includes(q.acceptedAnswer.text),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
+    );
+  }
+});
+
+test('the batch command the guide page advertises is the one the CLI actually exposes', () => {
+  const cli = readFileSync(join(HERE, 'cli', 'check.mjs'), 'utf8');
+  assert.match(guideHtml, /node cli\/check\.mjs \.\/document-library\/ --json/);
+  assert.match(cli, /--json/);
+  assert.match(cli, /process\.exitCode|process\.exit\(/);
+});

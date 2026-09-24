@@ -2221,7 +2221,119 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # collision shape recorded throughout this list. Total re-derived here
     # by `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
-    total = 337  # `infra/OWNER_CHECKLIST.md`'s own "N of the 337 tools" wording.
+    #
+    # 337 since this merge: `dotenv-exposure-check` graduated (this
+    # branch) -- a zero-dependency browser tool + CLI sending real GET
+    # requests to five well-known dotenv paths (.env, .env.local,
+    # .env.production, .env.production.local, .env.development.local),
+    # verifying the response body against the real KEY=VALUE line shape
+    # rather than just an HTTP status, and never reading, storing, or
+    # rendering a variable's VALUE anywhere -- only its name. Same "read
+    # what's actually there, name the exact evidence" checker shape as
+    # `git-exposure-check` and `source-map-leak-check`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (335, before `git-exposure-check` landed) until this merge --
+    # the same ordinary collision shape recorded throughout this list, and
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    #
+    # `graphql-introspection-exposure-check` also graduated on `main`,
+    # concurrently with both of the above -- a zero-dependency CLI +
+    # browser checker for a GraphQL endpoint's introspection query being
+    # left enabled in production, same shape as the rest of this running
+    # count. Its own PR did not carry a comment entry here; re-derived
+    # (this merge) by `sync_tree_counts.py` against the fully merged tree
+    # rather than by hand.
+    #
+    # 339 since this merge: `subdomain-takeover-check` graduated (this
+    # branch) -- a zero-dependency browser tool + CLI following a
+    # hostname's real CNAME chain over public DNS-over-HTTPS, matching the
+    # final target against 25 known takeover-prone hosting providers, and
+    # confirming with one live GET checked against that provider's own
+    # "unclaimed" fingerprint page rather than escalating a DNS-only match.
+    # Same "read what's actually there, name the exact evidence" checker
+    # shape as `git-exposure-check` and `dotenv-exposure-check`, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    #
+    # 340 since this merge: `slopsquatting-check` graduated (this branch) --
+    # a zero-dependency browser tool + CLI flagging an npm dependency name
+    # that looks hallucinated or freshly squatted. The browser page is
+    # fully offline (an edit-distance heuristic against a bundled list of
+    # well-known names, no network call); the CLI's one live check is a
+    # read-only GET per dependency to the public npm registry. Same
+    # "browser-local checker plus a matching CLI, run against a manifest
+    # the maintainer already has" shape as `npm-lifecycle-script-check` and
+    # `dependency-confusion-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 341 since this merge: `cloud-bucket-exposure-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser tool + CLI sending
+    # one real, read-only, unauthenticated GET to a cloud provider's own
+    # anonymous bucket-listing endpoint across AWS S3, Google Cloud
+    # Storage, and Azure Blob Storage, classifying the response body
+    # against each provider's own documented listing-or-error XML shape
+    # rather than trusting a bare status code. Same "read what's actually
+    # there, name the exact evidence" checker shape as `git-exposure-check`
+    # and `subdomain-takeover-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch only ever knew its own predecessor's number (340, before
+    # `slopsquatting-check` landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list. Total re-derived here
+    # by `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    #
+    # 342 since this merge: `window-tinting-bid-calculator` graduated -- a
+    # deterministic bid calculator for independent auto window tinting
+    # installers pricing a vehicle film job by pane count, film tier, and
+    # old-tint removal time rather than a flat per-vehicle-size price. Same
+    # "browser-local bid worksheet, no AI, no network call" shape as
+    # `land-survey-bid-calculator` and `biohazard-cleanup-bid-calculator`,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    #
+    # 343 since this merge: `backup-file-exposure-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser tool + CLI sending
+    # real GET requests to eight well-known backup-file paths (backup.zip,
+    # backup.sql, db.sql, and more), classifying the response against a
+    # real archive's magic bytes or a real SQL dump's line shape rather
+    # than a bare status code, and never quoting a SQL dump's row-data
+    # statements or extracting a matched archive. Same "read what's
+    # actually there, name the exact evidence" checker shape as
+    # `git-exposure-check` and `dotenv-exposure-check`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch only ever knew its own predecessor's
+    # number (342, before `window-tinting-bid-calculator` landed) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
+    #
+    # 344 since this merge: `employee-cost-calculator` also graduated,
+    # concurrently on `main` -- a browser calculator comparing the
+    # fully-loaded annual cost of a W-2 employee against a 1099 contractor
+    # for the same role (capped FUTA/SUTA employer-burden arithmetic,
+    # ongoing-vs-year-one cost split, a break-even contractor rate), with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch only ever knew its own predecessor's
+    # number (343, before `backup-file-exposure-check` landed on this side)
+    # until this merge -- the same ordinary collision shape recorded
+    # throughout this list.
+    #
+    # 345 on this merge: `str-occupancy-tax-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator
+    # splitting one short-term-rental stay's occupancy tax into up to four
+    # named layers plus a flat per-night fee, each split between what a
+    # platform's collection agreement already remits and what is left for
+    # the host to self-file. Static `index.html` from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (341, before `window-tinting-bid-
+    # calculator`, `backup-file-exposure-check`, and `employee-cost-
+    # calculator` each landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, three-wide this time.
+    # Total re-derived here by `sync_tree_counts.py` against the fully
+    # merged tree rather than by hand.
+    total = 345  # `infra/OWNER_CHECKLIST.md`'s own "N of the 345 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -2657,10 +2769,14 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
     # than by it breaking: `platform/pages/check.mjs` now fails the build when
     # the site emits an extension neither nginx nor this ConfigMap types, so a
     # fourth cannot reach production the quiet way the first two did.
+    #
+    # `.py` is the fourth: 18 ventures' own pages offer a specific CLI as a
+    # same-origin download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`).
     for suffix, mime in (
         (r"\.mjs$", "text/javascript"),
         (r"\.webmanifest$", "application/manifest+json"),
         (r"\.csv$", "text/csv"),
+        (r"\.py$", "text/plain"),
     ):
         block = f"location ~ {suffix} {{\n    types {{ }}\n    default_type {mime};"
         assert block in conf, f"missing or reordered: {suffix} -> {mime}"
@@ -2694,14 +2810,15 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 7 today (.mjs, .webmanifest, .csv, /feed.xml, /sw.js,
+    # reading this: 8 today (.mjs, .webmanifest, .csv, .py, /feed.xml, /sw.js,
     # /buildinfo.txt, /). Bumping the number is the reminder to restate the
     # headers in the block being added, which is the whole point of the loop
     # below — and it has worked twice now: /buildinfo.txt and /feed.xml were
     # both written with their three headers because this test refused the
-    # block without them.
+    # block without them. `.py` (added when 18 ventures' own pages started
+    # offering a same-origin CLI download) is the third.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 7, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 8, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 

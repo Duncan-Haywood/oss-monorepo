@@ -21,6 +21,7 @@ import {
   stepAllowsDecimals,
   buildSite,
   categoryFor,
+  DOWNLOADABLE_CLI_FILES,
   collectPageTitles,
   copyTree,
   injectFavicon,
@@ -253,12 +254,19 @@ test('no test payload, CLI source, or repo bookkeeping is published', async () =
   // `freelance-retainer-calculator/test_app.mjs` shipped to the public site
   // while the test that exists to catch exactly this stayed green. Match the
   // other spellings too, so the next venture that invents one is caught.
+  // `DOWNLOADABLE_CLI_FILES` publishes exactly these `.py` paths on purpose --
+  // the one file each of these 18 ventures' own page offers as a same-origin
+  // download, not leaked CLI source. Everything else ending in `.py` still
+  // should not be on the public site.
+  const downloadable = new Set(
+    Object.entries(DOWNLOADABLE_CLI_FILES).flatMap(([slug, names]) => names.map((name) => `${slug}/${name}`)),
+  );
   const leaked = files.filter(
     (f) =>
       /(^|[./])test\.(mjs|js|py)$/.test(f) ||
       /(^|\/)test_/.test(f) ||
       /_test\.(mjs|js|py)$/.test(f) ||
-      f.endsWith('.py') ||
+      (f.endsWith('.py') && !downloadable.has(f)) ||
       f.endsWith('VENTURE.yaml') ||
       f.endsWith('README.md') ||
       f.includes('node_modules'),
@@ -1723,6 +1731,29 @@ test('wrapping a page twice does not stack two navigation bars', () => {
   assert.equal(once.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
 });
 
+test('a quoted "<body>...</body>" inside a script does not fool the chrome injector', () => {
+  // git-exposure-check's own soft-404 guide (2026-09-23): the FAQ answer
+  // explains what a fake .git exposure looks like by quoting the literal
+  // markup, inside a <script type="application/ld+json"> block in <head>,
+  // before the page's real <body>. A raw regex over the whole document
+  // matched that quoted tag first and spliced the nav/footer/JSON-LD
+  // breadcrumb into the middle of the JSON string, corrupting it.
+  const page =
+    '<html><head><script type="application/ld+json">' +
+    '{"a":"an error page such as <html><body>404 Not Found</body></html>"}' +
+    '</script></head><body><h1>Tool</h1></body></html>';
+  const out = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+
+  const scripts = [...out.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)];
+  assert.ok(scripts.length > 0, 'the page still carries its JSON-LD');
+  for (const [, json] of scripts) JSON.parse(json); // throws if any block is corrupted
+
+  assert.equal(out.match(/<nav class="pf-chrome pf-chrome-top"/g)?.length, 1);
+  assert.equal(out.match(/<aside class="pf-chrome pf-chrome-foot"/g)?.length, 1);
+  // The real body still holds the venture's own markup, untouched.
+  assert.ok(/<h1>Tool<\/h1>/.test(out));
+});
+
 test('a fragment with no body is left alone rather than corrupted', () => {
   const fragment = '<div>partial</div>';
   assert.equal(injectChrome(fragment, { slug: 'x', toRoot: '../', total: 2, related: [] }), fragment);
@@ -2051,6 +2082,37 @@ test('a lone tool advertises no siblings and still renders', () => {
   assert.ok(html.includes('data-pf-to="hub"'));
 });
 
+// Found 2026-09-23 on `git-exposure-check`'s own
+// "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html": its FAQPage
+// JSON-LD quotes a literal example error page, `<html><body>404 Not
+// Found</body></html>`, to explain what a soft-404 false positive looks like.
+// The old implementation found the real body tag with
+// `html.match(/<body[^>]*>/i)` -- the *first* textual match anywhere in the
+// document -- and then inserted the top bar and footer with
+// `html.replace(bodyOpen[0], ...)`, which also replaces by content rather
+// than position. Both found the fake `<body>`/`</body>` inside the head's own
+// JSON-LD first, since it appears earlier in the string than the real tag,
+// and spliced the chrome markup into the middle of a JSON string. It blocked
+// `publish-branch.sh`'s own build-artifact check the day this was found.
+test('a page quoting a literal <body>/</body> example in its own head is not corrupted', () => {
+  const html =
+    '<html><head><script type="application/ld+json">' +
+    '{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"q",' +
+    '"acceptedAnswer":{"@type":"Answer","text":"looks like <html><body>404 Not Found</body></html>"}}]}' +
+    '</script></head><body>real content</body></html>';
+  const out = injectChrome(html, { slug: 'x', toRoot: '../', total: 3, related: [] });
+
+  const scriptMatch = out.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(scriptMatch, 'the original JSON-LD block is still present');
+  assert.doesNotThrow(() => JSON.parse(scriptMatch[1]), 'the JSON-LD was not corrupted by chrome injection');
+
+  // The chrome markup landed in the real body, not spliced into the example
+  // string sitting ahead of it.
+  assert.doesNotMatch(scriptMatch[1], /pf-chrome/);
+  assert.match(out, /real content[\s\S]*pf-chrome-foot/);
+  assert.match(out, /pf-chrome-top[\s\S]*real content/);
+});
+
 // The clause is injected rather than required of each venture because the
 // requirement can otherwise only be discovered after the venture is on `main`.
 // Three ventures shipped without it in one day; these two tests are what stop
@@ -2227,6 +2289,30 @@ test('the chrome escapes venture copy', () => {
   });
   assert.ok(!html.includes('<script>alert(1)</script>'));
   assert.ok(html.includes('&lt;script&gt;'));
+});
+
+test('the footer lands at the real closing </body>, not a literal one inside earlier copy', () => {
+  // git-exposure-check's own guide page describes a soft-404 body as literal
+  // text inside its hand-authored JSON-LD: "such as
+  // <html><body>404 Not Found</body></html>". A plain first-match replace on
+  // </body> spliced the footer chrome into the middle of that JSON-LD string
+  // and broke it as valid JSON (2026-09-23).
+  const page =
+    '<html><head></head><body>' +
+    '<script type="application/ld+json">{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Q",' +
+    '"acceptedAnswer":{"@type":"Answer","text":"such as <html><body>404 Not Found</body></html>, not real."}}]}</script>' +
+    '<h1>Tool</h1></body></html>';
+  const html = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+
+  const scriptStart = html.indexOf('<script type="application/ld+json">') + '<script type="application/ld+json">'.length;
+  const scriptEnd = html.indexOf('</script>', scriptStart);
+  assert.doesNotThrow(() => JSON.parse(html.slice(scriptStart, scriptEnd)), 'the JSON-LD block must still parse');
+
+  // The footer must land after the page's own real closing tag, not inside it.
+  const bodyCloses = [...html.matchAll(/<\/body>/gi)].map((m) => m.index);
+  assert.equal(bodyCloses.length, 2, 'one literal mention plus one real closing tag');
+  const footerIndex = html.indexOf('pf-chrome-foot');
+  assert.ok(footerIndex > bodyCloses[0] && footerIndex < bodyCloses[1], 'footer sits between the literal mention and the real close');
 });
 
 test('the chrome counts locally, honours opt-out, and asks for nothing off-origin', async () => {
@@ -2977,16 +3063,17 @@ test('a navigation that fails with nothing cached lands on the offline page', as
 
 test('the save-for-offline bundle covers every tool and only real files', async () => {
   const { outDir, surfaces, offline } = await site();
+  const bundled = new Set([...offline.shared, ...offline.categories.flatMap((c) => c.assets)]);
   for (const surface of surfaces) {
     assert.ok(
-      offline.bundle.includes(`${surface.slug}/index.html`),
+      bundled.has(`${surface.slug}/index.html`),
       `${surface.slug} would not be saved for offline use`,
     );
-    assert.ok(offline.bundle.includes(`${surface.slug}/`), 'both link forms are cached');
+    assert.ok(bundled.has(`${surface.slug}/`), 'both link forms are cached');
   }
 
   const missing = [];
-  for (const asset of offline.bundle) {
+  for (const asset of bundled) {
     if (asset.endsWith('/')) continue; // directory form of a page already asserted
     try {
       await fs.access(path.join(outDir, asset));
@@ -2997,70 +3084,126 @@ test('the save-for-offline bundle covers every tool and only real files', async 
   assert.deepEqual(missing, [], `the worker would fetch files that are not on the site: ${missing.join(', ')}`);
 });
 
-test('the offline bundle stays small enough to fetch on mobile data', async () => {
-  const { outDir, offline } = await site();
-  let bytes = 0;
-  for (const asset of offline.bundle) {
-    if (asset.endsWith('/')) continue;
-    const buf = await fs.readFile(path.join(outDir, asset));
-    bytes += (await gzip(buf, { level: 9 })).length;
+test('every venture lands in exactly one category bundle', async () => {
+  // Partitioned by category rather than one bundle of every tool (see the
+  // size test below for why), so the one way this can go wrong that the
+  // coverage test above cannot see is a tool counted twice -- which would
+  // make two categories' "save this category" buttons each fetch it, or
+  // counted zero times under any category, which the test above already
+  // catches as a missing page.
+  const { surfaces, offline } = await site();
+  const seenIn = new Map();
+  for (const category of offline.categories) {
+    for (const asset of category.assets) {
+      if (!asset.endsWith('/index.html')) continue;
+      seenIn.set(asset, (seenIn.get(asset) ?? []).concat(category.id));
+    }
   }
-  assert.equal(bytes, offline.bundleBytes, 'addOfflineSupport reported a different gzipped total than a fresh count');
-  // Raw bytes stopped being the right proxy once the catalog passed ~180
-  // tools: it hit 16.8 MB against a 16 MB ceiling that was itself already a
-  // bump from an original 8 MB, and bumping the number a second time repeats
-  // the mistake instead of fixing it. What a phone actually pays for on
-  // mobile data is bytes over the wire, and every host this site is served
-  // from compresses this content in transit: GitHub Pages (Fastly) gzips
-  // text responses automatically, and gitops/prod/front-door/default.conf
-  // sets `gzip on` with text/css, application/javascript and text/javascript
-  // in `gzip_types` (text/html is gzipped by nginx regardless of that list).
-  // So this asserts on the same bytes a visitor's browser reports as
-  // "transferred" in its network panel, not the uncompressed size on disk.
-  // Measured 2026-09-05: gzip brings the 16.8 MB raw bundle down to 5.2 MB.
-  assert.ok(bytes < 8 * 1024 * 1024, `gzipped offline bundle is ${(bytes / 1e6).toFixed(1)} MB`);
+  for (const surface of surfaces) {
+    const asset = `${surface.slug}/index.html`;
+    const foundIn = seenIn.get(asset) ?? [];
+    assert.equal(
+      foundIn.length,
+      1,
+      `${surface.slug} is bundled under ${JSON.stringify(foundIn)}, not exactly one category`,
+    );
+  }
 });
 
-test('the hub tells a visitor the real offline size, not a stale guess', async () => {
+test("a category's offline bundle stays small enough to fetch on mobile data", async () => {
+  // The whole-catalog version of this test used to sum every tool into one
+  // number, and that number had already forced this feature's byte ceiling
+  // to be raised once (8 MB to 16 MB, then switched to a gzipped 8 MB proxy)
+  // and hit that second ceiling too once the catalog passed ~340 tools --
+  // bumping the number a third time repeats the mistake instead of fixing
+  // it. What a phone actually pays for on mobile data is bytes over the
+  // wire, and every host this site is served from compresses this content in
+  // transit: GitHub Pages (Fastly) gzips text responses automatically, and
+  // gitops/prod/front-door/default.conf sets `gzip on` with text/css,
+  // application/javascript and text/javascript in `gzip_types` (text/html is
+  // gzipped by nginx regardless of that list). So this asserts on the same
+  // bytes a visitor's browser reports as "transferred" in its network panel,
+  // not the uncompressed size on disk -- now per category, which is bounded
+  // by how many tools share a niche rather than by the catalog's total size.
+  const { outDir, offline } = await site();
+  const gzipBytesOf = async (assets) => {
+    let bytes = 0;
+    for (const asset of assets) {
+      if (asset.endsWith('/')) continue;
+      const buf = await fs.readFile(path.join(outDir, asset));
+      bytes += (await gzip(buf, { level: 9 })).length;
+    }
+    return bytes;
+  };
+  const sharedBytes = await gzipBytesOf(offline.shared);
+  for (const category of offline.categories) {
+    const bytes = sharedBytes + (await gzipBytesOf(category.assets));
+    assert.equal(
+      bytes,
+      category.bundleBytes,
+      `addOfflineSupport reported a different gzipped total for ${category.id}`,
+    );
+    assert.ok(
+      bytes < 3 * 1024 * 1024,
+      `gzipped offline bundle for category ${category.id} is ${(bytes / 1e6).toFixed(1)} MB`,
+    );
+  }
+});
+
+test('the hub tells a visitor the real offline size per category, not a stale guess', async () => {
   // The button said "about 3 MB" from ~30 tools onward while the catalog
   // grew to 174 and the real (gzipped) fetch reached 5.2 MB -- a visitor on
   // limited mobile data, exactly who this feature is for, was told a number
-  // with no relationship to what they would actually pay. The label is now
-  // computed from the same gzipped bytes the test above measures, so it
-  // cannot drift from reality again.
+  // with no relationship to what they would actually pay. Each category's
+  // label is computed from the same gzipped bytes the test above measures,
+  // so it cannot drift from reality again -- and cannot drift the way the old
+  // single whole-catalog number did, either, since a category's own size
+  // moves only when its own tools change.
   const { offline } = await site();
   const hub = await read('index.html');
-  assert.ok(!hub.includes('{{OFFLINE_BUNDLE_SIZE}}'), 'the size placeholder was never patched in');
+  assert.ok(!/\{\{OFFLINE_BUNDLE_SIZE/.test(hub), 'a size placeholder was never patched in');
   assert.ok(!/about 3 MB/.test(hub), 'the old hardcoded size is still here');
-  const label = offlineBundleSizeLabel(offline.bundleBytes);
-  assert.ok(hub.includes(`about ${label}`), `hub does not show the real offline size (${label})`);
+  for (const category of offline.categories) {
+    const label = offlineBundleSizeLabel(category.bundleBytes);
+    assert.ok(
+      hub.includes(`about ${label}`),
+      `hub does not show the real offline size for ${category.id} (${label})`,
+    );
+  }
 });
 
-test('the saved catalogue fits in a browser origin cache quota', async () => {
+test('the saved category fits in a browser origin cache quota', async () => {
   const { outDir, offline } = await site();
-  let onDisk = 0;
-  for (const asset of offline.bundle) {
-    if (asset.endsWith('/')) continue;
-    onDisk += (await fs.stat(path.join(outDir, asset))).size;
-  }
+  const onDiskBytes = async (assets) => {
+    let bytes = 0;
+    for (const asset of assets) {
+      if (asset.endsWith('/')) continue;
+      bytes += (await fs.stat(path.join(outDir, asset))).size;
+    }
+    return bytes;
+  };
+  const sharedOnDisk = await onDiskBytes(offline.shared);
   // The companion to the transfer budget above, and the reason both exist:
   // moving that assertion to gzipped bytes was right, but it left the bundle
   // with no ceiling on uncompressed size at all, and the two are different
   // costs paid by different resources. Cache Storage keeps responses
-  // decompressed, so this is what the save-all button occupies of the
-  // origin's quota on the device -- a phone low on space can have the whole
-  // catalogue evicted, which is the one failure mode that would break the
-  // offline promise silently, on the jobsite, after the download succeeded.
+  // decompressed, so this is what saving a category occupies of the origin's
+  // quota on the device -- a phone low on space can have it evicted, which is
+  // the one failure mode that would break the offline promise silently, on
+  // the jobsite, after the download succeeded.
   //
   // Deliberately loose. Browsers grant an origin a share of free disk running
-  // to hundreds of MB, and at 16.8 MB the catalogue has room to roughly
-  // quadruple. This is a tripwire for a binary landing in the bundle by
+  // to hundreds of MB, and the largest category has room to grow several
+  // times over. This is a tripwire for a binary landing in a bundle by
   // accident -- an image, a font, a .zip -- which compresses badly enough to
   // show up here long before it moves the gzipped figure much.
-  assert.ok(
-    onDisk < 64 * 1024 * 1024,
-    `the saved catalogue would occupy ${(onDisk / 1e6).toFixed(1)} MB on the device`,
-  );
+  for (const category of offline.categories) {
+    const onDisk = sharedOnDisk + (await onDiskBytes(category.assets));
+    assert.ok(
+      onDisk < 16 * 1024 * 1024,
+      `saving category ${category.id} would occupy ${(onDisk / 1e6).toFixed(1)} MB on the device`,
+    );
+  }
 });
 
 test('the manifest is installable: real icons, standalone, scoped to the site', async () => {
@@ -3086,7 +3229,7 @@ test('the manifest is installable: real icons, standalone, scoped to the site', 
 
 test('the offline offer is honest and gates nothing', async () => {
   const hub = await read('index.html');
-  assert.match(hub, /Save all tools for offline/);
+  assert.match(hub, /Save this category for offline/);
   assert.match(hub, /Nothing is uploaded either way/);
   // Still no request about a visit leaving the device: the worker fetches
   // pages, and pages only.
@@ -3422,7 +3565,7 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
   const shared = await read('pf-jobs.js');
   assert.ok(shared.includes('var SLUG'), 'the shared script is not at the site root');
 
-  assert.ok(offline.bundle.includes('pf-jobs.js'),
+  assert.ok(offline.shared.includes('pf-jobs.js'),
     'a tool cached offline without it opens with no saved-bids band at all');
 
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
@@ -3478,7 +3621,7 @@ test('every stylesheet and script this build injects is one file, at the right d
   for (const [name, { attr, gate }] of Object.entries(assets)) {
     const body = await read(name);
     assert.ok(body.length > 400, `${name} was not written to the site root`);
-    assert.ok(offline.bundle.includes(name),
+    assert.ok(offline.shared.includes(name),
       `a tool cached offline without ${name} opens unstyled or without its band`);
 
     let carrying = 0;
@@ -4479,6 +4622,33 @@ test('no link to a published venture is repaired out to the private repository',
   }
 
   assert.deepEqual(offenders, [], `links sent off-site to a private repo: ${offenders.slice(0, 8).join(', ')}`);
+});
+
+test('every DOWNLOADABLE_CLI_FILES entry is published, and no page still links off-site for it', async () => {
+  // `.py` is a NON_WEB_EXTENSIONS extension, so `copyTree` never publishes it;
+  // 18 ventures offer a specific `.py` CLI as a same-origin download anyway,
+  // and `DOWNLOADABLE_CLI_FILES` is what makes that file the one exception.
+  // Both halves of the fix are asserted here: the file actually ships, and no
+  // page was left pointing at the private-repo blob URL for it (the previous
+  // test above only catches an accidental off-site link to something that
+  // WAS published -- a link to something genuinely unpublished, like these
+  // files used to be, reads as "correct" to that test).
+  const { outDir } = await site();
+
+  for (const [slug, files] of Object.entries(DOWNLOADABLE_CLI_FILES)) {
+    for (const name of files) {
+      await fs.access(path.join(outDir, slug, name));
+
+      for (const file of await listFiles(path.join(outDir, slug))) {
+        if (!file.endsWith('.html')) continue;
+        const html = await fs.readFile(file, 'utf8');
+        assert.ok(
+          !html.includes(`${SOURCE_URL_PREFIX}ventures/${slug}/${name}`),
+          `${path.relative(outDir, file)} still links ${name} off-site to the private repo`,
+        );
+      }
+    }
+  }
 });
 
 // ---------------------------------------------------------------------------

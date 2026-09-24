@@ -7909,6 +7909,63 @@ ventures:
       installed on the user's own machine against the public Marketplace
       API; it uploads no file contents and says so in its own FAQ.
 
+  - slug: slopsquatting-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a dependency name exists
+      on the registry, and whether it was published recently with few
+      versions, is decided by parsing the registry's own JSON document
+      directly against fixed thresholds — a factual check, not a model
+      judgment. The offline browser heuristic is a plain edit-distance
+      comparison against a hard-coded list, not an inference.
+    basis: >-
+      Screened and graduated 2026-09-24 per portfolio/pipeline/README.md's
+      "archetype itself" section: same direct, dated-incident-driven shape
+      as dependency-confusion-check, npm-lifecycle-script-check, and
+      vscode-extension-drift-check, scored on this file's six-dimension
+      rubric to keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored every
+      existing venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate below 0.15 for this idea; the closest match,
+      npm-lifecycle-script-check at 0.12, diffs lockfile snapshots for
+      install-time scripts, a different mechanism and a different artifact
+      (installed script text, not registry existence/recency). Autonomous
+      ops 10 / gross margin 10: the browser page parses only pasted text
+      with no network call, and the CLI's one network call per dependency
+      is a small, free, unauthenticated GET against a public registry this
+      project pays nothing to serve, so serving one more user costs a
+      static file. Distribution 6: a May 2025 USENIX Security study found
+      19.7% of packages recommended by 16 code-generating models did not
+      exist at all, and the PhantomRaven campaign (100+ malicious npm
+      packages via slopsquatting and typosquatting, flagged October 2025 by
+      Koi Security and DCODX, covered by The Hacker News) is a real, dated,
+      event-driven incident — both independently verified by live fetch on
+      2026-09-24, not restated from memory. Real, event-driven search
+      demand ("slopsquatting", "npm package doesn't exist", "AI
+      hallucinated package") rather than an evergreen query.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it checks a name the user's own
+      manifest already declares against the public registry and reports a
+      factual existence/recency finding for the user to review, never a
+      claim that a specific package is malicious. The one network call
+      (CLI-only, never from the browser page) sends only a bare package
+      name, never file contents or code, to the same public,
+      unauthenticated endpoint `npm install` itself already queries, and
+      both the CLI's own --help and the page's copy say so plainly.
+
   - slug: 3d-print-price-calculator
     scores:
       ai_leverage: 1
@@ -15664,6 +15721,142 @@ ventures:
       two specific requests, not a full security assessment or a
       determination that the target is secure.
 
+  - slug: dotenv-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a dotenv file is exposed
+      is decided by a fixed line-shape ratio (does the body look like real
+      KEY=VALUE content) against the real HTTP response -- a factual,
+      deterministic classification, not a model judgment, and it never
+      claims a full security audit.
+    basis: >-
+      Screened 2026-09-23, the same session as git-exposure-check and the
+      same archetype: a zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.25 or below against the final description (real GET
+      requests to a site's root .env file path, verifying the response
+      body against the real KEY=VALUE line format) -- git-exposure-check
+      itself is the closest match, a different static-file exposure class
+      (git-internal plumbing, not an application's own secrets file), and
+      env-example-drift-check is next closest but is a local, zero-network
+      source linter that never fetches a URL or reads a real .env at all.
+      Autonomous ops 10 / gross margin 10: every request runs from the
+      visitor's own browser (when the target's CORS policy allows it) or
+      machine (for the CLI) against a site of their choosing, so serving
+      one more user costs a static file and needs no human review of any
+      output. Distribution 7: dotenv exposure is one of the most-cited web
+      misconfigurations in security research -- OWASP's own guidance on
+      sensitive data exposure names environment-file leakage explicitly,
+      it is a recurring HackerOne/Bugcrowd report category and a standard
+      dorking search term, and the exposure class predates and outlives
+      any single framework. Time to revenue 6, defensibility 2: donations-
+      only; a line-shape check and a name-pattern regex are genuinely easy
+      to reimplement, so defensibility rests only on the value-redaction
+      guarantee being correct and tested, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and the mitigation here is structurally stronger than any
+      sibling checker's needed to be, because the subject matter is
+      literally the secret rather than metadata about one: a response
+      body is parsed only to check its overall line shape and to extract
+      each line's KEY name, and the VALUE half of every line is discarded
+      the instant it is read -- it never appears in any return value,
+      report, JSON output, or rendered page, not truncated, not hashed,
+      not partially shown. analyze.test.mjs pins this directly: a test
+      builds a report against a worked example containing a literal fake
+      secret value and asserts the serialized report never contains that
+      string anywhere. Every request is GET only, and a response this
+      tool cannot classify (network error, CORS block, unexpected status)
+      is reported as an error, never folded into either "exposed" or
+      "blocked". Every page and the README carry an explicit "only test a
+      site you own or are authorised to test" caution.
+
+  - slug: backup-file-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a backup file is
+      exposed is decided by matching the response body against a real
+      archive's magic-byte header (ZIP/gzip/bzip2/7-Zip/tar) or a real SQL
+      dump's line shape (a dump-tool header comment, or a structural ratio
+      of CREATE/INSERT-style statement lines) -- a factual, deterministic
+      classification, not a model judgment, and it never claims a full
+      security audit.
+    basis: >-
+      Screened 2026-09-24, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, cloud-bucket-exposure-check,
+      subdomain-takeover-check). duplicate_check.py scored every existing
+      venture, screened-out row, and pipeline candidate at 0.29 or below
+      against the final description (real GET requests to a site's own
+      well-known backup filenames, classifying the response body against
+      an archive's magic bytes or a SQL dump's line shape) --
+      dotenv-exposure-check scored closest, a different static-file
+      exposure class entirely (a project's own environment-variable
+      secrets file, not a backup archive or database dump), and
+      git-exposure-check next closest, reading git-internal plumbing
+      rather than a backup file's own content. Nothing in the tree covers
+      backup-file or database-dump exposure.
+      Autonomous ops 10 / gross margin 10: the CLI's eight requests run
+      from the user's own machine against a site they choose, capped at
+      8KB per path, and the browser page only renders a report already
+      produced, so serving one more user costs a static file and needs no
+      human review of any output.
+      Distribution 7: any web developer, DevOps engineer, or bug-bounty
+      researcher doing deploy verification or due diligence is a
+      plausible searcher; OWASP's Web Security Testing Guide names
+      "Review Old Backup and Unreferenced Files" explicitly as a standard
+      reconnaissance step, SecLists' own wordlists carry this exact short
+      set of backup filenames, and "found an exposed backup.zip / SQL
+      dump" is a recurring HackerOne/Bugcrowd report category and dorking
+      search term that predates and outlives any single framework.
+      Time to revenue 6, defensibility 2: donations-only; a magic-byte
+      table and a line-shape ratio are genuinely easy to reimplement, so
+      defensibility rests on the row-data/archive-contents redaction
+      guarantee being correct and tested, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and the mitigation here is structurally stronger than most
+      sibling checkers' needed to be, because the subject matter is
+      potentially an entire database rather than metadata about one: a
+      matched archive is never listed, extracted, or read beyond the
+      handful of header bytes already used to confirm it, and a matched
+      SQL dump's lines are classified into "schema" (CREATE/DROP/ALTER
+      TABLE -- safe to quote, table/column structure only) and "data"
+      (INSERT/REPLACE/COPY ... FROM stdin -- a count only, never the line
+      text) before anything is returned. analyze.test.mjs pins this
+      directly: a test builds a report against a worked example containing
+      literal fake row values and asserts the serialized report never
+      contains those values anywhere. Every request is GET only, capped at
+      8KB, and a response this tool cannot classify (network error, CORS
+      block, unexpected status) is reported as an error, never folded into
+      either "exposed" or "blocked". Every page and the README carry an
+      explicit "only test a site you own or are authorised to test"
+      caution.
+
   - slug: firebase-rules-check
     scores:
       ai_leverage: 1
@@ -15875,3 +16068,287 @@ ventures:
       finding, nothing is scraped, and the tool gets strictly more useful
       to more podcasters as it scales with no customer worse off because
       another one exists.
+  - slug: subdomain-takeover-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a finding is confirmed
+      is decided by matching a live HTTP response against a fixed
+      provider fingerprint table -- a factual, deterministic
+      classification that never escalates a DNS-only match to confirmed,
+      not a model judgment.
+    basis: >-
+      Screened 2026-09-23, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, source-map-leak-check).
+      duplicate_check.py scored every existing venture, screened-out row,
+      and pipeline candidate at 0.09 or below against the final
+      description (follows a hostname's real CNAME chain over public DNS,
+      matches the target against known takeover-prone providers, confirms
+      with a live fingerprinted GET) -- nothing in the tree covers DNS
+      CNAME chains, subdomain takeover, or dangling cloud-resource
+      pointers. Autonomous ops 10 / gross margin 10: every request runs
+      from the visitor's own browser (when CORS allows) or machine (for
+      the CLI) against a DNS resolver and hostname of their choosing, so
+      serving one more user costs a static file and needs no human review
+      of any output. Distribution 7: subdomain takeover is a standard,
+      recurring HackerOne/Bugcrowd report category and a common
+      penetration-test finding, and the exposure class (a decommissioned
+      cloud resource whose DNS record was never removed) predates and
+      outlives any single provider. Time to revenue 6, defensibility 2:
+      donations-only; a CNAME-pattern table and a body-fingerprint regex
+      are genuinely easy to reimplement, so defensibility rests only on
+      the provider table's own correctness and maintenance, not on any
+      moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never attempts to claim, register, or configure
+      anything at any provider -- detection and reporting only, every
+      request is a plain DNS lookup or GET, and a finding is only ever
+      reported "confirmed" when a live response matches a specific
+      provider's own fingerprint, never escalated from a DNS-only match
+      (which is reported separately, as "unconfirmed, worth a manual
+      look"). Ethically: read-only against public DNS and a hostname's
+      own HTTP response, no crawling, no enumeration of a domain's other
+      subdomains, and the report is explicit that a clean result describes
+      only the hostnames checked, not a full DNS-zone audit.
+  - slug: cloud-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a bucket is publicly
+      listable is decided by matching a live HTTP response body against a
+      cloud provider's own documented listing-or-error XML shape -- a
+      factual, deterministic classification, not a model judgment.
+    basis: >-
+      Screened 2026-09-24, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, supabase-rls-check,
+      firebase-rules-check, subdomain-takeover-check). duplicate_check.py
+      scored every existing venture, screened-out row, and pipeline
+      candidate at 0.24 or below against the final description (real
+      read-only requests to a user-provided S3/GCS/Azure Blob bucket,
+      classifying public-list vs private across the three major providers'
+      own endpoint conventions) -- graphql-introspection-exposure-check
+      scored closest, a different evidence class entirely (a GraphQL
+      schema query response, not a cloud-storage listing endpoint), and
+      subdomain-takeover-check names S3 only as one of 25 DNS-CNAME
+      takeover-prone hosting providers, a different mechanism (a dangling
+      DNS record) from a live bucket's own anonymous-listing setting.
+      Nothing in the tree covers cloud object-storage misconfiguration.
+      Autonomous ops 10 / gross margin 10: the CLI's one request runs from
+      the user's own machine against a bucket of their choosing, and the
+      browser page only renders a report already produced, so serving one
+      more user costs a static file and needs no human review of any
+      output. Distribution 8, a point above the sibling checker family's
+      typical 7: a perennial, three-provider exposure class (not tied to
+      one dated incident) with real, sustained tool demand already proven
+      by existing free scanners (s3scanner, several thousand GitHub stars;
+      GrayhatWarfare; Bucket Stream), and a provider (AWS) that changed its
+      own default in 2023 specifically because of this exposure class.
+      Time to revenue 6, defensibility 2: donations-only; fixed regexes
+      against a provider's own documented XML shape are genuinely easy to
+      reimplement, so defensibility rests on being first, free, and
+      correct across all three providers in one tool, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool sends exactly one read-only, unauthenticated request
+      per check -- a provider's own anonymous listing endpoint -- and never
+      fetches any individual object's content, only the listing, the same
+      restraint git-exposure-check applies to not requesting a
+      repository's packed objects once exposure is confirmed. Up to 5
+      example object names are shown as evidence, never content, capped
+      regardless of how many the response reports. Ethically: read-only,
+      no crawling of the wider account, no attempt to claim or alter
+      anything, and the report is explicit that a clean result describes
+      only the one bucket checked and only the listing exposure class, not
+      a full cloud security assessment.
+  - slug: str-occupancy-tax-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The per-layer split between what
+      a platform collects and what the host must remit is arithmetic on
+      inputs the host supplies (rates, and the platform's own published
+      collection-agreement coverage), never a model judgment about what a
+      specific listing owes.
+    basis: >-
+      Graduated on 2026-09-24 as a browser-local short-term rental
+      occupancy-tax calculator. Scored with the sibling STR and HOA
+      calculators on gross margin and ops -- serving one more host costs a
+      static file. Defensibility 3, distribution 7: the fee-split
+      arithmetic is easily reimplemented, so the moat is being first with
+      the specific "platform collects some layers, not all" framing;
+      "airbnb occupancy tax calculator" and "vrbo tax by county" are real
+      high-intent queries a generic combined-rate calculator does not
+      answer, distinct from str-host-payout-calculator's payout-fee
+      comparison.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The output is arithmetic on figures the host supplies --
+      nightly rate, fees, and each layer's rate and platform-collection
+      percentage -- never a determination about which authorities tax a
+      specific listing or what a platform's current agreements cover. No
+      rate table ships, so nothing here can be a stale claim about a real
+      tax rate. Nothing entered leaves the browser, and the page repeatedly
+      tells the host to verify against each authority's own guidance and a
+      qualified tax professional before relying on it.
+
+  - slug: employee-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. An owner comparing what a role
+      costs hired versus contracted needs every step to be re-derivable by
+      hand from their own rate notice, policy declaration and benefits
+      quote, so a model would make the figure less checkable without
+      making it more correct.
+    basis: >-
+      Graduated 2026-09-24. `duplicate_check.py` scored the closest match
+      (`shop-rate-calculator`, 0.28) well under the 0.45 flag bar, and read
+      rather than trusted: that tool derives a contractor's own crew rate
+      from their payroll and overhead for bidding their own labor;
+      `staffing-markup-calculator` (0.17) prices a third party's labor
+      billed to a client at a markup; this prices the fully-loaded cost of
+      staffing a role two different ways (W-2 hire vs. 1099 contractor) for
+      a business with no client and no markup in the picture. Not in
+      `screened-out.md`, which has no worker-classification-cost row.
+      Autonomous ops 10 / gross margin 10: a static page with no build
+      step, no dependencies and no network requests, so one more user
+      costs a static file and needs no human in any loop. Defensibility 4:
+      the FICA/FUTA/SUTA-wage-base-cap arithmetic is transparent and
+      reproducible, as it has to be for an owner to trust it, but the
+      break-even-rate closed form and the ongoing-vs-year-one cost split
+      are specific derivations a generic "burden %" calculator does not
+      make, the same shape `staffing-markup-calculator` and
+      `osha-trir-dart-calculator` score here. Distribution 6: a much
+      broader audience than the fleet's other burden calculators (every
+      small-business owner who has ever weighed hiring vs. contracting,
+      not one trade), with real recurring search phrases ("employee vs
+      contractor cost calculator", "true cost of an employee calculator")
+      -- scored the same as the narrower `osha-trir-dart-calculator`
+      rather than higher, because the incumbent results for those phrases
+      are payroll-vendor sites (ADP, Gusto, Paychex) with far more domain
+      authority than a single free calculator, not the lead-gen-only field
+      a narrower trade phrase usually finds. Volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The output is a cost comparison on numbers the visitor enters,
+      never a worker-classification determination -- the disclaimer, the
+      FAQ, and the notes array all explicitly deny that the tool decides,
+      or bears evidence toward, whether a specific worker should legally
+      be a W-2 employee or a 1099 contractor, naming the IRS common-law
+      test and state ABC tests as the actual determination and directing
+      the visitor to their own accountant or employment attorney. Nothing
+      entered leaves the browser.
+
+  - slug: window-tinting-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The pane-count-and-film-tier cost
+      breakdown, the old-tint removal time, and the flat-per-vehicle
+      comparison are all decided entirely by the numbers the installer types
+      in and a fixed set of preset windows/minutes/film-tier rates, not a
+      model judgment -- the same reasoning this portfolio applies to every
+      other deterministic bid calculator (e.g. land-survey-bid-calculator,
+      biohazard-cleanup-bid-calculator).
+    basis: >-
+      Screened 2026-09-24, same session, per portfolio/pipeline/README.md's
+      scoring process. `python3 portfolio/pipeline/duplicate_check.py` scored
+      every existing venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate below 0.21 for this niche (top match
+      wildlife-exclusion-bid-calculator at 0.21, an unrelated animal-proofing
+      trade sharing only generic bid-calculator vocabulary), and a full read
+      of screened-out.md and portfolio/pipeline/README.md's current
+      candidates turned up no "tint"/"tinting"/"window film" row anywhere in
+      the tree -- confirmed by grep, not recollection. Distinct from every
+      existing window-adjacent venture: window-cleaning-bid-calculator and
+      window-replacement-bid-calculator price washing and swapping glass, not
+      applying film to existing glass, and no venture prices auto or
+      architectural tint film.
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 6: auto window tinting is a mass consumer service with a
+      large installer base (far broader than a licensed-professional niche
+      like land surveying), and "how much should I charge for tint",
+      "window tint pricing calculator", and r/WindowTint-style installer
+      forum threads are a recurring, real trade question -- no search-volume
+      tool was queried from this sandbox to confirm magnitude, so scored at
+      this portfolio's typical bid-calculator distribution rather than above
+      it.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the portfolio's
+      typical bid-calculator floor), so the edge is being first and specific
+      to this niche's actual cost drivers (pane count, film tier, and
+      removal time, not vehicle size class) rather than a moat in the code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no check of the installer's state tint-darkness (VLT%) law, medical
+      exemption rules, or any other film-legality requirement, and does not
+      replace the installer's own judgment about scope or warranty terms;
+      the installer remains the one who quotes and performs the job.
+      Ethically: donations-only with no per-quote fee, so the tool has no
+      incentive to steer a bid up or down, and the flat-per-vehicle
+      comparison is disclosed methodology (FAQ: "why compare against a flat
+      per-vehicle price?") rather than an unexplained claim about what any
+      job "should" cost.

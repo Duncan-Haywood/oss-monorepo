@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Git Exposure Checker vs. checking the URL by hand</title>
+<meta name="description" content="Typing .git/HEAD into a browser and reading the status code catches the obvious case. It also misjudges a common false positive (a 200-status soft-404 page) and can miss a real exposure whose HEAD is a detached commit SHA instead of the familiar ref: refs/heads/... line -- what this checker's body classification catches instead.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/git-exposure-check/vs-checking-the-url-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does typing .git/HEAD into a browser by hand actually show you?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Visiting https://example.com/.git/HEAD directly is a real, fast way to spot the obvious case: a plain 404 or a login page means nothing is there, and a line reading \"ref: refs/heads/main\" is unmistakably a real, exposed git repository. That single glance genuinely works for that one shape of response." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does checking by hand produce a false positive?",
+      "acceptedAnswer": { "@type": "Answer", "text": "On a site configured to answer every unknown path with HTTP 200 and a custom error page -- common on shared hosting, several static-site setups, and single-page apps that route unknown paths back to index.html. A person checking only the status code sees 200 at .git/HEAD and concludes the repository is exposed, when the body is actually a generic \"page not found\" message that happens to carry a 200 status. This checker reads the response body and requires it to actually match a real .git/HEAD file (a ref line or a bare 40-character commit hash) before reporting a finding, so a soft-404 page is correctly reported clean." }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does checking by hand produce a false negative?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When the repository's .git/HEAD is a detached HEAD -- a bare 40-character hex commit SHA such as 4b825dc642cb6eb9a060e54bf8d69288fbee4904, rather than the familiar \"ref: refs/heads/main\" line most people know to look for. A person expecting the ref: line can glance at a bare hex string, not recognise it as anything in particular, and move on -- missing a real, exposed .git directory. This checker's classification treats a bare 40-character hex string as real git-internal content on its own, the same as the ref: form, so a detached-HEAD exposure is still reported as a finding." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this matter for CI, not just a one-time check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A browser check is a point-in-time, manual look at one URL. A deploy pipeline, a new static-site host, or a webserver config change can expose (or stop exposing) a .git directory at any point after the last time someone happened to check. The CLI here returns a real exit code from the same body classification, so it can gate a deploy the same way a linter or test suite does, rather than depending on someone remembering to look again." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to the Git Exposure Checker</a></p>
+<h1>Git Exposure Checker vs. checking the URL by hand</h1>
+<p>
+  Typing <code>https://example.com/.git/HEAD</code> into a browser and reading what comes back is
+  a real, fast way to spot the obvious case: a plain 404 means nothing is there, and a line reading
+  <code>ref: refs/heads/main</code> is unmistakably a real, exposed repository. It is also the
+  method most people reach for first, and it genuinely works for that one shape of response. This
+  page names no product or company being compared against — "checking by hand" is a generic
+  manual habit, not a competing tool.
+</p>
+
+<table>
+  <thead><tr><th>Case</th><th>Checking the URL by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>A plain 404, or a login page, at <code>.git/HEAD</code></td><td>Correctly reads as "not exposed"</td><td>Correctly reads as "not exposed"</td></tr>
+    <tr><td>The obvious case: body reads <code>ref: refs/heads/main</code></td><td>Correctly reads as "exposed"</td><td>Correctly reads as "exposed"</td></tr>
+    <tr><td>A site that answers every unknown path with HTTP 200 and a custom error page (a "soft 404")</td><td>Sees status 200, easy to misread as exposed</td><td>Reads the body; a generic error page does not match real git content, so it is reported clean</td></tr>
+    <tr><td>A detached HEAD — a bare 40-character commit hash instead of a <code>ref:</code> line</td><td>Easy to see an unfamiliar hex string and move on, missing a real exposure</td><td>Treats a bare 40-character hex string as real git-internal content, the same as a <code>ref:</code> line</td></tr>
+    <tr><td>Corroborating with <code>.git/config</code> too</td><td>An extra request most people skip once <code>HEAD</code> looks clean or looks exposed</td><td>Always checks both, and reports when only one corroborates the other</td></tr>
+    <tr><td>Repeatable in CI on every deploy</td><td>Manual, point-in-time</td><td>CLI returns a real exit code</td></tr>
+  </tbody>
+</table>
+
+<h2>Two worked examples</h2>
+<p>
+  <strong>False positive.</strong> A site answers every unknown path, including
+  <code>.git/HEAD</code> and <code>.git/config</code>, with HTTP <strong>200</strong> and a generic
+  <code>&lt;html&gt;&lt;body&gt;404 - Page Not Found&lt;/body&gt;&lt;/html&gt;</code> page — a "soft
+  404", common on shared hosting and several static-site setups. Reading the status code alone
+  says "exposed"; neither body matches a real <code>.git/HEAD</code> or <code>.git/config</code>
+  file, so this checker correctly reports the site clean.
+</p>
+<p>
+  <strong>False negative.</strong> A site's <code>.git/HEAD</code> returns HTTP 200 with the body
+  <code>4b825dc642cb6eb9a060e54bf8d69288fbee4904</code> — a bare 40-character commit hash (a
+  detached HEAD), not the <code>ref: refs/heads/main</code> line most people know to look for, and
+  <code>.git/config</code> happens to 404. A person scanning for the familiar <code>ref:</code>
+  format can see an unrecognised string of hex digits and conclude nothing is there. This checker's
+  classification treats a bare 40-character hex string as real git-internal content on its own, so
+  it still reports the directory exposed.
+</p>
+
+<h2>When to still just look</h2>
+<p>
+  If you only need a one-off sanity check on a site you already suspect, and you know to read the
+  body rather than the status code, looking is fine — it costs nothing and you are already there.
+  The gap this tool closes is correctness on the two cases above, and repeatability: the same body
+  check, run again on every deploy, with an exit code a CI pipeline can act on.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does typing .git/HEAD into a browser by hand actually show you?</h3>
+<p>Visiting https://example.com/.git/HEAD directly is a real, fast way to spot the obvious case: a plain 404 or a login page means nothing is there, and a line reading "ref: refs/heads/main" is unmistakably a real, exposed git repository. That single glance genuinely works for that one shape of response.</p>
+<h3>Where does checking by hand produce a false positive?</h3>
+<p>On a site configured to answer every unknown path with HTTP 200 and a custom error page -- common on shared hosting, several static-site setups, and single-page apps that route unknown paths back to index.html. A person checking only the status code sees 200 at .git/HEAD and concludes the repository is exposed, when the body is actually a generic "page not found" message that happens to carry a 200 status. This checker reads the response body and requires it to actually match a real .git/HEAD file (a ref line or a bare 40-character commit hash) before reporting a finding, so a soft-404 page is correctly reported clean.</p>
+<h3>Where does checking by hand produce a false negative?</h3>
+<p>When the repository's .git/HEAD is a detached HEAD -- a bare 40-character hex commit SHA such as <code>4b825dc642cb6eb9a060e54bf8d69288fbee4904</code>, rather than the familiar "ref: refs/heads/main" line most people know to look for. A person expecting the ref: line can glance at a bare hex string, not recognise it as anything in particular, and move on -- missing a real, exposed .git directory. This checker's classification treats a bare 40-character hex string as real git-internal content on its own, the same as the ref: form, so a detached-HEAD exposure is still reported as a finding.</p>
+<h3>Why does this matter for CI, not just a one-time check?</h3>
+<p>A browser check is a point-in-time, manual look at one URL. A deploy pipeline, a new static-site host, or a webserver config change can expose (or stop exposing) a .git directory at any point after the last time someone happened to check. The CLI here returns a real exit code from the same body classification, so it can gate a deploy the same way a linter or test suite does, rather than depending on someone remembering to look again.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific, well-documented
+  exposure class -- a publicly readable <code>.git</code> directory at the one path you give it.
+  A clean report describes what these two requests found, not a guarantee the site has no exposed
+  secrets.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. You are responsible for reviewing and verifying its output
+  before relying on it, and for having authorisation to test any system you point the CLI at. To
+  the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

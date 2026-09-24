@@ -806,9 +806,12 @@ test('the nginx config serves every shape of path the mirror produces', async ()
   const redirectBlocks = allToolBlocks.filter((b) => /return 301/.test(b));
   const toolBlocks = allToolBlocks.filter((b) => !/return 301/.test(b));
   assert.equal(redirectBlocks.length, 1, 'exactly one /tools/ block is a redirect');
-  // Eight since page subdirectories landed: four for a flat venture (root,
-  // `.mjs`, `LICENSE`, anything else) and the same four one level down.
-  assert.equal(toolBlocks.length, 8, 'the mirror is routed by eight location blocks');
+  // Nine since 18 ventures' own pages started offering a same-origin `.py`
+  // CLI download (`DOWNLOADABLE_CLI_FILES` in `build.mjs`): five for a flat
+  // venture (root, `.mjs`, `LICENSE`, `.py`, anything else) and the same
+  // four one level down -- no venture nests its downloadable CLI inside a
+  // page subdirectory, so there is no tenth block for that shape yet.
+  assert.equal(toolBlocks.length, 9, 'the mirror is routed by nine location blocks');
   for (const block of toolBlocks) {
     // `gzip_static always`, not `on`: `on` only consults the stored `.gz` when
     // the client sent `Accept-Encoding: gzip`, and falls through to a plain
@@ -1178,6 +1181,25 @@ test('the return link sits inside the body it belongs to', () => {
   assert.ok(out.indexOf('<body class="x">') < out.indexOf(`class="${NAV_CLASS}"`));
   assert.ok(out.indexOf(`class="${NAV_CLASS}"`) < out.indexOf('<header>'));
   assert.ok(out.includes('All 7 free tools'));
+});
+
+test('a quoted "<body>" inside a script does not fool the return-link injector', () => {
+  // git-exposure-check's own soft-404 guide (2026-09-23): its FAQ answer
+  // quotes literal markup, `<html><body>404 Not Found</body></html>`, inside
+  // a <script type="application/ld+json"> block in <head> -- text describing
+  // markup, not markup. A raw regex over the whole document matched that
+  // quoted "<body>" first (it sits before the page's real one) and spliced
+  // the return-link anchor into the middle of the JSON string.
+  const html =
+    '<html><head><script type="application/ld+json">' +
+    '{"a":"an error page such as <html><body>404 Not Found</body></html>"}' +
+    '</script></head><body class="x"><header>h</header></body></html>';
+  const out = injectMirrorNav(html, { toolCount: 7 });
+
+  const script = out.match(/<script type="application\/ld\+json">(.*?)<\/script>/s);
+  JSON.parse(script[1]); // throws if the anchor landed inside the JSON string
+  assert.ok(out.indexOf('<body class="x">') < out.indexOf(`class="${NAV_CLASS}"`));
+  assert.ok(out.indexOf(`class="${NAV_CLASS}"`) < out.indexOf('<header>'));
 });
 
 test('injectMirrorNav refuses a document with no body rather than inventing one', () => {

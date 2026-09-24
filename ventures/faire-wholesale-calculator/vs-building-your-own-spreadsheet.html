@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This Calculator vs Building Your Own Faire Payout Spreadsheet</title>
+  <meta name="description" content="Commission times price is one formula. Amortizing the one-time new-customer fee across reorders, and solving backward for the wholesale price a target margin needs, are two more — and a spreadsheet only gets both right if you build them in yourself. Free calculator, runs in your browser.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-building-your-own-spreadsheet.html">
+  <meta property="og:title" content="This Calculator vs Building Your Own Faire Payout Spreadsheet">
+  <meta property="og:description" content="A spreadsheet computes commission fine. Amortizing the one-time new-customer fee across reorders, and solving backward for the wholesale price a target margin needs, are the two formulas most sellers never build in.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Can't I just work out Faire fees in a spreadsheet?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "For one order, yes — commission is order subtotal times rate, processing is another percentage plus a fixed fee, and payout is what's left. Any spreadsheet gets that arithmetic exactly right. Where a spreadsheet built from scratch usually falls short is a retailer relationship across more than one order: the new-customer fee only applies to the first marketplace order, and dividing it evenly across every order, or forgetting it lapses after the first, both understate or overstate what a reorder is actually worth."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does this calculator do that a spreadsheet formula usually misses?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Two things specifically. First, lifetime profit on a retailer: this calculator prices the opening order with the one-time new-customer fee, prices every reorder without it, and sums them against sending the same order count through Faire Direct or your own invoice instead — a comparison a spreadsheet has to be deliberately built to run, not something a single fee formula gives you. Second, it solves backward: given a target margin, cash costs, and your fee rates, it works out the wholesale price that hits that margin, which is algebra most sellers don't set up correctly on the first try and have to re-derive by hand every time a rate or cost changes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the wholesale price for a target margin something I could solve myself?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "With the right algebra, yes — it means isolating wholesale price on one side of the payout equation after the flat first-order fee, the percentage fees, and your cash cost are all accounted for, then dividing back out any brand-funded discount. Setting that up correctly, and getting it right again after a commission or discount rate changes, is exactly the one-time-easy, easy-to-get-subtly-wrong-later math this calculator removes. Getting a sign wrong on the discount term is not obvious in the output the way a typo in a price is."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does a spreadsheet see how many reorders it takes to break even?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Only if you build a formula for it. When a first order posts a loss after the new-customer fee, this calculator works out how many reorders at the standard rate would bring cumulative profit positive — a small division, but one more step past the fee formula itself, and one most from-scratch spreadsheets skip because nobody thought to ask the question until the first order was already unprofitable."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this page affiliated with any spreadsheet software?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There is nothing to be affiliated with. This page compares against building your own spreadsheet formulas — a generic method every seller already has access to, not any specific company or product — so it names no spreadsheet application or vendor at all."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f4efe6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; }
+    .eyebrow { font-size: .78rem; letter-spacing: .08em; font-weight: 700; color: #6a5840; }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; letter-spacing: -.04em; }
+    p, li { line-height: 1.55; }
+    table { width: 100%; border-collapse: collapse; background: #fffdf8; border: 1px solid #ded5c8; border-radius: 12px; overflow: hidden; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee4d6; }
+    footer { margin-top: 28px; font-size: .82rem; color: #5c554d; }
+    @media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+  </style>
+</head>
+<body>
+  <p class="eyebrow">THIS CALCULATOR VS A SPREADSHEET</p>
+  <h1>One fee formula is easy. Amortizing it across a relationship is the part that gets skipped.</h1>
+  <p>
+    <strong>A spreadsheet</strong> handles a single Faire order correctly once
+    you build the formula: order subtotal times commission rate, plus a
+    processing percentage and a fixed fee, subtracted from what you're owed.
+    That much is one row of arithmetic and a careful seller gets it exactly
+    right. Where a from-scratch spreadsheet usually stops is the step past a
+    single order — the one-time new-customer fee applies only to a retailer's
+    first marketplace order, not every order from them, and most sellers
+    either forget to drop it after order one or never build the formula to
+    track it at all.
+  </p>
+  <p>
+    <strong>This calculator</strong> takes the same inputs — wholesale price,
+    quantity, cost of goods, your fee rates — and adds the two comparisons a
+    single-order formula doesn't give you: lifetime profit on a retailer
+    across an opening order plus however many reorders you expect, priced
+    against sending every one of those orders through Faire Direct or your
+    own invoice instead; and the wholesale price that hits a target margin,
+    solved backward from your costs and fee rates rather than guessed at and
+    checked by hand.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Question</th>
+        <th scope="col">Where to answer it</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What does one Faire order net after commission and processing?</td>
+        <td>Either — a spreadsheet built correctly gets this exactly right, too.</td>
+      </tr>
+      <tr>
+        <td>What does a retailer relationship net across an opening order plus reorders, once the new-customer fee only hits the first one?</td>
+        <td>This calculator's lifetime comparison — a spreadsheet needs a second, deliberately built formula to track when the fee stops applying.</td>
+      </tr>
+      <tr>
+        <td>What wholesale price hits a specific margin, given my costs and fee rates?</td>
+        <td>This calculator solves it directly. By hand, it's algebra you have to set up and re-check every time a rate or cost changes.</td>
+      </tr>
+      <tr>
+        <td>How many reorders would it take to make a loss-making first order worth it?</td>
+        <td>This calculator's break-even count — most from-scratch spreadsheets never get a formula built for this at all.</td>
+      </tr>
+      <tr>
+        <td>Is anything I enter uploaded anywhere?</td>
+        <td>No, either way — a local spreadsheet and this calculator both keep your numbers on your own device.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Common questions</h2>
+  <h3>Can't I just work out Faire fees in a spreadsheet?</h3>
+  <p>For one order, yes &mdash; commission is order subtotal times rate, processing is another percentage plus a fixed fee, and payout is what's left. Any spreadsheet gets that arithmetic exactly right. Where a spreadsheet built from scratch usually falls short is a retailer relationship across more than one order: the new-customer fee only applies to the first marketplace order, and dividing it evenly across every order, or forgetting it lapses after the first, both understate or overstate what a reorder is actually worth.</p>
+  <h3>What does this calculator do that a spreadsheet formula usually misses?</h3>
+  <p>Two things specifically. First, lifetime profit on a retailer: this calculator prices the opening order with the one-time new-customer fee, prices every reorder without it, and sums them against sending the same order count through Faire Direct or your own invoice instead &mdash; a comparison a spreadsheet has to be deliberately built to run, not something a single fee formula gives you. Second, it solves backward: given a target margin, cash costs, and your fee rates, it works out the wholesale price that hits that margin, which is algebra most sellers don't set up correctly on the first try and have to re-derive by hand every time a rate or cost changes.</p>
+  <h3>Is the wholesale price for a target margin something I could solve myself?</h3>
+  <p>With the right algebra, yes &mdash; it means isolating wholesale price on one side of the payout equation after the flat first-order fee, the percentage fees, and your cash cost are all accounted for, then dividing back out any brand-funded discount. Setting that up correctly, and getting it right again after a commission or discount rate changes, is exactly the one-time-easy, easy-to-get-subtly-wrong-later math this calculator removes. Getting a sign wrong on the discount term is not obvious in the output the way a typo in a price is.</p>
+  <h3>Does a spreadsheet see how many reorders it takes to break even?</h3>
+  <p>Only if you build a formula for it. When a first order posts a loss after the new-customer fee, this calculator works out how many reorders at the standard rate would bring cumulative profit positive &mdash; a small division, but one more step past the fee formula itself, and one most from-scratch spreadsheets skip because nobody thought to ask the question until the first order was already unprofitable.</p>
+  <h3>Is this page affiliated with any spreadsheet software?</h3>
+  <p>There is nothing to be affiliated with. This page compares against building your own spreadsheet formulas &mdash; a generic method every seller already has access to, not any specific company or product &mdash; so it names no spreadsheet application or vendor at all.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page is free and as-is. It is not tax, financial, or business advice. Verify every fee against your own current Faire payout summary before relying on this calculator's output. Not affiliated with Faire Wholesale, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. The <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p><a href="./">Back to the brand calculator</a> or see <a href="faire-direct-vs-marketplace.html">Faire Direct vs marketplace fees</a>.</p>
+  </footer>
+</body>
+</html>

@@ -153,6 +153,8 @@
   <p>The Rules Playground simulates a request against your rules source and needs you to be logged in as a project member. This tool sends a real, live, unauthenticated request to your project's actual REST endpoint from the outside — the same view an attacker, an external auditor, or a developer without console access would have.</p>
   <h3>Does a clean report mean my project is secure?</h3>
   <p>No. This checks one specific, well-documented exposure — does an unauthenticated request return real data — at the Realtime Database root and at the Firestore collection names you name. It does not test authenticated roles, Cloud Storage buckets, Cloud Functions, write access, or any path/collection you did not list. Treat a clean report as evidence about what this run checked, not a full security audit.</p>
+  <h3>How does this compare to just requesting the URL myself?</h3>
+  <p>See <a href="vs-requesting-the-url-by-hand.html">how this compares to checking it by hand</a> — the shallow, values-free read and the blocked-vs-unconfirmed distinction are easy to skip when eyeballing a raw request.</p>
 </section>
 
 <script type="module">
@@ -298,7 +300,10 @@
   optional and never changes what the tool does.</p>
   <p>Also worth a pass on your stack: <a href="../supabase-rls-check/">Supabase RLS exposure
   checker</a> covers the same "default-open unless a rule locks it down" shape for a different
-  backend, and <a href="../cors-misconfig-check/">CORS misconfiguration checker</a> and
+  backend, <a href="../cloud-bucket-exposure-check/">Cloud Bucket Exposure Checker</a> asks the
+  same "does this storage hand out data with no login" question of AWS S3, Google Cloud Storage,
+  and Azure Blob Storage buckets rather than a Firebase project, and
+  <a href="../cors-misconfig-check/">CORS misconfiguration checker</a> and
   <a href="../security-headers-check/">Security Headers checker</a> cover other response-evidence
   classes in the same "read what's actually there, name the exact evidence" shape as this tool.</p>
 </footer>

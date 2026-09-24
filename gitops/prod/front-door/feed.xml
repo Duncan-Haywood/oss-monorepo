@@ -1,12 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 337 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 345 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-09-23T00:00:00Z</updated>
+  <updated>2026-09-24T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Backup File Exposure Checker — Is Your backup.zip or .sql Dump Public?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/backup-file-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/backup-file-exposure-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste your site&#39;s URL and it sends real GET requests to eight well-known backup filenames (backup.zip, backup.tar.gz, backup.sql, db.sql, and more), verifying the response against a real archive&#39;s magic bytes or a real SQL dump&#39;s line shape -- not just an HTTP status -- to name whether your deployment is publicly serving a full site or database backup. Never reads row data out of a matched SQL dump, never extracts a matched archive. Nothing uploaded to us.</summary>
+  </entry>
+  <entry>
+    <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloud-bucket-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/cloud-bucket-exposure-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends one real, read-only request to an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob container you name, then paste the JSON here for a plain-English report on whether anyone on the internet can list its contents with no credentials. Never fetches an object&#39;s own content, only the listing. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Employee vs. Contractor Cost Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/employee-cost-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/employee-cost-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator comparing the fully-loaded cost of a W-2 employee against a 1099 contractor for the same role — FICA, capped FUTA/SUTA, workers&#39; comp, PTO, benefits, payroll admin, and one-time onboarding, plus the contractor rate at which the two cost the same. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Slopsquatting Check — Did an AI Assistant Just Suggest a Package That Doesn&#39;t Exist?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/slopsquatting-check/"/>
+    <id>tag:marisstella.dev,2026:tool/slopsquatting-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents. Get the free CLI for the live check: does this name exist on the registry at all, and if it does, was it published suspiciously recently? No account, no upload.</summary>
+  </entry>
+  <entry>
+    <title>STR Occupancy Tax Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-occupancy-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/str-occupancy-tax-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Split a short-term rental stay&#39;s occupancy tax into what Airbnb or Vrbo already collects and what is left for the host to remit directly, layer by layer -- state, county, city, and a flat per-night fee. Free, private, nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Window Tinting Bid Calculator — Auto Tint Job Pricing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/window-tinting-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/window-tinting-bid-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free bid calculator for independent auto window tinting installers: price a vehicle film job by which windows are being tinted, film tier, waste factor, and old-tint removal — then see the gap against a flat per-vehicle price for the same job.</summary>
+  </entry>
   <entry>
     <title>GitHub Actions secrets: inherit Check — Reusable Workflow Secret Exposure</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-secrets-inherit-check/"/>
@@ -24,6 +78,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Dotenv Exposure Checker — Is Your .env File Publicly Readable?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dotenv-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/dotenv-exposure-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste your site&#39;s URL and it sends real GET requests to .env, .env.local, .env.production, and two other well-known dotenv filenames, verifying the response body actually looks like a real KEY=VALUE file -- not just an HTTP status -- to name whether your deployment is publicly serving its own environment-variable secrets. Reports key NAMES only, never values. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Firebase Security Rules Exposure Checker — Is Your Database Public?</title>
@@ -114,6 +177,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste your site&#39;s URL (or a list of JS file URLs), and it finds every script&#39;s sourceMappingURL comment, fetches the map, and names which ones are publicly readable and whether they embed full original source text. Nothing uploaded to us.</summary>
+  </entry>
+  <entry>
+    <title>Subdomain Takeover Checker — Is Your CNAME Dangling?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/subdomain-takeover-check/"/>
+    <id>tag:marisstella.dev,2026:tool/subdomain-takeover-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste a hostname and it follows its real CNAME chain, then -- if the chain ends at a known takeover-prone provider (S3, Heroku, GitHub Pages, Azure, and 20 more) -- sends one live GET request and checks the response against that provider&#39;s own &#39;nothing is claimed at this name&#39; page. Confirms a dangling CNAME with live evidence, not just a DNS guess. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Supabase RLS Exposure Checker — Is Your Anon Key Reading Real Rows?</title>
@@ -294,77 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Free calculator for farm and heavy-equipment auction bidders: turns a hammer price into the true out-the-door total, including a capped buyer&#39;s premium, online-bidding premium, card surcharge, and sales tax — then works backward to a max bid for your budget. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Estate Sale Net Proceeds Calculator — Compare Company Quotes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/estate-sale-net-proceeds-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/estate-sale-net-proceeds-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for estate sale commission quotes. Enter a company&#39;s tiered commission rates, setup fee, card-processing fee, and haul-away fee against your estimated sale total to see the real net proceeds — and compare two companies&#39; quotes side by side. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Helm Values Schema Check — Find a values.yaml Typo Helm Won&#39;t</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/helm-values-schema-check/"/>
-    <id>tag:marisstella.dev,2026:tool/helm-values-schema-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a Helm chart&#39;s values.yaml and its values.schema.json and get a deterministic report of every field values.yaml sets that the schema does not declare (Helm&#39;s template engine never errors on this -- it silently returns no value), every schema-required field missing from values.yaml, and every type, enum, or min/max mismatch. Free, runs entirely in your browser, no Helm binary needed, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Import Landed Cost Calculator — Duty, Tariff &amp; Customs Fee Breakdown</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/import-landed-cost-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/import-landed-cost-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Free landed cost calculator for small e-commerce importers: enter your item cost, freight, duty rate, and Section 301/supplemental tariff rate to see total landed cost, cost per unit, and your real tariff burden as a percent of the invoice price — with Merchandise Processing Fee and Harbor Maintenance Fee priced from CBP&#39;s published schedule.</summary>
-  </entry>
-  <entry>
-    <title>Kubernetes Deprecated API Check — Find Manifests a Cluster Upgrade Will Reject</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-deprecated-api-check/"/>
-    <id>tag:marisstella.dev,2026:tool/k8s-deprecated-api-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste or load Kubernetes manifest YAML and get a deterministic report of every apiVersion + kind pair a past or future Kubernetes release has removed or will remove -- extensions/v1beta1 Ingress, batch/v1beta1 CronJob, policy/v1beta1 PodSecurityPolicy, and more -- so a platform team catches the manifest before a rolling upgrade fails on it, not during it. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>No Tax on Tips &amp; Overtime Calculator — 2026 Deduction Estimator, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/no-tax-on-tips-overtime-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/no-tax-on-tips-overtime-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the federal &#39;no tax on tips&#39; and &#39;no tax on overtime&#39; deductions (2025-2028): applies the $25,000 tip cap, the $12,500/$25,000 overtime cap, and the shared MAGI phase-out, and computes the overtime deduction&#39;s easy-to-miss half-time-premium-only rule. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>NY LLC Transparency Act Tracker — Deadline &amp; Filing Organizer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ny-llc-transparency-act-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/ny-llc-transparency-act-tracker</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free browser tool for New York LLCs: check whether your LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under the NY LLC Transparency Act, see your filing deadline counted down, and organize the beneficial-owner details you&#39;ll need before you email NYDOS yourself. Nothing you type is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>OpenAPI Breaking Change Check — Did This API Version Break Existing Clients?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/openapi-breaking-change-check/"/>
-    <id>tag:marisstella.dev,2026:tool/openapi-breaking-change-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Podcast Sponsorship Rate Calculator — Free, No Sign-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/podcast-sponsorship-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/podcast-sponsorship-rate-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free podcast sponsorship rate calculator. Enter your average downloads per episode, niche, and read type to get a price range for a pre-roll, mid-roll, and post-roll ad spot — based on commonly cited podcast-ad-market CPM benchmarks. No sign-up, nothing uploaded.</summary>
   </entry>
 </feed>
