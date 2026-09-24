@@ -660,7 +660,16 @@ const RELATIVE_SELF = relative(
 // `writeOptOut` gating `recordUsage`, keyed under its own
 // `depop-fee-calculator-usage` storage name). Exactly one added
 // `usage.mjs` (`ventures/depop-fee-calculator/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 332;
+//
+// 332 -> 333: `hidden-unicode-check` also graduated, concurrently on
+// `main` -- adding one `usage.mjs` following the same opt-out pattern as
+// its siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`,
+// keyed under its own `hidden-unicode-check:usage` storage name). This
+// branch only ever knew its own predecessor's number (331, before
+// `depop-fee-calculator` landed) until this merge -- the same ordinary
+// collision shape recorded throughout this list. Exactly one added
+// `usage.mjs` (`ventures/hidden-unicode-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 333;
 
 let counter = 0;
 function fixture(source) {

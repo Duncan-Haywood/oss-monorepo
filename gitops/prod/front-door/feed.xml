@@ -53,6 +53,15 @@
     <summary type="text">Free calculator comparing the fully-loaded cost of a W-2 employee against a 1099 contractor for the same role — FICA, capped FUTA/SUTA, workers&#39; comp, PTO, benefits, payroll admin, and one-time onboarding, plus the contractor rate at which the two cost the same. Nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>Hidden Unicode Check — find invisible and bidi characters in a file</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hidden-unicode-check/"/>
+    <id>tag:marisstella.dev,2026:tool/hidden-unicode-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a README, or any text and find zero-width characters, Unicode tag characters, and bidirectional (RLO/LRO) override characters hidden from human review -- the technique behind current AI-agent prompt-injection attacks and Trojan Source. Free, private, runs entirely in your browser.</summary>
+  </entry>
+  <entry>
     <title>Kickstarter Fee Calculator — What a Funded Campaign Actually Keeps</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kickstarter-fee-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/kickstarter-fee-calculator</id>

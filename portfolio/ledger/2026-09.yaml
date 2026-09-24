@@ -41045,3 +41045,152 @@ entries:
         trustworthy browser_state.json reading for the next session's
         freshness check to build on.
     mrr_end: 0
+  - venture: hidden-unicode-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a third new venture this session: a free,
+        client-side browser tool that scans pasted text (CLAUDE.md,
+        AGENTS.md, .cursorrules, copilot-instructions.md, READMEs, PR
+        descriptions) for hidden Unicode characters used in current
+        AI-agent prompt-injection attacks -- zero-width/invisible
+        characters, Unicode Tag characters (with hidden-message decoding,
+        the documented "ASCII smuggling" technique), and bidirectional
+        override characters (the Trojan Source family, CVE-2021-42574).
+        Grounded in a live, current attack pattern confirmed via web
+        research this session: packages injecting instructions into agent
+        config files this way so a human reviewer sees nothing unusual
+        while an AI coding assistant reads and executes the hidden text.
+        27 tests on calc.mjs. duplicate_check.py top score 0.15 against
+        agent-instructions-drift-check (a different concern -- stale
+        pointers to renamed files, not hidden-character security) and
+        against everything else in the portfolio; well under the 0.45
+        review bar. PR #5656, merged.
+      - >-
+        Caught and fixed several real issues during its own checklist run
+        before merging: a runs-on README count drift, an em-dash/en-dash
+        mismatch between FAQPage JSON-LD and visible copy (the same class
+        of bug this session's second venture also hit and fixed), and the
+        mirrored-tool/opt-out-switch tree-count sync with running-comment
+        entries. Closed its own crawlable-orphan gap with a reciprocal
+        footer link from mcp-config-risk-check (this session's second
+        venture), flagged plainly as a change outside its own directory.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot (clean
+        build, no problems) and confirmed sync_tree_counts.py and
+        regen.mjs --verify are current against the merged main. New tool
+        live at
+        https://duncan-haywood.github.io/monorepo-projects/hidden-unicode-check/.
+        This session has now shipped three new ventures
+        (llm-api-pricing-calculator, mcp-config-risk-check,
+        hidden-unicode-check) plus a fleet-wide accessibility
+        re-verification; portfolio-wide revenue and confirmed-visitor
+        counts remain at zero, which no single session's product output
+        can close on its own.
+    mrr_end: 0
+  - venture: photo-booth-event-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Selected via portfolio/router/allocate.py's merit ranking
+        intersected with surface-budget.mjs's 0-generic-method ventures
+        (session_gate.py reported PROCEED, the build-now pipeline empty, and
+        no open PRs to overlap with). Added
+        vs-a-flat-package-price.html: fills the venture's 0/1
+        generic-method comparison budget. calc.mjs's own top-of-file
+        comment names the exact scenario -- a flat "3-hour, $500" package
+        prices only the hours a guest sees the booth running and leaves out
+        setup/teardown, travel, and the print-volume risk an unlimited-print
+        package hides.
+      - >-
+        Worked examples are pinned against calc.mjs in the page's own
+        test.mjs, run through calc.mjs's own DEFAULTS (the same values
+        index.html ships as form defaults): the exact booking a $500
+        package is sized for -- a 24-mile round trip, one attendant, 150
+        prints -- walks away at $468.68, comfortably inside the package.
+        The same 3 booked hours with a busier open bar (40-mile round trip,
+        400 prints) walks away at $640.38, $140.38 over the package. A
+        Saturday wedding with a second attendant (60-mile round trip, 500
+        prints) walks away at $1,032.50, $532.50 over the package. Unlike
+        several sibling comparison pages, the base case is priced fairly by
+        the flat rate -- it is travel, attendant count, and print volume
+        moving away from that base case that break it, which matches this
+        calculator's own stated reason for existing.
+      - >-
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        pricing method, not a named competitor -- distinct from this
+        venture's own vs-photobooth-supply-co.html, which names a real
+        product and carries the affiliation disclaimer), linked from
+        index.html, added to sitemap.xml, and the front-door mirror
+        regenerated (regen.mjs) so the new page ships to the served surface
+        in the same commit. sync_tree_counts.py confirmed no drift (no new
+        venture, so the mirrored-tool count is unchanged).
+      - >-
+        Verified locally, Actions confirmed starved for the duration
+        (ci_starvation.py: runner_id 0, ~4s, no steps, on the last several
+        pushes to main): the venture's own 78-assertion suite,
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1287/1287, clean after regen), `platform/proposal/*.test.mjs`
+        (101/101), `platform/privacy/*.test.mjs platform/webcheck/*.test.mjs`
+        (142/142), `python3 -m pytest gitops/tests -q` (613 passed, 25
+        skipped -- environmental), `platform/ci`'s 27 unittest modules +
+        `agent_review`'s 21, `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` (446 passed),
+        `checklist_coverage.py` and `regen.mjs --verify` both clean.
+    mrr_end: 0
+  - venture: auto-repair-effective-labor-rate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-autoleap.html: a named comparison page against AutoLeap's
+        free labor rate calculator (PR #5661). This venture was
+        `portfolio/router/allocate.py`'s top-ranked dispatchable candidate
+        this session; its generic-method comparison budget was already at
+        the cap of 1, so this adds an unbudgeted named-product page instead,
+        per surface-budget.mjs.
+      - >-
+        Facts sourced via WebSearch/WebFetch against
+        autoleap.com/tools/labor-rate-calculator/ and AutoLeap's own blog
+        description of its effective-labor-rate reporting: AutoLeap's free
+        tool takes the effective labor rate as an input (not an output) and
+        gates its result behind a contact form (name, email, phone, business
+        name); this calculator computes the rate itself from twelve figures
+        with no form and splits the gap three ways, which AutoLeap's tool
+        does not.
+      - >-
+        Caught and fixed a real defect before merging: the JSON-LD FAQPage
+        answers used a literal "--" where the visible prose used "&mdash;",
+        which faq-visible.test.mjs correctly failed on (JSON-LD and visible
+        text must match exactly). Also caught a JSON-LD answer that said
+        "covered below" when the referenced content was actually above it on
+        the page.
+      - >-
+        Main advanced twice (9 commits total) while this was in flight, each
+        time producing the documented front-door-mirror merge conflict
+        (kustomization.yaml + shard .gz blobs); resolved both via
+        `git checkout --theirs` on the generated paths followed by
+        `node platform/marketing/regen.mjs` and `--verify`, per
+        resolve-mirror-merge.sh's own docstring. The first drift also made
+        `check_venture_regression.py --base refs/ci/base-main` report a false
+        "loses ventures/hidden-unicode-check" against a base that had since
+        moved -- resolved by re-merging, not by touching the check.
+      - >-
+        Verified locally (Actions confirmed starved on this PR's own checks
+        via ci_starvation.py: runner_id 0, ~3s, no steps): the venture's own
+        64-assertion suite, `platform/pages/*.test.mjs` (1015/1015),
+        `platform/marketing/*.test.mjs` (272/272 after regen), `clauses.mjs`
+        and `surface-budget.mjs` clean, `regen.mjs --verify` clean,
+        `checklist_coverage.py` clean, `check_venture_regression.py --base
+        origin/main` clean, `python3 -m pytest gitops/tests -q` (613 passed,
+        25 skipped -- environmental), platform/ci's unittest modules +
+        agent_review's, `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (446 passed), and `run_workflow_locally.py --for-changes` clean on
+        the final merge. Squash-merged as #5661; refreshed the GitHub Pages
+        branch snapshot (publish-branch.sh) and recorded the reading
+        (pages_state.py --record) after merge.
+    mrr_end: 0

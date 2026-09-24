@@ -2378,9 +2378,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Listings surcharge, keeping the buyer-paid Marketplace fee separate
     # from seller payout. Static `index.html` from its first commit, same
     # shape as the rest of this running count.
+    #
+    # 351 on this merge: `hidden-unicode-check` also graduated, concurrently
+    # on `main` -- a zero-dependency browser tool that scans pasted text
+    # (CLAUDE.md, AGENTS.md, .cursorrules, copilot-instructions.md, a
+    # README, or any text) for zero-width/invisible Unicode characters,
+    # Unicode Tag characters (decoding any hidden ASCII message they spell
+    # out), and bidirectional override/control characters from the Trojan
+    # Source family -- the technique behind current AI-agent
+    # prompt-injection attacks. Static `index.html` from its first commit,
+    # same shape as the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 350  # `infra/OWNER_CHECKLIST.md`'s own "N of the 350 tools" wording.
+    total = 351  # `infra/OWNER_CHECKLIST.md`'s own "N of the 351 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
