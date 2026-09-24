@@ -85,7 +85,7 @@
     <id>tag:marisstella.dev,2026:tool/skill-manifest-check</id>
     <published>2026-09-24T00:00:00Z</published>
     <updated>2026-09-24T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a SKILL.md file (the format Claude Code and similar agent systems use) and get every common authoring mistake flagged: missing or malformed frontmatter, a description too vague to trigger reliably, overlapping triggers across sibling skills, and a body-size caution against a context budget. Free SKILL.md linter and Claude skill checker, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>

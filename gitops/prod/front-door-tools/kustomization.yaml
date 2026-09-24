@@ -37,23 +37,23 @@
 #   portfolio-front-tools-1: 98 files, 550627 bytes
 #   portfolio-front-tools-2: 144 files, 555062 bytes
 #   portfolio-front-tools-3: 135 files, 553582 bytes
-#   portfolio-front-tools-4: 141 files, 556801 bytes
-#   portfolio-front-tools-5: 119 files, 544674 bytes
-#   portfolio-front-tools-6: 136 files, 556926 bytes
-#   portfolio-front-tools-7: 126 files, 555319 bytes
-#   portfolio-front-tools-8: 129 files, 556568 bytes
-#   portfolio-front-tools-9: 140 files, 555398 bytes
-#   portfolio-front-tools-10: 120 files, 542764 bytes
-#   portfolio-front-tools-11: 115 files, 556685 bytes
-#   portfolio-front-tools-12: 120 files, 556140 bytes
-#   portfolio-front-tools-13: 124 files, 555407 bytes
-#   portfolio-front-tools-14: 131 files, 550278 bytes
-#   portfolio-front-tools-15: 131 files, 551690 bytes
-#   portfolio-front-tools-16: 100 files, 556525 bytes
-#   portfolio-front-tools-17: 117 files, 552949 bytes
-#   portfolio-front-tools-18: 127 files, 551976 bytes
-#   portfolio-front-tools-19: 120 files, 553921 bytes
-#   portfolio-front-tools-20: 52 files, 269608 bytes
+#   portfolio-front-tools-4: 141 files, 556709 bytes
+#   portfolio-front-tools-5: 119 files, 544669 bytes
+#   portfolio-front-tools-6: 136 files, 556943 bytes
+#   portfolio-front-tools-7: 126 files, 555283 bytes
+#   portfolio-front-tools-8: 129 files, 556513 bytes
+#   portfolio-front-tools-9: 140 files, 555457 bytes
+#   portfolio-front-tools-10: 120 files, 542855 bytes
+#   portfolio-front-tools-11: 115 files, 556697 bytes
+#   portfolio-front-tools-12: 120 files, 556091 bytes
+#   portfolio-front-tools-13: 124 files, 555334 bytes
+#   portfolio-front-tools-14: 131 files, 550253 bytes
+#   portfolio-front-tools-15: 131 files, 551708 bytes
+#   portfolio-front-tools-16: 100 files, 556528 bytes
+#   portfolio-front-tools-17: 117 files, 552935 bytes
+#   portfolio-front-tools-18: 127 files, 551924 bytes
+#   portfolio-front-tools-19: 120 files, 553933 bytes
+#   portfolio-front-tools-20: 52 files, 269589 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
