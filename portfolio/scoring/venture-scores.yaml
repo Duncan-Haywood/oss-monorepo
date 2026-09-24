@@ -17350,6 +17350,57 @@ ventures:
       debugging session, no affiliate link, no referral fee,
       donations-only, and it does not scan, fingerprint, or contact any
       third-party system or agent runtime.
+
+  - slug: senior-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately -- same call as the sibling
+      auto-loan-interest-deduction-calculator and
+      no-tax-on-tips-overtime-calculator. The per-person amount,
+      phase-out, and married-filing-separately rule are fixed arithmetic
+      on a published statute; a model has no business guessing at any of
+      them.
+    basis: >-
+      Graduated on 2026-09-24 as a browser-local calculator for the new
+      federal "senior bonus" deduction (OBBBA, tax years 2025-2028).
+      Scored identically to the sibling
+      auto-loan-interest-deduction-calculator on every dimension --
+      serving one more filer costs a static file (autonomous ops 10,
+      gross margin 10). Defensibility 2, distribution 7: the arithmetic
+      is easily reimplemented (several finance-blog calculators for this
+      exact deduction already exist, found via WebSearch 2026-09-24), so
+      the moat is the MFS-fully-excluded correction and the
+      same-MAGI-zero-crossing-for-one-or-two-spouses finding rather than
+      the phase-out arithmetic alone; distribution reflects the same
+      confirmed search-demand evidence class (multiple independent
+      finance/CPA-firm explainers already ranking for this deduction) that
+      justified the sibling calculators' scores.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Every figure is either a published, cited statutory amount or
+      threshold, or a number/checkbox the user supplies; the tool never
+      determines a specific filer's actual age, Social Security number
+      validity, or eligibility -- each is self-reported, the same pattern
+      the sibling auto-loan calculator uses for its own eligibility
+      checklist. Nothing entered leaves the browser. Ethics: the tool
+      only helps a filer claim a deduction they might otherwise miss or
+      misapply (or, in the MFS case, avoid claiming one they are not
+      entitled to), holds no personal or scraped data, and there is no
+      revenue model that would reward mistuning the arithmetic in either
+      direction (donations only).
+
   - slug: mega-backdoor-roth-calculator
     scores:
       ai_leverage: 1

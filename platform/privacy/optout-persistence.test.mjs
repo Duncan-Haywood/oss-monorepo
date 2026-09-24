@@ -720,7 +720,17 @@ const RELATIVE_SELF = relative(
 // branch only ever knew its own predecessor's number (338, before
 // `caa-record-check` landed) until this merge -- the same ordinary
 // collision shape recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 340;
+//
+// 340 -> 341: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` -- adding one more `usage.mjs` following the same
+// opt-out pattern as its siblings (`usageOptedOut`/`setUsageOptOut` gating
+// `record`, keyed under its own `senior-deduction-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+// `mega-backdoor-roth-calculator` (#5769) merged to `main` concurrently but
+// carries no `usage.mjs` of its own, so it does not move this count.
+// Re-derived here by `sync_tree_counts.py` against the fully merged tree
+// rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 341;
 
 let counter = 0;
 function fixture(source) {

@@ -161,6 +161,15 @@
     <summary type="text">Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range, and which of those states currently require one by law, with the effective date and size threshold cited. Free, runs entirely in your browser — not legal advice.</summary>
   </entry>
   <entry>
+    <title>Senior Deduction Calculator — Free OBBBA $6,000 65+ Estimator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/senior-deduction-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/senior-deduction-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the new federal &#39;senior bonus&#39; deduction (One Big Beautiful Bill Act, tax years 2025-2028): up to $6,000 per qualifying taxpayer age 65+ ($12,000 if both spouses qualify), the 6%-per-dollar MAGI phase-out above $75,000 single/HOH/QSS or $150,000 joint, and the married-filing-separately exclusion. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Skill Manifest Check — lint a SKILL.md before it ships</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/skill-manifest-check/"/>
     <id>tag:marisstella.dev,2026:tool/skill-manifest-check</id>

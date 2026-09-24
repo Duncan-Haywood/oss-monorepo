@@ -2487,9 +2487,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # number (360, from `claude-code-settings-check` above) until this
     # merge -- the same ordinary collision shape recorded throughout this
     # list.
+    #
+    # 362 on this merge: `senior-deduction-calculator` also graduated
+    # (#5765), concurrently on `main` -- a browser calculator for the new
+    # OBBBA $6,000 senior deduction (tax years 2025-2028), static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 361  # `infra/OWNER_CHECKLIST.md`'s own "N of the 361 tools" wording.
+    total = 362  # `infra/OWNER_CHECKLIST.md`'s own "N of the 362 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
