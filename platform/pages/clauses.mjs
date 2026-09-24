@@ -1444,6 +1444,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against a flat "$2 a square foot" interior painting bid -- a
+  // generic advertised pricing habit the trade is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-paintscout.html, which names a specific
+  // business-management platform and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other flat-rate
+  // generic-method pages above (e.g. mini-split-bid-calculator's).
+  'painting-bid-calculator/vs-a-flat-2-per-square-foot-bid.html',
   // Compares against "a flat burden-percentage rule of thumb" -- a generic
   // budgeting habit ("add 20-30% on top of wages") every small business
   // owner already has, not a company or product this could be mistaken
