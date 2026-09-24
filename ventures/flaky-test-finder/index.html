@@ -95,7 +95,7 @@ mvn test                           # Surefire writes target/surefire-reports/*.x
     <pre class="cmd"><code>python3 check.py run1.xml run2.xml run3.xml   # exits 1 if any test is flaky
 python3 check.py --glob "reports/*.xml"        # or glob a directory of reports
 python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
-    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/flaky-test-finder/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
   </section>
 
   <section class="card">
@@ -115,7 +115,7 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for investigating why a test is flaky, and it does not fix your tests for you — it only tells you which ones flipped and how often. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/flaky-test-finder/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
     <p>Everything runs in your browser. The XML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>run_added</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p class="support">Free and open source. If this saved you a debugging session, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
