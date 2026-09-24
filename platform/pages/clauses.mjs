@@ -1991,6 +1991,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "quoting one flat project rate regardless of usage" --
+  // a pricing habit any freelance narrator already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-voices-com.html, which names a real marketplace and already carries
+  // the trademark disclaimer.
+  'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
