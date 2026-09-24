@@ -126,6 +126,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // product this could be mistaken for. Same shape as
   // branch-protection-drift-check's exemption above.
   'flaky-test-finder/vs-eyeballing-two-ci-logs-by-hand.html',
+  // Compares against "reading two JSON manifest exports side by side, or
+  // diffing them with a text tool" -- a manual habit any developer already
+  // has, not a company or product this could be mistaken for. Same shape as
+  // flaky-test-finder's eyeballing-two-ci-logs exemption above.
+  'mcp-supply-chain-watch/vs-comparing-manifests-by-eye.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
