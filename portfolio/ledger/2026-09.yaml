@@ -42660,6 +42660,53 @@ entries:
         confirms no steering document reports that null as an observed
         zero.
     mrr_end: 0
+  - venture: pour-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. a spreadsheet":
+        surface-budget.mjs reported 0 generic-method pages for this venture
+        (it already carried 2 named-product pages, vs-binwise.html and
+        vs-wisk.html, plus a how-to guide). The page contrasts the
+        calculator against a plain spreadsheet on three specific gaps the
+        arithmetic actually has: a half-filled modifier/mixer slot priced
+        as free instead of flagged (readOptionalIngredient's own
+        partial-entry check), no backward solve from a target pour-cost
+        percentage to the price it needs (targetMenuPrice), and no
+        annualized dollar figure for a small over-pour (overPourCostPerYear).
+        Filed in platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (compares a generic method, not a named product).
+      - >-
+        The worked example ($22/750ml well spirit, 1.5oz pour, 5oz of a
+        $4 mixer, $7 menu price, 20% target, 400 drinks/week, 0.25oz
+        over-pour) is recomputed in the new test file directly against
+        calculatePourCost from calc.mjs rather than hand-typed, so a future
+        change to the shipped arithmetic would make the page's claim false
+        and the test red instead of merely stale.
+      - >-
+        Regenerated the front-door mirror (platform/marketing/regen.mjs)
+        so the apex catalogue serves the new page and its sitemap entry;
+        verified clean with regen.mjs --verify before pushing.
+        sync_tree_counts.py reported no drift (this only adds a page to an
+        already-mirrored venture, not a new venture).
+      - >-
+        Verified before merging, since Actions is starved this session
+        (ci_starvation.py confirmed runner_id: 0 on a same-repo
+        portfolio-validate run): the venture's own suite 91/91,
+        clauses.mjs clean, surface-budget.mjs --check clean (venture now
+        1/1 generic-method), regen.mjs --verify clean, the full
+        platform/marketing + platform/pages suite (exit 0, no failures),
+        checklist_coverage.py clean, sync_tree_counts.py clean, and
+        gitops/tests 613 passed / 25 skipped (environmental --
+        nginx-light/openssh-client not installed this session).
+      - >-
+        Also refreshed the GitHub Pages branch-source snapshot this
+        session per CLAUDE.md's standing job (publish-branch.sh), before
+        starting this venture work -- it was stale (built one merge behind
+        `main`). Revenue and confirmed-visitor counts remain at zero,
+        which this does not change on its own.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
@@ -42719,4 +42766,111 @@ entries:
         Revenue and confirmed-visitor counts remain at zero, which neither
         action changes on its own -- both are prerequisites for a stranger
         finding and being able to use the catalogue, not usage itself.
+    mrr_end: 0
+  - venture: which-job-first
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-scoring-every-job-out-of-ten.html -- which-job-first was one of
+        82 ventures on `main` at 0/1 on surface-budget.mjs's generic-method
+        budget. The angle is lifted directly from the venture's own README
+        ("used to mean staring at a whiteboard or scoring every job out of
+        ten and getting twelve near-identical numbers back"): a 1-10 score
+        has fewer distinct values than a typical job list has entries, so
+        several jobs tie and the ranking isn't finished when the scoring
+        is, while this tool's pairwise merge sort (rank.mjs) returns a
+        complete order with nothing left to weigh -- and states the
+        honest tradeoff (assumes transitivity) rather than hiding it.
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (compares
+        against a manual ranking habit, not a named competitor, distinct
+        from this venture's own vs-jobber.html). Linked from index.html,
+        added to sitemap.xml, 9 new assertions in its own test file.
+      - >-
+        First attempt this session was
+        depop-fee-calculator/vs-assuming-the-old-flat-10-percent.html,
+        fully written, tested (39/39), and merge-conflict-resolved twice
+        against a fast-moving main -- discarded after a third fetch showed
+        #5715 had shipped an equivalent generic-method page for that same
+        venture while this branch was mid-verification (surface-budget.mjs
+        would have flagged it over budget at 2). Picked this venture
+        instead after confirming via surface-budget.mjs, duplicate_check.py,
+        and the open-PR list that its generic-method slot was free.
+      - >-
+        Verified locally (Actions confirmed starved via ci_starvation.py on
+        the latest portfolio-validate.yml push run: runner_id 0, no real
+        runner assigned): venture's own suite 37/37, clauses.mjs +
+        clauses.test.mjs, surface-budget.mjs --for and --check (no venture
+        over budget fleet-wide: 81 with 0, 268 with 1, 7 with 2),
+        checklist_coverage.py, a full platform/pages/build.mjs + check.mjs
+        build (356 products, no dead links), regen.mjs --verify clean
+        before and after regenerating the front-door mirror, gitops/tests
+        (613 passed, 25 skipped -- environmental), platform/ci's 27
+        unittest modules, agent_review's test_review, the
+        ledger/scoring/router/usage/pipeline/infra pytest suite (446
+        passed), and a full run_workflow_locally.py --for-changes sweep on
+        the depop-fee-calculator branch earlier in the session (13/17
+        selected workflows passed; the only real, non-environmental,
+        non-staleness finding was the #5715 collision itself, caught by
+        the venture-regression checker after a merge -- everything else
+        that did not pass was either held for a secret/write scope by
+        design, an artifact this local runner cannot build (_site,
+        pages-freshness), or an already-tracked, already-queued item
+        (#5712 covers republishing gh-pages)).
+    mrr_end: 0
+  - venture: claude-code-settings-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, sourced by this session rather than a pipeline
+        candidate: a free browser tool checking a pasted Claude Code
+        settings.json (and optionally settings.local.json) for the
+        structural mistakes in hooks and permissions that fail silently --
+        an uncompilable matcher regex, a hook with no command, an event/
+        hook-type name outside this tool's dated, documented list, a
+        permission rule with unbalanced parentheses or an empty specifier,
+        a rule duplicated across allow/deny/ask, and a rule that
+        contradicts itself across the two settings files. Same
+        deterministic, client-side, no-upload shape as this session's
+        sibling AI-agent-tooling checkers (hidden-unicode-check,
+        mcp-config-risk-check, skill-manifest-check), justified the same
+        way: this session is Claude Code itself, with unusually direct
+        knowledge of the exact schema being checked.
+        duplicate_check.py cleared with nothing scoring above 0.13 (see
+        the venture's own VENTURE.yaml for the full table and channel
+        notes). Registered in launched.json, filed in build.mjs's
+        developer-tooling category, scored in venture-scores.yaml,
+        cross-linked reciprocally with all three sibling checkers'
+        footers, and given its own CI workflow (recorded in
+        publish-surface.yaml as publishing "none").
+      - >-
+        Found and fixed a real, pre-existing production defect while
+        verifying the merge: gitops/prod/kustomization.yaml's per-product
+        comparison-page mount list is hand-maintained, and
+        mcp-config-risk-check's vs-mcp-scan.html (#5730) had crossed the
+        two-comparison threshold that makes a product page mounted --
+        without the mount line ever being added. The rendered
+        vs__mcp-scan.html.gz existed in gitops/prod/front-door/ but was
+        never reachable through the served kustomization. Added the
+        missing line; front-door.test.mjs's own guard for exactly this
+        case now passes.
+      - >-
+        Also resynced the mirrored-tool and runs-on counts
+        (sync_tree_counts.py, sync_readme_counts.py) after two other
+        ventures graduated concurrently during the session
+        (auto-loan-interest-deduction-calculator and this one).
+      - >-
+        Verified on the final merged tree: the venture's own suite
+        (60/60), checklist_coverage.py, router/validate.py,
+        score_ventures.py --check, clauses.mjs, surface-budget.mjs
+        --check, regen.mjs --verify clean, front-door.test.mjs (118/118,
+        confirming the kustomization fix), the full platform/marketing +
+        platform/pages suite (1290/1290), gitops/tests (637 passed/1
+        skipped), every platform/ci unittest module, agent_review's
+        test_review, and portfolio/ledger + scoring + router + usage +
+        pipeline + infra/tests pytest (446 passed). Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.
     mrr_end: 0
