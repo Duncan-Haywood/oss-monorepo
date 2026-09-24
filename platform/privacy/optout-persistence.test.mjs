@@ -792,14 +792,11 @@ const RELATIVE_SELF = relative(
 // Re-derived here by `sync_tree_counts.py` against the fully merged tree
 // rather than by hand.
 //
-// 346 on this merge: this branch's own `npm-provenance-check` also
-// graduated, concurrently and invisibly to the `trump-account-calculator`
-// branch above -- adding one more `usage.mjs`
-// (`ventures/npm-provenance-check/usage.mjs`) following the same opt-out
-// pattern as its dev-tool-checker siblings (`usageOptedOut`/
-// `setUsageOptOut` gating `record`, keyed under its own
-// `npm-provenance-check-usage` storage name), no deletions. Both
-// additions are real, taking 344 to 346.
+// 344 -> 345: `npm-provenance-check` also graduated, adding one more
+// `usage.mjs` (`ventures/npm-provenance-check/usage.mjs`) following the
+// same opt-out pattern as its dev-tool-checker siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `npm-provenance-check-usage` storage name), no deletions.
 const SWITCHES_IN_THE_CATALOGUE = 346;
 
 let counter = 0;
