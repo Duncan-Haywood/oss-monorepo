@@ -1905,6 +1905,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
   // and already carries the "not affiliated" disclaimer.
   'actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names zizmor specifically and already carries the
+  // "not affiliated" disclaimer.
+  'actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html',
   // Compares against "reading the file by hand" -- a manual review habit
   // every developer already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
@@ -1923,12 +1929,30 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-oneradon.html, which names Sun Nuclear's OneRADON software
   // specifically and already carries the trademark disclaimer.
   'radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html',
+  // Compares against "a flat price-per-watt quote" -- a common dollars-per-
+  // watt rate any solar installer already quotes from, sized for the roof
+  // and panel condition the rate was set on, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-aurora-solar.html, which names Aurora Solar specifically and already
+  // carries the trademark disclaimer.
+  'solar-pv-bid-calculator/vs-a-flat-price-per-watt.html',
   // Compares against "re-reading a post and checking it by eye for a
   // disclosure" -- a manual habit any blogger already has, not a company
   // or product this could be mistaken for. Distinct from this venture's
   // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
   // specifically and already carries the trademark disclaimer.
   'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
+  // Compares against "reading the command/args/env blocks by hand before
+  // approving a server" -- a manual habit anyone reviewing an MCP config
+  // already has, not a company or product this could be mistaken for.
+  // This venture names no named-product comparison at all.
+  'mcp-config-risk-check/vs-reading-the-config-by-hand.html',
+  // Compares against "reviewing an invoice by eye" -- a manual review habit
+  // any shipper, broker, or AP clerk already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-trax.html and vs-cass.html, which name specific freight audit and
+  // payment providers and already carry the "not affiliated" disclaimer.
+  'freight-accessorial-auditor/vs-reviewing-an-invoice-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
