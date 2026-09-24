@@ -741,7 +741,6 @@ const RELATIVE_SELF = relative(
 // `mega-backdoor-roth-calculator`, which also graduated concurrently, added
 // no `usage.mjs` of its own, so it does not move this count.
 //
-<<<<<<< HEAD
 // 340 -> 341: `claude-code-subagent-check` also graduated, independently on
 // `main` at the same 339 predecessor -- adding one more `usage.mjs`
 // (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
