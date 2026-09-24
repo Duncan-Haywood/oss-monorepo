@@ -577,7 +577,18 @@ const RELATIVE_SELF = relative(
 // way this file's error message prescribes: exactly one added
 // `usage.mjs` (`ventures/cloud-bucket-exposure-check/usage.mjs`) and no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 322;
+//
+// 322 -> 323: `s-corp-reasonable-compensation-calculator` also graduated
+// on `main`, concurrently with `cloud-bucket-exposure-check` above,
+// adding one `usage.mjs` following the same opt-out pattern as its
+// siblings (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under
+// its own `s-corp-reasonable-compensation-calculator-usage` storage
+// name). Neither branch knew about the other's graduation until this
+// merge. Verified the way this file's error message prescribes: exactly
+// one added `usage.mjs`
+// (`ventures/s-corp-reasonable-compensation-calculator/usage.mjs`) and
+// no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 323;
 
 let counter = 0;
 function fixture(source) {
