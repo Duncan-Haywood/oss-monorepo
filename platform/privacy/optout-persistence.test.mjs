@@ -625,7 +625,14 @@ const RELATIVE_SELF = relative(
 // throughout this list, two-wide this time. Exactly one added
 // `usage.mjs` (`ventures/str-occupancy-tax-calculator/usage.mjs`), no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 327;
+//
+// 327 -> 328 on 2026-09-24: `patreon-fee-calculator` graduated, adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageAllowed`/`toggleUsage` gating `recordEvent`, keyed under its own
+// `patreon-fee-calculator-usage-opt-out` storage name) -- the same shape
+// as its closest sibling `twitch-payout-calculator`. Exactly one added
+// `usage.mjs` (`ventures/patreon-fee-calculator/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 328;
 
 let counter = 0;
 function fixture(source) {

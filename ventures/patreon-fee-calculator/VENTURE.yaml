@@ -1,0 +1,35 @@
+name: patreon-fee-calculator
+description: A private browser calculator for Patreon creators to find real monthly take-home from patron pledges after their platform plan (Standard 10% for pages created after August 4, 2025, or a legacy Lite/Pro/Premium plan at 5/8/12% for pages published on or before that date) and payment processing, including the worse micropayment rate (5% + $0.10 vs. the standard 2.9% + $0.30) that applies to any pledge of $3 or less, then compares take-home across all four plans and shows what a legacy creator would lose by reverting to Standard.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Patreon creators will use a fee calculator that turns per-tier patron counts and pledge amounts into real take-home, because the pledge total on their dashboard does not show the effect of their platform plan or the micropayment processing rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Creators running $1-3 tiers will change how they price a new low-dollar tier once shown that Patreon's micropayment processing rate (5% + $0.10) is materially worse than the standard rate, not just a smaller version of it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Legacy-plan creators (Lite/Pro/Premium) will use the plan-comparison feature to see the real monthly cost of losing their legacy rate before unpublishing or otherwise risking their page being forced onto the flat Standard plan.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Creators will return month over month to re-run this calculator as their patron mix changes, the same way sellers return to per-item payout calculators elsewhere in this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/patreon-fee-calculator/
+  analytics: null

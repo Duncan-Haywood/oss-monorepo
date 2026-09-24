@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 345 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 346 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 345 of them — and
+Every tool in the collection is listed below — all 346 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -339,6 +339,7 @@ page that hosts it.
 - [KDP Royalty Calculator — KU Page Reads vs Going Wide](https://marisstella.dev/tools/kdp-royalty-calculator/): See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.
 - [Marketplace Fee Comparison — Which Channel Nets Most](https://marisstella.dev/tools/marketplace-fee-compare/): Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.
 - [Mercari Fee Calculator — What You Actually Keep After the 10% Fee](https://marisstella.dev/tools/mercari-fee-calculator/): Free Mercari seller fee calculator for the current schedule (10% on item price + buyer-paid shipping, effective Jan 6 2025) and the legacy pre-2025 schedule (10% on item price plus 2.9%+$0.50 processing). Real profit, price for a target profit, and which schedule pays more. Nothing leaves your browser.
+- [Patreon Fee Calculator — Real Take-Home From Pledges](https://marisstella.dev/tools/patreon-fee-calculator/): Free calculator for Patreon creators: find real monthly take-home from patron pledges after your platform plan (Standard 10%, or legacy Lite/Pro/Premium 5/8/12%) and payment processing — including the worse micropayment rate that kicks in at $3 and below — then see what switching plans would change.
 - [Poshmark Fee Calculator — What You Actually Keep After Fees](https://marisstella.dev/tools/poshmark-fee-calculator/): Free Poshmark seller fee calculator. The flat $2.95 fee under $15, 20% at $15+, the $14.75 break-even price, your real profit after item cost, and whether a lower offer costs you more than the discount. Nothing leaves your browser.
 - [Shopify Fee Calculator — Payments vs PayPal vs Grow](https://marisstella.dev/tools/shopify-fee-calculator/): Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.
 - [StockX Seller Payout Calculator — Net Profit After All Fees](https://marisstella.dev/tools/stockx-seller-payout-calculator/): Free calculator for StockX sneaker, streetwear, and card sellers: find real net payout and net profit after the seller fee (which drops by seller level), the Fast Shipping discount, the payment processing fee, and outbound shipping cost, then check a month of sales against a profit goal.

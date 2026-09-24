@@ -459,7 +459,16 @@ const CATEGORY_RULES = [
     // Broadened the `str-host` match to `str-` rather than adding a second
     // alternative, since both slugs share the audience and the storefront
     // prefix.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
+    // `patreon-fee-calculator` is `twitch-payout-calculator`'s exact sibling
+    // one platform over: Patreon keeps a percentage of membership pledge
+    // revenue under its own plan schedule (Standard 10%, or a legacy
+    // Lite/Pro/Premium rate) rather than a seller listing an item, but the
+    // question a creator needs answered -- apply the platform's cut, then
+    // decide whether a plan change is worth it -- is the same one this
+    // section already answers for Twitch. Its slug names a platform, not a
+    // storefront keyword this rule already recognised, so it would
+    // otherwise have swelled the catch-all the way `twitch` itself once did.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|patreon|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',

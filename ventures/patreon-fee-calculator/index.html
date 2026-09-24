@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patreon Fee Calculator — Real Take-Home From Pledges</title>
+<meta name="description" content="Free calculator for Patreon creators: find real monthly take-home from patron pledges after your platform plan (Standard 10%, or legacy Lite/Pro/Premium 5/8/12%) and payment processing — including the worse micropayment rate that kicks in at $3 and below — then see what switching plans would change.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Patreon Fee Calculator">
+<meta property="og:description" content="The pledge total isn't your payout. Find real monthly take-home from patrons after your platform plan and processing fees, including the worse rate on $1-3 tiers.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Patreon Fee Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds a Patreon creator's real monthly take-home from patron pledges after the platform fee (Standard 10%, or legacy Lite/Pro/Premium) and payment processing, including the worse micropayment rate on pledges at or below $3, and compares take-home across all four plans."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do I keep less from a $1 pledge than a $10 pledge, proportionally?","acceptedAnswer":{"@type":"Answer","text":"Because Patreon charges a worse payment-processing rate on any charge of $3 or less: 5% + $0.10 instead of the standard 2.9% + $0.30. On a $1 pledge that micropayment rate alone is 15% of the pledge before the platform fee is even applied, versus about 6% on a $10 pledge. See the worked breakdown for the exact numbers."}},{"@type":"Question","name":"What's the difference between Standard and the legacy plans (Lite, Pro, Premium)?","acceptedAnswer":{"@type":"Answer","text":"Standard is a single flat 10% platform fee that applies to every Patreon page created after August 4, 2025. A page published on or before that date keeps its old plan instead: Lite at 5%, Pro at 8%, or Premium at 12%. Standard replaced the old Pro/Premium tiers with one number, so a legacy Lite creator pays half the platform fee a new creator pays today."}},{"@type":"Question","name":"Can I switch from my legacy plan to Standard, or back?","acceptedAnswer":{"@type":"Answer","text":"You can move to Standard, but not back. Unpublishing and republishing a legacy page forces it onto Standard (10%) and that cannot be undone from the creator's side — there is no menu option to return to a legacy rate once it's lost. Read your own current plan off your Patreon payout settings rather than assuming; the plan table above shows what that one-way move would cost at your own patron count."}},{"@type":"Question","name":"Does this estimate payout timing, currency conversion, or my actual bank deposit?","acceptedAnswer":{"@type":"Answer","text":"No. This prices one month's pledges against the platform fee and processing fee only. It does not model when Patreon actually deposits funds, currency-conversion spread for a non-USD patron, refunds, or failed/declined charges — fold any of those into your own records separately."}},{"@type":"Question","name":"Does anything about my numbers get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server and there is no account. Your inputs are saved locally on this device so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#241300;background:#fdf3ec}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #f3d3bd;border-radius:16px;padding:20px;box-shadow:0 8px 24px #ff42350a;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f6ddc9;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#c9401b}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input,select{width:100%;box-sizing:border-box;padding:9px;border:1px solid #eab68e;border-radius:8px;font:inherit;background:#fffaf6}.result{background:#c9401b;color:#fff;border-color:#c9401b;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b4327}.result .note{color:#fff5ee}.err{color:#ffd9a6;font-weight:700}.result .err{color:#fff5ee}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #eab68e;background:#fff;cursor:pointer;color:#241300}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}.planTable{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:8px}.planTable th,.planTable td{text-align:left;padding:5px 6px;border-bottom:1px solid #ffffff33}.planTable .current{font-weight:800}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR PATREON CREATORS</p><h1>The pledge total isn't your payout. Take-home is.</h1><p class="lede">Patreon takes a platform fee that depends on which plan your page is on (Standard is a flat 10%; a page published on or before August 4, 2025 may still carry a legacy Lite/Pro/Premium rate of 5/8/12%), then payment processing on top — and processing gets sharply worse, not just smaller, on any single pledge of $3 or less. This free calculator finds your real monthly take-home and shows what switching plans would change.</p><p class="lede">Running $1-3 tiers? See <a href="why-your-1-dollar-tier-pays-you-less-than-you-think.html">why your $1 tier pays you less than you think</a> for the worked answer.</p></header>
+
+<main class="layout">
+<section><h2>Your month</h2>
+<fieldset><legend>Patrons by tier</legend><div class="fields">
+<label>Tier 1 patrons<input id="tier1Patrons" type="number" min="0" step="1" value="120"></label>
+<label>Tier 1 pledge ($)<input id="tier1Amount" type="number" min="0" step="0.01" value="1"></label>
+<label>Tier 2 patrons<input id="tier2Patrons" type="number" min="0" step="1" value="40"></label>
+<label>Tier 2 pledge ($)<input id="tier2Amount" type="number" min="0" step="0.01" value="5"></label>
+<label>Tier 3 patrons<input id="tier3Patrons" type="number" min="0" step="1" value="15"></label>
+<label>Tier 3 pledge ($)<input id="tier3Amount" type="number" min="0" step="0.01" value="15"></label>
+</div>
+<p class="note">Enter each tier's per-charge pledge amount, not a monthly total — one patron pledging $5/month is one charge of $5. A tier priced at $3 or below is charged Patreon's worse micropayment processing rate; see the note in your results below.</p>
+</fieldset>
+<fieldset><legend>Plan &amp; other income</legend><div class="fields">
+<label>Your plan<select id="plan">
+<option value="standard" selected>Standard (10%)</option>
+<option value="legacyLite">Legacy Lite (5%)</option>
+<option value="legacyPro">Legacy Pro (8%)</option>
+<option value="legacyPremium">Legacy Premium (12%)</option>
+</select></label>
+<label>Other monthly income ($)<input id="otherMonthlyIncome" type="number" min="0" step="1" value="0"></label>
+</div>
+<p class="note">Standard is what every page created after August 4, 2025 gets. A page published on or before that date keeps its legacy plan unless it's unpublished and republished, which forces Standard and cannot be undone from your side. Read yours off your own Patreon payout settings. "Other monthly income" is shop sales or income outside membership pledges — a figure you supply, since Patreon does not publish one fee schedule for every non-membership income source.</p>
+</fieldset>
+<p id="draftStatus" class="note" role="status">Your numbers above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>This month's take-home</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="payout" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross pledge revenue</dt><dd id="grossOut"></dd>
+<dt>Platform fee</dt><dd id="platformOut"></dd>
+<dt>Processing fee</dt><dd id="processingOut"></dd>
+<dt>Other income</dt><dd id="otherOut"></dd>
+<dt>Take-home</dt><dd id="totalOut"></dd>
+</dl>
+<p id="microNote" class="note" hidden></p>
+<h3 style="margin-top:14px">Switching plans</h3>
+<table class="planTable">
+<thead><tr><th>Plan</th><th>Fee</th><th>Take-home</th></tr></thead>
+<tbody id="planRows"></tbody>
+</table>
+<p id="planLossNote" class="note"></p>
+<p class="note">This is a planning floor from the numbers you typed, not your actual payout statement. It does not model payout timing, currency conversion, refunds, or declined charges — see the FAQ below. It never reads your Patreon account or replaces your own payout dashboard.</p>
+</section>
+</main>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your patron counts, pledge amounts, plan, and other income are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. There is no account. We count only anonymous local feature events (<code>month-priced</code>, <code>plan-compared</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no patron counts, pledge amounts, or income figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why do I keep less from a $1 pledge than a $10 pledge, proportionally?</h3><p>Because Patreon charges a worse payment-processing rate on any charge of $3 or less: 5% + $0.10 instead of the standard 2.9% + $0.30. On a $1 pledge that micropayment rate alone is 15% of the pledge before the platform fee is even applied, versus about 6% on a $10 pledge. See <a href="why-your-1-dollar-tier-pays-you-less-than-you-think.html">the worked breakdown</a> for the exact numbers.</p>
+<h3>What's the difference between Standard and the legacy plans (Lite, Pro, Premium)?</h3><p>Standard is a single flat 10% platform fee that applies to every Patreon page created after August 4, 2025. A page published on or before that date keeps its old plan instead: Lite at 5%, Pro at 8%, or Premium at 12%. Standard replaced the old Pro/Premium tiers with one number, so a legacy Lite creator pays half the platform fee a new creator pays today.</p>
+<h3>Can I switch from my legacy plan to Standard, or back?</h3><p>You can move to Standard, but not back. Unpublishing and republishing a legacy page forces it onto Standard (10%) and that cannot be undone from the creator's side &mdash; there is no menu option to return to a legacy rate once it's lost. Read your own current plan off your Patreon payout settings rather than assuming; the plan table above shows what that one-way move would cost at your own patron count.</p>
+<h3>Does this estimate payout timing, currency conversion, or my actual bank deposit?</h3><p>No. This prices one month's pledges against the platform fee and processing fee only. It does not model when Patreon actually deposits funds, currency-conversion spread for a non-USD patron, refunds, or failed/declined charges &mdash; fold any of those into your own records separately.</p>
+<h3>Does anything about my numbers get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server and there is no account. Your inputs are saved locally on this device so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It is also not a payout tracker, a payout-timing estimator, or a substitute for your own Patreon dashboard and payout statements. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your payout history, confirm a deposit amount, or replace your own accountant. Patreon is a trademark of Patreon, Inc., named here only to describe what this tool calculates — this tool is not affiliated with, endorsed by, or sponsored by Patreon, and its platform fee, processing rate, and micropayment threshold change over time; verify every figure against your own current Patreon dashboard and Patreon's own current pricing page before relying on the result.</p><p>Also pricing sponsorships on a podcast or Twitch channel? The <a href="../podcast-sponsorship-rate-calculator/">podcast sponsorship rate calculator</a> turns downloads per episode into an ad-slot price range, and the <a href="../twitch-payout-calculator/">Twitch payout calculator</a> prices sub and Bits take-home the same way this tool prices pledges.</p><p>MIT licensed. If it helped you see your real take-home, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, planComparison, PLANS, PLAN_KEYS, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'patreon-fee-calculator-draft';
+let counted = false;
+let compareCounted = false;
+
+function monthInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_INPUTS = monthInputs();
+
+function applyInputs(values) {
+  for (const id of FIELD_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persist() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(monthInputs())));
+}
+
+function renderPlanTable(c) {
+  const rows = PLAN_KEYS.map((key) => {
+    const row = c.byPlan[key];
+    const isCurrent = key === c.currentPlan;
+    return `<tr${isCurrent ? ' class="current"' : ''}><td>${PLANS[key].label.split(' — ')[0]}${isCurrent ? ' (current)' : ''}</td><td>${row.platformFeeRatePct}%</td><td>${money(row.takeHome)}</td></tr>`;
+  });
+  el('planRows').innerHTML = rows.join('');
+  el('planLossNote').textContent = c.lossIfMovedToStandard > 0
+    ? `If this page loses legacy status and reverts to Standard, you'd lose ${money(c.lossIfMovedToStandard)}/month at this same patron count.`
+    : 'You are already on Standard — there is no legacy plan left to lose.';
+}
+
+function update(count = false) {
+  try {
+    const inputs = monthInputs();
+    const r = calculate(inputs);
+    const c = planComparison(inputs);
+    el('errors').hidden = true; el('errors').textContent = ''; el('payout').hidden = false;
+    el('payout').textContent = money(r.takeHome);
+    el('rateLine').textContent = r.effectiveTakeRatePct === null
+      ? 'enter a patron count to see your effective take rate'
+      : `you keep ${r.effectiveTakeRatePct.toFixed(0)}% of pledge revenue after platform and processing fees`;
+    el('grossOut').textContent = money(r.grossPledgeRevenue);
+    el('platformOut').textContent = `${money(r.platformFee)} (${r.platformFeeRatePct}%)`;
+    el('processingOut').textContent = money(r.processingFee);
+    el('otherOut').textContent = money(Number(el('otherMonthlyIncome').value) || 0);
+    el('totalOut').textContent = money(r.takeHome);
+
+    if (r.microTierPatrons > 0) {
+      el('microNote').hidden = false;
+      el('microNote').textContent = `${r.microTierPatrons} patron(s) pledging $3 or less are charged Patreon's worse micropayment processing rate (5% + $0.10) instead of the standard 2.9% + $0.30.`;
+    } else {
+      el('microNote').hidden = true;
+    }
+
+    renderPlanTable(c);
+
+    if (count && !counted) { recordEvent('month-priced'); counted = true; }
+    if (count && !compareCounted) { recordEvent('plan-compared'); compareCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('payout').hidden = true;
+    for (const id of ['rateLine', 'grossOut', 'platformOut', 'processingOut', 'otherOut', 'totalOut']) el(id).textContent = '';
+    el('planRows').innerHTML = ''; el('planLossNote').textContent = ''; el('microNote').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { update(true); persist(); }));
+el('plan').addEventListener('change', () => { update(true); persist(); });
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(monthInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyInputs(DEFAULT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  update(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared month. Review the numbers before you use it.'
+      : 'Restored your last month from this browser.';
+  }
+})();
+
+update(false);
+</script>
+</body></html>

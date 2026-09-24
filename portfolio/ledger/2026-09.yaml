@@ -40355,3 +40355,83 @@ entries:
         starvation checklist. No form input added (a static guide page), so
         the Playwright/axe-core browser-check line was not run.
     mrr_end: 0
+
+  - venture: patreon-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a browser calculator pricing a Patreon
+        creator's real monthly take-home from patron pledges against the
+        platform's plan schedule (Standard 10% for pages created after
+        August 4, 2025, or a legacy Lite/Pro/Premium plan at 5/8/12% for
+        pages published on or before that date, grandfathered until an
+        unpublish/republish forces Standard) and payment processing
+        (2.9% + $0.30 per US-card charge, or the worse 5% + $0.10
+        micropayment rate for any single charge at or below $3). Fills a
+        real gap: the portfolio carries ~20 platform-fee/payout
+        calculators (twitch-payout-calculator, stockx-seller-payout-
+        calculator, whatnot-seller-payout, mercari-fee-calculator, and
+        more) but none for Patreon, despite multiple existing third-party
+        "patreon fee calculator" sites proving real search demand for
+        that exact query -- the distribution-channel evidence
+        portfolio/DIRECTION.md's 2026-09-06 rule requires before
+        graduating a new venture.
+      - >-
+        `duplicate_check.py` scored the proposed niche at 0.17
+        (twitch-payout-calculator, the closest sibling) before any file
+        existed, and 0.38 (itself) / 0.18 (twitch-payout-calculator)
+        after -- both well under the 0.45 near-duplicate bar. Second
+        feature beyond the core fee arithmetic: `planComparison()` prices
+        the same patron month under all four plans and reports what a
+        legacy creator would lose per month if their page reverts to
+        Standard, the real one-way "switching plans" event most legacy
+        creators actually face. Guide page
+        (why-your-1-dollar-tier-pays-you-less-than-you-think.html)
+        explains the micropayment-threshold gotcha, including a worked
+        one-cent cliff at exactly $3.00 vs $3.01 where a higher pledge
+        nets the creator less, pinned against calc.mjs. Registered in
+        venture-scores.yaml (composite 6.500, matching
+        twitch-payout-calculator's shape and score), launched.json,
+        publish-surface.yaml (new CI workflow, classified none), and the
+        front-door mirror. Added a reciprocal cross-link from
+        twitch-payout-calculator to this venture. Added `patreon` to
+        build.mjs's `marketplace` category regex, matching the precedent
+        already set for twitch/stockx/whatnot (a platform fee schedule,
+        not a private creator deal).
+      - >-
+        Verified: venture suite 57/57 (calc.test.mjs, share.test.mjs,
+        usage.test.mjs, page.test.mjs); platform/marketing +
+        platform/pages suite 1287/1287 after two rounds of fixes (a
+        FAQPage JSON-LD/visible-text em-dash divergence on two pages, and
+        one JSON-LD answer whose tail sentence didn't match its H3 prose
+        verbatim -- both caught by faq-visible.test.mjs); regen.mjs
+        --verify clean after regen (run standalone, never concurrently
+        with node --test, per CLAUDE.md); checklist_coverage.py and
+        sync_tree_counts.py clean (346 mirrored tools, 328 opt-out
+        switches, running-comment entries added in
+        gitops/tests/test_manifests.py and
+        platform/privacy/optout-persistence.test.mjs); gitops/ci's own
+        runs-on count resynced (sync_readme_counts.py); clauses.mjs clean
+        (no-warranty on both pages); score_ventures.py --check and
+        router/validate.py clean; publish_surface.py --write recorded the
+        new CI workflow (test_publish_surface.py was red until this);
+        gitops/tests 637 passed / 1 skipped (environmental, ssh binary
+        installed to clear the other 6); platform/ci unittest (27
+        modules) + agent_review's test_review clean;
+        platform/proposal+privacy+webcheck 241/243 (2 skipped, shallow
+        clone, documented); portfolio/ledger+scoring+router+usage+pipeline
+        + infra/tests 446/446. Browser/accessibility check
+        (browser_checks.py --only patreon-fee-calculator, Playwright
+        1.56.0 + axe-core) initially found a real WCAG AA contrast
+        failure (.result .note and .err at 3.71-3.77:1 against the
+        #c9401b panel background, need 4.5:1) -- fixed to #fff5ee
+        (4.6:1) and re-verified clean (7/8 checks pass, 1 skip:
+        `highlight` does not apply to this tool). CI confirmed starved
+        this session (ci_starvation.py --run 35989223465: runner_id 0,
+        3s, no steps), so verification ran locally per CLAUDE.md's
+        starvation checklist; run_workflow_locally.py --for-changes
+        surfaced the same mirror-staleness signal mid-session (caught
+        before push) from an edit made after an earlier regen.mjs run --
+        resolved by re-running regen.mjs last, after all content edits.
+    mrr_end: 0

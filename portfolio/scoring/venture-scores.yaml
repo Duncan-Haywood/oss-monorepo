@@ -16352,3 +16352,75 @@ ventures:
       comparison is disclosed methodology (FAQ: "why compare against a flat
       per-vehicle price?") rather than an unexplained claim about what any
       job "should" cost.
+
+  - slug: patreon-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.500
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- Patreon's plan
+      schedule (Standard 10%, or a legacy Lite/Pro/Premium rate of 5/8/12%
+      grandfathered by publish date), a payment-processing fee that switches
+      to a worse rate below $3, and the one-way mechanic that unpublishing a
+      legacy page forces it onto Standard -- and it is arithmetic a creator
+      has to be able to re-derive whenever their own tier mix changes.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's scoring
+      process, before this venture's own directory existed:
+      `duplicate_check.py` scored every existing venture, screened-out row,
+      ai-first-markets idea, and pipeline candidate at or below 0.17
+      (twitch-payout-calculator), well under the 0.45 near-duplicate bar --
+      no existing venture models a platform subscription/membership revenue
+      split with a per-charge micropayment threshold (the closest sibling,
+      twitch-payout-calculator, has a revenue split and a flat Bits rate but
+      no per-charge processing-fee cliff; the marketplace sellers' fee-
+      schedule ventures price a sale, not a recurring membership pledge).
+      Categorized under `marketplace` rather than `solo-earner` for the same
+      reason twitch-payout-calculator was: Patreon's platform fee is a
+      platform's own fee schedule applied to every creator on a plan, not a
+      private deal the creator negotiates. Defensibility 4, matching
+      twitch-payout-calculator: the plan-and-processing arithmetic is simple
+      once known, but the $3 micropayment threshold and the one-way
+      Standard-reversion mechanic are specific, sourced facts (Patreon's own
+      June 2025 pricing-change post) that a generic calculator would not get
+      right by default, and there is no seller-level-style multi-variable
+      schedule here, just one plan percentage plus one processing cliff.
+      Distribution 7: "patreon fee calculator" is a demonstrated search
+      query -- multiple third-party calculator sites already exist and rank
+      for that exact phrase, which is real, if unmeasured-by-us, evidence of
+      volume -- plus Patreon creator communities (r/patreon and similar) where
+      "why did my payout come in lower than I expected" is a recurring
+      thread topic tied directly to the plan/processing mechanics this tool
+      models; volume is unmeasured against this portfolio's own traffic,
+      which has never recorded a visitor reading for any product, so scored
+      at the same level as twitch-payout-calculator rather than above it.
+      Time to revenue 7, matching the rest of this portfolio's
+      free/donations-only ventures.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page and guide page state, near the top and
+      explicitly, that this is not a payout tracker, a payout-timing
+      estimator, or a substitute for the creator's own Patreon dashboard and
+      payout statements. No fee, rate, or threshold is hardcoded as a
+      permanent fact beyond illustrative defaults; the footer states
+      plainly that Patreon's terms change over time and to verify against
+      the user's own current Patreon dashboard and pricing page. The
+      platform-fee and micropayment-threshold figures are sourced to
+      Patreon's own June 2025 pricing-change announcement and dated. The
+      output is arithmetic on the creator's own figures, never a
+      recommended pledge price or a claim about Patreon's live terms.
+      Nothing entered leaves the browser. Ethically: donations-only with no
+      per-use fee, so nothing biases the arithmetic toward a higher or
+      lower result, and the tool never advises a creator to change their
+      plan -- it only reports what each plan would net at the creator's own
+      patron count, leaving the plan decision to them.
