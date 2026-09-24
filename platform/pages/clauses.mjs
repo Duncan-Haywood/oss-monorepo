@@ -1444,6 +1444,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against "a flat burden-percentage rule of thumb" -- a generic
+  // budgeting habit ("add 20-30% on top of wages") every small business
+  // owner already has, not a company or product this could be mistaken
+  // for. The page names no payroll or HR vendor at all.
+  'employee-cost-calculator/vs-a-flat-burden-percentage.html',
   // Compares against "a flat per-vehicle price" (a posted "$180 sedan /
   // $220 SUV / $250 truck" list) -- a pricing habit every independent tint
   // shop already posts, not a company or product this could be mistaken
