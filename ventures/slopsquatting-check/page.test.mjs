@@ -16,8 +16,8 @@ test('guide page links back to the tool', async () => {
   assert.match(page, /href="\.\/"/);
 });
 
-test('all three pages carry the no-warranty clause', async () => {
-  for (const file of ['index.html', 'what-is-slopsquatting.html', 'vs-socket.html']) {
+test('all four pages carry the no-warranty clause', async () => {
+  for (const file of ['index.html', 'what-is-slopsquatting.html', 'vs-socket.html', 'vs-checking-package-names-by-eye.html']) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), 'utf8');
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }
@@ -57,11 +57,17 @@ test('index links to the vs-socket comparison page', async () => {
   assert.match(page, /href="vs-socket\.html"/);
 });
 
-test('sitemap lists all three pages', async () => {
+test('index links to the vs-checking-package-names-by-eye comparison page', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="vs-checking-package-names-by-eye\.html"/);
+});
+
+test('sitemap lists all four pages', async () => {
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /index\.html/);
   assert.match(sitemap, /what-is-slopsquatting\.html/);
   assert.match(sitemap, /vs-socket\.html/);
+  assert.match(sitemap, /vs-checking-package-names-by-eye\.html/);
 });
 
 test('the FAQPage schema on index is valid JSON and matches the visible FAQ headings', async () => {

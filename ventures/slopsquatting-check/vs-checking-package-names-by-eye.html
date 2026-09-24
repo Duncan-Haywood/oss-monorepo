@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Slopsquatting Check vs. Eyeballing package.json by Hand</title>
+  <meta name="description" content="Reading a package.json for a hallucinated or typosquatted dependency name works, until the file has forty lines and the near-miss is one swapped letter. This free browser tool checks every name at once against a known-package list, offline, and the companion CLI checks whether the name even exists on the registry.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-checking-package-names-by-eye.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Slopsquatting Check vs. Eyeballing package.json by Hand">
+  <meta property="og:description" content="A one- or two-letter typo in a dependency name is exactly the kind of thing a tired eye skips over on line 30 of a package.json. This free tool checks every name against a known-package list in your browser, then a CLI checks the live registry.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/slopsquatting-check/vs-checking-package-names-by-eye.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't reading my own package.json always going to be more reliable?","acceptedAnswer":{"@type":"Answer","text":"For a file you wrote by hand, one dependency at a time, it can be. It gets harder the moment an AI assistant wrote the install command for you and you copied it without typing the name yourself -- you are now reading a name you did not choose, looking for a one- or two-character difference from a package you already trust, which is precisely the kind of change a fast read skips over. This tool compares every name in the file against roughly 130 well-known packages in a fraction of a second, the same check every time, no matter how tired the read is."}},{"@type":"Question","name":"What can a manual read catch that this tool cannot?","acceptedAnswer":{"@type":"Answer","text":"Context this tool has no access to: whether a name looks right for what the project actually needs, whether a teammate mentioned adding it, or whether it showed up in a diff nobody expected. The offline check only compares spelling against a short known-package list -- it has no opinion on whether a name that isn't a near-miss of something famous is safe, and it cannot tell you whether the name was ever intentional."}},{"@type":"Question","name":"Does this replace checking the package for real?","acceptedAnswer":{"@type":"Answer","text":"No. A flag from this page is a prompt to read that one dependency before trusting it -- the same read you would otherwise be doing for every dependency, just narrowed to the names worth a second look. And the offline page cannot tell you whether an unflagged name actually exists on the registry at all; that is what the companion CLI checks, with one read-only request per name against registry.npmjs.org."}},{"@type":"Question","name":"Why would a hallucinated name pass a careful manual read?","acceptedAnswer":{"@type":"Answer","text":"Because it is designed to. A model hallucinates names that sound exactly like something that should exist -- a plausible scoped package, a common utility-library shape -- and an attacker who has already registered that name is counting on a reviewer recognizing the shape and moving on. A near-miss of a package you already trust, buried among two dozen genuine dependencies, is the case a quick visual pass is built to miss and an edit-distance comparison is built to catch."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Slopsquatting Check</a></p>
+    <h1>Slopsquatting Check vs. Eyeballing package.json by Hand</h1>
+    <p class="lede">Reading your own <code>package.json</code> works, and for a file you typed yourself, one dependency at a time, it can be the fastest check there is. It gets harder the moment the install command came from an AI assistant and you copied it rather than typed it -- you are now scanning a list of names for a one- or two-character difference from something you already trust, which is exactly the kind of change a fast read skips over. This free tool checks every name at once against a known-package list, entirely offline in your browser.</p>
+
+    <section class="card">
+      <h2>What each approach is for</h2>
+      <p>
+        <strong>Reading it by eye</strong> means opening <code>package.json</code>, or the diff that added a line
+        to it, and recognizing whether each dependency name looks right. For a short file, or a name you typed
+        yourself and already know, this can be the whole job -- no tool needed.
+      </p>
+      <p>
+        <strong>This checker</strong> parses the <code>dependencies</code> and <code>devDependencies</code> you
+        paste and compares every name's edit distance against roughly 130 extremely well-known packages, entirely
+        in your browser, with no network call of any kind. It flags a name that looks like a one- or two-character
+        typo of something famous -- the exact shape a slopsquatted or typosquatted name takes -- in a fraction of a
+        second, whether the file has three dependencies or thirty.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where each approach earns its keep.</caption>
+        <thead><tr><th scope="col">Situation</th><th scope="col">Better fit</th></tr></thead>
+        <tbody>
+          <tr><td>A handful of dependencies you typed yourself and already know by name.</td><td>Reading by eye -- often faster than pasting the file in here.</td></tr>
+          <tr><td>An AI assistant's install suggestion you copied without typing it yourself.</td><td>This checker -- it compares the exact spelling instantly instead of relying on a read that trusts the name because it "looks right."</td></tr>
+          <tr><td>A longer <code>package.json</code>, or a name that is not close to anything on this tool's known-package list.</td><td>Both have limits here: a manual reader can miss a subtle near-miss among many lines, and this offline page has no way to know whether an unlisted name exists at all.</td></tr>
+          <tr><td>Whether a name that isn't a near-miss actually exists on the registry, and how old it is.</td><td>The companion CLI -- it makes the one live, read-only check this offline page deliberately does not.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">Treat this checker as a fast first pass across every name in the file, and a manual read as the judgment call on what a flagged (or not-flagged-but-unfamiliar) name is actually for. This page names no company or product being compared against -- reading a file by eye is a habit, not a competitor.</p>
+      <p><a class="cta" href="./">Run the free offline check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Isn't reading my own package.json always going to be more reliable?</h3>
+      <p>For a file you wrote by hand, one dependency at a time, it can be. It gets harder the moment an AI assistant wrote the install command for you and you copied it without typing the name yourself -- you are now reading a name you did not choose, looking for a one- or two-character difference from a package you already trust, which is precisely the kind of change a fast read skips over. This tool compares every name in the file against roughly 130 well-known packages in a fraction of a second, the same check every time, no matter how tired the read is.</p>
+      <h3>What can a manual read catch that this tool cannot?</h3>
+      <p>Context this tool has no access to: whether a name looks right for what the project actually needs, whether a teammate mentioned adding it, or whether it showed up in a diff nobody expected. The offline check only compares spelling against a short known-package list -- it has no opinion on whether a name that isn't a near-miss of something famous is safe, and it cannot tell you whether the name was ever intentional.</p>
+      <h3>Does this replace checking the package for real?</h3>
+      <p>No. A flag from this page is a prompt to read that one dependency before trusting it -- the same read you would otherwise be doing for every dependency, just narrowed to the names worth a second look. And the offline page cannot tell you whether an unflagged name actually exists on the registry at all; that is what the companion CLI checks, with one read-only request per name against registry.npmjs.org.</p>
+      <h3>Why would a hallucinated name pass a careful manual read?</h3>
+      <p>Because it is designed to. A model hallucinates names that sound exactly like something that should exist -- a plausible scoped package, a common utility-library shape -- and an attacker who has already registered that name is counting on a reviewer recognizing the shape and moving on. A near-miss of a package you already trust, buried among two dozen genuine dependencies, is the case a quick visual pass is built to miss and an edit-distance comparison is built to catch.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It flags npm dependency names that resemble a hallucinated or typosquatted variant of a well-known package -- it is not a malware scanner, not a security audit, and not a guarantee that an unflagged name is safe. It does not replace verifying a package yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>This page runs entirely in your browser. The package.json you paste is never uploaded, and this page makes no live comparison against any manual read -- it is a static page describing the tradeoff, not a live scan of any file. We count only anonymous local feature events, never people or file content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body>
+</html>
