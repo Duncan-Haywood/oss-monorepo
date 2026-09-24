@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 122 files, 553372 bytes
 #   portfolio-front-tools-6: 136 files, 549644 bytes
 #   portfolio-front-tools-7: 120 files, 548241 bytes
-#   portfolio-front-tools-8: 134 files, 550213 bytes
+#   portfolio-front-tools-8: 135 files, 555194 bytes
 #   portfolio-front-tools-9: 126 files, 557011 bytes
 #   portfolio-front-tools-10: 122 files, 556381 bytes
 #   portfolio-front-tools-11: 118 files, 554345 bytes
@@ -1199,6 +1199,7 @@ configMapGenerator:
       - drone-mapping-job-calculator__how-much-to-charge-for-drone-mapping.html.gz=drone-mapping-job-calculator__how-much-to-charge-for-drone-mapping.html.gz
       - drone-mapping-job-calculator__index.html.gz=drone-mapping-job-calculator__index.html.gz
       - drone-mapping-job-calculator__usage.mjs.gz=drone-mapping-job-calculator__usage.mjs.gz
+      - drone-mapping-job-calculator__vs-a-flat-per-acre-quote.html.gz=drone-mapping-job-calculator__vs-a-flat-per-acre-quote.html.gz
       - drone-mapping-job-calculator__vs-dronedeploy.html.gz=drone-mapping-job-calculator__vs-dronedeploy.html.gz
       - dryer-vent-bid-calculator__calc.mjs.gz=dryer-vent-bid-calculator__calc.mjs.gz
       - dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz=dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz
