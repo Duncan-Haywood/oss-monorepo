@@ -16185,3 +16185,129 @@ ventures:
       anything, and the report is explicit that a clean result describes
       only the one bucket checked and only the listing exposure class, not
       a full cloud security assessment.
+
+  - slug: employee-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. An owner comparing what a role
+      costs hired versus contracted needs every step to be re-derivable by
+      hand from their own rate notice, policy declaration and benefits
+      quote, so a model would make the figure less checkable without
+      making it more correct.
+    basis: >-
+      Graduated 2026-09-24. `duplicate_check.py` scored the closest match
+      (`shop-rate-calculator`, 0.28) well under the 0.45 flag bar, and read
+      rather than trusted: that tool derives a contractor's own crew rate
+      from their payroll and overhead for bidding their own labor;
+      `staffing-markup-calculator` (0.17) prices a third party's labor
+      billed to a client at a markup; this prices the fully-loaded cost of
+      staffing a role two different ways (W-2 hire vs. 1099 contractor) for
+      a business with no client and no markup in the picture. Not in
+      `screened-out.md`, which has no worker-classification-cost row.
+      Autonomous ops 10 / gross margin 10: a static page with no build
+      step, no dependencies and no network requests, so one more user
+      costs a static file and needs no human in any loop. Defensibility 4:
+      the FICA/FUTA/SUTA-wage-base-cap arithmetic is transparent and
+      reproducible, as it has to be for an owner to trust it, but the
+      break-even-rate closed form and the ongoing-vs-year-one cost split
+      are specific derivations a generic "burden %" calculator does not
+      make, the same shape `staffing-markup-calculator` and
+      `osha-trir-dart-calculator` score here. Distribution 6: a much
+      broader audience than the fleet's other burden calculators (every
+      small-business owner who has ever weighed hiring vs. contracting,
+      not one trade), with real recurring search phrases ("employee vs
+      contractor cost calculator", "true cost of an employee calculator")
+      -- scored the same as the narrower `osha-trir-dart-calculator`
+      rather than higher, because the incumbent results for those phrases
+      are payroll-vendor sites (ADP, Gusto, Paychex) with far more domain
+      authority than a single free calculator, not the lead-gen-only field
+      a narrower trade phrase usually finds. Volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The output is a cost comparison on numbers the visitor enters,
+      never a worker-classification determination -- the disclaimer, the
+      FAQ, and the notes array all explicitly deny that the tool decides,
+      or bears evidence toward, whether a specific worker should legally
+      be a W-2 employee or a 1099 contractor, naming the IRS common-law
+      test and state ABC tests as the actual determination and directing
+      the visitor to their own accountant or employment attorney. Nothing
+      entered leaves the browser.
+
+  - slug: window-tinting-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The pane-count-and-film-tier cost
+      breakdown, the old-tint removal time, and the flat-per-vehicle
+      comparison are all decided entirely by the numbers the installer types
+      in and a fixed set of preset windows/minutes/film-tier rates, not a
+      model judgment -- the same reasoning this portfolio applies to every
+      other deterministic bid calculator (e.g. land-survey-bid-calculator,
+      biohazard-cleanup-bid-calculator).
+    basis: >-
+      Screened 2026-09-24, same session, per portfolio/pipeline/README.md's
+      scoring process. `python3 portfolio/pipeline/duplicate_check.py` scored
+      every existing venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate below 0.21 for this niche (top match
+      wildlife-exclusion-bid-calculator at 0.21, an unrelated animal-proofing
+      trade sharing only generic bid-calculator vocabulary), and a full read
+      of screened-out.md and portfolio/pipeline/README.md's current
+      candidates turned up no "tint"/"tinting"/"window film" row anywhere in
+      the tree -- confirmed by grep, not recollection. Distinct from every
+      existing window-adjacent venture: window-cleaning-bid-calculator and
+      window-replacement-bid-calculator price washing and swapping glass, not
+      applying film to existing glass, and no venture prices auto or
+      architectural tint film.
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 6: auto window tinting is a mass consumer service with a
+      large installer base (far broader than a licensed-professional niche
+      like land surveying), and "how much should I charge for tint",
+      "window tint pricing calculator", and r/WindowTint-style installer
+      forum threads are a recurring, real trade question -- no search-volume
+      tool was queried from this sandbox to confirm magnitude, so scored at
+      this portfolio's typical bid-calculator distribution rather than above
+      it.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the portfolio's
+      typical bid-calculator floor), so the edge is being first and specific
+      to this niche's actual cost drivers (pane count, film tier, and
+      removal time, not vehicle size class) rather than a moat in the code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no check of the installer's state tint-darkness (VLT%) law, medical
+      exemption rules, or any other film-legality requirement, and does not
+      replace the installer's own judgment about scope or warranty terms;
+      the installer remains the one who quotes and performs the job.
+      Ethically: donations-only with no per-quote fee, so the tool has no
+      incentive to steer a bid up or down, and the flat-per-vehicle
+      comparison is disclosed methodology (FAQ: "why compare against a flat
+      per-vehicle price?") rather than an unexplained claim about what any
+      job "should" cost.

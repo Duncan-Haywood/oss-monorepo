@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
-import { computeJobBid, DEFAULTS } from './calc.mjs';
+import { calculateJobBid, DEFAULTS } from './calc.mjs';
 
 const page = (name) => fs.readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const html = page('how-much-does-biohazard-cleanup-cost.html');
@@ -41,10 +41,10 @@ test('the page names no specific competitor, so it needs no trademark-affiliatio
 });
 
 test('the worked figures match the calculator\'s own verified defaults', () => {
-  const base = computeJobBid(DEFAULTS);
-  const twoCycles = computeJobBid({ ...DEFAULTS, deconCyclesPerTechnician: 2 });
-  const bigWaste = computeJobBid({ ...DEFAULTS, biohazardWastePounds: 155 });
-  const smallScene = computeJobBid({ ...DEFAULTS, technicianCount: 1, hoursOnSitePerTechnician: 2, biohazardWastePounds: 15 });
+  const base = calculateJobBid(DEFAULTS);
+  const twoCycles = calculateJobBid({ ...DEFAULTS, deconCyclesPerTechnician: 2 });
+  const bigWaste = calculateJobBid({ ...DEFAULTS, biohazardWastePounds: 155 });
+  const smallScene = calculateJobBid({ ...DEFAULTS, technicianCount: 1, hoursOnSitePerTechnician: 2, biohazardWastePounds: 15 });
 
   assert.equal(base.price.toFixed(2), '1374.67');
   assert.equal(base.directCost.toFixed(2), '1031.00');
