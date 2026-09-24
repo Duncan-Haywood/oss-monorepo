@@ -1570,6 +1570,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-codecov.html, which names a specific hosted service
   // and already carries the trademark disclaimer.
   'coverage-drop-check/vs-a-flat-coverage-floor.html',
+  // Compares against "a spreadsheet" -- a generic method every fleet owner
+  // already has, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("names no specific product").
+  // Distinct from this venture's own vs-fleet-management-software.html,
+  // which names a category of paid product and already carries its own
+  // trademark-free framing. Same reasoning as the other vs-spreadsheet
+  // pages above.
+  'fleet-repair-or-replace-planner/vs-spreadsheet.html',
   // Compares against "holding this year's repair invoice up against a new
   // price" -- the default comparison every fleet owner already runs in their
   // head, not a company or product this could be mistaken for. The page
