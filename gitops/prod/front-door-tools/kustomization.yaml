@@ -41,8 +41,8 @@
 #   portfolio-front-tools-5: 121 files, 555053 bytes
 #   portfolio-front-tools-6: 136 files, 557030 bytes
 #   portfolio-front-tools-7: 126 files, 554874 bytes
-#   portfolio-front-tools-8: 127 files, 556113 bytes
-#   portfolio-front-tools-9: 138 files, 548734 bytes
+#   portfolio-front-tools-8: 127 files, 555916 bytes
+#   portfolio-front-tools-9: 139 files, 552879 bytes
 #   portfolio-front-tools-10: 125 files, 556549 bytes
 #   portfolio-front-tools-11: 116 files, 551365 bytes
 #   portfolio-front-tools-12: 117 files, 555655 bytes
@@ -1192,6 +1192,7 @@ configMapGenerator:
       - depop-fee-calculator__calc.mjs.gz=depop-fee-calculator__calc.mjs.gz
       - depop-fee-calculator__index.html.gz=depop-fee-calculator__index.html.gz
       - depop-fee-calculator__usage.mjs.gz=depop-fee-calculator__usage.mjs.gz
+      - depop-fee-calculator__vs-tracking-depop-sales-in-a-spreadsheet.html.gz=depop-fee-calculator__vs-tracking-depop-sales-in-a-spreadsheet.html.gz
       - depreciation-recapture-calculator__calc.mjs.gz=depreciation-recapture-calculator__calc.mjs.gz
       - depreciation-recapture-calculator__index.html.gz=depreciation-recapture-calculator__index.html.gz
       - depreciation-recapture-calculator__is-1031-boot-taxed-at-my-average-rate.html.gz=depreciation-recapture-calculator__is-1031-boot-taxed-at-my-average-rate.html.gz
@@ -1281,12 +1282,12 @@ configMapGenerator:
       - dumpster-rental-margin-calculator__index.html.gz=dumpster-rental-margin-calculator__index.html.gz
       - dumpster-rental-margin-calculator__usage.mjs.gz=dumpster-rental-margin-calculator__usage.mjs.gz
       - dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz=dumpster-rental-margin-calculator__vs-a-spreadsheet.html.gz
-      - dumpster-rental-margin-calculator__vs-jobber.html.gz=dumpster-rental-margin-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dumpster-rental-margin-calculator__vs-jobber.html.gz=dumpster-rental-margin-calculator__vs-jobber.html.gz
       - dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz=dumpster-rental-margin-calculator__why-your-overage-fee-might-be-losing-you-money.html.gz
       - duplicate-payment-audit__app.mjs.gz=duplicate-payment-audit__app.mjs.gz
       - duplicate-payment-audit__detect.mjs.gz=duplicate-payment-audit__detect.mjs.gz
