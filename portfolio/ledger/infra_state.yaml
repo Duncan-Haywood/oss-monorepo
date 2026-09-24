@@ -572,7 +572,7 @@ readings:
   github-pages-branch-route:
     verdict: up
     measured: "2026-09-24"
-    run: 36055873833
+    run: 36059879759
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
@@ -947,3 +947,25 @@ readings:
       and its two follow-up fixes had grown the catalogue since the prior
       reading). Confirms the pattern rather than changing it; re-announce
       again after further catalogue growth.
+      **2026-09-24 (a sixth): re-measured again, same `selective: false`
+      environment** -- `platform/marketing/indexnow.mjs --submit --ref
+      gh-pages` succeeded (`POST https://api.indexnow.org/indexnow ->
+      200`, 1599 URLs, after `mega-backdoor-roth-calculator` (#5769)
+      graduated and the mirror was republished). The local clone needed
+      `git fetch origin gh-pages` plus `git branch -f gh-pages
+      origin/gh-pages` first -- the script reads the ref with `git show
+      gh-pages:catalog.json`, which needs a local branch by that name, not
+      only the `origin/gh-pages` remote-tracking ref a plain fetch leaves
+      behind.
+      **2026-09-24 (another by-hand announcement, later the same day; exact
+      ordinal not tracked here since concurrent sessions are recording their
+      own instances of this same reading in parallel and the count would
+      race the same way `sync_tree_counts.py`'s counters do) --
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages` succeeded
+      again** (`POST https://api.indexnow.org/indexnow -> 200`, 1600 URLs
+      from the `gh-pages` snapshot at `a4b7d9d65`, pushed 2026-09-24T21:11:30Z).
+      Same environment, same result: the by-hand route keeps working when
+      tried, `publish-pages-branch.yml` remains starved on every run,
+      `indexnow_state.py`'s `never` verdict is unaffected (it reads only
+      workflow history by design). Re-announce again after further
+      catalogue growth.

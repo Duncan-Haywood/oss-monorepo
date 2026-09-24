@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 361 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 364 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,24 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Claude Code settings.json (and, optionally, settings.local.json) and get every structural mistake flagged: a hook matcher that can&#39;t compile, a hook with no command, a misspelled event name, a permission rule with unbalanced parentheses, a rule duplicated across allow/deny/ask, and a rule that contradicts itself across the two files. Free, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Claude Code Subagent Check — find subagents that never get delegated to</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-code-subagent-check/"/>
+    <id>tag:marisstella.dev,2026:tool/claude-code-subagent-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a Claude Code subagent definition (.claude/agents/*.md) and get every structural mistake flagged: a name that isn&#39;t kebab-case, a missing or vague description that stops automatic delegation, a tools list with an empty or unrecognized entry, an unrecognized model alias, and a near-empty system prompt. Free, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Claude Skill Scaffold Generator — turn a plain-language description into a starter SKILL.md</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-skill-scaffold-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/claude-skill-scaffold-generator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Type what a Claude Agent Skill should do and when Claude should use it, plus any scripts, references, or assets it bundles, and get a starter SKILL.md with valid YAML frontmatter and a suggested folder layout -- checked for the common authoring mistakes that keep a skill from triggering. Free, runs entirely in your browser, nothing uploaded, no model call.</summary>
   </entry>
   <entry>
     <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
@@ -130,7 +148,7 @@
     <id>tag:marisstella.dev,2026:tool/mega-backdoor-roth-calculator</id>
     <published>2026-09-24T00:00:00Z</published>
     <updated>2026-09-24T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions, and after-tax contributions and get your remaining after-tax headroom under the 2025/2026 IRS 415(c) limit, plus the per-paycheck amount to use it up by year-end. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
@@ -159,6 +177,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range, and which of those states currently require one by law, with the effective date and size threshold cited. Free, runs entirely in your browser — not legal advice.</summary>
+  </entry>
+  <entry>
+    <title>Senior Deduction Calculator — Free OBBBA $6,000 65+ Estimator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/senior-deduction-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/senior-deduction-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the new federal &#39;senior bonus&#39; deduction (One Big Beautiful Bill Act, tax years 2025-2028): up to $6,000 per qualifying taxpayer age 65+ ($12,000 if both spouses qualify), the 6%-per-dollar MAGI phase-out above $75,000 single/HOH/QSS or $150,000 joint, and the married-filing-separately exclusion. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Skill Manifest Check — lint a SKILL.md before it ships</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, in-browser tool: paste your Supabase project URL and anon key, and it sends a real read-only request to every table it can see, naming which ones return real rows to an unauthenticated request -- the CVE-2025-48757 missing-RLS exposure class. Nothing uploaded to us.</summary>
-  </entry>
-  <entry>
-    <title>Turo Host Payout Calculator — Free, No Sign-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/turo-host-payout-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/turo-host-payout-calculator</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Turo host payout calculator. Turo&#39;s host share now depends on your earnings plan (Peace of Mind, Balanced, More Earnings) AND how far ahead the guest books — this tool models the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate. No sign-up, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Voice-Over Project Rate Calculator — Free, No Sign-Up</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/voiceover-project-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/voiceover-project-rate-calculator</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Free voice-over rate calculator for freelance VO artists. Price a commercial, e-learning, IVR, or explainer script per word or per finished minute, scaled by usage/licensing term (internal, web, broadcast, buyout) — or price an audiobook per finished hour from manuscript word count. No sign-up, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dimensional Weight Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/parcel-dim-weight-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/parcel-dim-weight-calculator</id>
-    <published>2026-09-18T00:00:00Z</published>
-    <updated>2026-09-18T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Work out the billable weight of a parcel from its box size, weight and DIM divisor — then see the box size that stops you paying for air, and whether the carton trips an additional-handling or oversize surcharge.</summary>
   </entry>
 </feed>
