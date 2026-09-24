@@ -1873,6 +1873,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "reading the file by hand" -- a manual review habit
+  // every developer already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
+  // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
+  'hidden-unicode-check/vs-reading-the-file-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
