@@ -397,6 +397,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // page's own footer says so explicitly ("names no specific product").
   // Same reasoning as the other manual-method pages above.
   'call-recording-consent-check/vs-checking-each-states-statute-by-hand.html',
+  // Compares against "checking each state's law by hand" (a one-off web
+  // search) -- a generic manual method anyone can do with a search engine,
+  // not a company or product this could be mistaken for. The page's own
+  // footer says so explicitly ("names no specific product"). Same reasoning
+  // as the other manual-method pages above.
+  'salary-range-posting-check/vs-checking-each-states-law-by-hand.html',
   // Compares against "a flat price per square foot" -- a generic pricing
   // method every insulation crew already has access to, not a company or
   // product this could be mistaken for. Same reasoning as the other
@@ -1831,6 +1837,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same shape as docker-build-secrets-check's
   // vs-reading-a-dockerfile-by-hand.html.
   'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
+  // Compares against "reading values.yaml next to values.schema.json by
+  // eye" -- a manual review habit any chart author already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-helm-lint.html, which names a specific tool (Helm)
+  // and already carries the "not affiliated" clause for that reason. Same
+  // shape as sql-migration-lock-check's vs-reading-the-migration-by-hand.html.
+  'helm-values-schema-check/vs-checking-it-by-eye.html',
   // Compares against "a flat 3-hour, $500 package" -- the generic
   // flat-rate booking pattern any mobile photo booth operator already
   // uses, not a company or product this could be mistaken for. Distinct
