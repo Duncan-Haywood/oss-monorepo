@@ -16185,6 +16185,47 @@ ventures:
       anything, and the report is explicit that a clean result describes
       only the one bucket checked and only the listing exposure class, not
       a full cloud security assessment.
+  - slug: str-occupancy-tax-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The per-layer split between what
+      a platform collects and what the host must remit is arithmetic on
+      inputs the host supplies (rates, and the platform's own published
+      collection-agreement coverage), never a model judgment about what a
+      specific listing owes.
+    basis: >-
+      Graduated on 2026-09-24 as a browser-local short-term rental
+      occupancy-tax calculator. Scored with the sibling STR and HOA
+      calculators on gross margin and ops -- serving one more host costs a
+      static file. Defensibility 3, distribution 7: the fee-split
+      arithmetic is easily reimplemented, so the moat is being first with
+      the specific "platform collects some layers, not all" framing;
+      "airbnb occupancy tax calculator" and "vrbo tax by county" are real
+      high-intent queries a generic combined-rate calculator does not
+      answer, distinct from str-host-payout-calculator's payout-fee
+      comparison.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The output is arithmetic on figures the host supplies --
+      nightly rate, fees, and each layer's rate and platform-collection
+      percentage -- never a determination about which authorities tax a
+      specific listing or what a platform's current agreements cover. No
+      rate table ships, so nothing here can be a stale claim about a real
+      tax rate. Nothing entered leaves the browser, and the page repeatedly
+      tells the host to verify against each authority's own guidance and a
+      qualified tax professional before relying on it.
 
   - slug: employee-cost-calculator
     scores:

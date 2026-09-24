@@ -3,4 +3,5 @@
 <url><loc>https://example.invalid/cache-control-check/</loc></url>
 <url><loc>https://example.invalid/cache-control-check/why-isnt-my-cdn-caching-this.html</loc></url>
 <url><loc>https://example.invalid/cache-control-check/vs-curl.html</loc></url>
+<url><loc>https://example.invalid/cache-control-check/vs-checking-headers-by-eye-in-devtools.html</loc></url>
 </urlset>
