@@ -46,11 +46,11 @@
 #   portfolio-front-tools-10: 120 files, 550239 bytes
 #   portfolio-front-tools-11: 117 files, 553827 bytes
 #   portfolio-front-tools-12: 118 files, 554956 bytes
-#   portfolio-front-tools-13: 129 files, 556027 bytes
-#   portfolio-front-tools-14: 124 files, 556756 bytes
-#   portfolio-front-tools-15: 134 files, 553835 bytes
-#   portfolio-front-tools-16: 105 files, 555046 bytes
-#   portfolio-front-tools-17: 116 files, 548833 bytes
+#   portfolio-front-tools-13: 128 files, 556481 bytes
+#   portfolio-front-tools-14: 125 files, 557014 bytes
+#   portfolio-front-tools-15: 134 files, 553001 bytes
+#   portfolio-front-tools-16: 104 files, 551471 bytes
+#   portfolio-front-tools-17: 118 files, 557050 bytes
 #   portfolio-front-tools-18: 128 files, 551082 bytes
 #   portfolio-front-tools-19: 89 files, 432493 bytes
 #   portfolio-front-tools-20: 51 files, 264832 bytes
@@ -1820,6 +1820,7 @@ configMapGenerator:
       - menu-engineering-calculator__how-menu-engineering-works.html.gz=menu-engineering-calculator__how-menu-engineering-works.html.gz
       - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
       - menu-engineering-calculator__usage.mjs.gz=menu-engineering-calculator__usage.mjs.gz
+      - menu-engineering-calculator__vs-averaging-margins-in-a-spreadsheet.html.gz=menu-engineering-calculator__vs-averaging-margins-in-a-spreadsheet.html.gz
       - menu-engineering-calculator__vs-marginedge.html.gz=menu-engineering-calculator__vs-marginedge.html.gz
       - menu-engineering-calculator__vs-ranking-by-food-cost-percent.html.gz=menu-engineering-calculator__vs-ranking-by-food-cost-percent.html.gz
       - mercari-fee-calculator__calc.mjs.gz=mercari-fee-calculator__calc.mjs.gz
@@ -1932,13 +1933,13 @@ configMapGenerator:
       - overtime-pay-calculator__vs-doing-it-by-hand.html.gz=overtime-pay-calculator__vs-doing-it-by-hand.html.gz
       - overtime-pay-calculator__vs-spreadsheet.html.gz=overtime-pay-calculator__vs-spreadsheet.html.gz
       - overtime-pay-calculator__why-overtime-resets-every-workweek.html.gz=overtime-pay-calculator__why-overtime-resets-every-workweek.html.gz
-      - package-exports-drift-check__cli.mjs.gz=package-exports-drift-check__cli.mjs.gz
-      - package-exports-drift-check__engine.mjs.gz=package-exports-drift-check__engine.mjs.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - package-exports-drift-check__cli.mjs.gz=package-exports-drift-check__cli.mjs.gz
+      - package-exports-drift-check__engine.mjs.gz=package-exports-drift-check__engine.mjs.gz
       - package-exports-drift-check__index.html.gz=package-exports-drift-check__index.html.gz
       - package-exports-drift-check__usage.mjs.gz=package-exports-drift-check__usage.mjs.gz
       - package-exports-drift-check__vs-publint.html.gz=package-exports-drift-check__vs-publint.html.gz
@@ -2062,12 +2063,12 @@ configMapGenerator:
       - popcorn-ceiling-bid-calculator__usage.mjs.gz=popcorn-ceiling-bid-calculator__usage.mjs.gz
       - popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=popcorn-ceiling-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
       - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz
-      - poshmark-fee-calculator__calc.mjs.gz=poshmark-fee-calculator__calc.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - poshmark-fee-calculator__calc.mjs.gz=poshmark-fee-calculator__calc.mjs.gz
       - poshmark-fee-calculator__how-much-does-poshmark-take.html.gz=poshmark-fee-calculator__how-much-does-poshmark-take.html.gz
       - poshmark-fee-calculator__index.html.gz=poshmark-fee-calculator__index.html.gz
       - poshmark-fee-calculator__is-a-lower-offer-worth-it-on-poshmark.html.gz=poshmark-fee-calculator__is-a-lower-offer-worth-it-on-poshmark.html.gz
@@ -2201,12 +2202,12 @@ configMapGenerator:
       - security-camera-bid-calculator__index.html.gz=security-camera-bid-calculator__index.html.gz
       - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
       - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
-      - security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz=security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz=security-camera-bid-calculator__vs-a-flat-per-camera-price.html.gz
       - security-camera-bid-calculator__vs-d-tools.html.gz=security-camera-bid-calculator__vs-d-tools.html.gz
       - security-camera-bid-calculator__vs-housecall-pro.html.gz=security-camera-bid-calculator__vs-housecall-pro.html.gz
       - security-deposit-return-calculator__calculator.mjs.gz=security-deposit-return-calculator__calculator.mjs.gz
@@ -2310,13 +2311,13 @@ configMapGenerator:
       - sign-language-interpreter-rate-calculator__vs-a-flat-fee-per-assignment.html.gz=sign-language-interpreter-rate-calculator__vs-a-flat-fee-per-assignment.html.gz
       - sign-language-interpreter-rate-calculator__vs-a-spreadsheet.html.gz=sign-language-interpreter-rate-calculator__vs-a-spreadsheet.html.gz
       - sitemap-lastmod-freshness-check__check.mjs.gz=sitemap-lastmod-freshness-check__check.mjs.gz
-      - sitemap-lastmod-freshness-check__engine.mjs.gz=sitemap-lastmod-freshness-check__engine.mjs.gz
-      - sitemap-lastmod-freshness-check__fetch-url.mjs.gz=sitemap-lastmod-freshness-check__fetch-url.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sitemap-lastmod-freshness-check__engine.mjs.gz=sitemap-lastmod-freshness-check__engine.mjs.gz
+      - sitemap-lastmod-freshness-check__fetch-url.mjs.gz=sitemap-lastmod-freshness-check__fetch-url.mjs.gz
       - sitemap-lastmod-freshness-check__index.html.gz=sitemap-lastmod-freshness-check__index.html.gz
       - sitemap-lastmod-freshness-check__usage.mjs.gz=sitemap-lastmod-freshness-check__usage.mjs.gz
       - sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz=sitemap-lastmod-freshness-check__vs-xml-sitemaps-validator.html.gz
