@@ -1863,6 +1863,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "a flat $799 installed" water-softener special -- a
+  // generic pricing method every plumbing/water-treatment shop is shopped
+  // against, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("common, honest shortcut").
+  // Distinct from this venture's own vs-jobber.html, which names Jobber
+  // specifically and already carries the trademark disclaimer.
+  'water-softener-bid-calculator/vs-a-flat-799-installed-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

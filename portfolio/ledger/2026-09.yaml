@@ -41390,3 +41390,48 @@ entries:
         confirmed-visitor counts remain at zero, which this fix does not
         change on its own.
     mrr_end: 0
+  - venture: water-softener-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped water-softener-bid-calculator's first generic-method
+        comparison page (0/1 per surface-budget.mjs):
+        vs-a-flat-799-installed-special.html, against the "$799 installed"
+        flat special the venture's own JOB_PRESETS already reference. Worked
+        examples pinned against calc.mjs at the form's own defaults ($42
+        crew wage, 32% burden, 18% overhead, 35% target margin): even the
+        cheapest job the calculator prices -- the 32k PEX garage hang the
+        $799 special was written for, with the first 10 feet already
+        included -- walks away at $1,317.56, already $518.56 over the
+        special; a 48k copper cut-in with 25 ft of extra pipe and haul-away
+        at $2,601.00; a 64k system with an iron filter, a long brine drain,
+        haul-away, and a brine receptacle at $4,968.05. All three worked
+        rows lose against the flat special, so the page carries a
+        dedicated test asserting each figure against a live calc.mjs run
+        rather than a hand-typed number that could drift from the
+        calculator. Listed in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT,
+        linked from index.html, added to sitemap.xml. Selected via
+        portfolio/router/allocate.py's merit ranking intersected with
+        surface-budget.mjs's 0-generic-method ventures (92 candidates),
+        since the router's own top-ranked candidates already had their
+        comparison-page budget filled by concurrent sessions.
+      - >-
+        Also ran a fresh whole-catalogue Playwright/axe-core accessibility
+        sweep and a `run_workflow_locally.py --tree` sweep earlier in the
+        session (both requested by CLAUDE.md's starvation checklist): all 8
+        browser checks passed clean (0 WCAG A/AA violations, 357/357 tools
+        answered, 1536/1536 sitemap URLs resolved) and all 9 selected
+        verification-only workflows passed once `python3-pytest` was
+        installed via apt. Neither reading was pushed: `browser_state.json`
+        went stale again within minutes (another session had already
+        recorded a fresher one at f5b24635f7 while this one was running),
+        so committing it would have been a fourth near-duplicate reading in
+        under an hour -- the exact pattern this file's "platform" entry
+        just above already recorded once this session.
+      - >-
+        Verified: the venture's own 113 assertions (up from 96),
+        clauses.mjs, surface-budget.mjs --for water-softener-bid-calculator,
+        faq-coverage.mjs, faq-duplicate.mjs (1495 pages, no duplicates), and
+        checklist_coverage.py all pass clean.
+    mrr_end: 0
