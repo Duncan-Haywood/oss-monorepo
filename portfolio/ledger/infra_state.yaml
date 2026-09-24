@@ -572,7 +572,7 @@ readings:
   github-pages-branch-route:
     verdict: up
     measured: "2026-09-24"
-    run: 36037172452
+    run: 36038911455
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
@@ -913,3 +913,13 @@ readings:
       (this one and 2026-09-23's 1234-URL run) with no committed workflow run
       to show for either — re-announce after any further catalogue growth
       rather than assuming one submission covers what shipped since.
+      **2026-09-24 (later the same day): re-measured again, same
+      `selective: false` environment, third by-hand announcement --
+      `platform/marketing/indexnow.mjs --submit --ref gh-pages` succeeded**
+      (`POST https://api.indexnow.org/indexnow -> 200`, 1556 URLs from the
+      then-current `gh-pages` snapshot, after two more merges had grown the
+      catalogue since the prior reading). Confirms the pattern rather than
+      changing it: a session in this egress mode can announce, the workflow
+      route stays starved and un-runnable, and `indexnow_state.py`'s `never`
+      verdict remains correct-as-designed for the reason already stated
+      above. Re-announce again after further catalogue growth.

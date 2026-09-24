@@ -684,7 +684,16 @@ const RELATIVE_SELF = relative(
 // 334 -> 335: `salary-range-posting-check` also graduated, concurrently
 // on `main` -- adding one more `usage.mjs`
 // (`ventures/salary-range-posting-check/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 335;
+//
+// 335 -> 336: `k8s-resource-limits-check` also graduates -- adding one
+// `usage.mjs` following the same opt-out pattern as its siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `k8s-resource-limits-check-usage` storage name). This branch only ever
+// knew its own predecessor's number (331, before any of the four merges
+// above landed) until this merge -- the same ordinary collision shape
+// recorded throughout this list. Exactly one added `usage.mjs`
+// (`ventures/k8s-resource-limits-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 336;
 
 let counter = 0;
 function fixture(source) {
