@@ -40664,3 +40664,38 @@ entries:
         surface-budget.mjs --check, clauses.mjs --check all clean; venture's
         own suite 133/133).
     mrr_end: 0
+  - venture: medical-courier-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped medical-courier-route-margin's first generic-method
+        comparison page (0/1 per surface-budget.mjs --for): vs-a-spreadsheet.html
+        (PR #5608). Two worked examples pinned against calc.mjs: a spreadsheet
+        with no column for deadhead reports the calculator's own default route
+        at $151.80 margin (50.6%), which drops to $131.49 (43.83%) once a real
+        12-mile/25-minute deadhead leg is counted -- the $20.31 gap was always
+        there, just uncounted; and a naive quote that adds a 20% target margin
+        on top of cost ($118.20 / (1-20%) = $147.75, forgetting overhead also
+        scales with the price) actually realizes only 10.00% margin once the
+        10% overhead is billed on it, versus this calculator's $168.86 quote
+        that solves for margin and overhead in the same pass. Linked from
+        index.html, added to sitemap.xml and clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT.
+      - >-
+        Session ran during a confirmed Actions starvation window
+        (ci_starvation.py: runner_id 0 on portfolio-validate.yml), so the
+        full local checklist was run instead: venture suite 46/46,
+        platform/pages 1015/1015, platform/marketing 272/272 (after
+        regen.mjs, twice -- two sibling PRs landed on main mid-session and
+        each collision required platform/marketing/resolve-mirror-merge.sh
+        plus a full regen.mjs pass for the front-door/ generator, which
+        resolve-mirror-merge.sh does not cover), gitops/tests 637/1 skip,
+        all 15 platform/ci unittest modules, portfolio
+        ledger/scoring/router/usage/pipeline/infra pytest 446/446,
+        checklist_coverage.py, and the 8 portfolio-validate.yml validators
+        with no dedicated test file. Also refreshed the stale gh-pages
+        snapshot (found stale at session start, built from an older commit
+        than main's tip) both before and after this PR merged, and recorded
+        the infra_state.yaml reading each time (#5618).
+    mrr_end: 0
