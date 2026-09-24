@@ -1653,6 +1653,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (the test file asserts none of the sibling pages' named products
   // appear). Same reasoning as the other generic-method pages above.
   '3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html',
+  // Compares against "multiplying total monthly tokens by one headline
+  // blended $/M rate" -- the generic estimating shortcut any developer
+  // sizing an LLM API bill already reaches for, not a company or product
+  // this could be mistaken for. The worked example uses the calculator's
+  // own preloaded "Anthropic (Claude)" example rates, the same illustrative
+  // placeholders index.html already labels as examples, not a claim about
+  // Anthropic's or any vendor's current pricing. Same reasoning as the
+  // other generic-method pages above.
+  'llm-api-pricing-calculator/vs-a-blended-per-token-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
