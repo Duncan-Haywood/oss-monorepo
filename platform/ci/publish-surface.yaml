@@ -767,6 +767,9 @@ workflows:
 - workflow: npm-lifecycle-script-check-ci.yml
   classification: none
   publishes: []
+- workflow: npm-provenance-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: npm-reachability-triage-ci.yml
   classification: none
   publishes: []
