@@ -42377,3 +42377,58 @@ entries:
         live runner), and the ledger/scoring/router/usage/pipeline/infra
         pytest suite (446 passed).
     mrr_end: 0
+  - venture: depop-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the venture's first marketing surface, a generic-method
+        comparison page ("vs. tracking Depop sales in a spreadsheet"):
+        surface-budget.mjs reported 0 generic-method, 0 named-product, and 0
+        guide pages for this venture (merged same day in #5679), one of 21
+        ventures with zero comparison pages found by scanning `ventures/*`
+        for a missing `vs-*.html`. Linked from index.html, added to
+        sitemap.xml, and covered by new page.test.mjs assertions (FAQ
+        JSON-LD verbatim-echo, disclaimer/trademark-notice text, Open Graph
+        + robots/canonical on every page in the venture).
+      - >-
+        Caught and fixed one real defect before pushing: the JSON-LD answer
+        text used a plain "--" where the visible prose used an em dash,
+        which platform/pages/faq-visible.test.mjs (part of the 1290-test
+        platform/marketing + platform/pages suite) correctly flags as the
+        JSON-LD and the visible page silently diverging.
+      - >-
+        Regenerated the front-door mirror (platform/marketing/regen.mjs) so
+        the apex catalogue serves the new page; hit the mirror's known
+        merge-conflict shape twice while pushing, since two sibling
+        comparison-page PRs landed on `main` in the minutes between each
+        push attempt (CLAUDE.md's "any constant/generated-file touching PR
+        will collide" -- this is that, in the generated mirror rather than a
+        hand-typed count). Resolved both per resolve-mirror-merge.sh's own
+        guidance: never hand-pick a side, take origin/main's copy of the
+        generated files and re-run regen.mjs from the merged tree, verified
+        clean with regen.mjs --verify before each push.
+      - >-
+        Verified before merging, since Actions is starved this session
+        (ci_starvation.py confirmed runner_id: 0 on a same-repo run):
+        venture's own suite 32/32, the full platform/marketing +
+        platform/pages suite 1289/1290 then 1290/1290 after the em-dash fix,
+        gitops/tests 613 passed/25 skipped (environmental --
+        nginx-light/openssh-client not installed this session), the
+        platform/ci unittest modules (15) and agent_review's test_review
+        (21) all pass, checklist_coverage.py clean, surface-budget.mjs
+        --check clean (venture now 1/1), regen.mjs --verify clean,
+        sync_tree_counts.py clean, run_workflow_locally.py --for-changes
+        (71/71 portfolio-validate.yml run: steps passed, 9 workflows
+        correctly excluded as needing owner credentials or a live cluster),
+        and the ledger/scoring/router/usage/pipeline/infra pytest suite (446
+        passed).
+      - >-
+        Merged (#5715), then refreshed the GitHub Pages branch-source
+        snapshot per CLAUDE.md's standing job (publish-branch.sh,
+        pages_state.py --require-current/--record, recorded in #5728, also
+        merged). Revenue and confirmed-visitor counts remain at zero, which
+        this does not change on its own -- usage_state.py --require-honest
+        confirms no steering document reports that null as an observed
+        zero.
+    mrr_end: 0
