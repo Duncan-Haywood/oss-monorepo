@@ -1278,6 +1278,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other generic-method pages
   // above.
   'atm-route-margin/vs-ranking-by-transaction-count.html',
+  // Compares against "ranking sites by extinguisher count" -- a habit every
+  // inspection route operator already has from a unit-count schedule, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-servicetitan.html, which names a specific field-service
+  // platform and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as atm-route-margin's transaction-count
+  // exemption above.
+  'fire-extinguisher-inspection-route-margin/vs-ranking-sites-by-extinguisher-count.html',
   // Compares against "running dig by hand" -- a manual DNS lookup habit
   // every developer and admin already has, not a company or product this
   // could be mistaken for. Distinct from this venture's own
