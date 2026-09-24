@@ -40356,6 +40356,62 @@ entries:
         the Playwright/axe-core browser-check line was not run.
     mrr_end: 0
 
+  - venture: crown-molding-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a guide page,
+        should-i-match-a-cheaper-quote-on-a-stain-grade-job.html, testing
+        the venture's second untested hypothesis directly: "the walk-away
+        price and the extra-work share ... are the two figures a carpenter
+        actually decides on when an owner asks them to match a cheaper
+        paint-grade quote on a stain-grade foyer." surface-budget.mjs --for
+        crown-molding-bid-calculator showed the venture already at its
+        one-per-venture generic-method budget (vs-a-flat-rate-crown-molding-
+        special.html), so this ships as an unbudgeted guide page rather than
+        a third vs-page. It walks the same-80-lf scenario (paint-grade cove
+        vs. stain-grade built-up foyer) through calculateBid() directly:
+        walk-away price $1,182.95 vs $7,710.87, and a new
+        extra-work-hour-share metric (corners + ceiling + access + demo +
+        blocking + LED + casing, as a share of total crew hours) at 21.4%
+        vs 60.2% on identical footage -- both numbers pinned to calc.mjs's
+        own arithmetic in the new test file, not hand-typed. Linked from
+        index.html and how-much-to-charge-to-install-crown-molding.html,
+        added to sitemap.xml.
+      - >-
+        Verified: venture suite 151/151 (ventures/crown-molding-bid-
+        calculator/**/*.test.mjs); platform/pages/faq-visible.test.mjs
+        (4/4) and faq-duplicate.mjs (1429 pages, no duplicates);
+        clauses.mjs crown-molding-bid-calculator clean (7 published pages
+        carry required clauses); surface-budget.mjs --for confirms the new
+        page counts as an unbudgeted guide, not a third generic-method
+        page; checklist_coverage.py clean; regen.mjs --verify caught the
+        front-door mirror stale for the new page and the two edited pages,
+        regen.mjs committed the fix, --verify clean after; platform/
+        marketing + platform/pages suite 1287/1287; platform/proposal
+        101/101; platform/privacy + platform/webcheck 142/142; gitops/tests
+        637 passed/1 skipped (environmental); platform/ci unittest (all 26
+        top-level modules clean; agent_review's test_review 21/21, run
+        from its own directory per the documented working-directory trap);
+        portfolio/ledger + scoring + router + usage + pipeline + infra/tests
+        446/446; the 8 validators run_workflow_locally.py's --for-changes
+        would exercise run directly (router/validate.py, front-door-
+        tools.mjs --headroom, pipeline/validate_doc_consistency.py,
+        validate_candidates.py, probes/validate_probe_index.py,
+        score_sensitivity.py, scoring/score_ventures.py --check,
+        usage/validate_usage.py) -- all exit 0. run_workflow_locally.py
+        --for-changes itself was started but killed after ~9 minutes of
+        near-zero CPU with no output, consistent with a network-dependent
+        step (e.g. tofu) hanging against this sandbox's egress proxy rather
+        than a real failure; the validators it would run were checked
+        directly instead. CI confirmed starved this session
+        (ci_starvation.py on run 35983106113: runner_id 0, 3s, no steps),
+        so verification ran locally per CLAUDE.md's starvation checklist.
+        No form input added (a static guide page), so the Playwright/
+        axe-core browser-check line was not run.
+    mrr_end: 0
+
   - venture: patreon-fee-calculator
     agent_spend_usd: null
     human_hours: 0
