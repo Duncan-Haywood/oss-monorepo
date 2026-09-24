@@ -708,9 +708,9 @@ const RELATIVE_SELF = relative(
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
 //
-// 339 -> 340: `senior-deduction-calculator` graduates -- adding one
-// `usage.mjs` following the same opt-out pattern as its siblings, no
-// deletions.
+// 339 -> 340: `senior-deduction-calculator` graduated (#5765), concurrently
+// on `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions.
 const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;

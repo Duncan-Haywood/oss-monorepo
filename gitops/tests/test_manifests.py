@@ -2471,7 +2471,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # limit, static index.html plus a
     # which-conversion-cadence-should-i-use.html guide page, both from
     # their first commit. 359 -> 360.
-    # senior-deduction-calculator graduated 2026-09-24: a browser
+    # senior-deduction-calculator graduated 2026-09-24 (#5765): a browser
     # calculator for the OBBBA $6,000 senior deduction, static index.html
     # from its first commit. 360 -> 361.
     # Total re-derived here by `sync_tree_counts.py` against the fully
