@@ -1880,6 +1880,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "a flat $1,195 radon special" -- a common advertised
+  // rate any radon mitigation contractor already runs, sized for the
+  // smallest single-suction basement job, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-oneradon.html, which names Sun Nuclear's OneRADON software
+  // specifically and already carries the trademark disclaimer.
+  'radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
