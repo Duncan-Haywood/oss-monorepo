@@ -43684,3 +43684,65 @@ entries:
         and confirmed-visitor counts remain at zero, which a single new
         venture does not change on its own.
     mrr_end: 0
+  - venture: wash-and-fold-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py: PROCEED (meta-work 0%, build-now queue empty). Before
+        building, ran the by-hand IndexNow route from
+        indexnow_state.py's `next` suggestion: this sandbox's egress proxy
+        reached api.indexnow.org and got a real 200, submitting 1615 URLs
+        (`node platform/marketing/indexnow.mjs --submit --ref gh-pages`) --
+        the second such success recorded this month, confirming the proxy
+        block is not universal. Ran the full CLAUDE.md starvation checklist
+        against `main` before building: ci_starvation.py confirmed starved
+        (`runner_id: 0`); run_workflow_locally.py --tree then swept all 9
+        verification-only workflows locally (8/9 clean; the one failure,
+        pages-freshness, was a snapshot gone stale from a concurrent
+        session's merge mid-run, fixed by re-publishing once settled --
+        not a real defect), platform/marketing + platform/pages
+        (1290/1290), portfolio/ledger + scoring + router + usage +
+        pipeline + infra/tests pytest (446 passed), gitops/tests (637
+        passed/1 skipped), every platform/ci unittest module plus
+        agent_review's test_review, and all quick validators
+        (router/validate.py, score_ventures.py --check,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, validate_usage.py, front-door-tools.mjs
+        --headroom, score_sensitivity.py, checklist_coverage.py) --
+        all clean. A concurrent session (#5800) landed a full
+        whole-catalogue browser-checks recording mid-sweep, so a redundant
+        in-progress local re-run of the same 8 checks was stopped rather
+        than duplicated.
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        vs-doing-it-in-a-spreadsheet.html (surface-budget.mjs reported 0/1
+        generic-method pages used -- room existed, unlike most of the
+        current router top-N which are already at or over budget).
+        Explains the two things a flat cost-per-pound spreadsheet average
+        hides that calculator.mjs already models: stepwise whole-machine-load
+        costs, and per-order fixed costs (intake, tagging, a delivery stop)
+        that make a small order's true cost higher than the average --
+        directly the venture's own first hypothesis in VENTURE.yaml. Added
+        to clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (with why) so
+        surface-budget.mjs classifies it correctly; resolved a same-line
+        merge conflict there against a concurrent session's
+        grant-reporting-tracker entry by keeping both. Own suite 73/73.
+        Ran node platform/marketing/regen.mjs and
+        platform/ci/sync_tree_counts.py per the ratchet rules (no count
+        drift); regen.mjs --verify clean. A full post-regen re-run of
+        platform/marketing + platform/pages + this venture's own suite
+        (1395 tests) caught one real gap regen.mjs does not close on its
+        own: gitops/prod/kustomization.yaml's per-product comparison-page
+        ConfigMap mount list is hand-maintained, and the new page's entry
+        was missing -- front-door.test.mjs named it exactly
+        ("must mount vs__doing-it-in-a-spreadsheet.html.gz; add it or the
+        page is dark"). Added the line, matching ~20 sibling entries'
+        pattern; re-ran front-door.test.mjs clean. Pushed
+        claude/clever-hamilton-889cu1 to origin for the first time this
+        session (a stale cached remote-tracking ref for the branch made
+        the stop hook misreport 2 phantom unpushed commits before any
+        real work existed; the actual remote branch did not exist yet).
+        Revenue and confirmed-visitor counts remain at zero, which one
+        comparison page does not change on its own.
+    mrr_end: 0
