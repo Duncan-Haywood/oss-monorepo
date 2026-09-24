@@ -1503,6 +1503,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against a flat "10 cents a square foot" wash special -- a
+  // generic advertised pricing habit the trade is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html and vs-gorilladesk.html, which name
+  // specific field-service platforms and already carry the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // flat-rate generic-method pages above.
+  'pressure-washing-bid-calculator/vs-a-flat-10-cents-a-square-foot-price.html',
   // Compares against "a flat per-guest price" -- dividing a past booking's
   // total by its own headcount and reusing the result as a rate, a pricing
   // habit every operator already reaches for, not a company or product
