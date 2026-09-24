@@ -28,10 +28,12 @@ import { WCAG21_AA_CRITERIA } from './calc.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const page = readFileSync(join(here, 'index.html'), 'utf8');
 const guide = readFileSync(join(here, 'why-procurement-rejects-a-vpat.html'), 'utf8');
+const vsByHand = readFileSync(join(here, 'vs-filling-out-the-word-template-by-hand.html'), 'utf8');
 
 const PAGES = [
   ['index.html', page],
   ['why-procurement-rejects-a-vpat.html', guide],
+  ['vs-filling-out-the-word-template-by-hand.html', vsByHand],
 ];
 
 test('no criterion id is ever interpolated into a CSS selector', () => {

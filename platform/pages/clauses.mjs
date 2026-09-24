@@ -1969,6 +1969,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
   // pages above (e.g. hidden-unicode-check's, docker-build-secrets-check's).
   'skill-manifest-check/vs-reading-the-skill-by-hand.html',
+  // Compares against "filling out ITI's own VPAT 2.5 Word template by hand"
+  // -- the generic starting point every vendor preparing an ACR already has,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-hiring-a-vpat-consultant.html, which compares against a
+  // paid service category rather than a free, generic document template.
+  // The page's own footer carries a "not affiliated with" sentence anyway
+  // (the ITI trademark notice every page in this venture repeats), which is
+  // why clauses.test.mjs already passed before this entry was added -- this
+  // entry is what makes surface-budget.mjs count the page correctly as the
+  // venture's one generic-method comparison rather than a named one.
+  'vpat-acr-generator/vs-filling-out-the-word-template-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

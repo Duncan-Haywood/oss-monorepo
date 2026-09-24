@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VPAT / ACR Generator vs. filling out the Word template by hand</title>
+  <meta name="description" content="ITI's own VPAT 2.5 Word template is the generic starting point most vendors already use, and it catches nothing on its own: a blank Remarks cell on a Partially Supports row, a blank Report Date field, or a row nobody got to are all just empty cells, indistinguishable from a row somebody decided was fine. This generator flags all three before you export.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-filling-out-the-word-template-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="VPAT / ACR Generator vs. filling out the Word template by hand">
+  <meta property="og:description" content="ITI's Word template has no idea whether a blank Remarks cell means 'fine' or 'never tested.' This generator tracks all 50 criteria and flags exactly the rows and header fields a reviewer would reject.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"What does filling out the Word template by hand actually get right?","acceptedAnswer":{"@type":"Answer","text":"The table shape. ITI's VPAT 2.5 template already has the right column headings, the right 50 WCAG 2.1 A/AA rows in the right order, and the right four conformance values to choose from. A vendor who works through it carefully produces a document that looks exactly like the ones this generator exports -- the shape was never the hard part."}},
+    {"@type":"Question","name":"Why is a blank Remarks cell so easy to miss in Word?","acceptedAnswer":{"@type":"Answer","text":"Because an empty cell in a 50-row table looks the same whether it is empty because the criterion is fine, empty because nobody tested it yet, or empty because someone marked \"Partially Supports\" and meant to come back and explain why. Word has no rule that a Partially Supports or Does Not Support row needs a sentence next to it -- that rule lives in WebAIM's procurement guidance, not in the template file, so nothing in the document itself ever points at the gap."}},
+    {"@type":"Question","name":"How does a criterion get silently skipped?", "acceptedAnswer":{"@type":"Answer","text":"The same way any row in a long table gets skipped under deadline: the reviewer works top to bottom, gets interrupted, and the last several rows never get touched. In a Word table an untouched row is just a row with no value chosen in a dropdown -- there is nothing that distinguishes it from a completed row until someone scrolls back through all 50 and checks. This generator defaults every unanswered criterion to \"Not Evaluated,\" one of the template's own four values, so an untouched row is visibly and honestly labelled rather than blank."}},
+    {"@type":"Question","name":"Does this generator decide any conformance level for us?","acceptedAnswer":{"@type":"Answer","text":"No. Every Supports, Partially Supports, Does Not Support, Not Applicable, and Not Evaluated choice is typed in by the vendor, from their own testing, exactly as it would be in Word. The generator never scans, crawls, or assesses the product, and it never picks a level on anyone's behalf -- it only checks that the answers already entered are complete enough for a reviewer to trust."}},
+    {"@type":"Question","name":"Is a completeness check the same as an accessibility audit?","acceptedAnswer":{"@type":"Answer","text":"No, and this page is not claiming that. Completeness only asks whether the document explains itself -- a remark on every partial row, a filled-in report date, every criterion visibly addressed. It says nothing about whether the underlying conformance levels are accurate. A report can pass every completeness check here and still misrepresent the product if the testing behind it was wrong."}}
+  ]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2320; background: #f4f1ea; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); line-height: 1.08; letter-spacing: -.04em; margin: .3rem 0 14px; }
+    h2 { font-size: 1.15rem; margin: 28px 0 8px; }
+    h3 { font-size: .98rem; margin: 20px 0 4px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a3d1f; margin: 0 0 6px; }
+    .lede { font-size: 1.02rem; max-width: 62ch; color: #3a3730; }
+    a { color: #8a3d1f; overflow-wrap: anywhere; }
+    .cta { display: inline-block; margin: 18px 0; background: #8a3d1f; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; background: #fff; }
+    th, td { border: 1px solid #ddd3bf; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #efe9db; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+    .worked { background: #fff; border: 1px solid #ddd3bf; border-radius: 12px; padding: 16px 18px; margin: 18px 0; }
+    .worked p { margin: 0 0 10px; font-size: .92rem; }
+    .worked p:last-child { margin-bottom: 0; }
+    .worked li { margin: 4px 0; }
+    .caption { font-size: .82rem; color: #5c5748; margin: 10px 0 0; }
+    footer { margin-top: 34px; font-size: .82rem; color: #5c5748; border-top: 1px solid #ddd3bf; padding-top: 16px; }
+    footer p { margin: .5rem 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; VPAT / ACR GENERATOR</a></p>
+    <h1>VPAT / ACR Generator vs. filling out the Word template by hand</h1>
+    <p class="lede">ITI's own VPAT 2.5 Word template names no company and belongs to nobody's product &mdash; it is the generic starting point most vendors already work from. This page names no competitor and no consultancy; it compares this generator against typing the same 50 rows into that same template directly.</p>
+
+    <h2>What filling out the template by hand gets right</h2>
+    <p>
+      The table shape. ITI's template already has the right column headings, the right 50 WCAG 2.1
+      Level A/AA rows in the right order, and the right four conformance values to choose between.
+      A vendor who works through it carefully produces a document that looks exactly like the one
+      this generator exports &mdash; the shape was never the hard part, and this page is not arguing
+      otherwise.
+    </p>
+
+    <h2>What an empty cell cannot tell you</h2>
+    <table>
+      <tr><th>Case</th><th>Filling out the template by hand</th><th>This generator</th></tr>
+      <tr><td>A Partially Supports or Does Not Support row with no explanation</td><td>An empty Remarks cell looks identical whether the criterion is minor or serious &mdash; nothing in the file says a remark is missing</td><td>Flags every Partially Supports / Does Not Support row that has no Remarks text, before export</td></tr>
+      <tr><td>A criterion nobody got to</td><td>An untouched row and a row someone reviewed and left blank on purpose look the same: empty</td><td>Defaults every unanswered criterion to "Not Evaluated" &mdash; one of the template's own four values, so it reads as an honest gap rather than nothing</td></tr>
+      <tr><td>A blank Report Date or Evaluation Methods field</td><td>The header is free text; nothing stops the document from being exported with it blank</td><td>Flags Product Name, Report Date, and Evaluation Methods Used if any is empty</td></tr>
+      <tr><td>50 rows, reviewed under deadline</td><td>Checking that all 50 were actually addressed means scrolling back through the whole table by eye</td><td>Counts criteria evaluated vs. total automatically, every time the form changes</td></tr>
+    </table>
+
+    <div class="worked">
+      <p><strong>A concrete example.</strong> Take a vendor who marked 40 of the 50 criteria "Supports," then ran out of time: three rows got marked "Partially Supports" or "Does Not Support" with no remarks typed in, the Report Date and Evaluation Methods Used fields stayed blank, and the last 9 criteria were never touched. In a Word table, that document looks finished &mdash; every visible cell has something or nothing in it, and nothing distinguishes "fine" from "not done." Run the same answers through this generator and it reports:</p>
+      <ul>
+        <li>1.4.3 Contrast (Minimum): marked "Partially Supports" with no remarks</li>
+        <li>2.4.7 Focus Visible: marked "Does Not Support" with no remarks</li>
+        <li>3.3.1 Error Identification: marked "Partially Supports" with no remarks</li>
+        <li>Report Date is blank</li>
+        <li>Evaluation Methods Used is blank</li>
+      </ul>
+      <p>5 completeness issues, and a running count &mdash; 41 of 50 criteria evaluated, 9 still "Not Evaluated" &mdash; that a hand-filled Word table never surfaces on its own.</p>
+    </div>
+    <p class="caption">Reproduced from this generator's own <code>buildReport()</code>, pinned in this page's own test against the shipped completeness rules.</p>
+
+    <h2>When you still need your own testing, not this generator</h2>
+    <p>
+      Nothing here tests your product. Every conformance level and every remark is typed in by the
+      vendor, from their own accessibility testing, exactly as it would be in Word. This generator
+      never scans, crawls, or decides a level on anyone's behalf, and it never picks a value for
+      you &mdash; it only checks that the answers already entered are complete enough for a reviewer
+      to trust. Passing every check here is not an accessibility audit and does not mean the product
+      conforms; it means the document explains itself.
+    </p>
+
+    <h2>Common questions</h2>
+    <h3>What does filling out the Word template by hand actually get right?</h3>
+    <p>The table shape. ITI's VPAT 2.5 template already has the right column headings, the right 50 WCAG 2.1 A/AA rows in the right order, and the right four conformance values to choose from. A vendor who works through it carefully produces a document that looks exactly like the ones this generator exports -- the shape was never the hard part.</p>
+    <h3>Why is a blank Remarks cell so easy to miss in Word?</h3>
+    <p>Because an empty cell in a 50-row table looks the same whether it is empty because the criterion is fine, empty because nobody tested it yet, or empty because someone marked "Partially Supports" and meant to come back and explain why. Word has no rule that a Partially Supports or Does Not Support row needs a sentence next to it -- that rule lives in WebAIM's procurement guidance, not in the template file, so nothing in the document itself ever points at the gap.</p>
+    <h3>How does a criterion get silently skipped?</h3>
+    <p>The same way any row in a long table gets skipped under deadline: the reviewer works top to bottom, gets interrupted, and the last several rows never get touched. In a Word table an untouched row is just a row with no value chosen in a dropdown -- there is nothing that distinguishes it from a completed row until someone scrolls back through all 50 and checks. This generator defaults every unanswered criterion to "Not Evaluated," one of the template's own four values, so an untouched row is visibly and honestly labelled rather than blank.</p>
+    <h3>Does this generator decide any conformance level for us?</h3>
+    <p>No. Every Supports, Partially Supports, Does Not Support, Not Applicable, and Not Evaluated choice is typed in by the vendor, from their own testing, exactly as it would be in Word. The generator never scans, crawls, or assesses the product, and it never picks a level on anyone's behalf -- it only checks that the answers already entered are complete enough for a reviewer to trust.</p>
+    <h3>Is a completeness check the same as an accessibility audit?</h3>
+    <p>No, and this page is not claiming that. Completeness only asks whether the document explains itself -- a remark on every partial row, a filled-in report date, every criterion visibly addressed. It says nothing about whether the underlying conformance levels are accurate. A report can pass every completeness check here and still misrepresent the product if the testing behind it was wrong.</p>
+
+    <a class="cta" href="./">Start your ACR</a>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, or accessibility-audit advice, and it does not replace a qualified professional or your own testing. This tool does not test, assess, or audit your product, and it does not determine any criterion's conformance level &mdash; every level and remark is yours to enter, based on your own testing, and you remain solely responsible for the accuracy of everything you submit. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>VPAT&reg; is a registered trademark of the Information Technology Industry Council (ITI). This tool is not affiliated with, endorsed by, or sponsored by ITI, WebAIM, or any standards body; those names are used only to describe the document format and the published guidance this page refers to.</p>
+    <p><a href="./">VPAT / Accessibility Conformance Report generator</a> &mdash; free, browser-only, and open source.</p>
+  </footer>
+</body>
+</html>
