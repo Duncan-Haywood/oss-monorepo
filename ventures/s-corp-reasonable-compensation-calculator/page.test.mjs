@@ -48,6 +48,7 @@ test("the usage-counting control is opt-in and honours Do Not Track and Global P
 test("index links to the explainer and comparison pages", () => {
   assert.match(html, /href="why-the-irs-tests-your-s-corp-salary\.html"/);
   assert.match(html, /href="vs-rcreports-and-a-paid-valuation-report\.html"/);
+  assert.match(html, /href="vs-picking-a-round-number\.html"/);
 });
 
 test("the comparison page links back to the calculator, carries the trademark disclaimer, and valid FAQPage JSON-LD matching visible text", () => {
