@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 146 files, 556366 bytes
 #   portfolio-front-tools-5: 116 files, 552800 bytes
 #   portfolio-front-tools-6: 133 files, 557032 bytes
-#   portfolio-front-tools-7: 128 files, 549594 bytes
+#   portfolio-front-tools-7: 129 files, 553831 bytes
 #   portfolio-front-tools-8: 136 files, 553796 bytes
 #   portfolio-front-tools-9: 128 files, 555874 bytes
 #   portfolio-front-tools-10: 122 files, 554444 bytes
@@ -1096,6 +1096,7 @@ configMapGenerator:
       - crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz=crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz
       - crown-molding-bid-calculator__index.html.gz=crown-molding-bid-calculator__index.html.gz
       - crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz=crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz
+      - crown-molding-bid-calculator__should-i-match-a-cheaper-quote-on-a-stain-grade-job.html.gz=crown-molding-bid-calculator__should-i-match-a-cheaper-quote-on-a-stain-grade-job.html.gz
       - crown-molding-bid-calculator__usage.mjs.gz=crown-molding-bid-calculator__usage.mjs.gz
       - crown-molding-bid-calculator__vs-a-flat-rate-crown-molding-special.html.gz=crown-molding-bid-calculator__vs-a-flat-rate-crown-molding-special.html.gz
       - crown-molding-bid-calculator__vs-homewyse.html.gz=crown-molding-bid-calculator__vs-homewyse.html.gz
