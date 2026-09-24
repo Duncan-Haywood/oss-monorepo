@@ -772,6 +772,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-moraware.html, which does name a product and carries
   // its own "not affiliated" clause.
   'countertop-bid-calculator/vs-a-flat-price-per-square-foot.html',
+  // Compares against a flat "2.9% + 30 cents" card-fee rule of thumb -- the
+  // generic processing-fee estimate every merchant already carries, not a
+  // company or product this could be mistaken for. The page names no
+  // processor or payment company at all, referring only to "Shopify
+  // Payments" (Shopify's own term) and "a third-party processor" generically
+  // -- distinct from this venture's own vs-beprofit.html, which does name a
+  // product and carries its own "not affiliated" clause.
+  'shopify-fee-calculator/vs-a-flat-card-fee-guess.html',
   // Compares against "tracking it in a spreadsheet" -- the generic method
   // a freelancer pricing the same job on both platforms already reaches
   // for, not a company or product this could be mistaken for. The page
