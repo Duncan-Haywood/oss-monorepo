@@ -42155,6 +42155,47 @@ entries:
         front-door-tools.mjs --headroom, and the ledger/scoring/router/usage/
         pipeline/infra pytest suite (446 passed) all clean.
     mrr_end: 0
+  - venture: poshmark-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page, "vs. tracking payouts in a
+        spreadsheet": the venture had a named-product comparison
+        (vs-poshmarks-how-it-works-page.html) and two guide pages but none of
+        the "you could work this out yourself" angle, one of 90 ventures at 0
+        per surface-budget.mjs at the time. Names what a one-line IF formula
+        (=IF(price<15,2.95,price*0.2)) reproduces on its own versus what it
+        skips without a second formula -- the $14.75 break-even price and the
+        offer/bundle-discount risk of a sale crossing the $15.00 line, where
+        the fee jumps from 20% of the higher price to a flat $2.95 nearly as
+        large as the discount just given. Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (names no product), linked from
+        index.html's seo-link paragraph, added to sitemap.xml, and pinned in
+        page.test.mjs against calc.mjs's own FLAT_FEE/BREAK_EVEN_PRICE/
+        COMMISSION_THRESHOLD constants so the page's stated figures cannot
+        drift from the arithmetic. Caught and fixed one real defect before
+        merging: the first draft's FAQPage JSON-LD used "--" where the
+        visible prose used an em dash, which platform/pages/faq-visible.test.mjs
+        correctly flagged as the JSON-LD and the on-page copy diverging --
+        fixed by matching the JSON-LD to the visible punctuation, then
+        re-verified.
+      - >-
+        Verified locally (Actions confirmed starved -- ci_starvation.py on
+        the latest push to main, run 36038452443: runner_id 0, 3s, no
+        steps): venture's own suite 71/71, full platform/marketing +
+        platform/pages suite 1290/1290 (clean after regen.mjs, and after
+        fixing the em-dash/JSON-LD mismatch above), gitops/tests 613
+        passed/25 skipped (environmental), the 15 platform/ci unittest
+        modules, agent_review's 21 tests, checklist_coverage.py,
+        surface-budget.mjs --check (still within budget, 1 of 1 allowed),
+        regen.mjs --verify, router/validate.py, scoring/score_ventures.py
+        --check, usage/validate_usage.py, pipeline/validate_doc_consistency.py,
+        pipeline/validate_candidates.py, pipeline/probes/validate_probe_index.py,
+        pipeline/score_sensitivity.py, front-door-tools.mjs --headroom, and
+        the ledger/scoring/router/usage/pipeline/infra pytest suite (446
+        passed) all clean.
+    mrr_end: 0
   - venture: security-headers-check
     agent_spend_usd: null
     human_hours: 0
