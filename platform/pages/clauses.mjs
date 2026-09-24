@@ -104,6 +104,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // habit any developer already has, not a company or product this could be
   // mistaken for.
   'source-map-leak-check/vs-checking-devtools-by-hand.html',
+  // Compares against "guessing a flat dollar no-show fee" -- a common habit
+  // among appointment-based service providers, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-acuity-scheduling.html, which names a real platform and carries the
+  // trademark disclaimer.
+  'no-show-fee-calculator/vs-a-flat-no-show-fee.html',
   // Compares against "checking response headers by eye in DevTools'
   // Network tab" -- a manual habit any web developer already has, not a
   // company or product this could be mistaken for. Same reasoning as
@@ -1503,6 +1509,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against a flat "10 cents a square foot" wash special -- a
+  // generic advertised pricing habit the trade is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html and vs-gorilladesk.html, which name
+  // specific field-service platforms and already carry the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // flat-rate generic-method pages above.
+  'pressure-washing-bid-calculator/vs-a-flat-10-cents-a-square-foot-price.html',
   // Compares against "a flat per-guest price" -- dividing a past booking's
   // total by its own headcount and reusing the result as a rate, a pricing
   // habit every operator already reaches for, not a company or product
@@ -1534,6 +1548,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the trademark disclaimer. Same reasoning as license-drift-check's
   // vs-manually-rechecking-licenses.html above.
   'canonical-tag-check/vs-checking-canonicals-by-view-source.html',
+  // Compares against "building your own Faire payout spreadsheet" -- a
+  // generic method every seller already has access to, not a company or
+  // product this could be mistaken for. This venture's own vs-ankorstore.html
+  // is separately exempt-free (Ankorstore is a named competitor marketplace)
+  // and carries the trademark disclaimer; the two comparison pages are
+  // deliberately different classes, same as cache-control-check's pairing
+  // of vs-curl.html and vs-checking-headers-by-eye-in-devtools.html above.
+  'faire-wholesale-calculator/vs-building-your-own-spreadsheet.html',
   // Compares against a flat coverage floor (--cov-fail-under and
   // equivalents) -- a generic CI-gating habit any project already has, not
   // a company or product this could be mistaken for. Distinct from this

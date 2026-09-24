@@ -86,7 +86,7 @@ Control are honoured, and a button on the page turns counting off entirely.
 ## Development
 
 ```sh
-node --test calc.test.mjs usage.test.mjs page.test.mjs content-pages.test.mjs
+node --test calc.test.mjs usage.test.mjs page.test.mjs content-pages.test.mjs how-to-price-a-multi-device-backflow-test-visit.test.mjs
 ```
 
 ## Status

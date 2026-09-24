@@ -39959,6 +39959,60 @@ entries:
         comparison page), so the Playwright/axe-core browser-check line was
         not run -- nothing this change touches is markup a user types into.
     mrr_end: 0
+  - venture: pressure-washing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-10-cents-a-square-foot-price.html, filling the
+        venture's 0/1 generic-method comparison-page budget
+        (surface-budget.mjs --for pressure-washing-bid-calculator showed 0
+        generic-method, 2 named-product before; 1/1 after). Router's
+        allocate.py listed the venture at a 6.83 merit score with an
+        untested hypothesis about a blended-square-foot price hiding
+        siding's labor; this page targets that same angle directly.
+        The worked example is computed from calc.mjs's calculateBid()
+        directly: a 2,000 sq ft driveway-only job (the job a flat rate gets
+        fit from, chosen large enough that the $175 minimum job never
+        binds) bids at $207.77, or $0.1039/sq ft. Applying that same rate to
+        a 300 sq ft driveway plus a 2,400 sq ft siding wash added while the
+        crew is already on-site (94% of the wash hours, since siding washes
+        at half the driveway's production rate) prices at $280.48 against
+        that job's own $372.98 calculator bid and $279.74 break-even cost --
+        clearing break-even by just $0.75, a 0.3% realized margin instead
+        of the 25% targeted, and $92.50 below the calculator's own bid.
+        All figures are asserted against calc.mjs at test time, not
+        hardcoded. Exempted from the not-affiliated clause in clauses.mjs
+        (names no company or product, same reasoning as this venture's
+        sibling flat-rate generic-method pages elsewhere in the fleet).
+        Linked from index.html and added to sitemap.xml. Ran
+        platform/marketing/regen.mjs so the front-door mirror serves the
+        new page (regen --verify confirms current after).
+        Verified: ventures/pressure-washing-bid-calculator suite 118/118
+        (including the new page's own 8 tests); surface-budget.mjs --check
+        clean (138 -> 137 zero-comparison ventures, no venture over
+        budget); clauses.mjs pressure-washing-bid-calculator clean;
+        faq-duplicate.mjs clean (1398 pages, no duplicates); faq-visible
+        suite 4/4; regen.mjs --verify clean after the commit; platform/ci
+        unittest (27 modules, all OK) + agent_review/test_review (21/21);
+        gitops/tests 637 passed/1 skipped (after installing nginx-light +
+        openssh-client + python3-pytest per CLAUDE.md's apt workaround);
+        portfolio pytest (ledger/scoring/router/usage/pipeline/infra) 446
+        passed. platform/marketing + platform/pages suite 1285/1286 -- the
+        one failure is front-door-tools.test.mjs's mirror-capacity warning
+        (85.9% of ceiling, over the 85% warn ratio, 0 bytes recoverable
+        duplicates), confirmed pre-existing at the same 85.9% reading on
+        origin/main by re-running the test with this branch's changes
+        stashed out -- a portfolio-wide capacity signal from concurrent
+        sessions' merges today (also recorded in this file's
+        window-tinting-bid-calculator entry above), not something this
+        one-page PR caused or can fix on its own; reported here rather than
+        addressed. CI confirmed starved this session (ci_starvation.py
+        --run 35962212138: runner_id 0, 3s, no steps). No form inputs
+        added (a static comparison page), so the Playwright/axe-core
+        browser-check line was not run -- nothing this change touches is
+        markup a user types into.
+    mrr_end: 0
   - venture: license-drift-check
     agent_spend_usd: null
     human_hours: 0
@@ -40259,4 +40313,45 @@ entries:
         form inputs added (a static comparison page), so the
         Playwright/axe-core browser-check line was not run. Portfolio
         pytest (ledger/scoring/router/usage/pipeline/infra) 446 passed.
+    mrr_end: 0
+  - venture: backflow-test-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added how-to-price-a-multi-device-backflow-test-visit.html, an
+        unbudgeted guide page (surface-budget.mjs --for
+        backflow-test-fee-calculator showed the venture at its 1/1
+        generic-method comparison-page budget but 0 guide pages -- guide
+        pages are unbudgeted). Worked a full 6-device strip-mall visit
+        (three RPZ across domestic/fire lines, two irrigation
+        double-checks, one landscape PVB, one failure) through
+        computeJobQuote() directly rather than inventing numbers: first
+        device full price, a 20% additional-device discount on the other
+        five, a $15/device filing fee on all six regardless of discount or
+        pass/fail, a $35 retest fee on the one failure, and a $40 one-time
+        travel fee, totalling $458.00. Added a callout comparing that to a
+        naive flat per-device quote (6 x the first device's own $65 rate,
+        no filing, travel, or retest) at $390.00 -- $68.00 below the real
+        total despite that flat number itself over-charging the
+        discount-eligible devices. Linked from index.html, added to
+        sitemap.xml, README's dev command updated to include the new test
+        file.
+      - >-
+        Every dollar figure on the page is asserted against
+        computeJobQuote()'s own return value in a new test file, not
+        transcribed. Verified: venture suite (58/58, including the 7 new
+        tests); platform/pages/faq-visible.test.mjs (4/4) and
+        faq-duplicate.mjs (1409 pages, no duplicates); clauses.mjs clean (a
+        guide page carries no comparison-disclaimer requirement);
+        checklist_coverage.py and sync_tree_counts.py clean; regen.mjs
+        --verify clean after regen; platform/marketing + platform/pages
+        suite 1286/1286; platform/proposal + platform/privacy +
+        platform/webcheck 243/243; gitops/tests 637 passed/1 skipped
+        (environmental, documented); platform/ci unittest (all modules) +
+        agent_review's test_review clean. CI confirmed starved this session
+        (ci_starvation.py: runner_id 0, 3s, no steps on recent Portfolio
+        validate runs), so verification ran locally per CLAUDE.md's
+        starvation checklist. No form input added (a static guide page), so
+        the Playwright/axe-core browser-check line was not run.
     mrr_end: 0
