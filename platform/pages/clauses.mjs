@@ -1669,6 +1669,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Anthropic's or any vendor's current pricing. Same reasoning as the
   // other generic-method pages above.
   'llm-api-pricing-calculator/vs-a-blended-per-token-rate.html',
+  // Compares against "tracking grant deadlines in a spreadsheet" -- the
+  // generic method most small-nonprofit coordinators already use, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-instrumentl.html, which names Instrumentl specifically
+  // and already carries the trademark disclaimer. Same reasoning as the
+  // other generic-method pages above.
+  'grant-deadline-tracker/vs-tracking-deadlines-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
