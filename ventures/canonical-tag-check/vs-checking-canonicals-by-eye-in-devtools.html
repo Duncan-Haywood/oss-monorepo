@@ -60,10 +60,10 @@
 <p><a href="index.html">&larr; Canonical Tag Checker</a></p>
 <h1>This checker vs. checking canonicals by eye in DevTools</h1>
 <p>
-  <strong>View-source or DevTools' Elements panel</strong> shows the exact
-  <code>&lt;link rel="canonical"&gt;</code> markup a page shipped with, for free, with nothing to
-  install. For a page you already have open, it is the fastest way there is to see what the tag
-  says. What it does not do is resolve a relative href against the page's own address, fetch that
+  <strong>View-source or DevTools' Elements panel</strong> shows the exact canonical tag markup a
+  page shipped with, for free, with nothing to install. For a page you already have open, it is
+  the fastest way there is to see what the tag says. What it does not do is resolve a relative
+  href against the page's own address, fetch that
   resolved URL, and tell you what came back -- a 404, a redirect, a page that is itself marked
   <code>noindex</code>, or a clean 200. Reading the tag and knowing whether it actually resolves
   cleanly are two different jobs, and only the first one is visible in the markup.
@@ -79,8 +79,8 @@
 <div class="card">
   <h2>A worked example</h2>
   <p>
-    A product page at <code>https://shop.example.com/products/kids-rain-boots</code> carries
-    <code>&lt;link rel="canonical" href="/products/rain-boots-kids-old-name"&gt;</code>. Viewed by
+    A product page at <code>https://shop.example.com/products/kids-rain-boots</code> carries a
+    canonical tag whose relative href reads <code>/products/rain-boots-kids-old-name</code>. Viewed by
     eye in DevTools, that line looks entirely ordinary: a relative path, which is common and not
     itself an error to notice. Resolving it in your head against the page's own address gives
     <code>https://shop.example.com/products/rain-boots-kids-old-name</code> -- and only fetching
