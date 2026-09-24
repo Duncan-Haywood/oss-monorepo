@@ -1514,6 +1514,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // franchise brand either. Same reasoning as the other flat-rate
   // generic-method pages above.
   'home-inspection-fee-calculator/vs-a-flat-per-square-foot-rate.html',
+  // Compares against a flat coverage floor (--cov-fail-under and
+  // equivalents) -- a generic CI-gating habit any project already has, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-codecov.html, which names a specific hosted service
+  // and already carries the trademark disclaimer.
+  'coverage-drop-check/vs-a-flat-coverage-floor.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
