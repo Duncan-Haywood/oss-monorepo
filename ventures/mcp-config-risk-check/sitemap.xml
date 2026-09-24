@@ -2,4 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./</loc></url>
   <url><loc>./why-a-clean-scan-isnt-a-safety-guarantee.html</loc></url>
+  <url><loc>./vs-reading-the-config-by-hand.html</loc></url>
+  <url><loc>./vs-mcp-scan.html</loc></url>
 </urlset>

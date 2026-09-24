@@ -1179,7 +1179,46 @@ const CATEGORY_RULES = [
       // staffing-cost decision. It cross-links staffing-markup-calculator as
       // a sibling -- the same burden math, applied on the other side of who
       // pays it.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator)/.test(slug),
+      // `s-corp-reasonable-compensation-calculator` joined 2026-09-24, filed
+      // here on its first commit rather than after a spell in the catch-all
+      // -- what `build.test.mjs`'s catch-all bound is for. Same axis as
+      // `qbi-deduction-calculator` and `no-tax-on-tips-overtime-calculator`
+      // right above it: a downstream tax/compensation decision on business
+      // income already earned, not a quote to a client (that is `services`)
+      // and not pricing labour before a sale (that is `solo-earner`). It
+      // cross-links `qbi-deduction-calculator` as a sibling -- both are a
+      // federal-tax consequence of the same S-corp/pass-through income, one
+      // on the deduction side and one on the salary-vs-distribution split
+      // that feeds it.
+      // `auto-loan-interest-deduction-calculator` joined 2026-09-24,
+      // concurrently, filed here on its first commit rather than after a
+      // spell in the catch-all -- what `build.test.mjs`'s catch-all bound is
+      // for. It estimates a federal deduction on interest already paid on a
+      // loan already taken out -- the same "downstream obligation/benefit on
+      // a transaction already made" axis as `no-tax-on-tips-overtime-calculator`
+      // and `qbi-deduction-calculator` right above it in this same rule, just
+      // a deduction tied to a vehicle loan instead of tips/overtime pay or
+      // QBI. It cross-links `no-tax-on-tips-overtime-calculator` as a
+      // sibling: both are new-for-2025 OBBBA deductions a filer may claim in
+      // the same season, and the two disagree on whether married filing
+      // separately qualifies, which is worth a reader hitting explicitly
+      // rather than assuming one rule generalizes to the other.
+      //
+      // `tip-pool-compliance-calculator` joined 2026-09-24, concurrently,
+      // filed here on its first commit rather than after a spell in the
+      // catch-all -- the catch-all was already at its bound of 5
+      // (ai-engineering-academy, hoa-reserve-fund-calculator,
+      // overtime-pay-calculator, voiceover-project-rate-calculator,
+      // world-clock-widget) the day this venture graduated. It is the same
+      // "wage/payroll obligation computed after the fact" axis as
+      // `certified-payroll-calculator` and `employee-cost-calculator` right
+      // above it in this rule -- a federal FLSA tip-pooling eligibility
+      // check and the back-wage exposure a violation creates, rather than a
+      // bid or a fee schedule. It cross-links `no-tax-on-tips-overtime-calculator`
+      // as a sibling: same section of the tipped-wage workforce, a
+      // different obligation (a federal income-tax deduction there, a
+      // federal wage-and-hour rule here).
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator)/.test(slug),
   },
   {
     id: 'ci',
