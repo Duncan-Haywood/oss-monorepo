@@ -1,14 +1,13 @@
 name: slopsquatting-check CI
 
-# Zero-dependency browser/CLI tool: the browser page runs a fully offline
-# edit-distance heuristic against a bundled list of well-known package names
-# (no network call), and the CLI additionally makes one read-only GET per
-# dependency to the public npm registry. Keep both covered independently of
-# the portfolio-wide validation workflow, which only checks published pages
+# Zero-dependency CLI/browser tool: `engine.mjs` is the shared heuristic
+# engine, `cli.mjs` is the Node gate that queries the npm registry, and
+# `page.test.mjs`/`vs-socket.test.mjs` cover the page wiring and the
+# comparison page. Keep all four covered independently of the
+# portfolio-wide validation workflow, which only checks published pages
 # and does not run venture unit tests. Without this file,
-# `validate_workflows.py` would fail the moment the venture's `*.test.mjs`
-# files land -- the same hole `dotenv-exposure-check-ci.yml` and its siblings
-# document.
+# `validate_workflows.py` fails the moment the venture's `*.test.mjs`
+# files land -- the same hole `license-drift-check-ci.yml` documents.
 on:
   pull_request:
     paths:
@@ -41,7 +40,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      # Discovered, not enumerated -- bare `node --test` walks the working
-      # directory and cannot fall behind a file added later.
-      - name: Run every test in the venture
-        run: node --test
+      - name: Run engine, CLI, page-wiring, and comparison-page tests
+        run: node --test engine.test.mjs cli.test.mjs page.test.mjs vs-socket.test.mjs
