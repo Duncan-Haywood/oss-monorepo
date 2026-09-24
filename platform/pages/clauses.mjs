@@ -1728,6 +1728,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // ServiceTitan specifically and already carries the trademark
   // disclaimer. Same reasoning as the other generic-method pages above.
   'sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html',
+  // Compares against "a flat pump special" -- the generic coupon pricing
+  // ($X, any tank, pumped) that septic pump specials are shopped against,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-servicecore.html, which names ServiceCore
+  // specifically and already carries the trademark disclaimer.
+  'septic-pumping-bid-calculator/vs-a-flat-pump-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
