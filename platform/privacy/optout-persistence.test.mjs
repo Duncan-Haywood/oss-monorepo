@@ -586,12 +586,23 @@ const RELATIVE_SELF = relative(
 // (`ventures/cloud-bucket-exposure-check/usage.mjs`) beyond the merge base,
 // no deletions.
 //
-// 323 -> 324 on 2026-09-24: `str-occupancy-tax-calculator` graduated, adding
+// 323 -> 324 on 2026-09-24: `backup-file-exposure-check` graduated, adding
 // one `usage.mjs` following the same opt-out pattern as its siblings
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
-// `str-occupancy-tax-usage` storage name). Exactly one added `usage.mjs`
-// (`ventures/str-occupancy-tax-calculator/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 324;
+// `backup-file-exposure-check-usage` storage name). Exactly one added
+// `usage.mjs` (`ventures/backup-file-exposure-check/usage.mjs`), no
+// deletions.
+//
+// 324 -> 325 on this merge: `str-occupancy-tax-calculator` also graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `str-occupancy-tax-usage` storage
+// name). This branch only ever knew its own predecessor's number (323,
+// before `backup-file-exposure-check` landed) until this merge -- the
+// same ordinary collision shape recorded throughout this list. Exactly
+// one added `usage.mjs` (`ventures/str-occupancy-tax-calculator/usage.mjs`),
+// no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 325;
 
 let counter = 0;
 function fixture(source) {

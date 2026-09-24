@@ -81,6 +81,13 @@ test('index links back to docker-build-secrets-check, closing the sibling pair',
   assert.match(html, /href="\.\.\/docker-build-secrets-check\/"/);
 });
 
+// backup-file-exposure-check links out to this venture but nothing linked
+// back, which made it a crawlable orphan (platform/pages/siblings.mjs runs
+// a budget of 0) -- this link is the return half of that pair.
+test('index links to backup-file-exposure-check, closing the sibling pair', () => {
+  assert.match(html, /href="\.\.\/backup-file-exposure-check\/"/);
+});
+
 test('a worked-example button exists as an alternative to running the CLI first', () => {
   assert.match(html, /id="load-example"/);
 });

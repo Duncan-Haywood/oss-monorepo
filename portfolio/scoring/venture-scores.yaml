@@ -15783,6 +15783,80 @@ ventures:
       "blocked". Every page and the README carry an explicit "only test a
       site you own or are authorised to test" caution.
 
+  - slug: backup-file-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a backup file is
+      exposed is decided by matching the response body against a real
+      archive's magic-byte header (ZIP/gzip/bzip2/7-Zip/tar) or a real SQL
+      dump's line shape (a dump-tool header comment, or a structural ratio
+      of CREATE/INSERT-style statement lines) -- a factual, deterministic
+      classification, not a model judgment, and it never claims a full
+      security audit.
+    basis: >-
+      Screened 2026-09-24, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, cloud-bucket-exposure-check,
+      subdomain-takeover-check). duplicate_check.py scored every existing
+      venture, screened-out row, and pipeline candidate at 0.29 or below
+      against the final description (real GET requests to a site's own
+      well-known backup filenames, classifying the response body against
+      an archive's magic bytes or a SQL dump's line shape) --
+      dotenv-exposure-check scored closest, a different static-file
+      exposure class entirely (a project's own environment-variable
+      secrets file, not a backup archive or database dump), and
+      git-exposure-check next closest, reading git-internal plumbing
+      rather than a backup file's own content. Nothing in the tree covers
+      backup-file or database-dump exposure.
+      Autonomous ops 10 / gross margin 10: the CLI's eight requests run
+      from the user's own machine against a site they choose, capped at
+      8KB per path, and the browser page only renders a report already
+      produced, so serving one more user costs a static file and needs no
+      human review of any output.
+      Distribution 7: any web developer, DevOps engineer, or bug-bounty
+      researcher doing deploy verification or due diligence is a
+      plausible searcher; OWASP's Web Security Testing Guide names
+      "Review Old Backup and Unreferenced Files" explicitly as a standard
+      reconnaissance step, SecLists' own wordlists carry this exact short
+      set of backup filenames, and "found an exposed backup.zip / SQL
+      dump" is a recurring HackerOne/Bugcrowd report category and dorking
+      search term that predates and outlives any single framework.
+      Time to revenue 6, defensibility 2: donations-only; a magic-byte
+      table and a line-shape ratio are genuinely easy to reimplement, so
+      defensibility rests on the row-data/archive-contents redaction
+      guarantee being correct and tested, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and the mitigation here is structurally stronger than most
+      sibling checkers' needed to be, because the subject matter is
+      potentially an entire database rather than metadata about one: a
+      matched archive is never listed, extracted, or read beyond the
+      handful of header bytes already used to confirm it, and a matched
+      SQL dump's lines are classified into "schema" (CREATE/DROP/ALTER
+      TABLE -- safe to quote, table/column structure only) and "data"
+      (INSERT/REPLACE/COPY ... FROM stdin -- a count only, never the line
+      text) before anything is returned. analyze.test.mjs pins this
+      directly: a test builds a report against a worked example containing
+      literal fake row values and asserts the serialized report never
+      contains those values anywhere. Every request is GET only, capped at
+      8KB, and a response this tool cannot classify (network error, CORS
+      block, unexpected status) is reported as an error, never folded into
+      either "exposed" or "blocked". Every page and the README carry an
+      explicit "only test a site you own or are authorised to test"
+      caution.
+
   - slug: firebase-rules-check
     scores:
       ai_leverage: 1
