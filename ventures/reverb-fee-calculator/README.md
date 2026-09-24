@@ -182,6 +182,34 @@ channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
 (fulfillment and storage), and the where-to-sell ranker (a custom "other
 channel" row, not Reverb's offer-versus-list or shipping-packaging shape).
 
+## The marketplace fee caps at $500
+
+Every fee above is a flat percent — except Reverb's own selling
+(marketplace) fee, which is not. Reverb caps it at $500 per sale, for
+standard and Preferred sellers alike (confirmed against Reverb's own
+"What fees will I pay for selling on Reverb?" and "What are my fees as a
+Reverb Preferred Seller?" help pages, 2026-09): a $15,000 guitar owes $500,
+not the uncapped 5% of $750. A calculator that charges a flat percent with
+no ceiling overstates the fee — and understates net cash — on anything
+that clears roughly $10,000 at a 5% rate, which is an ordinary price for a
+vintage or boutique instrument here, not an edge case. Reverb itself
+advertises the cap as what makes the platform "particularly cost-effective
+for selling high-value instruments," so a calculator that ignores it argues
+the opposite of what Reverb's own pricing does on exactly the listings
+where the gap is largest.
+
+The cap is a field (`marketplaceFeeCap`, default $500, 0 = no cap) rather
+than a hard-coded number, for the same reason every other rate here is an
+input: Reverb could change it, and a stored number that has drifted is
+worse than none. It feeds every comparison on the page — offer vs list, vs
+eBay, vs a shop, the counter-offer message — because all of them share
+`calculateReverbSale`. The two crossover solvers
+(`offerThatMatchesEbayList`, the included-list match) do not use that
+function directly; they solve the sale-price algebra in closed form, so
+each re-solves piecewise around the price where the fee flattens rather
+than assuming one straight line the whole way up
+(`solvePriceForReverbProfit`).
+
 ## Comparing to other channels without retyping
 
 The footer's link to the
