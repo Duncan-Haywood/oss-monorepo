@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 124 files, 556951 bytes
 #   portfolio-front-tools-11: 115 files, 552883 bytes
 #   portfolio-front-tools-12: 120 files, 556550 bytes
-#   portfolio-front-tools-13: 127 files, 543747 bytes
+#   portfolio-front-tools-13: 128 files, 547694 bytes
 #   portfolio-front-tools-14: 135 files, 553922 bytes
 #   portfolio-front-tools-15: 114 files, 539681 bytes
 #   portfolio-front-tools-16: 106 files, 552443 bytes
@@ -1817,6 +1817,7 @@ configMapGenerator:
       - no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz=no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz
       - no-show-fee-calculator__style.css.gz=no-show-fee-calculator__style.css.gz
       - no-show-fee-calculator__usage.mjs.gz=no-show-fee-calculator__usage.mjs.gz
+      - no-show-fee-calculator__vs-a-flat-no-show-fee.html.gz=no-show-fee-calculator__vs-a-flat-no-show-fee.html.gz
       - no-show-fee-calculator__vs-acuity-scheduling.html.gz=no-show-fee-calculator__vs-acuity-scheduling.html.gz
       - no-tax-on-tips-overtime-calculator__calc.mjs.gz=no-tax-on-tips-overtime-calculator__calc.mjs.gz
       - no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz=no-tax-on-tips-overtime-calculator__does-my-job-qualify-for-no-tax-on-tips.html.gz
