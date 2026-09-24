@@ -288,6 +288,7 @@ configMapGenerator:
       # writes — so a product page added without a line here fails CI instead
       # of going dark, and one removed without deleting its line fails here
       # instead of leaving kustomize pointing at a file that is gone.
+      - vs__mcp-scan.html.gz=front-door/vs__mcp-scan.html.gz
       - vs__jobber.html.gz=front-door/vs__jobber.html.gz
       - vs__servicetitan.html.gz=front-door/vs__servicetitan.html.gz
       - vs__aspire.html.gz=front-door/vs__aspire.html.gz
