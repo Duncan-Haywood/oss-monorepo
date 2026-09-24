@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 119 files, 549775 bytes
 #   portfolio-front-tools-11: 119 files, 556069 bytes
 #   portfolio-front-tools-12: 122 files, 551776 bytes
-#   portfolio-front-tools-13: 118 files, 545902 bytes
+#   portfolio-front-tools-13: 119 files, 549852 bytes
 #   portfolio-front-tools-14: 128 files, 544004 bytes
 #   portfolio-front-tools-15: 127 files, 554443 bytes
 #   portfolio-front-tools-16: 130 files, 549728 bytes
@@ -1871,6 +1871,7 @@ configMapGenerator:
       - mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz=mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz
       - mega-backdoor-roth-calculator__calc.mjs.gz=mega-backdoor-roth-calculator__calc.mjs.gz
       - mega-backdoor-roth-calculator__index.html.gz=mega-backdoor-roth-calculator__index.html.gz
+      - mega-backdoor-roth-calculator__vs-doing-the-math-by-hand.html.gz=mega-backdoor-roth-calculator__vs-doing-the-math-by-hand.html.gz
       - mega-backdoor-roth-calculator__which-conversion-cadence-should-i-use.html.gz=mega-backdoor-roth-calculator__which-conversion-cadence-should-i-use.html.gz
       - menu-engineering-calculator__calc.mjs.gz=menu-engineering-calculator__calc.mjs.gz
       - menu-engineering-calculator__how-menu-engineering-works.html.gz=menu-engineering-calculator__how-menu-engineering-works.html.gz

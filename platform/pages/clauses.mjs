@@ -2055,6 +2055,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-voices-com.html, which names a real marketplace and already carries
   // the trademark disclaimer.
   'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
+  // Compares against "working out your 415(c) after-tax headroom by hand in a
+  // spreadsheet or from memory" -- a generic method every saver evaluating
+  // this strategy already has access to, not a company or product this could
+  // be mistaken for. The page's own footer says so explicitly ("names no
+  // specific plan provider"). Same reasoning as the other vs-doing-it-by-hand
+  // / vs-a-spreadsheet pages above (e.g. depreciation-recapture-calculator's).
+  'mega-backdoor-roth-calculator/vs-doing-the-math-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
