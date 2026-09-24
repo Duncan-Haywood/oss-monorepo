@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 145 files, 555757 bytes
 #   portfolio-front-tools-3: 135 files, 554779 bytes
 #   portfolio-front-tools-4: 141 files, 553086 bytes
-#   portfolio-front-tools-5: 119 files, 551567 bytes
+#   portfolio-front-tools-5: 120 files, 556345 bytes
 #   portfolio-front-tools-6: 136 files, 556203 bytes
 #   portfolio-front-tools-7: 127 files, 555448 bytes
 #   portfolio-front-tools-8: 127 files, 554868 bytes
@@ -818,6 +818,7 @@ configMapGenerator:
       - attic-insulation-bid-calculator__vs-fieldcamp.html.gz=attic-insulation-bid-calculator__vs-fieldcamp.html.gz
       - auto-repair-effective-labor-rate__calc.mjs.gz=auto-repair-effective-labor-rate__calc.mjs.gz
       - auto-repair-effective-labor-rate__index.html.gz=auto-repair-effective-labor-rate__index.html.gz
+      - auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz=auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz
       - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz
       - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
       - auto-repair-effective-labor-rate__vs-shop-ware.html.gz=auto-repair-effective-labor-rate__vs-shop-ware.html.gz
