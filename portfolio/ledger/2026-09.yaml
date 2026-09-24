@@ -43472,3 +43472,64 @@ entries:
         own -- see its VENTURE.yaml `channel_notes` for the named
         first-visitor channels.
     mrr_end: 0
+  - venture: senior-deduction-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session, continuing routine portfolio work. Found the
+        `build-now` pipeline queue effectively worked by the fleet already:
+        both open product PRs (#5768 caa-record-check, #5772
+        facebook-marketplace-fee-calculator) were being actively driven to
+        completion by other concurrent sessions in real time (branch heads
+        moving under this session's own push attempts), and the Pages
+        snapshot refresh flagged stale by session_gate.py was likewise
+        already in flight elsewhere -- confirmed by re-reading
+        pages_state.py and PR head shas mid-session rather than assumed.
+        Backed off duplicating that work per CLAUDE.md's "Duplicate PRs"
+        guidance and picked a genuinely uncontested gap instead:
+        `senior-deduction-calculator` was one of only four ventures in the
+        whole catalogue with zero marketing/comparison pages
+        (surface-budget.mjs), all four graduated within the preceding few
+        hours during the same burst of new-venture sessions.
+      - >-
+        Shipped `vs-estimating-the-deduction-by-hand.html` (a generic-
+        method comparison page, within the one-per-venture budget
+        surface-budget.mjs enforces), naming the four real by-hand
+        mistakes this venture's own calc.mjs and VENTURE.yaml already
+        document: assuming MFS is eligible (generalizing wrongly from the
+        sibling auto-loan-interest-deduction-calculator, where it is),
+        confusing the new deduction with the existing extra standard
+        deduction for age instead of stacking on top of it, assuming the
+        MAGI phase-out rounds in $1,000 steps (generalizing wrongly from
+        the auto-loan/tips-overtime siblings' stepped rule) instead of a
+        continuous 6%, and assuming a joint return's combined $12,000
+        phases out as one pot instead of two independent $6,000 phase-outs
+        against the same MAGI excess. Added the page's own test.mjs
+        (mirroring the sibling ventures' pattern), the reciprocal link
+        from index.html, the sitemap.xml entry, and the
+        clauses.mjs COMPARISON_DISCLAIMER_EXEMPT entry (generic-method
+        page, no named competitor).
+      - >-
+        Also resolved two full rounds of front-door-mirror merge conflicts
+        against `main` while advancing PR #5768 before standing down on it
+        in favor of the concurrent session already driving it -- the
+        resolve-mirror-merge.sh + regen.mjs + sync_tree_counts.py +
+        sync_readme_counts.py sequence CLAUDE.md documents, confirmed
+        working on live conflicts from four separate concurrent merges in
+        this one session (each round regenerated cleanly, zero drift after
+        sync).
+      - >-
+        Verified: this venture's own suite (46/46, up from 39, all new
+        assertions passing), the full platform/marketing + platform/pages
+        suite twice (1290/1290 both times -- the first run's 7 failures
+        were the expected pre-regen "stale mirror" class, resolved by
+        `node platform/marketing/regen.mjs`), checklist_coverage.py,
+        sync_tree_counts.py (no drift -- a page addition, not a new
+        venture, does not move the mirrored-tool or switch counts),
+        sync_readme_counts.py, score_ventures.py --check, and
+        publish_surface.py --check. Actions runners starved this session
+        (`ci_starvation.py` on a live `Portfolio validate` run: `runner_id:
+        0`, 3s, no steps), verified locally per CLAUDE.md's starvation
+        checklist.
+    mrr_end: 0
