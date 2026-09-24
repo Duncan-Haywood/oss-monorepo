@@ -1416,6 +1416,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries the "not affiliated" clause for that reason. Same reasoning as
   // the other vs-a-spreadsheet pages above.
   'medical-courier-route-margin/vs-a-spreadsheet.html',
+  // Compares against "a spreadsheet" -- a method every self-published author
+  // tracking their own royalties already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-amazon-kdp-royalty-calculator.html, which names Amazon's own official
+  // tool and already carries the "not affiliated" clause for that reason.
+  // Same reasoning as the other vs-a-spreadsheet pages above.
+  'kdp-royalty-calculator/vs-a-spreadsheet.html',
   // Compares against "a flat $499 delivery and setup special" -- a generic
   // advertised price every spa dealer is shopped against, not a company or
   // product this could be mistaken for. Distinct from this venture's own
@@ -1714,6 +1721,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above (e.g. docker-base-image-pin-check's).
   'docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "a flat pump-swap special" -- the generic coupon
+  // pricing ($X, any sump pump, done) that swap specials are shopped
+  // against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-servicetitan.html, which names
+  // ServiceTitan specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'sump-pump-bid-calculator/vs-a-flat-pump-swap-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
