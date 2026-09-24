@@ -1225,6 +1225,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the "not affiliated" clause for that reason. Same
   // reasoning as the other vs-checking-*-by-hand pages above.
   'email-auth-check/vs-checking-dns-records-by-hand.html',
+  // Compares against "checking the manifest by hand" -- a manual review
+  // habit every Chrome extension developer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-crxcavator.html, which names a specific product and already carries
+  // the "not affiliated" clause for that reason. Same reasoning as the
+  // other vs-checking-*-by-hand pages above.
+  'chrome-extension-permission-check/vs-checking-the-manifest-by-hand.html',
   // Compares against "matching an SBOM to advisories by hand" -- a manual
   // review habit anyone with the two export files already has, not a
   // company or product this could be mistaken for. Distinct from this
