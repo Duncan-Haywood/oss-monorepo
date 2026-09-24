@@ -2257,7 +2257,34 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # static `index.html` from its first commit, same shape as the rest of
     # this running count. Total re-derived here by `sync_tree_counts.py`
     # against the fully merged tree rather than by hand.
-    total = 339  # `infra/OWNER_CHECKLIST.md`'s own "N of the 339 tools" wording.
+    #
+    # 340 since this merge: `slopsquatting-check` graduated (this branch) --
+    # a zero-dependency browser tool + CLI flagging an npm dependency name
+    # that looks hallucinated or freshly squatted. The browser page is
+    # fully offline (an edit-distance heuristic against a bundled list of
+    # well-known names, no network call); the CLI's one live check is a
+    # read-only GET per dependency to the public npm registry. Same
+    # "browser-local checker plus a matching CLI, run against a manifest
+    # the maintainer already has" shape as `npm-lifecycle-script-check` and
+    # `dependency-confusion-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 341 since this merge: `cloud-bucket-exposure-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser tool + CLI sending
+    # one real, read-only, unauthenticated GET to a cloud provider's own
+    # anonymous bucket-listing endpoint across AWS S3, Google Cloud
+    # Storage, and Azure Blob Storage, classifying the response body
+    # against each provider's own documented listing-or-error XML shape
+    # rather than trusting a bare status code. Same "read what's actually
+    # there, name the exact evidence" checker shape as `git-exposure-check`
+    # and `subdomain-takeover-check`, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch only ever knew its own predecessor's number (340, before
+    # `slopsquatting-check` landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list. Total re-derived here
+    # by `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 341  # `infra/OWNER_CHECKLIST.md`'s own "N of the 341 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

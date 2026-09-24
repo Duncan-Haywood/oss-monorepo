@@ -19,6 +19,7 @@ test("robots and sitemap let crawlers find every page", () => {
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /index\.html/);
   assert.match(sitemap, /vs-podcorn\.html/);
+  assert.match(sitemap, /vs-a-flat-industry-average-cpm\.html/);
 });
 
 // Closest cross-venture siblings: a podcaster commonly also runs a
@@ -135,4 +136,31 @@ test("the vs-podcorn comparison page links back to the calculator and discloses 
   assert.match(html, /href="\.\/"/);
   assert.match(html, /not affiliated with, endorsed by, or sponsored by Podcorn/i);
   assert.match(html, /No warranty/);
+});
+
+test("the vs-flat-CPM comparison page links back to the calculator and carries the disclaimers", () => {
+  const html = page("vs-a-flat-industry-average-cpm.html");
+  assert.match(html, /href="\.\/"/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /names no specific company, product, or publication/i);
+  assert.match(html, /<script type="application\/ld\+json">/);
+});
+
+// The comparison page's worked example must not drift from what calc.mjs
+// actually returns -- same reasoning as the other fleet-wide worked-example
+// pins (e.g. equipment-auction-buyer-premium-calculator, atm-route-margin).
+test("the vs-flat-CPM worked example matches computeRates for an 8,000-download business, host-read show", async () => {
+  const { computeRates } = await import("./calculator.mjs");
+  const { rates } = computeRates({ downloads: 8000, niche: "business", readType: "host-read" });
+  assert.equal(rates.preroll.low, 160);
+  assert.equal(rates.preroll.high, 224);
+  assert.equal(rates.midroll.low, 240);
+  assert.equal(rates.midroll.high, 360);
+  assert.equal(rates.postroll.low, 120);
+  assert.equal(rates.postroll.high, 160);
+
+  const html = page("vs-a-flat-industry-average-cpm.html");
+  assert.match(html, /\$160\s*&ndash;\s*\$224/);
+  assert.match(html, /\$240\s*&ndash;\s*\$360/);
+  assert.match(html, /\$120\s*&ndash;\s*\$160/);
 });
