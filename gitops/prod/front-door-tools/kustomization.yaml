@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 137 files, 543059 bytes
+#   portfolio-front-tools-0: 138 files, 546892 bytes
 #   portfolio-front-tools-1: 97 files, 554620 bytes
 #   portfolio-front-tools-2: 145 files, 555756 bytes
 #   portfolio-front-tools-3: 135 files, 552496 bytes
@@ -45,14 +45,14 @@
 #   portfolio-front-tools-9: 139 files, 550446 bytes
 #   portfolio-front-tools-10: 119 files, 554980 bytes
 #   portfolio-front-tools-11: 120 files, 554612 bytes
-#   portfolio-front-tools-12: 116 files, 555531 bytes
-#   portfolio-front-tools-13: 129 files, 553712 bytes
-#   portfolio-front-tools-14: 124 files, 545705 bytes
-#   portfolio-front-tools-15: 134 files, 554389 bytes
-#   portfolio-front-tools-16: 101 files, 552973 bytes
-#   portfolio-front-tools-17: 120 files, 554269 bytes
-#   portfolio-front-tools-18: 126 files, 556401 bytes
-#   portfolio-front-tools-19: 71 files, 345138 bytes
+#   portfolio-front-tools-12: 115 files, 548112 bytes
+#   portfolio-front-tools-13: 128 files, 543823 bytes
+#   portfolio-front-tools-14: 124 files, 556238 bytes
+#   portfolio-front-tools-15: 133 files, 556369 bytes
+#   portfolio-front-tools-16: 103 files, 555835 bytes
+#   portfolio-front-tools-17: 119 files, 555477 bytes
+#   portfolio-front-tools-18: 128 files, 553516 bytes
+#   portfolio-front-tools-19: 72 files, 353266 bytes
 #   portfolio-front-tools-20: 51 files, 264804 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -182,6 +182,7 @@ configMapGenerator:
       - chargeback-evidence-packet__how-to-respond-to-a-chargeback.html.gz=chargeback-evidence-packet__how-to-respond-to-a-chargeback.html.gz
       - chargeback-evidence-packet__index.html.gz=chargeback-evidence-packet__index.html.gz
       - chargeback-evidence-packet__packet.mjs.gz=chargeback-evidence-packet__packet.mjs.gz
+      - chargeback-evidence-packet__vs-a-generic-dispute-checklist.html.gz=chargeback-evidence-packet__vs-a-generic-dispute-checklist.html.gz
       - chargeback-evidence-packet__vs-chargeflow.html.gz=chargeback-evidence-packet__vs-chargeflow.html.gz
       - str-host-payout-calculator__airbnb-host-fee-2026.html.gz=str-host-payout-calculator__airbnb-host-fee-2026.html.gz
       - str-host-payout-calculator__airbnb-vs-vrbo-host-fees.html.gz=str-host-payout-calculator__airbnb-vs-vrbo-host-fees.html.gz
@@ -1691,6 +1692,7 @@ configMapGenerator:
       - irrigation-winterization-bid-calculator__index.html.gz=irrigation-winterization-bid-calculator__index.html.gz
       - irrigation-winterization-bid-calculator__share.mjs.gz=irrigation-winterization-bid-calculator__share.mjs.gz
       - irrigation-winterization-bid-calculator__usage.mjs.gz=irrigation-winterization-bid-calculator__usage.mjs.gz
+      - irrigation-winterization-bid-calculator__vs-a-flat-per-zone-rate.html.gz=irrigation-winterization-bid-calculator__vs-a-flat-per-zone-rate.html.gz
       - irrigation-winterization-bid-calculator__vs-jobber.html.gz=irrigation-winterization-bid-calculator__vs-jobber.html.gz
       - janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz=janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz
       - janitorial-bid-calculator__area-name.mjs.gz=janitorial-bid-calculator__area-name.mjs.gz
@@ -1794,13 +1796,13 @@ configMapGenerator:
       - mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz=mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz
       - menu-engineering-calculator__calc.mjs.gz=menu-engineering-calculator__calc.mjs.gz
       - menu-engineering-calculator__how-menu-engineering-works.html.gz=menu-engineering-calculator__how-menu-engineering-works.html.gz
-      - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
-      - menu-engineering-calculator__usage.mjs.gz=menu-engineering-calculator__usage.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
+      - menu-engineering-calculator__usage.mjs.gz=menu-engineering-calculator__usage.mjs.gz
       - menu-engineering-calculator__vs-marginedge.html.gz=menu-engineering-calculator__vs-marginedge.html.gz
       - mercari-fee-calculator__calc.mjs.gz=mercari-fee-calculator__calc.mjs.gz
       - mercari-fee-calculator__how-much-does-mercari-take.html.gz=mercari-fee-calculator__how-much-does-mercari-take.html.gz
@@ -1927,14 +1929,14 @@ configMapGenerator:
       - parcel-dim-weight-calculator__vs-guessing-the-box-size.html.gz=parcel-dim-weight-calculator__vs-guessing-the-box-size.html.gz
       - parking-lot-striping-bid-calculator__calc.mjs.gz=parking-lot-striping-bid-calculator__calc.mjs.gz
       - parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz=parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz
-      - parking-lot-striping-bid-calculator__index.html.gz=parking-lot-striping-bid-calculator__index.html.gz
-      - parking-lot-striping-bid-calculator__usage.mjs.gz=parking-lot-striping-bid-calculator__usage.mjs.gz
-      - parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz=parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - parking-lot-striping-bid-calculator__index.html.gz=parking-lot-striping-bid-calculator__index.html.gz
+      - parking-lot-striping-bid-calculator__usage.mjs.gz=parking-lot-striping-bid-calculator__usage.mjs.gz
+      - parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz=parking-lot-striping-bid-calculator__vs-a-flat-8-per-stall-special.html.gz
       - parking-lot-striping-bid-calculator__vs-saasphalt.html.gz=parking-lot-striping-bid-calculator__vs-saasphalt.html.gz
       - patio-door-bid-calculator__calc.mjs.gz=patio-door-bid-calculator__calc.mjs.gz
       - patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz=patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz
@@ -2056,14 +2058,14 @@ configMapGenerator:
       - pour-cost-calculator__share.mjs.gz=pour-cost-calculator__share.mjs.gz
       - pour-cost-calculator__usage.mjs.gz=pour-cost-calculator__usage.mjs.gz
       - pour-cost-calculator__vs-binwise.html.gz=pour-cost-calculator__vs-binwise.html.gz
-      - pour-cost-calculator__vs-wisk.html.gz=pour-cost-calculator__vs-wisk.html.gz
-      - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
-      - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pour-cost-calculator__vs-wisk.html.gz=pour-cost-calculator__vs-wisk.html.gz
+      - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
+      - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
       - pressure-washing-bid-calculator__index.html.gz=pressure-washing-bid-calculator__index.html.gz
       - pressure-washing-bid-calculator__share.mjs.gz=pressure-washing-bid-calculator__share.mjs.gz
       - pressure-washing-bid-calculator__usage.mjs.gz=pressure-washing-bid-calculator__usage.mjs.gz
@@ -2194,15 +2196,15 @@ configMapGenerator:
       - security-headers-check__check.mjs.gz=security-headers-check__check.mjs.gz
       - security-headers-check__clickjacking-and-csp-frame-ancestors.html.gz=security-headers-check__clickjacking-and-csp-frame-ancestors.html.gz
       - security-headers-check__index.html.gz=security-headers-check__index.html.gz
-      - security-headers-check__probe.mjs.gz=security-headers-check__probe.mjs.gz
-      - security-headers-check__usage.mjs.gz=security-headers-check__usage.mjs.gz
-      - security-headers-check__vs-securityheaders.html.gz=security-headers-check__vs-securityheaders.html.gz
-      - security-txt-check__check.mjs.gz=security-txt-check__check.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-headers-check__probe.mjs.gz=security-headers-check__probe.mjs.gz
+      - security-headers-check__usage.mjs.gz=security-headers-check__usage.mjs.gz
+      - security-headers-check__vs-securityheaders.html.gz=security-headers-check__vs-securityheaders.html.gz
+      - security-txt-check__check.mjs.gz=security-txt-check__check.mjs.gz
       - security-txt-check__engine.mjs.gz=security-txt-check__engine.mjs.gz
       - security-txt-check__fetch-url.mjs.gz=security-txt-check__fetch-url.mjs.gz
       - security-txt-check__index.html.gz=security-txt-check__index.html.gz
@@ -2302,13 +2304,13 @@ configMapGenerator:
       - skylight-install-bid-calculator__usage.mjs.gz=skylight-install-bid-calculator__usage.mjs.gz
       - skylight-install-bid-calculator__vs-a-flat-rate-per-skylight-special.html.gz=skylight-install-bid-calculator__vs-a-flat-rate-per-skylight-special.html.gz
       - skylight-install-bid-calculator__vs-jobber.html.gz=skylight-install-bid-calculator__vs-jobber.html.gz
-      - slopsquatting-check__cli.mjs.gz=slopsquatting-check__cli.mjs.gz
-      - slopsquatting-check__engine.mjs.gz=slopsquatting-check__engine.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - slopsquatting-check__cli.mjs.gz=slopsquatting-check__cli.mjs.gz
+      - slopsquatting-check__engine.mjs.gz=slopsquatting-check__engine.mjs.gz
       - slopsquatting-check__index.html.gz=slopsquatting-check__index.html.gz
       - slopsquatting-check__usage.mjs.gz=slopsquatting-check__usage.mjs.gz
       - slopsquatting-check__vs-checking-package-names-by-eye.html.gz=slopsquatting-check__vs-checking-package-names-by-eye.html.gz
@@ -2426,14 +2428,14 @@ configMapGenerator:
       - subdomain-takeover-check__check.mjs.gz=subdomain-takeover-check__check.mjs.gz
       - subdomain-takeover-check__fingerprints.mjs.gz=subdomain-takeover-check__fingerprints.mjs.gz
       - subdomain-takeover-check__index.html.gz=subdomain-takeover-check__index.html.gz
-      - subdomain-takeover-check__lookup.mjs.gz=subdomain-takeover-check__lookup.mjs.gz
-      - subdomain-takeover-check__probe.mjs.gz=subdomain-takeover-check__probe.mjs.gz
-      - subdomain-takeover-check__usage.mjs.gz=subdomain-takeover-check__usage.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - subdomain-takeover-check__lookup.mjs.gz=subdomain-takeover-check__lookup.mjs.gz
+      - subdomain-takeover-check__probe.mjs.gz=subdomain-takeover-check__probe.mjs.gz
+      - subdomain-takeover-check__usage.mjs.gz=subdomain-takeover-check__usage.mjs.gz
       - subdomain-takeover-check__vs-checking-dig-by-hand.html.gz=subdomain-takeover-check__vs-checking-dig-by-hand.html.gz
       - subdomain-takeover-check__why-cnames-end-up-dangling.html.gz=subdomain-takeover-check__why-cnames-end-up-dangling.html.gz
       - subpath-robots-check__analyze.mjs.gz=subpath-robots-check__analyze.mjs.gz
@@ -2559,12 +2561,12 @@ configMapGenerator:
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
       - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
-      - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
       - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
       - vscode-extension-drift-check__vs-vsix-audit.html.gz=vscode-extension-drift-check__vs-vsix-audit.html.gz

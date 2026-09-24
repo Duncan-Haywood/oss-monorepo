@@ -289,8 +289,12 @@ test('every mirrored page carries the robots directive and canonical the switch 
       page.contents.includes(`<link rel="canonical" href="${canonical}">`),
       `${page.key} should be canonical to ${canonical}`,
     );
+    // A real `<link>` element, not a bare occurrence of the attribute text --
+    // canonical-tag-check's own guide page teaches the duplicate-canonical
+    // failure with escaped example markup in <code>, which legitimately
+    // contains the string `rel="canonical"` with no `<link` in front of it.
     assert.equal(
-      page.contents.match(/rel=["']canonical["']/g).length,
+      page.contents.match(/<link\b[^>]*\brel=["']canonical["'][^>]*>/g).length,
       1,
       `${page.key} has more than one canonical, which leaves the crawler to pick`,
     );
