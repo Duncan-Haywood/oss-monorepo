@@ -40,9 +40,9 @@
 #   portfolio-front-tools-4: 145 files, 553590 bytes
 #   portfolio-front-tools-5: 121 files, 556600 bytes
 #   portfolio-front-tools-6: 136 files, 553894 bytes
-#   portfolio-front-tools-7: 122 files, 556312 bytes
-#   portfolio-front-tools-8: 136 files, 554566 bytes
-#   portfolio-front-tools-9: 124 files, 543567 bytes
+#   portfolio-front-tools-7: 122 files, 555407 bytes
+#   portfolio-front-tools-8: 135 files, 556808 bytes
+#   portfolio-front-tools-9: 126 files, 546408 bytes
 #   portfolio-front-tools-10: 119 files, 555108 bytes
 #   portfolio-front-tools-11: 116 files, 554126 bytes
 #   portfolio-front-tools-12: 124 files, 552205 bytes
@@ -1133,6 +1133,7 @@ configMapGenerator:
       - docker-base-image-eol-check__index.html.gz=docker-base-image-eol-check__index.html.gz
       - docker-base-image-eol-check__usage.mjs.gz=docker-base-image-eol-check__usage.mjs.gz
       - docker-base-image-eol-check__vs-a-vulnerability-scanner.html.gz=docker-base-image-eol-check__vs-a-vulnerability-scanner.html.gz
+      - docker-base-image-eol-check__vs-checking-eol-dates-by-hand.html.gz=docker-base-image-eol-check__vs-checking-eol-dates-by-hand.html.gz
       - docker-base-image-pin-check__classify.mjs.gz=docker-base-image-pin-check__classify.mjs.gz
       - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
       - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
@@ -1145,12 +1146,12 @@ configMapGenerator:
       - docker-build-secrets-check__usage.mjs.gz=docker-build-secrets-check__usage.mjs.gz
       - docker-build-secrets-check__vs-gitleaks.html.gz=docker-build-secrets-check__vs-gitleaks.html.gz
       - docker-cache-order-check__cli.mjs.gz=docker-cache-order-check__cli.mjs.gz
-      - docker-cache-order-check__engine.mjs.gz=docker-cache-order-check__engine.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - docker-cache-order-check__engine.mjs.gz=docker-cache-order-check__engine.mjs.gz
       - docker-cache-order-check__index.html.gz=docker-cache-order-check__index.html.gz
       - docker-cache-order-check__usage.mjs.gz=docker-cache-order-check__usage.mjs.gz
       - docker-cache-order-check__vs-manually-reviewing-a-dockerfile.html.gz=docker-cache-order-check__vs-manually-reviewing-a-dockerfile.html.gz
@@ -1285,13 +1286,13 @@ configMapGenerator:
       - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz
       - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz
       - epoxy-garage-floor-bid-calculator__index.html.gz=epoxy-garage-floor-bid-calculator__index.html.gz
-      - epoxy-garage-floor-bid-calculator__share.mjs.gz=epoxy-garage-floor-bid-calculator__share.mjs.gz
-      - epoxy-garage-floor-bid-calculator__usage.mjs.gz=epoxy-garage-floor-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - epoxy-garage-floor-bid-calculator__share.mjs.gz=epoxy-garage-floor-bid-calculator__share.mjs.gz
+      - epoxy-garage-floor-bid-calculator__usage.mjs.gz=epoxy-garage-floor-bid-calculator__usage.mjs.gz
       - epoxy-garage-floor-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=epoxy-garage-floor-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz=epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz
       - equipment-auction-buyer-premium-calculator__calc.mjs.gz=equipment-auction-buyer-premium-calculator__calc.mjs.gz
