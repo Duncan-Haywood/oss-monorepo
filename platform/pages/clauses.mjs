@@ -1265,6 +1265,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // generic-method pages above.
   'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "a flat CPM for every ad slot" -- a pricing habit any
+  // podcaster can settle into, not a company or product this could be
+  // mistaken for. Same reasoning as the other generic-method pages above.
+  'podcast-sponsorship-rate-calculator/vs-a-flat-cpm-for-every-slot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

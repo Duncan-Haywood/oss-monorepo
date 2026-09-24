@@ -19,6 +19,12 @@ test("robots and sitemap let crawlers find every page", () => {
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /index\.html/);
   assert.match(sitemap, /vs-podcorn\.html/);
+  assert.match(sitemap, /vs-a-flat-cpm-for-every-slot\.html/);
+});
+
+test("index links to the flat-CPM comparison page", () => {
+  const html = page("index.html");
+  assert.match(html, /href="vs-a-flat-cpm-for-every-slot\.html"/);
 });
 
 // Closest cross-venture siblings: a podcaster commonly also runs a
