@@ -82,6 +82,10 @@ test("links to skill-manifest-check as a complementary AI-agent-tooling checker"
   assert.match(html, /skill-manifest-check\/">/);
 });
 
+test("links to claude-code-subagent-check as a complementary AI-agent-tooling checker", () => {
+  assert.match(html, /claude-code-subagent-check\/">/);
+});
+
 test("the FAQPage JSON-LD is valid and matches the visible headings", () => {
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   assert.ok(match, "no FAQPage schema found");

@@ -269,7 +269,13 @@ workflows:
 - workflow: claude-code-settings-check-ci.yml
   classification: none
   publishes: []
+- workflow: claude-code-subagent-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
+  classification: none
+  publishes: []
+- workflow: claude-skill-scaffold-generator-ci.yml
   classification: none
   publishes: []
 - workflow: cleaning-dilution-calculator-ci.yml
@@ -1014,6 +1020,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: seller-net-sheet-ci.yml
+  classification: none
+  publishes: []
+- workflow: senior-deduction-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: septic-pumping-bid-calculator-ci.yml
