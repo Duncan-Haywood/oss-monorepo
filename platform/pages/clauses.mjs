@@ -1620,6 +1620,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // B" and names no real vendor. Same reasoning as the other generic-method
   // pages above.
   'vector-db-cost-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "normalizing a 3PL rate-card quote yourself in a
+  // spreadsheet" -- the generic method anyone comparing a fulfillment quote
+  // already reaches for, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-extensiv.html and
+  // vs-shipbob.html, which name real products and already carry the
+  // trademark disclaimer; this page names no vendor or software product
+  // (the test file asserts none of the sibling pages' named products
+  // appear). Same reasoning as the other generic-method pages above.
+  '3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
