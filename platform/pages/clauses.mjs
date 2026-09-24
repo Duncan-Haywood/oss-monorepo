@@ -2037,6 +2037,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // two clauses are independent. Same reasoning as
   // skill-manifest-check's vs-reading-the-skill-by-hand.html above.
   'obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html',
+  // Compares against "quoting one flat seasonal rate for every driveway
+  // from memory" -- a pricing habit any snow contractor already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-aspire.html, which names Aspire specifically and
+  // already carries the trademark disclaimer.
+  'snow-removal-bid-calculator/vs-a-flat-seasonal-rate.html',
   // Compares against "quoting one flat project rate regardless of usage" --
   // a pricing habit any freelance narrator already has, not a company or
   // product this could be mistaken for. Distinct from this venture's own

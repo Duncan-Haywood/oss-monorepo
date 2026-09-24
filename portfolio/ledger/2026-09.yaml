@@ -42122,39 +42122,6 @@ entries:
         session cannot reach) and none had new information to add this
         session.
     mrr_end: 0
-  - venture: kickstarter-fee-calculator
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
-        Shipped this venture's first marketing surface: a generic-method
-        comparison page ("vs. the flat 8-10% rule of thumb"), following
-        session_gate.py PROCEED and picking from the two ventures
-        surface-budget.mjs reported at zero marketing surface out of 363
-        (the other, depop-fee-calculator, had just landed the same day via
-        #5679 and was left for a later session). Worked example uses the
-        calculator's own calc.mjs and shipped default inputs: a flat 9%
-        guess (the "8-10%" midpoint) prices a $10,000 raise at $9,100 net
-        regardless of backer count, while the real net payout is $9,170 at
-        150 backers ($66.67 average pledge) and $8,937.50 at 1,250 backers
-        ($8.00 average pledge, the micro-pledge tier) -- a $232.50 swing on
-        an identical guess, and the micro-pledge case's 10.625% effective
-        rate falls outside the quoted "8-10%" range entirely.
-      - >-
-        Ran node --test on the venture's own suite (32/32) and the full
-        platform/marketing + platform/pages suite (1290/1290) after fixing
-        two regressions the new page introduced: a JSON-LD FAQ block that
-        diverged from the visible copy by punctuation (curly vs. straight
-        quotes, and a stray backslash before dollar signs), caught by
-        faq-visible.test.mjs, and a venture sitemap.xml that omitted the
-        new page, caught by venture-sitemap-coverage.test.mjs. Ran
-        regen.mjs and committed the front-door mirror it rewrote so the
-        apex serves the new page rather than 404ing on it.
-      - >-
-        Left the owner's decision queue untouched: every top item remains
-        genuinely owner-blocked (credentials or money decisions this
-        session cannot reach) with nothing new to add.
-    mrr_end: 0
   - venture: actions-permissions-check
     agent_spend_usd: null
     human_hours: 0
@@ -42659,6 +42626,44 @@ entries:
         this does not change on its own -- usage_state.py --require-honest
         confirms no steering document reports that null as an observed
         zero.
+    mrr_end: 0
+  - venture: snow-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the venture's first generic-method marketing surface ("vs.
+        quoting one flat seasonal rate for every driveway"):
+        surface-budget.mjs listed it among 83 ventures at 0 generic-method
+        comparison pages (it already carried one named-product page,
+        vs-aspire.html). Worked example computed live from the venture's own
+        calc.mjs on its shipped defaults (8 two-car-driveway sites, $22/hr
+        operator, $45/hr truck, 30% burden, $8/bag salt, 15% overhead, 20%
+        target margin, 10 snow + 6 ice events): a $950 flat seasonal clears
+        19.5% margin on a two-car driveway and 23.7% on a sidewalks-only
+        stop, but loses $1,921.96 (-202.3% margin) the moment it is quoted
+        to a medium commercial lot instead; held on the same driveway across
+        8/10/14 snow events, the same $950 flat quote goes from +$286.01
+        (30.1%) to +$185.05 (19.5%) to -$16.86 (underwater) as the storm
+        count rises.
+      - >-
+        Linked from index.html, added to sitemap.xml, and added to
+        platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set (it
+        compares against a generic pricing habit, not a named competitor --
+        the venture's separate vs-aspire.html already carries the trademark
+        disclaimer). Caught one drafting defect before pushing: the JSON-LD
+        FAQ answers used a plain "--" where the visible prose used an em
+        dash, which the page's own faq-visible-style verbatim-echo test
+        correctly flagged.
+      - >-
+        Refreshed the front-door mirror (platform/marketing/regen.mjs) so
+        the apex catalogue serves the new page.
+      - >-
+        Verified before pushing, since Actions is starved this session
+        (ci_starvation.py confirmed runner_id: 0 on this session's own
+        infra_state-refresh PR, #5738): venture's own suite 90/90,
+        checklist_coverage.py clean, surface-budget.mjs --check clean
+        (venture now 1/1 generic-method), regen.mjs --verify clean.
     mrr_end: 0
   - venture: pour-cost-calculator
     agent_spend_usd: null
