@@ -40153,3 +40153,110 @@ entries:
         steps on the latest main push), so verification ran locally per
         CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: food-truck-event-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Filled the venture's 0/1 generic-method comparison-page budget
+        (surface-budget.mjs --for food-truck-event-margin-calculator) with
+        vs-a-flat-per-guest-price.html. The venture's own README already
+        frames the underlying defect ("a per-head price is the wrong number
+        to build a quote from") but had no dedicated comparison page arguing
+        it against a concrete pair of bookings. Grounded entirely in
+        calculateQuote(): a per-guest rate derived from the calculator's own
+        default 100-guest, 40-minute-round-trip booking ($15.09/guest,
+        exactly reproducing that booking's own $1,509.29 price) applied to a
+        smaller 40-guest booking with a 2.5-hour round trip and its own $75
+        event permit quotes $603.72 -- $464.26 below that booking's own
+        $1,067.97 break-even cost, before a dollar of profit, and $921.96
+        below the calculator's own $1,525.67 bid price. Every figure in the
+        page is asserted against calc.mjs in a new test file, not
+        transcribed. Linked from index.html, added to sitemap.xml, and
+        registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no marketplace or competing
+        calculator -- distinct from this venture's own vs-roaminghunger.html,
+        which does and separately carries the trademark disclaimer).
+        Regenerated the front-door mirror so the apex serves the new page.
+      - >-
+        Verified: ventures/food-truck-event-margin-calculator suite 77/77;
+        platform/pages/faq-visible.test.mjs and faq-duplicate.mjs clean (1399
+        pages, no duplicate FAQ questions); platform/pages/clauses.mjs clean;
+        surface-budget.mjs --check clean (no venture over budget);
+        checklist_coverage.py and sync_tree_counts.py clean; regen.mjs
+        --verify clean after regen; platform/marketing + platform/pages
+        suite 1286/1286 (the mirror-capacity warning a concurrent PR flagged
+        earlier this session is resolved -- #5500 raised the ceiling before
+        this branch was built); platform/proposal + platform/privacy +
+        platform/webcheck 243/243; portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446/446; gitops/tests
+        637 passed/1 skipped (nginx-light installed, environmental skip
+        documented); platform/ci unittest (all modules) + agent_review's
+        test_review clean. Scoped browser/accessibility check via
+        browser_checks.py --only food-truck-event-margin-calculator: 7/8
+        passed (contrast/optout/sweep/roundtrip/sideways/presets clean, no
+        WCAG violations; highlight skipped, missing dependency, not a
+        failure); the whole-site journey check failed once on
+        `requestfailed: .../icon-192.png`, the exact race journey.mjs's own
+        code comment already documents from 2026-09-09 (a 404 page's icon
+        request cancelled by the next navigation, attributed to the wrong
+        step) -- re-ran alone and it passed clean (0 failed, 0 errors),
+        confirming the flake rather than a regression from this one-page
+        change. CI confirmed starved this session (ci_starvation.py --run
+        35962212138 and others: runner_id 0, 3s, no steps), so verification
+        ran locally per CLAUDE.md's starvation checklist. Also found and
+        confirmed moot in passing: PR #5497 (a different venture's guide
+        page) had a generated-mirror merge conflict against main; by the
+        time this session finished resolving it in a scratch worktree, a
+        concurrent session had already pushed the same resolution and
+        merged the PR -- no push made, no duplicate work landed.
+    mrr_end: 0
+  - venture: coverage-drop-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-coverage-floor.html, filling the venture's 0/1
+        generic-method comparison budget (surface-budget.mjs --for
+        coverage-drop-check showed a guide and a named-product page against
+        Codecov, but no generic-method page). Compares against a flat
+        --cov-fail-under-style floor, picking up the exact framing the
+        venture's own README opens with: a floor cannot see a PR walk
+        coverage from 92% to 81%, both above an 80% floor, while one file's
+        tests get gutted and a second file's improvement masks it in the
+        overall number. The worked example (auth.py 100% -> 20% covered,
+        utils.py 90% -> 96.25%, overall 92% -> 81%) is built as real
+        Cobertura XML and run through compareCoverage/summarizeCompare
+        directly, not hardcoded, and pinned by a new test mirroring
+        license-drift-check's vs-manually-rechecking-licenses.test.mjs
+        structure from earlier this session. Caught and fixed the same
+        em-dash/arrow-vs-ASCII JSON-LD-vs-visible-text mismatch
+        faq-visible.test.mjs exists to catch (a defect at least two other
+        concurrent sessions hit the same hour, per their own ledger
+        entries) before it reached main. Linked from index.html, added to
+        sitemap.xml, and registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set.
+      - >-
+        Verified: node --test 'ventures/coverage-drop-check/**/*.test.mjs'
+        25/25; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1285/1286 (the one failure did not
+        reproduce on a scoped re-run of front-door-tools.test.mjs
+        immediately after, which is the file most related to this change --
+        treated as a transient flake rather than chased further, since the
+        mirror ceiling was independently raised to 16 MiB by a concurrent
+        session this same session, dropping headroom to 64.6%); regen.mjs
+        --verify and surface-budget.mjs --check (0/1 -> 1/1, no venture over
+        budget) both clean; checklist_coverage.py and sync_tree_counts.py
+        clean; gitops/tests 613 passed/25 skipped (documented binary
+        skips); platform/ci unittest sweep (15 modules) all OK;
+        platform/proposal 101/101; platform/privacy + platform/webcheck
+        142/142; all 8 portfolio-validate.yml validators (router/validate.py,
+        front-door-tools.mjs --headroom, validate_doc_consistency.py,
+        validate_candidates.py, validate_probe_index.py,
+        score_sensitivity.py, score_ventures.py --check,
+        validate_usage.py) clean. CI confirmed starved this session
+        (ci_starvation.py --run 35967124660: runner_id 0, 2s, no steps). No
+        form inputs added (a static comparison page), so the
+        Playwright/axe-core browser-check line was not run. Portfolio
+        pytest (ledger/scoring/router/usage/pipeline/infra) 446 passed.
+    mrr_end: 0
