@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 135 files, 554841 bytes
 #   portfolio-front-tools-9: 126 files, 552650 bytes
 #   portfolio-front-tools-10: 123 files, 552287 bytes
-#   portfolio-front-tools-11: 115 files, 550658 bytes
+#   portfolio-front-tools-11: 116 files, 555320 bytes
 #   portfolio-front-tools-12: 118 files, 556419 bytes
 #   portfolio-front-tools-13: 130 files, 551927 bytes
 #   portfolio-front-tools-14: 135 files, 556571 bytes
@@ -1638,6 +1638,7 @@ configMapGenerator:
       - irrigation-install-bid-calculator__how-much-to-charge-to-install-a-sprinkler-system.html.gz=irrigation-install-bid-calculator__how-much-to-charge-to-install-a-sprinkler-system.html.gz
       - irrigation-install-bid-calculator__index.html.gz=irrigation-install-bid-calculator__index.html.gz
       - irrigation-install-bid-calculator__usage.mjs.gz=irrigation-install-bid-calculator__usage.mjs.gz
+      - irrigation-install-bid-calculator__vs-a-flat-400-a-zone-special.html.gz=irrigation-install-bid-calculator__vs-a-flat-400-a-zone-special.html.gz
       - irrigation-install-bid-calculator__vs-aspire.html.gz=irrigation-install-bid-calculator__vs-aspire.html.gz
       - irrigation-winterization-bid-calculator__calc.mjs.gz=irrigation-winterization-bid-calculator__calc.mjs.gz
       - irrigation-winterization-bid-calculator__how-much-to-charge.html.gz=irrigation-winterization-bid-calculator__how-much-to-charge.html.gz
