@@ -57,7 +57,7 @@ jobs:
                 end
               end' | tee -a "$GITHUB_STEP_SUMMARY"
 </code></pre>
-  <p class="note">This is the same field the <a href="./">browser tool</a> and the <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-runner-starvation-check/check.py" rel="noopener">check.py</a> CLI decide on — <code>runner_id: 0</code> means no runner was ever assigned. Prefer <code>check.py</code> itself over reimplementing the filter above if your own repository can vendor it: it also separates a still-<code>pending</code> job from a starved one and carries the test suite that keeps the classification correct.</p>
+  <p class="note">This is the same field the <a href="./">browser tool</a> and the <a href="check.py" rel="noopener">check.py</a> CLI decide on — <code>runner_id: 0</code> means no runner was ever assigned. Prefer <code>check.py</code> itself over reimplementing the filter above if your own repository can vendor it: it also separates a still-<code>pending</code> job from a starved one and carries the test suite that keeps the classification correct.</p>
 
   <h2>Reading the result</h2>
   <p>The job summary lists one line per failed job in the run: <code>STARVED</code> for a job whose <code>runner_id</code> came back <code>0</code> — not your code, nothing to debug — and <code>REAL</code> for one that actually ran and is worth triaging normally. The guard step above always exits success so it never becomes one more red check for a starved run to hide behind; add <code>| grep -q STARVED &amp;&amp; exit 1</code> after the pipe instead if you want the guard job itself to fail loudly the moment it finds a starved job.</p>
