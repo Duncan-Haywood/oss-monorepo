@@ -1707,6 +1707,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
+  // Compares against "reading a Dockerfile by hand" -- a manual review habit
+  // every Dockerfile author already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-gitleaks.html, which
+  // names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-base-image-pin-check's).
+  'docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

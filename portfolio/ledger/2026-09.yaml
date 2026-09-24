@@ -40664,3 +40664,38 @@ entries:
         surface-budget.mjs --check, clauses.mjs --check all clean; venture's
         own suite 133/133).
     mrr_end: 0
+  - venture: docker-build-secrets-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the stale published Pages snapshot first (session_gate.py's
+        top item): built from 05958aa9 while main was at 94fcf02e;
+        publish-branch.sh republished, IndexNow notified 1512 URLs,
+        pages_state.py --require-current now reports current and the
+        github-pages-branch-route reading was recorded.
+      - >-
+        Shipped docker-build-secrets-check's one budgeted generic-method
+        comparison page (0/1 per surface-budget.mjs; the venture already
+        carried one named-product page against gitleaks):
+        vs-reading-a-dockerfile-by-hand.html, covering the two cases a manual
+        Dockerfile review tends to miss that this checker's classify.mjs
+        catches mechanically: an ENV value resolved from a build argument
+        (no literal secret text on the line) and a bare ARG declaration with
+        no default (no value in the file at all). Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, listed in
+        sitemap.xml. This page's title text ("vs. reading a Dockerfile by
+        hand") exactly matches docker-base-image-pin-check's existing page of
+        the same name, so front-door.mjs's cross-venture subject grouping
+        promoted it to a second shared apex comparison page the moment two
+        ventures carried it -- gitops/prod/kustomization.yaml needed a new
+        hand-kept mount line for vs__reading-a-dockerfile-by-hand.html.gz,
+        caught by front-door.test.mjs's "every rendered per-product
+        comparison page is mounted" assertion before it would have shipped a
+        dark link. Mirror regenerated and verified (regen.mjs --verify clean
+        before and after; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1287/1287; front-door.test.mjs 115/115;
+        checklist_coverage.py, surface-budget.mjs --check clean; venture's
+        own suite 45/45; python3 -m pytest gitops/tests 613 passed, 25
+        skipped).
+    mrr_end: 0
