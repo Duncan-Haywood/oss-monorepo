@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 144 files, 555090 bytes
 #   portfolio-front-tools-3: 135 files, 553594 bytes
 #   portfolio-front-tools-4: 141 files, 556789 bytes
-#   portfolio-front-tools-5: 118 files, 540914 bytes
+#   portfolio-front-tools-5: 119 files, 544691 bytes
 #   portfolio-front-tools-6: 136 files, 556934 bytes
 #   portfolio-front-tools-7: 126 files, 555332 bytes
 #   portfolio-front-tools-8: 129 files, 556570 bytes
@@ -829,6 +829,7 @@ configMapGenerator:
       - auto-repair-effective-labor-rate__index.html.gz=auto-repair-effective-labor-rate__index.html.gz
       - auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz=auto-repair-effective-labor-rate__should-i-keep-taking-warranty-work.html.gz
       - auto-repair-effective-labor-rate__usage.mjs.gz=auto-repair-effective-labor-rate__usage.mjs.gz
+      - auto-repair-effective-labor-rate__vs-autoleap.html.gz=auto-repair-effective-labor-rate__vs-autoleap.html.gz
       - auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz=auto-repair-effective-labor-rate__vs-dividing-labor-sales-by-hours.html.gz
       - auto-repair-effective-labor-rate__vs-shop-ware.html.gz=auto-repair-effective-labor-rate__vs-shop-ware.html.gz
       - auto-repair-effective-labor-rate__vs-shopmonkey.html.gz=auto-repair-effective-labor-rate__vs-shopmonkey.html.gz
