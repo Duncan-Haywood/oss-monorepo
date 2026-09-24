@@ -741,14 +741,50 @@ const RELATIVE_SELF = relative(
 // `mega-backdoor-roth-calculator`, which also graduated concurrently, added
 // no `usage.mjs` of its own, so it does not move this count.
 //
-// 342 -> 343: `senior-deduction-calculator` also graduated (#5765),
-// concurrently on `main` -- adding one more `usage.mjs` following the same
-// opt-out pattern as its siblings (`usageOptedOut`/`setUsageOptOut` gating
-// `record`, keyed under its own `senior-deduction-calculator-usage` storage
-// name). Exactly one added `usage.mjs`, no deletions.
+<<<<<<< HEAD
+// 340 -> 341: `claude-code-subagent-check` also graduated, independently on
+// `main` at the same 339 predecessor -- adding one more `usage.mjs`
+// (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
+// toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage`, keyed under its own
+// `claude-code-subagent-check:usage` storage name), no deletions. Both this
+// venture and `claude-skill-scaffold-generator` above claimed the same next
+// number (340) from the same 339 predecessor -- the same ordinary collision
+// shape recorded throughout this list, this time with both additions real
+// and neither superseding the other. `mega-backdoor-roth-calculator`, which
+// also graduated concurrently, added no `usage.mjs` of its own, so it does
+// not move this count.
+//
+// 341 -> 342: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Two
+// separate concurrent sessions each recorded their own half of this
+// transition independently, one landing on 341 (only seeing
+// claude-skill-scaffold-generator) and the other on 341 by a different path
+// (only seeing claude-code-subagent-check) -- neither could see the other's
+// addition. All three additions are real.
+//
+// 342 -> 343: `facebook-marketplace-fee-calculator` also graduated -- adding
+// one more `usage.mjs`
+// (`ventures/facebook-marketplace-fee-calculator/usage.mjs`) following the
+// same opt-out pattern as its resale-marketplace siblings
+// (`usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `facebook-marketplace-fee-calculator-usage` storage name), no deletions.
+// This branch only ever knew its own predecessor's number (341, from its
+// own earlier merge of `senior-deduction-calculator`) until this merge
+// revealed two further concurrent graduations
+// (`claude-skill-scaffold-generator`, `claude-code-subagent-check`) it had
+// never observed -- the same ordinary collision shape recorded throughout
+// this list, one merge later. `senior-deduction-calculator` was
+// independently recorded again by a fourth concurrent session at this same
+// 343; the addition is the same one already counted above, not a second.
+//
+// 343 -> 344: `caa-record-check` also graduated, concurrently on `main` --
+// adding one more `usage.mjs` (`ventures/caa-record-check/usage.mjs`), no
+// deletions.
 // Re-derived here by `sync_tree_counts.py` against the fully merged tree
 // rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 343;
+const SWITCHES_IN_THE_CATALOGUE = 344;
 
 let counter = 0;
 function fixture(source) {
