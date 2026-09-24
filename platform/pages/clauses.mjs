@@ -1373,6 +1373,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reason. Same reasoning as the other flat-rate generic-method pages
   // above (e.g. well-pump-bid-calculator's).
   'metal-roof-bid-calculator/vs-a-flat-950-per-square-special.html',
+  // Compares against a flat "$X a square foot" refinishing rate -- a
+  // generic advertised pricing habit the trade is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html, which names a specific field service
+  // platform and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as the other flat-rate generic-method pages
+  // above (e.g. pole-barn-bid-calculator's).
+  'hardwood-refinishing-bid-calculator/vs-a-flat-price-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
