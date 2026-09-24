@@ -126,6 +126,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // product this could be mistaken for. Same shape as
   // branch-protection-drift-check's exemption above.
   'flaky-test-finder/vs-eyeballing-two-ci-logs-by-hand.html',
+  // Compares against "reading two JSON manifest exports side by side, or
+  // diffing them with a text tool" -- a manual habit any developer already
+  // has, not a company or product this could be mistaken for. Same shape as
+  // flaky-test-finder's eyeballing-two-ci-logs exemption above.
+  'mcp-supply-chain-watch/vs-comparing-manifests-by-eye.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
@@ -1278,6 +1283,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other generic-method pages
   // above.
   'atm-route-margin/vs-ranking-by-transaction-count.html',
+  // Compares against "ranking sites by extinguisher count" -- a habit every
+  // inspection route operator already has from a unit-count schedule, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-servicetitan.html, which names a specific field-service
+  // platform and already carries the "not affiliated" clause for that
+  // reason. Same reasoning as atm-route-margin's transaction-count
+  // exemption above.
+  'fire-extinguisher-inspection-route-margin/vs-ranking-sites-by-extinguisher-count.html',
   // Compares against "running dig by hand" -- a manual DNS lookup habit
   // every developer and admin already has, not a company or product this
   // could be mistaken for. Distinct from this venture's own
@@ -1490,6 +1503,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against "manually re-checking each dependency's license after
+  // an update" -- a habit any developer already has, not a company or
+  // product this could be mistaken for. This venture's own vs-fossa.html is
+  // separately exempt-free (FOSSA is a named product) and carries the
+  // trademark disclaimer. Same reasoning as flaky-test-finder's
+  // vs-eyeballing-two-ci-logs-by-hand.html above.
+  'license-drift-check/vs-manually-rechecking-licenses.html',
   // Compares against pricing purely by a flat per-square-foot rate -- a
   // generic estimating shortcut independent home inspectors reach for
   // absent a franchise's own fee schedule, not a company or product this
