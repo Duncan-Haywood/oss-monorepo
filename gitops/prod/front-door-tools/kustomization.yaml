@@ -47,10 +47,10 @@
 #   portfolio-front-tools-11: 115 files, 556672 bytes
 #   portfolio-front-tools-12: 120 files, 556133 bytes
 #   portfolio-front-tools-13: 124 files, 555352 bytes
-#   portfolio-front-tools-14: 130 files, 544967 bytes
+#   portfolio-front-tools-14: 131 files, 550062 bytes
 #   portfolio-front-tools-15: 129 files, 541844 bytes
 #   portfolio-front-tools-16: 100 files, 556521 bytes
-#   portfolio-front-tools-17: 115 files, 542109 bytes
+#   portfolio-front-tools-17: 116 files, 546417 bytes
 #   portfolio-front-tools-18: 129 files, 556240 bytes
 #   portfolio-front-tools-19: 117 files, 545855 bytes
 #   portfolio-front-tools-20: 51 files, 264886 bytes
@@ -1975,6 +1975,7 @@ configMapGenerator:
       - patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz=patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz
       - patio-door-bid-calculator__index.html.gz=patio-door-bid-calculator__index.html.gz
       - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
+      - patio-door-bid-calculator__vs-a-flat-installed-price.html.gz=patio-door-bid-calculator__vs-a-flat-installed-price.html.gz
       - patio-door-bid-calculator__vs-jobber.html.gz=patio-door-bid-calculator__vs-jobber.html.gz
       - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
       - paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz=paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz
@@ -2397,6 +2398,7 @@ configMapGenerator:
       - sql-migration-lock-check__index.html.gz=sql-migration-lock-check__index.html.gz
       - sql-migration-lock-check__sql.mjs.gz=sql-migration-lock-check__sql.mjs.gz
       - sql-migration-lock-check__usage.mjs.gz=sql-migration-lock-check__usage.mjs.gz
+      - sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz=sql-migration-lock-check__vs-reading-the-migration-by-hand.html.gz
       - sql-migration-lock-check__vs-squawk.html.gz=sql-migration-lock-check__vs-squawk.html.gz
       - sql-migration-lock-check__why-your-migration-locked-the-table.html.gz=sql-migration-lock-check__why-your-migration-locked-the-table.html.gz
       - sri-check__index.html.gz=sri-check__index.html.gz

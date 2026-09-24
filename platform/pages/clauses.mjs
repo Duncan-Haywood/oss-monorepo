@@ -1783,6 +1783,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which names Jobber specifically and
   // already carries the trademark disclaimer.
   'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "a flat $1,800 installed" patio door special -- a
+  // generic pricing method every window/door crew already has access to,
+  // not a company or product this could be mistaken for. The page's own
+  // footer says so explicitly ("common, honest shortcut"). Same reasoning
+  // as the other generic-method pages above. Distinct from this venture's
+  // own vs-jobber.html, which names Jobber specifically and already
+  // carries the trademark disclaimer.
+  'patio-door-bid-calculator/vs-a-flat-installed-price.html',
   // Compares against "a sticky note or mental checklist" -- a manual
   // tracking habit any contractor already has, not a company or product
   // this could be mistaken for. Distinct from this venture's own
@@ -1809,6 +1817,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-marginedge.html, which names MarginEdge specifically and already
   // carries the trademark disclaimer.
   'menu-engineering-calculator/vs-ranking-by-food-cost-percent.html',
+  // Compares against "reading the migration file by hand" -- a manual
+  // review habit any developer applying a schema change already has, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-squawk.html, which names a specific open-source
+  // linter and already carries the "not affiliated" clause for that
+  // reason. Same shape as docker-build-secrets-check's
+  // vs-reading-a-dockerfile-by-hand.html.
+  'sql-migration-lock-check/vs-reading-the-migration-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

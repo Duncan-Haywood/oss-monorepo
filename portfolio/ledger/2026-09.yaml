@@ -40903,6 +40903,59 @@ entries:
         COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
         sitemap.xml.
     mrr_end: 0
+  - venture: sql-migration-lock-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped sql-migration-lock-check's first generic-method comparison
+        page (0/1 per surface-budget.mjs): vs-reading-the-migration-by-hand.html,
+        against manually reviewing a migration file for lock risk. Covers
+        the checks that are easy to get right by eye (CREATE INDEX with no
+        CONCURRENTLY, a bare TRUNCATE) versus the relational ones that
+        depend on a second statement elsewhere in the same file and are
+        much harder to hold in mind while reading top to bottom: a
+        lock_timeout that may or may not be set earlier in the file,
+        NOT VALID + VALIDATE CONSTRAINT sharing one transaction, and
+        several exclusive-lock statements compounding into one long hold.
+        Listed in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from
+        index.html, added to the venture's sitemap.xml, mirror
+        regenerated (regen.mjs). Verified: the venture's own 121-assertion
+        suite, faq-coverage.mjs (348/348), faq-duplicate.mjs (no dupes),
+        clauses.mjs, surface-budget.mjs --check, checklist_coverage.py,
+        and a targeted 154-assertion re-run of
+        platform/pages/clauses.test.mjs, surface-budget.test.mjs,
+        platform/marketing/front-door-tools.test.mjs,
+        venture-sitemap-coverage.test.mjs, faq-coverage/faq-duplicate/
+        faq-visible.test.mjs all pass clean.
+    mrr_end: 0
+  - venture: patio-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped patio-door-bid-calculator's first generic-method
+        comparison page (0/1 per surface-budget.mjs):
+        vs-a-flat-installed-price.html, "This calculator vs. a flat
+        '$1,800 installed' patio door special". Worked examples pinned
+        against calc.mjs, run through the same job presets and form
+        defaults ($48 crew wage, 32% burden, 16% overhead, 32% target
+        margin) the shipped page uses: even the cheapest job the
+        calculator prices -- a 6-foot vinyl 2-panel retrofit at grade
+        with a tear-out -- walks away at $2,770.12, already $970.12 over
+        the $1,800 special; a 12-foot 3-panel new-construction job at
+        $7,975.38; a 16-foot 4-panel fiberglass impact-glass balcony job
+        at $23,344.28. Unlike several sibling comparison pages this
+        month, even the cheapest configuration already clears the flat
+        special once real payroll burden and overhead are loaded in, so
+        all three worked rows lose against it rather than one covering
+        and two losing. Listed in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, added to
+        sitemap.xml. Selected via portfolio/router/allocate.py's merit
+        ranking intersected with surface-budget.mjs's 0-generic-method
+        ventures, since the router's own top-ranked candidates already
+        had their comparison-page budget filled by concurrent sessions.
+    mrr_end: 0
   - venture: auto-glass-bid-calculator
     agent_spend_usd: null
     human_hours: 0
