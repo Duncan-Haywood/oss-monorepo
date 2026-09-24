@@ -263,6 +263,9 @@ workflows:
 - workflow: cleaning-dilution-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cloud-bucket-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
@@ -1005,6 +1008,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: skylight-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: slopsquatting-check-ci.yml
   classification: none
   publishes: []
 - workflow: snow-removal-bid-calculator-ci.yml

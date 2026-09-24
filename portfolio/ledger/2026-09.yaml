@@ -39318,3 +39318,210 @@ entries:
         (ci_starvation.py --run 35936631836: runner_id 0 earlier this
         session), so this local verification stands in per CLAUDE.md.
     mrr_end: 0
+  - venture: slopsquatting-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, screened and graduated this session per
+        portfolio/pipeline/README.md's "archetype itself" section, not
+        another <trade>-bid-calculator or a 39th -check with no channel
+        evidence. Niche researched via a background agent with WebSearch,
+        then independently re-verified by live fetch (not trusted at face
+        value): Wikipedia's Slopsquatting article and The Hacker News'
+        PhantomRaven writeup, both fetched directly this session. A May
+        2025 USENIX Security study found 19.7% of packages recommended by
+        16 code-generating models did not exist at all; PhantomRaven
+        (100+ malicious npm packages via slopsquatting/typosquatting,
+        flagged October 2025) is a real, dated incident distinct from the
+        unverified 38%/13%/51% breakdown and "HalluSquatting" claim the
+        research agent's first pass reported.
+      - >-
+        duplicate_check.py scored every existing venture, screened-out
+        row, ai-first-markets idea, and pipeline candidate below 0.15;
+        closest match npm-lifecycle-script-check at 0.12 (a different
+        mechanism -- install-time scripts, not registry existence/recency).
+      - >-
+        Shipped a browser page (fully offline, no network call of any
+        kind -- an edit-distance heuristic against a bundled well-known-
+        package list) plus a zero-dependency CLI (one read-only GET per
+        dependency to the public npm registry, the only network call
+        anywhere in the tool). This split follows the precedent
+        vscode-extension-drift-check already set for a live registry
+        lookup in this venture family, rather than inventing a new
+        privacy trade-off: no existing venture page in the catalogue made
+        a live third-party fetch before this one, confirmed by grepping
+        every ventures/*/index.html for an external fetch call.
+      - >-
+        Categorized under "CI checks & developer gates" in build.mjs
+        (reciprocally linked with dependency-confusion-check and
+        npm-lifecycle-script-check) instead of the catch-all, which
+        build.test.mjs bounds at 5. Updated the two tree-derived counts
+        sync_tree_counts.py flagged (mirrored tools 339 -> 340, opt-out
+        switches 321 -> 322) with the running-comment entries each guard
+        requires, rather than just the bare number.
+      - >-
+        Verified: venture's own suite (57/57), npm-lifecycle-script-check's
+        own suite after adding the reciprocal link (60/60),
+        platform/marketing suite (272/272), full platform/pages suite
+        (1014/1014, covering the category and FAQ-visibility fixes),
+        platform/privacy + platform/webcheck (142/142, covering the
+        opt-out-count fix), gitops/tests (637 passed, 1 skipped),
+        router/validate.py, score_ventures.py --check,
+        checklist_coverage.py, and regen.mjs --verify all clean. Manually
+        ran cli.mjs against a real package.json against the live npm
+        registry: correctly flagged a hallucinated name and cleared
+        chalk. ci_starvation.py confirmed main's red Portfolio validate
+        check (run 35941339132) is runner starvation (runner_id 0), not a
+        real failure, before relying on local verification per CLAUDE.md.
+      - >-
+        Merged a 13-commit main advance into the branch; resolved the
+        expected generated front-door-mirror conflict by regenerating
+        (platform/marketing/resolve-mirror-merge.sh's method, extended by
+        hand to gitops/prod/front-door/ since that script only covers
+        gitops/prod/front-door-tools/), never by picking a side. PR #5421.
+    mrr_end: 0
+  - venture: cloud-bucket-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened, graduated, and built a new venture: a free CLI + browser
+        report viewer that sends one real, read-only, unauthenticated GET
+        request -- a cloud provider's own anonymous listing endpoint -- to
+        an AWS S3 bucket, a Google Cloud Storage bucket, or an Azure Blob
+        Storage container, and classifies the response BODY (not just the
+        status code) against each provider's own documented listing-or-error
+        XML shape to report whether anyone on the internet can enumerate its
+        contents with no credentials. Never fetches any individual object's
+        content, only the listing -- the same restraint git-exposure-check
+        documents for not reconstructing a repository once exposure is
+        confirmed. session_gate.py reported PROCEED with the build-now
+        pipeline empty; per DIRECTION.md a genuine new venture with a named
+        distribution channel ranks first when available.
+      - >-
+        Screened per pipeline/README.md's "archetype itself" section (a
+        checker/CLI shape, not another trade-bid calculator, and not the
+        same npm-supply-chain channel npm-lifecycle-script-check already
+        uses): duplicate_check.py scored every existing venture,
+        screened-out row, and pipeline candidate at 0.24 or below against
+        the final description. graphql-introspection-exposure-check scored
+        closest (0.24), a different evidence class entirely (a GraphQL
+        schema query response, not a cloud-storage listing endpoint);
+        subdomain-takeover-check names S3 only as one of 25 DNS-CNAME
+        takeover-prone hosting providers -- a dangling DNS record, a
+        completely different mechanism from a live bucket's own
+        anonymous-listing setting. Nothing in screened-out.md covers cloud
+        object-storage misconfiguration. Composite 6.5, floor 1
+        (ai_leverage), both gates well clear of 5: liability_containment 7,
+        ethical_robustness 8 -- see
+        candidates/cloud-bucket-exposure-check.md for the full write-up.
+      - >-
+        Distribution channel, named per DIRECTION.md North star point 2:
+        "leaky S3 bucket" / "s3 bucket public access checker" is one of the
+        highest-volume, most-cited cloud security misconfiguration search
+        classes -- evidenced by existing free open-source scanners built for
+        exactly this (s3scanner, several thousand GitHub stars;
+        GrayhatWarfare's public-bucket search index; Bucket Stream) and by
+        AWS itself changing S3's default in 2023 to block public access on
+        every newly created bucket specifically because of this exposure
+        class. A perennial, three-provider channel (AWS, GCP, Azure
+        developer communities each a separate overlapping search audience),
+        not tied to one dated incident the way an npm-supply-chain-attack
+        channel is -- r/aws, r/devops, r/netsec, and HackerOne/Bugcrowd's
+        own recurring report categories are the ongoing route.
+      - >-
+        Built ventures/cloud-bucket-exposure-check/: VENTURE.yaml, LICENSE,
+        README.md, engine.mjs (pure URL parsing for all three providers'
+        real bucket-URL shapes, plus classification against each provider's
+        documented listing/error XML -- ListBucketResult for the
+        S3-compatible API AWS S3 and GCS share, EnumerationResults for
+        Azure's own schema; up to 5 example object names shown as evidence,
+        object content never fetched), probe.mjs (one capped 16KB,
+        redirect-following GET against a caller-given target -- redirects
+        are required for AWS's path-style endpoint to resolve a bucket's
+        real region, unlike git-exposure-check's probe which deliberately
+        does not follow redirects), check.mjs (CLI, exit 0 private/not-found,
+        1 public-listing, 2 usage-error/incomplete/inconclusive), usage.mjs
+        (opt-in local counting, DNT/GPC honoured), index.html (paste-JSON
+        report viewer -- a live browser fetch is not reliable since these
+        endpoints do not send permissive CORS by default -- SoftwareApplication
+        + FAQPage JSON-LD with visible copy verified verbatim against the
+        JSON-LD text, no-warranty/authorised-testing-only/nothing-uploaded
+        disclaimers), vs-manually-checking-in-the-cloud-console.html
+        (comparison against a generic method, registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT), robots.txt, sitemap.xml. 77/77 tests
+        pass across engine/probe/check/usage/page suites (network tests run
+        against a real local loopback HTTP server, never the internet).
+        The classification was also verified live, read-only, against three
+        real endpoints during development (not part of the automated suite,
+        since it depends on external state this tool does not control): a
+        nonexistent S3 bucket (correctly not-found), the `commoncrawl` S3
+        bucket -- public object reads but anonymous listing denied, a
+        correct negative (private) -- and two intentionally public research
+        datasets, `gcp-public-data-landsat` on GCS and
+        `isdweatherdatacontainer` in the `azureopendatastorage` Azure
+        account, both correctly flagged as public-listing with real object
+        names returned. Added a reciprocal sibling link with
+        firebase-rules-check (both ask "does this backend hand out data
+        with no login" of a different storage/backend class) so neither is
+        a crawl orphan.
+      - >-
+        Registered: launched.mjs --write (340 tools), publish_surface.py
+        --write (added cloud-bucket-exposure-check-ci.yml, copied from
+        git-exposure-check-ci.yml), venture-scores.yaml (composite 6.167 on
+        the 6-dim scale, floor 1), candidates.yaml + write-up +
+        pipeline/README.md's ranked table (inserted as row 40 by composite,
+        renumbering rows 40-56 to 41-57; validate_doc_consistency.py and
+        validate_candidates.py both clean). Filed into build.mjs's existing
+        "CI checks & developer gates" category slug list on its first
+        commit (same pattern as subdomain-takeover-check), confirmed by
+        build.test.mjs's 288/288 pass with no catch-all growth.
+        sync_tree_counts.py: mirrored-tool count 339->340
+        (infra/OWNER_CHECKLIST.md x3, gitops/prod/usage/aggregate.py,
+        gitops/prod/front-door/default.conf x2,
+        gitops/tests/test_manifests.py total), opt-out-switch count 321->322
+        (platform/privacy/optout-persistence.test.mjs), with the
+        running-comment "why" entries this script asks a session to add by
+        hand in both files. gitops/ci/sync_readme_counts.py: runs-on count
+        433->434 across 435->436 workflows. Front-door mirror regenerated
+        (node platform/marketing/regen.mjs) and verified clean (--verify).
+      - >-
+        Mid-build, `git fetch origin main` picked up 5 concurrent merges
+        (comparison pages only, no new ventures, no count collisions).
+        Merged origin/main into the branch; the only conflicts were in the
+        generated gitops/prod/ mirror (front-door-tools/ and front-door/,
+        ~47 files) plus a clean auto-merge of platform/pages/clauses.mjs --
+        resolved per platform/marketing/resolve-mirror-merge.sh's own
+        guidance (never hand-pick a side) by taking either side as a
+        placeholder and re-running regen.mjs, verified with --verify
+        afterward. sync_tree_counts.py and checklist_coverage.py both clean
+        on the merged tree.
+      - >-
+        Verified locally (CI confirmed starved this session:
+        ci_starvation.py --run 35943246206, runner_id 0, 2s, no steps, on a
+        push to main minutes before this branch was built): venture tests
+        77/77; platform/marketing + platform/pages 1286/1286 (twice, once
+        pre-merge and once post-merge, ~252s each); gitops/tests 637
+        passed/1 skipped (twice); ledger/scoring/router/usage/pipeline/infra
+        pytest 446 passed; platform/ci unittest (27 modules, via `cd
+        platform/ci && for m in test_*.py; do python3 -m unittest
+        "${m%.py}"`) + agent_review/test_review all pass; platform/proposal
+        101/101; platform/privacy + platform/webcheck 142/142;
+        checklist_coverage, router/validate (347/347),
+        validate_doc_consistency, validate_candidates (57/57),
+        score_ventures --check (348/348), usage/validate_usage (284
+        products, 470 readings), probes/validate_probe_index,
+        score_sensitivity, publish_surface --check, guard_state
+        --require-runnable (only ENVIRONMENTAL skip: nginx-dependent
+        gitops/tests/test_front_door_serving.py wants a GitHub-hosted
+        runner): all clean. `run_workflow_locally.py --for-changes` was
+        started but not run to completion in this session -- each
+        individual suite it would replay was already run and verified
+        directly above, and the sweep itself was still legitimately in
+        progress (not hung) after 7+ minutes, working through dozens of
+        workflows the diff's file set touches; killed rather than left
+        running unbounded. `nginx-light` and `openssh-client` installed via
+        `apt-get update && apt-get install` per CLAUDE.md's documented
+        workaround (both fetches 404 without the update step first).
+    mrr_end: 0

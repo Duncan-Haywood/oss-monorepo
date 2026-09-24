@@ -107,3 +107,52 @@ test("the comparison page carries the no-warranty clause and is listed in the ve
   const sitemap = page("sitemap.xml");
   assert.match(sitemap, /vs-a-flat-percent-rule\.html/);
 });
+
+test("index links to the sales-tax guide page", () => {
+  assert.match(page("index.html"), /href="why-is-sales-tax-charged-on-the-buyers-premium\.html"/);
+});
+
+test("the sales-tax guide page links back to the calculator, carries the no-warranty clause, and is listed in the venture sitemap", () => {
+  const guide = page("why-is-sales-tax-charged-on-the-buyers-premium.html");
+  assert.match(guide, /<a href="\.\/">/);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /Nothing leaves your browser/);
+  assert.match(guide, /href="LICENSE"/);
+  assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
+  const sitemap = page("sitemap.xml");
+  assert.match(sitemap, /why-is-sales-tax-charged-on-the-buyers-premium\.html/);
+});
+
+test("the sales-tax guide page's worked example matches calc.mjs exactly", async () => {
+  const { analyzeAuction } = await import("./calc.mjs");
+  const result = analyzeAuction({ hammerPrice: 45000, buyerPremiumPercent: 10, buyerPremiumCap: 2500, taxRate: 6 });
+  assert.equal(result.hammerPrice, 45000);
+  assert.equal(result.buyerPremium, 2500);
+  assert.equal(result.purchasePrice, 47500);
+  assert.equal(result.salesTax, 2850);
+
+  const guide = page("why-is-sales-tax-charged-on-the-buyers-premium.html");
+  assert.match(guide, /\$45,000\.00/);
+  assert.match(guide, /\$2,500\.00/);
+  assert.match(guide, /\$47,500\.00/);
+  assert.match(guide, /\$2,850\.00/);
+  assert.match(guide, /\$2,700\.00/);
+  assert.match(guide, /\$150\.00/);
+});
+
+test("every visible FAQ question and answer on the sales-tax guide page also appears in its FAQPage block", () => {
+  const guide = page("why-is-sales-tax-charged-on-the-buyers-premium.html");
+  const questions = [...guide.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]);
+  assert.ok(questions.length >= 4);
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the guide page");
+  const faqNames = faq.mainEntity.map((q) => q.name);
+  for (const question of questions) assert.ok(faqNames.includes(question), `question not in FAQPage: ${question}`);
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(guide.includes(name), `question not found verbatim: ${name}`);
+    assert.ok(guide.includes(acceptedAnswer.text), `answer not found verbatim for: ${name}`);
+  }
+});

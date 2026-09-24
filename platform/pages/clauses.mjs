@@ -189,6 +189,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // templates generally, not a company or product this could be mistaken
   // for. The page names no specific source for the figure.
   'brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html',
+  // Compares against "a flat industry-average CPM" -- the single
+  // cost-per-1000-downloads figure podcast ad rate reports and blog posts
+  // commonly cite as "the average podcast CPM", not a company or product
+  // this could be mistaken for. The page names no specific report or
+  // publisher, and its illustrative $25 figure is explicitly disclaimed as
+  // not a claim about any specific report's published number.
+  'podcast-sponsorship-rate-calculator/vs-a-flat-industry-average-cpm.html',
   // Compares against "eyeballing which box triggers the dimensional
   // penalty" -- a habit every shipper already has, not a company or
   // product this could be mistaken for. The page names no carrier tool.
@@ -1053,6 +1060,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // branch-protection-drift-check/vs-manually-checking-settings.html entries
   // above.
   'git-exposure-check/vs-checking-the-url-by-hand.html',
+  // Compares against "clicking through your own cloud provider's console
+  // by hand" -- a manual habit every bucket owner already has, not a
+  // company or product this could be mistaken for. The page's own first
+  // paragraph says so explicitly ("names no specific company or
+  // product"), same reasoning as branch-protection-drift-check's and
+  // supabase-rls-check's own-console exemptions above.
+  'cloud-bucket-exposure-check/vs-manually-checking-in-the-cloud-console.html',
   // Compares against "pasting an introspection query into GraphiQL, Postman,
   // or curl" -- a generic manual habit every GraphQL developer already has
   // (every server ships a playground that runs the identical query), not a
@@ -1200,6 +1214,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-checking-*-by-hand pages above (e.g.
   // graphql-introspection-exposure-check's).
   'actions-injection-check/vs-checking-a-workflow-by-hand.html',
+  // Compares against "a flat installed price per square foot" -- a generic
+  // pricing habit every shed dealer already shops against (the "$X.XX
+  // installed" Facebook-special quote), not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html, which
+  // names a specific field-service platform and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-a-flat-rate-per-square-foot pages above (e.g.
+  // artificial-turf-bid-calculator's).
+  'shed-install-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "opening each base image's own release page by hand" --
   // a manual lookup habit every Dockerfile author already has, not a
   // company or product this could be mistaken for. Distinct from this
@@ -1215,6 +1238,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "ranking route locations by withdrawal count" -- a
+  // habit every ATM route operator already has from a monthly transaction
+  // report, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-atm-depot.html, which names a specific
+  // equipment/processing vendor and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other generic-method pages
+  // above.
+  'atm-route-margin/vs-ranking-by-transaction-count.html',
   // Compares against "running dig by hand" -- a manual DNS lookup habit
   // every developer and admin already has, not a company or product this
   // could be mistaken for. Distinct from this venture's own
@@ -1258,6 +1289,30 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // generic-method pages above.
   'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "estimating egress in a spreadsheet" -- a method every
+  // engineer pricing a workload already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-aws-pricing-calculator.html, vs-azure-pricing-calculator.html and
+  // vs-google-cloud-pricing-calculator.html, which each name a specific
+  // provider's own tool and already carry that provider's "not affiliated"
+  // clause for that reason. Same reasoning as the other vs-a-spreadsheet
+  // pages above.
+  'cloud-egress-calculator/vs-a-spreadsheet.html',
+  // Compares against "planning cuts by hand" -- a manual layout habit every
+  // woodworking or sign shop already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-opticutter-and-cutlist-optimizer.html, which names two specific
+  // hosted services and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other generic-method pages above.
+  'cut-list-optimizer/vs-planning-cuts-by-hand.html',
+  // Compares against "a flat $1,495 well-pump special" -- a generic
+  // advertised price every well-service shop is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-servicetitan.html, which names a specific field
+  // service platform and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other flat-rate generic-method
+  // pages above (e.g. shed-install-bid-calculator's).
+  'well-pump-bid-calculator/vs-a-flat-well-pump-special.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

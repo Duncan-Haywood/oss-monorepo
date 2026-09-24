@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Is 1031 Exchange Boot Taxed at My Average Rate? | Depreciation Recapture Calculator</title>
+<meta name="description" content="No. Boot comes out of the recapture bucket first, at up to 25%, before any of it reaches your lower capital-gains rate. On a $370,000 gain with $100,000 of depreciation taken, $50,000 of boot owes $12,500 -- not the $8,851 a blended-rate guess would suggest.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Is 1031 exchange boot taxed at my average rate?">
+<meta property="og:description" content="No -- boot is taxed recapture-first, not at a blended rate. A $50,000 boot on a $370,000 gain with $100,000 of depreciation taken owes $12,500, not the $8,851 an averaged guess would suggest.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="./is-1031-boot-taxed-at-my-average-rate.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is 1031 exchange boot taxed at my average or blended tax rate?","acceptedAnswer":{"@type":"Answer","text":"No. Boot is recognized gain, and recognized gain is taxed in the same recapture-then-capital-gains order as an outright sale — the unrecaptured Section 1250 portion comes out of the boot first, at your ordinary rate up to 25%, and only the remainder (if any) gets your lower capital-gains rate. Averaging the two rates across your whole gain and applying that single rate to the boot understates the tax whenever your depreciation taken is larger than the boot itself."}},{"@type":"Question","name":"Why does the boot get the worse rate first instead of a proportional share?","acceptedAnswer":{"@type":"Answer","text":"Because Section 1250 does not ask which dollars you received — it asks how much of the recognized gain is unrecaptured depreciation, and that amount is capped at the smaller of the depreciation actually taken or the recognized gain. When the boot is smaller than the depreciation taken, the entire boot fits inside that cap, so all of it is recapture. Only once the boot exceeds the depreciation taken does the excess spill into the capital-gains bucket."}},{"@type":"Question","name":"At what boot amount does the rate improve?","acceptedAnswer":{"@type":"Answer","text":"Once boot received exceeds the depreciation actually taken on the property. Below that crossover, 100% of the boot is taxed at the recapture rate (up to 25%). Above it, the amount over the crossover is taxed at your capital-gains rate instead, so the blended rate on the boot gradually improves as the boot grows past that point."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser. Nothing you type is sent to a server, there is no account, and nothing is saved anywhere except in your own browser."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f4f1; }
+  body { max-width: 800px; margin: auto; padding: 28px 18px; line-height: 1.6; }
+  a { color: #1f5c35; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; }
+  h2 { font-size: 1.2rem; margin: 30px 0 10px; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; }
+  .card { background: #fff; border: 1px solid #d9e0d6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f5c3510; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e5ede2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5560; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .note, footer { font-size: .86rem; color: #4a5560; }
+  .cta { display: inline-block; margin: 8px 0 0; padding: 11px 15px; border-radius: 8px; background: #1f5c35; color: #fff; text-decoration: none; font-weight: 700; }
+  footer { margin-top: 28px; border-top: 1px solid #d9e0d6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>Is 1031 exchange boot taxed at my average rate?</h1>
+<p class="lede">No. It's tempting to take the blended rate your full sale would owe and apply it to whatever boot you pull out of an exchange. That understates the bill, because boot is not a random sample of your gain &mdash; it comes out of the higher-taxed recapture portion first, in full, before any of it reaches your lower capital-gains rate.</p>
+<p><a class="cta" href="./">Open the free depreciation recapture calculator</a></p>
+
+<section class="card">
+<h2>Worked example</h2>
+<p>A rental bought for $200,000 ($40,000 land, $160,000 depreciable), with $100,000 of depreciation claimed over the holding period, sold for $500,000 minus $30,000 of selling costs:</p>
+<table>
+<thead><tr><th>Figure</th><th class="num">Amount</th></tr></thead>
+<tbody>
+<tr><td>Adjusted basis ($200,000 + $0 improvements &minus; $100,000 depreciation)</td><td class="num">$100,000</td></tr>
+<tr><td>Amount realized ($500,000 &minus; $30,000 selling costs)</td><td class="num">$470,000</td></tr>
+<tr><td>Total gain</td><td class="num">$370,000</td></tr>
+<tr><td>Unrecaptured Section 1250 gain (capped at depreciation taken)</td><td class="num">$100,000</td></tr>
+<tr><td>Remaining gain at 15% LTCG</td><td class="num">$270,000</td></tr>
+<tr><td>Tax on the full sale, outright (25% + 15% split)</td><td class="num">$65,500</td></tr>
+<tr><td>Blended rate on the full sale ($65,500 &divide; $370,000)</td><td class="num">17.70%</td></tr>
+</tbody>
+</table>
+<p>Now suppose this seller does a 1031 exchange but takes <strong>$50,000 of cash out</strong> &mdash; boot &mdash; instead of reinvesting every dollar:</p>
+<table>
+<thead><tr><th>Assumption</th><th class="num">Tax on the $50,000 boot</th></tr></thead>
+<tbody>
+<tr><td>Naive guess: apply the 17.70% blended rate to the boot</td><td class="num">$8,851</td></tr>
+<tr><td>Actual: recapture-first order (this calculator's own arithmetic)</td><td class="num"><strong>$12,500</strong></td></tr>
+<tr><td>Amount the blended-rate guess understates the bill by</td><td class="num"><strong>$3,649</strong></td></tr>
+</tbody>
+</table>
+<p>The $50,000 boot is smaller than the $100,000 of depreciation taken, so under Section 1250's recapture-then-remainder order, <strong>all of it</strong> is unrecaptured Section 1250 gain &mdash; taxed at the 25% recapture rate, none of it at the 15% capital-gains rate. $50,000 &times; 25% = $12,500, exactly. Run this example yourself on the
+<a href="./#purchasePrice=200000&amp;landValue=40000&amp;improvements=0&amp;depreciationTaken=100000&amp;sellingPrice=500000&amp;sellingCosts=30000&amp;exchangeBoot=50000">calculator, pre-filled with these numbers</a>, and try raising the boot past $100,000 to see the rate on the extra dollars improve once it clears the depreciation-taken crossover.</p>
+</section>
+
+<h2>Where the crossover sits</h2>
+<p>The pattern holds for any boot up to the amount of depreciation actually taken &mdash; every dollar of it is recapture, taxed at up to 25%, regardless of how large or small the boot is relative to the total gain:</p>
+<table>
+<thead><tr><th>Boot received</th><th class="num">Recognized as recapture</th><th class="num">Recognized as capital gain</th><th class="num">Tax due</th></tr></thead>
+<tbody>
+<tr><td>$20,000</td><td class="num">$20,000</td><td class="num">$0</td><td class="num">$5,000</td></tr>
+<tr><td>$50,000</td><td class="num">$50,000</td><td class="num">$0</td><td class="num">$12,500</td></tr>
+<tr><td>$100,000 (equals depreciation taken)</td><td class="num">$100,000</td><td class="num">$0</td><td class="num">$25,000</td></tr>
+<tr><td>$150,000 (past the crossover)</td><td class="num">$100,000</td><td class="num">$50,000</td><td class="num">$32,500</td></tr>
+</tbody>
+</table>
+<p>Past $100,000 of boot &mdash; the depreciation-taken crossover on this example &mdash; the extra dollars finally reach the 15% capital-gains rate, which is why the effective rate on the whole boot amount keeps falling as the boot grows past that point, but never below the rate on an outright sale.</p>
+
+<section>
+<h2>Common questions</h2>
+<h3>Is 1031 exchange boot taxed at my average or blended tax rate?</h3>
+<p>No. Boot is recognized gain, and recognized gain is taxed in the same recapture-then-capital-gains order as an outright sale &mdash; the unrecaptured Section 1250 portion comes out of the boot first, at your ordinary rate up to 25%, and only the remainder (if any) gets your lower capital-gains rate. Averaging the two rates across your whole gain and applying that single rate to the boot understates the tax whenever your depreciation taken is larger than the boot itself.</p>
+<h3>Why does the boot get the worse rate first instead of a proportional share?</h3>
+<p>Because Section 1250 does not ask which dollars you received &mdash; it asks how much of the recognized gain is unrecaptured depreciation, and that amount is capped at the smaller of the depreciation actually taken or the recognized gain. When the boot is smaller than the depreciation taken, the entire boot fits inside that cap, so all of it is recapture. Only once the boot exceeds the depreciation taken does the excess spill into the capital-gains bucket.</p>
+<h3>At what boot amount does the rate improve?</h3>
+<p>Once boot received exceeds the depreciation actually taken on the property. Below that crossover, 100% of the boot is taxed at the recapture rate (up to 25%). Above it, the amount over the crossover is taxed at your capital-gains rate instead, so the blended rate on the boot gradually improves as the boot grows past that point.</p>
+<h3>Is my data uploaded anywhere?</h3>
+<p>No. The calculator this page links to runs entirely in your browser. Nothing you type is sent to a server, there is no account, and nothing is saved anywhere except in your own browser.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply IRC Section 1250's recapture rule and standard capital-gains brackets to numbers you supply. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional or a qualified intermediary. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your state's tax rules. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

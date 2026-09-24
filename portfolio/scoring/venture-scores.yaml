@@ -7909,6 +7909,63 @@ ventures:
       installed on the user's own machine against the public Marketplace
       API; it uploads no file contents and says so in its own FAQ.
 
+  - slug: slopsquatting-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a dependency name exists
+      on the registry, and whether it was published recently with few
+      versions, is decided by parsing the registry's own JSON document
+      directly against fixed thresholds — a factual check, not a model
+      judgment. The offline browser heuristic is a plain edit-distance
+      comparison against a hard-coded list, not an inference.
+    basis: >-
+      Screened and graduated 2026-09-24 per portfolio/pipeline/README.md's
+      "archetype itself" section: same direct, dated-incident-driven shape
+      as dependency-confusion-check, npm-lifecycle-script-check, and
+      vscode-extension-drift-check, scored on this file's six-dimension
+      rubric to keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored every
+      existing venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate below 0.15 for this idea; the closest match,
+      npm-lifecycle-script-check at 0.12, diffs lockfile snapshots for
+      install-time scripts, a different mechanism and a different artifact
+      (installed script text, not registry existence/recency). Autonomous
+      ops 10 / gross margin 10: the browser page parses only pasted text
+      with no network call, and the CLI's one network call per dependency
+      is a small, free, unauthenticated GET against a public registry this
+      project pays nothing to serve, so serving one more user costs a
+      static file. Distribution 6: a May 2025 USENIX Security study found
+      19.7% of packages recommended by 16 code-generating models did not
+      exist at all, and the PhantomRaven campaign (100+ malicious npm
+      packages via slopsquatting and typosquatting, flagged October 2025 by
+      Koi Security and DCODX, covered by The Hacker News) is a real, dated,
+      event-driven incident — both independently verified by live fetch on
+      2026-09-24, not restated from memory. Real, event-driven search
+      demand ("slopsquatting", "npm package doesn't exist", "AI
+      hallucinated package") rather than an evergreen query.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it checks a name the user's own
+      manifest already declares against the public registry and reports a
+      factual existence/recency finding for the user to review, never a
+      claim that a specific package is malicious. The one network call
+      (CLI-only, never from the browser page) sends only a bare package
+      name, never file contents or code, to the same public,
+      unauthenticated endpoint `npm install` itself already queries, and
+      both the CLI's own --help and the page's copy say so plainly.
+
   - slug: 3d-print-price-calculator
     scores:
       ai_leverage: 1
@@ -15992,3 +16049,65 @@ ventures:
       own HTTP response, no crawling, no enumeration of a domain's other
       subdomains, and the report is explicit that a clean result describes
       only the hostnames checked, not a full DNS-zone audit.
+  - slug: cloud-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a bucket is publicly
+      listable is decided by matching a live HTTP response body against a
+      cloud provider's own documented listing-or-error XML shape -- a
+      factual, deterministic classification, not a model judgment.
+    basis: >-
+      Screened 2026-09-24, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, supabase-rls-check,
+      firebase-rules-check, subdomain-takeover-check). duplicate_check.py
+      scored every existing venture, screened-out row, and pipeline
+      candidate at 0.24 or below against the final description (real
+      read-only requests to a user-provided S3/GCS/Azure Blob bucket,
+      classifying public-list vs private across the three major providers'
+      own endpoint conventions) -- graphql-introspection-exposure-check
+      scored closest, a different evidence class entirely (a GraphQL
+      schema query response, not a cloud-storage listing endpoint), and
+      subdomain-takeover-check names S3 only as one of 25 DNS-CNAME
+      takeover-prone hosting providers, a different mechanism (a dangling
+      DNS record) from a live bucket's own anonymous-listing setting.
+      Nothing in the tree covers cloud object-storage misconfiguration.
+      Autonomous ops 10 / gross margin 10: the CLI's one request runs from
+      the user's own machine against a bucket of their choosing, and the
+      browser page only renders a report already produced, so serving one
+      more user costs a static file and needs no human review of any
+      output. Distribution 8, a point above the sibling checker family's
+      typical 7: a perennial, three-provider exposure class (not tied to
+      one dated incident) with real, sustained tool demand already proven
+      by existing free scanners (s3scanner, several thousand GitHub stars;
+      GrayhatWarfare; Bucket Stream), and a provider (AWS) that changed its
+      own default in 2023 specifically because of this exposure class.
+      Time to revenue 6, defensibility 2: donations-only; fixed regexes
+      against a provider's own documented XML shape are genuinely easy to
+      reimplement, so defensibility rests on being first, free, and
+      correct across all three providers in one tool, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool sends exactly one read-only, unauthenticated request
+      per check -- a provider's own anonymous listing endpoint -- and never
+      fetches any individual object's content, only the listing, the same
+      restraint git-exposure-check applies to not requesting a
+      repository's packed objects once exposure is confirmed. Up to 5
+      example object names are shown as evidence, never content, capped
+      regardless of how many the response reports. Ethically: read-only,
+      no crawling of the wider account, no attempt to claim or alter
+      anything, and the report is explicit that a clean result describes
+      only the one bucket checked and only the listing exposure class, not
+      a full cloud security assessment.
