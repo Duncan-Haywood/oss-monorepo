@@ -348,6 +348,24 @@ readings:
       does not resolve either way, and because a session should not guess at
       the owner's intent for the domain. Flagged to the owner directly
       rather than left for a later session to rediscover.
+      **Corroborated 2026-09-24** from a separate scheduled session, also with
+      open egress: identical reading one day later — `marisstella.dev` and
+      `www` still serve the same "Maris Stella Labs" landing page, same
+      `last-modified: Mon, 21 Sep 2026 22:13:38 GMT` (unchanged, so this is a
+      standing state, not a one-off blip), `tools.marisstella.dev` still a
+      self-signed-cert failure. `python3 platform/ci/public_surface.py` run
+      directly from this session's sandbox reproduces the same table
+      end-to-end (no manual curl needed this time — the sandbox's egress now
+      reaches these hosts, not just `github.io`/`api.indexnow.org`), and adds
+      a fact the 09-23 reading didn't check: **23 of 24 sampled
+      `marisstella.dev/tools/<slug>/...` sitemap URLs 404** — so even setting
+      the domain-ownership question aside, this host is not serving this
+      repository's mirrored tool pages either way. Checked whether this had
+      already reached the owner: neither `asks.yaml`/`decision_queue.py` nor
+      issue #139's body mentions it — "flagged to the owner directly" above
+      does not appear to have landed anywhere the owner would see it. Pushed
+      a direct notification this session rather than leaving it here a
+      second time.
 
   codex-host-mode:
     # `up` here means the route is installable and runnable, not that it is
@@ -572,7 +590,7 @@ readings:
   github-pages-branch-route:
     verdict: up
     measured: "2026-09-24"
-    run: 36022140338
+    run: 36025756082
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
