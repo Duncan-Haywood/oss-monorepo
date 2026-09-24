@@ -16440,53 +16440,63 @@ ventures:
       autonomous_ops: 10
       time_to_revenue: 6
       gross_margin: 10
-      defensibility: 2
+      defensibility: 4
       distribution: 5
-    composite: 5.667
+    composite: 6.0
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
     floor_note: >-
-      No AI in the product, deliberately. Every finding -- broad
-      filesystem/shell access, a hardcoded secret literal, a missing
-      version pin, a shadowed tool name -- is decided by an exact
-      structural pattern match against the pasted config text, a factual,
-      deterministic classification never a model judgment, and every page
-      states a finding is "worth a look", not a verdict.
+      No AI in the product, deliberately. Every finding (broad
+      filesystem/shell access, a hardcoded-secret-shaped literal, a
+      missing version pin, a shadowed tool name) is decided by pattern
+      matching against a fixed literal/flag list or a bare regex over the
+      pasted text -- a factual, deterministic comparison, not a model
+      judgment, and it never claims to know whether a server is actually
+      malicious.
     basis: >-
-      Screened 2026-09-24 per VENTURE.yaml's own duplicate_check.py run:
-      nothing in the tree scored >= 0.45 against the final description,
-      and mcp-supply-chain-watch -- the closest-domain hit by construction
-      (same MCP subject matter) -- scored only 0.09, because it diffs two
-      captured tool manifests over time (a temporal drift check) while
-      this venture reads a single current launch config right now (a
-      point-in-time audit); the two are complementary and cross-linked
-      rather than overlapping. Autonomous ops 10 / gross margin 10: every
-      check runs entirely client-side against text the visitor pastes,
-      with no network call of any kind, so serving one more visitor costs
-      a static file. Distribution 5: MCP server security is an actively
-      discussed topic in named developer communities (r/ClaudeAI,
-      r/LocalLLaMA MCP threads, Hacker News Show HN and MCP-security
-      threads, the GitHub topic/search surface for repositories publishing
-      an mcp.json or claude_desktop_config.json) with specific current
-      search terms (VENTURE.yaml's channel_notes), narrower and less
-      directly evidenced than a named-competitor comparison would be.
-      Time to revenue 6, defensibility 2: donations-only; a structural
-      pattern match against pasted text is easy to reimplement once the
-      pattern is known -- more so than a sibling checker that fetches real
-      network data, since there is no evidence-gathering step to
-      replicate -- so defensibility rests only on the pattern coverage
-      itself and this portfolio's disclaimer/usage conventions.
+      Screened 2026-09-24 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free browser checker, candidate 1 of 3 offered
+      that session and the top-ranked one. duplicate_check.py scored the
+      closest existing venture (mcp-supply-chain-watch, same MCP domain)
+      at 0.09 against the final description, well under the 0.45 flag
+      bar -- that venture reads a temporal diff between two captured tool
+      manifests, never a single launch config, and does not check for
+      hardcoded secrets, missing version pins, or broad filesystem/shell
+      access. Two other candidates offered the same session (an agent
+      tool-permission diff checker; a RAG/agent context-window calculator)
+      were passed over as thinner differentiation or a weaker niche fit;
+      see the venture's own VENTURE.yaml for the full duplicate_check
+      table.
+      Autonomous ops 10 / gross margin 10: every check runs client-side
+      against text the visitor pastes, nothing uploaded, no server of
+      ours in the loop, so serving one more visitor costs a static file.
+      Distribution 5: named channels are real but narrower than an
+      established platform-review funnel (r/ClaudeAI, r/LocalLLaMA MCP
+      threads, HN Show/security threads, GitHub topic search for
+      mcp.json/claude_desktop_config.json, plus a footer cross-link with
+      mcp-supply-chain-watch), reflecting an actively-maturing protocol
+      community rather than a mainstream store's own rejection
+      documentation the way chrome-extension-permission-check's channel
+      does.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      pattern-matcher is easy to reimplement, so defensibility rests on
+      being first and correct for this exact single-snapshot config audit
+      rather than on any moat -- matching mcp-supply-chain-watch's own
+      defensibility score in the same domain.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass: the tool never contacts a server, a package registry, or a
-      vulnerability database of any kind -- it only classifies structural
-      patterns in the exact text the visitor pastes. It never claims to
-      know the one thing it cannot see (whether a server is actually
-      malicious or compromised), only that a pattern was or was not
-      observed in the pasted config, and every page states a finding is
-      not a security audit, a code scan, or a compliance attestation, and
-      a clean result is not a safety guarantee. No affiliate link, no
-      referral fee, donations-only same as the rest of the portfolio.
+      Liability: every check is a mechanical pattern match against text
+      the user pastes -- no network call of any kind, no claim that a
+      server's actual published version, code, or compromise status was
+      checked. The UI, README, and footer all state plainly that a
+      finding is "not a verdict" and a clean result is "not a safety
+      guarantee".
+      Ethics: strictly beneficial as it scales -- exists only to help a
+      developer or team catch a risky config line before approving a
+      server, no adverse incentive on our side (no affiliate link, no
+      referral fee, donations-only), and it never scans or fingerprints
+      third-party infrastructure since it only reads a pasted launch
+      config and contacts no server, connected or not.

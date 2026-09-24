@@ -40664,3 +40664,73 @@ entries:
         surface-budget.mjs --check, clauses.mjs --check all clean; venture's
         own suite 133/133).
     mrr_end: 0
+  - venture: docker-build-secrets-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the stale published Pages snapshot first (session_gate.py's
+        top item): built from 05958aa9 while main was at 94fcf02e;
+        publish-branch.sh republished, IndexNow notified 1512 URLs,
+        pages_state.py --require-current now reports current and the
+        github-pages-branch-route reading was recorded.
+      - >-
+        Shipped docker-build-secrets-check's one budgeted generic-method
+        comparison page (0/1 per surface-budget.mjs; the venture already
+        carried one named-product page against gitleaks):
+        vs-reading-a-dockerfile-by-hand.html, covering the two cases a manual
+        Dockerfile review tends to miss that this checker's classify.mjs
+        catches mechanically: an ENV value resolved from a build argument
+        (no literal secret text on the line) and a bare ARG declaration with
+        no default (no value in the file at all). Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, listed in
+        sitemap.xml. This page's title text ("vs. reading a Dockerfile by
+        hand") exactly matches docker-base-image-pin-check's existing page of
+        the same name, so front-door.mjs's cross-venture subject grouping
+        promoted it to a second shared apex comparison page the moment two
+        ventures carried it -- gitops/prod/kustomization.yaml needed a new
+        hand-kept mount line for vs__reading-a-dockerfile-by-hand.html.gz,
+        caught by front-door.test.mjs's "every rendered per-product
+        comparison page is mounted" assertion before it would have shipped a
+        dark link. Mirror regenerated and verified (regen.mjs --verify clean
+        before and after; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1287/1287; front-door.test.mjs 115/115;
+        checklist_coverage.py, surface-budget.mjs --check clean; venture's
+        own suite 45/45; python3 -m pytest gitops/tests 613 passed, 25
+        skipped).
+    mrr_end: 0
+  - venture: medical-courier-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped medical-courier-route-margin's first generic-method
+        comparison page (0/1 per surface-budget.mjs --for): vs-a-spreadsheet.html
+        (PR #5608). Two worked examples pinned against calc.mjs: a spreadsheet
+        with no column for deadhead reports the calculator's own default route
+        at $151.80 margin (50.6%), which drops to $131.49 (43.83%) once a real
+        12-mile/25-minute deadhead leg is counted -- the $20.31 gap was always
+        there, just uncounted; and a naive quote that adds a 20% target margin
+        on top of cost ($118.20 / (1-20%) = $147.75, forgetting overhead also
+        scales with the price) actually realizes only 10.00% margin once the
+        10% overhead is billed on it, versus this calculator's $168.86 quote
+        that solves for margin and overhead in the same pass. Linked from
+        index.html, added to sitemap.xml and clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT.
+      - >-
+        Session ran during a confirmed Actions starvation window
+        (ci_starvation.py: runner_id 0 on portfolio-validate.yml), so the
+        full local checklist was run instead: venture suite 46/46,
+        platform/pages 1015/1015, platform/marketing 272/272 (after
+        regen.mjs, twice -- two sibling PRs landed on main mid-session and
+        each collision required platform/marketing/resolve-mirror-merge.sh
+        plus a full regen.mjs pass for the front-door/ generator, which
+        resolve-mirror-merge.sh does not cover), gitops/tests 637/1 skip,
+        all 15 platform/ci unittest modules, portfolio
+        ledger/scoring/router/usage/pipeline/infra pytest 446/446,
+        checklist_coverage.py, and the 8 portfolio-validate.yml validators
+        with no dedicated test file. Also refreshed the stale gh-pages
+        snapshot (found stale at session start, built from an older commit
+        than main's tip) both before and after this PR merged, and recorded
+        the infra_state.yaml reading each time (#5618).
+    mrr_end: 0

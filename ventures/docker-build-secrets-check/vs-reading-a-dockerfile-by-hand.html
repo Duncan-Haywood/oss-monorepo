@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docker Build Secrets Check vs. reading a Dockerfile by hand</title>
+<meta name="description" content="Skimming a Dockerfile for an obvious ARG PASSWORD=hunter2 catches the easy case. It also depends on remembering that an ENV value is baked into the image config even when it comes from a build argument, that a bare ARG with no default is still a risk, and reading every COPY/ADD source against a list of well-known credential filenames every time.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-reading-a-dockerfile-by-hand.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker Build Secrets Check vs. reading a Dockerfile by hand">
+<meta property="og:description" content="A careful read of a Dockerfile catches an obvious ARG PASSWORD=hunter2. This tool checks every ENV, ARG, COPY and ADD instruction the same way every time, including the ones that carry no literal secret text at all.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/docker-build-secrets-check/vs-reading-a-dockerfile-by-hand.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does reading a Dockerfile by hand actually catch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A reviewer who knows to look can spot the obvious case immediately: an ARG or ENV line with a literal-looking secret value sitting right there in the text, such as ARG DB_PASSWORD=hunter2. That review genuinely works when the value is literal and the line is short -- the same case this tool's classify.mjs also flags as arg-literal or env-secret." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does an ENV value resolved from a build argument slip past a skim?",
+      "acceptedAnswer": { "@type": "Answer", "text": "ENV NODE_ENV=production API_KEY=$API_KEY carries no literal secret text on that line for a reviewer to react to -- the value only exists once the build resolves the ARG reference. But per Docker's own documentation, whatever that value resolves to is written into the image's config layer exactly the same as a literal would be, and stays there. A reviewer scanning for a suspicious-looking string has nothing to see on this line; this tool flags it because it checks the ENV variable's name against a secret-pattern list, not the literal text of its value." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a bare ARG with no default easy to wave through?",
+      "acceptedAnswer": { "@type": "Answer", "text": "ARG SIGNING_TOKEN with no default commits nothing to the Dockerfile itself, so on a skim it looks like the safe version of the ARG PASSWORD=hunter2 pattern a reviewer already knows to flag. It is still worth a second look: it invites a caller to pass a value with --build-arg, which BuildKit still records for the build unless that value is mounted as a build secret instead. This tool flags it too, as an advisory-only arg-declared finding, so it does not get silently classed as fine because it has no visible value." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is a COPY of a credential file easy to miss among ordinary COPY lines?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A Dockerfile can carry a dozen ordinary COPY instructions -- package.json, source directories, config files -- and a COPY .env /app/.env or COPY id_rsa /root/.ssh/id_rsa reads the same at a glance as any of them unless a reviewer is specifically checking each source path against a list of well-known credential filenames (.env, id_rsa, .npmrc, .aws/credentials, and others). That list is easy to not have fully in mind while reading past several ordinary-looking COPY lines in a row. This tool checks every COPY and ADD source's basename and path against that fixed list every time, regardless of how many other COPY lines surround it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this replace understanding whether a flagged name actually holds a secret?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This is a name-pattern heuristic over Dockerfile text, not a value scanner -- it never sees what a build actually resolves ARG or ENV to, so a name like API_KEY is flagged because it looks like a secret even if the value behind it is not sensitive. Deciding whether a specific flagged instruction is a real exposure, and catching a secret under a name this tool's pattern list does not recognise, is still a job for reading the Dockerfile yourself." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.6rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to Docker Build Secrets Check</a></p>
+<h1>Docker Build Secrets Check vs. reading a Dockerfile by hand</h1>
+<p>
+  Skimming a Dockerfile for an obvious <code>ARG DB_PASSWORD=hunter2</code> genuinely works, and it
+  is the method most people already use. This page names no product or company being compared
+  against: "reading the Dockerfile by hand" is a generic manual habit, not a competing tool.
+</p>
+
+<table>
+  <thead><tr><th>Case</th><th>Reading the Dockerfile by hand</th><th>This tool</th></tr></thead>
+  <tbody>
+    <tr><td>A literal secret-looking default, <code>ARG DB_PASSWORD=hunter2</code></td><td>Correctly caught by a reviewer who knows to look for it</td><td>Correctly caught the same way, as <code>arg-literal</code></td></tr>
+    <tr><td>An <code>ENV</code> value resolved from a build argument, <code>ENV API_KEY=$API_KEY</code></td><td>No literal secret text on the line to react to -- easy to read as clean</td><td>Flags the <code>ENV</code> variable's name against a secret-pattern list regardless of where its value comes from</td></tr>
+    <tr><td>A bare <code>ARG SIGNING_TOKEN</code> with no default at all</td><td>Reads as the safe version of the pattern already being watched for -- no value is visible to object to</td><td>Flags it as an advisory-only <code>arg-declared</code> finding, since it still invites an unsafe <code>--build-arg</code></td></tr>
+    <tr><td>A <code>COPY .env /app/.env</code> among a dozen ordinary <code>COPY</code> lines</td><td>Easy to miss without checking every source path against a credential-filename list</td><td>Checks every <code>COPY</code>/<code>ADD</code> source's basename and path against that fixed list every time</td></tr>
+    <tr><td>Checking every Dockerfile in a repository on every dependency-bump PR</td><td>Manual, and the first thing skipped under time pressure</td><td>CLI scans a whole checkout in one pass; <code>--fail-on-risk</code> blocks CI</td></tr>
+  </tbody>
+</table>
+
+<h2>The gap that matters most: a value with no literal text to see</h2>
+<p>
+  <code>ENV TOKEN=$TOKEN</code> and a bare <code>ARG SIGNING_TOKEN</code> both carry no secret-shaped
+  string anywhere in the Dockerfile for a reviewer to react to -- there is nothing that looks wrong on
+  the line itself. But per Docker's own "Build secrets" documentation, an <code>ENV</code> instruction's
+  resolved value is written into the image's config layer regardless of where that value came from, and
+  a bare <code>ARG</code> still invites a caller to pass a secret with <code>--build-arg</code>, which
+  BuildKit records for the build unless it is mounted as a build secret instead. This tool checks the
+  instruction and the variable's <em>name</em>, not whether a literal value is visible in the file, so
+  both cases are flagged the same as a line with a literal default would be.
+</p>
+
+<h2>The gap that matters second: a credential file among ordinary <code>COPY</code> lines</h2>
+<p>
+  A typical Dockerfile has several ordinary <code>COPY</code> instructions in a row --
+  <code>package.json</code>, source directories, config files -- and a
+  <code>COPY .env /app/.env</code> or <code>COPY id_rsa /root/.ssh/id_rsa</code> reads no differently
+  from any of them on a skim unless a reviewer is deliberately checking each source's basename against
+  a list of well-known credential filenames. This tool checks every <code>COPY</code>/<code>ADD</code>
+  source against that fixed list every time, so the answer does not depend on a reviewer's memory of
+  which filenames count.
+</p>
+
+<h2>When to still read the Dockerfile yourself</h2>
+<p>
+  This is a name-pattern heuristic, not a value scanner -- it never sees what a build actually resolves
+  <code>ARG</code> or <code>ENV</code> to, so a name like <code>API_KEY</code> is flagged whether or not
+  the value behind it is sensitive, and a genuine secret under a name this tool's pattern list does not
+  recognise is a false negative it cannot close. Deciding whether a specific flagged instruction is a
+  real exposure, and catching a secret under an unrecognised name, is still a job for reading the
+  Dockerfile yourself.
+</p>
+
+<h2>Common questions</h2>
+<h3>What does reading a Dockerfile by hand actually catch?</h3>
+<p>A reviewer who knows to look can spot the obvious case immediately: an ARG or ENV line with a literal-looking secret value sitting right there in the text, such as ARG DB_PASSWORD=hunter2. That review genuinely works when the value is literal and the line is short -- the same case this tool's classify.mjs also flags as arg-literal or env-secret.</p>
+<h3>Why does an ENV value resolved from a build argument slip past a skim?</h3>
+<p>ENV NODE_ENV=production API_KEY=$API_KEY carries no literal secret text on that line for a reviewer to react to -- the value only exists once the build resolves the ARG reference. But per Docker's own documentation, whatever that value resolves to is written into the image's config layer exactly the same as a literal would be, and stays there. A reviewer scanning for a suspicious-looking string has nothing to see on this line; this tool flags it because it checks the ENV variable's name against a secret-pattern list, not the literal text of its value.</p>
+<h3>Why is a bare ARG with no default easy to wave through?</h3>
+<p>ARG SIGNING_TOKEN with no default commits nothing to the Dockerfile itself, so on a skim it looks like the safe version of the ARG PASSWORD=hunter2 pattern a reviewer already knows to flag. It is still worth a second look: it invites a caller to pass a value with --build-arg, which BuildKit still records for the build unless that value is mounted as a build secret instead. This tool flags it too, as an advisory-only arg-declared finding, so it does not get silently classed as fine because it has no visible value.</p>
+<h3>Why is a COPY of a credential file easy to miss among ordinary COPY lines?</h3>
+<p>A Dockerfile can carry a dozen ordinary COPY instructions -- package.json, source directories, config files -- and a COPY .env /app/.env or COPY id_rsa /root/.ssh/id_rsa reads the same at a glance as any of them unless a reviewer is specifically checking each source path against a list of well-known credential filenames (.env, id_rsa, .npmrc, .aws/credentials, and others). That list is easy to not have fully in mind while reading past several ordinary-looking COPY lines in a row. This tool checks every COPY and ADD source's basename and path against that fixed list every time, regardless of how many other COPY lines surround it.</p>
+<h3>Does this replace understanding whether a flagged name actually holds a secret?</h3>
+<p>No. This is a name-pattern heuristic over Dockerfile text, not a value scanner -- it never sees what a build actually resolves ARG or ENV to, so a name like API_KEY is flagged because it looks like a secret even if the value behind it is not sensitive. Deciding whether a specific flagged instruction is a real exposure, and catching a secret under a name this tool's pattern list does not recognise, is still a job for reading the Dockerfile yourself.</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks Dockerfile instructions by name
+  pattern. A clean report describes what that check found, not a guarantee your build has no secret
+  exposure generally.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee
+  that your build has no secret exposure, and it does not replace a qualified professional. You are
+  responsible for reviewing and verifying its output before relying on it. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
