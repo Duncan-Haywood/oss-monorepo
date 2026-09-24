@@ -2037,6 +2037,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // two clauses are independent. Same reasoning as
   // skill-manifest-check's vs-reading-the-skill-by-hand.html above.
   'obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html',
+  // Compares against "quoting one flat project rate regardless of usage" --
+  // a pricing habit any freelance narrator already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-voices-com.html, which names a real marketplace and already carries
+  // the trademark disclaimer.
+  'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

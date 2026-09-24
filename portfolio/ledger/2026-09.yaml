@@ -42874,3 +42874,51 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: voiceover-project-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-rate-regardless-of-usage.html, a generic-method
+        comparison page against quoting one flat project rate no matter how
+        the buyer plans to use the recording -- a habit the venture's own
+        FAQ already named as leaving money on the table for broadcast and
+        buyout work. surface-budget.mjs reported 0 generic-method pages for
+        this venture (0/81 fleet-wide with the budget still open); it now
+        carries its one-page budget. Worked example (150-word script,
+        $0.30/word, $45.00 base fee -- the calculator's shipped default)
+        shows a flat quote sending $45.00 regardless of usage against this
+        calculator's usage-scaled $45.00/$58.50/$81.00/$123.75/$180.00
+        across the five usage tiers -- a $135.00 gap at full buyout. The
+        dedicated test recomputes every usage-term total directly against
+        computeProjectQuote in calc.mjs rather than hand-typing the figures,
+        so a change to the shipped arithmetic would make the page's claim
+        false and the test red.
+      - >-
+        Found and fixed a second, unrelated defect while verifying: the
+        session's first `platform/marketing` + `platform/pages` full-suite
+        run showed pour-cost-calculator/vs-a-spreadsheet.html's FAQPage
+        JSON-LD diverging from its visible copy by "--" vs an em dash.
+        Fixed it locally, then found on the next `git fetch origin main`
+        that another session had landed the identical fix as #5754 while
+        this branch was in flight -- discarded the local fix and merged
+        main's version instead rather than carrying a duplicate change.
+      - >-
+        Verified on the final merged tree (main fetched twice during the
+        session; no further drift after the second merge): the venture's
+        own suite (51/51), clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        registration, surface-budget.mjs --for and --check (no venture over
+        budget fleet-wide), checklist_coverage.py, sync_tree_counts.py
+        (359 mirrored tools / 339 opt-out switches, both agreeing with the
+        tree post-merge), regen.mjs --verify clean before and after
+        regenerating the front-door mirror, the full platform/marketing +
+        platform/pages suite (1290/1290 after the em-dash fix merged in),
+        gitops/tests (613 passed / 25 skipped -- environmental), every
+        platform/ci unittest module (27/27), and the
+        ledger/scoring/router/usage/pipeline/infra pytest suite (446
+        passed). Actions confirmed starved via ci_starvation.py on the
+        latest portfolio-validate.yml push run (runner_id 0, no real
+        runner assigned) both before and after the merge. Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.
+    mrr_end: 0
