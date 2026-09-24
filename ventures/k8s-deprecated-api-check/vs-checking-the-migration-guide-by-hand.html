@@ -24,12 +24,12 @@
     {
       "@type": "Question",
       "name": "Why is it easy to over-generalize a removal wave to a kind it did not apply to?",
-      "acceptedAnswer": { "@type": "Answer", "text": "The guide groups removals by release, and most extensions/v1beta1 kinds (DaemonSet, Deployment, ReplicaSet, NetworkPolicy) were removed in 1.16 -- but Ingress under the same apiVersion stayed accepted for six more releases, until 1.22. A hand-check that remembers 'extensions/v1beta1 was the 1.16 wave' and applies that to every kind under it will wrongly clear an Ingress manifest that is actually fine until 1.22, or wrongly flag it as already broken. This tool looks up the exact apiVersion+kind pair, never the apiVersion alone." }
+      "acceptedAnswer": { "@type": "Answer", "text": "The guide groups removals by release, and most extensions/v1beta1 kinds (DaemonSet, Deployment, ReplicaSet, NetworkPolicy) were removed in 1.16 -- but Ingress under the same apiVersion stayed accepted for six more releases, until 1.22. A hand-check that remembers \"extensions/v1beta1 was the 1.16 wave\" and applies that to every kind under it will wrongly clear an Ingress manifest that is actually fine until 1.22, or wrongly flag it as already broken. This tool looks up the exact apiVersion+kind pair, never the apiVersion alone." }
     },
     {
       "@type": "Question",
       "name": "Why does a rendered manifest repo make a hand-check harder than one file?",
-      "acceptedAnswer": { "@type": "Answer", "text": "A Helm chart or Kustomize overlay can render dozens of documents across many templated files, and the apiVersion a reviewer needs to check is not always in the source template -- it can be set by a chart default, a values override, or a Kustomize patch, and only appears in the final `helm template` / `kustomize build` output. Reading the rendered output document by document, correctly, every time a chart version or values file changes, is the step a hand-check skips first under deadline pressure." }
+      "acceptedAnswer": { "@type": "Answer", "text": "A Helm chart or Kustomize overlay can render dozens of documents across many templated files, and the apiVersion a reviewer needs to check is not always in the source template -- it can be set by a chart default, a values override, or a Kustomize patch, and only appears in the final helm template / kustomize build output. Reading the rendered output document by document, correctly, every time a chart version or values file changes, is the step a hand-check skips first under deadline pressure." }
     },
     {
       "@type": "Question",
