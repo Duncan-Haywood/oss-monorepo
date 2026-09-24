@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 138 files, 546899 bytes
+#   portfolio-front-tools-0: 139 files, 551427 bytes
 #   portfolio-front-tools-1: 97 files, 554631 bytes
 #   portfolio-front-tools-2: 145 files, 555757 bytes
 #   portfolio-front-tools-3: 135 files, 554779 bytes
@@ -169,6 +169,7 @@ configMapGenerator:
       - medical-courier-route-margin__is-this-medical-courier-route-worth-it.html.gz=medical-courier-route-margin__is-this-medical-courier-route-worth-it.html.gz
       - medical-courier-route-margin__share.mjs.gz=medical-courier-route-margin__share.mjs.gz
       - medical-courier-route-margin__usage.mjs.gz=medical-courier-route-margin__usage.mjs.gz
+      - medical-courier-route-margin__vs-a-spreadsheet.html.gz=medical-courier-route-margin__vs-a-spreadsheet.html.gz
       - medical-courier-route-margin__vs-onfleet.html.gz=medical-courier-route-margin__vs-onfleet.html.gz
       - owner-operator-cpm-calculator__calc.mjs.gz=owner-operator-cpm-calculator__calc.mjs.gz
       - owner-operator-cpm-calculator__deadhead-miles.html.gz=owner-operator-cpm-calculator__deadhead-miles.html.gz
