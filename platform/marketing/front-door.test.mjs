@@ -61,6 +61,7 @@ import {
   categoryCounts,
   categoryOutputFile,
   categoryPageKey,
+  categoryPageStoredKey,
   extraTokens,
   mirroredByCategory,
   orderedCategories,
@@ -335,14 +336,22 @@ test('the nginx rewrite and the ConfigMap key agree about where a category page 
     'utf8',
   );
   assert.match(conf, /location ~ "\^\/c\/\(\?<cat>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$" \{/);
-  assert.match(conf, /try_files \/c__\$\{cat\}\.html =404;/);
+  // `rewrite`, not `try_files`: the key is stored gzipped and the plain name
+  // exists nowhere, so a `try_files` would stat a missing file and 404 before
+  // `gzip_static` ever ran. See `categoryPageStoredKey` in front-door.mjs.
+  assert.match(conf, /rewrite \^ \/c__\$\{cat\}\.html break;/);
+  assert.match(conf, /gzip_static always;/);
+  assert.match(conf, /gunzip on;/);
 
   const { categoryPages } = await buildFrontDoor();
   for (const page of categoryPages) {
     // The URL path the sitemap advertises, run through the rewrite by hand,
-    // must be the key the generator writes.
+    // must be the plain key the generator's `--write` path compresses.
     const served = categoryPagePath(page.id).replace(/^c\/([a-z0-9-]+)\/$/, 'c__$1.html');
     assert.equal(served, categoryPageKey(page.id));
+    // And the rewritten name plus `.gz` is what is actually on disk — the two
+    // halves of `gzip_static`'s lookup, which nothing else states in one place.
+    assert.equal(categoryPageStoredKey(page.id), `${categoryPageKey(page.id)}.gz`);
   }
 });
 
@@ -483,7 +492,7 @@ test('every rendered category page is mounted by the kustomization', async () =>
     'utf8',
   );
   for (const page of categoryPages) {
-    const key = categoryPageKey(page.id);
+    const key = categoryPageStoredKey(page.id);
     assert.ok(
       kustomization.includes(`- ${key}=front-door/${key}`),
       `gitops/prod/kustomization.yaml must mount ${key}; add it or the page is dark`,
@@ -492,12 +501,12 @@ test('every rendered category page is mounted by the kustomization', async () =>
   // And nothing stale: a line for a category that is no longer rendered makes
   // `kustomize build` fail on a missing file, which takes the whole prod
   // Application down rather than just that page.
-  const mounted = [...kustomization.matchAll(/- (c__[a-z0-9-]+\.html)=front-door\//g)].map(
+  const mounted = [...kustomization.matchAll(/- (c__[a-z0-9-]+\.html\.gz)=front-door\//g)].map(
     (match) => match[1],
   );
   assert.deepEqual(
     mounted.sort(),
-    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
+    categoryPages.map((page) => categoryPageStoredKey(page.id)).sort(),
   );
 });
 
@@ -1026,10 +1035,16 @@ test('the committed category pages match what this generator produces', async ()
   // such an edit runs this test.
   const { categoryPages } = await buildFrontDoor();
   for (const page of categoryPages) {
+    // Compared after inflating rather than by re-gzipping and matching bytes,
+    // same reasoning as the comparison-index test: the committed artifact is
+    // what a visitor receives, and that is the HTML. `GZIP_LEVEL` and the
+    // pinned `GZIP_HEADER` in front-door-tools.mjs keep the stored bytes
+    // reproducible; this test is about the content.
+    const stored = await fs.readFile(categoryOutputFile(page.id));
     assert.equal(
-      await fs.readFile(categoryOutputFile(page.id), 'utf8'),
+      zlib.gunzipSync(stored).toString('utf8'),
       page.html,
-      `gitops/prod/front-door/${categoryPageKey(page.id)} is stale — run: node platform/marketing/regen.mjs`,
+      `gitops/prod/front-door/${categoryPageStoredKey(page.id)} is stale — run: node platform/marketing/regen.mjs`,
     );
   }
 
@@ -1040,11 +1055,11 @@ test('the committed category pages match what this generator produces', async ()
   // `--write` path sweeps them; this is what proves it did.
   const dir = path.dirname(OUTPUT_FILE);
   const onDisk = (await fs.readdir(dir)).filter(
-    (name) => name.startsWith('c__') && name.endsWith('.html'),
+    (name) => name.startsWith('c__') && name.endsWith(`.html${COMPRESSED_SUFFIX}`),
   );
   assert.deepEqual(
     onDisk.sort(),
-    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
+    categoryPages.map((page) => categoryPageStoredKey(page.id)).sort(),
     'a category page on disk is no longer rendered — run: node platform/marketing/regen.mjs',
   );
 });
