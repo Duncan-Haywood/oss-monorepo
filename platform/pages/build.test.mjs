@@ -3327,12 +3327,12 @@ test('every published page declares exactly one canonical URL', async () => {
   const missing = [];
   const duplicated = [];
   for (const { rel, html } of await everyToolPage()) {
-    // Anchored to an actual <link> tag, not a bare `rel="canonical"`
-    // substring -- a guide page that discusses canonical tags in its own
-    // prose (escaped as `&lt;link rel="canonical"...&gt;`) legitimately
-    // contains that substring without shipping a second real tag. Measured
-    // 2026-09-24 on canonical-tag-check/why-two-canonical-tags-is-worse-
-    // than-none.html: the unanchored regex counted 5, the page ships 1.
+    // A real `<link>` element, not a bare occurrence of the attribute text --
+    // canonical-tag-check's own guide page teaches the duplicate-canonical
+    // failure by showing escaped example markup in <code>, and that prose
+    // legitimately contains the string `rel="canonical"` four more times
+    // with no `<link` in front of it. Same element-matcher build.mjs's own
+    // injectDiscoveryTags uses to find the real tag it repairs.
     const n = (html.match(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi) ?? []).length;
     if (n === 0) missing.push(rel);
     // Two canonicals are worse than none: the crawler then picks one at random.
