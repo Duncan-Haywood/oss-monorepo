@@ -1768,6 +1768,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vs-jobber.html, which names Jobber specifically and
   // already carries the trademark disclaimer.
   'wheelchair-ramp-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "grepping the codebase by hand" -- a manual audit
+  // habit any developer already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-dotenv-linter.html,
+  // which names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. docker-build-secrets-check's).
+  'env-example-drift-check/vs-grepping-the-codebase-by-hand.html',
   // Compares against "ranking dishes by food cost percentage" -- the
   // ordinary per-dish metric every restaurant kitchen already tracks off
   // its own recipe cards and POS reports, not a company or product this
