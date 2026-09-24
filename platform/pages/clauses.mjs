@@ -1629,6 +1629,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // preset labels, which is why the exemption is scoped to this one page.
   // Same reasoning as the other generic-method pages above.
   'llm-api-pricing-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against "a flat per-zone rate" -- a generic pricing method
+  // every irrigation contractor already has access to, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which names Jobber specifically and already carries the
+  // trademark disclaimer. Same reasoning as janitorial-bid-calculator's own
+  // flat-rate exemption above.
+  'irrigation-winterization-bid-calculator/vs-a-flat-per-zone-rate.html',
   // Compares against "tracking 1099 vendors in a spreadsheet" -- the
   // generic method most small-business bookkeepers already use, not a
   // company or product this could be mistaken for. Distinct from this
