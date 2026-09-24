@@ -118,6 +118,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // already carries the trademark disclaimer, so the two comparison pages
   // are deliberately different classes.
   'cache-control-check/vs-checking-headers-by-eye-in-devtools.html',
+  // Compares against "checking response headers by eye in DevTools' Network
+  // tab" -- the same manual habit exempted above for cache-control-check,
+  // applied to this venture's own frame-protection/CSP/HSTS findings. This
+  // venture's vs-securityheaders.html is separately exempt-free (it names a
+  // real hosted scanner and carries the trademark disclaimer), so the two
+  // comparison pages are deliberately different classes.
+  'security-headers-check/vs-checking-headers-by-eye-in-devtools.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -1898,11 +1905,23 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-openssf-scorecard.html, which names OpenSSF Scorecard specifically
   // and already carries the "not affiliated" disclaimer.
   'actions-permissions-check/vs-reading-the-workflow-yaml-by-hand.html',
+  // Compares against reading the workflow YAML by hand -- a manual review
+  // habit any repository maintainer already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names zizmor specifically and already carries the
+  // "not affiliated" disclaimer.
+  'actions-artifact-poisoning-check/vs-reading-the-workflow-yaml-by-hand.html',
   // Compares against "reading the file by hand" -- a manual review habit
   // every developer already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
   // above (e.g. docker-build-secrets-check's, sql-migration-lock-check's).
   'hidden-unicode-check/vs-reading-the-file-by-hand.html',
+  // Compares against "comparing the buyout price to fair market value" -- a
+  // generic sanity check any lessee already runs against a payoff letter,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-lendzero.html and vs-crest-capital.html, which name
+  // specific competitors and already carry the trademark disclaimer.
+  'equipment-lease-buyout-calculator/vs-comparing-the-buyout-price-to-fair-market-value.html',
   // Compares against "a flat $1,195 radon special" -- a common advertised
   // rate any radon mitigation contractor already runs, sized for the
   // smallest single-suction basement job, not a company or product this
