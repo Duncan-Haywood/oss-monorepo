@@ -670,7 +670,23 @@ const RELATIVE_SELF = relative(
 // landed) until this merge -- the same ordinary collision shape recorded
 // throughout this list. Exactly one added `usage.mjs`
 // (`ventures/k8s-resource-limits-check/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 333;
+//
+// 333 -> 334: a concurrent branch merge -- `salary-range-posting-check`
+// also graduated the same session, adding one more `usage.mjs`
+// (`ventures/salary-range-posting-check/usage.mjs`), no deletions. This
+// branch only ever knew its own predecessor's number (332, before
+// `k8s-resource-limits-check` landed on this side) until this merge --
+// the same ordinary collision shape recorded throughout this list.
+//
+// 334 -> 335: another concurrent branch merge -- `skill-manifest-check`
+// also graduated, adding its own `usage.mjs`
+// (`ventures/skill-manifest-check/usage.mjs`) following the same opt-out
+// pattern as its siblings, no deletions. (Its own commit message describes
+// the same-commit link added to `mcp-config-risk-check`'s footer as reusing
+// that venture's existing switch rather than adding a new one -- that is
+// true of the footer *link*, not of this switch count, which reflects
+// skill-manifest-check's own separate, additional `usage.mjs`.)
+const SWITCHES_IN_THE_CATALOGUE = 335;
 
 let counter = 0;
 function fixture(source) {

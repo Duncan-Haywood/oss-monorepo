@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 351 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 353 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -87,6 +87,24 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Salary Range Posting Check — Does Your Job Ad Have One?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salary-range-posting-check/"/>
+    <id>tag:marisstella.dev,2026:tool/salary-range-posting-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range, and which of those states currently require one by law, with the effective date and size threshold cited. Free, runs entirely in your browser — not legal advice.</summary>
+  </entry>
+  <entry>
+    <title>Skill Manifest Check — lint a SKILL.md before it ships</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/skill-manifest-check/"/>
+    <id>tag:marisstella.dev,2026:tool/skill-manifest-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a SKILL.md file (the format Claude Code and similar agent systems use) and get every common authoring mistake flagged: missing or malformed frontmatter, a description too vague to trigger reliably, overlapping triggers across sibling skills, and a body-size caution against a context budget. Free SKILL.md linter and Claude skill checker, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Slopsquatting Check — Did an AI Assistant Just Suggest a Package That Doesn&#39;t Exist?</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a repo&#39;s actual GitHub branch protection settings (gh api branches/:branch/protection) and your declared policy to find every rule that has drifted weaker than intended — a temporarily disabled review requirement, force pushes turned back on, admin enforcement quietly off. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Call Recording Consent Check — One-Party or All-Party by State</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/call-recording-consent-check/"/>
-    <id>tag:marisstella.dev,2026:tool/call-recording-consent-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Pick the caller&#39;s and recipient&#39;s US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening. Free, deterministic, runs entirely in your browser — not legal advice.</summary>
-  </entry>
-  <entry>
-    <title>CNC Machining Quote Calculator — Cost Per Part, Setup &amp; Lot Size</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cnc-machining-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/cnc-machining-quote-calculator</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free CNC machining quote calculator for job shops: work out your real cost per part from bar or plate yield, cycle time, setup and programming, perishable tooling, first-article inspection and outside-process lot minimums — then see the break-even price, the margin at what you quoted, and the same part costed at 1, 5, 10, 25, 50, 100, 250 and 500 pieces. Runs entirely in your browser.</summary>
   </entry>
 </feed>
