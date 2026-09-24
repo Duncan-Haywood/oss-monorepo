@@ -585,7 +585,13 @@ const RELATIVE_SELF = relative(
 // this file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/cloud-bucket-exposure-check/usage.mjs`) beyond the merge base,
 // no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 323;
+//
+// 323 -> 324 on 2026-09-24: `str-occupancy-tax-calculator` graduated, adding
+// one `usage.mjs` following the same opt-out pattern as its siblings
+// (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
+// `str-occupancy-tax-usage` storage name). Exactly one added `usage.mjs`
+// (`ventures/str-occupancy-tax-calculator/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 324;
 
 let counter = 0;
 function fixture(source) {
