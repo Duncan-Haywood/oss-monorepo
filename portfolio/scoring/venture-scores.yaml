@@ -16049,3 +16049,65 @@ ventures:
       own HTTP response, no crawling, no enumeration of a domain's other
       subdomains, and the report is explicit that a clean result describes
       only the hostnames checked, not a full DNS-zone audit.
+  - slug: cloud-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a bucket is publicly
+      listable is decided by matching a live HTTP response body against a
+      cloud provider's own documented listing-or-error XML shape -- a
+      factual, deterministic classification, not a model judgment.
+    basis: >-
+      Screened 2026-09-24, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, supabase-rls-check,
+      firebase-rules-check, subdomain-takeover-check). duplicate_check.py
+      scored every existing venture, screened-out row, and pipeline
+      candidate at 0.24 or below against the final description (real
+      read-only requests to a user-provided S3/GCS/Azure Blob bucket,
+      classifying public-list vs private across the three major providers'
+      own endpoint conventions) -- graphql-introspection-exposure-check
+      scored closest, a different evidence class entirely (a GraphQL
+      schema query response, not a cloud-storage listing endpoint), and
+      subdomain-takeover-check names S3 only as one of 25 DNS-CNAME
+      takeover-prone hosting providers, a different mechanism (a dangling
+      DNS record) from a live bucket's own anonymous-listing setting.
+      Nothing in the tree covers cloud object-storage misconfiguration.
+      Autonomous ops 10 / gross margin 10: the CLI's one request runs from
+      the user's own machine against a bucket of their choosing, and the
+      browser page only renders a report already produced, so serving one
+      more user costs a static file and needs no human review of any
+      output. Distribution 8, a point above the sibling checker family's
+      typical 7: a perennial, three-provider exposure class (not tied to
+      one dated incident) with real, sustained tool demand already proven
+      by existing free scanners (s3scanner, several thousand GitHub stars;
+      GrayhatWarfare; Bucket Stream), and a provider (AWS) that changed its
+      own default in 2023 specifically because of this exposure class.
+      Time to revenue 6, defensibility 2: donations-only; fixed regexes
+      against a provider's own documented XML shape are genuinely easy to
+      reimplement, so defensibility rests on being first, free, and
+      correct across all three providers in one tool, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool sends exactly one read-only, unauthenticated request
+      per check -- a provider's own anonymous listing endpoint -- and never
+      fetches any individual object's content, only the listing, the same
+      restraint git-exposure-check applies to not requesting a
+      repository's packed objects once exposure is confirmed. Up to 5
+      example object names are shown as evidence, never content, capped
+      regardless of how many the response reports. Ethically: read-only,
+      no crawling of the wider account, no attempt to claim or alter
+      anything, and the report is explicit that a clean result describes
+      only the one bucket checked and only the listing exposure class, not
+      a full cloud security assessment.

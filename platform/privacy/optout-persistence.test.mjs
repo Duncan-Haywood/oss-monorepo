@@ -574,7 +574,18 @@ const RELATIVE_SELF = relative(
 // its siblings (`dependency-confusion-check`, `npm-lifecycle-script-check`),
 // keyed under its own `slopsquatting-check-usage` storage name. Exactly one
 // added `usage.mjs` (`ventures/slopsquatting-check/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 322;
+//
+// 322 -> 323 on 2026-09-24: `cloud-bucket-exposure-check` also graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `cloud-bucket-exposure-check-usage`
+// storage name). This branch only ever knew its own predecessor's number
+// (322, before `slopsquatting-check` landed) until this merge -- the same
+// ordinary collision shape recorded throughout this list. Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/cloud-bucket-exposure-check/usage.mjs`) beyond the merge base,
+// no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 323;
 
 let counter = 0;
 function fixture(source) {

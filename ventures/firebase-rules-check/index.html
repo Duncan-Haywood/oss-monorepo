@@ -300,7 +300,10 @@
   optional and never changes what the tool does.</p>
   <p>Also worth a pass on your stack: <a href="../supabase-rls-check/">Supabase RLS exposure
   checker</a> covers the same "default-open unless a rule locks it down" shape for a different
-  backend, and <a href="../cors-misconfig-check/">CORS misconfiguration checker</a> and
+  backend, <a href="../cloud-bucket-exposure-check/">Cloud Bucket Exposure Checker</a> asks the
+  same "does this storage hand out data with no login" question of AWS S3, Google Cloud Storage,
+  and Azure Blob Storage buckets rather than a Firebase project, and
+  <a href="../cors-misconfig-check/">CORS misconfiguration checker</a> and
   <a href="../security-headers-check/">Security Headers checker</a> cover other response-evidence
   classes in the same "read what's actually there, name the exact evidence" shape as this tool.</p>
 </footer>
