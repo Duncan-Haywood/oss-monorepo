@@ -716,12 +716,14 @@ const RELATIVE_SELF = relative(
 // graduated the same merge but carries no `usage.mjs` of its own, so it
 // does not move this count.
 //
-// 340 -> 341: `senior-deduction-calculator` also graduated, concurrently on
-// `main` -- adding one more `usage.mjs`
-// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. This
-// branch only ever knew its own predecessor's number (340, from the
-// graduation just above) until this second merge -- the same ordinary
-// collision shape recorded throughout this list, one merge later.
+// 340 -> 341: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Two
+// branches (this one and #5765) each independently recorded this same
+// transition against a different predecessor number they each still
+// thought was current (340 here, 339 there, since #5765 did not yet know
+// about `facebook-marketplace-fee-calculator`'s own addition); this entry
+// is the one that survived reconciling the two.
 const SWITCHES_IN_THE_CATALOGUE = 341;
 
 let counter = 0;

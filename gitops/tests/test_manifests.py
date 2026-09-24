@@ -2482,14 +2482,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (360, before `mega-backdoor-roth-calculator`
     # landed) until this merge -- the same ordinary collision shape
     # recorded throughout this list.
-    # 362 on this later merge: `senior-deduction-calculator` also
-    # graduated, concurrently on `main` -- a browser-local calculator for
-    # the new federal "senior bonus" deduction (OBBBA, tax years
-    # 2025-2028), static `index.html` from its first commit. This branch
-    # only ever knew its own predecessor's number (361, from the two
-    # graduations just above) until this second merge -- the same
-    # ordinary collision shape recorded throughout this list, one merge
-    # later.
+    # senior-deduction-calculator graduated 2026-09-24 (#5765), concurrently
+    # -- a browser calculator for the OBBBA $6,000 senior deduction, static
+    # index.html from its first commit. Two branches (this one and #5765)
+    # each independently narrated this same graduation against a different
+    # predecessor number they each still thought was current; this entry is
+    # the one that survived reconciling the two. 361 -> 362.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
     total = 362  # `infra/OWNER_CHECKLIST.md`'s own "N of the 362 tools" wording.
