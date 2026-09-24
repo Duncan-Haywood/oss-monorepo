@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Public Listing vs. Public Read: Why Fixing One Doesn't Fix The Other</title>
+<meta name="description" content="Public listing and public object read are two independent settings on S3, GCS, and Azure Blob Storage -- closing one leaves the other exactly as it was. The exact setting that controls each, per provider, and why this checker's clean report only covers listing.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cloud-bucket-exposure-check/public-listing-vs-public-read.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Close both a public-listing and a public-read exposure on S3, GCS, and Azure Blob Storage",
+  "description": "Public listing (enumerating object names) and public read (downloading a known object's content) are controlled by different settings on every major cloud storage provider. Closing one does not close the other.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Treat listing and read as two separate questions, not one",
+      "text": "\"Is this bucket exposed?\" is really two independent questions: can a stranger enumerate what's in it (listing), and can a stranger download a file whose name they already know or guessed (read). A provider can be configured to allow either one alone, both, or neither -- there is no single setting that answers both at once on any of the three providers below."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "AWS S3: s3:ListBucket and s3:GetObject are separate IAM actions",
+      "text": "A bucket policy statement (or a legacy ACL grant) names a specific action. Granting Principal \"*\" the s3:ListBucket action allows anonymous listing; granting s3:GetObject allows anonymous reads of individual keys. A policy can grant one without the other, and either is independently blocked by Block Public Access -- BlockPublicPolicy stops a new public policy statement from taking effect, and RestrictPublicBuckets stops an existing public policy from applying, at the bucket or account level. Fixing a wildcard s3:ListBucket grant does nothing to a separate s3:GetObject grant sitting in the same policy document or in an old ACL."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Google Cloud Storage: IAM roles bundle differently than you'd expect",
+      "text": "roles/storage.objectViewer grants both storage.objects.get (read) and storage.objects.list (listing) together, so binding it to allUsers opens both at once -- but a narrower custom role can grant just one of the two permissions, and older projects sometimes carry exactly that. Bucket-level Public Access Prevention (and the equivalent organization policy) blocks any public IAM binding outright, which is the one setting on GCS that closes both at the same time; without it, checking only the console's bucket-level permissions list one binding at a time and stopping at the first one you fix leaves the other in place."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Azure Blob Storage: the container's own three-level setting names the split explicitly",
+      "text": "A container's Public access level is one of three values: Private (no anonymous access at all), Blob (anonymous read of an individual blob's content by direct URL, but the container-listing endpoint still denies an anonymous request), or Container (anonymous read AND anonymous listing). Setting Blob instead of Private for a container that needs public downloads is a common, deliberate choice -- and it means this checker's own probe (which calls the listing endpoint, restype=container&comp=list) reports 'private' for a container that is still handing out every object's content to anyone who has, or guesses, its URL. The account-level 'Allow Blob public access' switch is a second gate above the container setting: disabling it blocks both Blob and Container levels account-wide, which is the one Azure setting that closes both at once."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Re-run this checker after fixing listing, then check read separately",
+      "text": "This tool's one request is the listing endpoint, so a 'private' or 'not-found' result after you've fixed a public-listing finding is real progress -- but it says nothing about object-level read access, which needs a different check: attempt an anonymous GET on a specific, known object key (one you already know exists, never one the listing just handed you), or read the provider's own object-level ACL/IAM/access-level setting directly in its console or CLI."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  h2 { font-size: 1.1rem; margin-top: 1.7rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Back to the Cloud Bucket Exposure Checker</a></p>
+<h1>Public listing vs. public read: why fixing one doesn't fix the other</h1>
+<p>
+  "Is this bucket exposed?" is really two independent questions on every major cloud storage
+  provider: can a stranger <strong>enumerate</strong> what's inside it with no credentials
+  (listing), and can a stranger <strong>download</strong> a file whose name they already know or
+  guessed (read)? A provider can be configured to allow either alone, both, or neither. This tool
+  checks listing only -- the request it sends is each provider's own bucket-listing endpoint, never
+  a GET on an individual object. A clean "private" or "not-found" result here says nothing about
+  whether a known object key is still downloadable.
+</p>
+
+<h2>AWS S3: two separate IAM actions</h2>
+<p>
+  A bucket policy statement (or a legacy ACL grant) names a specific action.
+  <code>s3:ListBucket</code> controls anonymous listing; <code>s3:GetObject</code> controls
+  anonymous reads of individual keys. A policy can grant one without the other. Block Public Access
+  has its own split: <code>BlockPublicPolicy</code> stops a <em>new</em> public policy statement
+  from taking effect, while <code>RestrictPublicBuckets</code> stops an <em>existing</em> public
+  policy from applying, at the bucket or account level. Removing a wildcard
+  <code>s3:ListBucket</code> statement does nothing to a separate <code>s3:GetObject</code> grant
+  sitting in the same document, or in an old ACL nobody has looked at since.
+</p>
+
+<h2>Google Cloud Storage: a role can bundle both, or neither</h2>
+<p>
+  <code>roles/storage.objectViewer</code> grants both <code>storage.objects.get</code> (read) and
+  <code>storage.objects.list</code> (listing) together, so binding it to <code>allUsers</code>
+  opens both at once. A narrower custom role can grant just one of the two permissions, and older
+  projects sometimes carry exactly that. Bucket-level <strong>Public Access Prevention</strong>
+  (or the equivalent organization policy) blocks any public IAM binding outright -- the one GCS
+  setting that closes both at the same time. Reading the console's permissions list one binding at
+  a time, and stopping at the first one you remove, can leave the other in place.
+</p>
+
+<h2>Azure Blob Storage: the setting names the split explicitly</h2>
+<p>
+  A container's <strong>Public access level</strong> is one of three values:
+</p>
+<table>
+  <thead><tr><th>Setting</th><th>Anonymous listing</th><th>Anonymous read of a known blob URL</th></tr></thead>
+  <tbody>
+    <tr><td><code>Private</code></td><td>No</td><td>No</td></tr>
+    <tr><td><code>Blob</code></td><td>No</td><td><strong>Yes</strong></td></tr>
+    <tr><td><code>Container</code></td><td><strong>Yes</strong></td><td>Yes</td></tr>
+  </tbody>
+</table>
+<p>
+  Setting <code>Blob</code> instead of <code>Private</code> for a container that needs public
+  downloads is a common, deliberate choice — and it means this checker's own probe (which calls the
+  listing endpoint, <code>?restype=container&amp;comp=list</code>) reports <strong>private</strong>
+  for a container that is still handing out every object's content to anyone who has, or guesses,
+  its URL. The account-level <code>Allow Blob public access</code> switch sits above the container
+  setting: disabling it blocks both <code>Blob</code> and <code>Container</code> levels
+  account-wide in one move, which is the one Azure setting that closes both at once.
+</p>
+
+<h2>What this checker's verdict actually tells you</h2>
+<p>
+  This tool sends exactly one request, the listing endpoint, and classifies the response body:
+  a real <code>ListBucketResult</code> or <code>EnumerationResults</code> document means public
+  listing; an error body carrying a code like <code>AccessDenied</code>,
+  <code>PublicAccessNotPermitted</code>, or <code>AuthorizationPermissionMismatch</code> means the
+  provider denied the anonymous listing request. Either result is real evidence about listing —
+  and neither one is evidence about read. If you need to know whether a specific object is
+  downloadable, that is a separate request against that object's own URL, checked against a key you
+  already know rather than one this tool's listing just handed you.
+</p>
+
+<p>
+  Run the <a href="index.html">Cloud Bucket Exposure Checker</a> against your own bucket or
+  container to see today's listing verdict. Only run it against a target you own or are authorised
+  to test.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified security
+  review or a cloud provider's own configuration audit. You are responsible for reviewing and
+  verifying its guidance before relying on it. To the maximum extent permitted by law, the authors
+  accept no liability for any loss or damage arising from its use.</p>
+</footer>
+</body>
+</html>
