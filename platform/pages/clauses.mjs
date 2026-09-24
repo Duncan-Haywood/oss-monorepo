@@ -1519,6 +1519,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // franchise brand either. Same reasoning as the other flat-rate
   // generic-method pages above.
   'home-inspection-fee-calculator/vs-a-flat-per-square-foot-rate.html',
+  // Compares against "eyeballing two coverage reports" -- reading the
+  // overall percentage a coverage tool already prints, a manual habit any
+  // developer already has, not a company or product this could be mistaken
+  // for. This venture's own vs-codecov.html is separately exempt-free
+  // (Codecov is a named product) and carries the trademark disclaimer. Same
+  // shape as flaky-test-finder's vs-eyeballing-two-ci-logs-by-hand.html
+  // above.
+  'coverage-drop-check/vs-eyeballing-two-coverage-reports.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

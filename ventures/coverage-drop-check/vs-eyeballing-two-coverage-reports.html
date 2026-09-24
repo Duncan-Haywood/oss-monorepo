@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coverage Drop Check vs. eyeballing two coverage reports</title>
+  <meta name="description" content="Eyeballing two coverage summaries only shows the overall percentage, which can stay above a floor like 80% while one file quietly loses most of its coverage. Coverage Drop Check reads both reports file by file and names the one that moved.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-eyeballing-two-coverage-reports.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Coverage Drop Check vs. eyeballing two coverage reports">
+  <meta property="og:description" content="92% to 81% still clears an 80% floor. Eyeballing the two summary numbers says 'fine'. The per-file breakdown says one file dropped 18.33 points while the rest of the codebase did not move at all.">
+  <meta property="og:url" content="./vs-eyeballing-two-coverage-reports.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does eyeballing two coverage reports get wrong?","acceptedAnswer":{"@type":"Answer","text":"It usually stops at the one number every coverage tool prints in bold: the overall line-coverage percentage. A PR that takes a repo from 92.00% to 81.00% still clears a common 80% floor, so a glance at two summary numbers reads as fine. That summary is a weighted average across every file, so it cannot say which file changed or by how much -- a hundred-file repo could have one file collapse or ten files each drop a little, and the top-line percentage looks the same either way."},{"@type":"Question","name":"Can you give a concrete example?","acceptedAnswer":{"@type":"Answer","text":"A baseline report covers 92 of 100 total lines (92.00%): checkout.py at 40 of 40 lines, payments.py at 52 of 60. The current report for this PR covers 81 of 100 (81.00%): checkout.py unchanged at 40 of 40, payments.py down to 41 of 60. Eyeballing the two summary percentages, 92% to 81%, both still above an 80% floor, reads as a PR that is fine. Pasted into this tool, the per-file breakdown says payments.py alone dropped from 86.67% to 68.33% -- an 18.33 point drop in that one file -- while checkout.py did not move."},{"@type":"Question","name":"Is finding the dropped file not just a matter of opening the HTML coverage report?","acceptedAnswer":{"@type":"Answer","text":"It is, in principle -- most coverage tools can render an HTML report with a page per file. The gap is scale: an HTML report for a codebase of dozens or hundreds of files has no sort-by-delta view built in, so finding the one file that moved means opening files one at a time, or remembering which files looked different from the last time you checked. This tool computes the delta for every file that appears in either report and sorts the ones that got worse to the top, which is the same fact the HTML report contains but not a view it presents."},{"@type":"Question","name":"Does this replace reading the coverage report at all?","acceptedAnswer":{"@type":"Answer","text":"No. It replaces the specific step of scanning every file in two reports to find which ones changed and by how much. You still decide whether the file that dropped matters and what, if anything, to do about it -- this tool only removes the manual search for which file to look at."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    code { background: #e7ebf0; padding: .1em .3em; border-radius: 4px; font-size: .9em; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Coverage Drop Check</a></p>
+  <h1>Coverage Drop Check vs. eyeballing two coverage reports</h1>
+  <p>
+    <strong>Eyeballing two coverage reports</strong> is the default method,
+    because every coverage tool already prints the number needed: the
+    overall line-coverage percentage, in the terminal summary or at the top
+    of the HTML report. It works when the two numbers clearly differ or a
+    floor like <code>--cov-fail-under=80</code> is crossed. It stops working
+    the moment the overall number stays above the floor while one file
+    underneath it does not, because the overall percentage is a weighted
+    average across every file and does not say which file moved.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">File</th><th scope="col">Baseline</th><th scope="col">This PR</th><th scope="col">Change</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>checkout.py</code></td><td>40 / 40 &mdash; 100.00%</td><td>40 / 40 &mdash; 100.00%</td><td>unchanged</td></tr>
+      <tr><td><code>payments.py</code></td><td>52 / 60 &mdash; 86.67%</td><td>41 / 60 &mdash; 68.33%</td><td><strong>&minus;18.33 points</strong></td></tr>
+      <tr><td><strong>Overall</strong></td><td><strong>92 / 100 &mdash; 92.00%</strong></td><td><strong>81 / 100 &mdash; 81.00%</strong></td><td><strong>&minus;11.00 points</strong></td></tr>
+    </tbody>
+  </table>
+  <p>
+    Eyeballing the two summary numbers &mdash; 92.00% &rarr; 81.00% &mdash;
+    both still clear a common 80% floor, so the natural read is "this PR is
+    fine." Pasted into this tool, the same two reports come back with the
+    fact the summary line cannot show: <code>payments.py</code> alone
+    dropped 18.33 points, from 86.67% to 68.33%, while <code>checkout.py</code>
+    did not move at all. The overall 11.00 point drop is entirely one file's
+    doing, and the 80% floor never said so.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I have a baseline report and this PR's report &mdash; did the overall percentage cross my floor?</td>
+        <td>Either method works here: the top-line number in your terminal or HTML report already answers this.</td>
+      </tr>
+      <tr>
+        <td>The overall percentage barely moved, or stayed above my floor &mdash; is a specific file still worse?</td>
+        <td>Coverage Drop Check &mdash; paste both reports and the per-file breakdown names the file and the exact point drop, sorted to the top.</td>
+      </tr>
+      <tr>
+        <td>I have dozens or hundreds of files and want to know which ones changed without opening each one.</td>
+        <td>Coverage Drop Check &mdash; it computes the delta for every file present in either report in one pass; eyeballing an HTML report has no sort-by-delta view.</td>
+      </tr>
+      <tr>
+        <td>I want to know why a specific file's coverage dropped, not just that it did.</td>
+        <td>Neither method &mdash; that needs reading the diff itself. This tool only narrows which file to read.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Neither method is wrong on a small, single-file change: one file, an
+    obvious drop, a glance at either report catches it. The gap opens
+    exactly where an overall percentage is built to hide it &mdash; a large
+    codebase where one file's real regression is diluted into a top-line
+    number that still clears the floor. That is precisely the shape of the
+    92% &rarr; 81% example above, and the shape this tool exists to catch
+    without reading every file by hand.
+  </p>
+  <h2>Common questions</h2>
+  <h3>What does eyeballing two coverage reports get wrong?</h3>
+  <p>It usually stops at the one number every coverage tool prints in bold: the overall line-coverage percentage. A PR that takes a repo from 92.00% to 81.00% still clears a common 80% floor, so a glance at two summary numbers reads as fine. That summary is a weighted average across every file, so it cannot say which file changed or by how much &mdash; a hundred-file repo could have one file collapse or ten files each drop a little, and the top-line percentage looks the same either way.</p>
+  <h3>Can you give a concrete example?</h3>
+  <p>A baseline report covers 92 of 100 total lines (92.00%): <code>checkout.py</code> at 40 of 40 lines, <code>payments.py</code> at 52 of 60. The current report for this PR covers 81 of 100 (81.00%): <code>checkout.py</code> unchanged at 40 of 40, <code>payments.py</code> down to 41 of 60. Eyeballing the two summary percentages, 92% to 81%, both still above an 80% floor, reads as a PR that is fine. Pasted into this tool, the per-file breakdown says <code>payments.py</code> alone dropped from 86.67% to 68.33% &mdash; an 18.33 point drop in that one file &mdash; while <code>checkout.py</code> did not move.</p>
+  <h3>Is finding the dropped file not just a matter of opening the HTML coverage report?</h3>
+  <p>It is, in principle &mdash; most coverage tools can render an HTML report with a page per file. The gap is scale: an HTML report for a codebase of dozens or hundreds of files has no sort-by-delta view built in, so finding the one file that moved means opening files one at a time, or remembering which files looked different from the last time you checked. This tool computes the delta for every file that appears in either report and sorts the ones that got worse to the top, which is the same fact the HTML report contains but not a view it presents.</p>
+  <h3>Does this replace reading the coverage report at all?</h3>
+  <p>No. It replaces the specific step of scanning every file in two reports to find which ones changed and by how much. You still decide whether the file that dropped matters and what, if anything, to do about it &mdash; this tool only removes the manual search for which file to look at.</p>
+  <p class="note">
+    More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a> &middot; <a href="vs-codecov.html">Coverage Drop Check vs. Codecov</a>, for an always-on connected dashboard instead of a one-off local delta.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a quality judgement of your code, not a substitute for reading the diff, and not advice about what coverage you should have. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/coverage-drop-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p class="support">Free and open source. If this saved you a Codecov bill or a silent coverage drop, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
