@@ -86,6 +86,20 @@ test("index links one hop to the senior-deduction-calculator sibling", () => {
   );
 });
 
+// mega-backdoor-roth-calculator graduated into the "More free tools" catch-all
+// with nothing linking to it, pushing the catch-all past build.test.mjs's
+// bound (platform/pages/siblings.mjs --check orphan class). It is not a
+// deduction like this venture, but it is the same axis -- federal tax
+// arithmetic an individual filer works out this season -- so this venture
+// links to it too.
+test("index links one hop to the mega-backdoor-roth-calculator sibling", () => {
+  assert.match(
+    page("index.html"),
+    /href="\.\.\/mega-backdoor-roth-calculator\/"/,
+    'index must link ../mega-backdoor-roth-calculator/ so crawlers reach the sibling tax calculator in one hop',
+  );
+});
+
 test("index links to the vs-estimating-the-deduction-by-hand comparison page", () => {
   assert.match(page("index.html"), /href="\.\/vs-estimating-the-deduction-by-hand\.html"/);
 });

@@ -71,6 +71,18 @@ test('the entry page distinguishes this from a regular backdoor Roth IRA', () =>
   assert.match(html, /pro-rata/i);
 });
 
+// This venture graduated into the "More free tools" catch-all with nothing
+// linking to it, pushing the catch-all past build.test.mjs's bound
+// (platform/pages/siblings.mjs --check orphan class). It links to
+// auto-loan-interest-deduction-calculator, which links back.
+test('the entry page links one hop to the auto-loan-interest-deduction-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/auto-loan-interest-deduction-calculator\/"/,
+    'index must link ../auto-loan-interest-deduction-calculator/ so crawlers reach a sibling in one hop',
+  );
+});
+
 test('every input has an associated label', () => {
   const inputNames = [...html.matchAll(/<input name="(\w+)"/g)].map((m) => m[1]);
   assert.ok(inputNames.length > 5);

@@ -1230,7 +1230,20 @@ const CATEGORY_RULES = [
       // the same season, and all three disagree on married-filing-separately
       // treatment in ways worth a reader hitting explicitly rather than
       // assuming one rule generalizes to the others.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator)/.test(slug),
+      //
+      // `mega-backdoor-roth-calculator` joined 2026-09-24, found by
+      // enumerating the catch-all after it pushed the bound to 6 rather than
+      // by judging the arrival alone. It is not an OBBBA deduction like its
+      // three neighbours above -- it computes IRS Section 415(c) after-tax
+      // 401(k) contribution headroom and an in-plan Roth conversion's tax
+      // cost, an ongoing provision rather than a 2025-2028 temporary one --
+      // but it is the same axis this whole rule groups on: federal tax
+      // arithmetic an individual filer works out for the current season,
+      // not a business's cash timing or a contract term. It cross-links
+      // `auto-loan-interest-deduction-calculator` as a sibling, closing the
+      // crawlable-orphan budget this venture shipped without (a same-season
+      // pairing, not a claim the two mechanisms resemble each other).
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -2208,6 +2221,15 @@ const CATEGORY_RULES = [
     // their own post before it costs them a disclosure violation -- and it
     // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
     // the same solo-earner audience.
+    //
+    // `voiceover-project-rate-calculator` joined 2026-09-24, found by
+    // enumerating the catch-all after `mega-backdoor-roth-calculator` pushed
+    // it to 6: a freelance voice-over artist turning their own script word
+    // count into a defensible project rate is the same move as
+    // `tutor-package-pricing-calculator`'s instructor and
+    // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
+    // own labour, not a business quoting a customer. Already carried an
+    // inbound sibling link, so this is a category move only.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -2225,6 +2247,7 @@ const CATEGORY_RULES = [
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',
+        'voiceover-project-rate-calculator',
       ].includes(slug),
   },
 ];
