@@ -708,19 +708,52 @@ const RELATIVE_SELF = relative(
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
 //
-// 338 -> 339: `caa-record-check` graduates -- adding one `usage.mjs`
+// 338 -> 339: `claude-code-settings-check` also graduated, concurrently on
+// `main` -- adding one more `usage.mjs`
+// (`ventures/claude-code-settings-check/usage.mjs`), no deletions.
+// `mega-backdoor-roth-calculator`'s own `vs-doing-the-math-by-hand.html`
+// comparison page adds no switch of its own -- a static comparison page,
+// not a `usage.mjs` -- so it does not move this count.
+//
+// 339 -> 340: `claude-skill-scaffold-generator` also graduated,
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/claude-skill-scaffold-generator/usage.mjs`) following the same
+// opt-out pattern as its AI-agent-tooling siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its own
+// `claude-skill-scaffold-generator:usage` storage name), no deletions. This
+// branch only ever knew its own predecessor's number (338, at graduation)
+// until this merge -- the same ordinary collision shape recorded throughout
+// this list; the intervening 339 was another concurrent graduation this
+// branch never observed.
+//
+// 340 -> 341: `claude-code-subagent-check` also graduated, independently on
+// `main` at the same 339 predecessor -- adding one more `usage.mjs`
+// (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
+// toggle shape as its `claude-code-settings-check` sibling
+// (`usageAllowed`/`setUsageEnabled`/`countUsage`, keyed under its own
+// `claude-code-subagent-check:usage` storage name), no deletions. Both this
+// venture and `claude-skill-scaffold-generator` above claimed the same next
+// number (340) from the same 339 predecessor -- the same ordinary collision
+// shape recorded throughout this list, this time with both additions real
+// and neither superseding the other. `mega-backdoor-roth-calculator`, which
+// also graduated concurrently, added no `usage.mjs` of its own, so it does
+// not move this count.
+//
+// 341 -> 342: `senior-deduction-calculator` also graduated (#5765),
+// concurrently on `main` -- adding one more `usage.mjs`
+// (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Two
+// separate concurrent sessions each recorded their own half of this
+// transition independently, one landing on 341 (only seeing
+// claude-skill-scaffold-generator) and the other on 341 by a different path
+// (only seeing claude-code-subagent-check) -- neither could see the other's
+// addition. All three additions are real, so the merged count is 342.
+//
+// 342 -> 343: `caa-record-check` also graduates -- adding one `usage.mjs`
 // following the same opt-out pattern as its siblings
 // (`usageOptedOut`/`setUsageOptOut` gating `recordUsage`, keyed under its
 // own `caa-record-check-usage` storage name). Exactly one added
 // `usage.mjs`, no deletions.
-//
-// 339 -> 340: `claude-code-settings-check` also graduated, concurrently on
-// `main` -- adding one more `usage.mjs`
-// (`ventures/claude-code-settings-check/usage.mjs`), no deletions. This
-// branch only ever knew its own predecessor's number (338, before
-// `caa-record-check` landed) until this merge -- the same ordinary
-// collision shape recorded throughout this list.
-const SWITCHES_IN_THE_CATALOGUE = 340;
+const SWITCHES_IN_THE_CATALOGUE = 343;
 
 let counter = 0;
 function fixture(source) {
