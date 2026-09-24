@@ -1817,6 +1817,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-marginedge.html, which names MarginEdge specifically and already
   // carries the trademark disclaimer.
   'menu-engineering-calculator/vs-ranking-by-food-cost-percent.html',
+  // Compares against "a flat rate per square foot" -- the generic "$X a
+  // square foot installed" quoting habit hardscape contractors are shopped
+  // against, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-aspire.html, which names Aspire specifically
+  // and already carries the trademark disclaimer.
+  'paver-patio-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
