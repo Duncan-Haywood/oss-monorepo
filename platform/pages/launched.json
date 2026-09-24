@@ -115,6 +115,7 @@
     "einvoice-preflight": "2026-08-24",
     "electrical-panel-upgrade-bid-calculator": "2026-08-26",
     "email-auth-check": "2026-09-10",
+    "employee-cost-calculator": "2026-09-24",
     "entry-door-bid-calculator": "2026-08-26",
     "env-example-drift-check": "2026-09-09",
     "epk-generator": "2026-09-11",
@@ -340,6 +341,7 @@
     "wildlife-exclusion-bid-calculator": "2026-09-10",
     "window-cleaning-bid-calculator": "2026-08-26",
     "window-replacement-bid-calculator": "2026-08-26",
+    "window-tinting-bid-calculator": "2026-09-24",
     "wordpress-plugin-review-check": "2026-09-09",
     "world-clock-widget": "2026-09-16"
   }
