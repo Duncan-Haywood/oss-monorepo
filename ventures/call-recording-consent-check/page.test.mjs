@@ -49,6 +49,15 @@ test("index links to a related consent-adjacent venture in one hop", async () =>
   );
 });
 
+test("index links to the sibling state-law reference venture in one hop (see siblings.test.mjs's orphan budget)", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/salary-range-posting-check\/"/,
+    'index must link ../salary-range-posting-check/ so crawlers reach a related tool in one hop',
+  );
+});
+
 test("index has SoftwareApplication and FAQPage JSON-LD", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /"@type":"SoftwareApplication"/);

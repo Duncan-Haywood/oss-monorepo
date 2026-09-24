@@ -1,0 +1,88 @@
+name: salary-range-posting-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that scans pasted job-posting text for a stated dollar range (a literal pattern match, not a legal determination), and cross-references a chosen set of US states against a fixed table of the 14 jurisdictions that currently require a posted pay range -- citing the law, effective date, and employer-size threshold for each. A reference lookup and text scan against a fixed table, never a compliance determination for a specific posting -- not advice-of-record, no compliance warranty, and it says so on every page.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype with a genuinely new object, chosen deliberately per
+# portfolio/pipeline/README.md's "archetype itself" section, which flags
+# both the <trade>-bid-calculator shape and the generic -check/-checker
+# shape as needing a new angle, not just a new niche, to count as novelty
+# on their own. This checks something no existing venture reads at all --
+# US state pay-range-in-job-postings law, cross-referenced against the
+# user's own drafted posting text -- rather than a new instance of an
+# existing misconfiguration class. It follows the same shape and the same
+# liability-mitigation pattern as ventures/call-recording-consent-check
+# (a jurisdictional legal-reference table with heavy, explicit disclosure
+# of scope and confidence, never asserting compliance), which is the
+# nearest precedent in this portfolio for a US-state-law reference tool.
+#
+# duplicate_check.py (run 2026-09-24) scored every existing venture,
+# screened-out row, ai-first-markets idea, and pipeline candidate against
+# this idea's description at or below 0.15 -- nowhere near the 0.45
+# read-this-first bar. A hand grep of every VENTURE.yaml for "salary
+# range", "pay range", "pay transparency", and "salary disclosure" turned
+# up nothing.
+#
+# Distribution channel, named rather than assumed: any HR or recruiting
+# team hiring remotely or across state lines hits this question on every
+# requisition, and it is a fast-growing, heavily-published compliance
+# topic ("pay transparency laws by state," "does [state] require a salary
+# range in job postings") -- 14 states now require it, up from 4 in 2021,
+# with Virginia and Maine both adding a state-wide requirement effective
+# July 2026 (confirmed via live web search during this build, since the
+# topic is actively changing and outside this build's training-data
+# currency). What is underserved is scanning the *actual posting text*
+# against the *actual set of states* a remote role targets in one pass,
+# which every existing published guide answers only as prose, never as a
+# tool a recruiter runs against their own draft. No external
+# search-volume tool was queried to confirm magnitude, matching this
+# pipeline's standing caveat for every checker at graduation.
+#
+# Liability is the dimension this write-up spent the most care on, for the
+# same reason as call-recording-consent-check: getting a jurisdiction's
+# requirement wrong has a real worst case (most of these states carry a
+# civil penalty per violation). The mitigation is disclosure, not
+# confidence: every page states this is not legal advice and not a
+# compliance determination for a specific posting; every threshold this
+# build is not fully confident of is marked "commonly reported" rather
+# than asserted as certain (Maryland, Vermont, DC); the table's scope is
+# stated explicitly to exclude disclose-at-a-different-point laws
+# (Connecticut, Nevada, Rhode Island) and city/county ordinances so a
+# reader is not given a false "not required" reading for a rule this table
+# does not model; and the posting-text scan is described as a literal
+# pattern match with no understanding of whether a detected figure is a
+# good-faith range, never as a compliance check. See the mitigation field
+# below and why-pay-range-laws-differ-by-state.html for the full
+# disclosure.
+hypotheses:
+  - claim: An HR or recruiting team hiring for a remote or multi-state role will search a variant of "does [state] require a salary range in job postings" or "pay transparency law by state," find this tool via web/AI-assistant search, and paste a draft posting to check it against the states the role targets before publishing it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will return to re-scan a posting template each time it is reused for a new state or when a new state's law takes effect (Virginia and Maine both add one in July 2026), rather than re-deriving the answer from scratch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser page scans and looks everything
+  # up from a fixed table shipped with the page (nothing uploaded, nothing
+  # fetched), and the CLI is a pure in-memory text scan and table lookup
+  # with no network call at all. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's classification for an actual posting decision without independently verifying it, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/salary-range-posting-check/
+  analytics: null

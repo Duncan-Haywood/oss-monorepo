@@ -507,8 +507,12 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
 
     # And the same identity-encoding check for `/llms.txt`, gz-only since
     # 2026-09-24 for the identical reason `catalog.json` and `sitemap.xml`
-    # went gz-only before it: it was the largest plain key left in
-    # `portfolio-front-html` and took the object over the etcd budget.
+    # went gz-only before it: it was the largest remaining plain key in
+    # `portfolio-front-html` and took the object over the etcd budget. Every
+    # assertion in the loop above passes with `gzip_static on;` and no
+    # `gunzip on;`, which would 404 a crawler or an assistant's fetcher that
+    # sent no encoding header at all -- not a hypothetical client, since that
+    # is the common case for a machine-readable document.
     _, _, llms_gzip_body = _get(front_door + "/llms.txt", gzip_ok=True)
     status, headers, llms_identity_body = _get(front_door + "/llms.txt", gzip_ok=False)
     assert status == 200, (
