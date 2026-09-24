@@ -725,6 +725,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-servicetitan.html, which does name a
   // product and carries its own "not affiliated" clause.
   'water-heater-bid-calculator/vs-a-flat-rate-water-heater-special.html',
+  // Compares against "a flat $799 installed" special -- the postcard
+  // water-softener price every plumbing and water-treatment shop is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'water-softener-bid-calculator/vs-a-flat-rate-water-softener-special.html',
   // Compares against "a flat per-window special" -- the "$250 a window
   // installed" price every window-treatment shop is shopped against, not a
   // company or product this could be mistaken for. The page names no vendor
@@ -1879,6 +1886,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // names JobNimbus specifically and already carries the trademark
   // disclaimer.
   'siding-bid-calculator/vs-a-flat-rate-per-square.html',
+  // Compares against "checking it by eye" -- reading view-source and
+  // comparing a page's JSON-LD against its rendered text by hand, a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for. Same shape as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html exemption above.
+  'structured-data-drift-check/vs-checking-it-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
