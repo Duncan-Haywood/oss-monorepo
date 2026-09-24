@@ -16977,6 +16977,7 @@ ventures:
       catch an authoring mistake before publishing, no affiliate link, no
       referral fee, donations-only, and it does not scan, fingerprint, or
       contact any third-party system, registry, or agent runtime.
+
   - slug: economic-nexus-threshold-tracker
     scores:
       ai_leverage: 1
@@ -17043,3 +17044,171 @@ ventures:
       personal or scraped data, and gets no worse for anyone as it scales.
       No adverse incentive on our side (donations-only, no referral fee to
       either named paid platform).
+  - slug: s-corp-reasonable-compensation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic (combined FICA against the 2026 Social Security wage base,
+      a comparable-wage figure scaled by hours) plus a static nine-factor
+      reference checklist -- a lookup and a comparison, never an inference
+      step. time_to_revenue ties it at 1: donations-only, same as every
+      other venture in this file with no paid tier.
+    basis: >-
+      Graduated 2026-09-24 as a free browser calculator for single-
+      shareholder S-corp owners: compares a planned or current W-2 salary
+      against a comparable-wage figure the owner supplies, using the actual
+      IRS multi-factor reasonable-compensation test (there is no published
+      percentage safe-harbor), reports the combined FICA-tax cost of
+      closing any gap, and prints a nine-factor documentation checklist
+      drawn from Rev. Rul. 74-44 and Watson v. Commissioner (668 F.3d 1008,
+      8th Cir. 2012). duplicate_check.py scored every venture, screened-out
+      row, ai-first-markets idea, and pipeline candidate at or below 0.10
+      against the final description -- the closest matches
+      (staffing-markup-calculator, employee-cost-calculator,
+      economic-nexus-threshold-tracker) are all different problems. No
+      existing venture addresses the S-corp salary-vs-distribution split;
+      the closest siblings by domain (1099-vendor-tracker,
+      1099-k-threshold-checker) are issuer/payee reporting thresholds, not
+      an owner's own pay decision. Distribution 6 reflects demonstrated
+      search demand: nine independent CPA/advisor pages (jupid.com,
+      lecpa.co, nationaltaxtools.com, madsencpa.com, taxstra.com,
+      biztaxcalc.com, sdocpa.com, unclekam.com, and
+      financial-advisors-for-business-owners.com) found via WebSearch
+      2026-09-24 target the exact phrase "s corp salary calculator" / "s
+      corp reasonable compensation", plus recurring threads on this exact
+      question in r/tax, r/smallbusiness, r/accounting, and r/Bookkeeping.
+      Defensibility 2: the arithmetic and checklist are easy to reproduce
+      -- the free/no-account angle against a paid per-report service
+      (RCReports and similar, typically $200-900/report) is the only edge,
+      same class as this portfolio's other reference-calculator ventures.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: the number a filer sees is arithmetic on figures they
+      supplied, compared against a comparable-wage figure they also
+      supplied -- the tool asserts no market-wage figure of its own, never
+      files anything, and is framed throughout as a starting-point
+      estimate and documentation aid, explicitly "not a determination."
+      Scored one point below the sibling economic-nexus-threshold-tracker
+      because a bad self-supplied comparable-wage guess carries a real
+      dollar consequence (back FICA, penalties, interest) if relied on
+      uncritically -- still clearly above the gate given no advice-of-
+      record framing and no data leaving the browser. Ethics: the tool's
+      only effect is prompting an owner toward a more defensible, better-
+      documented salary decision, and it explicitly refuses to offer a
+      percentage safe-harbor shortcut that would help a user game the
+      system -- it directs them to the comparable-wage test and
+      documentation the IRS and courts actually apply instead. No personal
+      or scraped data, no adverse incentive on our side (donations-only).
+
+  - slug: auto-loan-interest-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. A tax-adjacent calculator is
+      exactly where a model has no business guessing -- the cap,
+      phase-out, and eligibility checklist are fixed arithmetic on a
+      published statute.
+    basis: >-
+      Graduated on 2026-09-24 as a browser-local calculator for the new
+      federal "qualified passenger vehicle loan interest" deduction
+      (OBBBA, tax years 2025-2028). Scored with the sibling
+      no-tax-on-tips-overtime-calculator on gross margin and ops --
+      serving one more filer costs a static file. Defensibility 2,
+      distribution 7: the arithmetic is easily reimplemented (several
+      finance-blog calculators for this exact deduction already exist,
+      found via WebSearch 2026-09-24), so the moat is the
+      MFS-differs-from-sibling correction and the full 8-item eligibility
+      checklist rather than cap/phase-out arithmetic alone; distribution
+      reflects the same confirmed search-demand evidence class that
+      justified the sibling tips/overtime calculator's score.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Every figure is either a published, cited statutory cap or
+      threshold, or a number the user supplies; the tool never determines
+      a specific vehicle's or loan's actual eligibility, and every
+      checklist item points the user at a primary source (window sticker,
+      VIN, lender statement) before relying on it. Nothing entered leaves
+      the browser. Ethics: the tool only helps a filer claim a deduction
+      they might otherwise miss or misapply, holds no personal or scraped
+      data, and there is no revenue model that would reward mistuning the
+      arithmetic in either direction (donations only).
+
+  - slug: tip-pool-compliance-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Eligibility is decided by two
+      fixed rules (a manager/supervisor test and a tip-credit-conditioned
+      back-of-house test) applied to a roster the owner types, and the
+      exposure figure is arithmetic on that roster's own hours -- never a
+      model judgment about a specific restaurant.
+    basis: >-
+      Screened and built 2026-09-24; duplicate_check.py scored every
+      venture, screened-out row, and pipeline candidate at or below 0.10
+      against the final description (see the venture's own VENTURE.yaml).
+      Not the same business as no-tax-on-tips-overtime-calculator (a
+      federal income-tax deduction on tip and overtime income) or any
+      existing checker -- no venture in the tree checks FLSA tip-pooling
+      eligibility. Defensibility 3: the two-rule eligibility test and the
+      clawback arithmetic are easy to reproduce once someone reads DOL
+      Fact Sheet #15, matching str-occupancy-tax-calculator's own
+      defensibility for the same reason -- the moat is being first with
+      the specific "which roles, which rule, how much exposure" framing,
+      not the arithmetic itself. Distribution 6: a real, recurring
+      restaurant-industry search topic ("can managers be in a tip pool",
+      "can dishwashers be in a tip pool") that payroll and POS vendors
+      write blog content about but do not turn into a roster-level
+      checker; scored below call-recording-consent-check's 6 story only in
+      that this is a single federal rule rather than a 50-state table, so
+      matched rather than exceeded. No search-volume tool was queried to
+      confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool checks a roster against one well-established federal
+      rule (29 U.S.C. 203(m) as amended by the 2018 CAA, and DOL's 2021
+      final rule at 29 CFR 531.54) and computes arithmetic on the hours
+      and wage the owner supplies -- never a determination about a
+      specific role's real-world classification, and it explicitly
+      excludes state law, which several states make stricter. Every page
+      states this is not legal advice, names DOL Fact Sheet #15 and a
+      qualified employment attorney as the sources to verify against, and
+      nothing entered leaves the browser. Ethically: donations-only with
+      no per-use fee, so the tool has no incentive to bias a role's
+      classification in either direction, and it gets strictly more
+      useful to an owner the more accurately they describe their own
+      roster -- unlike a compliance product sold on alert volume, there is
+      no party here whose incentive runs the other way.

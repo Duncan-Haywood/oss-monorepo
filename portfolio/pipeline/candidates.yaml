@@ -1870,3 +1870,37 @@ candidates:
       browser.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: auto-loan-interest-deduction-calculator
+    name: Auto loan interest deduction calculator
+    doc: candidates/auto-loan-interest-deduction-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/auto-loan-interest-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 9
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Both ai_leverage and defensibility are structural to the product
+      shape, not gaps. ai_leverage is low because the product is
+      deliberately deterministic -- a tax-adjacent calculator is exactly
+      where a model has no business guessing. defensibility is mitigated
+      the same way this portfolio's other calculators of this shape are:
+      the moat is being first with the specific framing (the
+      MFS-and-cap-doubling correction against the sibling
+      no-tax-on-tips-overtime-calculator, and the full 8-item eligibility
+      checklist rather than cap/phase-out arithmetic alone) and the
+      free/private/no-upsell posture against ad-supported finance-blog
+      competitors, not a technical barrier to reimplementation.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
