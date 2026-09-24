@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 128 files, 556508 bytes
 #   portfolio-front-tools-10: 119 files, 543847 bytes
 #   portfolio-front-tools-11: 119 files, 555483 bytes
-#   portfolio-front-tools-12: 117 files, 556509 bytes
+#   portfolio-front-tools-12: 117 files, 556008 bytes
 #   portfolio-front-tools-13: 129 files, 554520 bytes
 #   portfolio-front-tools-14: 127 files, 555579 bytes
 #   portfolio-front-tools-15: 130 files, 555069 bytes
@@ -1691,7 +1691,6 @@ configMapGenerator:
       - junk-removal-bid-calculator__share.mjs.gz=junk-removal-bid-calculator__share.mjs.gz
       - junk-removal-bid-calculator__usage.mjs.gz=junk-removal-bid-calculator__usage.mjs.gz
       - junk-removal-bid-calculator__vs-a-flat-truck-fraction-rate.html.gz=junk-removal-bid-calculator__vs-a-flat-truck-fraction-rate.html.gz
-      - junk-removal-bid-calculator__vs-housecall-pro.html.gz=junk-removal-bid-calculator__vs-housecall-pro.html.gz
       - junk-removal-bid-calculator__vs-jobber.html.gz=junk-removal-bid-calculator__vs-jobber.html.gz
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
       - k8s-deprecated-api-check__cli.mjs.gz=k8s-deprecated-api-check__cli.mjs.gz
@@ -1758,6 +1757,7 @@ configMapGenerator:
       - marketplace-fee-compare__handoff.mjs.gz=marketplace-fee-compare__handoff.mjs.gz
       - marketplace-fee-compare__index.html.gz=marketplace-fee-compare__index.html.gz
       - marketplace-fee-compare__share.mjs.gz=marketplace-fee-compare__share.mjs.gz
+      - marketplace-fee-compare__should-i-move-off-marketplaces-to-my-own-store.html.gz=marketplace-fee-compare__should-i-move-off-marketplaces-to-my-own-store.html.gz
       - marketplace-fee-compare__usage.mjs.gz=marketplace-fee-compare__usage.mjs.gz
       - marketplace-fee-compare__vs-checking-each-marketplace-separately.html.gz=marketplace-fee-compare__vs-checking-each-marketplace-separately.html.gz
       - marketplace-fee-compare__vs-sellerboard.html.gz=marketplace-fee-compare__vs-sellerboard.html.gz
