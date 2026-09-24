@@ -54,6 +54,23 @@ test('the generic-method comparison page links back, names no specific product, 
   }
 });
 
+test('the guide page links back, is linked from index, and echoes its FAQ verbatim', () => {
+  const guide = page('how-much-does-depop-actually-take.html');
+  assert.match(markup, /how-much-does-depop-actually-take\.html/);
+  assert.match(guide, /<a href="\.\/">/);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /no SLA/i);
+  assert.match(guide, /not affiliated with, endorsed by, or sponsored by Depop/i);
+
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+  const faq = blocks.find(b => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'no FAQPage JSON-LD block found on the guide page');
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(guide.includes(name), `question not visible verbatim: ${name}`);
+    assert.ok(guide.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
+
 test('every published page carries Open Graph tags and a robots/canonical pair', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter(name => name.endsWith('.html'));
