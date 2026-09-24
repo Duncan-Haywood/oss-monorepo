@@ -1880,6 +1880,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-aspire.html, which names Aspire
   // specifically and already carries the trademark disclaimer.
   'retaining-wall-bid-calculator/vs-a-flat-140-per-linear-foot-rate.html',
+  // Compares against "checking it by eye" -- reading view-source and
+  // comparing a page's JSON-LD against its rendered text by hand, a manual
+  // habit any developer already has, not a company or product this could be
+  // mistaken for. Same shape as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html exemption above.
+  'structured-data-drift-check/vs-checking-it-by-eye.html',
   // Compares against "reading the file by hand" -- a manual review habit
   // every developer already has, not a company or product this could be
   // mistaken for. Same reasoning as the other vs-reading-*-by-hand pages
