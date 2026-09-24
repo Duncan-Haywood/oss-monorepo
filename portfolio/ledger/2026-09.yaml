@@ -40410,3 +40410,257 @@ entries:
         No form input added (a static guide page), so the Playwright/
         axe-core browser-check line was not run.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened for a genuinely new venture first, per DIRECTION.md's
+        standing preference. session_gate.py: PROCEED, build-now pipeline
+        empty (all 8 scored candidates already graduated). Checked the two
+        saturated-archetype counts pipeline/README.md tracks (141
+        <trade>-bid-calculator ventures, 38 -check/-checker ventures, now
+        against 354 ventures/ total) before picking a shape. The one
+        specific, differentiated idea this session could name with a real
+        channel -- a static scanner for MCP "tool poisoning" / tool-
+        description prompt injection, a live 2026 security topic with an
+        OWASP page and Cloud Security Alliance research notes (verified via
+        web search, not assumed) -- was rejected on arrival: Invariant
+        Labs' `mcp-scan` already does exactly this as a funded vendor's
+        open-source tool (the "why hasn't a big vendor solved it" question
+        this portfolio's own playbook asks), and it overlaps this repo's
+        own parked, mitigation-refuted `mcp-supply-chain-watch` candidate
+        closely enough that duplicate_check.py would likely flag it. No
+        other candidate idea cleared both "not a near-duplicate of 354
+        existing ventures" and "has a channel stronger than a 355th
+        instance of an already-141-times-tried or already-38-times-tried
+        shape" within the session. Per the brief's own instruction, did not
+        force a weak graduation.
+      - >-
+        Looked for a real, reproducible defect on an already-live product
+        as the fallback instead. Ran the full CLAUDE.md starvation-window
+        checklist: checklist_coverage.py and sync_tree_counts.py clean;
+        regen.mjs --verify clean (no stale committed mirror); public_surface.py
+        clean on the canonical GitHub Pages origin (24/24 sitemap sample
+        served -- the 23/24 "NO" rows are all on the separate, long-known-down
+        marisstella.dev/k3s route CLAUDE.md already documents at length, not
+        a new finding); pages_state.py --require-current clean (served,
+        current); node --test platform/marketing + platform/pages 1287/1287
+        (run twice, ~5 min apart, both clean); platform/proposal 101/101;
+        platform/privacy + platform/webcheck 142/142; portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446/446; gitops/tests
+        637 passed/1 skipped (nginx-light + openssh-client installed via
+        apt-get after `apt-get update`, environmental skip documented);
+        platform/ci unittest sweep (all modules) + agent_review's
+        test_review clean; guard_state.py --require-runnable: no fixable
+        skips, one environmental skip (test_front_door_serving.py, needs a
+        GitHub-hosted runner). Found nothing red anywhere.
+      - >-
+        Ran the whole-catalogue Playwright/axe-core browser and
+        accessibility sweep (browser_state.py had it recorded STALE --
+        builder files had moved since the last reading) twice: once against
+        3f3d6870 while screening, then again from scratch against 6cd49f15
+        after a concurrent session's own merges (including PR #5555)
+        invalidated the first run mid-flight. Both runs: all 8 checks
+        (sideways, presets, roundtrip, highlight, contrast, optout, sweep,
+        journey) passed clean -- 1481-1483 pages at 2 viewports, 0 WCAG A/AA
+        violations, 353/353 tools answered with no console/resource errors,
+        full save/restore/share user journey passing, no off-origin
+        requests. Recorded the second (newer) run into
+        platform/ci/browser_state.json. A concurrent session (PR #5567)
+        recorded its own clean pass at an older commit (39af4ef2) while
+        this one was running; this session's recording (6cd49f15) is
+        strictly newer and was kept over that entry on conflict, confirmed
+        via `git log` ordering. Given 13-15 unrelated venture-page commits
+        landed on `main` during each ~20-30 min run, this reading is
+        already several commits behind the current tip by the time it
+        merges -- expected under this session's measured 6-8 concurrent
+        sessions per 15-minute window, not a defect in the check.
+      - >-
+        Net outcome: no shippable defect found, no new venture honestly
+        cleared the channel-evidence bar within this session, and the
+        fleet's accessibility/correctness posture was independently
+        re-verified clean rather than assumed from a stale reading or a
+        sibling session's unread claim. Did not add a comparison/guide page
+        -- CLAUDE.md and DIRECTION.md both flag that lane as currently
+        saturated by concurrent sessions (open PR #5544 and several dozen
+        ledger entries this same day are exactly that pattern) and the
+        brief for this session explicitly excluded it.
+    mrr_end: 0
+  - venture: llm-api-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a free, static, client-side
+        calculator comparing monthly LLM API cost across providers (Claude,
+        GPT, Gemini, or a custom provider) for a visitor-supplied token
+        workload, pricing fresh-input, cached-input, and output tokens
+        separately -- cached tokens are billed far below fresh input on
+        modern APIs and usually dominate agentic workloads, which a single
+        blended per-token estimate misses. Follows the bring-your-own-rates
+        discipline proven in vector-db-cost-calculator: no vendor price is
+        fetched or asserted, every preset rate is labelled "example --
+        replace with the current rate" on every field, and calc.mjs is pure,
+        tested arithmetic (28 tests). Ran duplicate_check.py first (top score
+        0.18 against ai-coding-plan-cost-calculator, a different comparison
+        -- subscription vs. that vendor's own API, not cross-vendor raw
+        pricing; well under the 0.45 review bar) and pasted the full output
+        into VENTURE.yaml. PR #5577, merged.
+      - >-
+        CI runners were starved (runner_id: 0) for the whole session, so
+        every check in CLAUDE.md's starvation checklist was run locally
+        before merge: venture tests 28/28, clauses.mjs clean, marketing+pages
+        suite 1287/1287, gitops/tests 637/1 skipped, checklist_coverage.py,
+        router/validate.py, usage/validate_usage.py, publish_surface.py,
+        launched.mjs, regen.mjs --verify, proposal/privacy/webcheck suites,
+        all 17 platform/ci unittest modules + agent_review, portfolio pytest
+        sweep, all research/pipeline probe dirs, run_workflow_locally.py
+        --for-changes, guard_state.py --require-runnable, sync_tree_counts.py
+        -- all clean or passing.
+      - >-
+        Hit the documented gitops/prod binary-mirror merge-conflict pattern
+        three times while landing this (main moved roughly every 1-3 minutes
+        under concurrent-session load); resolved each with
+        resolve-mirror-merge.sh's documented procedure (pick either side,
+        then regenerate from merged sources via front-door-tools.mjs/
+        front-door.mjs --write) rather than hand-editing generated output,
+        and re-verified with regen.mjs --verify after each pass before
+        pushing. Also fixed a misattributed merge commit (wrong git identity
+        picked up from a stray global git config, likely a side effect of
+        one of the test suites) via amend + force-push-with-lease on this
+        session's own branch before merging.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot
+        (publish-branch.sh, recorded via pages_state.py --record) so the new
+        tool is live at
+        https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/,
+        and confirmed sync_tree_counts.py and regen.mjs --verify are current
+        against the merged main. Did not submit to IndexNow -- the only
+        route with egress to api.indexnow.org is the (starved) GitHub Actions
+        workflow; the by-hand route has no egress from this sandbox, per
+        indexnow_state.py.
+    mrr_end: 0
+  - venture: mcp-config-risk-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a second new venture this session: a free,
+        static, client-side tool that audits a pasted MCP server config
+        (mcp.json / claude_desktop_config.json / VS Code's servers shape / a
+        generic entry list) for four structural risk patterns -- broad
+        filesystem/shell access, secrets hardcoded instead of referenced from
+        the environment, missing version pins on npx/uvx/pipx/docker
+        launches, and duplicate/shadowing tool names across servers. All
+        checks are local pattern-matching, no network call, findings framed
+        explicitly as "not a verdict." 44 pure-logic tests on calc.mjs (58
+        total with usage/page tests). Chose this over mcp-supply-chain-watch
+        (a temporal diff between two manifests -- different scope, scored
+        0.09 in duplicate_check.py) and two other researched candidates.
+        PR #5607, merged.
+      - >-
+        Caught and fixed a real accessibility/correctness bug before
+        publishing: the summary panel's CSS set display:grid unconditionally,
+        which outranks the [hidden] attribute's native display:none, so the
+        panel would render even while marked hidden. platform/pages/check.mjs
+        caught it on the first publish attempt (refused to publish); fixed
+        with a `.summary[hidden]{display:none}` override and re-verified
+        clean before publishing.
+      - >-
+        Also fixed forward a real bug the build agent introduced mid-session
+        and caught itself before merging: FAQPage JSON-LD text used ASCII
+        "--" where the visible page copy used a real em-dash, tripping
+        faq-visible.test.mjs's authored-content-matches-JSON-LD guard.
+      - >-
+        A pre-existing, unrelated failure on main (canonical-tag-check's own
+        demo page shipping 5 real canonical tags instead of the 1 it exists
+        to teach about) was investigated, correctly identified as not this
+        session's regression, and left alone rather than opportunistically
+        fixed outside scope -- confirmed resolved by a different session's
+        PR #5601 landing while this one was in flight.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot (caught the
+        CSS bug during this very step, since publish-branch.sh's build check
+        runs against the real built output) and confirmed sync_tree_counts.py
+        and regen.mjs --verify are current against the merged main. New tool
+        live at
+        https://duncan-haywood.github.io/monorepo-projects/mcp-config-risk-check/.
+    mrr_end: 0
+  - venture: roofing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped roofing-bid-calculator's one budgeted generic-method
+        comparison page (surface-budget.mjs reported 0/1 for the venture):
+        vs-a-flat-price-per-house-square-foot.html. Worked example from the
+        calculator's own shipped starting inputs: a 2,200 sq ft footprint at
+        a simple 6/12 main + 4/12 garage pitch, single-layer tear-off, prices
+        at $13,857.34 on an $11,085.87 cost; the identical 2,200 sq ft
+        footprint at 12/12 + 10/12 with a two-layer tear-off costs $19,652.96
+        to run and prices at $24,566.20 -- quoting it at the easy job's flat
+        price would sit $5,795.62 below its own break-even cost. Registered
+        the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        method, no vendor named), linked from index.html, listed in
+        sitemap.xml, mirror regenerated. Merged as PR #5605.
+      - >-
+        Running the full marketing test suite before pushing (node --test
+        platform/pages/*.test.mjs platform/marketing/*.test.mjs, ~1287
+        assertions) surfaced an unrelated pre-existing failure:
+        canonical-tag-check's own why-two-canonical-tags-is-worse-than-none.html
+        illustrated multiple <link rel="canonical"> examples in escaped
+        code/FAQ prose, which front-door-tools.test.mjs's naive
+        rel=["']canonical["'] occurrence count read as 5 canonical tags on
+        one page -- the exact defect the page exists to explain. Fixed it
+        (unquoted rel=canonical form, matching the page's own meta
+        description) and verified before pushing, but PR #5601 had already
+        landed an independent fix (quote-entity-encoding) for the identical
+        defect minutes earlier. Caught the collision at merge time rather
+        than after: took main's already-tested version for that one file
+        during the merge instead of re-landing a duplicate, re-verified
+        (front-door-tools.test.mjs 102/102, the venture's own 73/73), and
+        kept only the roofing-bid-calculator page as this PR's actual
+        content. Two more source conflicts surfaced merging main a second
+        time (another venture landing in the same window) -- both were
+        purely gitops/prod/front-door* binary-mirror files; resolved per
+        resolve-mirror-merge.sh (pick either side, regenerate from merged
+        sources via regen.mjs, verify with regen.mjs --verify) rather than
+        hand-editing generated output.
+      - >-
+        Before this: session_gate.py reported the gh-pages snapshot stale
+        (built from 470ef1b8, main at 21116f39) and refreshed it first
+        (CONFIRM=publish-pages-branch PUSH=1 publish-branch.sh), recording
+        the reading via pages_state.py --record. ci_starvation.py confirmed
+        the fleet was starved at the time (runner_id: 0 across all checks on
+        main), so verification was run locally per the checklist rather than
+        waited on: roofing-bid-calculator and canonical-tag-check suites,
+        every platform/pages/*.test.mjs and platform/marketing/*.test.mjs
+        file individually, gitops/tests (631 passed / 7 skipped),
+        checklist_coverage.py, surface-budget.mjs --check, clauses.mjs
+        --check, regen.mjs --verify -- all clean before each push.
+    mrr_end: 0
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped locksmith-bid-calculator's one budgeted generic-method
+        comparison page (0/1 per surface-budget.mjs; the venture already
+        carried three named-product pages against Jobber, Workiz, and
+        Housecall Pro): vs-a-flat-rate-for-every-call.html. Worked example
+        using the calculator's own shipped DEFAULTS unchanged except the
+        emergencyCall flag: the identical call (30 min labor, 20 min travel,
+        $90/hr, $35 trip fee, $40 parts at 40% markup) costs $198.54 to run
+        quoted in the daytime and $243.39 as an after-hours emergency
+        dispatch, because the 50% after-hours premium on billed time flows
+        through the callback reserve and overhead too. This calculator
+        prices each at its target 30% margin ($283.62 / $347.69); quoting
+        the emergency call at the daytime flat price still covers its cost
+        but drops the margin to 14.19%, a $64.07 shortfall. Registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from index.html,
+        listed in sitemap.xml, mirror regenerated and verified
+        (regen.mjs --verify, front-door-tools.test.mjs, checklist_coverage.py,
+        surface-budget.mjs --check, clauses.mjs --check all clean; venture's
+        own suite 133/133).
+    mrr_end: 0

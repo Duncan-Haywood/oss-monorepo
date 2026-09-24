@@ -653,6 +653,9 @@ workflows:
 - workflow: link-contrast-ci.yml
   classification: none
   publishes: []
+- workflow: llm-api-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: llms-txt-generator-ci.yml
   classification: none
   publishes: []
@@ -666,6 +669,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: marketplace-fee-compare-ci.yml
+  classification: none
+  publishes: []
+- workflow: mcp-config-risk-check-ci.yml
   classification: none
   publishes: []
 - workflow: mcp-drift-watch-ci.yml
