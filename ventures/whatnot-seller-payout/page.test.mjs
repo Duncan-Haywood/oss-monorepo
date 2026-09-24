@@ -178,6 +178,27 @@ test('the $50 / $20+shipping / $2,400 figures on the how-much page match the ari
   near(graded.commission, 120);
 });
 
+test('the $2,000 / $6,000 pallet figures on the pallet guide match the arithmetic', () => {
+  const html = page('how-much-does-whatnot-take-on-a-pallet.html');
+  const pallet = calculateSale({ salePrice: 2000, commissionRate: 4, commissionCap: '', paymentRate: 2.9, paymentFixed: 0.3 });
+  assert.match(html, /\$80\.00/);
+  assert.match(html, /\$58\.30/);
+  assert.match(html, /\$138\.30/);
+  assert.match(html, /\$1,861\.70/);
+  near(pallet.commission, 80);
+  near(pallet.fees, 138.3, 0.01);
+  near(pallet.payout, 1861.7, 0.01);
+
+  const palletBig = calculateSale({ salePrice: 6000, commissionRate: 4, commissionCap: '', paymentRate: 2.9, paymentFixed: 0.3 });
+  const tcgCappedBig = calculateSale({ salePrice: 6000, commissionRate: 8, commissionCap: 1500, paymentRate: 2.9, paymentFixed: 0.3 });
+  assert.match(html, /\$240\.00/);
+  assert.match(html, /\$120\.00/);
+  assert.match(html, /\$174\.30/);
+  near(palletBig.commission, 240);
+  near(tcgCappedBig.commission, 120);
+  assert.ok(palletBig.commission > tcgCappedBig.commission, 'the uncapped 4% row should out-commission the capped 8% row at $6,000');
+});
+
 test('the free-shipping page’s three-way table matches the arithmetic', () => {
   const html = page('should-i-offer-free-shipping-on-whatnot.html');
   const charge = calculateSale({

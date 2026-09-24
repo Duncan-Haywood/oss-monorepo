@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 105 files, 557044 bytes
 #   portfolio-front-tools-17: 125 files, 555387 bytes
 #   portfolio-front-tools-18: 119 files, 542852 bytes
-#   portfolio-front-tools-19: 71 files, 364489 bytes
+#   portfolio-front-tools-19: 72 files, 367678 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2558,6 +2558,7 @@ configMapGenerator:
       - well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz=well-pump-bid-calculator__vs-a-flat-well-pump-special.html.gz
       - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - whatnot-seller-payout__calc.mjs.gz=whatnot-seller-payout__calc.mjs.gz
+      - whatnot-seller-payout__how-much-does-whatnot-take-on-a-pallet.html.gz=whatnot-seller-payout__how-much-does-whatnot-take-on-a-pallet.html.gz
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
       - whatnot-seller-payout__index.html.gz=whatnot-seller-payout__index.html.gz
       - whatnot-seller-payout__share.mjs.gz=whatnot-seller-payout__share.mjs.gz
