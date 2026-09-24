@@ -418,7 +418,14 @@ const CATEGORY_RULES = [
     // listing may still be running — and would otherwise sit in the
     // catch-all for the same reason those two did: the slug names the
     // storefront, not a marketplace keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
+    // `str-occupancy-tax-calculator` is `str-host`'s exact sibling on the
+    // other side of the same booking: instead of what a host is paid, it
+    // is what a host must remit once a platform's collection agreement is
+    // netted out, on the same Airbnb/Vrbo stay this section already prices.
+    // Broadened the `str-host` match to `str-` rather than adding a second
+    // alternative, since both slugs share the audience and the storefront
+    // prefix.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',

@@ -2292,9 +2292,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # "browser-local bid worksheet, no AI, no network call" shape as
     # `land-survey-bid-calculator` and `biohazard-cleanup-bid-calculator`,
     # with a static `index.html` from its first commit, same shape as the
-    # rest of this running count. Total re-derived here by
-    # `sync_tree_counts.py` against the fully merged tree rather than by
-    # hand.
+    # rest of this running count.
     #
     # 343 since this merge: `backup-file-exposure-check` also graduated,
     # concurrently on `main` -- a zero-dependency browser tool + CLI sending
@@ -2309,8 +2307,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # running count. This branch only ever knew its own predecessor's
     # number (342, before `window-tinting-bid-calculator` landed) until
     # this merge -- the same ordinary collision shape recorded throughout
-    # this list. Total re-derived here by `sync_tree_counts.py` against the
-    # fully merged tree rather than by hand.
+    # this list.
     #
     # 344 since this merge: `employee-cost-calculator` also graduated,
     # concurrently on `main` -- a browser calculator comparing the
@@ -2321,9 +2318,22 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this running count. This branch only ever knew its own predecessor's
     # number (343, before `backup-file-exposure-check` landed on this side)
     # until this merge -- the same ordinary collision shape recorded
-    # throughout this list. Total re-derived here by `sync_tree_counts.py`
-    # against the fully merged tree rather than by hand.
-    total = 344  # `infra/OWNER_CHECKLIST.md`'s own "N of the 344 tools" wording.
+    # throughout this list.
+    #
+    # 345 on this merge: `str-occupancy-tax-calculator` also graduated,
+    # concurrently on `main` -- a zero-dependency browser calculator
+    # splitting one short-term-rental stay's occupancy tax into up to four
+    # named layers plus a flat per-night fee, each split between what a
+    # platform's collection agreement already remits and what is left for
+    # the host to self-file. Static `index.html` from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (341, before `window-tinting-bid-
+    # calculator`, `backup-file-exposure-check`, and `employee-cost-
+    # calculator` each landed) until this merge -- the same ordinary
+    # collision shape recorded throughout this list, three-wide this time.
+    # Total re-derived here by `sync_tree_counts.py` against the fully
+    # merged tree rather than by hand.
+    total = 345  # `infra/OWNER_CHECKLIST.md`'s own "N of the 345 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
