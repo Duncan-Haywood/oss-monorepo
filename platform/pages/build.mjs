@@ -2237,12 +2237,15 @@ const CATEGORY_RULES = [
     // `overtime-pay-calculator` and `voiceover-project-rate-calculator` both
     // joined 2026-09-24, found by enumerating the catch-all after a batch of
     // concurrent merges pushed it to 6 rather than by judging either arrival
-    // alone. `voiceover-project-rate-calculator` is the clearest kind of
-    // member here: a freelance voice-over artist turning their own script
-    // word count into a defensible project rate is the same move as
-    // `tutor-package-pricing-calculator`'s instructor and
-    // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
-    // own labour. `overtime-pay-calculator` fits the other half of this
+    // alone (two sessions independently reached `voiceover-project-rate-
+    // calculator` the same way; this is the merged reasoning for both).
+    // `voiceover-project-rate-calculator` is the clearest kind of member
+    // here: a freelance voice-over artist turning their own script word
+    // count and the buyer's intended usage into a defensible project rate
+    // is the same move as `tutor-package-pricing-calculator`'s instructor
+    // and `cat-adjuster-fee-calculator`'s adjuster -- one person pricing
+    // their own labour from their own inputs, not a business quoting a
+    // customer. `overtime-pay-calculator` fits the other half of this
     // section's blurb, "priced or checked": an hourly employee checking
     // whether their own paycheck's blended overtime rate was computed
     // correctly is the same shape as `ats-resume-checker`'s job seeker and
