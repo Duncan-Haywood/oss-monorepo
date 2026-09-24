@@ -105,6 +105,56 @@ test('rejects negative or non-numeric prices', () => {
   assert.throws(() => calculateEbaySale({ ...REVERB_DEFAULTS, ebayFinalValueRate: 100 }, 800));
 });
 
+// Reverb caps its own selling fee at $500 per sale, for both standard and
+// Preferred sellers (help.reverb.com's "What fees will I pay for selling on
+// Reverb?" and "What are my fees as a Reverb Preferred Seller?", 2026-09).
+// A $15,000 guitar owes $500, not the uncapped 5% ($750) -- confirmed as
+// Reverb's own worked example on both pages.
+test('the $500 default cap matches Reverb\'s own worked example: a $15,000 sale owes $500, not $750', () => {
+  const result = calculateReverbSale(REVERB_DEFAULTS, 15000);
+  assert.equal(result.fees.marketplace, 500);
+});
+
+test('the cap never binds below the worked $800 example -- existing behaviour is unchanged', () => {
+  const result = calculateReverbSale(REVERB_DEFAULTS, 800);
+  assert.equal(result.fees.marketplace, 40);
+});
+
+test('marketplaceFeeCap of 0 means "never caps" and restores the flat percentage', () => {
+  const result = calculateReverbSale({ ...REVERB_DEFAULTS, marketplaceFeeCap: 0 }, 15000);
+  assert.equal(result.fees.marketplace, 750);
+});
+
+test('the cap does not touch Reverb Gives, only the marketplace line', () => {
+  const result = calculateReverbSale({ ...REVERB_DEFAULTS, givesRate: 1 }, 15000);
+  assert.equal(result.fees.marketplace, 500);
+  assert.equal(result.fees.gives, 150);
+});
+
+test('the eBay-crossover offer still holds above the cap threshold, where the old closed-form algebra would have been wrong', () => {
+  const input = { ...REVERB_DEFAULTS, price: 20000, offerPrice: 18000 };
+  const match = offerThatMatchesEbayList(input);
+  const atOffer = calculateReverbSale(input, match.offerPrice);
+  assert.ok(match.offerPrice > 10000, 'the crossover itself should sit in the capped regime');
+  assert.ok(Math.abs(atOffer.profit - match.ebayListProfit) < 1e-6);
+});
+
+test('the eBay-crossover solve is continuous across the cap threshold (no jump at the seam)', () => {
+  const below = offerThatMatchesEbayList({ ...REVERB_DEFAULTS, price: 9999 }).offerPrice;
+  const at = offerThatMatchesEbayList({ ...REVERB_DEFAULTS, price: 10000 }).offerPrice;
+  const above = offerThatMatchesEbayList({ ...REVERB_DEFAULTS, price: 10001 }).offerPrice;
+  assert.ok(Math.abs(at - below) < 1, 'no discontinuity crossing the threshold from below');
+  assert.ok(Math.abs(above - at) < 1, 'no discontinuity crossing the threshold from above');
+});
+
+test('the included-shipping list match also holds above the cap threshold', () => {
+  const input = { ...REVERB_DEFAULTS, price: 20000, shippingCharged: 200 };
+  const comparison = compareShippingPaths(input);
+  assert.ok(comparison.includedListThatMatchesBuyerPays > 10000);
+  const atIncludedList = calculateReverbSale({ ...input, shippingCharged: 0 }, comparison.includedListThatMatchesBuyerPays);
+  assert.ok(Math.abs(atIncludedList.profit - comparison.buyerPays.profit) < 1e-6);
+});
+
 test('including $75 of shipping in an $800 list costs 5% more marketplace fee', () => {
   const comparison = compareShippingPaths(REVERB_DEFAULTS);
   assert.equal(comparison.buyerPays.profit, calculateReverbSale(REVERB_DEFAULTS, 800).profit);
