@@ -707,7 +707,20 @@ const RELATIVE_SELF = relative(
 // `auto-loan-interest-deduction-calculator` landed) until this merge -- the
 // same ordinary collision shape recorded throughout this list, this time
 // with both sides claiming the same next number.
-const SWITCHES_IN_THE_CATALOGUE = 339;
+//
+// 338 -> 339: `claude-code-settings-check` graduated -- adding one
+// `usage.mjs` (`ventures/claude-code-settings-check/usage.mjs`), no
+// deletions.
+//
+// 339 -> 340: `senior-deduction-calculator` graduated, concurrently on
+// `main` with this venture's own `mega-backdoor-roth-calculator/
+// vs-doing-the-math-by-hand.html` comparison page (which adds no switch of
+// its own -- a static comparison page, not a `usage.mjs`) -- adding one
+// `usage.mjs` (`ventures/senior-deduction-calculator/usage.mjs`), no
+// deletions. This branch only ever knew its own predecessor's number (339)
+// until this merge -- the same ordinary collision shape recorded throughout
+// this list.
+const SWITCHES_IN_THE_CATALOGUE = 340;
 
 let counter = 0;
 function fixture(source) {
