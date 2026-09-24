@@ -1596,6 +1596,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // that it names no specific product or company. Same reasoning as the
   // other generic-method pages above.
   'ai-engineering-academy/vs-doing-the-math-by-hand.html',
+  // Compares against "grepping requirements.txt/pip.conf for
+  // --extra-index-url and skimming package.json for an unscoped name" -- the
+  // manual habit most developers already have, not a company or product
+  // this could be mistaken for. The page names no specific vendor or
+  // scanning service; its sibling comparison page, vs-socket.html, names a
+  // real product and carries its own trademark disclaimer separately. Same
+  // reasoning as the other manual-method pages above
+  // (vendor-change-watch/vs-checking-vendor-pages-by-hand.html in
+  // particular).
+  'dependency-confusion-check/vs-checking-configs-by-hand.html',
   // Compares against "a flat rate per square foot" -- a generic pricing
   // method every janitorial contractor already has access to, not a
   // company or product this could be mistaken for. Same reasoning as

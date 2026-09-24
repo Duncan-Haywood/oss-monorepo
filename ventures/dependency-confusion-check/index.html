@@ -86,6 +86,7 @@ python3 check.py --format json    # machine-readable
 python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added finding before it merges.</p>
     <p class="note">Already running a registry-aware supply-chain platform like Socket? <a href="./vs-socket.html">See how this checker differs</a> — different layers, worth running both.</p>
+    <p class="note">Been grepping your own <code>requirements.txt</code> and <code>package.json</code> for these patterns by hand? <a href="./vs-checking-configs-by-hand.html">See what a manual check structurally can't catch</a>.</p>
   </section>
 
   <section class="card">
