@@ -1,0 +1,124 @@
+name: cloud-bucket-exposure-check
+description: >-
+  A free CLI (+ a browser report viewer) for web developers, DevOps/cloud
+  engineers, and security researchers doing due diligence: sends one real,
+  read-only, unauthenticated GET request -- a cloud provider's own
+  anonymous listing endpoint -- to an AWS S3 bucket, a Google Cloud Storage
+  bucket, or an Azure Blob Storage container the user names, and classifies
+  the response BODY against each provider's own documented listing-or-error
+  XML shape to report whether anyone on the internet can enumerate its
+  contents with no credentials. Never fetches any individual object's
+  content, only the listing -- the same restraint git-exposure-check
+  documents for not reconstructing a repository once exposure is confirmed.
+stage: prototype
+owner: duncan
+
+# Not a pipeline candidate write-up in isolation, and not a trade-bid
+# calculator: same archetype as the portfolio's other read-what's-actually-
+# there checker ventures (git-exposure-check, dotenv-exposure-check,
+# supabase-rls-check, firebase-rules-check, subdomain-takeover-check) --
+# portfolio/pipeline/README.md's "archetype itself" section (2026-09-07)
+# argues for this shape over a 349th trade-bid calculator, since 141+ of the
+# portfolio's ventures already share that shape with zero recorded visitors
+# between them.
+#
+# duplicate_check.py scored every existing venture, screened-out.md row, and
+# pipeline candidate at 0.24 or below for "Public cloud storage bucket
+# exposure checker: browser tool + CLI that sends real read-only requests to
+# a user-provided S3/GCS/Azure Blob bucket URL/name and classifies
+# public-list vs public-read vs private, across the three major cloud
+# providers' own bucket-naming and endpoint conventions" -- well under the
+# 0.45 review bar. graphql-introspection-exposure-check scored closest
+# (0.24), a different evidence class entirely (a GraphQL schema query
+# response, not a cloud-storage listing endpoint); subdomain-takeover-check
+# names S3 only as one of 25 DNS-CNAME takeover-prone *hosting providers* --
+# a dangling DNS record pointing at a deleted resource, not a live bucket's
+# own anonymous-listing setting, which is a completely different mechanism
+# and finding. Nothing in screened-out.md covers cloud object-storage
+# misconfiguration.
+#
+# Distribution channel this was picked for: not "searchable, like the other
+# 141" -- "leaky S3 bucket" / "public S3 bucket checker" is one of the
+# highest-volume, most-cited misconfiguration classes in cloud security,
+# confirmed by real, sustained tool demand rather than assumed: open-source
+# scanners built for exactly this (s3scanner, several thousand GitHub stars;
+# GrayhatWarfare's public-bucket search index; Bucket Stream) have existed
+# for years, and the exposure class is well-documented enough that AWS
+# changed S3's own default in 2023 to block public access on every new
+# bucket specifically because of it. r/aws, r/devops, r/netsec, and
+# HackerOne/Bugcrowd's own recurring report categories are the ongoing
+# channel; the class also predates any one incident (unlike the 2025 npm
+# supply-chain narrative npm-lifecycle-script-check already uses as its
+# channel -- this is a different, independent, perennial search space, not
+# a second product riding the same event).
+
+hypotheses:
+  - claim: >-
+      A developer, DevOps/cloud engineer, or security researcher who has
+      just read one of the many recurring "how to find leaky S3 buckets"
+      write-ups, or who wants a quick self-check before or after a deploy,
+      will search exact terms ("s3 bucket public access checker", "is my s3
+      bucket public", "leaky s3 bucket checker", "gcs bucket public
+      checker", "azure blob container public checker") and use a free,
+      zero-install tool that reads the real response body rather than
+      trusting a status code alone, and covers all three major providers
+      rather than only AWS.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      This is a well-documented, currently live, and structurally perennial
+      exposure class with a real, active channel across three independent
+      developer communities (AWS, GCP, Azure), not tied to one dated
+      incident: OWASP's guidance on sensitive data exposure names storage
+      misconfiguration explicitly, it is a recurring HackerOne/Bugcrowd
+      report category, r/aws and r/netsec publish fresh "found via bucket
+      enumeration" posts on an ongoing basis, and several free open-source
+      scanners (s3scanner, GrayhatWarfare, Bucket Stream) already exist
+      specifically because demand for this check is real and sustained. No
+      existing venture in this portfolio reads a cloud storage provider's
+      own anonymous-listing response to detect object-storage exposure.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or platform team that gets a clean report will wire the
+      CLI into their own IaC/deploy-verification CI as a regression gate
+      (exit code 0/1/2 is already scriptable), producing return usage
+      without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI's one request runs from the user's
+  # own machine against a bucket they choose, and the browser page only
+  # renders a report already produced. Serving one more visitor costs a
+  # static file and nothing else.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and
+    indexed for a fair run (per portfolio/usage/README.md's "fair run"
+    definition).
+  - A materially better free tool covering the same three-provider,
+    body-content-aware classification, at the same zero-install bar,
+    becomes the obvious default, such that this tool's differentiation no
+    longer holds.
+  - Real user reports show the body-content classification produces false
+    positives or false negatives against a real provider response, and the
+    underlying pattern (the documented XML shapes) cannot be made reliable
+    without expanding scope past what this tool's liability read covers
+    (for example, attempting to fetch object content to confirm
+    public-read, which this tool deliberately does not do).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cloud-bucket-exposure-check/
+  analytics: null
