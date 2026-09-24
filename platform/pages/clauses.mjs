@@ -1935,6 +1935,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-post-affiliate-pro.html, which names Post Affiliate Pro
   // specifically and already carries the trademark disclaimer.
   'affiliate-disclosure-checker/vs-checking-a-post-by-eye.html',
+  // Compares against "reading the SKILL.md by hand" -- a manual review
+  // habit every skill author already has, not a company or product this
+  // could be mistaken for. Same reasoning as the other vs-reading-*-by-hand
+  // pages above (e.g. hidden-unicode-check's, docker-build-secrets-check's).
+  'skill-manifest-check/vs-reading-the-skill-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
