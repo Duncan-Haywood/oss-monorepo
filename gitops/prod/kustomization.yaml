@@ -192,10 +192,24 @@ configMapGenerator:
       - c__more.html=front-door/c__more.html
       # The About and press-kit page, served from the document root by the
       # `^/about/?$` block in `front-door/default.conf`. Same ConfigMap for the
-      # same reason as the nine above; ~9 KB, and unlike them it is not
-      # conditional on any category having mirrored tools, so it is always
-      # present.
-      - about.html=front-door/about.html
+      # same reason as the nine above, and unlike them it is not conditional
+      # on any category having mirrored tools, so it is always present.
+      #
+      # **Stored gzipped since 2026-09-24** — ~15 KB plain, ~5 KB on disk. It
+      # was the largest key here not already compressed that does not grow
+      # with the catalogue the way `llms.txt` and the category pages do, so
+      # compressing it was the one-key fix for `depop-fee-calculator` and
+      # `hidden-unicode-check` graduating in the same window taking
+      # `portfolio-front-html` to 945,123 bytes against the 943,718-byte
+      # budget in `gitops/tests/test_manifests.py`. See `aboutStoredKey` in
+      # `platform/marketing/front-door.mjs`.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64. The URL is unchanged: nginx still answers
+      # `/about/`, via `gzip_static always; gunzip on;` and a `rewrite`, never
+      # a `try_files` — the `location = /catalog.json` block's comment in
+      # `front-door/default.conf` carries the long version of why.
+      - about.html.gz=front-door/about.html.gz
       # The comparison index, served from the document root by the
       # `^/compare/?$` block in `front-door/default.conf`. Same ConfigMap for
       # the same reason as everything above it.
