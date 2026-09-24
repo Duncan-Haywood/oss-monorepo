@@ -41543,3 +41543,52 @@ entries:
         defects, and run one fleet-wide accessibility sweep. Portfolio-wide
         revenue and confirmed-visitor counts remain at zero.
     mrr_end: 0
+  - venture: water-softener-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page (PR #5666), "vs. a flat-rate
+        water-softener special": the venture had a named-product comparison
+        (vs-jobber.html) but none of the "you could work this out yourself"
+        angle, one of 97 ventures at 0 per surface-budget.mjs at the time.
+        Followed the established pattern (boiler-replacement-bid-calculator,
+        water-heater-bid-calculator): contrasts a postcard "$799 installed"
+        flat rate against the calculator's pipe run/material, drain, iron
+        filter/RO, haul-away and brine-receptacle line items. Registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from index.html,
+        added to sitemap.xml, mirror regenerated.
+      - >-
+        Caught by faq-visible.test.mjs before merge: the new page's FAQPage
+        JSON-LD used "--" where the visible prose used an em dash on two
+        answers, the same wording-mismatch defect this repo has recorded
+        against several other comparison pages. Fixed by making the two
+        exactly match.
+      - >-
+        gitops/tests/test_manifests.py's etcd-object-ceiling test was already
+        failing on main before this branch touched anything (943,895 bytes
+        against a 943,718 budget, over by 177) -- any PR landing any page at
+        all would have tripped it. Implemented the fix locally (gzip
+        llms.txt, following the sitemap.xml/catalog.json precedent) before
+        discovering two other sessions had landed the identical fix plus a
+        follow-on (gzipping the nine category pages) while this branch was
+        open (#5671, #5676, and a third llms.txt gzip attempt in #5685
+        landed during the final merge). Dropped the now-duplicate
+        front-door.mjs/front-door.test.mjs/kustomization.yaml/default.conf
+        changes in favour of main's versions on each of three merges,
+        keeping only the venture page; regenerated the mirror each time.
+        Net diff landed is the one venture page, riding on main's own fix.
+      - >-
+        Verified locally throughout (Actions confirmed starved --
+        ci_starvation.py: every check run on the PR was either runner_id: 0,
+        ~3s, no steps, or a workflow-conditional skip, checked run-by-run
+        rather than assumed): venture's own suite 112/112, full
+        platform/marketing + platform/pages suite 1289/1289 (run twice,
+        clean both times), gitops/tests 637 passed/1 skipped (environmental),
+        checklist_coverage.py, surface-budget.mjs --check,
+        check_venture_regression.py --base refs/ci/base-main, and
+        regen.mjs --verify all clean. Squash-merged as #5666. Refreshed the
+        GitHub Pages branch snapshot and recorded the reading
+        (pages_state.py --record) and confirmed sync_tree_counts.py agrees
+        after merge.
+    mrr_end: 0
