@@ -41426,6 +41426,40 @@ entries:
         confirmed-visitor counts remain at zero, which this fix does not
         change on its own.
     mrr_end: 0
+  - venture: shop-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-housecall-pro.html, a second named-product comparison page
+        (the venture previously had only vs-servicetitan.html) -- unbudgeted
+        by surface-budget.mjs's generic-method cap, linked from index.html
+        and the venture's sitemap, 103-assertion suite passing.
+      - >-
+        Independently hit the same etcd-budget overflow this ledger's
+        skill-manifest-check, salary-range-posting-check and
+        helm-values-schema-check entries above already describe (confirmed
+        against a clean checkout of main at 03cc7f19, before this branch's
+        own change, via git stash): built the identical llms.txt-gzip fix
+        described there, then found on push that main had already gained it
+        (#5671) plus a further category-page gzip fix (#5676, this file's
+        own `platform` entry immediately above). Reconciled by merging and
+        taking main's implementation whole rather than carrying a fourth
+        copy of the same mechanism -- recorded here only as a fourth
+        independent confirmation of the same root cause and fix.
+      - >-
+        Verified locally after the merge (Actions confirmed starved via
+        ci_starvation.py on the most recent publish-pages-branch.yml run,
+        36023137403: runner_id 0, 3s, no steps): the venture's own suite,
+        `platform/marketing/*.test.mjs`, `platform/pages/*.test.mjs`,
+        `regen.mjs --verify`, `checklist_coverage.py`, `surface-budget.mjs
+        --check`, `clauses.mjs --check`, `check_venture_regression.py
+        --base origin/main`, `python3 -m pytest gitops/tests -q`
+        (etcd-budget test passing on the merged tree), platform/ci's
+        27-module unittest suite + agent_review's, and `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` all clean.
+    mrr_end: 0
   - venture: auto-glass-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -41473,4 +41507,39 @@ entries:
         pytest (446 passed). Posted the starvation diagnosis and re-ran the
         starved checks once per CLAUDE.md's drive-to-green checklist before
         squash-merging as #5674.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a discoverability guide page to three of this session's own
+        earlier-shipped ventures (mcp-config-risk-check, hidden-unicode-check,
+        skill-manifest-check), which had only index.html and no docs page --
+        unlike llm-api-pricing-calculator (this session's first venture),
+        which already had one from a sibling session's own PR. Each answers a
+        real follow-up question: what a clean MCP config scan does and
+        doesn't guarantee, how to actually remove hidden Unicode once a scan
+        finds it, and how to rewrite a SKILL.md description that doesn't
+        trigger. Chose this over a fifth new venture this session, on the
+        reasoning that adding to an already-358-product catalogue with zero
+        confirmed visitors has lower marginal value than strengthening
+        discoverability on products already shipped this session, where
+        prior context made a fast, accurate page cheap to write.
+      - >-
+        Caught and fixed a real defect in my own work before shipping: the
+        full marketing/pages suite failed on faq-visible.test.mjs across all
+        three new pages -- an em-dash/en-dash mismatch between the FAQPage
+        JSON-LD text and the visible copy, the same bug class this session's
+        build agents already hit twice on other ventures (and, per the entry
+        just above, a sibling session's auto-glass-bid-calculator PR the
+        same day -- a recurring pitfall, not a one-off). Fixed, re-verified
+        clean (1289/1289), then merged.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot and
+        confirmed sync_tree_counts.py and regen.mjs --verify current against
+        the merged main. This session has now shipped four new ventures, six
+        guide/comparison pages across them, fixed two real pre-existing
+        defects, and run one fleet-wide accessibility sweep. Portfolio-wide
+        revenue and confirmed-visitor counts remain at zero.
     mrr_end: 0
