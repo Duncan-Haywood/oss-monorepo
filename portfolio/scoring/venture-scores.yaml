@@ -7463,6 +7463,67 @@ ventures:
       compliance claim: a clean scan means these two specific, documented
       patterns are absent, not that the workflow or its cache usage is safe
       overall.
+  - slug: actions-secrets-inherit-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over workflow YAML already on disk or
+      pasted into the browser: a job whose uses: calls an external
+      reusable workflow (not a local ./… path) combined with secrets:
+      inherit in the same job block, or that same secrets: inherit on a job
+      reachable from a pull_request_target/workflow_run trigger. There is
+      nothing to infer.
+    basis: >-
+      Graduated 2026-09-23 as a free dev-tool CLI/browser check that flags
+      secrets: inherit handed to a reusable workflow hosted in a different
+      repository, and secrets: inherit on a job a fork can trigger via
+      pull_request_target/workflow_run -- two documented GitHub Actions
+      hardening gaps neither of which any existing checker in this
+      portfolio reads. Same shape as `actions-cache-poisoning-check`,
+      `actions-secret-leak-check`, and `pinned-actions-check`: a
+      standard-library-only classifier over data the user already has,
+      scored on this file's six-dimension rubric to keep coverage complete
+      for `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies YAML the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rules are a handful of documented
+      indentation-aware line checks any developer could write; what is not
+      trivially copied is the paired CLI/browser port with a shared
+      classifier module, a parity test, and the already-written explanation
+      of why secrets: inherit is risky in each shape, which is the actual
+      value a searcher is buying. Unmeasured beyond that, hence not scored
+      higher.
+      Distribution 5: "github actions secrets inherit" is a real, narrow
+      developer search term tied to GitHub's own documented caution about
+      the feature, with no dedicated stay-entirely-local free tool
+      answering it today, but this portfolio has no existing developer-tool
+      distribution channel and volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies workflow YAML already on the user's
+      disk or pasted into the browser, asks for no token, and never fetches
+      or resolves anything on the user's behalf. It makes no security or
+      compliance claim: a clean scan means these two specific, documented
+      patterns are absent, not that the workflow's secret handling is safe
+      overall.
   - slug: actions-artifact-poisoning-check
     scores:
       ai_leverage: 1
@@ -13691,6 +13752,66 @@ ventures:
       tool has no incentive to push a visitor toward either pricing
       model, and it helps an instructor see a tradeoff their own
       package discount already creates.
+  - slug: personal-trainer-package-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the trainer supplies: a rate, a
+      session count, a no-show rate, a makeup policy, and a gym or studio's
+      percentage or flat cost structure. Both pricing models' net revenue
+      and net effective hourly pay are exact calculations against those
+      inputs, not a judgment call -- the same reasoning this portfolio
+      applies to tutor-package-pricing-calculator and overtime-pay-calculator.
+    basis: >-
+      Screened 2026-09-23 during a PROCEED-verdict session with an empty
+      build-now queue and no in-progress venture work.
+      `duplicate_check.py` top match 0.42 (tutor-package-pricing-calculator),
+      under the 0.45 review bar; that match is the venture this one
+      deliberately reuses one mechanic from (the makeup-owed dilution) while
+      adding one tutoring has no equivalent of (a flat venue fee eroding a
+      discounted package rate harder than a full rate) -- the two cross-link
+      as siblings rather than overlapping, since tutoring carries no
+      venue-cost split at all. booth-rent-vs-commission (0.11) is the
+      nearest venture by subject and solves a different problem (a binary
+      commission-vs-booth-rent choice for stylists/barbers, no package
+      pricing, no no-show rate). No personal-training or fitness row exists
+      in screened-out.md.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, defensibility 3: donations-only; the arithmetic
+      itself is trivially cloneable, so defensibility rests on the specific
+      framing (a flat venue fee's disproportionate bite on a discounted
+      package rate is not the obvious comparison) and this portfolio's
+      disclaimer/usage conventions, not on any moat.
+      Distribution 5: independent personal trainers are a real and
+      search-active audience with dedicated trade communities
+      (r/personaltraining, r/personaltrainer) distinct from the
+      client-facing fitness subreddits, comparable to
+      tutor-package-pricing-calculator's audience -- not scored higher
+      because no search-volume tool was queried to confirm magnitude and
+      the portfolio has no measured traffic of its own to extrapolate from.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: arithmetic over figures the trainer supplies, run entirely in
+      their own browser, with no network call, no stored data, and nothing
+      leaving the device. It does not track any specific client's
+      attendance or makeup obligation, schedule anything, recommend a venue
+      arrangement, or determine what policy to run -- both pages' footers
+      say so plainly. Ethically: donations-only with no per-use fee, so the
+      tool has no incentive to push a visitor toward either pricing model
+      or venue arrangement, and it helps a trainer see a tradeoff their own
+      package discount and venue cost structure already create.
   - slug: storage-auction-max-bid-calculator
     scores:
       ai_leverage: 1
@@ -15051,6 +15172,888 @@ ventures:
       reserve is labelled arithmetic on a percentage the freelancer
       supplies, not a tax calculation, and nothing entered leaves the
       browser.
+  - slug: osha-trir-dart-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain-specific derivation —
+      OSHA's own 200,000-hour base rate applied to a company's recordable
+      and DART case counts, plus solving backwards for the additional
+      injury-free hours that dilute the current rate down to a stated
+      target — not a wrapper around a general-purpose rate formula.
+    basis: >-
+      Graduated and scored 2026-09-23, in the same change, per
+      `score_ventures.py --check`. Same deterministic-arithmetic shape as
+      this portfolio's other rate/margin calculators
+      (`cat-adjuster-fee-calculator`, `pour-cost-calculator`), applied to a
+      compliance rate rather than a price: a company's own OSHA 300 log
+      counts turned into TRIR and DART rate, and a gap against a target
+      rate (a GC's prequalification ceiling, a trade average, or an
+      internal goal). Defensibility 4: the arithmetic is transparent and
+      reproducible, as it has to be, and the fleet's calculator archetype
+      generally scores 1-5 here; the injury-free-hours-to-target derivation
+      is specific to this buyer and not modeled by a generic rate
+      calculator. Distribution 6: "TRIR calculator" and "how to calculate
+      TRIR" are narrow, recurring search terms currently dominated by
+      lead-gen forms in front of EHS-software or safety-consulting vendors,
+      and r/safety plus ASSP-adjacent professional forums are a named,
+      real channel that discusses this exact rate — but volume is
+      unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the company's own entered case
+      counts and hours worked, never a determination of whether any
+      specific case is OSHA recordable and never a claim that a company is
+      compliant with any OSHA rule — recordability stays the employer's
+      own judgment call against 29 CFR 1904.7, explicit in the disclaimer
+      and FAQ. Nothing entered leaves the browser.
+
+  - slug: supabase-rls-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a table returns a real
+      row to an unauthenticated request is decided by the HTTP status
+      and row count PostgREST itself returns, against a fixed decision
+      table -- a factual, deterministic classification, not a model
+      judgment, and it never claims a full security audit.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.16 or below against the final description (reads a
+      Supabase project's own PostgREST schema listing, then a capped
+      read-only GET per table using the anon key), well under the 0.45
+      flag bar; no existing venture reads row-level database access
+      control. Autonomous ops 10 / gross margin 10: every request runs
+      from the visitor's own browser (or machine, for the CLI) against a
+      project of their choosing, so serving one more user costs a static
+      file and needs no human review of any output. Distribution 7:
+      named, dated 2026 channels -- CVE-2025-48757 and the "170+ Lovable
+      apps" incident, multiple dev.to and security-blog "Supabase RLS"
+      guide posts from 2026, r/Supabase and r/webdev, and a named hosted
+      competitor (VibeAppScanner) building a paid response to the same
+      problem, which is evidence of real demand rather than evidence the
+      niche is unserved.
+      Time to revenue 6, defensibility 2: donations-only; a transparent
+      probe-and-classify tool has no data moat, and both a named hosted
+      competitor and Supabase's own dashboard Security Advisor already
+      cover the same underlying misconfiguration, so defensibility rests
+      only on needing no login and no third party seeing the project's
+      key, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, scored deliberately at 6 rather than the sibling checker
+      family's typical 7-8 in the pipeline write-up: every request is
+      GET only, capped to one row via a Range header, and the tool never
+      attempts a write/update/delete. It never renders or stores actual
+      row values, only counts, exact counts, and column names, so a
+      "clean" demonstration of exposure never becomes a bulk data-
+      viewing tool. Every request runs from the user's own browser (or
+      machine, for the CLI) directly to a project they name -- never
+      this portfolio's infrastructure touching a third party -- no
+      different in kind from curl with a custom header. Every page and
+      the README carry an explicit "only test a project you own or are
+      authorised to test" caution. A response the tool cannot classify
+      (network error, unexpected status) is reported as an error, never
+      folded into either "exposed" or "blocked".
+  - slug: source-map-leak-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a script's source map is
+      exposed is decided by a fixed decision table against the script's own
+      sourceMappingURL comment and the map's own JSON, not a model
+      judgment, and it never claims a full security audit.
+    basis: >-
+      Screened 2026-09-23, same session as supabase-rls-check, per
+      portfolio/pipeline/README.md's "archetype itself" section: a
+      zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.15 or below against the final description (reads each
+      script's own sourceMappingURL comment, fetches the map, and reports
+      whether it is publicly readable and whether it embeds full source
+      text), well under the 0.45 flag bar; no existing venture reads
+      client-side JS build artifacts for this exposure. Autonomous ops 10 /
+      gross margin 10: every request runs from the visitor's own browser
+      (when the target's CORS policy allows it) or machine (for the CLI)
+      against a site of their choosing, so serving one more user costs a
+      static file and needs no human review of any output.
+      Time to revenue 5, distribution 5: donations-only, and unlike
+      supabase-rls-check this is not tied to a single dated CVE or incident
+      -- it is an evergreen bundler-configuration footgun that webpack's and
+      Vite's own documentation, and error-tracking vendors like Sentry,
+      explicitly warn about and ship a "hidden" mode to avoid, which is
+      real, durable evidence of the mistake being common without a single
+      named 2026 incident to cite. Scored a point below supabase-rls-check
+      on both for that reason -- real but less acutely newsworthy demand.
+      Defensibility 2: transparent, narrow probe-and-classify tool with no
+      data moat, easily reimplemented by anyone who reads the source map
+      spec.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, scored comfortably above the sibling checker family's typical
+      6-7: every request is GET only, and unlike supabase-rls-check this
+      tool never queries live application data at all -- it only reads
+      static files (scripts and maps) that are, by construction, already
+      served to any anonymous visitor of the target site. A "clean"
+      demonstration of exposure cannot become a data-viewing tool, because
+      there is no private data in scope to begin with -- only whether a
+      file the server already serves publicly happens to be a source map.
+      Every page and the README carry an explicit "only test a site you
+      own or are authorised to test" caution. A response the tool cannot
+      classify (network error, CORS block, unexpected status) is reported
+      as an error, never folded into either "exposed" or "safe".
+  - slug: mercari-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI anywhere in the product. The value is a domain model --
+      Mercari's shipping-inclusive 10% current schedule versus the
+      legacy item-price-only 10% plus 2.9%+$0.50 processing schedule,
+      and the disclosure that the 3.6% Buyer Protection Fee is
+      buyer-paid and never touches seller payout -- that is arithmetic
+      on published constants, and adding inference would only make the
+      result less checkable against a seller's own payout statement.
+    basis: >-
+      Screened 2026-09-23, same rubric shape as poshmark-fee-calculator
+      and whatnot-seller-payout: single-marketplace fee arithmetic with
+      a non-obvious structural insight a flat-rate page misses --
+      Mercari's January 6, 2025 fee change moved buyer-paid shipping
+      inside the 10% fee base for the first time, which most sellers
+      and most existing fee-calculator pages still get wrong by
+      applying 10% to the item price alone. duplicate_check.py's top
+      score against the final description was 0.23 (against
+      whatnot-seller-payout and poshmark-fee-calculator, both a
+      different marketplace's own fee shape), well under the 0.45 flag
+      bar; where-to-sell-calculator lists Mercari only as a blank
+      "type in your own rate" custom channel with no modeled schedule.
+      Not a trade bid calculator. Defensibility 4 (below the sibling
+      marketplace calculators' typical 5): the current-vs-legacy
+      schedule comparison is a real, checkable insight, but the
+      underlying fee change is Mercari's own public announcement and a
+      competing calculator could model the same two schedules without
+      much originality. Distribution 6: r/Mercari and r/MercariSellers
+      are active named communities carrying live "did my fees go up or
+      down" threads since the January 2025 change, and "mercari fee
+      calculator" is a recurring search phrase, but no channel
+      measurement exists yet.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended list price or an instruction to edit a listing.
+      Mercari's schedule is a labelled published constant, cited to
+      Mercari's own Help Center articles, not a live fetch. Nothing the
+      user enters leaves the browser.
+  - slug: voiceover-project-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on a
+      script's word count, a usage/licensing multiplier, and an ACX-style
+      per-finished-hour audiobook conversion — all commonly cited rate-guide
+      conventions exposed as adjustable inputs — and adding inference would
+      only make the result less checkable against the narrator's own numbers.
+    basis: >-
+      Graduated 2026-09-23 as a browser-local calculator pricing two
+      structurally different kinds of voice-over work: a script-based
+      project (commercial, e-learning, IVR, explainer, animation) priced per
+      word or per finished minute and scaled by usage/licensing term, and an
+      audiobook priced per finished hour from manuscript word count.
+      Screened against 141+ trade-bid calculators and the saturated
+      marketplace-fee-calculator and dev-tooling-checker shapes for a fourth,
+      distinct creator/freelance-economy angle, closely modeled on the
+      already-graduated brand-deal-rate-calculator and
+      newsletter-sponsorship-rate-calculator (same reasoning: a creator
+      audience the portfolio does not otherwise serve, priced from
+      commonly cited rate-guide benchmarks) but for a one-off project
+      licensed by usage term rather than a recurring sponsorship slot.
+      duplicate_check.py scored nothing >= 0.10 against any existing
+      venture, pipeline candidate, or screened-out row — the closest
+      matches (drone-mapping-job-calculator 0.09, translator-project-quote
+      0.08, commercial-photo-license-calculator 0.05) are a different
+      product shape (drone survey jobs, written translation, photo
+      licensing) rather than a near-duplicate. Defensibility 3: the
+      usage-multiplier and per-finished-hour pricing logic is publicly
+      documented by voice-over rate-guide resources (most visibly the GVAA
+      Rate Guide) themselves; what is not free elsewhere is an interactive
+      calculator that does the arithmetic against a narrator's own numbers
+      instead of a static lookup table. Distribution 6: "voice over rate
+      calculator", "how much to charge for voice over", and recurring
+      "what should I charge" threads in r/VoiceActing (~100k members) and
+      VO-focused Discord/casting-site forums are real, recurring intent —
+      a narrower buyer pool than a mass-market trade niche, same tier as
+      the brand-deal-rate-calculator and podcast-sponsorship-rate-calculator
+      peers it otherwise matches.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price *starting point* derived from commonly cited,
+      adjustable rate-guide conventions, explicitly framed as a basis for
+      negotiation, never a quote, guarantee, or valuation performed on the
+      user's behalf — being wrong costs a narrator a miscalibrated ask in
+      one negotiation, not a filing or a contract obligation. Ethically:
+      every input is a number the user already knows about their own script
+      or manuscript, nothing is scraped or inferred about a third party or
+      about the buyer on the other side of the deal, and all computation is
+      client-side.
+
+  - slug: sign-language-interpreter-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. An assignment fee, a booking-minimum override, a
+      differential-scaled interpreting fee, and a cancellation-tier lookup
+      are all exact arithmetic on hours, a rate, travel minutes/miles, and a
+      notice period the interpreter already has -- there is no inference
+      step, only a comparison, a multiplication, and a sum. The
+      team-interpreting flag is a lookup against a fixed set (setting,
+      length), not a judgement call the tool makes.
+    basis: >-
+      Graduated 2026-09-23 as a browser-local calculator pricing a single
+      freelance/contract sign language interpreting assignment: hours
+      requested against a two-hour booking minimum, portal-to-portal travel
+      time and mileage, an after-hours/weekend/holiday differential, and a
+      team-interpreting flag for long legal/medical/mental-health bookings
+      per RID's own Standard Practice Paper guidance, plus a tiered
+      late-cancellation fee calculator. Screened against 141+ trade-bid
+      calculators and the saturated marketplace-fee-calculator and
+      dev-tooling-checker shapes for a distinct solo-professional-services
+      pricing angle the portfolio had not yet touched (freelance sign
+      language interpreters), closely modeled on the already-graduated
+      notary-trip-quote and court-reporter-transcript-calculator (same
+      reasoning: a solo professional turning time, travel, and a booking
+      minimum into a customer-facing price) but for a structurally
+      different kind of work, with its own minimum-booking convention,
+      differential structure, and team-staffing decision driven by the
+      interpreting profession's own cognitive-load guidance rather than by
+      area, page count, or word count. duplicate_check.py scored nothing
+      >= 0.09 against any existing venture, pipeline candidate, or
+      screened-out row -- the closest matches (no-show-fee-calculator 0.09,
+      locksmith-bid-calculator 0.08, cnc-machining-quote-calculator 0.08)
+      are a different product shape (a no-show policy tool with no
+      travel/minimum arithmetic, a trade bid, a shop-quote calculator)
+      rather than a near-duplicate. Autonomous ops 10 / gross margin 10:
+      entirely client-side, no server component, zero marginal cost per
+      visitor. Distribution 5: r/interpreters, RID's own membership forums,
+      and interpreting-focused Facebook/Discord communities see recurring
+      "what should I charge" and "should this be a team assignment"
+      threads, with real search phrases ("sign language interpreter rate
+      calculator", "how much do ASL interpreters charge") -- a smaller,
+      more specialized professional population than court reporting or
+      voice-over work, so scored a point below those peers rather than
+      matched to them. Time to revenue 5, defensibility 3: donations-only;
+      the booking-minimum, travel-billing, and differential arithmetic is
+      easy to reimplement once shown, the same defensibility ceiling every
+      deterministic rate calculator in this portfolio carries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price *starting point* derived from commonly cited,
+      adjustable industry conventions, explicitly framed as a basis for
+      negotiation or an invoice draft, never a quote, guarantee, or
+      valuation performed on the user's behalf -- being wrong costs an
+      interpreter a miscalibrated invoice, not a filing or a contract
+      obligation, and the tool is not legal or medical advice about the
+      underlying assignment. Ethically: every input is a number the user
+      already knows about their own booking, nothing is scraped or inferred
+      about a third party, a client, or a Deaf/hard-of-hearing consumer of
+      the interpreting service, and the team-interpreting finding favors
+      interpreter wellbeing and service quality over a lower quote.
+
+  - slug: turo-host-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on
+      Turo's own documented plan x booking-window host-share matrix, exposed
+      as adjustable inputs rather than hard-coded — and adding inference
+      would only make the result less checkable against a host's own Turo
+      Host Hub numbers.
+    basis: >-
+      Graduated 2026-09-23 as a browser-local calculator turning one Turo
+      trip's price into a host payout under Turo's 2026 earnings-plan
+      structure — a plan (Peace of Mind / Balanced / More Earnings) x
+      booking-window (0-2, 3-13, 14-27, 28+ days ahead) matrix that locks at
+      booking time, not the single flat percentage every earlier "Turo fee
+      calculator" this portfolio's screening pass could find assumes.
+      Screened against 141+ trade-bid calculators and the saturated
+      marketplace-fee-calculator and dev-tooling-checker shapes for a
+      sharing-economy/gig-platform host-payout angle the portfolio does not
+      otherwise serve, closely modeled on the already-graduated
+      str-host-payout-calculator (same reasoning: a platform fee structure
+      that just changed and left users doing the arithmetic by hand) but for
+      a structurally different asset (a shared vehicle) and fee mechanism (a
+      plan x window matrix, not a single migrated percentage).
+      duplicate_check.py scored nothing >= 0.45 against any existing
+      venture, pipeline candidate, or screened-out row — the closest match
+      was str-host-payout-calculator itself (0.16), a different platform and
+      fee shape, not a near-duplicate. Defensibility 4: the underlying
+      matrix is publicly documented by Turo itself (help.turo.com), so the
+      individual numbers are not defensible — what is not free elsewhere is
+      an interactive tool that computes the plan comparison, the
+      booking-window comparison, and a monthly projection together against a
+      host's own trip numbers, one step past the single-lookup shape
+      voiceover-project-rate-calculator scored 3 for. Distribution 6: "how
+      much does turo take from hosts 2026" and "turo host payout calculator"
+      are real, recurring search intent (multiple independent blog posts
+      already ranking for exactly these phrases, found during screening) and
+      r/turo (~60k members) sees "which earnings plan" threads regularly —
+      a narrower buyer pool than a mass-market trade niche, same tier as the
+      voiceover-project-rate-calculator and podcast-sponsorship-rate-calculator
+      peers it otherwise matches, tempered by existing competing content on
+      the same query.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a payout *estimate* built from Turo's own documented,
+      adjustable rate conventions, explicitly framed as a number to check
+      against the host's own Turo Host Hub, never a guarantee of an actual
+      payout or a determination made on the host's behalf — being wrong
+      costs a host a miscalibrated expectation on one trip, not a filing or
+      a contract obligation. Ethically: every input is a number the host
+      already knows about their own trip, nothing is scraped or inferred
+      about Turo, a guest, or a third party, and all computation is
+      client-side.
+
+  - slug: git-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether .git/HEAD or .git/config
+      is really exposed is decided by matching the response body against
+      the exact grammar of a real git-internal file (a "ref: refs/heads/…"
+      line or a 40-hex-char SHA; a config's own [core] section) -- a
+      factual, deterministic comparison, not a model judgment, and it
+      never claims a security assessment or penetration test.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report-viewer, in
+      the same shape as cors-misconfig-check and security-headers-check,
+      not another <trade>-bid-calculator. duplicate_check.py scored every
+      existing venture at 0.17 or below against the final description
+      (cors-misconfig-check closest, a different evidence class entirely
+      -- a reflected Origin response header, not a file body); no existing
+      venture reads git-internal file content or checks deployment-
+      artifact source exposure. Nothing in screened-out.md covers git or
+      version-control exposure.
+      Autonomous ops 10 / gross margin 10: the CLI's two requests run
+      from the user's own machine against a site they choose, and the
+      browser page only renders a report already produced, so serving
+      one more user costs a static file and needs no human review of any
+      output.
+      Distribution 7: any web developer, security researcher, or agency
+      doing deploy verification or due diligence is a plausible searcher;
+      OWASP's Web Security Testing Guide names ".git folder" exposure
+      explicitly under "Review Old Backup and Unreferenced Files", it is
+      a recurring, bounty-paying HackerOne/Bugcrowd report category, and
+      r/netsec and security blogs publish "found via dorking" posts on
+      an ongoing basis.
+      Time to revenue 6, defensibility 2: donations-only; two fixed
+      regexes and two GET requests are genuinely easy to reimplement --
+      scored below the sibling checkers' typical 3 because there is no
+      fallback-rule or multi-header interaction to get right here, only
+      the body-vs-status-code distinction that is this tool's whole
+      differentiator over a bare status check.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only two ordinary, unauthenticated GET requests
+      from the user's own machine to paths under a site the user chooses
+      -- never this portfolio's infrastructure touching a third party,
+      never bypassing authentication or reading protected data beyond
+      what the target already serves to any anonymous visitor if
+      misconfigured. Both requests are capped at 8KB of body read, and
+      the tool never requests packed objects, the index, or reflog data
+      -- it reports evidence of exposure and names git-dumper/GitTools as
+      the tool an authorised tester would use to quantify it further,
+      rather than performing that bulk extraction itself. Every page and
+      the README carry an explicit "only test systems you own or are
+      authorised to test" caution, the same posture as any request-based
+      security tool. A probe that fails at the network level is reported
+      as incomplete rather than silently skipped or guessed at, and a
+      finding is only ever raised from a response body this tool actually
+      observed and that matches the real-content classification (never a
+      bare 200 status), which specifically avoids the false-positive
+      failure mode of a naive dork against a "soft 404" server. The page's
+      footer and FAQ state plainly that a clean report is evidence from
+      two specific requests, not a full security assessment or a
+      determination that the target is secure.
+
+  - slug: dotenv-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a dotenv file is exposed
+      is decided by a fixed line-shape ratio (does the body look like real
+      KEY=VALUE content) against the real HTTP response -- a factual,
+      deterministic classification, not a model judgment, and it never
+      claims a full security audit.
+    basis: >-
+      Screened 2026-09-23, the same session as git-exposure-check and the
+      same archetype: a zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.25 or below against the final description (real GET
+      requests to a site's root .env file path, verifying the response
+      body against the real KEY=VALUE line format) -- git-exposure-check
+      itself is the closest match, a different static-file exposure class
+      (git-internal plumbing, not an application's own secrets file), and
+      env-example-drift-check is next closest but is a local, zero-network
+      source linter that never fetches a URL or reads a real .env at all.
+      Autonomous ops 10 / gross margin 10: every request runs from the
+      visitor's own browser (when the target's CORS policy allows it) or
+      machine (for the CLI) against a site of their choosing, so serving
+      one more user costs a static file and needs no human review of any
+      output. Distribution 7: dotenv exposure is one of the most-cited web
+      misconfigurations in security research -- OWASP's own guidance on
+      sensitive data exposure names environment-file leakage explicitly,
+      it is a recurring HackerOne/Bugcrowd report category and a standard
+      dorking search term, and the exposure class predates and outlives
+      any single framework. Time to revenue 6, defensibility 2: donations-
+      only; a line-shape check and a name-pattern regex are genuinely easy
+      to reimplement, so defensibility rests only on the value-redaction
+      guarantee being correct and tested, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and the mitigation here is structurally stronger than any
+      sibling checker's needed to be, because the subject matter is
+      literally the secret rather than metadata about one: a response
+      body is parsed only to check its overall line shape and to extract
+      each line's KEY name, and the VALUE half of every line is discarded
+      the instant it is read -- it never appears in any return value,
+      report, JSON output, or rendered page, not truncated, not hashed,
+      not partially shown. analyze.test.mjs pins this directly: a test
+      builds a report against a worked example containing a literal fake
+      secret value and asserts the serialized report never contains that
+      string anywhere. Every request is GET only, and a response this
+      tool cannot classify (network error, CORS block, unexpected status)
+      is reported as an error, never folded into either "exposed" or
+      "blocked". Every page and the README carry an explicit "only test a
+      site you own or are authorised to test" caution.
+
+  - slug: firebase-rules-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a Realtime Database path
+      or Firestore collection returns real data to an unauthenticated
+      request is decided by the HTTP status and a shallow/capped read
+      against a fixed decision table -- a factual, deterministic
+      classification, not a model judgment, and it never claims a full
+      security audit.
+    basis: >-
+      Screened 2026-09-23, the same session as supabase-rls-check and the
+      same archetype: a zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.16 or below (0.19 against supabase-rls-check's own
+      pipeline write-up) against the final description (real, read-only,
+      unauthenticated requests to a Firebase project's Realtime Database
+      and named Firestore collections), well under the 0.45 flag bar --
+      supabase-rls-check itself is the closest match, a different backend
+      with the same "default-open unless a rule locks it down" shape. Autonomous ops 10 / gross margin 10: every Realtime Database
+      request runs from the visitor's own browser (or machine, for the
+      CLI) against a project of their choosing, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 6, one point below supabase-rls-check's 7: the
+      underlying exposure class is older and more evergreen (documented
+      since Appthority's 2018 "Firebase mismanagement" report, 2,300+ apps
+      found exposed) and stays a recurring finding in security research
+      and bug-bounty write-ups, and OWASP's Mobile Application Security
+      Testing Guide names Firebase backend misconfiguration as its own
+      test case -- real, durable search demand ("firebase security rules
+      checker", "is my firebase database public") -- but scored a point
+      below supabase-rls-check for lacking that venture's one specific,
+      dated, named 2026 incident and a named hosted paid competitor;
+      several free open-source scanner scripts exist for the same
+      problem, which is evidence of demand rather than evidence the niche
+      is unserved, but is weaker distribution evidence than a company
+      selling a hosted response to the exact same CVE this session.
+      Time to revenue 6, defensibility 2: donations-only; a transparent
+      probe-and-classify tool has no data moat, and the Firebase console's
+      own Rules Playground plus multiple free scanner scripts already
+      cover the same underlying misconfiguration class, so defensibility
+      rests only on needing no console login and no third party seeing
+      the project ID, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, scored at 6, the same as supabase-rls-check and for the same
+      reason: every request is GET only, the Realtime Database probe uses
+      shallow=true (child key names only, never field values) and the
+      Firestore probe is capped to one document per collection, and the
+      tool never attempts a write/update/delete. It never renders or
+      stores actual field values, only key/field *names* and counts, so a
+      "clean" demonstration of exposure never becomes a bulk data-viewing
+      tool. Every request runs from the user's own browser (for the
+      Realtime Database half) or machine (for the CLI) directly to a
+      project they name -- never this portfolio's infrastructure touching
+      a third party. Every page and the README carry an explicit "only
+      test a project you own or are authorised to test" caution. A
+      response the tool cannot classify (network error, unexpected
+      status) is reported as an error, never folded into either "exposed"
+      or "blocked".
+
+  - slug: graphql-introspection-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an introspection query
+      returned a schema, and which field names match a fixed sensitive-word
+      list, is decided by exact structural inspection of the response --
+      not a model judgment -- and it never claims a full security
+      assessment.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool, the same
+      evidence-from-one-request shape as cors-misconfig-check,
+      security-headers-check, and supabase-rls-check, just for a
+      GraphQL endpoint's introspection exposure rather than a response
+      header or a database table. duplicate_check.py scored the closest
+      existing venture (supabase-rls-check, a different access-control
+      evidence class -- whether a table returns real rows, not a GraphQL
+      schema) at 0.17 against the final description, well under the 0.45
+      flag bar; no existing venture reads GraphQL's __schema meta-field.
+      Autonomous ops 10 / gross margin 10: the browser page runs the
+      check client-side when the target's CORS policy allows it, and the
+      CLI's request otherwise runs from the user's own machine, so
+      serving one more user costs a static file and needs no human
+      review of any output.
+      Distribution 7: OWASP's API Security guidance and every major
+      GraphQL server library's own hardening docs (Apollo Server,
+      graphql-yoga, express-graphql) name disabling introspection in
+      production as standard practice -- Apollo Server changed its own
+      default over it -- and "graphql introspection checker" / "disable
+      graphql introspection production" / "graphql schema exposure" are
+      specific, recurring developer search phrases distinct from this
+      portfolio's existing header- and database-evidence checkers.
+      Time to revenue 6, defensibility 3: donations-only; introspection
+      is trivially checkable by hand in GraphiQL or a REST client, so
+      defensibility rests only on automating the query, the CORS-aware
+      browser-first flow, and the sensitive-name heuristic, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends exactly one ordinary, read-only POST from the
+      user's own machine to an endpoint the user chooses -- GraphQL's
+      introspection meta-fields cannot mutate anything -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from a GraphQL client querying the endpoint directly. Every
+      page and the README carry an explicit "only test systems you own or
+      are authorised to test" caution, the same posture as the sibling
+      request-based security tools. A probe that fails at the network
+      level, or returns a response that isn't recognisably GraphQL, is
+      reported as incomplete rather than silently skipped or guessed at,
+      and a finding is only ever raised from a schema this tool actually
+      observed. Both pages' footers and FAQs state plainly that a clean
+      report is evidence from one request, not a full security assessment
+      or a determination that the target is secure.
+
+  - slug: podcast-feed-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a required feed element
+      is present, whether itunes:category matches Apple's documented list,
+      whether a pubDate is valid RFC 822, and whether two items share a
+      guid are all decided by exact comparison against the parsed feed
+      itself -- a factual, deterministic comparison, not a model judgment,
+      and it never claims a guarantee that any podcast platform will
+      accept or display the show.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool in the same
+      shape as redirect-chain-check and hreflang-reciprocity-check (real
+      network fetch the browser can't fully do itself, paired with a
+      paste-based browser mode), not another <trade>-bid-calculator, and a
+      genuinely new sub-domain for the ~65-strong checker archetype (which
+      clusters into GitHub Actions/CI security, web/SEO headers/markup,
+      app-store manifests, and npm/dependency checks -- none about podcast
+      RSS feeds). duplicate_check.py scored every existing venture,
+      screened-out row, and pipeline candidate at 0.16 or below against the
+      final description (closest: hreflang-reciprocity-check and
+      sitemap-lastmod-freshness-check, both a different evidence class),
+      well under the 0.45 flag bar; the only other venture with "podcast"
+      in its description, podcast-sponsorship-rate-calculator, prices an ad
+      read rather than validating feed XML. Autonomous ops 10 / gross
+      margin 10: the CLI's one request runs from the user's own machine
+      against a feed URL of their choosing, and the browser page parses
+      only pasted text, so serving one more user costs a static file.
+      Distribution 6: Apple builds and documents its own feed-validation
+      step inside Podcasts Connect specifically because feed-spec
+      violations are a common, recurring submission-rejection cause --
+      direct evidence of real demand rather than an inferred one -- plus
+      r/podcasting (a large, established independent-podcaster forum where
+      "episode not showing up" and "feed rejected" are recurring thread
+      topics) and adjacent-category demand shown by the established
+      general-purpose W3C Feed Validator. Softer than a dedicated
+      by-name-competitor comparison would be (no single named podcast-
+      specific validator competitor was confirmed at screening time, and
+      none of this was verified against a live fetch this session --
+      egress to arbitrary hosts is proxy-denied here). Time to revenue 6,
+      defensibility 3: donations-only; a transparent rules-based checker
+      over a documented spec and a public category taxonomy is easy to
+      reimplement, and general RSS/Atom validation already has an
+      established free competitor (the W3C Feed Validator), though none
+      identified at screening time targets the iTunes/Podcast-namespace
+      requirements specifically.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is evidence against named, documented rules ("this
+      element is missing", "this date format is invalid"), never a
+      determination made on the show's behalf -- being wrong costs a
+      podcaster a few minutes double-checking one element, not a legal or
+      financial loss, and every finding whose source data (Apple's category
+      list) could itself be stale on this tool's part says so explicitly
+      rather than asserting certainty. Ethically: a static, deterministic
+      checker with no revenue model that depends on which direction it
+      errs in -- both severities (danger/notice) are disclosed in every
+      finding, nothing is scraped, and the tool gets strictly more useful
+      to more podcasters as it scales with no customer worse off because
+      another one exists.
+  - slug: subdomain-takeover-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a finding is confirmed
+      is decided by matching a live HTTP response against a fixed
+      provider fingerprint table -- a factual, deterministic
+      classification that never escalates a DNS-only match to confirmed,
+      not a model judgment.
+    basis: >-
+      Screened 2026-09-23, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, source-map-leak-check).
+      duplicate_check.py scored every existing venture, screened-out row,
+      and pipeline candidate at 0.09 or below against the final
+      description (follows a hostname's real CNAME chain over public DNS,
+      matches the target against known takeover-prone providers, confirms
+      with a live fingerprinted GET) -- nothing in the tree covers DNS
+      CNAME chains, subdomain takeover, or dangling cloud-resource
+      pointers. Autonomous ops 10 / gross margin 10: every request runs
+      from the visitor's own browser (when CORS allows) or machine (for
+      the CLI) against a DNS resolver and hostname of their choosing, so
+      serving one more user costs a static file and needs no human review
+      of any output. Distribution 7: subdomain takeover is a standard,
+      recurring HackerOne/Bugcrowd report category and a common
+      penetration-test finding, and the exposure class (a decommissioned
+      cloud resource whose DNS record was never removed) predates and
+      outlives any single provider. Time to revenue 6, defensibility 2:
+      donations-only; a CNAME-pattern table and a body-fingerprint regex
+      are genuinely easy to reimplement, so defensibility rests only on
+      the provider table's own correctness and maintenance, not on any
+      moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never attempts to claim, register, or configure
+      anything at any provider -- detection and reporting only, every
+      request is a plain DNS lookup or GET, and a finding is only ever
+      reported "confirmed" when a live response matches a specific
+      provider's own fingerprint, never escalated from a DNS-only match
+      (which is reported separately, as "unconfirmed, worth a manual
+      look"). Ethically: read-only against public DNS and a hostname's
+      own HTTP response, no crawling, no enumeration of a domain's other
+      subdomains, and the report is explicit that a clean result describes
+      only the hostnames checked, not a full DNS-zone audit.
+  - slug: cloud-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a bucket is publicly
+      listable is decided by matching a live HTTP response body against a
+      cloud provider's own documented listing-or-error XML shape -- a
+      factual, deterministic classification, not a model judgment.
+    basis: >-
+      Screened 2026-09-24, the same archetype as this portfolio's other
+      "read what's actually there, name the exact evidence" checkers
+      (git-exposure-check, dotenv-exposure-check, supabase-rls-check,
+      firebase-rules-check, subdomain-takeover-check). duplicate_check.py
+      scored every existing venture, screened-out row, and pipeline
+      candidate at 0.24 or below against the final description (real
+      read-only requests to a user-provided S3/GCS/Azure Blob bucket,
+      classifying public-list vs private across the three major providers'
+      own endpoint conventions) -- graphql-introspection-exposure-check
+      scored closest, a different evidence class entirely (a GraphQL
+      schema query response, not a cloud-storage listing endpoint), and
+      subdomain-takeover-check names S3 only as one of 25 DNS-CNAME
+      takeover-prone hosting providers, a different mechanism (a dangling
+      DNS record) from a live bucket's own anonymous-listing setting.
+      Nothing in the tree covers cloud object-storage misconfiguration.
+      Autonomous ops 10 / gross margin 10: the CLI's one request runs from
+      the user's own machine against a bucket of their choosing, and the
+      browser page only renders a report already produced, so serving one
+      more user costs a static file and needs no human review of any
+      output. Distribution 8, a point above the sibling checker family's
+      typical 7: a perennial, three-provider exposure class (not tied to
+      one dated incident) with real, sustained tool demand already proven
+      by existing free scanners (s3scanner, several thousand GitHub stars;
+      GrayhatWarfare; Bucket Stream), and a provider (AWS) that changed its
+      own default in 2023 specifically because of this exposure class.
+      Time to revenue 6, defensibility 2: donations-only; fixed regexes
+      against a provider's own documented XML shape are genuinely easy to
+      reimplement, so defensibility rests on being first, free, and
+      correct across all three providers in one tool, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool sends exactly one read-only, unauthenticated request
+      per check -- a provider's own anonymous listing endpoint -- and never
+      fetches any individual object's content, only the listing, the same
+      restraint git-exposure-check applies to not requesting a
+      repository's packed objects once exposure is confirmed. Up to 5
+      example object names are shown as evidence, never content, capped
+      regardless of how many the response reports. Ethically: read-only,
+      no crawling of the wider account, no attempt to claim or alter
+      anything, and the report is explicit that a clean result describes
+      only the one bucket checked and only the listing exposure class, not
+      a full cloud security assessment.
 
   - slug: agent-permission-config-check
     scores:

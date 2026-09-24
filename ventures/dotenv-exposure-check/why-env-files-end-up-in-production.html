@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why .env Files End Up In Production (And How To Fix Each Way)</title>
+<meta name="description" content="The four common ways a production deployment ends up serving its own .env file, and the fix for each -- with the deploy-script and server-config change that closes it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/dotenv-exposure-check/why-env-files-end-up-in-production.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to stop a production deployment from exposing its .env file",
+  "description": "Four common causes of a publicly readable .env file in production, and the specific fix for each.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Never let the web root be the same directory the .env file lives in",
+      "text": "Frameworks that read a project-root .env by convention (Node.js via dotenv, Next.js, Laravel, Django, Rails) expect it to sit beside the application code, not inside whatever directory the web server serves as static files. If the web server's document root is the project root itself, .env is servable like any other file. Point the web server at a dedicated public/ or dist/ output directory that never contains .env at all."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Don't let a deploy script copy the whole project directory",
+      "text": "A `cp -r .` or `rsync -a ./` deploy script copies everything in the working directory -- .env included -- to wherever it is pointed, even if the intended web root is nominally separate. Copy only the built output, or exclude it explicitly: `rsync -a --exclude='.env*' ./ user@host:/var/www/site/`."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Set real environment variables in production instead of shipping a file",
+      "text": "Most hosting platforms (a PaaS dashboard, a container orchestrator's secret store, a systemd unit's Environment= directives) let you set environment variables directly on the running process, with no file on disk at all. This is both safer (nothing to accidentally serve) and more portable than committing to always having a correctly-placed .env file in every environment."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Add a server rule as a second layer, in case a dotenv file ends up there anyway",
+      "text": "Defense in depth: even with the deploy step fixed, a server or CDN rule that denies any request for a dotfile means a stray copy is not actually reachable. This is the difference between a file existing on disk and a file this checker can actually reach."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 800px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { font-size: 1.15rem; margin-top: 1.8rem; }
+  pre { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+</style>
+</head>
+<body>
+<p><a href="index.html">← Back to the Dotenv Exposure Checker</a></p>
+<h1>Why .env files end up in production</h1>
+<p>
+  A dotenv file only becomes a problem when a <em>production</em> deployment leaves it publicly
+  reachable. There are four common, independent ways that happens, and each has its own fix —
+  fixing one does not fix the others.
+</p>
+
+<h2>1. The web root is the same directory .env lives in</h2>
+<p>
+  Frameworks that read a project-root <code>.env</code> by convention (Node.js via
+  <code>dotenv</code>, Next.js, Laravel, Django, Rails) expect it to sit beside the application
+  code — not inside whatever directory the web server serves as static files. If the web server's
+  document root is the project root itself, <code>.env</code> is servable like any other file.
+</p>
+<pre><code># Wrong: the web server's document root is the project root
+document_root: /var/www/myapp/          # myapp/.env is right there, servable
+
+# Right: serve only the build output, one level below
+document_root: /var/www/myapp/dist/     # myapp/.env is outside the served tree entirely</code></pre>
+
+<h2>2. A deploy script copies the whole project directory</h2>
+<p>
+  Even with a separate web root in mind, a <code>cp -r .</code> or <code>rsync -a ./</code> deploy
+  script copies everything in the working directory — <code>.env</code> included — to wherever it
+  is pointed. Copy only the built output, or exclude it explicitly:
+</p>
+<pre><code># rsync example
+rsync -a --exclude='.env*' ./ user@host:/var/www/site/</code></pre>
+
+<h2>3. No real environment variables set on the production process</h2>
+<p>
+  Most hosting platforms — a PaaS dashboard, a container orchestrator's secret store, a systemd
+  unit's <code>Environment=</code> directives — let you set environment variables directly on the
+  running process, with no file on disk at all. Relying on always having a correctly-placed
+  <code>.env</code> file in every environment is both more fragile and strictly riskier than this.
+</p>
+
+<h2>4. No server rule blocking dotfiles as a second layer</h2>
+<p>
+  Defense in depth: even with the deploy step fixed, a server or CDN rule that denies any request
+  for a dotfile means a stray copy — a one-off manual deploy, a misconfigured mirror — is not
+  actually reachable.
+</p>
+<pre><code># nginx example
+location ~ /\.env { deny all; return 404; }
+
+# Apache example (.htaccess in the document root)
+&lt;Files ~ "^\.env"&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre>
+
+<h2>If this checker already found an exposure</h2>
+<p>
+  Fix the deploy cause first (steps 1–3 above), then treat every value that file held as
+  compromised and rotate it immediately — an API key, a database password, a session secret, a
+  third-party token. Rotation is the only remedy once a credential has been served publicly, even
+  once: there is no way to know for certain it was not already fetched by an automated scanner
+  before you found it.
+</p>
+
+<p>
+  Run the <a href="index.html">Dotenv Exposure Checker</a> against your production URL to see which
+  of these, if any, apply to your deployment right now. Only run it against a site you own or are
+  authorised to test.
+</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified security
+  review. You are responsible for reviewing and verifying its guidance before relying on it. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising
+  from its use.</p>
+</footer>
+</body>
+</html>

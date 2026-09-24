@@ -86,6 +86,28 @@ export const HANDOFFS = [
     },
   },
   {
+    channel: 'mercari',
+    slug: 'mercari-fee-calculator',
+    label: 'Mercari fee calculator',
+    // What it adds: the pre-January 6, 2025 legacy schedule compared
+    // side-by-side with the current one, the note that buyer-paid shipping
+    // sits inside the current fee base, and Mercari's separate Buyer
+    // Protection Fee, which is a buyer-side charge this page does not model.
+    //
+    // Mercari has no separate packaging input -- its own `otherCost` field is
+    // documented there as "packaging / prep cost" -- so packaging is folded
+    // in rather than dropped, the same rule `combine` follows for every
+    // other target with fewer inputs than this page.
+    fields: {
+      price: 'itemPrice',
+      shippingCharged: 'buyerShipping',
+      shippingCost: 'labelCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
     channel: 'reverb',
     slug: 'reverb-fee-calculator',
     label: 'Reverb fee & profit calculator',

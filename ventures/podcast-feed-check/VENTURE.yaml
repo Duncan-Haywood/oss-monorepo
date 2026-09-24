@@ -1,0 +1,151 @@
+name: podcast-feed-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for podcasters and podcast
+  hosting/tooling developers: parses a podcast's RSS 2.0 + iTunes/Podcast-
+  namespace feed and flags the specific, documented spec violations that
+  cause Apple Podcasts to reject a submission, a podcast app to drop an
+  episode, or an episode to silently reappear to subscribers as "new" --
+  missing required channel elements (title, description, language, link,
+  itunes:category against Apple's documented category list, itunes:explicit
+  in the current boolean format, cover artwork), missing or malformed
+  per-episode elements (title, enclosure url/type, pubDate), a pubDate not
+  in the RSS spec's required RFC 822 format, a missing atom:link rel=self,
+  and duplicate item guids (the documented cause of an episode disappearing
+  or reappearing as unseen). The CLI fetches the feed URL for real from the
+  user's own machine; the browser page works from pasted feed XML, since a
+  browser tab is blocked by CORS from reading most third-party feed URLs
+  itself.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues for this shape over another
+# <trade>-bid-calculator (141+ of ~330 ventures already share that shape
+# with no measured traffic). This is also a genuinely new *sub-domain* for
+# the checker archetype in this portfolio: the ~65 existing "-check"/
+# "-checker" ventures cluster almost entirely into GitHub Actions/CI
+# security, web/SEO response-header and markup checks, app-store manifest
+# checks, and npm/dependency checks -- none is about podcast RSS feeds or
+# the iTunes/Podcast namespace. Same "read what's actually there, fetch
+# what's named, report the exact evidence" shape as redirect-chain-check
+# and hreflang-reciprocity-check: a shared pure engine (engine.mjs) that
+# both a CLI doing a real fetch and a browser paste-mode call identically,
+# so the two surfaces can never disagree.
+#
+# duplicate_check.py (run 2026-09-23) scored every existing venture,
+# screened-out row, and pipeline candidate below 0.16 for this idea's
+# description -- nowhere near the 0.45 review bar. Closest matches by eye:
+# hreflang-reciprocity-check (0.16) and sitemap-lastmod-freshness-check
+# (0.15) are the nearest structural siblings (a CLI-fetches/browser-pastes
+# checker over real content with a shared pure engine) but check an
+# entirely different evidence class -- hreflang tag reciprocity and
+# sitemap <lastmod> truthfulness, not podcast feed spec compliance.
+# ventures/podcast-sponsorship-rate-calculator is the only other venture
+# with "podcast" in its slug/description -- a sponsorship-rate calculator,
+# a different job entirely (pricing an ad read, not validating feed XML).
+# Nothing in screened-out.md mentions podcasts, RSS feeds, or iTunes/Apple
+# Podcasts.
+#
+# Distribution channel: Apple runs its own official podcast feed validation
+# guidance and tooling inside Podcasts Connect specifically because feed
+# spec violations are a common, recurring submission-rejection cause --
+# that an incumbent platform builds and maintains its own validator for
+# this exact problem is direct evidence of real, sustained demand, not an
+# inferred one. r/podcasting (a large, long-established subreddit for
+# independent podcasters) is a named, real forum where "why isn't my
+# episode showing up in Apple Podcasts" and "feed rejected" are recurring,
+# well-known thread topics for this audience. A generic third-party
+# validator (the W3C Feed Validator) is established free tooling for
+# general RSS/Atom well-formedness, which is adjacent evidence of demand
+# for "check my feed" as a query category, but -- per that tool's own
+# public description -- has no knowledge of the iTunes/Podcast namespace
+# Apple actually requires, which is this tool's distinct wedge. All of the
+# above is stated at the confidence it was gathered at (general knowledge
+# at build time, unverified against a live fetch this session; egress to
+# arbitrary hosts is proxy-denied here, per this repo's standing
+# convention) -- consistent with how redirect-chain-check and
+# sitemap-lastmod-freshness-check disclose the same limit.
+#
+# Pipeline gates, scored honestly rather than assumed:
+#   liability_containment: 8 -- the tool produces evidence against named,
+#     documented rules ("this element is missing", "this date format is
+#     invalid"), never a determination ("your feed is Apple-compliant").
+#     Every finding cites the specific rule and, where the rule itself
+#     could be stale on this tool's part (the Apple category list), the
+#     finding text says so explicitly rather than asserting certainty. A
+#     wrong finding costs the operator a few minutes double-checking one
+#     element, not a legal or financial loss -- the same shape as
+#     redirect-chain-check and hreflang-reciprocity-check, both un-scored
+#     as pipeline candidates for the same reason (a direct, obvious,
+#     low-risk dev-tool idea, not a write-up needing a formal score).
+#   ethical_robustness: 9 -- a static, deterministic checker with no
+#     revenue model that depends on which direction it errs in (unlike the
+#     compliance-evidence candidates in portfolio/pipeline/README.md's
+#     gate-measurement section, nothing here is sold on suppressing a
+#     finding). Both severities (danger/notice) are disclosed in every
+#     finding, and the tool gets strictly more useful to more podcasters as
+#     it scales -- no customer is worse off because another one exists.
+# Not a scored pipeline candidate write-up, for the same reason as
+# pinned-actions-check, redirect-chain-check, and sitemap-lastmod-
+# freshness-check: a direct, obvious, low-risk dev-tool idea rather than a
+# candidate needing the full eight-dimension pipeline/README.md scoring
+# process (which two gates above are answered against, honestly, anyway).
+hypotheses:
+  - claim: >-
+      A podcaster or podcast-hosting-platform developer debugging an Apple
+      Podcasts submission rejection, or investigating "why did my episode
+      disappear/reappear", will search terms like "podcast feed validator",
+      "check my podcast RSS feed", "itunes:category invalid", or "apple
+      podcasts feed requirements" and find this tool -- then wire the CLI
+      into their own publish pipeline as a pre-flight check once the feed is
+      fixed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Apple's own decision to build and document a feed-validation step
+      inside Podcasts Connect, plus the existence of a large, active
+      independent-podcaster community (r/podcasting) where feed-rejection
+      and missing-episode threads recur, show this is a real, recurring
+      concern for the audience this tool targets, under-served by a
+      zero-install tool that checks the iTunes/Podcast-namespace elements
+      specifically rather than only general RSS well-formedness.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A podcaster who fixes a flagged duplicate guid or missing category
+      will get a return visit, or a CI wiring, from the same visitor without
+      any action from this portfolio -- the same repeat-usage pattern
+      hypothesized for redirect-chain-check and sitemap-lastmod-freshness-check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI's one HTTP request runs on the
+  # user's own machine against a feed URL of their choosing, and the
+  # browser tool parses only text pasted into it -- no server of ours in
+  # the loop either way. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in report after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A materially better free tool covering the same checks (the iTunes/
+    Podcast-namespace requirements, the RFC 822 pubDate check, and the
+    duplicate-guid check) with the same zero-install, CI-usable bar becomes
+    the obvious default, such that this tool's differentiation no longer
+    holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/podcast-feed-check/
+  analytics: null

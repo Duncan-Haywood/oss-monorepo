@@ -37,16 +37,16 @@ import {
 
 import {
   ICONS,
-  OFFLINE_SIZE_MARKER,
-  OFFLINE_WIDGET_HTML,
   OFFLINE_WIDGET_SCRIPT,
   THEME_COLOR,
   injectOfflineSupport,
   offlineBundleSizeLabel,
+  offlineSizeMarker,
   renderIcon,
   renderKillSwitchWorker,
   renderManifest,
   renderOfflinePage,
+  renderOfflineWidgetHtml,
   renderServiceWorker,
   renderSocialCard,
 } from './offline.mjs';
@@ -81,10 +81,18 @@ import {
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  maskScriptAndStyleBodies,
   renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
+
+// Re-exported so callers outside `platform/pages/` (the mirror generator,
+// `platform/marketing/front-door-tools.mjs`) get it from the module they
+// already import other build-time helpers from, rather than reaching into
+// `embed.mjs` -- an implementation detail of where this file's own version of
+// the same defect (see the export's own doc comment) happened to need it too.
+export { maskScriptAndStyleBodies };
 import {
   INVALID_MODULE_FILE,
   INVALID_STYLE_FILE,
@@ -397,7 +405,20 @@ const CATEGORY_RULES = [
     // item. Its slug names neither platform first, so no storefront keyword
     // above would have caught it and it would otherwise have swelled the
     // catch-all.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee)/.test(slug),
+    // `turo-host-payout-calculator` is `str-host`'s exact sibling one asset
+    // class over: a Turo host comparing a plan/booking-window payout matrix
+    // on one trip is the same "price a program before you opt in" question
+    // as an Airbnb/Vrbo host comparing fee schedules on one stay. Its slug
+    // does not start with a marketplace keyword this rule already
+    // recognised, so it would otherwise have swelled the catch-all the way
+    // `str-host` itself once did.
+    // `mercari-fee-calculator` is the same single-channel fee-schedule shape
+    // as `poshmark` and `stockx` above — a shipping-inclusive percentage
+    // selling fee on one storefront, with an older schedule an unedited
+    // listing may still be running — and would otherwise sit in the
+    // catch-all for the same reason those two did: the slug names the
+    // storefront, not a marketplace keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari)/.test(slug),
   },
   {
     id: 'trades',
@@ -613,12 +634,15 @@ const CATEGORY_RULES = [
     // rather than by judging the arrival alone, which is what
     // `build.test.mjs`'s bound asks for. Worth recording for whoever trips it
     // next, because the enumeration turned up one more that looks misfiled and
-    // was left alone deliberately: `android-data-safety-check` sits in the
+    // was left alone deliberately: `android-data-safety-check` sat in the
     // catch-all while its own `VENTURE.yaml` calls it "the direct Android-side
     // counterpart to `ios-privacy-manifest-check`", and that counterpart is
-    // filed under `ci`. Moving it would take the catch-all to 4, but it is
-    // another session's arrival from the same day and filing this one restored
-    // the bound on its own, so it is noted rather than moved.
+    // filed under `ci`. Moving it would have taken the catch-all to 4, but it
+    // was another session's arrival from the same day and filing this one
+    // restored the bound on its own, so it was noted rather than moved.
+    // Moved to `ci` on 2026-09-23 (see that section's own comment) when
+    // `voiceover-project-rate-calculator` needed the slot this note had been
+    // holding open.
     //
     // `staffing-markup-calculator` joined 2026-09-10 and is filed here on its
     // first commit rather than after a spell in the catch-all — which is what
@@ -774,8 +798,18 @@ const CATEGORY_RULES = [
     // customer/stop list and its own cost structure into route economics.
     // Not a trade bid (nothing priced by area or a construction job) and
     // not a marketplace fee.
+    // `sign-language-interpreter-rate-calculator` joined 2026-09-23, filed
+    // here on its first commit rather than left for a catch-all spell: a
+    // freelance/contract sign language interpreter turning an assignment's
+    // hours, a booking minimum, portal-to-portal travel, and an after-hours
+    // differential into a customer-facing fee is the same job as
+    // `notary-trip-quote` and `court-reporter-transcript-calculator` (which
+    // it links to, and which links back) — a solo professional turning
+    // time, travel, and a booking policy into a price. Not a trade bid
+    // (nothing priced by area or a construction job) and not a marketplace
+    // fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate)/.test(
         slug,
       ),
   },
@@ -915,10 +949,25 @@ const CATEGORY_RULES = [
     // different sections already. Slug ends in `-checker`, not any suffix
     // this rule already catches, so it is added by exact match rather than
     // widening the suffix list to a word this is the only user of.
+    // `osha-trir-dart-calculator` joined 2026-09-23, filed here on its
+    // first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. Its posture matches this
+    // section's blurb exactly: it turns a company's own OSHA 300 log
+    // counts into a TRIR/DART rate observation the safety coordinator acts
+    // on, and is explicit in its disclaimer and FAQ that it never decides
+    // whether a specific case is OSHA recordable or claims compliance with
+    // any OSHA rule. Not `trades`, even though its buyer is often a
+    // construction contractor: that section prices a bid, this one reports
+    // a compliance rate, the same buyer-vs-job distinction that keeps
+    // `real-estate-agent-photo-app` here rather than with the other
+    // real-estate tools. Slug ends in `-calculator`, not any suffix this
+    // rule already catches, so it is added by exact match rather than
+    // widening the suffix list to a word this is the only user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
-      || slug === '1099-k-threshold-checker',
+      || slug === '1099-k-threshold-checker'
+      || slug === 'osha-trir-dart-calculator',
   },
   {
     id: 'backoffice',
@@ -1693,6 +1742,98 @@ const CATEGORY_RULES = [
     // guard in `build.test.mjs` from tripping — a `docker-` prefix alone
     // isn't in this regex, so a new Dockerfile checker still needs its
     // exact slug added here.)
+    // `supabase-rls-check` joined 2026-09-23, filed here on its first commit
+    // rather than after a spell in the catch-all -- what `build.test.mjs`'s
+    // catch-all bound is for. Same browser-plus-CLI, "read what's actually
+    // there, name the exact evidence" shape as the rest of this section, run
+    // by a developer against their own project -- just for a Supabase
+    // project's live PostgREST schema and per-table read access instead of a
+    // source file, response header, or workflow YAML. It cross-links
+    // `cors-misconfig-check`, `security-headers-check`, and
+    // `dependency-confusion-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
+    // `firebase-rules-check` joined 2026-09-23, filed here on its first
+    // commit rather than after a spell in the catch-all -- same reasoning
+    // as `supabase-rls-check` immediately above: same browser-plus-CLI,
+    // "read what's actually there, name the exact evidence" shape, run by
+    // a developer against their own project -- just for a Firebase
+    // project's Realtime Database and named Firestore collections instead
+    // of a Supabase project's PostgREST schema. It cross-links
+    // `supabase-rls-check`, `cors-misconfig-check`, and
+    // `security-headers-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
+    //
+    // `source-map-leak-check` joined 2026-09-23 concurrently, same session
+    // as `supabase-rls-check`. Same "read what's actually there, name the
+    // exact evidence" checker shape again, for a different exposure class:
+    // whether a script's own trailing sourceMappingURL comment points at a
+    // publicly readable production source map, and whether that map embeds
+    // full original source text or only file paths. It cross-links
+    // `cors-misconfig-check`, `security-headers-check`, and
+    // `docker-build-secrets-check` as Related, reciprocally, closing the
+    // crawlable-orphan gap a new venture otherwise opens. Listed by exact
+    // slug, same reason as its neighbors.
+    //
+    // `android-data-safety-check` moved here 2026-09-23, restoring the bound
+    // `voiceover-project-rate-calculator`'s arrival (a creator/freelance
+    // pricing tool, no honest home in this section) tripped. The trades
+    // comment block above already named this exact move and deliberately
+    // deferred it -- its own `VENTURE.yaml` calls it "the direct Android-side
+    // counterpart to `ios-privacy-manifest-check`", which is filed here, and
+    // it is the same browser-plus-CLI "read a manifest you already have, name
+    // the exact undeclared category" shape as the rest of this section. Doing
+    // the move now is what that comment asked the next session that needed
+    // the slot to do, rather than raising the bound instead.
+    //
+    // `graphql-introspection-exposure-check` joined 2026-09-23, filed here on
+    // its first commit rather than left for a later move -- the same
+    // "read what's actually there, name the exact evidence" checker shape as
+    // `cors-misconfig-check`, `security-headers-check`, `supabase-rls-check`,
+    // `firebase-rules-check`, and `source-map-leak-check`, for a GraphQL
+    // endpoint's introspection exposure rather than a response header, a
+    // database table, or a source map. It cross-links `cors-misconfig-check`
+    // and `supabase-rls-check` as Related, reciprocally (a link added to
+    // `cors-misconfig-check`'s own footer, not just this one, so the pair
+    // closes the crawlable-orphan gap a new venture otherwise opens).
+    //
+    // `git-exposure-check` joined 2026-09-23, concurrently: the same "read
+    // what's actually there, name the exact evidence" shape as
+    // `cors-misconfig-check` and `security-headers-check` (two real GET
+    // requests, response classified against a fixed decision table), just
+    // reading a response body instead of headers. Its slug does not start
+    // with a keyword this rule already recognised, so it would otherwise
+    // have swelled the catch-all the way `supabase-rls-check` once did.
+    //
+    // `dotenv-exposure-check` joined 2026-09-23, the same session: the same
+    // "read what's actually there, name the exact evidence" shape as
+    // `git-exposure-check` immediately above -- five real GET requests to a
+    // site's own well-known dotenv paths, the response body classified
+    // against the real KEY=VALUE line shape rather than just an HTTP status.
+    // Its slug does not start with a keyword this rule already recognised
+    // either, so it landed in the catch-all on its first commit and pushed
+    // it past `build.test.mjs`'s bound the same way `git-exposure-check`
+    // would have on its own. It cross-links `git-exposure-check` as Related
+    // (same family, a different static-file exposure class).
+    //
+    // `subdomain-takeover-check` joined 2026-09-23: the same "read what's
+    // actually there, name the exact evidence" shape as `git-exposure-check`
+    // and `dotenv-exposure-check` immediately above -- a real DNS lookup
+    // plus one real GET request, the response classified against a
+    // provider's own fingerprint rather than escalated from the DNS match
+    // alone. Its slug does not start with a keyword this rule already
+    // recognised, so it landed in the catch-all on its first commit and
+    // pushed it past `build.test.mjs`'s bound the same way its two
+    // predecessors above did.
+    //
+    // `cloud-bucket-exposure-check` joined 2026-09-24, same shape again: one
+    // real read-only request to a cloud provider's own anonymous
+    // bucket-listing endpoint, classified against that provider's
+    // documented response body rather than a bare status code. Filed here
+    // on its first commit rather than after a spell in the catch-all, the
+    // lesson `build.test.mjs`'s bound and this rule's own history exist to
+    // encode.
     //
     // `agent-permission-config-check` joined 2026-09-23, beside
     // `agent-instructions-drift-check`. Same browser-local-plus-CLI shape,
@@ -1709,7 +1850,7 @@ const CATEGORY_RULES = [
     // what keeps the catch-all guard in `build.test.mjs` from tripping.
     // Listed by exact slug, same reason as its neighbors.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|agent-permission-config-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|agent-permission-config-check)/.test(
         slug,
       ),
   },
@@ -1821,6 +1962,28 @@ const CATEGORY_RULES = [
     // and CPM market. Shipped with reciprocal inbound sibling links from
     // both of those ventures' first commits rather than landing in the
     // catch-all.
+    //
+    // `personal-trainer-package-pricing-calculator` joined 2026-09-23, found
+    // by enumerating the catch-all after this new venture pushed it to 6
+    // rather than by judging the arrival alone: an independent personal
+    // trainer deciding whether a discounted prepaid session package still
+    // pays as well per hour, net of a gym or studio's cut, as billing per
+    // session is the same move as `tutor-package-pricing-calculator`'s
+    // instructor -- one person pricing their own labour, not a business
+    // quoting a customer. Shipped with a reciprocal inbound sibling link
+    // from `tutor-package-pricing-calculator`'s own commit rather than
+    // landing as an orphan, which is also what keeps the catch-all inside
+    // the bound `build.test.mjs` puts on it.
+    // `podcast-feed-check` joined 2026-09-23, landing here rather than in the
+    // `ci` category above it: the axis this section groups on is the earner,
+    // not whether the tool is a calculator or a checker (already established
+    // by `affiliate-disclosure-checker`, which protects a blogger's own
+    // earned income the same shape as `ats-resume-checker` protects a job
+    // seeker's). A podcaster checking their own feed before publishing is
+    // protecting their show's reach the same way an affiliate blogger checks
+    // their own post before it costs them a disclosure violation -- and it
+    // sits beside `podcast-sponsorship-rate-calculator`, the other tool for
+    // the same solo-earner audience.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1833,6 +1996,8 @@ const CATEGORY_RULES = [
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
+        'personal-trainer-package-pricing-calculator',
+        'podcast-feed-check',
         'podcast-sponsorship-rate-calculator',
         'sponsor-ready',
         'tutor-package-pricing-calculator',
@@ -3541,6 +3706,30 @@ export function groupByCategory(surfaces) {
     .filter((group) => group.items.length > 0);
 }
 
+/** The bucket a tool's offline download falls into: its sub-group where its
+ *  category has `SUBCATEGORY_RULES` (only `trades` does, at 131 tools and
+ *  growing), its category otherwise. Used by both the hub's "save this
+ *  category" picker and `collectOfflineBundle`, so the two can never name
+ *  different buckets -- a category on its own is the coarsest partition that
+ *  scales with the catalog rather than a fixed ceiling (see
+ *  `collectOfflineBundle`), and `trades` alone had already outgrown that once
+ *  the fleet's dominant shape (bid calculators) concentrated there. */
+export function offlineBucketFor(slug) {
+  return subcategoryFor(slug) ?? categoryFor(slug);
+}
+
+/** Every offline bucket, in the order the hub picker should list them. */
+export function offlineBuckets(surfaces) {
+  const buckets = [];
+  for (const { category, items } of groupByCategory(surfaces)) {
+    for (const { subcategory } of groupBySubcategory(category.id, items)) {
+      const { id, title } = subcategory ?? category;
+      buckets.push({ id, title });
+    }
+  }
+  return buckets;
+}
+
 /**
  * The shared look for a category page. Kept as one string rather than a file so
  * a category page is a single request with nothing to 404: the hub already
@@ -5034,6 +5223,9 @@ ${subgroups
                padding: 15px 18px; margin-top: 26px; }
     .optout { margin-top: 18px; font-size: .84rem; }
     .offline p { margin: 8px 0 12px; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .offline select { max-width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px;
+                      border-radius: 9px; border: 1px solid var(--line); background: var(--panel);
+                      color: var(--ink); margin-bottom: 10px; }
     .offline button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
                       border: 1px solid var(--accent); background: var(--accent);
                       color: var(--accent-ink); cursor: pointer; }
@@ -5182,7 +5374,7 @@ ${sections}
 
     <p class="empty" id="empty">No tool matches that. Try a marketplace, a trade, or the thing you are pricing.</p>
 
-${OFFLINE_WIDGET_HTML}
+${renderOfflineWidgetHtml(offlineBuckets(surfaces))}
 
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
@@ -6647,10 +6839,58 @@ export function faqEntries(html) {
     .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
+// Finds the document's real `<body ...>`/`</body>` pair by position, not by
+// literal text. `html.match(/<body[^>]*>/i)` (the previous implementation)
+// finds the *first* occurrence of that shape anywhere in the string, which is
+// wrong the moment a page's own content quotes an example HTML document
+// earlier than its real body tag -- exactly what a security checker's own
+// copy does when it shows what a soft-404 error page looks like, e.g. a
+// FAQPage JSON-LD answer containing the literal text
+// `<html><body>404 Not Found</body></html>`. `git-exposure-check`'s own
+// "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html" page hit
+// this: the fake `<body>`/`</body>` inside its head's JSON-LD matched first,
+// and the topBar/footer this function inserts landed *inside the JSON
+// string*, corrupting it (`check.mjs` and `page-integrity.mjs` both catch
+// invalid JSON-LD, but only after the page ships broken to a crawler until
+// caught -- and it blocked `publish-branch.sh`'s own build-artifact check the
+// day this was found, for the same reason). The real `<body>` tag can only
+// legitimately appear after the real `</head>`, so searching from there skips
+// any earlier, textually-identical example inside the head's own scripts.
+//
+// `</body>` is the *last* match after that real opening tag, not the first --
+// added after the first version of this fix (which took the first match
+// after `openEnd`) still corrupted a page whose fake example sits inside the
+// real `<body>` rather than in `<head>`: the fake `</body>` inside it then
+// preceded the page's own real closing tag, and "first after the open tag"
+// found that one instead. Nothing legitimate ever follows the document's real
+// `</body>` but `</html>`, so the last match in the document is always the
+// real one, regardless of where an earlier quoted example -- in `<head>` or
+// in `<body>` -- happens to place its own fake `<body>`/`</body>` text.
+// Every insertion below uses this function's indices with plain string
+// slicing rather than `String.prototype.replace(literalOrRegex, ...)`,
+// because that method also matches by content rather than position and would
+// reintroduce the identical bug at each call site.
+function locateBody(html) {
+  const headEnd = /<\/head\s*>/i.exec(html);
+  const searchFrom = headEnd ? headEnd.index + headEnd[0].length : 0;
+  const open = /<body[^>]*>/i.exec(html.slice(searchFrom));
+  if (!open) return null;
+  const openIndex = searchFrom + open.index;
+  const openEnd = openIndex + open[0].length;
+  const closes = [...html.slice(openEnd).matchAll(/<\/body\s*>/gi)];
+  if (!closes.length) return null;
+  const lastClose = closes[closes.length - 1];
+  return { openTag: open[0], openIndex, openEnd, closeIndex: openEnd + lastClose.index };
+}
+
+function spliceAt(html, index, text) {
+  return html.slice(0, index) + text + html.slice(index);
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
-  const bodyOpen = html.match(/<body[^>]*>/i);
-  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+  const initialBody = locateBody(html);
+  if (!initialBody) return html;
 
   // Two head tags that only became possible once these pages shared an origin.
   // Both are added only where the venture does not already provide its own — a
@@ -6708,7 +6948,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   if (headExtras) {
     html = /<\/head>/i.test(html)
       ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
-      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+      : spliceAt(html, initialBody.openIndex, `${headExtras}\n`);
   }
 
   const hub = `${toRoot}`;
@@ -6756,9 +6996,20 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
   const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
-  return withStyle
-    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n</body>`);
+  // Re-located rather than reusing `initialBody`: the head-extras/stylesheet
+  // insertions above may have shifted every index that followed them. Two
+  // separate `locateBody` calls, not one reused across both splices below,
+  // because inserting the top bar shifts `closeIndex` by exactly the bar's
+  // length -- reusing the first call's stale index would put the footer that
+  // many characters into the wrong place on every page long enough for it to
+  // matter.
+  const bodyAfterHead = locateBody(withStyle);
+  if (!bodyAfterHead) return withStyle; // defensive: entry already required a body pair
+  const withTopBar = spliceAt(withStyle, bodyAfterHead.openEnd, `\n${stylePrefix}${topBar}`);
+
+  const bodyBeforeFooter = locateBody(withTopBar);
+  if (!bodyBeforeFooter) return withTopBar; // defensive: same structure, just shifted
+  return spliceAt(withTopBar, bodyBeforeFooter.closeIndex, `${footer}\n`);
 }
 
 /**
@@ -7332,48 +7583,68 @@ export function renderNotFound(baseUrl) {
 // Offline support
 // ---------------------------------------------------------------------------
 
-/** Files a visitor asking to "save all tools" needs: each tool's entry page and
- *  the modules and styles that page loads. Not the whole tree — the SEO
+/** Files a visitor asking to "save a category" needs: each tool's entry page
+ *  and the modules and styles that page loads. Not the whole tree — the SEO
  *  articles and sitemaps are not what someone with no signal is reaching for,
  *  and this runs on a phone's data. */
 const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 
+/**
+ * Partitioned by category rather than one bundle of every tool: see
+ * `renderServiceWorker`'s `bundles` param for why. Returns `{ shared,
+ * categories }` — `shared` is fetched alongside whichever category the
+ * visitor picks, and each category's own `assets` are that category's tool
+ * pages and their scripts.
+ */
 export async function collectOfflineBundle(outDir, surfaces) {
-  // The shared scripts and stylesheets are loaded by every tool page in this
-  // bundle, so a tool cached for offline use without them opens with no band at
-  // all — or, for the stylesheets, with an unstyled one bolted to the page.
-  // That is the cost of extracting them: what used to be inline and therefore
-  // cached with the page is now a separate request the cache has to know about.
-  const assets = new Set([
-    './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
-    BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
+  // The shared scripts and stylesheets are loaded by every tool page, so a
+  // tool cached for offline use without them opens with no band at all — or,
+  // for the stylesheets, with an unstyled one bolted to the page. That is the
+  // cost of extracting them: what used to be inline and therefore cached with
+  // the page is now a separate request the cache has to know about. `./`,
+  // `index.html`, `offline.html` and `manifest.webmanifest` are not here —
+  // they are already in `shell` and precached on install regardless of
+  // whether a visitor ever asks to save a category.
+  const shared = [
+    SAVED_BIDS_MODULE_FILE, BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
     INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
     // Not loaded by any page on this site — it runs on the embedder's — but
     // precached all the same so the snippet's second line is served from the
     // same revision as the first.
     EMBED_HOST_FILE,
-  ]);
+  ].sort();
 
+  const byCategory = new Map();
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
     // copyTree publishes the directory holding the entry point as `slug/`, so
     // the tool's front page is always exactly here.
     const entry = path.join(dir, 'index.html');
     const rel = (file) => path.relative(outDir, file).split(path.sep).join('/');
+    const assets = new Set();
     if (existsSync(entry)) {
       assets.add(rel(entry));
       // A visitor can arrive at either form; a cache entry under one does not
       // answer a request for the other.
       assets.add(`${surface.slug}/`);
     }
-
     for (const file of await listFiles(dir)) {
       if (BUNDLE_EXTENSIONS.has(path.extname(file))) assets.add(rel(file));
     }
+    if (assets.size === 0) continue;
+
+    const { id, title } = offlineBucketFor(surface.slug);
+    if (!byCategory.has(id)) byCategory.set(id, { id, title, assets: new Set() });
+    const bucket = byCategory.get(id).assets;
+    for (const asset of assets) bucket.add(asset);
   }
 
-  return [...assets].sort();
+  const categories = [...byCategory.values()]
+    .map((category) => ({ id: category.id, title: category.title, assets: [...category.assets].sort() }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  return { shared, categories };
 }
 
 /**
@@ -7397,7 +7668,7 @@ export async function addOfflineSupport({
   // forever. Hashing the generator closes that.
   codeVersion,
 } = {}) {
-  const bundle = await collectOfflineBundle(outDir, surfaces);
+  const { shared, categories } = await collectOfflineBundle(outDir, surfaces);
 
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
@@ -7428,7 +7699,8 @@ export async function addOfflineSupport({
         // Enough for the front door to open with no signal on a device that has
         // been here once. Everything else is cached as it is visited.
         shell: ['./', 'index.html', 'offline.html', 'manifest.webmanifest', 'icon-192.png'],
-        bundle,
+        shared,
+        bundles: Object.fromEntries(categories.map((c) => [c.id, c.assets])),
       }),
   );
 
@@ -7442,34 +7714,48 @@ export async function addOfflineSupport({
     injected += 1;
   }
 
-  // The real weight of everything "Save all tools for offline" fetches, over
+  // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front
   // door's own nginx both gzip text responses in transit, so raw bytes
   // overstate what a visitor's mobile data plan is actually charged (see
   // build.test.mjs's "stays small enough to fetch on mobile data" for the
   // same measurement). Taken after the head injection above, so it matches
-  // what a browser really downloads. Patched into the hub's own copy so it
-  // can never drift from reality: see OFFLINE_SIZE_MARKER in offline.mjs for
-  // the stale "about 3 MB" claim this replaces, which stood while the
-  // catalog grew to 174 tools and 16.8 MB raw (5.2 MB gzipped).
-  let bundleBytes = 0;
-  for (const asset of bundle) {
-    if (asset.endsWith('/')) continue; // directory alias of a page already counted
-    const buf = await fs.readFile(path.join(outDir, asset));
-    bundleBytes += zlib.gzipSync(buf, { level: 9 }).length;
+  // what a browser really downloads. `shared` and `index.html` are not
+  // patch-order-sensitive here the way the old single whole-catalog number
+  // was: neither carries a size marker, so nothing this loop reads is a file
+  // the patch below is about to rewrite.
+  const gzipBytesOf = async (assets) => {
+    let bytes = 0;
+    for (const asset of assets) {
+      if (asset.endsWith('/')) continue; // directory alias of a page already counted
+      const buf = await fs.readFile(path.join(outDir, asset));
+      bytes += zlib.gzipSync(buf, { level: 9 }).length;
+    }
+    return bytes;
+  };
+  const sharedBytes = await gzipBytesOf(shared);
+  const categorySizes = [];
+  for (const category of categories) {
+    categorySizes.push({
+      id: category.id,
+      title: category.title,
+      assets: category.assets,
+      bundleBytes: sharedBytes + (await gzipBytesOf(category.assets)),
+    });
   }
-  const hubIndex = path.join(outDir, 'index.html');
-  const beforePatch = await fs.readFile(hubIndex, 'utf8');
-  const afterPatch = beforePatch.replaceAll(OFFLINE_SIZE_MARKER, offlineBundleSizeLabel(bundleBytes));
-  await fs.writeFile(hubIndex, afterPatch);
-  // index.html is itself one of the stated assets; account for the patch's own
-  // size delta so bundleBytes matches the bytes actually on disk afterward,
-  // rather than the pre-patch state it was measured from.
-  bundleBytes +=
-    zlib.gzipSync(Buffer.from(afterPatch), { level: 9 }).length -
-    zlib.gzipSync(Buffer.from(beforePatch), { level: 9 }).length;
 
-  return { cacheName, bundle, bundleBytes, injected };
+  // Patched into the hub's own copy so the picker's per-category size can
+  // never drift from reality: see offlineSizeMarker in offline.mjs for the
+  // stale "about 3 MB" whole-catalog claim this replaces, which stood while
+  // the catalog grew to 174 tools and 16.8 MB raw (5.2 MB gzipped).
+  const hubIndex = path.join(outDir, 'index.html');
+  let hub = await fs.readFile(hubIndex, 'utf8');
+  for (const { id, bundleBytes } of categorySizes) {
+    hub = hub.replaceAll(offlineSizeMarker(id), offlineBundleSizeLabel(bundleBytes));
+  }
+  await fs.writeFile(hubIndex, hub);
+
+  return { cacheName, shared, categories: categorySizes, injected };
 }
 
 // ---------------------------------------------------------------------------

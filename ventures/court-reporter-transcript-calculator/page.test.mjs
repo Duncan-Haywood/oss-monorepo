@@ -67,6 +67,18 @@ test("index links one hop to the notary-trip-quote sibling", () => {
   );
 });
 
+// Reciprocal of the link added in sign-language-interpreter-rate-calculator's
+// index.html: both are solo legal-support professionals commonly booked for
+// the same deposition or hearing, so a reader landing on one should reach the
+// other in one hop.
+test("index links one hop to the sign-language-interpreter-rate-calculator sibling", () => {
+  assert.match(
+    page("index.html"),
+    /href="\.\.\/sign-language-interpreter-rate-calculator\/"/,
+    "index must link ../sign-language-interpreter-rate-calculator/ so a reader booking the same deposition reaches it in one hop",
+  );
+});
+
 test("index page states this is not legal or financial advice", () => {
   const html = page("index.html");
   assert.match(html, /not legal or financial advice/);

@@ -1547,3 +1547,293 @@ candidates:
     mitigation: Keep tip-occupation eligibility an explicit self-reported checkbox with an inline caveat rather than the tool making the determination against Treasury's published occupation list; keep MAGI a user-estimated input rather than derived from a full return; keep the overtime-premium-only rule (half the rate, not the full 1.5x) and the phase-out's round-up-to-the-next-$1,000 rule both stated more than once in visible copy, not only in the footer; and measure repeat use and organic referral traffic before adding state-conformity modeling or a fuller tax-return integration this v0 deliberately does not attempt.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: osha-trir-dart-calculator
+    name: OSHA TRIR & DART rate calculator
+    doc: candidates/osha-trir-dart-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/osha-trir-dart-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and never let it decide whether a specific case is OSHA recordable or claim a company is compliant with any OSHA rule -- recordability stays the employer's own judgment call against 29 CFR 1904.7, explicit in the disclaimer and FAQ; the injury-free-hours-to-target figure is framed as a planning number, never as advice to under-report a case to keep the rate low; measure repeat use and organic search demand before adding any per-period history, CSV import, or multi-period trend feature this v0 deliberately does not attempt.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: supabase-rls-check
+    name: Supabase RLS exposure checker
+    doc: candidates/supabase-rls-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/supabase-rls-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.25
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep the check strictly read-only and conservative -- every request is
+      GET, capped to one row via a Range header, and the tool never attempts
+      a write/update/delete even as a secondary "is this also writable"
+      test, which would materially raise both the liability and the
+      implementation surface. Never render or store actual row values in
+      the report; show only row counts, exact counts, and column names,
+      never field values, so a "clean" demonstration of exposure never
+      becomes a bulk data-viewing tool in its own right. A response this
+      tool cannot classify (a network error, an unexpected status) is
+      reported as an error, never silently folded into either "exposed" or
+      "blocked" -- guessing in either direction would be worse than an
+      honest "could not confirm." Measure real user reports before
+      expanding scope into authenticated-role testing, storage buckets, or
+      Edge Functions, each of which would need its own liability read
+      rather than inheriting this one's.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: git-exposure-check
+    name: Git exposure checker
+    doc: candidates/git-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/git-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Only two paths are ever requested (.git/HEAD, .git/config), each
+      capped at 8KB of body read, and the tool never requests packed
+      objects, the index, or reflog data -- if HEAD or config is exposed,
+      the rest almost always is too, and naming that inference in the
+      report is enough without this tool performing the actual bulk
+      extraction an authorised tester's own git-dumper/GitTools run would.
+      Classification requires the response BODY to match the exact grammar
+      of a real git-internal file, not just a 200 status, specifically to
+      avoid a false positive against a server that answers every path with
+      a 200-status "soft 404" page -- pinned by a dedicated test case.
+      Measure real user reports before expanding the probe set past these
+      two files, which would raise both the liability and the
+      implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: firebase-rules-check
+    name: Firebase security rules exposure checker
+    doc: candidates/firebase-rules-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/firebase-rules-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep the check strictly read-only and conservative -- the Realtime
+      Database probe uses shallow=true (child key names only, never field
+      values) and the Firestore probe is capped to one document per
+      collection via pageSize=1, and the tool never attempts a
+      write/update/delete even as a secondary "is this also writable"
+      test. Never render or store actual field values in the report; show
+      only Realtime Database key names and Firestore field *names*, never
+      values, so a "clean" demonstration of exposure never becomes a bulk
+      data-viewing tool in its own right. A response this tool cannot
+      classify (a network error, an unexpected status) is reported as an
+      error, never silently folded into either "exposed" or "blocked" --
+      guessing in either direction would be worse than an honest "could
+      not confirm." Measure real user reports before expanding scope into
+      Cloud Storage bucket rules or Cloud Functions, each of which would
+      need its own liability read rather than inheriting this one's.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: dotenv-exposure-check
+    name: Dotenv exposure checker
+    doc: candidates/dotenv-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/dotenv-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Five well-known dotenv filenames are requested, each capped at 1MB of
+      body read, and the tool draws a hard line no sibling checker needed:
+      a response body is parsed only to check whether its overall shape
+      looks like a real dotenv file and to extract each line's KEY name --
+      the VALUE half of every line is discarded immediately and never
+      appears in any return value, report, JSON output, or rendered page,
+      not even truncated or hashed. Classification requires the body to
+      match the real KEY=VALUE line shape, not just a 200 status,
+      specifically to avoid a false positive against a server that answers
+      every path with a 200-status "soft 404" page -- pinned by a
+      dedicated test case, alongside a test that greps the full report
+      object for a literal secret value used in a worked example to prove
+      it never leaks through. Measure real user reports before expanding
+      the probe set past these five files, which would raise both the
+      liability and the implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: source-map-leak-check
+    name: Source map leak checker
+    doc: candidates/source-map-leak-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/source-map-leak-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Keep every request GET-only and read the map's own JSON only for
+      structural fields (sources, sourcesContent presence, counts) -- never
+      render or store the actual decoded source text server-side, and never
+      write, submit, or otherwise modify anything on the target. Cap the
+      number of bytes read per script/map file so a run cannot be turned
+      into an unbounded download. A response this tool cannot classify (a
+      network error, a browser CORS block, an unexpected status) is
+      reported as an error, never silently folded into either "exposed" or
+      "safe" -- guessing in either direction would be worse than an honest
+      "could not confirm." Explicit "only test a site you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: subdomain-takeover-check
+    name: Subdomain takeover checker
+    doc: candidates/subdomain-takeover-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-23
+    initiated_path: ventures/subdomain-takeover-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      A finding is only ever reported "confirmed" when both the DNS CNAME
+      target matches a known takeover-prone provider AND a live GET request
+      to the hostname returns that specific provider's own "nothing is
+      claimed at this name" fingerprint text -- a DNS-only match is reported
+      separately as "unconfirmed, worth a manual look" and never escalated,
+      pinned by a dedicated test ("classify never confirms a takeover from
+      DNS alone"), since a CNAME pointing at a takeover-prone provider is
+      not proof of anything on its own and most such CNAMEs are legitimate.
+      Every request is a plain DNS lookup or GET; the tool never attempts to
+      claim, register, or configure anything at any provider. It only
+      checks the exact hostnames given to it -- no DNS-zone enumeration, no
+      crawling. Explicit "only run this against a hostname you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family. Measure real user
+      reports before expanding the provider table, which would raise both
+      the liability surface (more fingerprints to keep accurate) and the
+      implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: cloud-bucket-exposure-check
+    name: Cloud bucket exposure checker
+    doc: candidates/cloud-bucket-exposure-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-24
+    initiated_path: ventures/cloud-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: >-
+      Only one request is ever sent per check -- the bucket's own anonymous
+      listing endpoint -- capped at 16KB of body read, and the tool never
+      requests any individual object's content: finding out a bucket allows
+      public listing is the exposure it checks, downloading what is inside
+      it is a different, higher-liability action a real authorised
+      penetration test would take. Up to 5 example object names are shown
+      as evidence (never content), out of however many the single response
+      reports. Classification requires the response BODY to match a
+      provider's own documented listing-or-error XML shape, not just a
+      status code, since a public and a private bucket can each answer 200
+      or 403 depending on provider and misconfiguration -- pinned by
+      fixture tests built from each provider's own documented shape and
+      cross-checked live, read-only, against three real endpoints during
+      development. Explicit "only run this against a bucket you own or are
+      authorised to test" caution on every page and in the README, the same
+      posture as every sibling checker in this family. Measure real user
+      reports before expanding the provider table or attempting to confirm
+      public object-read access, either of which would raise the liability
+      surface past what this read covers.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

@@ -89,7 +89,13 @@ import { fileURLToPath } from 'node:url';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
-import { ABOUT_PATH, ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
+import {
+  ABOUT_PATH,
+  ENTRY_CANDIDATES,
+  ENTRY_OVERRIDES,
+  maskScriptAndStyleBodies,
+  relatedTools,
+} from '../pages/build.mjs';
 
 // The embed offer, imported whole rather than reproduced for this host.
 //
@@ -1677,7 +1683,12 @@ export function injectMirrorNav(html, { toolCount }) {
   const nav =
     `<a class="${NAV_CLASS}" href="/">` +
     `&#8592; All ${toolCount} free tools on this site</a>`;
-  const body = html.match(/<body\b[^>]*>/i);
+  // Matched against the masked copy, not `html` directly: a venture's own
+  // JSON-LD can carry the literal text of a `<body>` tag as data (see
+  // `maskScriptAndStyleBodies`'s comment), ahead of the page's real one. The
+  // masked copy is the same length, so `body.index` still names the right
+  // place to splice into the real, unmasked `html`.
+  const body = maskScriptAndStyleBodies(html).match(/<body\b[^>]*>/i);
   // A page with no <body> tag is not one the mirror should be inventing
   // markup around; `validateLinks` and the noindex tests all assume a
   // well-formed document, and silently prepending to the file would put the
@@ -1685,7 +1696,7 @@ export function injectMirrorNav(html, { toolCount }) {
   if (!body) {
     throw new Error('a mirrored page has no <body> tag, so the return link has nowhere to go');
   }
-  const at = html.indexOf(body[0]) + body[0].length;
+  const at = body.index + body[0].length;
   return html.slice(0, at) + nav + html.slice(at);
 }
 
@@ -1785,10 +1796,16 @@ export function injectMirrorRelated(html, { file, related }) {
   const block =
     `<nav class="${RELATED_CLASS}" aria-label="Other free tools">` +
     `<p>Other free tools for the same work</p><ul>${items}</ul></nav>`;
-  if (!/<\/body>/i.test(html)) {
+  const bodyCloses = [...html.matchAll(/<\/body>/gi)];
+  if (!bodyCloses.length) {
     throw new Error('a mirrored entry page has no </body>, so the related tools have nowhere to go');
   }
-  return html.replace(/<\/body>/i, `${block}</body>`);
+  // The *last* `</body>`, not the first: the same literal-text-in-JSON-LD
+  // risk `maskScriptAndStyleBodies` documents, but the real closing tag is
+  // always structurally the last one in the document, so no masking is
+  // needed here to find it.
+  const at = bodyCloses[bodyCloses.length - 1].index;
+  return html.slice(0, at) + block + html.slice(at);
 }
 
 /**
@@ -1829,11 +1846,13 @@ export function injectMirrorRelated(html, { file, related }) {
  */
 export function injectMirrorEmbed(html, { slug, file, title } = {}) {
   if (file !== 'index.html') return html;
-  const body = html.match(/<\/body>/i);
-  if (!body) {
+  const bodyCloses = [...html.matchAll(/<\/body>/gi)];
+  if (!bodyCloses.length) {
     throw new Error('a mirrored entry page has no </body>, so the embed offer has nowhere to go');
   }
-  const withFoot = html.replace(/<\/body>/i, '<aside class="pf-chrome pf-chrome-foot"></aside></body>');
+  // The *last* `</body>` -- see `injectMirrorRelated`'s comment just above.
+  const at = bodyCloses[bodyCloses.length - 1].index;
+  const withFoot = html.slice(0, at) + '<aside class="pf-chrome pf-chrome-foot"></aside>' + html.slice(at);
   return injectEmbedWidget(withFoot, {
     slug,
     // Absolute, not `./`: the runtime and its stylesheet are one copy at the

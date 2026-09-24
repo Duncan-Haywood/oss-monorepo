@@ -74,6 +74,9 @@ workflows:
 - workflow: actions-secret-leak-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-secrets-inherit-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
   classification: none
   publishes: []
@@ -263,6 +266,9 @@ workflows:
 - workflow: cleaning-dilution-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cloud-bucket-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
@@ -377,6 +383,9 @@ workflows:
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: dotenv-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: drone-mapping-job-calculator-ci.yml
   classification: none
   publishes: []
@@ -464,6 +473,9 @@ workflows:
 - workflow: fire-extinguisher-inspection-route-margin-ci.yml
   classification: none
   publishes: []
+- workflow: firebase-rules-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: fireplace-insert-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -515,10 +527,16 @@ workflows:
 - workflow: gig-driver-net-pay-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: git-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
 - workflow: grant-reporting-tracker-ci.yml
+  classification: none
+  publishes: []
+- workflow: graphql-introspection-exposure-check-ci.yml
   classification: none
   publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml
@@ -659,6 +677,9 @@ workflows:
 - workflow: menu-engineering-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mercari-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
@@ -716,6 +737,9 @@ workflows:
 - workflow: opencode-high-throughput.yml
   classification: none
   publishes: []
+- workflow: osha-trir-dart-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: outage-triage.yml
   classification: none
   publishes: []
@@ -761,6 +785,9 @@ workflows:
 - workflow: pergola-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: personal-trainer-package-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pest-control-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -786,6 +813,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: podcast-feed-check-ci.yml
   classification: none
   publishes: []
 - workflow: podcast-sponsorship-rate-calculator-ci.yml
@@ -974,6 +1004,9 @@ workflows:
 - workflow: siding-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sign-language-interpreter-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sitemap-lastmod-freshness-check-ci.yml
   classification: none
   publishes: []
@@ -993,6 +1026,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: solar-pv-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: source-map-leak-check-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
@@ -1040,6 +1076,9 @@ workflows:
 - workflow: subcontractor-cashflow-planner-ci.yml
   classification: none
   publishes: []
+- workflow: subdomain-takeover-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: subpath-robots-check-ci.yml
   classification: none
   publishes: []
@@ -1053,6 +1092,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sunroom-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: supabase-rls-check-ci.yml
   classification: none
   publishes: []
 - workflow: tender-bid-readiness-ci.yml
@@ -1080,6 +1122,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tuckpointing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: turo-host-payout-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: tutor-package-pricing-calculator-ci.yml
@@ -1113,6 +1158,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: voiceover-project-rate-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: vpat-acr-generator-ci.yml

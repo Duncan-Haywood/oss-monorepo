@@ -31,6 +31,11 @@ those containers, and how much concentrate is left over for the next job —
 so a bid built from the per-gallon rate does not undercount what actually has
 to be bought.
 
+See [`vs-pricing-off-the-label-price.html`](vs-pricing-off-the-label-price.html)
+for how the ready-to-use cost above compares to reading the concentrate's
+sticker price straight off the label, which is correct about the chemical but
+skips mixing labor and waste.
+
 ## Privacy and usage
 
 Everything runs in the browser and no inputs leave the device. There are no

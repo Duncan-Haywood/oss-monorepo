@@ -1,0 +1,89 @@
+name: voiceover-project-rate-calculator
+description: Free browser calculator that turns a freelance voice-over artist's own script word count (or audiobook manuscript length) into a defensible project rate — per-word or per-finished-minute pricing scaled by usage/licensing term (internal, web, regional broadcast, national broadcast, full buyout) for commercial/e-learning/IVR/explainer work, plus a separate ACX-style per-finished-hour audiobook mode — using commonly cited voice-over rate-guide conventions, entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a
+# creator/freelance-services pricing calculator for a niche the portfolio
+# does not otherwise serve (voice-over artists), built the same session per
+# portfolio/pipeline/README.md's archetype-saturation note -- 141+ of ~330
+# ventures share the trade-bid-calculator shape and the marketplace-fee and
+# dev-tooling-checker shapes are each saturated in turn, so this session
+# weighed a fourth creator/freelance-economy angle (spoken audio project
+# pricing) rather than a 331st near-duplicate in an already-mined vertical.
+# It is closely modeled on the already-graduated newsletter-sponsorship-
+# rate-calculator and brand-deal-rate-calculator (same reasoning: a distinct
+# creator-economy audience, a rate-guide-benchmark shape) but prices a
+# structurally different kind of work -- a one-off recorded project licensed
+# by usage term, not a recurring sponsorship slot.
+#
+# python3 portfolio/pipeline/duplicate_check.py against "Voice-over artist
+# project rate calculator: computes a suggested commercial/e-learning/
+# audiobook/IVR project quote from finished-length or word count, usage/
+# buyout term (web, broadcast, in-perpetuity), and exclusivity, for
+# freelance voice actors deciding what to charge, distributed via
+# r/VoiceActing and VO community rate-guide discussions" scored nothing >=
+# 0.45 (the "read this before you write a candidate" bar) against any
+# existing venture, pipeline candidate, or screened-out row -- the closest
+# matches were drone-mapping-job-calculator (0.09), translator-project-quote
+# (0.08), and commercial-photo-license-calculator (0.05), all a different
+# product shape (drone survey jobs, written translation, photo licensing)
+# rather than a near-duplicate. Also checked directly: no venture directory
+# or screened-out.md row mentions "voice over", "voiceover", "VO artist", or
+# "narrator" for this audience.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- output is a price *starting point* derived
+#     from commonly cited, adjustable rate-guide conventions, explicitly
+#     framed as a basis for negotiation, never a quote, guarantee, or
+#     valuation performed on the user's behalf. Being wrong costs a narrator
+#     a miscalibrated ask in one negotiation, not a filing, a contract
+#     obligation, or a third party's money. No advice-of-record: the user
+#     decides and negotiates their own contract terms.
+#   ethical_robustness: 8 -- deterministic arithmetic over adjustable
+#     benchmark multipliers, no dark patterns, no data collected
+#     server-side, does not get worse for users as traffic grows. Every
+#     input is a number the user already knows about their own script or
+#     manuscript; nothing is scraped or inferred about a third party or
+#     about the buyer on the other side of the deal.
+#
+# Distribution: r/VoiceActing (~100k members, with recurring "what should I
+# charge" threads whenever a new project type or usage request comes up),
+# VO-focused Discord servers and casting-site (Voice123, Bodalgo) community
+# forums, and VO Twitter/BlueSky discussion all see this exact question
+# regularly. Search phrases with real, recurring volume: "voice over rate
+# calculator", "how much to charge for voice over", "audiobook narration
+# rate per finished hour", "voiceover usage fees explained". The existing
+# free reference point (the GVAA Rate Guide) is a static lookup table a
+# narrator has to interpret and do the arithmetic against by hand; this is
+# an interactive calculator with nothing to sign up for and nothing to
+# cross-reference manually.
+hypotheses:
+  - claim: A voice-over artist who lands here from a "how much to charge for voice over" search or an r/VoiceActing thread will get a project rate they did not already have and use it to set or defend an ask.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Narrators new to usage-based licensing (a common gap for artists moving from per-word freelance-marketplace work into commercial/broadcast VO) will use a free, no-signup calculator instead of guessing at a usage multiplier from memory or a rate-guide PDF.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/voiceover-project-rate-calculator/
+  analytics: null

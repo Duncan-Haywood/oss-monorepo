@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This calendar vs. a spreadsheet</title>
+  <meta name="description" content="A quarterly-tax spreadsheet gets three things wrong quietly: it types 'the 15th' instead of the real weekend/holiday-shifted due date, it skips the IRS's smaller-of safe-harbor test, and after a missed quarter it keeps suggesting the same flat 1/4 share instead of a catch-up. This free calculator applies all three correctly from numbers you already have -- no account, nothing uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-a-spreadsheet.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This calendar vs. a spreadsheet">
+  <meta property="og:description" content="Three quiet spreadsheet mistakes this calculator doesn't make: a due date typed as 'the 15th' instead of the real business-day-shifted date, a quarterly share that skips the IRS's smaller-of safe-harbor test, and a flat 1/4 formula that never catches up after a missed quarter.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a spreadsheet get the quarterly due dates wrong?","acceptedAnswer":{"@type":"Answer","text":"Only if it's built from the nominal dates -- April 15, June 15, September 15, January 15 -- rather than the real ones. Each shifts to the next business day when it lands on a weekend or a federal holiday, and the shift can chain through more than one day: the 2022 Q1 deadline moved to April 18 (Emancipation Day observed the 15th, then a weekend), the 2023 Q4 deadline moved to January 16, 2024 (the nominal date is Martin Luther King Jr. Day that year), and the 2024 Q2 deadline moved to June 17, 2024 (June 15 was a Saturday). A =DATE(year,6,15) formula, or a date typed once and reused every year, gets every one of these wrong -- and a reminder set for the wrong day is worse than no reminder, because it reads as on time."}},{"@type":"Question","name":"Does a spreadsheet apply the IRS safe-harbor test correctly?","acceptedAnswer":{"@type":"Answer","text":"Usually not the full test. Form 1040-ES's safe harbor is the smaller of 90% of this year's estimated tax or 100% of last year's tax (110% above the AGI threshold) -- a comparison, not a single number. A spreadsheet built around 'last year's tax divided by 4' skips the 90%-of-this-year branch entirely, which matters whenever this year's income is lower: on this calculator's own worked example below, a $15,000 prior-year tax bill divided by 4 asks for $3,750 a quarter, while the correct safe harbor -- once an $8,000 current-year estimate is entered -- is $1,800 a quarter, because the 90% test wins and the spreadsheet never ran it."}},{"@type":"Question","name":"What does a spreadsheet do after I miss a quarter?","acceptedAnswer":{"@type":"Answer","text":"Most keep suggesting the same flat 1/4 share, because that's what the formula computes: annual requirement divided by 4, every quarter, regardless of what actually got paid. This calculator instead compares the running total required by every due date that has already passed against what you've actually paid, and sizes the next payment to catch the shortfall up in one payment rather than carrying it -- and its own interest, under Form 2210 -- to the end of the year."}},{"@type":"Question","name":"Is a spreadsheet good enough for a simple year?","acceptedAnswer":{"@type":"Answer","text":"For a filer with steady income, no missed quarters, and a AGI comfortably under the high-income threshold, a correctly built spreadsheet using real business-day-shifted dates and the full smaller-of test can get the same answer this calculator does -- the formulas are public, and there's nothing this calculator computes that a careful spreadsheet couldn't. The risk is a formula that goes quietly wrong once: a copied date, a skipped comparison, a missed quarter it never re-checks. This calculator applies the same rules fresh from the numbers you enter each time, so a stale formula can't be the thing that's wrong."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator runs entirely in your browser; nothing you enter -- last year's tax, this year's estimate, or what you've already paid -- is uploaded or stored anywhere but this device."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f5c35; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; margin: 0 0 14px; color: #1f5c35; }
+    h2 { color: #1f5c35; margin: 1.6rem 0 .6rem; }
+    section { background: #fff; border: 1px solid #d9e0d6; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #1f5c3510; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d2c6; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5b54; }
+    .note { font-size: .85rem; color: #4f5b54; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5b54; }
+    footer p { margin: .6rem 0; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Quarterly Estimated Tax Calendar</a></p>
+  <h1>This calendar vs. a spreadsheet</h1>
+  <p>
+    A freelancer, 1099 contractor, or gig worker who pays quarterly estimated
+    tax more than once usually ends up with a spreadsheet for it: a due date
+    typed in for each quarter, and a formula that divides last year's tax (or
+    a guess at this year's) by four. That spreadsheet is correct the day it's
+    built. It fails quietly later &mdash; a date that was never
+    business-day-adjusted, a safe-harbor test that only ever checks one of
+    the two IRS branches, or a flat share that keeps repeating after a
+    quarter gets missed &mdash; and none of those failures look wrong from
+    the number alone.
+  </p>
+  <section>
+    <h2>What each one is for</h2>
+    <p>
+      <strong>A spreadsheet</strong> can compute a quarterly tax schedule
+      correctly, and plenty of filers already have one. What it usually
+      doesn't do on its own is shift a nominal due date for the actual
+      weekends and federal holidays of the year you're filing for, run both
+      branches of the IRS's smaller-of safe-harbor test rather than just
+      dividing one number by four, or notice that a missed quarter means the
+      next payment has to be larger than the flat share to catch back up.
+    </p>
+    <p>
+      <strong>This calculator</strong> applies IRS Form 1040-ES's own
+      90%-of-this-year / 100%-or-110%-of-last-year test fresh from the
+      numbers you enter every time, computes the real due date for the tax
+      year you pick (weekend- and federal-holiday-adjusted, not "the 15th"),
+      and tracks what's already due against what's already paid so a missed
+      quarter shows up as a catch-up amount for the next payment, not a
+      repeated flat share.
+    </p>
+    <table>
+      <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Can I build a spreadsheet that computes a quarterly safe-harbor schedule?</td>
+          <td>Yes &mdash; if the dates are business-day-adjusted for the actual year and the formula runs both branches of the smaller-of test.</td>
+        </tr>
+        <tr>
+          <td>Would a formula built around "the 15th" catch a due date that moved?</td>
+          <td>Not unless someone rebuilt it for that year. This calendar recomputes the real date from the year you enter.</td>
+        </tr>
+        <tr>
+          <td>Does "last year's tax &divide; 4" apply the 90%-of-this-year test too?</td>
+          <td>Only if the formula does both comparisons and takes the smaller. Most spreadsheets built around one number skip the other branch.</td>
+        </tr>
+        <tr>
+          <td>After I miss a quarter, does the sheet tell me the next payment needs to be bigger?</td>
+          <td>Only if someone added that logic. A flat "annual &divide; 4" formula keeps suggesting the same amount regardless of what was actually paid.</td>
+        </tr>
+        <tr>
+          <td>Is anything I enter uploaded anywhere?</td>
+          <td>No. This calculator runs entirely in your browser; nothing is sent to a server.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Three things a spreadsheet formula usually gets wrong</h2>
+    <p>
+      <strong>The due date itself.</strong> The nominal dates &mdash; April
+      15, June 15, September 15, January 15 &mdash; shift to the next
+      business day whenever one lands on a weekend or a federal holiday, and
+      the shift can chain through more than one day. Real, published
+      examples: the 2022 Q1 deadline moved to
+      <strong>April 18, 2022</strong> (Emancipation Day observed the 15th,
+      then a weekend); the
+      2023 Q4 deadline moved to <strong>January 16, 2024</strong> (the
+      nominal date, January 15, is Martin Luther King Jr. Day that year); and
+      the 2024 Q2 deadline moved to <strong>June 17, 2024</strong> (June 15
+      was a Saturday). A <code>=DATE(year,6,15)</code> formula, or a date
+      typed once and copied down every year, is wrong on all three.
+    </p>
+    <p>
+      <strong>The safe-harbor comparison.</strong> Form 1040-ES's floor is
+      the <em>smaller</em> of 90% of this year's estimated tax or 100% (110%
+      above the AGI threshold) of last year's &mdash; two numbers, not one.
+      A spreadsheet built around "last year's tax &divide; 4" only ever runs
+      the second branch. On this calculator's own worked example: a filer
+      who owed <strong>$15,000</strong> last year and enters that as the only
+      number gets <strong>$3,750</strong> a quarter from a last-year-only
+      formula. The same filer entering an <strong>$8,000</strong> estimate
+      for this year gets a real required payment of <strong>$7,200</strong>
+      for the year &mdash; <strong>$1,800</strong> a quarter &mdash; because
+      the 90%-of-this-year test is lower and wins. The last-year-only
+      spreadsheet ties up an extra <strong>$1,950 a quarter</strong> &mdash;
+      <strong>$7,800 for the year</strong> &mdash; more than the safe harbor
+      actually requires.
+    </p>
+    <p>
+      <strong>What happens after a missed quarter.</strong> A flat
+      "annual &divide; 4" formula recomputes the same number every quarter no
+      matter what was actually paid. On this calculator's own worked example:
+      a filer with a $12,000 prior-year safe harbor who has paid nothing by
+      August 1st has a flat quarterly share of <strong>$3,000</strong>, but
+      two due dates (April and June) have already passed with nothing paid
+      against them &mdash; so the amount actually needed to catch back up in
+      one payment is <strong>$6,000</strong>, twice the flat share a static
+      formula would still be showing.
+    </p>
+  </section>
+  <p class="note">
+    Open the <a href="./">Quarterly Estimated Tax Calendar</a> to build your
+    own schedule, or see <a href="vs-keeper.html">this calendar vs. Keeper's
+    quarterly tax calculator</a> if you're starting from a rough income
+    estimate instead of last year's return.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Does a spreadsheet get the quarterly due dates wrong?</h3>
+  <p>Only if it's built from the nominal dates -- April 15, June 15, September 15, January 15 -- rather than the real ones. Each shifts to the next business day when it lands on a weekend or a federal holiday, and the shift can chain through more than one day: the 2022 Q1 deadline moved to April 18 (Emancipation Day observed the 15th, then a weekend), the 2023 Q4 deadline moved to January 16, 2024 (the nominal date is Martin Luther King Jr. Day that year), and the 2024 Q2 deadline moved to June 17, 2024 (June 15 was a Saturday). A =DATE(year,6,15) formula, or a date typed once and reused every year, gets every one of these wrong -- and a reminder set for the wrong day is worse than no reminder, because it reads as on time.</p>
+  <h3>Does a spreadsheet apply the IRS safe-harbor test correctly?</h3>
+  <p>Usually not the full test. Form 1040-ES's safe harbor is the smaller of 90% of this year's estimated tax or 100% of last year's tax (110% above the AGI threshold) -- a comparison, not a single number. A spreadsheet built around 'last year's tax divided by 4' skips the 90%-of-this-year branch entirely, which matters whenever this year's income is lower: on this calculator's own worked example below, a $15,000 prior-year tax bill divided by 4 asks for $3,750 a quarter, while the correct safe harbor -- once an $8,000 current-year estimate is entered -- is $1,800 a quarter, because the 90% test wins and the spreadsheet never ran it.</p>
+  <h3>What does a spreadsheet do after I miss a quarter?</h3>
+  <p>Most keep suggesting the same flat 1/4 share, because that's what the formula computes: annual requirement divided by 4, every quarter, regardless of what actually got paid. This calculator instead compares the running total required by every due date that has already passed against what you've actually paid, and sizes the next payment to catch the shortfall up in one payment rather than carrying it -- and its own interest, under Form 2210 -- to the end of the year.</p>
+  <h3>Is a spreadsheet good enough for a simple year?</h3>
+  <p>For a filer with steady income, no missed quarters, and a AGI comfortably under the high-income threshold, a correctly built spreadsheet using real business-day-shifted dates and the full smaller-of test can get the same answer this calculator does -- the formulas are public, and there's nothing this calculator computes that a careful spreadsheet couldn't. The risk is a formula that goes quietly wrong once: a copied date, a skipped comparison, a missed quarter it never re-checks. This calculator applies the same rules fresh from the numbers you enter each time, so a stale formula can't be the thing that's wrong.</p>
+  <h3>Is anything I enter uploaded anywhere?</h3>
+  <p>No. This calculator runs entirely in your browser; nothing you enter -- last year's tax, this year's estimate, or what you've already paid -- is uploaded or stored anywhere but this device.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional. Verify every figure against the current year's official IRS instructions before relying on it or paying.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any spreadsheet, service, or product &mdash; it is a static page describing this calculator's own worked examples.</p>
+    <p>Free and open source. If it caught a due date you would have missed, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
