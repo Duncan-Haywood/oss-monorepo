@@ -116,6 +116,7 @@ test('every FAQPage schema question has a matching visible heading', () => {
 const decodeEntities = (text) => text
   .replace(/&lt;/g, '<')
   .replace(/&gt;/g, '>')
+  .replace(/&quot;/g, '"')
   .replace(/&mdash;/g, '—')
   .replace(/&amp;/g, '&');
 

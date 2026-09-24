@@ -1620,6 +1620,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // B" and names no real vendor. Same reasoning as the other generic-method
   // pages above.
   'vector-db-cost-calculator/vs-doing-the-math-yourself.html',
+  // Compares against reusing one downloaded or bookmarked chargeback
+  // checklist for every dispute reason -- a habit any seller fighting a
+  // chargeback already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-chargeflow.html,
+  // which names Chargeflow specifically and already carries the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'chargeback-evidence-packet/vs-a-generic-dispute-checklist.html',
+  // Compares against "a flat per-zone rate" -- a generic pricing method
+  // every irrigation contractor already has access to, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-jobber.html, which names Jobber specifically and already carries the
+  // trademark disclaimer. Same reasoning as janitorial-bid-calculator's own
+  // flat-rate exemption above.
+  'irrigation-winterization-bid-calculator/vs-a-flat-per-zone-rate.html',
   // Compares against "tracking 1099 vendors in a spreadsheet" -- the
   // generic method most small-business bookkeepers already use, not a
   // company or product this could be mistaken for. Distinct from this
@@ -1646,6 +1660,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // (the test file asserts none of the sibling pages' named products
   // appear). Same reasoning as the other generic-method pages above.
   '3pl-quote-normalizer/vs-normalizing-a-quote-in-a-spreadsheet.html',
+  // Compares against "tracking grant deadlines in a spreadsheet" -- the
+  // generic method most small-nonprofit coordinators already use, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-instrumentl.html, which names Instrumentl specifically
+  // and already carries the trademark disclaimer. Same reasoning as the
+  // other generic-method pages above.
+  'grant-deadline-tracker/vs-tracking-deadlines-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
