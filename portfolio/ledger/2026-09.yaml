@@ -41474,3 +41474,38 @@ entries:
         starved checks once per CLAUDE.md's drive-to-green checklist before
         squash-merging as #5674.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a discoverability guide page to three of this session's own
+        earlier-shipped ventures (mcp-config-risk-check, hidden-unicode-check,
+        skill-manifest-check), which had only index.html and no docs page --
+        unlike llm-api-pricing-calculator (this session's first venture),
+        which already had one from a sibling session's own PR. Each answers a
+        real follow-up question: what a clean MCP config scan does and
+        doesn't guarantee, how to actually remove hidden Unicode once a scan
+        finds it, and how to rewrite a SKILL.md description that doesn't
+        trigger. Chose this over a fifth new venture this session, on the
+        reasoning that adding to an already-358-product catalogue with zero
+        confirmed visitors has lower marginal value than strengthening
+        discoverability on products already shipped this session, where
+        prior context made a fast, accurate page cheap to write.
+      - >-
+        Caught and fixed a real defect in my own work before shipping: the
+        full marketing/pages suite failed on faq-visible.test.mjs across all
+        three new pages -- an em-dash/en-dash mismatch between the FAQPage
+        JSON-LD text and the visible copy, the same bug class this session's
+        build agents already hit twice on other ventures (and, per the entry
+        just above, a sibling session's auto-glass-bid-calculator PR the
+        same day -- a recurring pitfall, not a one-off). Fixed, re-verified
+        clean (1289/1289), then merged.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot and
+        confirmed sync_tree_counts.py and regen.mjs --verify current against
+        the merged main. This session has now shipped four new ventures, six
+        guide/comparison pages across them, fixed two real pre-existing
+        defects, and run one fleet-wide accessibility sweep. Portfolio-wide
+        revenue and confirmed-visitor counts remain at zero.
+    mrr_end: 0
