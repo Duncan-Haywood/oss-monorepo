@@ -100,7 +100,7 @@ python3 check.py --fail-on-risk   # exit 2 if any mutable (unpinned) base image 
     <p>No. This checks one specific, well-documented thing: whether a <code>FROM</code> line references its base image by content digest. It is not a security audit, and it makes no claim about your build's overall supply-chain security or the safety of the code inside a pinned image.</p>
     <h3>What about multi-stage builds and <code>FROM scratch</code>?</h3>
     <p>A <code>FROM</code> line that names an earlier build stage (<code>FROM builder</code>, after a prior <code>FROM ... AS builder</code>) is not a registry pull and is skipped, as is <code>FROM scratch</code>, Docker's empty virtual base image that cannot be repointed. A <code>FROM</code> line containing a build-arg substitution like <code>${BASE_IMAGE}</code> is also skipped, since the actual image cannot be determined from the Dockerfile text alone — resolve the build argument's value and re-run.</p>
-    <p>More: <a href="how-to-pin-a-docker-base-image-to-a-digest.html">how to pin a Docker base image to a digest</a>. Already run <a href="vs-hadolint.html">Hadolint</a>? See <a href="vs-hadolint.html">how this checker compares</a> for the pinning question specifically.</p>
+    <p>More: <a href="how-to-pin-a-docker-base-image-to-a-digest.html">how to pin a Docker base image to a digest</a>. Already run <a href="vs-hadolint.html">Hadolint</a>? See <a href="vs-hadolint.html">how this checker compares</a> for the pinning question specifically. Prefer to just read the file? See <a href="vs-reading-a-dockerfile-by-hand.html">this checker vs. reading a Dockerfile by hand</a>.</p>
   </section>
 
   <footer>
