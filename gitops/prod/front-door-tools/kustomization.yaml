@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 120 files, 556368 bytes
 #   portfolio-front-tools-13: 119 files, 555465 bytes
 #   portfolio-front-tools-14: 130 files, 553838 bytes
-#   portfolio-front-tools-15: 133 files, 552057 bytes
+#   portfolio-front-tools-15: 134 files, 555967 bytes
 #   portfolio-front-tools-16: 124 files, 556646 bytes
 #   portfolio-front-tools-17: 103 files, 548298 bytes
 #   portfolio-front-tools-18: 120 files, 556714 bytes
@@ -2127,6 +2127,7 @@ configMapGenerator:
       - poshmark-fee-calculator__to-where-to-sell.mjs.gz=poshmark-fee-calculator__to-where-to-sell.mjs.gz
       - poshmark-fee-calculator__usage.mjs.gz=poshmark-fee-calculator__usage.mjs.gz
       - poshmark-fee-calculator__vs-poshmarks-how-it-works-page.html.gz=poshmark-fee-calculator__vs-poshmarks-how-it-works-page.html.gz
+      - poshmark-fee-calculator__vs-tracking-poshmark-payouts-in-a-spreadsheet.html.gz=poshmark-fee-calculator__vs-tracking-poshmark-payouts-in-a-spreadsheet.html.gz
       - pour-cost-calculator__calc.mjs.gz=pour-cost-calculator__calc.mjs.gz
       - pour-cost-calculator__how-to-calculate-pour-cost.html.gz=pour-cost-calculator__how-to-calculate-pour-cost.html.gz
       - pour-cost-calculator__index.html.gz=pour-cost-calculator__index.html.gz

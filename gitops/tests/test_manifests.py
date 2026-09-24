@@ -2433,7 +2433,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # list. Static `index.html` from its first commit, same shape as the
     # rest of this running count.
     #
-    # 356 on this merge: `tip-pool-compliance-calculator` also graduated,
+    # 356 on this merge: `auto-loan-interest-deduction-calculator` also
+    # graduates -- a browser calculator for the new federal "qualified
+    # passenger vehicle loan interest" deduction (One Big Beautiful Bill
+    # Act, tax years 2025-2028). Static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    #
+    # 357 on this merge: `tip-pool-compliance-calculator` also graduated,
     # concurrently on `main` -- a zero-dependency browser calculator for
     # restaurant/bar owners that checks a mandatory tip pool against the
     # two federal FLSA tip-pooling rules (a manager/supervisor is never
@@ -2442,16 +2448,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # violation creates. Static `index.html` and a
     # `vs-guessing-from-a-staff-meeting.html` comparison page, both from
     # their first commit, same shape as the rest of this running count.
-    #
-    # 357 on this merge: `auto-loan-interest-deduction-calculator` also
-    # graduated, concurrently on `main` -- a zero-dependency browser
-    # calculator estimating the new federal "qualified passenger vehicle
-    # loan interest" deduction (OBBBA, tax years 2025-2028). Static
-    # `index.html` and a `vs-estimating-the-deduction-by-hand.html`
-    # comparison page, both from their first commit, same shape as the
-    # rest of this running count. This branch only ever knew its own
-    # predecessor's number (356) until this merge -- the same ordinary
-    # collision shape recorded throughout this list.
+    # This branch only ever knew its own predecessor's number (356) until
+    # this merge -- the same ordinary collision shape recorded throughout
+    # this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
     total = 357  # `infra/OWNER_CHECKLIST.md`'s own "N of the 357 tools" wording.
