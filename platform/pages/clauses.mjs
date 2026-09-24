@@ -1503,6 +1503,22 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // clause for that reason. Same reasoning as the other flat-rate
   // generic-method pages above (e.g. mini-split-bid-calculator's).
   'parking-lot-striping-bid-calculator/vs-a-flat-8-per-stall-special.html',
+  // Compares against a flat "10 cents a square foot" wash special -- a
+  // generic advertised pricing habit the trade is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-jobber.html and vs-gorilladesk.html, which name
+  // specific field-service platforms and already carry the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // flat-rate generic-method pages above.
+  'pressure-washing-bid-calculator/vs-a-flat-10-cents-a-square-foot-price.html',
+  // Compares against "a flat per-guest price" -- dividing a past booking's
+  // total by its own headcount and reusing the result as a rate, a pricing
+  // habit every operator already reaches for, not a company or product
+  // this could be mistaken for. The page names no marketplace or
+  // competing calculator (distinct from this venture's own
+  // vs-roaminghunger.html, which does and already carries the trademark
+  // disclaimer for that reason).
+  'food-truck-event-margin-calculator/vs-a-flat-per-guest-price.html',
   // Compares against "manually re-checking each dependency's license after
   // an update" -- a habit any developer already has, not a company or
   // product this could be mistaken for. This venture's own vs-fossa.html is
@@ -1527,6 +1543,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // deliberately different classes, same as cache-control-check's pairing
   // of vs-curl.html and vs-checking-headers-by-eye-in-devtools.html above.
   'faire-wholesale-calculator/vs-building-your-own-spreadsheet.html',
+  // Compares against a flat coverage floor (--cov-fail-under and
+  // equivalents) -- a generic CI-gating habit any project already has, not
+  // a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-codecov.html, which names a specific hosted service
+  // and already carries the trademark disclaimer.
+  'coverage-drop-check/vs-a-flat-coverage-floor.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
