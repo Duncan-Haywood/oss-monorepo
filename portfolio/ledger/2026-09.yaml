@@ -39959,6 +39959,79 @@ entries:
         comparison page), so the Playwright/axe-core browser-check line was
         not run -- nothing this change touches is markup a user types into.
     mrr_end: 0
+  - venture: fire-extinguisher-inspection-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the published GitHub Pages snapshot at session start
+        (pages_state.py reported stale, built from 79833eb0 while main was
+        at f480f5f7): ran CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh and recorded the reading with
+        pages_state.py --record (github-pages-branch-route: up, run
+        35962125019).
+      - >-
+        Shipped vs-ranking-sites-by-extinguisher-count.html, a
+        generic-method comparison page (surface-budget.mjs flagged the
+        venture at 0 of its 1-page budget; it already had one guide and one
+        named-product comparison, vs-servicetitan.html). Argues against the
+        route-operator habit of ranking sites by extinguisher count alone --
+        directly picking up the venture's own index.html header framing
+        ("Unit count lies. Profit per site doesn't."). Worked example: two
+        sites with the identical 18 extinguishers and identical $207.00
+        inspection+tag revenue, one with a heavier recharge/hydro/
+        replacement mix and a 14-minute drive (nets $21.67/mo at an
+        $181.40/hr effective rate), the other with almost none of that work
+        and a 75-minute drive (nets $3.43/mo at $16.80/hr) -- both figures
+        computed straight from calc.mjs's calculate() and pinned by a test
+        that re-derives them. Wired into index.html and sitemap.xml, and
+        registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (compares against a generic
+        habit, names no company). Caught and fixed a punctuation-regression
+        defect this page introduced (the same class CLAUDE.md already
+        records for hardwood-refinishing-bid-calculator): first draft used
+        literal "--" inside the FAQPage JSON-LD where the visible prose
+        used "&mdash;", which platform/pages/faq-visible.test.mjs caught;
+        reconciled to a real em dash in the JSON-LD, matching the
+        convention already used by atm-route-margin's own
+        vs-ranking-by-transaction-count.html. Regenerated the front-door
+        mirror (platform/marketing/regen.mjs) after both the initial
+        content commit and the JSON-LD fix.
+      - >-
+        Verification, run against CI in a confirmed starvation window
+        (ci_starvation.py --run 35962212138: runner_id 0, 3s, no steps):
+        venture's own 72 tests (node --test
+        ventures/fire-extinguisher-inspection-route-margin/**/*.test.mjs)
+        pass; full node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1285/1286 pass, the one failure being
+        front-door-tools.test.mjs's mirror-capacity warning (85.9% of
+        ceiling, over the 85% warn ratio, 0 bytes recoverable duplicates,
+        confirmed by run_workflow_locally.py --for-changes) -- the same
+        portfolio-wide capacity signal this file already records twice this
+        month (85.1%, then 85.5-85.6%), growing with the whole catalogue's
+        concurrent-session merges and not something this one-page PR causes
+        or can fix on its own; reported here rather than addressed.
+        surface-budget.mjs --check clean (0/1 -> 1/1, no venture over
+        budget); checklist_coverage.py clean; sync_tree_counts.py clean
+        (345 mirrored tools, 327 opt-out switches, no drift to record);
+        regen.mjs --verify clean after the final commit;
+        check_venture_regression.py clean against origin/main. Also clean:
+        platform/proposal (101/101); platform/privacy + platform/webcheck
+        (142/142, full clone); gitops/tests (637 passed/1 skipped
+        environmental, after installing nginx-light + openssh-client per
+        CLAUDE.md's apt-get workaround); platform/ci unittest (27 modules)
+        + agent_review/test_review (21/21) all pass; portfolio pytest
+        (ledger/scoring/router/usage/pipeline/infra) 446 passed;
+        router/validate.py 352/352; score_ventures.py --check 353/353.
+        run_workflow_locally.py --for-changes: 9/14 selected workflows
+        passed; the two portfolio-validate.yml failures are the
+        mirror-capacity warning above and the pre-existing "Install
+        dependencies" skip (no npm/Playwright deps installed -- this page
+        adds no form inputs, so the browser/axe-core check was not
+        applicable). The five workflows it selected and did not run
+        (agent-cross-review's four reviewer jobs, hetzner-gitops-ci) need
+        credentials or a live cluster this sandbox does not have.
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
