@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 105 files, 556203 bytes
 #   portfolio-front-tools-17: 118 files, 556533 bytes
 #   portfolio-front-tools-18: 128 files, 556236 bytes
-#   portfolio-front-tools-19: 83 files, 400927 bytes
+#   portfolio-front-tools-19: 84 files, 405748 bytes
 #   portfolio-front-tools-20: 51 files, 264764 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2652,6 +2652,7 @@ configMapGenerator:
       - wheelchair-ramp-bid-calculator__index.html.gz=wheelchair-ramp-bid-calculator__index.html.gz
       - wheelchair-ramp-bid-calculator__share.mjs.gz=wheelchair-ramp-bid-calculator__share.mjs.gz
       - wheelchair-ramp-bid-calculator__usage.mjs.gz=wheelchair-ramp-bid-calculator__usage.mjs.gz
+      - wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=wheelchair-ramp-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
       - wheelchair-ramp-bid-calculator__vs-jobber.html.gz=wheelchair-ramp-bid-calculator__vs-jobber.html.gz
       - where-to-sell-calculator__calc.mjs.gz=where-to-sell-calculator__calc.mjs.gz
       - where-to-sell-calculator__does-it-actually-sell-there.html.gz=where-to-sell-calculator__does-it-actually-sell-there.html.gz
