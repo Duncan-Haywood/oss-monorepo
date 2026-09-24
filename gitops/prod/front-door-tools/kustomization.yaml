@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 139 files, 551452 bytes
+#   portfolio-front-tools-0: 140 files, 555611 bytes
 #   portfolio-front-tools-1: 97 files, 554641 bytes
 #   portfolio-front-tools-2: 145 files, 555749 bytes
 #   portfolio-front-tools-3: 135 files, 554787 bytes
@@ -111,6 +111,7 @@ configMapGenerator:
       - job-margin-variance__index.html.gz=job-margin-variance__index.html.gz
       - job-margin-variance__share.mjs.gz=job-margin-variance__share.mjs.gz
       - job-margin-variance__usage.mjs.gz=job-margin-variance__usage.mjs.gz
+      - job-margin-variance__vs-checking-if-you-still-made-money.html.gz=job-margin-variance__vs-checking-if-you-still-made-money.html.gz
       - job-margin-variance__vs-quickbooks-job-costing.html.gz=job-margin-variance__vs-quickbooks-job-costing.html.gz
       - job-margin-variance__why-did-my-job-cost-more-than-i-estimated.html.gz=job-margin-variance__why-did-my-job-cost-more-than-i-estimated.html.gz
       - seller-net-sheet__calc.mjs.gz=seller-net-sheet__calc.mjs.gz
