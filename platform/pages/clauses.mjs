@@ -1222,6 +1222,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "running dig by hand" -- a manual DNS lookup habit
+  // every developer and admin already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-mxtoolbox.html, which names a specific commercial product and
+  // already carries the "not affiliated" clause for that reason. Same
+  // reasoning as the other vs-checking-*-by-hand pages above.
+  'email-auth-check/vs-checking-dns-records-by-hand.html',
   // Compares against "checking the manifest by hand" -- a manual review
   // habit every Chrome extension developer already has, not a company or
   // product this could be mistaken for. Distinct from this venture's own
