@@ -17271,3 +17271,69 @@ ventures:
       debugging session, no affiliate link, no referral fee,
       donations-only, and it does not scan, fingerprint, or contact any
       third-party system or agent runtime.
+  - slug: facebook-marketplace-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is Facebook
+      Marketplace's own shipped-vs-local fee split (10% of the buyer-paid
+      total with an $0.80 minimum on a shipped order, $0 for local
+      pickup) plus the flat $20 dispute penalty, applied correctly and
+      including the minimum-fee floor most spreadsheet versions of this
+      math skip -- deterministic arithmetic a language model adds
+      nothing to.
+    basis: >-
+      Screened 2026-09-24 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match against
+      an existing venture 0.25 (ebay-fee-calculator), well under the
+      0.45 read-this-first bar -- no existing venture prices Facebook
+      Marketplace specifically, though several (depop-fee-calculator,
+      mercari-fee-calculator, poshmark-fee-calculator) share the
+      resale-marketplace-fee shape. Rates confirmed via multiple
+      independent web searches agreeing on the current schedule: 10% of
+      the buyer-paid total (item price, buyer-paid shipping, and any
+      sales tax Facebook collected) on a shipped checkout order with an
+      $0.80 minimum fee, $0 for local pickup, and a flat $20 chargeback
+      penalty on a disputed order ruled against the seller. Several
+      independent third-party blogs and calculator sites cover this
+      exact question with inconsistent, sometimes stale rates (a flat
+      percentage with no minimum, or an extra processing-fee line most
+      current sources no longer show) -- evidence of real search demand
+      and a live staleness problem this tool corrects.
+      Autonomous ops 10 / gross margin 10: static ES modules, no build
+      step, no network call, no server -- same shape as every other
+      browser-local calculator in this portfolio.
+      Time to revenue 5, distribution 5: r/FacebookMarketplace and
+      general reselling subreddits are real, named communities, and the
+      search phrases "facebook marketplace fee calculator" and "does
+      facebook marketplace charge a fee" show real, if modest, existing
+      competition -- matching depop-fee-calculator's own distribution
+      score for the same reasoning (a proven-demand niche, not a blind
+      guess). Defensibility 3: one flat rate and a floor are trivially
+      reproducible, matching depop-fee-calculator's own defensibility
+      score for the same single-storefront fee-schedule shape.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every figure is a constant corroborated against
+      Facebook's own Commerce/Seller Help pages and multiple independent
+      third-party breakdowns, not a live fetch, and the page tells the
+      visitor to verify against their own payout statement before
+      pricing a listing -- the same framing depop-fee-calculator and its
+      siblings already use for a schedule a platform can change without
+      notice. No network call of any kind, nothing uploaded, no account,
+      no tracking cookie.
+      Ethics: strictly beneficial as it scales -- helps a seller price a
+      listing correctly instead of guessing from a stale blog post, no
+      affiliate link, no referral fee, donations-only, and it does not
+      scan, fingerprint, or contact Facebook or any third-party system.

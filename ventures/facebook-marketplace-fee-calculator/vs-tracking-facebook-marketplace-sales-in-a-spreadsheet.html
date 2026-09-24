@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Facebook Marketplace Fee Calculator vs. tracking sales in a spreadsheet</title>
+  <meta name="description" content="A Facebook Marketplace seller working out real payout usually builds a spreadsheet: a column for the 10% shipped-order rate, a check for the $0.80 minimum, a $0 row for local pickup. This free calculator keeps all three on one screen, already wired to the current, corroborated rate.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html">
+  <meta property="og:title" content="Facebook Marketplace Fee Calculator vs. tracking sales in a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can hold the same shipped-vs-local math this calculator does. What it does not do on its own is stay right when Facebook changes the rate, or show a target-profit price without a formula you have to write yourself.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet do this math instead?","acceptedAnswer":{"@type":"Answer","text":"Yes. The 10% shipped-order rate, the $0.80 minimum fee, and the $0 local-pickup fee are each ordinary arithmetic. Building it means typing Facebook's current rate into the right cell, adding an IF formula for the minimum-fee floor, and a second row for local pickup -- then remembering to update it the next time Facebook changes the rate."}},{"@type":"Question","name":"What does a spreadsheet not do that this calculator does?","acceptedAnswer":{"@type":"Answer","text":"Keep the shipped rate, the $0.80 minimum, and the $0 local-pickup fee on one screen, already wired to the current, corroborated rate, so a shipped sale and a local sale are the same worksheet instead of two. It also solves backwards for the item price that hits a target profit without you writing that formula, across the minimum-fee floor where the relationship stops being a flat percentage."}},{"@type":"Question","name":"Is a spreadsheet ever the better choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when your situation has a wrinkle this calculator does not model -- a bundle of several items in one order, a promotional credit, or a fee structure Facebook has changed since this tool's rate was last checked. A spreadsheet you build and update yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one item moving through Facebook's published shipped or local-pickup schedule."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator runs entirely in your browser. Item prices, costs, and payouts are never uploaded, and the optional usage counter records only which features were used and the day, never your numbers."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16202e; background: #eef4f8; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    h2 { font-size: 1.15rem; }
+    section.card { background: #fff; border: 1px solid #c3d7e6; border-radius: 14px; padding: 18px 22px; box-shadow: 0 8px 24px #0a2a4a10; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c3d7e6; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #47576b; }
+    .note { font-size: .9rem; color: #47576b; }
+    footer { margin-top: 28px; font-size: .82rem; color: #47576b; border-top: 1px solid #c3d7e6; padding-top: 16px; }
+    footer p { margin: .6rem 0; }
+    a { color: #0a5cad; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Facebook Marketplace fee calculator</a></p>
+  <h1>Facebook Marketplace Fee Calculator vs. tracking sales in a spreadsheet</h1>
+  <p>A seller who prices more than one Facebook Marketplace sale usually ends up with a spreadsheet: a cell for the 10% shipped rate, an IF formula for the $0.80 minimum on small sales, and a $0 row for local pickup. Each formula is ordinary arithmetic. Keeping the minimum-fee floor right, and rebuilding the target-profit formula each time the rate changes, is the part that gets skipped when a sale needs a price today.</p>
+
+  <section class="card">
+  <h2>What each approach actually does</h2>
+  <p><strong>A spreadsheet</strong> can reproduce every rate this calculator applies &mdash; the 10% shipped-order fee, the $0.80 minimum, and the $0 local-pickup fee. Building it means typing the right rate into the right cell, writing an IF formula for the minimum-fee floor, and writing your own formula to solve backwards for the price that hits a target profit. It also means noticing, on your own, when Facebook updates the rate.</p>
+  <p><strong>This calculator</strong> keeps the shipped rate, the minimum-fee floor, and the $0 local-pickup fee on one screen, already wired to the current, corroborated rate, so a shipped sale and a local sale are the same worksheet instead of two. It solves backwards for the price that hits your target profit without a formula you have to write, correctly across the point where the minimum fee takes over from the percentage.</p>
+  <div style="overflow-x:auto">
+  <table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>What do I actually keep on this sale?</td><td>This calculator's payout panel &mdash; one screen, no formula to maintain.</td></tr>
+  <tr><td>What price do I need to list at for a target profit?</td><td>The target-profit field, solved for you, correct on both sides of the minimum-fee floor.</td></tr>
+  <tr><td>Is this sale small enough that the $0.80 minimum applies instead of 10%?</td><td>The calculator checks this for you and says so in a note.</td></tr>
+  <tr><td>My situation has a wrinkle this calculator doesn't model (a bundle sale, a promo credit).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+  <tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+  </tbody>
+  </table>
+  </div>
+  </section>
+
+  <section class="card">
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet do this math instead?</h3>
+  <p>Yes. The 10% shipped-order rate, the $0.80 minimum fee, and the $0 local-pickup fee are each ordinary arithmetic. Building it means typing Facebook's current rate into the right cell, adding an IF formula for the minimum-fee floor, and a second row for local pickup -- then remembering to update it the next time Facebook changes the rate.</p>
+  <h3>What does a spreadsheet not do that this calculator does?</h3>
+  <p>Keep the shipped rate, the $0.80 minimum, and the $0 local-pickup fee on one screen, already wired to the current, corroborated rate, so a shipped sale and a local sale are the same worksheet instead of two. It also solves backwards for the item price that hits a target profit without you writing that formula, across the minimum-fee floor where the relationship stops being a flat percentage.</p>
+  <h3>Is a spreadsheet ever the better choice?</h3>
+  <p>Yes, when your situation has a wrinkle this calculator does not model -- a bundle of several items in one order, a promotional credit, or a fee structure Facebook has changed since this tool's rate was last checked. A spreadsheet you build and update yourself can represent any rule you can describe. This calculator trades that flexibility for a form that already has the right fields for one item moving through Facebook's published shipped or local-pickup schedule.</p>
+  <h3>Is my data uploaded anywhere?</h3>
+  <p>No. The calculator runs entirely in your browser. Item prices, costs, and payouts are never uploaded, and the optional usage counter records only which features were used and the day, never your numbers.</p>
+  <p class="note">This page names no specific product &mdash; it compares against the generic method of tracking these numbers in a spreadsheet, not a competing calculator. Open <a href="./">the Facebook Marketplace fee calculator</a>, or see the <a href="../where-to-sell-calculator/">where-to-sell calculator</a> and <a href="../marketplace-fee-compare/">marketplace fee compare</a> to rank Facebook Marketplace against other channels.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> Everything runs client-side; nothing you enter is uploaded anywhere.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Meta or Facebook. Facebook Marketplace is a trademark of Meta Platforms, Inc., named here only to describe the published fee schedule this tool computes against.</p>
+    <p class="support">Free and open source. If it helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
