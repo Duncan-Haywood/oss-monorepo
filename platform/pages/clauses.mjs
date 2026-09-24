@@ -1684,6 +1684,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and already carries the trademark disclaimer. Same reasoning as the
   // other generic-method pages above.
   'grant-deadline-tracker/vs-tracking-deadlines-in-a-spreadsheet.html',
+  // Compares against "a flat rate for every call" -- the generic quoting
+  // habit ("$X for a lockout, day or night") every mobile locksmith is
+  // shopped against, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-jobber.html, vs-workiz.html, and
+  // vs-housecall-pro.html, which name real products and already carry the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
