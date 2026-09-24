@@ -174,6 +174,18 @@ test('the pages link to each other and out to related tools', () => {
   }
 });
 
+// employee-cost-calculator has no existing sibling in the fleet other than
+// this one — the two share the same capped-FUTA/SUTA employer-burden
+// arithmetic, applied on opposite sides of who pays it (a billed placement
+// here, a direct hire there). Asserted so the link cannot silently rot.
+test('the index links one hop to the employee-cost-calculator sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/employee-cost-calculator\/"/,
+    'index must link ../employee-cost-calculator/ so crawlers reach it in one hop',
+  );
+});
+
 test('the headline figures in the copy are the ones the calculator produces', () => {
   const result = calculatePlacement(defaultsFromPage());
   const oneDp = (n) => n.toFixed(1);

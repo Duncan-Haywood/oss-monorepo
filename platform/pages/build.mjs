@@ -1104,7 +1104,22 @@ const CATEGORY_RULES = [
       // rule, just a deduction tied to QBI instead of tips/overtime, and it
       // cross-links `quarterly-estimated-tax-calendar` as a sibling for the
       // same reason that tool does.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator)/.test(slug),
+      // `employee-cost-calculator` joined 2026-09-24, filed here on its first
+      // commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for, which was already sitting
+      // at its bound of 5 the day this venture graduated. It is a back-office
+      // money decision like the rest of this section -- the fully-loaded
+      // annual cost of a role, W-2 versus 1099, computed with the same
+      // capped-FUTA/SUTA employer-burden arithmetic
+      // `ventures/staffing-markup-calculator/calc.mjs` uses for a billed
+      // placement -- just for a direct hire's own payroll rather than a
+      // staffing agency's invoice. Not `services` (staffing-markup-calculator
+      // itself sits there): that section groups a business quoting *billed*
+      // work to a client, and this tool has no client, only an internal
+      // staffing-cost decision. It cross-links staffing-markup-calculator as
+      // a sibling -- the same burden math, applied on the other side of who
+      // pays it.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -2771,7 +2786,11 @@ const SUBCATEGORY_RULES = {
       // hazard-removal or remediation job (containment, protective
       // procedures, testing/monitoring, special disposal) rather than an
       // installed product or a takeoff.
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
+      // `window-tinting` joins beside `vehicle-wrap` and `mobile-detailing`:
+      // it applies a film treatment to a vehicle's own surface rather than
+      // installing or replacing a fixed building product, the same "vehicle
+      // care/treatment" shape this group already groups those two under.
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|vehicle-wrap|window-tinting|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|asbestos-abatement|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming|wildlife-exclusion|biohazard-cleanup)/.test(slug),
     },
     {
       id: 'trades-roof',
