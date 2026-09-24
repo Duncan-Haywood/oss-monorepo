@@ -963,9 +963,18 @@ const CATEGORY_RULES = [
     // real-estate tools. Slug ends in `-calculator`, not any suffix this
     // rule already catches, so it is added by exact match rather than
     // widening the suffix list to a word this is the only user of.
+    //
+    // The `backup` prefix narrowed to `backup-verification` on 2026-09-24,
+    // when `backup-file-exposure-check` graduated and `categoryFor` swept
+    // it in here on the strength of its slug alone -- it is the `git-
+    // exposure-check`/`dotenv-exposure-check` "read what's actually there,
+    // name the exact evidence" checker family filed under `ci` below, not a
+    // compliance evidence record, and this category's own test ran before
+    // that one's and won on prefix order. `backup-verification-evidence`
+    // is still the only venture the narrower prefix needs to reach.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
+      || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator',
   },
@@ -1846,8 +1855,18 @@ const CATEGORY_RULES = [
     // code. Filed here on its first commit rather than after a spell in
     // the catch-all, the lesson `build.test.mjs`'s bound and this rule's
     // own history exist to encode.
+    //
+    // `backup-file-exposure-check` joined 2026-09-24: the same "read what's
+    // actually there, name the exact evidence" shape as `git-exposure-check`
+    // and `dotenv-exposure-check` -- real GET requests to a site's own
+    // well-known paths, the response classified against a real archive's
+    // magic bytes or a real SQL dump's line shape rather than a bare status
+    // code, just for backup archives and database dumps instead of
+    // git-internal plumbing or a dotenv file. Filed here on its first commit
+    // rather than after a spell in the catch-all. It cross-links both as
+    // Related (same static-file exposure family, different file classes).
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check)/.test(
         slug,
       ),
   },
