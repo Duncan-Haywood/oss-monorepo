@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 137 files, 556719 bytes
 #   portfolio-front-tools-7: 123 files, 555889 bytes
 #   portfolio-front-tools-8: 135 files, 554841 bytes
-#   portfolio-front-tools-9: 126 files, 552650 bytes
+#   portfolio-front-tools-9: 127 files, 556646 bytes
 #   portfolio-front-tools-10: 123 files, 552287 bytes
 #   portfolio-front-tools-11: 116 files, 555320 bytes
 #   portfolio-front-tools-12: 118 files, 556419 bytes
@@ -1295,6 +1295,7 @@ configMapGenerator:
       - employee-cost-calculator__index.html.gz=employee-cost-calculator__index.html.gz
       - employee-cost-calculator__usage.mjs.gz=employee-cost-calculator__usage.mjs.gz
       - employee-cost-calculator__vs-a-flat-burden-percentage.html.gz=employee-cost-calculator__vs-a-flat-burden-percentage.html.gz
+      - employee-cost-calculator__when-does-futa-suta-stop-accruing.html.gz=employee-cost-calculator__when-does-futa-suta-stop-accruing.html.gz
       - entry-door-bid-calculator__calc.mjs.gz=entry-door-bid-calculator__calc.mjs.gz
       - entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz=entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz
       - entry-door-bid-calculator__index.html.gz=entry-door-bid-calculator__index.html.gz
