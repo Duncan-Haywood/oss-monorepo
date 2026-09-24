@@ -727,6 +727,12 @@ const RELATIVE_SELF = relative(
 // (`ventures/senior-deduction-calculator/usage.mjs`), no deletions. Same
 // collision shape one merge later: this branch only ever knew the
 // predecessor number (340) from the first merge until this second one.
+// (A separate concurrent session also recorded the 339 -> 340 half of this
+// same transition, independently, attributing it entirely to
+// senior-deduction-calculator and landing on 340 -- it could not see this
+// branch's own claude-code-subagent-check addition. Both additions are
+// real, so the merged count is 341, not 340; this entry supersedes that
+// one rather than dropping either venture's contribution.)
 const SWITCHES_IN_THE_CATALOGUE = 341;
 
 let counter = 0;
