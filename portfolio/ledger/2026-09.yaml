@@ -39318,3 +39318,112 @@ entries:
         (ci_starvation.py --run 35936631836: runner_id 0 earlier this
         session), so this local verification stands in per CLAUDE.md.
     mrr_end: 0
+  - venture: s-corp-reasonable-compensation-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened, graduated, and built a new venture. session_gate.py's
+        PROCEED verdict named the build-now pipeline empty; per
+        DIRECTION.md a genuine new venture with named distribution
+        evidence ranks first when available, over the comparison/guide-page
+        work most other concurrent sessions were doing (checked open PRs:
+        #5415, #5414, #5413, #5412, #5405, #5403, all comparison/guide
+        pages on existing ventures -- no collision on a new venture).
+        Distribution evidence (WebSearch, this session): a live,
+        commercially validated market for exactly this calculator shape.
+        RCReports sells "reasonable compensation" analysis reports to
+        CPAs/preparers for $100-400/report, who in turn charge their own
+        clients $400-1,200/report. ReasonableCompCalc sells the same
+        category starting at $199. At least five CPA/tax-advisory firms
+        (madsencpa.com, taxstra.com, sdocpa.com, slpwealth.com,
+        evergreensmallbusiness.com) each publish their own free
+        "S-Corp Reasonable Salary Calculator" as a lead-generation tool
+        competing for the identical search phrase -- the same
+        "competitor's own comparison-search traffic" evidence type
+        DIRECTION.md's North star point 2 names explicitly, and the same
+        wedge (free, no-signup, client-side, without the lead-gen wrapper)
+        this portfolio already used successfully for
+        qbi-deduction-calculator.
+        Screened per pipeline/README.md: duplicate_check.py scored every
+        existing venture and candidate at or below 0.14 against the final
+        description (qbi-deduction-calculator closest, a genuinely
+        different mechanism -- a federal deduction on income already
+        earned, not a pre-payroll salary/distribution split). Nothing in
+        screened-out.md covers S-corp compensation, payroll-tax splits, or
+        reasonable-salary methodology. Composite 6.375, floor 1
+        (ai_leverage), both gates clear (5): liability_containment 6,
+        ethical_robustness 8 -- see
+        candidates/s-corp-reasonable-compensation-calculator.md for the
+        full write-up.
+        Built ventures/s-corp-reasonable-compensation-calculator/:
+        VENTURE.yaml, LICENSE, README.md, calc.mjs (three IRS-cited
+        approaches -- cost approach summing duty-weighted reference wages,
+        market approach on the primary role, income approach / independent
+        -investor test netting a required return off invested capital --
+        combined into a low-to-high range where the income approach can
+        only ever pull the range DOWN, never up, plus combined
+        employee+employer FICA/SECA payroll tax on the 2025/2026 Social
+        Security wage base ($176,100 / $184,500, the latter confirmed by
+        WebSearch against the SSA's October 2025 COLA announcement) and
+        the 0.9% Additional Medicare Tax by filing status), a 27-entry
+        reference occupational wage table (disclosed as an approximate,
+        rounded BLS-OEWS-range reference, not a live feed -- the page and
+        README both point to bls.gov/oes for the authoritative current
+        figure), usage.mjs (opt-out local counting, DNT/GPC honoured),
+        index.html (SoftwareApplication + FAQPage JSON-LD, no-warranty/
+        not-a-determination/nothing-uploaded disclaimers, cross-linked
+        with qbi-deduction-calculator as a sibling both ways), robots.txt,
+        sitemap.xml. 31/31 tests pass across calc/usage/page suites.
+        Filed into build.mjs's `backoffice` category (same regex family as
+        qbi-deduction-calculator and quarterly-estimated-tax-calendar)
+        rather than the catch-all, and added the reciprocal sibling link
+        from qbi-deduction-calculator's own footer + a page.test.mjs
+        assertion pinning it, closing the crawl-orphan siblings.mjs --check
+        would otherwise have flagged (budget is 0).
+        Registered: launched.mjs --write, publish_surface.py --write
+        (added s-corp-reasonable-compensation-calculator-ci.yml, copied
+        from qbi-deduction-calculator-ci.yml), venture-scores.yaml
+        (composite 6.167 on the 6-dim scale, floor 1), candidates.yaml +
+        candidates/s-corp-reasonable-compensation-calculator.md +
+        README.md's ranked table (all three cross-checked by
+        validate_doc_consistency.py), usage.yaml baseline row.
+        sync_tree_counts.py and gitops/ci/sync_readme_counts.py both ran
+        (mirrored-tool count 339->340, runs-on count 433/435->434/436)
+        after each of two origin/main merges mid-session, each followed by
+        `git checkout --ours` + `node platform/marketing/regen.mjs` to
+        resolve the resulting gitops/prod/ mirror binary conflicts per
+        platform/marketing/resolve-mirror-merge.sh's documented method
+        (the script itself only covers front-door-tools/; this session
+        applied the same regenerate-don't-pick-a-side principle to the
+        sibling front-door/ generator's conflicts too).
+      - >-
+        Verified: venture's own suite (31/31, re-run clean after both
+        merges). platform/marketing + platform/pages combined suite
+        1286/1286 (twice: once before the first merge after fixing a
+        JSON-LD/visible-copy em-dash mismatch and a missing launched.json
+        entry, once again after both merges). platform/proposal 101/101.
+        platform/privacy + platform/webcheck 142/142 (one transient
+        141/142 run during a concurrent regen --verify in another
+        terminal, reproduced clean on immediate re-run -- not this
+        venture's own suite). `regen.mjs --verify` clean after the final
+        merge. gitops/tests via `python3 -m pytest` 637 passed/1 skipped
+        (caught and fixed a real regression here: the new workflow moved
+        gitops/ci/README.md's runs-on count stale, `test_ci_runner.py`
+        caught it, `sync_readme_counts.py` fixed it, re-verified). All 15
+        platform/ci unittest modules + agent_review's test_review (21/21)
+        clean, twice (before and after the merges). portfolio/ledger +
+        scoring + router + usage + pipeline + infra/tests via pytest,
+        446/446, twice. checklist_coverage.py, validate_doc_consistency.py,
+        validate_candidates.py, router/validate.py, score_ventures.py
+        --check, usage/validate_usage.py, surface-budget.mjs --check,
+        siblings.mjs --check, publish_surface.py --check all clean on the
+        final tree. `run_workflow_locally.py --for-changes` was attempted
+        once but self-reported UNSTABLE CHECKOUT (HEAD moved mid-sweep
+        from an unrelated concurrent merge) and explicitly said not to
+        report either result -- not re-attempted a second time given the
+        exhaustive per-suite verification above already covers everything
+        that sweep would have run, and main was observed to move again
+        within minutes of every check in this session (six distinct
+        sessions/hour per session_gate.py).
+    mrr_end: 0
