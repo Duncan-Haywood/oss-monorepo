@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canonical Tag Checker vs. checking canonicals by view-source</title>
+<meta name="description" content="View-source on one page shows you its canonical tag looks fine -- an absolute URL, same domain, one tag. It cannot tell you whether the page that tag points at is itself marked noindex, because that is a second page you have not opened. This free tool fetches both and checks the contradiction for you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-checking-canonicals-by-view-source.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Canonical Tag Checker vs. checking canonicals by view-source">
+<meta property="og:description" content="A canonical tag that reads fine in view-source can still point at a page marked noindex -- a contradiction that only shows up once you fetch the second page too. This tool does that automatically.">
+<meta property="og:url" content="./vs-checking-canonicals-by-view-source.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does checking a canonical tag by view-source get wrong?","acceptedAnswer":{"@type":"Answer","text":"View-source (or a browser's Elements panel) shows you the one page you already have open. It is exact about that page's own markup: whether there is a canonical tag, whether its href is absolute, whether it points at the right domain. It tells you nothing about the page the canonical points at, because that is a different URL you have not fetched -- and a canonical tag is only doing its job if the page it names is actually indexable."}},{"@type":"Question","name":"Can you give a concrete example?","acceptedAnswer":{"@type":"Answer","text":"A migrated blog post at /old-guide/ carries one canonical tag, absolute, same domain, same protocol, naming https://example.com/guide/. Viewed in view-source, that tag has nothing wrong with it. Fetching /guide/ as well -- what this tool does automatically -- shows that page carries a noindex meta robots directive. The canonical on /old-guide/ is telling search engines \"index /guide/ instead of me,\" and /guide/ is telling them \"do not index me.\" Neither page, read alone, shows the contradiction."}},{"@type":"Question","name":"Isn't view-source already exact about what a page contains?","acceptedAnswer":{"@type":"Answer","text":"About the one page you opened, yes -- it will not miss a malformed tag or a typo in the href. What it cannot do is follow a link and check what is on the other end, because that is a second HTTP request to a second URL, and a browser's view-source has no reason to make one. This tool makes that second request itself, reads the target's own meta robots and status code, and reports back whether the canonical actually resolves to something indexable."}},{"@type":"Question","name":"Does this replace looking at the page at all?","acceptedAnswer":{"@type":"Answer","text":"No. You still choose which URL to check, and you still decide what to do about a finding -- this does not edit anything. What it removes is the step of manually opening a second tab, fetching the canonical target yourself, and reading its meta robots or status code by eye, for every page whose canonical you want to trust."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  code { font-size: 0.92em; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Canonical Tag Checker</a></p>
+<h1>Canonical Tag Checker vs. checking canonicals by view-source</h1>
+
+<p><strong>View-source</strong> needs no tool beyond what is already open: right-click, view page source (or the
+Elements panel), and read the <code>&lt;head&gt;</code>. It is exact about the one page you have open --
+whether a canonical tag exists, whether its <code>href</code> is absolute, whether it points at the right domain.
+It tells you nothing about the page that tag <em>points at</em>, because checking that means fetching a second
+URL, and view-source only ever shows you the page you already loaded.</p>
+
+<table>
+  <thead><tr><th scope="col">Page checked</th><th scope="col">Its canonical tag</th><th scope="col">view-source shows</th><th scope="col">This tool shows</th></tr></thead>
+  <tbody>
+    <tr><td><code>/old-guide/</code></td><td><code>&lt;link rel=canonical href="https://example.com/guide/"&gt;</code></td><td>One absolute, same-domain canonical tag &mdash; nothing wrong with it</td><td>Same tag, plus: the target it names is itself marked <strong>noindex</strong></td></tr>
+  </tbody>
+</table>
+
+<p>
+  Viewed in view-source, <code>/old-guide/</code>'s canonical tag has nothing wrong with it: one tag, absolute
+  URL, same domain, same protocol. Every check you could run against that markup alone passes. This tool fetches
+  <code>/guide/</code> too &mdash; the page the canonical actually names &mdash; and reads what it says about
+  itself. In the worked example below, <code>/guide/</code> carries a <code>noindex</code> meta robots tag. The
+  canonical on <code>/old-guide/</code> is the instruction "index <code>/guide/</code> instead of me"; the target
+  page is saying "do not index me." Neither page, read alone, shows that contradiction &mdash; the practical
+  effect is usually that neither page ends up indexed at all.
+</p>
+
+<table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr><td>Does this one page have a canonical tag, and does it look sane on its face?</td><td>Either method answers this correctly; view-source is the faster route for a single, familiar page.</td></tr>
+    <tr><td>Does the URL that canonical points at actually resolve, and is it marked indexable?</td><td>This tool &mdash; it makes the second fetch for you and reads the target's status code and meta robots. view-source has no way to follow a link to a different URL.</td></tr>
+    <tr><td>I just want to confirm a typo-free canonical href on a page I'm actively editing.</td><td>view-source &mdash; no need to leave the editor for a one-off spot check with no target-page question attached.</td></tr>
+    <tr><td>I migrated a batch of URLs and want to confirm none of the new canonical targets are accidentally noindexed.</td><td>This tool &mdash; checking each target by hand means opening every one in a second tab and reading its meta robots yourself, for every URL in the batch.</td></tr>
+  </tbody>
+</table>
+
+<p class="fine">This tool needs no account: it is a static report viewer, and the fetches happen from the
+zero-dependency CLI on your own machine, never through this site.</p>
+
+<h2>Common questions</h2>
+<h3>What does checking a canonical tag by view-source get wrong?</h3>
+<p>View-source (or a browser's Elements panel) shows you the one page you already have open. It is exact about that page's own markup: whether there is a canonical tag, whether its href is absolute, whether it points at the right domain. It tells you nothing about the page the canonical points at, because that is a different URL you have not fetched -- and a canonical tag is only doing its job if the page it names is actually indexable.</p>
+<h3>Can you give a concrete example?</h3>
+<p>A migrated blog post at /old-guide/ carries one canonical tag, absolute, same domain, same protocol, naming https://example.com/guide/. Viewed in view-source, that tag has nothing wrong with it. Fetching /guide/ as well -- what this tool does automatically -- shows that page carries a noindex meta robots directive. The canonical on /old-guide/ is telling search engines "index /guide/ instead of me," and /guide/ is telling them "do not index me." Neither page, read alone, shows the contradiction.</p>
+<h3>Isn't view-source already exact about what a page contains?</h3>
+<p>About the one page you opened, yes -- it will not miss a malformed tag or a typo in the href. What it cannot do is follow a link and check what is on the other end, because that is a second HTTP request to a second URL, and a browser's view-source has no reason to make one. This tool makes that second request itself, reads the target's own meta robots and status code, and reports back whether the canonical actually resolves to something indexable.</p>
+<h3>Does this replace looking at the page at all?</h3>
+<p>No. You still choose which URL to check, and you still decide what to do about a finding -- this does not edit anything. What it removes is the step of manually opening a second tab, fetching the canonical target yourself, and reading its meta robots or status code by eye, for every page whose canonical you want to trust.</p>
+<p>Verified against this tool's own worked example (a canonical whose target carries a noindex directive): the finding it reports is <strong>"Canonical target is itself marked noindex."</strong></p>
+
+<p><a href="index.html">&larr; Back to the Canonical Tag Checker</a> &middot; already running a whole-site crawl?
+See <a href="vs-screaming-frog.html">how this compares to Screaming Frog SEO Spider</a> instead.</p>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  You are responsible for reviewing and verifying its output before relying on it, and for having
+  authorisation to check any URL you point it at. To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
