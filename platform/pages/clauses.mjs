@@ -104,6 +104,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // habit any developer already has, not a company or product this could be
   // mistaken for.
   'source-map-leak-check/vs-checking-devtools-by-hand.html',
+  // Compares against "checking response headers by eye in DevTools'
+  // Network tab" -- a manual habit any web developer already has, not a
+  // company or product this could be mistaken for. Same reasoning as
+  // source-map-leak-check's own devtools-by-hand page above; this venture's
+  // vs-curl.html is separately exempt-free (curl is a named tool) and
+  // already carries the trademark disclaimer, so the two comparison pages
+  // are deliberately different classes.
+  'cache-control-check/vs-checking-headers-by-eye-in-devtools.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -1436,6 +1444,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against "a flat per-vehicle price" (a posted "$180 sedan /
+  // $220 SUV / $250 truck" list) -- a pricing habit every independent tint
+  // shop already posts, not a company or product this could be mistaken
+  // for. The page names no specific tint franchise, film brand, or
+  // competing calculator at all. Same reasoning as this venture's sibling
+  // vs-a-flat-*-price pages above (mobile-detailing-bid-calculator's
+  // vs-a-flat-per-vehicle-price.html, pet-grooming-bid-calculator's
+  // vs-a-flat-per-breed-price.html).
+  'window-tinting-bid-calculator/vs-a-flat-per-vehicle-size-price.html',
   // Compares against a flat "$8 a stall" / "$400 for a 50-space lot"
   // striping special -- a generic advertised pricing habit the trade is
   // shopped against, not a company or product this could be mistaken for.
