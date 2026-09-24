@@ -330,6 +330,7 @@ configMapGenerator:
       - vs__reading-the-workflow-yaml-by-hand.html.gz=front-door/vs__reading-the-workflow-yaml-by-hand.html.gz
       - vs__checking-headers-by-eye-in-devtools.html.gz=front-door/vs__checking-headers-by-eye-in-devtools.html.gz
       - vs__mcp-scan.html.gz=front-door/vs__mcp-scan.html.gz
+      - vs__assembling-one-by-hand-in-a-document-editor.html.gz=front-door/vs__assembling-one-by-hand-in-a-document-editor.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
