@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 136 files, 553894 bytes
 #   portfolio-front-tools-7: 122 files, 555407 bytes
 #   portfolio-front-tools-8: 135 files, 556808 bytes
-#   portfolio-front-tools-9: 126 files, 546408 bytes
+#   portfolio-front-tools-9: 127 files, 549724 bytes
 #   portfolio-front-tools-10: 119 files, 555108 bytes
 #   portfolio-front-tools-11: 116 files, 554126 bytes
 #   portfolio-front-tools-12: 125 files, 556869 bytes
@@ -1300,6 +1300,7 @@ configMapGenerator:
       - equipment-auction-buyer-premium-calculator__share.mjs.gz=equipment-auction-buyer-premium-calculator__share.mjs.gz
       - equipment-auction-buyer-premium-calculator__usage.mjs.gz=equipment-auction-buyer-premium-calculator__usage.mjs.gz
       - equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz=equipment-auction-buyer-premium-calculator__vs-a-flat-percent-rule.html.gz
+      - equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz=equipment-auction-buyer-premium-calculator__why-is-sales-tax-charged-on-the-buyers-premium.html.gz
       - equipment-lease-buyout-calculator__calc.mjs.gz=equipment-lease-buyout-calculator__calc.mjs.gz
       - equipment-lease-buyout-calculator__index.html.gz=equipment-lease-buyout-calculator__index.html.gz
       - equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz=equipment-lease-buyout-calculator__should-i-buy-out-my-equipment-lease.html.gz
