@@ -35,8 +35,8 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 137 files, 542984 bytes
 #   portfolio-front-tools-1: 97 files, 554671 bytes
-#   portfolio-front-tools-2: 146 files, 554727 bytes
-#   portfolio-front-tools-3: 132 files, 550434 bytes
+#   portfolio-front-tools-2: 146 files, 554642 bytes
+#   portfolio-front-tools-3: 133 files, 554335 bytes
 #   portfolio-front-tools-4: 145 files, 553590 bytes
 #   portfolio-front-tools-5: 121 files, 556600 bytes
 #   portfolio-front-tools-6: 136 files, 553894 bytes
@@ -382,6 +382,7 @@ configMapGenerator:
       - cloud-egress-calculator__index.html.gz=cloud-egress-calculator__index.html.gz
       - cloud-egress-calculator__share.mjs.gz=cloud-egress-calculator__share.mjs.gz
       - cloud-egress-calculator__usage.mjs.gz=cloud-egress-calculator__usage.mjs.gz
+      - cloud-egress-calculator__vs-a-spreadsheet.html.gz=cloud-egress-calculator__vs-a-spreadsheet.html.gz
       - cloud-egress-calculator__vs-aws-pricing-calculator.html.gz=cloud-egress-calculator__vs-aws-pricing-calculator.html.gz
       - cloud-egress-calculator__vs-azure-pricing-calculator.html.gz=cloud-egress-calculator__vs-azure-pricing-calculator.html.gz
       - cloud-egress-calculator__vs-google-cloud-pricing-calculator.html.gz=cloud-egress-calculator__vs-google-cloud-pricing-calculator.html.gz
@@ -464,12 +465,12 @@ configMapGenerator:
       - invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz=invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz
       - invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz=invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz
       - invoice-payment-terms-calculator__usage.mjs.gz=invoice-payment-terms-calculator__usage.mjs.gz
-      - invoice-payment-terms-calculator__vs-freshbooks.html.gz=invoice-payment-terms-calculator__vs-freshbooks.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - invoice-payment-terms-calculator__vs-freshbooks.html.gz=invoice-payment-terms-calculator__vs-freshbooks.html.gz
       - invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz=invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz
       - invoice-payment-terms-calculator__vs-spreadsheet.html.gz=invoice-payment-terms-calculator__vs-spreadsheet.html.gz
       - cash-runway-planner__LICENSE.gz=cash-runway-planner__LICENSE.gz
