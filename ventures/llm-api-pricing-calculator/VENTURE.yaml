@@ -1,0 +1,115 @@
+name: llm-api-pricing-calculator
+description: Free browser tool comparing the monthly dollar cost of calling different LLM APIs (Anthropic Claude, OpenAI GPT, Google Gemini, or a custom/open-weight provider) for a given monthly workload, modelling fresh input, cached input, and output tokens separately (cached tokens are billed far below fresh input and usually dominate agentic workloads). No vendor pricing is fetched or asserted -- the visitor pastes in each provider's own current rates. Runs entirely client-side; nothing uploaded, no account.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-24)
+#
+# duplicate_check.py (run this session) against "LLM API pricing calculator:
+# compare per-token cost across Claude, GPT, Gemini and open-weight model API
+# providers for a given prompt/output token mix and monthly volume":
+#
+#   score  source                    label
+#    0.18  venture                   ai-coding-plan-cost-calculator
+#    0.17  pipeline candidate        fire-extinguisher-inspection-route-margin
+#    0.15  venture                   vector-db-cost-calculator
+#    0.15  pipeline candidate        dumpster-rental-margin-calculator
+#    0.15  venture                   marketplace-fee-compare
+#    0.14  pipeline candidate        cat-adjuster-fee-calculator
+#    0.14  pipeline candidate        pool-route-pricing
+#    0.14  pipeline candidate        atm-route-margin
+#    0.12  venture                   amazon-fba-calculator
+#    0.12  venture                   shopify-fee-calculator
+#
+# Nothing scored >= 0.45 (the review bar). Read the top hit directly rather
+# than trusting the score: ai-coding-plan-cost-calculator compares a flat-rate
+# AI coding *subscription* (Claude Pro/Max, Cursor, Copilot, ChatGPT Plus)
+# against that same vendor's own per-token API price for the same coding
+# usage -- a subscription-vs-API-for-one-vendor comparison. This venture is a
+# different comparison entirely: raw per-token API pricing *across* vendors
+# (Claude vs. GPT vs. Gemini vs. custom) for a workload the visitor supplies,
+# with no subscription plan in the picture at all. vector-db-cost-calculator
+# is the closest in *shape* (bring-your-own-rates, multi-provider, no vendor
+# price asserted) but a different domain (vector database storage/query
+# pricing, not LLM token pricing) -- it is this venture's direct template,
+# credited in calc.mjs's header comment and index.html's footer cross-link,
+# not a duplicate. Also checked open PRs and `git log --oneline -20
+# origin/main` for "llm"/"api-pricing"/"token" -- no open PR or recent merge
+# builds this niche.
+#
+# Also searched ventures/ directly for llm/token/gpt/claude in the slug:
+# only llms-txt-generator (an unrelated tool -- generates an llms.txt file
+# for a site, not a pricing calculator) matched.
+#
+# LIABILITY CONTAINMENT: pure arithmetic over user-supplied token volumes and
+# user-editable rates against each vendor's own public, non-personal pricing.
+# No advice-of-record (it computes, the visitor decides), no compliance
+# claim, no PII, no payment code, no account. The only failure mode is a
+# stale or wrong default rate, which is why every rate ships editable and
+# each of the three preset provider rows is labelled "example -- replace
+# with the current rate" on every single rate field (not just once per row),
+# and the no-warranty clause tells the visitor this is not vendor-pricing
+# advice and to verify with each provider before deciding
+# (`platform/pages/clauses.mjs` enforces the clause; the page passes it).
+#
+# ETHICAL ROBUSTNESS: gets strictly better for the visitor as it scales -- it
+# exists only to help a developer or team pay less by choosing the cheaper
+# provider or catching an under-priced cache assumption, with no adverse
+# incentive on our side (no affiliate link, no referral fee, donations-only
+# same as the rest of the portfolio, no vendor lock-in favored by the tool's
+# design since all rate fields are symmetric and user-entered).
+#
+# JUDGMENT CALL flagged for review: the "4 rate inputs" per provider named in
+# the brief (input, cached-input, output, plus "a monthly volume the tool
+# multiplies through") is modelled here as a *shared* monthly workload
+# section (fresh/cached/output token counts, entered once) multiplied through
+# three *per-provider* rate fields (input $/M, cached-input $/M, output
+# $/M) -- the same bring-your-own-rates shape vector-db-cost-calculator uses
+# (shared storageGb/queriesMillion, per-provider storageRate/queryRate),
+# because the token workload a developer sends doesn't change per vendor,
+# only the rate it's billed at. No free-tier/included-allowance field was
+# added (unlike vector-db-cost-calculator's freeStorageGb/freeQueriesMillion)
+# because LLM API providers generally do not offer a persistent free
+# token allowance the way cloud/DB tiers do; this can be added later if
+# that assumption turns out wrong for a specific provider.
+hypotheses:
+  - claim: A developer or team sizing a monthly LLM API bill across candidate providers wants a provider-neutral way to turn their own fresh/cached/output token mix into an actual dollar comparison before committing, and currently does this by hand across each vendor's separate pricing page, usually blending fresh and cached input into one number and getting the total wrong for agentic workloads.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Modelling cached input tokens as a separate, separately-priced line (rather than folding them into a blended input rate) changes the answer enough for agentic/long-context workloads -- where cache reads can be the large majority of input tokens -- that a visitor who tries a naive per-token estimate first and this calculator second notices the difference and trusts this one more.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all arithmetic is client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors run a comparison with at least two provider rows filled in within 90 days.
+  - Users cannot correctly reproduce a known vendor's monthly-cost number using the calculator and that vendor's own published rates.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/llm-api-pricing-calculator/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: r/LocalLLaMA and r/MachineLearning threads
+  that already ask "claude vs gpt pricing" or "how much will this agent cost
+  me in tokens"; Hacker News "Show HN" for a zero-dependency, no-signup dev
+  tool; and organic search for "llm api pricing calculator", "compare llm
+  token pricing", "claude vs gpt vs gemini api cost", and "prompt caching
+  cost calculator" -- all live, current search terms given how often model
+  API pricing (and cache-discount structure specifically) changes and gets
+  re-litigated in public discussion as new models ship.

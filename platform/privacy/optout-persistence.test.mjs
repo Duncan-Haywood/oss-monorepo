@@ -625,7 +625,14 @@ const RELATIVE_SELF = relative(
 // throughout this list, two-wide this time. Exactly one added
 // `usage.mjs` (`ventures/str-occupancy-tax-calculator/usage.mjs`), no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 327;
+//
+// 327 -> 328 on this merge: `llm-api-pricing-calculator` also graduated,
+// adding one `usage.mjs` following the same opt-out pattern as its
+// siblings (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed
+// under its own `llm-api-pricing-calculator:usage` storage name). Exactly
+// one added `usage.mjs` (`ventures/llm-api-pricing-calculator/usage.mjs`),
+// no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 328;
 
 let counter = 0;
 function fixture(source) {

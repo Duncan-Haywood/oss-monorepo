@@ -33,26 +33,26 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 137 files, 543045 bytes
-#   portfolio-front-tools-1: 97 files, 554617 bytes
-#   portfolio-front-tools-2: 145 files, 556037 bytes
-#   portfolio-front-tools-3: 135 files, 554289 bytes
-#   portfolio-front-tools-4: 146 files, 556366 bytes
-#   portfolio-front-tools-5: 116 files, 552800 bytes
-#   portfolio-front-tools-6: 134 files, 556107 bytes
-#   portfolio-front-tools-7: 128 files, 555238 bytes
-#   portfolio-front-tools-8: 137 files, 554416 bytes
-#   portfolio-front-tools-9: 127 files, 553568 bytes
-#   portfolio-front-tools-10: 122 files, 555592 bytes
-#   portfolio-front-tools-11: 118 files, 556694 bytes
-#   portfolio-front-tools-12: 118 files, 544012 bytes
-#   portfolio-front-tools-13: 127 files, 555552 bytes
-#   portfolio-front-tools-14: 125 files, 549991 bytes
-#   portfolio-front-tools-15: 132 files, 556299 bytes
-#   portfolio-front-tools-16: 102 files, 548570 bytes
-#   portfolio-front-tools-17: 118 files, 553971 bytes
-#   portfolio-front-tools-18: 123 files, 554593 bytes
-#   portfolio-front-tools-19: 104 files, 508473 bytes
+#   portfolio-front-tools-0: 137 files, 543059 bytes
+#   portfolio-front-tools-1: 97 files, 554620 bytes
+#   portfolio-front-tools-2: 145 files, 556044 bytes
+#   portfolio-front-tools-3: 135 files, 554274 bytes
+#   portfolio-front-tools-4: 146 files, 556482 bytes
+#   portfolio-front-tools-5: 116 files, 552806 bytes
+#   portfolio-front-tools-6: 134 files, 556110 bytes
+#   portfolio-front-tools-7: 128 files, 555220 bytes
+#   portfolio-front-tools-8: 137 files, 554411 bytes
+#   portfolio-front-tools-9: 127 files, 553612 bytes
+#   portfolio-front-tools-10: 122 files, 555600 bytes
+#   portfolio-front-tools-11: 118 files, 556708 bytes
+#   portfolio-front-tools-12: 121 files, 555321 bytes
+#   portfolio-front-tools-13: 127 files, 554842 bytes
+#   portfolio-front-tools-14: 126 files, 553619 bytes
+#   portfolio-front-tools-15: 132 files, 556365 bytes
+#   portfolio-front-tools-16: 102 files, 548449 bytes
+#   portfolio-front-tools-17: 118 files, 554028 bytes
+#   portfolio-front-tools-18: 123 files, 554598 bytes
+#   portfolio-front-tools-19: 104 files, 508502 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1746,6 +1746,10 @@ configMapGenerator:
       - license-drift-check__usage.mjs.gz=license-drift-check__usage.mjs.gz
       - license-drift-check__vs-fossa.html.gz=license-drift-check__vs-fossa.html.gz
       - license-drift-check__vs-manually-rechecking-licenses.html.gz=license-drift-check__vs-manually-rechecking-licenses.html.gz
+      - llm-api-pricing-calculator__calc.mjs.gz=llm-api-pricing-calculator__calc.mjs.gz
+      - llm-api-pricing-calculator__index.html.gz=llm-api-pricing-calculator__index.html.gz
+      - llm-api-pricing-calculator__usage.mjs.gz=llm-api-pricing-calculator__usage.mjs.gz
+      - llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz=llm-api-pricing-calculator__why-prompt-caching-changes-the-math.html.gz
       - llms-txt-generator__cli.mjs.gz=llms-txt-generator__cli.mjs.gz
       - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
       - llms-txt-generator__index.html.gz=llms-txt-generator__index.html.gz
@@ -1794,12 +1798,12 @@ configMapGenerator:
       - merchant-feed-check__vs-datafeedwatch.html.gz=merchant-feed-check__vs-datafeedwatch.html.gz
       - merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz=merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz
       - metal-roof-bid-calculator__calc.mjs.gz=metal-roof-bid-calculator__calc.mjs.gz
-      - metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz=metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz=metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz
       - metal-roof-bid-calculator__index.html.gz=metal-roof-bid-calculator__index.html.gz
       - metal-roof-bid-calculator__usage.mjs.gz=metal-roof-bid-calculator__usage.mjs.gz
       - metal-roof-bid-calculator__vs-a-flat-950-per-square-special.html.gz=metal-roof-bid-calculator__vs-a-flat-950-per-square-special.html.gz
@@ -1926,12 +1930,12 @@ configMapGenerator:
       - payment-reconciliation-workbench__index.html.gz=payment-reconciliation-workbench__index.html.gz
       - payment-reconciliation-workbench__reconcile.mjs.gz=payment-reconciliation-workbench__reconcile.mjs.gz
       - payment-reconciliation-workbench__usage.mjs.gz=payment-reconciliation-workbench__usage.mjs.gz
-      - payment-reconciliation-workbench__vs-synder.html.gz=payment-reconciliation-workbench__vs-synder.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - payment-reconciliation-workbench__vs-synder.html.gz=payment-reconciliation-workbench__vs-synder.html.gz
       - payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz=payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz
       - pdf-accessibility-tag-check__engine.mjs.gz=pdf-accessibility-tag-check__engine.mjs.gz
       - pdf-accessibility-tag-check__index.html.gz=pdf-accessibility-tag-check__index.html.gz
