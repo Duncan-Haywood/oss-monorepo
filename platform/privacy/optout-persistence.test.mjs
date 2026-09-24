@@ -660,7 +660,20 @@ const RELATIVE_SELF = relative(
 // (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
 // own `hidden-unicode-check:usage` storage name). Exactly one added
 // `usage.mjs` (`ventures/hidden-unicode-check/usage.mjs`), no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 332;
+//
+// 332 -> 333: a concurrent branch merge -- `salary-range-posting-check`
+// also graduated the same session, adding one more `usage.mjs`
+// (`ventures/salary-range-posting-check/usage.mjs`), no deletions.
+//
+// 333 -> 334: another concurrent branch merge -- `skill-manifest-check`
+// also graduated, adding one `usage.mjs` following the same opt-out
+// pattern as its siblings (`usageAllowed`/`setUsageEnabled` gating
+// `countUsage`, keyed under its own `skill-manifest-check:usage` storage
+// name). Exactly one added `usage.mjs`
+// (`ventures/skill-manifest-check/usage.mjs`), no deletions -- the
+// same-commit link added to `mcp-config-risk-check`'s footer reuses that
+// venture's own existing switch rather than adding a new one.
+const SWITCHES_IN_THE_CATALOGUE = 334;
 
 let counter = 0;
 function fixture(source) {
