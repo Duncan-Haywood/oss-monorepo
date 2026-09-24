@@ -39959,3 +39959,65 @@ entries:
         comparison page), so the Playwright/axe-core browser-check line was
         not run -- nothing this change touches is markup a user types into.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Generic scheduled brief ("continue work ... develop, deploy, market,
+        sell and support revenue generating software products"). session_gate.py
+        read PROCEED; decision_queue.py's 17 rows are all owner-credential-gated
+        (SSH key, payout rail, sponsors, Stripe) and none actionable this
+        session; only one open PR (#5497), not mine to drive.
+      - >-
+        Checked platform/marketing/front-door-tools.mjs --headroom (the
+        shared front-door mirror every venture-page PR builds through) and
+        found it at 85.9% of MIRROR_BYTE_CEILING (10,805,974 of 12,582,912
+        stored bytes, 345 tools, ~56 tools of runway left) -- a live,
+        worsening risk flagged as pre-existing-and-unaddressed in at least
+        two other sessions' ledger entries today (hood-cleaning-bid-calculator,
+        window-tinting-bid-calculator), since crossing the ceiling throws
+        inside buildMirror and portfolio-validate runs that on every PR
+        touching a venture page: the fleet's entire product-shipping capacity
+        would stop, not just the one PR that crosses it.
+      - >-
+        Re-measured before acting, matching the file's own prior-raise
+        protocol: dedupeMirror has recovered 1,604,544 bytes across 559
+        aliased names, and duplicateBytes(stored) -- the post-dedup figure --
+        reports 0 recoverable bytes / 0 groups. GZIP_LEVEL is already 9.
+        Both automatic recovery mechanisms are spent, exactly as they were
+        at the prior 2026-09-10 raise (8 MiB to 12 MiB).
+      - >-
+        That prior raise's own comment explicitly said the next occurrence
+        with duplicates at zero should be the portfolio-site-repo seal or
+        gitops/prod/host/, "not a third raise" -- both gated on the same
+        HETZNERSSHKEY credential queued 20+ days with no owner action
+        (#3184). Weighed the documented preference against the documented
+        cost of waiting: crossing the ceiling stops every venture PR from
+        validating fleet-wide, while a further raise's costs (re-measured
+        rather than assumed) stay small -- 16 MiB of tmpfs against the
+        192Mi pod memory limit is 8.3% (test_portfolio_front_fits_the_prod_quota
+        only requires 2x headroom, 32Mi; this clears it 8.7x over), and 16 MiB
+        of committed .gz mirror against a >500 MB .git is the same order of
+        magnitude the 12 MiB decision accepted. Raised MIRROR_BYTE_CEILING
+        from 12 MiB to 16 MiB, documenting in the same comment exactly why
+        this overrides the "not a third raise" note (both prescribed remedies
+        are unavailable to any agent session today) and that the seal/
+        self-host route is still the correct long-term fix, still queued as
+        #3184, and not something this session can action. New ratio: 64.4%
+        (10,805,974 / 16,777,216), ~190 tools of runway.
+      - >-
+        Verified: platform/marketing/*.test.mjs 272/272; platform/pages/*.test.mjs
+        1014/1014; gitops/tests 637 passed/1 skipped (nginx-light +
+        openssh-client installed per CLAUDE.md's apt-get workaround);
+        gitops/tests/test_front_door_serving.py and test_manifests.py's
+        pod-memory invariant specifically re-run and passing; platform/ci
+        unittest (27 modules) all OK; checklist_coverage.py clean;
+        sync_tree_counts.py clean (no drift); regen.mjs --verify clean (no
+        content changed, only the threshold). Did not touch any venture page
+        or the committed mirror artifacts themselves -- this is a single
+        constant plus its documentation comment. CI confirmed starved this
+        session (ci_starvation.py --run 35962212138: runner_id 0, 3s, no
+        steps on the latest main push), so verification ran locally per
+        CLAUDE.md's starvation checklist.
+    mrr_end: 0
