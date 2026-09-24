@@ -2381,20 +2381,29 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # attacks. Static `index.html` from its first commit, same shape as
     # the rest of this running count.
     #
-    # 351 on this merge: `skill-manifest-check` also graduated -- a
-    # zero-dependency browser tool that lints one or more pasted SKILL.md
-    # agent-skill manifests (the frontmatter-plus-Markdown format Claude
-    # Code and similar agent systems use) for missing/malformed frontmatter,
-    # a description too vague to trigger reliably, overlapping triggers
-    # between two or more pasted skills, and a body-size context-budget
-    # caution. Static `index.html` from its first commit, same shape as the
-    # rest of this running count. This merge also gzip-compressed
-    # `llms.txt` (joining `catalog.json` and `sitemap.xml`) to buy back
-    # etcd-object headroom -- see `llmsStoredKey` in
+    # 351 on this merge: a concurrent branch merge -- `salary-range-posting-
+    # check` also graduated the same session -- a zero-dependency browser +
+    # CLI tool that scans pasted job-posting text for a stated dollar range
+    # and cross-references a chosen set of US states against a fixed table
+    # of which ones currently require a posted pay range. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This merge also gzip-compressed `llms.txt` (joining
+    # `catalog.json` and `sitemap.xml`) to buy back etcd-object headroom --
+    # written independently on this branch and on `main` in the same
+    # session, for the identical reason; see `llmsStoredKey` in
     # `platform/marketing/front-door.mjs`.
+    #
+    # 352 on this merge: another concurrent branch merge --
+    # `skill-manifest-check` also graduated -- a zero-dependency browser
+    # tool that lints one or more pasted SKILL.md agent-skill manifests (the
+    # frontmatter-plus-Markdown format Claude Code and similar agent systems
+    # use) for missing/malformed frontmatter, a description too vague to
+    # trigger reliably, overlapping triggers between two or more pasted
+    # skills, and a body-size context-budget caution. Static `index.html`
+    # from its first commit, same shape as the rest of this running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 351  # `infra/OWNER_CHECKLIST.md`'s own "N of the 351 tools" wording.
+    total = 352  # `infra/OWNER_CHECKLIST.md`'s own "N of the 352 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
