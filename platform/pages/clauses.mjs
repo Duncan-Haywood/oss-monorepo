@@ -1194,6 +1194,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the other vs-checking-*-by-hand pages above (e.g.
   // graphql-introspection-exposure-check's).
   'actions-injection-check/vs-checking-a-workflow-by-hand.html',
+  // Compares against "opening each base image's own release page by hand" --
+  // a manual lookup habit every Dockerfile author already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-a-vulnerability-scanner.html, which names specific
+  // scanners (Trivy, Grype, Docker Scout) and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above (e.g. actions-injection-check's).
+  'docker-base-image-eol-check/vs-checking-eol-dates-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
