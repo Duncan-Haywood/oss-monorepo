@@ -41230,3 +41230,47 @@ entries:
         branch snapshot (publish-branch.sh) and recorded the reading
         (pages_state.py --record) after merge.
     mrr_end: 0
+  - venture: skill-manifest-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a fourth new venture this session: a free,
+        client-side linter for AI agent SKILL.md manifests (the format
+        Claude Code and similar agent systems use -- YAML frontmatter with
+        name/description, followed by instructions). Checks for missing or
+        malformed frontmatter, a description too vague or generic to
+        trigger reliably, overlapping trigger vocabulary across multiple
+        pasted skills, and a body-size context-budget caution. Grounded in
+        web research confirming multiple developers independently built
+        ad-hoc versions of this exact tool in January 2026 because every
+        existing skill linter wanted a repo upload first. 56 tests.
+        duplicate_check.py top score 0.14 across the whole portfolio, well
+        under the 0.45 review bar. PR #5667, merged.
+      - >-
+        Also found and fixed a pre-existing, unrelated defect on main while
+        verifying the checklist: gitops/tests was red on
+        test_generated_configmaps_stay_under_the_etcd_object_ceiling
+        (confirmed on an independent clean origin/main worktree that this
+        predated the new venture by 109 bytes). This is the third instance
+        of a documented pattern -- catalog.json and sitemap.xml were
+        compressed the same way on 2026-09-12 and 2026-09-23 respectively.
+        Applied the same fix to llms.txt (front-door.mjs,
+        front-door.test.mjs, the kustomization and nginx manifests),
+        bringing gitops/tests from 4 failures to 637 passed/1 skipped.
+        Re-confirmed clean on this session's own fresh sync of main
+        afterward.
+      - >-
+        Post-merge: refreshed the published GitHub Pages snapshot (clean
+        build) and confirmed sync_tree_counts.py, regen.mjs --verify, and
+        gitops/tests are current/green against the merged main. New tool
+        live at
+        https://duncan-haywood.github.io/monorepo-projects/skill-manifest-check/.
+        This session has now shipped four new ventures
+        (llm-api-pricing-calculator, mcp-config-risk-check,
+        hidden-unicode-check, skill-manifest-check), fixed two real defects
+        (a WCAG contrast bug caught before shipping and independently fixed
+        by a sibling session, and this etcd-budget CI regression), and ran
+        one fleet-wide accessibility re-verification. Portfolio-wide
+        revenue and confirmed-visitor counts remain at zero.
+    mrr_end: 0

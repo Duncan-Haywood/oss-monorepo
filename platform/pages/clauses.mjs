@@ -1837,6 +1837,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names Socket, Inc. specifically and already carries the
   // trademark disclaimer. Same shape as the other vs-*-by-hand pages above.
   'npm-lifecycle-script-check/vs-diffing-package-lock-by-hand.html',
+  // Compares against "reading values.yaml next to values.schema.json by
+  // eye" -- a manual review habit any chart author already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-helm-lint.html, which names a specific tool (Helm)
+  // and already carries the "not affiliated" clause for that reason. Same
+  // shape as sql-migration-lock-check's vs-reading-the-migration-by-hand.html.
+  'helm-values-schema-check/vs-checking-it-by-eye.html',
   // Compares against "a flat 3-hour, $500 package" -- the generic
   // flat-rate booking pattern any mobile photo booth operator already
   // uses, not a company or product this could be mistaken for. Distinct
