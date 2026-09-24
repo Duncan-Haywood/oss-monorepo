@@ -1,0 +1,162 @@
+name: npm-provenance-check
+description: Free, read-only checker that reports which packages in a pasted package-lock.json, package.json, or plain list were published with an npm provenance attestation (trusted publishing / OIDC, or npm publish --provenance) versus a classic, stealable publish token -- the mechanism the 2025-2026 Shai-Hulud worm abused. Browser page or zero-dependency CLI; one read-only GET per package to the public npm registry, no upload, no account, no npm token needed.
+
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-24. duplicate_check.py against the final description
+# scored every venture, screened-out row, ai-first-markets idea, and
+# pipeline candidate at or below 0.14 -- the closest lexical match was
+# npm-lifecycle-script-check (0.14, shares "npm"/"package-lock.json"
+# vocabulary but checks install-time scripts, a different registry
+# field and a different attack class). A targeted read of every existing
+# "check"/"drift"/"watch" venture in ventures/ (85+ instances, listed by
+# `ls ventures/ | grep -i check`) found dependency-confusion-check,
+# slopsquatting-check, and npm-lifecycle-script-check as the npm-supply-
+# chain-adjacent siblings; none reads dist.attestations.provenance or
+# reports publish-mechanism hardening. Not in screened-out.md.
+#
+# Niche test (PRODUCT_PLAYBOOK.md 1):
+#   Who exactly: npm package maintainers and org security/platform teams
+#     who are migrating (or deciding whether to migrate) publishing off
+#     long-lived NPM_TOKEN secrets and onto trusted publishing, plus
+#     downstream consumers auditing which of their dependencies still
+#     carry the token-theft exposure.
+#   What they search: "npm trusted publishing", "npm provenance check",
+#     "is my package provenance verified" -- WebSearch 2026-09-24
+#     confirmed real, current, dated discussion: npm's own trusted-
+#     publishing docs, a dedicated academic paper on release-authority
+#     measurement for registry ecosystems (arxiv 2606.22593), and at
+#     least five independent 2026-dated blog posts walking maintainers
+#     through migration (philna.sh 2026-01-28, thecandidstartup.org
+#     2026-02-23, bex.co 2026-09-10, refontelearning.com,
+#     pkgpulse.com) -- all published within the last eight months,
+#     which is what recent, active migration pressure looks like rather
+#     than a stale or seasonal query.
+#   What it costs them: a maintainer who doesn't know which of their own
+#     packages (or an org's fleet of packages) still publish via a
+#     stealable token has no prioritized list of what to migrate first;
+#     a consumer who can't see which dependencies lack provenance can't
+#     weigh that signal when evaluating a new dependency or triaging
+#     exposure after an incident like Shai-Hulud.
+#   Competitive honesty: `npm audit signatures` is the real, built-in
+#     answer to "does npm already do this" and this file does not
+#     overclaim past it -- it reports the identical registry field. It
+#     requires a local install and reports one project at a time with no
+#     shareable/CI-shaped output; that gap (paste-a-lockfile,
+#     `--json`/`--without-provenance-only`) is the tool's actual edge,
+#     verified by reading npm's own docs (2026-09-24): "the npm CLI
+#     provides no way to check whether a specified package has
+#     provenance [without installing it]" is the exact gap statement a
+#     2026-02-23 independent writeup makes about the ecosystem. No
+#     dedicated third-party bulk/paste provenance checker was found in
+#     the same search pass that surfaced six competing solo-401(k) and
+#     seven competing QSBS calculators for this session's earlier,
+#     rejected candidates -- evidence this specific angle is
+#     comparatively open, not evidence no similar tool exists anywhere.
+#
+# Technical verification (2026-09-24, this session, against the live
+# registry rather than assumed): `GET registry.npmjs.org/<name>/<version>`
+# is unauthenticated, CORS-open (`access-control-allow-origin: *`,
+# confirmed with curl), and returns `dist.attestations.provenance` on a
+# version published via trusted publishing/--provenance (verified
+# present for vite@8.3.1, tsx, esbuild, turbo, @changesets/cli;
+# confirmed absent for eslint@10.11.0, showing a widely-used,
+# actively-maintained package can legitimately lack it -- the reason the
+# tool's copy is careful never to frame absence as a verdict). CORS
+# being open is why the browser page needs no server component: the
+# visitor's own browser talks to the registry directly.
+#
+# Scoring against portfolio/pipeline/README.md's rubric (0-10; gates in
+# bold must clear 5):
+#   ai_leverage: 1 (deterministic field lookup; no model involved)
+#   autonomous_ops: 10 (static page + CLI, no queue, no human step)
+#   time_to_revenue: 5 (donations-only today like the rest of this
+#     portfolio, but same class as this repo's other dev-tool checkers
+#     -- e.g. dependency-confusion-check, npm-lifecycle-script-check --
+#     which carry a plausible near-term hosted/CI-dashboard upsell a
+#     one-shot consumer calculator does not)
+#   gross_margin: 10 (GitHub Pages hosting; the registry calls run in the
+#     visitor's own browser or their own CLI invocation, zero cost to us)
+#   defensibility: 3 (the registry field is public and the lookup is
+#     trivial to reproduce -- typical for this portfolio's checker shape;
+#     the paste-and-go / bulk-JSON / cross-repo scripting angle is the
+#     edge, not the mechanism)
+#   distribution: 4 (real, dated, recurring 2026 discussion of npm
+#     trusted-publishing migration across five independent sources, but
+#     no confirmed community hub with the recurring-thread density
+#     mega-backdoor-roth-calculator found on Bogleheads -- a real,
+#     current query with real motivation, not a demonstrated open
+#     channel with proven volume)
+#   **liability_containment: 8** (every input is a package name/version
+#     the user already has in their own lockfile or is about to add; output
+#     is a single factual registry field per package, never a security
+#     determination -- the page and CLI both state explicitly that
+#     absence of provenance is not evidence of compromise and presence is
+#     not a safety guarantee, matching the portfolio's other read-only
+#     checkers, e.g. npm-lifecycle-script-check and slopsquatting-check)
+#   **ethical_robustness: 9** (purely informational; helps a maintainer or
+#     consumer see a real, npm-documented hardening signal more easily;
+#     no scraped or personal data, nothing adversarial, and it scales
+#     with zero externality -- one user's lookup does not affect another's)
+#   Composite: 6.25; floor 1 (ai_leverage, same floor class as this
+#     portfolio's other zero-marginal-cost checkers)
+#
+# Distribution channel evidence (DIRECTION.md North star point 2): the
+# active 2026 supply-chain-hardening discourse around npm trusted
+# publishing and the Shai-Hulud worm (GitHub's own token-revocation
+# response, multiple 2026-dated vendor and independent writeups) is a
+# distinct audience (npm/JS package maintainers and org security teams)
+# from this portfolio's trade-bid-calculator and marketplace-seller-fee
+# archetypes, and from its existing npm-supply-chain siblings, which
+# target install-time-script and typosquatting risk rather than publish-
+# mechanism hardening specifically.
+
+hypotheses:
+  - claim: >-
+      A maintainer or security engineer who has read about npm trusted
+      publishing or the Shai-Hulud worm will paste a package-lock.json (or
+      run the CLI in CI) to see which of their own or their dependencies'
+      packages still lack a provenance attestation, because npm audit
+      signatures requires a local install and reports one project at a
+      time with no exportable report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Reading dist.attestations.provenance from the public npm registry
+      API correctly and consistently identifies trusted-publishing/
+      --provenance packages, verified in-repo against real, currently
+      published versions rather than assumed from documentation alone.
+    status: supported
+    checked: 2026-09-24
+    evidence: in-repo
+  - claim: >-
+      A team wiring the CLI's --without-provenance-only --json output into
+      a script will use it to track migration progress across more than
+      one repository, the specific gap named as this tool's edge over
+      npm audit signatures.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage, organic referral traffic, or GitHub
+    stars/forks within 90 days of the 2026-09-24 launch.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within that same 90-day window.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/npm-provenance-check/
+  analytics: null

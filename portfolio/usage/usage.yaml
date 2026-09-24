@@ -7074,3 +7074,24 @@ products:
           "Competitive honesty" note). `recalculated` is the signal worth
           watching first: it fires on every input change, so it is the one
           act every visitor who actually uses the form completes.
+  - slug: npm-provenance-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+        note: >-
+          Baseline at graduation. A browser + CLI checker reporting which
+          packages in a pasted lockfile carry an npm provenance
+          attestation. `live_url_visitors` is null, not zero -- GitHub
+          Pages exposes no server-side analytics and the local counter is
+          opt-in, so nobody has measured yet. Named channel to watch: the
+          active 2026 npm trusted-publishing migration discourse following
+          its July 2025 GA and the Shai-Hulud worm (five independent
+          2026-dated sources found via WebSearch 2026-09-24), plus the
+          CLI's own README pointing at where npm audit signatures falls
+          short for a multi-repo or CI use case. `check_run` is the signal
+          worth watching first: it fires only when a visitor pastes their
+          own input and clicks Check, not on page load.

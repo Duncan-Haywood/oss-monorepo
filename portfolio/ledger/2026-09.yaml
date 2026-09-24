@@ -42927,6 +42927,130 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: npm-provenance-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped npm-provenance-check: a free, read-only
+        checker (browser page + zero-dependency Node CLI) reporting which
+        packages in a pasted package-lock.json, package.json, or plain
+        list carry an npm provenance attestation (trusted publishing/
+        OIDC, or npm publish --provenance) versus a classic, stealable
+        publish token -- the mechanism the 2025-2026 Shai-Hulud worm
+        abused. duplicate_check.py scored every venture, screened-out
+        row, and pipeline candidate at or below 0.14; WebSearch 2026-09-24
+        confirmed real, current, dated 2026 discussion of npm
+        trusted-publishing migration across five independent sources.
+        Verified the registry mechanism directly against the live
+        registry.npmjs.org API (not just documentation): CORS-open,
+        unauthenticated, dist.attestations.provenance present on
+        vite/tsx/esbuild/turbo/@changesets-cli and absent on eslint --
+        confirming a widely-used, actively-maintained package can
+        legitimately lack it, which shaped the product's copy to never
+        frame absence as a verdict.
+      - >-
+        Fixed forward, in the same PR, three pieces of shared-tree state
+        this new venture's own merge would otherwise leave stale for the
+        next session to trip over: added it to the "ci" front-door
+        category (it fell into the catch-all's bound-5 limit at 7
+        otherwise), closed its own crawlable-orphan status with a
+        reciprocal footer link + test on npm-lifecycle-script-check
+        (rather than raising the orphan budget for a link this PR could
+        honestly close), and added a FAQPage JSON-LD block (with exactly
+        matching visible copy) to its secondary docs page so
+        secondary-schema.test.mjs and faq-visible.test.mjs both pass.
+      - >-
+        Ran regen.mjs (front-door mirror), sync_tree_counts.py (360 -> 361
+        mirrored tools) and sync_readme_counts.py (the new venture's own
+        -ci.yml workflow moved the runs-on count) and committed what each
+        rewrote, per CLAUDE.md's ratchet rules -- these numbers are
+        unknowable correctly on a branch under concurrent-session load, so
+        this was re-derived against the merge-base tree rather than typed
+        by hand.
+      - >-
+        Verified: the venture's own suite (61/61: engine, CLI with an
+        injected fetch so no test hits the network, and page-wiring), a
+        manual CLI run against the live registry as a product smoke test
+        (correctly flagged vite/@changesets-cli as provenance-attested,
+        eslint as not, and a typo'd package name as not-found),
+        router/validate.py, score_ventures.py --check, clauses.mjs,
+        checklist_coverage.py, the full platform/marketing + platform/pages
+        suite (1290 total; 2 pre-existing failures confirmed unrelated to
+        this venture and untouched by this PR -- mega-backdoor-roth-
+        calculator's own FAQPage em-dash mismatch, and the catch-all
+        sitting one over its bound of 5 from an unrelated concurrent
+        graduation), gitops/tests (634 passed after fixing the runs-on
+        count this venture's own workflow drifted), every platform/ci
+        unittest module, the ledger/scoring/router/usage/pipeline/infra
+        pytest suite, platform/proposal, platform/privacy + platform/webcheck,
+        and run_workflow_locally.py --for-changes (70/70 runnable
+        portfolio-validate.yml steps passed; the one UNRUN step needs a
+        CI-only base-branch ref this sandbox does not have). Also
+        refreshed the stale GitHub Pages gh-pages snapshot at the start of
+        this session (unrelated backlog, publish-branch.sh + IndexNow).
+        Revenue and confirmed-visitor counts remain at zero, which this
+        does not change on its own.
+    mrr_end: 0
+  - venture: mega-backdoor-roth-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture (#5769): a free browser calculator computing
+        after-tax 401(k) headroom under the IRS 415(c) overall limit for
+        2025/2026 (age-adjusted for standard and SECURE 2.0 enhanced
+        catch-up), the per-paycheck amount to reach it by year-end, and
+        the estimated tax cost a periodic (vs. automatic) Roth conversion
+        adds. duplicate_check.py cleared it (no overlap >=0.13) against
+        every venture, screened-out row, and pipeline candidate -- a
+        distinct audience/domain from this portfolio's two saturated
+        archetypes (trade bid calculators, marketplace fee calculators).
+      - >-
+        Recorded a genuine competitive finding rather than an
+        overclaim: WebFetch against a live competing calculator
+        (Richify) confirmed this niche already has real competition (six
+        free calculators found via WebSearch), which the first draft of
+        VENTURE.yaml had wrongly claimed was unaddressed. Corrected in
+        the same commit -- lowered the distribution score from 6 to 4 and
+        recomputed the composite -- rather than shipping the overclaim,
+        matching this file's own standing "claims: honest" discipline.
+      - >-
+        Also fixed two structural gaps a full local run surfaced along
+        the way: registered the venture in venture-scores.yaml (
+        score_ventures.py --check was red without it) and in usage.yaml,
+        and added its CI workflow to platform/ci/publish-surface.yaml (
+        test_publish_surface.py's own live-workflow-vs-snapshot check was
+        red without it).
+      - >-
+        Merged with runners confirmed starved (ci_starvation.py:
+        runner_id 0 on every job across two PRs, #5769 and #5771) after
+        verifying locally: node --test on the venture (25/25) and the
+        full platform/pages suite, clauses.mjs, surface-budget.mjs,
+        router/validate.py, score_ventures.py --check,
+        validate_usage.py, test_publish_surface.py (81/81),
+        regen.mjs --verify, node platform/pages/build.mjs + check.mjs
+        (publishable, no dead links), and the
+        ledger/scoring/router/usage/pipeline/infra pytest suite (443
+        passed).
+      - >-
+        Post-merge (#5771): re-derived the mirrored-tool count (359 ->
+        360) and the CI-runner-count sentence (453/455/414 ->
+        454/456/415) via sync_tree_counts.py and
+        gitops/ci/sync_readme_counts.py, per CLAUDE.md's "these are fixed
+        after merging, not on the branch" guidance -- gitops/tests went
+        from 3 failed to 613 passed / 25 skipped. Confirmed the gh-pages
+        snapshot was already current (another session had republished it
+        right after #5769 landed) and re-announced the grown catalogue to
+        IndexNow by hand (1599 URLs, POST -> 200; recorded in
+        infra_state.yaml).
+      - >-
+        Revenue and confirmed-visitor counts remain at zero, which this
+        does not change on its own -- the point of shipping it is a
+        genuinely different audience and channel (Bogleheads) than this
+        portfolio's other 360 products, not a claim of traffic already
+        observed.
+    mrr_end: 0
   - venture: facebook-marketplace-fee-calculator
     agent_spend_usd: null
     human_hours: 0

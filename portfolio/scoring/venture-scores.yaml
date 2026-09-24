@@ -17710,3 +17710,63 @@ ventures:
       no-delegation debugging session, no affiliate link, no referral
       fee, donations-only, and it does not scan, fingerprint, or contact
       any third-party system or agent runtime.
+  - slug: npm-provenance-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. It reports one factual
+      registry field (dist.attestations.provenance) per package, verified
+      in-repo against real currently-published versions on 2026-09-24
+      rather than assumed from documentation. time_to_revenue at 5, not 1:
+      same dev-tool-checker class as this file's dependency-confusion-check
+      (6) and npm-lifecycle-script-check (5), which carry a plausible
+      near-term hosted/CI-dashboard upsell a one-shot consumer calculator
+      does not, even though today it is donations-only like every other
+      venture in this file.
+    basis: >-
+      Screened 2026-09-24. duplicate_check.py against the final
+      description scored every venture, screened-out row, ai-first-markets
+      idea, and pipeline candidate at or below 0.14 -- the closest match
+      was npm-lifecycle-script-check (0.14, shares npm/lockfile
+      vocabulary but checks install-time scripts, a different registry
+      field and attack class). A targeted read of every existing
+      check/drift/watch venture (85+) found dependency-confusion-check,
+      slopsquatting-check, and npm-lifecycle-script-check as the npm-
+      supply-chain-adjacent siblings; none reads
+      dist.attestations.provenance or reports publish-mechanism
+      hardening. Distribution 4: WebSearch 2026-09-24 found real, current,
+      dated (2026) discussion of npm trusted-publishing migration across
+      five independent sources following its July 2025 GA and the
+      2025-2026 Shai-Hulud worm, but no confirmed community hub with the
+      recurring-thread density mega-backdoor-roth-calculator found on
+      Bogleheads, and no dedicated third-party bulk/paste provenance
+      checker was found in the same search pass -- a real, current query,
+      not yet a demonstrated open channel with proven volume.
+      Defensibility 3: the registry field is public and the lookup is
+      trivial to reproduce, typical for this portfolio's checker shape;
+      the paste-and-go/bulk-JSON/cross-repo-scripting angle is the edge,
+      not the mechanism, matching the sibling checkers' score.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input is a package name/version the user already
+      has in their own lockfile or is about to add; output is a single
+      factual registry field per package, never a security determination
+      -- the page and CLI both state explicitly that absence of
+      provenance is not evidence of compromise and presence is not a
+      safety guarantee, same shape and gate class as the sibling
+      npm-lifecycle-script-check and slopsquatting-check.
+      Ethics: purely informational, helps a maintainer or consumer see a
+      real npm-documented hardening signal more easily; no scraped or
+      personal data, nothing adversarial, scales with zero externality --
+      one user's lookup does not affect another's.
