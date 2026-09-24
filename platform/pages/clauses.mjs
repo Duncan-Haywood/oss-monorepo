@@ -189,6 +189,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // templates generally, not a company or product this could be mistaken
   // for. The page names no specific source for the figure.
   'brand-deal-rate-calculator/vs-the-10-dollars-per-1000-followers-rule.html',
+  // Compares against "a flat industry-average CPM" -- the single
+  // cost-per-1000-downloads figure podcast ad rate reports and blog posts
+  // commonly cite as "the average podcast CPM", not a company or product
+  // this could be mistaken for. The page names no specific report or
+  // publisher, and its illustrative $25 figure is explicitly disclaimed as
+  // not a claim about any specific report's published number.
+  'podcast-sponsorship-rate-calculator/vs-a-flat-industry-average-cpm.html',
   // Compares against "eyeballing which box triggers the dimensional
   // penalty" -- a habit every shipper already has, not a company or
   // product this could be mistaken for. The page names no carrier tool.

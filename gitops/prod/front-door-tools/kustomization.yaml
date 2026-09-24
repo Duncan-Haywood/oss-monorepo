@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 119 files, 555108 bytes
 #   portfolio-front-tools-11: 116 files, 554126 bytes
 #   portfolio-front-tools-12: 124 files, 552205 bytes
-#   portfolio-front-tools-13: 127 files, 545486 bytes
+#   portfolio-front-tools-13: 128 files, 549684 bytes
 #   portfolio-front-tools-14: 133 files, 556167 bytes
 #   portfolio-front-tools-15: 103 files, 555414 bytes
 #   portfolio-front-tools-16: 118 files, 554749 bytes
@@ -1915,6 +1915,7 @@ configMapGenerator:
       - podcast-sponsorship-rate-calculator__index.html.gz=podcast-sponsorship-rate-calculator__index.html.gz
       - podcast-sponsorship-rate-calculator__share.mjs.gz=podcast-sponsorship-rate-calculator__share.mjs.gz
       - podcast-sponsorship-rate-calculator__usage.mjs.gz=podcast-sponsorship-rate-calculator__usage.mjs.gz
+      - podcast-sponsorship-rate-calculator__vs-a-flat-industry-average-cpm.html.gz=podcast-sponsorship-rate-calculator__vs-a-flat-industry-average-cpm.html.gz
       - podcast-sponsorship-rate-calculator__vs-podcorn.html.gz=podcast-sponsorship-rate-calculator__vs-podcorn.html.gz
       - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
       - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
