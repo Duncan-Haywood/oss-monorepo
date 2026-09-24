@@ -1207,6 +1207,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "matching an SBOM to advisories by hand" -- a manual
+  // review habit anyone with the two export files already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-dependency-track.html, which names a specific
+  // open-source project and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other vs-checking-*-by-hand pages
+  // above.
+  'cra-evidence-desk/vs-matching-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
