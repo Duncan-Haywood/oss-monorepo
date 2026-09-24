@@ -39853,171 +39853,64 @@ entries:
         running unbounded, the same call `backup-file-exposure-check`'s
         entry above records for the identical reason.
     mrr_end: 0
-  - venture: reverb-fee-calculator
+  - venture: process-server-fee-calculator
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Explore task (router allocate.py rank #1: test the untested
-        "offer-vs-list" hypothesis). WebSearch found the demand
-        plausible but not something this session can settle -- several
-        third-party Reverb fee calculators already exist (evidence
-        people search "reverb fee calculator"), but confirming a
-        returning-seller hypothesis needs a customer response this
-        session cannot gather (evidence: customer-contact, and the
-        router's own README says that stays BLOCKED for what a session
-        can observe). Research instead surfaced a concrete, checkable
-        calculator defect: Reverb's own help centre ("What fees will I
-        pay for selling on Reverb?" / "What are my fees as a Reverb
-        Preferred Seller?") caps the seller's marketplace/selling fee at
-        $500 per sale, for standard and Preferred sellers alike -- a
-        $15,000 guitar owes $500, not the uncapped 5% ($750), confirmed
-        against Reverb's own worked example via WebSearch. The
-        calculator had no such cap, so it overstated Reverb's fee (and
-        understated a seller's net cash) on any listing above roughly
-        $10,000 -- an ordinary price for vintage/boutique gear on this
-        marketplace, not an edge case, and the opposite of what Reverb
-        itself advertises the cap for ("particularly cost-effective for
-        selling high-value instruments").
+        Shipped vs-doing-it-by-hand.html, the venture's first generic-method
+        comparison page (surface-budget.mjs had flagged room for one -- the
+        venture only had a guide page and the named-product vs-servemanager.html
+        before this). Argues that tallying extra attempts, mileage, and a
+        client's fee schedule by hand or in a spreadsheet gets one job's
+        profit right but tends to skip the effective-hourly-rate division and
+        to drift when the same formula has to be applied consistently across
+        two or three clients' fee schedules -- which is what the calculator's
+        own client comparison table already does. Wired into index.html and
+        sitemap.xml; exempted from the not-affiliated clause in clauses.mjs
+        (names no company or product, cross-links vs-servemanager.html once).
+        Wrote vs-doing-it-by-hand.test.mjs mirroring vs-servemanager.test.mjs
+        (disclaimer, canonical, FAQ JSON-LD vs visible text, sitemap
+        coverage, not-orphaned).
       - >-
-        Shipped: `marketplaceFeeCap` input (default $500, 0 = no cap),
-        applied in `calculateReverbSale`. The two closed-form crossover
-        solvers (`offerThatMatchesEbayList`, the included-shipping list
-        match) assumed one linear fee line the whole way up; replaced
-        both with a shared `solvePriceForReverbProfit` that re-solves
-        piecewise around the price where the fee flattens, checked
-        continuous across the seam by a dedicated test. New input field,
-        results-panel note, FAQ entry (both the visible HTML and the
-        FAQPage JSON-LD, plus the schema.org featureList) and a README
-        section explaining the cap and why it is an input rather than a
-        hard-coded number, matching this venture's own existing "every
-        rate is an input, not a stored fee schedule" convention. 8 new
-        `calc.test.mjs` assertions: the $500/$15,000 worked example
-        matches Reverb's own, the cap never binds below the $800 worked
-        example (no regression), 0 means uncapped, Reverb Gives is
-        untouched by the cap, and both solvers stay correct and
-        continuous above the cap threshold.
+        Caught and fixed a real defect via the checklist before pushing: the
+        FAQ JSON-LD used a literal "--" where the visible page prose used an
+        em dash, which faq-visible.test.mjs flags on exactly this ground (the
+        same class of bug CLAUDE.md already records against
+        hardwood-refinishing-bid-calculator). Fixed by matching punctuation,
+        then re-ran regen.mjs since the mirror had been generated from the
+        pre-fix source.
       - >-
-        Full local verification (CI starved -- `ci_starvation.py` on the
-        latest Portfolio validate run confirmed `runner_id: 0`):
-        venture's own suite 112/112. Browser checks (Playwright + axe-core,
-        `npm install --no-save playwright@1.56.0 axe-core` in one
-        command) `--only reverb-fee-calculator`: 8/8, including 11 pages
-        x 2 viewports WCAG A/AA contrast clean on the new input field.
-        `platform/marketing` + `platform/pages` (`node --test`): first
-        full run caught a real bug this change introduced -- the new
-        FAQ's JSON-LD used a straight apostrophe where the matching
-        visible copy used the page's `&rsquo;` convention, and
-        `faq-visible.test.mjs` correctly flagged the mismatch; fixed, and
-        a clean re-run then caught the ordinary consequence of editing
-        `index.html` after the first `regen.mjs` (a second, expected
-        `regen.mjs --verify` / `regen.mjs` round) -- final run 1286/1286.
-        `platform/proposal` 101/101; `platform/privacy` +
-        `platform/webcheck` 142/142. `checklist_coverage.py`,
-        `clauses.mjs` (1377/1377) and `faq-duplicate.mjs` (1377/1377)
-        all clean. `gitops/tests` (pytest, after installing
-        `nginx-light` + `openssh-client` per CLAUDE.md's documented apt
-        workaround): 637 passed/1 skipped (environmental,
-        `test_front_door_serving.py`). `platform/ci` unittest (all
-        `test_*.py`) + `agent_review/test_review`: all pass.
-        `guard_state.py --require-runnable`: no fixable skips.
-        `portfolio/ledger portfolio/scoring portfolio/router
-        portfolio/usage portfolio/pipeline infra/tests` (pytest): 446
-        passed. `router/validate.py`, `score_ventures.py --check`,
-        `validate_doc_consistency.py`, `validate_candidates.py`,
-        `validate_probe_index.py`, `usage_state.py`, `score_sensitivity.py`
-        all clean. `run_workflow_locally.py --for-changes`: 14/17
-        selected workflows passed; the 3 not run are
-        write-permission/secret-gated deploy and review jobs
-        (`agent-cross-review`, `hetzner-gitops-ci`, `portfolio-pages` +
-        `publish-pages-branch` deploy steps).
-      - >-
-        Merging `origin/main` (moved several times during this session --
-        the fleet merges every few minutes) hit the documented
-        generated-mirror conflict in `gitops/prod/front-door-tools/`;
-        resolved with `platform/marketing/resolve-mirror-merge.sh` as
-        CLAUDE.md prescribes, never by hand. The regenerated mirror then
-        surfaced one pre-existing, fleet-wide, out-of-scope failure:
-        `front-door-tools.test.mjs`'s "mirror is under the warn ratio"
-        check now reads 85.3%, over its 85% warn threshold -- caused by
-        the dozen-plus other ventures merged into `main` during this
-        session (this PR's own footprint is under 1KB), not by this
-        venture's change. Left unfixed and reported here, the same
-        pattern this ledger already records for other single-venture
-        PRs that surface an unrelated pre-existing failure. Separately,
-        the merge also brought in two new CI workflows that moved
-        `gitops/ci/README.md`'s hand-typed `runs-on` count; resynced with
-        `gitops/ci/sync_readme_counts.py` (437/439/398 -> 438/440/399,
-        `gitops/tests/test_ci_runner.py` clean after) rather than
-        retyped, per this file's own documented tax on hand-written tree
-        counts. `sync_tree_counts.py` found both of its own counts
-        already in agreement after the merge -- nothing to rewrite.
-    mrr_end: 0
-  - venture: hood-cleaning-bid-calculator
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
-        Shipped vs-tracking-it-in-a-spreadsheet.html, a generic-method
-        comparison page (surface-budget.mjs flagged the venture at 0 of its
-        1-page budget), adapted to the venture's real features (canopy/
-        filter/duct/fan/grease-load/access pricing, hood-only vs.
-        full-system and annual-contract figures, shareable bid link,
-        printable proposal with deposit split and price-held date). Wired
-        into index.html and sitemap.xml; exempted from the not-affiliated
-        clause in clauses.mjs (names no company or product). First attempt
-        targeted exterior-painting-bid-calculator, but another session
-        shipped that venture's own generic-method page
-        (vs-a-flat-3999-house-special.html) to main mid-session; redirected
-        to hood-cleaning-bid-calculator rather than push a venture over its
-        1-page generic-method budget.
-      - >-
-        Along the way, found and fixed a real defect unrelated to this
-        venture: hardwood-refinishing-bid-calculator/
-        vs-a-flat-price-per-square-foot.html (merged from #5466 while this
-        session was working) had its FAQPage JSON-LD using literal "--"
-        where the visible page used an em dash, on four answers --
-        faq-visible.test.mjs caught it. Fixed once, then a second time
-        after merging main pulled in #5474's independent fix for the same
-        defect going the *opposite* direction (normalizing the visible
-        text to "--" instead of the JSON-LD to an em dash) -- git merged
-        both edits cleanly since they touched different lines, which left
-        JSON-LD and visible text disagreeing again, just swapped.
-        Reconciled to "--" both places, matching #5474's committed
-        spelling, and reran regen.mjs each time (three total across this
-        session, once per content-affecting commit).
-      - >-
-        Verification, run against CI in a confirmed starvation window
-        (ci_starvation.py --run 35878972111: runner_id 0, 4s, no steps):
-        venture's own 120 tests (node --test
-        ventures/hood-cleaning-bid-calculator/**/*.test.mjs) all pass; full
-        node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
-        run six times across this session (each after a merge or a
-        content-affecting fix) -- final run 1285/1286 pass, the one
-        failure being front-door-tools.test.mjs's mirror-capacity warning
-        (85.1% of ceiling, over the 85% warn ratio, 0 bytes recoverable
-        duplicates) -- a portfolio-wide capacity signal from the whole
-        catalogue's growth across many concurrent sessions today, not
-        something this single-venture page caused or something a
-        one-venture PR can fix; reported here rather than addressed.
-        regen.mjs --verify clean after the final commit; checklist_coverage
-        clean; sync_tree_counts.py clean (344 mirrored tools, 326 opt-out
-        switches, no drift to record); check_venture_regression.py clean
-        against origin/main; gitops/tests 637 passed/1 skipped
-        (environmental, after installing nginx-light + openssh-client per
-        CLAUDE.md's `apt-get update &&` workaround); platform/ci unittest
-        (27 modules) + agent_review/test_review all pass; portfolio pytest
-        (ledger/scoring/router/usage/pipeline/infra) 446 passed;
-        score_ventures.py --check 352/352; router/validate.py 351/351.
-        `run_workflow_locally.py --for-changes` was run once mid-session
-        and caught a real problem -- not a defect, but this branch being a
-        merge behind origin/main (check_venture_regression flagged a
-        venture the branch hadn't picked up yet) -- resolved by merging
-        main again; not re-run after the final merge since its slowest
-        component (portfolio-validate.yml) duplicates the nine checks
-        above. No form inputs added (a static comparison page), so the
-        Playwright/axe-core browser-check line was not run -- nothing this
-        change touches is markup a user types into.
+        CI starvation confirmed via ci_starvation.py against a fresh
+        Portfolio validate run (runner_id 0, 3s, no steps) before running the
+        local checklist. checklist_coverage.py clean; node --test
+        'ventures/process-server-fee-calculator/**/*.test.mjs' 71/71 pass;
+        node platform/pages/clauses.mjs process-server-fee-calculator clean;
+        node platform/pages/surface-budget.mjs --check clean (no venture over
+        budget); regen.mjs --verify clean after the final commit; full node
+        --test platform/marketing/*.test.mjs platform/pages/*.test.mjs run
+        twice after merging origin/main -- final tally 1285/1286 pass, the
+        one failure being front-door-tools.test.mjs's mirror-capacity warning
+        (mirror at ~85.7% of its ceiling, over the 85% warn ratio, 0 bytes
+        recoverable duplicates). Verified this is not caused by this PR: the
+        mirror was already at 85.5% on the pre-merge branch (one small page,
+        ~4.4KB gzipped) and rose to 85.7% only after merging 8 concurrent
+        commits from other sessions that had each added their own comparison
+        pages the same afternoon -- a portfolio-wide capacity signal the
+        test's own comment says is "doing its job, not a test to relax," not
+        something a single-venture PR should try to fix by adjusting either
+        constant. Reported here rather than addressed; the remedy (the
+        dedup mechanisms in front-door-tools.mjs) is a separate initiative.
+        gitops/tests 613 passed/25 skipped (nginx-light/HETZNERSSHKEY
+        environmental skips per CLAUDE.md); platform/ci unittest (15
+        modules) + agent_review/test_review all pass (43 + 21 tests);
+        portfolio pytest (ledger/scoring/router/usage/pipeline/infra) 446
+        passed. browser_state.py showed the whole-catalogue browser/
+        accessibility sweep STALE for an unrelated reason (other sessions'
+        builder-file edits earlier the same day), not run again for this
+        change since it adds no form input or interactive element beyond
+        prose and a static table -- nothing new for axe-core to check that
+        the venture's sibling pages don't already cover.
     mrr_end: 0
   - venture: window-tinting-bid-calculator
     agent_spend_usd: null

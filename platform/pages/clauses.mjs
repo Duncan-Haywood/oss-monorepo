@@ -121,6 +121,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // tell you, not a separate company or product this could be mistaken
   // for. Same shape as branch-protection-drift-check's exemption above.
   'supabase-rls-check/vs-manually-checking-the-dashboard.html',
+  // Compares against "eyeballing two CI console logs" -- a manual habit
+  // every developer reaching for this tool already has, not a company or
+  // product this could be mistaken for. Same shape as
+  // branch-protection-drift-check's exemption above.
+  'flaky-test-finder/vs-eyeballing-two-ci-logs-by-hand.html',
   // Compares against "a published custom rate survey" -- a category of
   // publication (state extension services, farm trade press) that several
   // different publishers produce, not one specific company or product this
@@ -891,6 +896,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries its own "not affiliated" clause. Same reasoning as the other
   // vs-doing-it-by-hand / vs-spreadsheet pages above.
   'childcare-tuition-calculator/vs-doing-it-by-hand.html',
+  // Compares against "tallying a serve's profit by hand or in a spreadsheet"
+  // -- the generic method every independent process server already has, not
+  // a company or product this could be mistaken for. The page names no
+  // spreadsheet application or notebook app at all -- distinct from this
+  // venture's own vs-servemanager.html, which does name a product and
+  // carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-doing-it-by-hand / vs-spreadsheet pages above.
+  'process-server-fee-calculator/vs-doing-it-by-hand.html',
   // Compares against "tracking orders in a spreadsheet" -- the generic
   // method every Etsy seller already has, not a company or product this
   // could be mistaken for. The page names no spreadsheet application or
@@ -1439,6 +1452,27 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other flat-rate generic-method pages above (e.g.
   // well-pump-bid-calculator's).
   'wildlife-exclusion-bid-calculator/vs-a-flat-395-removal-fee.html',
+  // Compares against a flat "$400 a zone installed" special / "$2,400 for 6
+  // zones" coupon -- a generic advertised pricing habit the trade is shopped
+  // against, not a company or product this could be mistaken for. Distinct
+  // from this venture's own vs-aspire.html, which names a specific business
+  // management platform and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other flat-rate generic-method pages
+  // above (e.g. landscape-lighting-bid-calculator's).
+  'irrigation-install-bid-calculator/vs-a-flat-400-a-zone-special.html',
+  // Compares against a flat "$2 a square foot" interior painting bid -- a
+  // generic advertised pricing habit the trade is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-paintscout.html, which names a specific
+  // business-management platform and already carries the "not affiliated"
+  // clause for that reason. Same reasoning as the other flat-rate
+  // generic-method pages above (e.g. mini-split-bid-calculator's).
+  'painting-bid-calculator/vs-a-flat-2-per-square-foot-bid.html',
+  // Compares against "a flat burden-percentage rule of thumb" -- a generic
+  // budgeting habit ("add 20-30% on top of wages") every small business
+  // owner already has, not a company or product this could be mistaken
+  // for. The page names no payroll or HR vendor at all.
+  'employee-cost-calculator/vs-a-flat-burden-percentage.html',
   // Compares against "a flat per-vehicle price" (a posted "$180 sedan /
   // $220 SUV / $250 truck" list) -- a pricing habit every independent tint
   // shop already posts, not a company or product this could be mistaken
