@@ -45,8 +45,8 @@
 #   portfolio-front-tools-9: 141 files, 551554 bytes
 #   portfolio-front-tools-10: 119 files, 546780 bytes
 #   portfolio-front-tools-11: 117 files, 551068 bytes
-#   portfolio-front-tools-12: 117 files, 553230 bytes
-#   portfolio-front-tools-13: 128 files, 551327 bytes
+#   portfolio-front-tools-12: 117 files, 555514 bytes
+#   portfolio-front-tools-13: 129 files, 553464 bytes
 #   portfolio-front-tools-14: 124 files, 553079 bytes
 #   portfolio-front-tools-15: 132 files, 555848 bytes
 #   portfolio-front-tools-16: 106 files, 554705 bytes
@@ -1779,6 +1779,7 @@ configMapGenerator:
       - locksmith-bid-calculator__index.html.gz=locksmith-bid-calculator__index.html.gz
       - locksmith-bid-calculator__share.mjs.gz=locksmith-bid-calculator__share.mjs.gz
       - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
+      - locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz=locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz
       - locksmith-bid-calculator__vs-housecall-pro.html.gz=locksmith-bid-calculator__vs-housecall-pro.html.gz
       - locksmith-bid-calculator__vs-jobber.html.gz=locksmith-bid-calculator__vs-jobber.html.gz
       - locksmith-bid-calculator__vs-workiz.html.gz=locksmith-bid-calculator__vs-workiz.html.gz
@@ -1794,12 +1795,12 @@ configMapGenerator:
       - mcp-config-risk-check__calc.mjs.gz=mcp-config-risk-check__calc.mjs.gz
       - mcp-config-risk-check__index.html.gz=mcp-config-risk-check__index.html.gz
       - mcp-config-risk-check__usage.mjs.gz=mcp-config-risk-check__usage.mjs.gz
-      - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
       - mcp-supply-chain-watch__index.html.gz=mcp-supply-chain-watch__index.html.gz
       - mcp-supply-chain-watch__usage.mjs.gz=mcp-supply-chain-watch__usage.mjs.gz
       - mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz=mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz
