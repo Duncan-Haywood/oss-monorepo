@@ -1620,15 +1620,6 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // B" and names no real vendor. Same reasoning as the other generic-method
   // pages above.
   'vector-db-cost-calculator/vs-doing-the-math-yourself.html',
-  // Compares against reading each LLM provider's pricing page and pricing
-  // fresh/cached/output tokens by hand -- the generic method every
-  // developer sizing an API bill already uses, not a company or product
-  // this could be mistaken for. The page's own worked example uses
-  // "Provider A"/"Provider B" and names no real vendor; the tool's own
-  // index.html separately names Anthropic/OpenAI/Google as illustrative
-  // preset labels, which is why the exemption is scoped to this one page.
-  // Same reasoning as the other generic-method pages above.
-  'llm-api-pricing-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "a flat per-zone rate" -- a generic pricing method
   // every irrigation contractor already has access to, not a company or
   // product this could be mistaken for. Distinct from this venture's own
