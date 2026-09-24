@@ -161,6 +161,9 @@ workflows:
 - workflow: auto-glass-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: auto-loan-interest-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: auto-repair-effective-labor-rate-ci.yml
   classification: none
   publishes: []
