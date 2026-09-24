@@ -100,7 +100,7 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>No. This checks two specific, narrow patterns in a single workflow file at a time. It is not a security audit and makes no claim about your repository's overall security. It assumes a <code>workflow_run</code> download is reading the triggering run's own artifacts, and it does not inspect what an action called by <code>uses:</code> does internally with a downloaded path.</p>
     <h3>Why is an unscoped download flagged even with no execution nearby?</h3>
     <p>A <code>download-artifact</code> step with no <code>name:</code> input pulls in every artifact the fork-controlled triggering run uploaded, not one specific, expected one. That widens what untrusted content enters the privileged job even if nothing in this file executes it directly — a later step, or a called action, might still read it.</p>
-    <p>More: <a href="what-is-github-actions-artifact-poisoning.html">what is GitHub Actions artifact poisoning?</a></p>
+    <p>More: <a href="what-is-github-actions-artifact-poisoning.html">what is GitHub Actions artifact poisoning?</a> See also <a href="vs-reading-the-workflow-yaml-by-hand.html">this checker vs. reading the workflow YAML by hand</a>.</p>
   </section>
 
   <footer>
