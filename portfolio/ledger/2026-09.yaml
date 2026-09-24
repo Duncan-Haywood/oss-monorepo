@@ -42874,3 +42874,93 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, branch `claude/keen-cerf-9gltt3`.
+        session_gate.py read PROCEED; no build-now candidate queued. Landed
+        four independent contributions over the session, and every single
+        one was independently duplicated by a faster concurrent session
+        before this one could push -- a direct, repeated measurement of
+        just how saturated the "obvious next task" surface is right now
+        (session_gate also flagged 7 distinct sessions committing to main
+        within one 15-minute window). Recorded here because each collision
+        is itself useful signal, not because nothing shipped.
+      - >-
+        1) Added retaining-wall-bid-calculator/vs-a-flat-per-foot-price.html,
+        a generic-method comparison page against a flat per-linear-foot
+        quote, with worked examples pinned to calc.mjs's own presets and
+        form defaults. Superseded by #5672
+        (vs-a-flat-140-per-linear-foot-rate.html, same venture, same
+        comparison type) merging to main while this session was still
+        verifying its own version locally. Dropped the duplicate per
+        surface-budget.mjs's one-generic-method-page-per-venture rule and
+        CLAUDE.md's "extend or consolidate instead of duplicating" --
+        kept nothing of this contribution.
+      - >-
+        2) Independently diagnosed and fixed the same etcd ConfigMap
+        ceiling failure (portfolio-front-html over the 943,718-byte test
+        budget in gitops/tests/test_manifests.py) that two other sessions
+        were fixing at the same time: gzipped llms.txt (mirroring the
+        catalog.json/2026-09-12 and sitemap.xml/2026-09-23 precedent, this
+        session's own instance measured at 943,779 bytes / over by 61) via
+        a background subagent, verified 89.7 KB of headroom recovered, then
+        found on re-merge that main had already carried an equivalent
+        llms.txt fix (#5671) and a further one gzipping the category pages
+        too (#5676). Took main's more complete mechanism entirely rather
+        than keeping a narrower duplicate.
+      - >-
+        3) Ran the full fleet-wide axe/Playwright accessibility sweep
+        (browser_checks.py --record, all 8 checks) after the collisions
+        above invalidated the last recorded baseline; found one real WCAG
+        AA violation (`.thin` on
+        pergola-bid-calculator/vs-a-flat-45-per-square-foot-special.html,
+        4.48:1 against a 4.5:1 floor) and fixed it by darkening the color to
+        one already proven accessible elsewhere on the same page. Confirmed
+        clean immediately after (1549/1549 pages, no WCAG A/AA violations),
+        then on merge found main had already carried the identical fix
+        (#5695, different but equally valid replacement color) plus its own
+        fresh recorded sweep (#5729). Discarded this session's copy of both
+        the color fix and the recorded state file in favor of main's.
+      - >-
+        4) Ran `run_workflow_locally.py --tree` against the merged tree
+        (not gated on this session's own diff) and found two real, current
+        defects on main: `gitops/prod/kustomization.yaml` was missing the
+        hand-maintained mount line for `vs__mcp-scan.html.gz`
+        (mcp-config-risk-check and hidden-unicode-check's comparison pages
+        against MCP-Scan, #5730/#5721 -- the rendered page existed in the
+        mirror but was never reachable, the exact "dark page" failure mode
+        front-door.test.mjs's own comment warns the hand-kept list is prone
+        to), and s-corp-reasonable-compensation-calculator's
+        why-the-irs-tests-your-s-corp-salary.html had a punctuation-only
+        divergence between its FAQPage JSON-LD ("--") and its visible prose
+        ("—") on the Watson v. Commissioner answer. Fixed both, verified
+        clean (1290/1290), and again found on merge that main had already
+        carried both fixes independently (#5743, #8c927fd6f3) plus a third,
+        distinct instance of the same JSON-LD/em-dash defect on a different
+        venture (#5754, pour-cost-calculator) that this session's sweep
+        had not reached yet.
+      - >-
+        The one contribution that survived to be pushed: while
+        reconciling the second merge, found `gitops/prod/portfolio-front.yaml`
+        mounting only shards 0-20 of the tool mirror while
+        `gitops/prod/front-door-tools/kustomization.yaml` already defines
+        22 shards (0-21) -- shard 21 invisible to the Deployment despite
+        `regen.mjs --verify` reporting the tree current, because that
+        file's volume list sits outside what front-door-tools.mjs and
+        front-door.mjs actually generate and check (the same
+        hand-maintained-list gap #4's kustomization fix hit, one level
+        down). Restored the correct count from main's own committed
+        version rather than guessing; gitops/tests' volume-count
+        assertions pass. Not yet independently duplicated as of this
+        entry, but given the session's own track record that is a
+        property of timing, not of this fix being harder to find.
+      - >-
+        Net effect on `main`: none of this session's diagnoses were wrong,
+        and none were unique -- the fleet's parallel-session model finds
+        the same real defects reliably, just not always through the
+        session that started looking first. Revenue and confirmed-visitor
+        counts remain at zero, unchanged by this session.
+    mrr_end: 0
