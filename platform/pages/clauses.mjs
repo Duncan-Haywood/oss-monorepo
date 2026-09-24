@@ -2066,6 +2066,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-voices-com.html, which names a real marketplace and already carries
   // the trademark disclaimer.
   'voiceover-project-rate-calculator/vs-a-flat-rate-regardless-of-usage.html',
+  // Compares against "assembling one by hand in a document editor" -- a
+  // generic method (a word processor or slide deck) every creator already
+  // has access to, not a company or product this could be mistaken for.
+  // The page's own footer says so explicitly ("names no specific document
+  // editor, product, or company"). This venture's own vs-kitly.html names
+  // a real platform and already carries the trademark disclaimer
+  // separately; the two comparison pages are deliberately different
+  // classes, same shape as epk-generator's own by-hand page.
+  'influencer-media-kit-generator/vs-assembling-one-by-hand.html',
   // Compares against "picking a round salary number" -- the manual habit
   // every S-corp owner without a paid report already has (a figure that
   // sounds reasonable, matches a peer, or rolls last year's number forward),

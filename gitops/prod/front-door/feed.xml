@@ -53,6 +53,15 @@
     <summary type="text">Paste a Claude Code settings.json (and, optionally, settings.local.json) and get every structural mistake flagged: a hook matcher that can&#39;t compile, a hook with no command, a misspelled event name, a permission rule with unbalanced parentheses, a rule duplicated across allow/deny/ask, and a rule that contradicts itself across the two files. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Claude Code Subagent Check — find subagents that never get delegated to</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-code-subagent-check/"/>
+    <id>tag:marisstella.dev,2026:tool/claude-code-subagent-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a Claude Code subagent definition (.claude/agents/*.md) and get every structural mistake flagged: a name that isn&#39;t kebab-case, a missing or vague description that stops automatic delegation, a tools list with an empty or unrecognized entry, an unrecognized model alias, and a near-empty system prompt. Free, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cloud-bucket-exposure-check/"/>
     <id>tag:marisstella.dev,2026:tool/cloud-bucket-exposure-check</id>

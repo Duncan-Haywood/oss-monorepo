@@ -2479,7 +2479,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `caa-record-check` above) until this merge -- the same ordinary
     # collision shape recorded throughout this list.
     #
-    # 361 on a later merge: `mega-backdoor-roth-calculator` also graduated,
+    # 361 on a later merge: `claude-code-subagent-check` also graduated,
+    # concurrently on `main` -- a zero-dependency browser checker for
+    # Claude Code subagent definitions (.claude/agents/*.md) that flags a
+    # malformed/mismatched name, a description too vague for reliable
+    # orchestrator delegation, a malformed `tools` list, an unrecognized
+    # `model` alias, and a missing or near-empty system prompt. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    #
+    # 362 on a later merge: `mega-backdoor-roth-calculator` also graduated,
     # concurrently on `main` -- a browser calculator computing after-tax
     # 401(k) headroom under the IRS 415(c) limit, static index.html plus a
     # which-conversion-cadence-should-i-use.html guide page, both from
@@ -2488,14 +2497,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # merge -- the same ordinary collision shape recorded throughout this
     # list.
     #
-    # 362 on this merge: `senior-deduction-calculator` also graduated
+    # 363 on this merge: `senior-deduction-calculator` also graduated
     # (#5765), concurrently on `main` -- a browser calculator for the new
     # OBBBA $6,000 senior deduction (tax years 2025-2028), static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 362  # `infra/OWNER_CHECKLIST.md`'s own "N of the 362 tools" wording.
+    total = 363  # `infra/OWNER_CHECKLIST.md`'s own "N of the 363 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

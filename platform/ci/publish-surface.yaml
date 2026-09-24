@@ -272,6 +272,9 @@ workflows:
 - workflow: claude-code-settings-check-ci.yml
   classification: none
   publishes: []
+- workflow: claude-code-subagent-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
