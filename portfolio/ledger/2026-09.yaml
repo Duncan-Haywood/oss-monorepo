@@ -41238,3 +41238,32 @@ entries:
         one fleet-wide accessibility re-verification. Portfolio-wide
         revenue and confirmed-visitor counts remain at zero.
     mrr_end: 0
+  - venture: helm-values-schema-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-checking-it-by-eye.html, a generic-method comparison page
+        ("vs. eyeballing values.yaml against the schema") -- the venture
+        previously had only a named-product comparison (vs-helm-lint.html).
+      - >-
+        Independently hit and fixed the same etcd-budget overflow the
+        skill-manifest-check entry above describes in full (gzipping
+        llms.txt): this branch's own page pushed portfolio-front-html over
+        the 943,718-byte budget, confirmed against main's own tip in a
+        worktree first to rule out a pre-existing regression. While
+        preparing that fix, main independently gained the identical one via
+        #5667 a few minutes ahead of this PR; resolved on merge by taking
+        main's implementation whole rather than reconciling two copies of
+        the same mechanism -- recorded here mainly as a second, independent
+        confirmation of the same root cause and fix.
+      - >-
+        Verified locally (Actions starved on this PR's own check, confirmed
+        via ci_starvation.py): the venture's own 44-assertion suite,
+        clauses.mjs, faq-coverage.mjs (349/349), faq-duplicate.mjs,
+        surface-budget.mjs --check, checklist_coverage.py, regen.mjs
+        --verify clean, platform/marketing + platform/pages suite
+        (1289/1289), gitops/tests (637 passed, 1 skipped -- environmental),
+        and the 27-module platform/ci unittest suite. Squash-merged as
+        #5668.
+    mrr_end: 0

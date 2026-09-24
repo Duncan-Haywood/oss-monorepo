@@ -16644,6 +16644,62 @@ ventures:
       affiliate link, no referral fee, donations-only same as the rest of
       the portfolio, no reward tier or pledge size favored since the
       arithmetic is symmetric and user-entered).
+
+  - slug: salary-range-posting-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a state currently
+      requires a posted pay range, and whether pasted posting text reads
+      as a range, is decided entirely by a fixed table and a literal text
+      pattern match -- never a model judgment.
+    basis: >-
+      Screened and built 2026-09-24. duplicate_check.py scored every
+      venture, screened-out row, ai-first-markets idea, and pipeline
+      candidate at or below 0.15 against the final description before this
+      venture existed; the only lexically-close row, call-recording-consent-
+      check, shares only the "checks a US jurisdiction's law against a
+      fixed table" shape, not the subject. Defensibility 2, distribution 6:
+      scored deliberately modest on defensibility -- a state pay-range-
+      posting-law table and a text scan are easy to reproduce once someone
+      thinks to -- while distribution reflects a real, named, fast-growing
+      search topic ("pay transparency laws by state," "does [state] require
+      a salary range in job postings") with 14 states now covered (up from
+      4 in 2021) and two more (Virginia, Maine) taking effect July 2026, not
+      a channel invented from nothing. No search-volume tool was queried to
+      confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, but at the floor rather than comfortably above it, for the same
+      reason as call-recording-consent-check: a wrong pay-range-posting
+      classification has a real worst case (most of these states carry a
+      civil penalty per violation), so the pass rests on disclosure
+      discipline rather than a low-stakes subject. Every page states this
+      is not legal advice and not a compliance determination for a specific
+      posting; every threshold this build is not fully confident of is
+      marked "commonly reported" rather than asserted as certain (Maryland,
+      Vermont, DC); the table's scope explicitly excludes disclose-at-a-
+      different-point laws (Connecticut, Nevada, Rhode Island) and city/
+      county ordinances so a reader is not given a false "not required"
+      reading for a rule this table does not model; and the posting-text
+      scan is described as a literal pattern match with no understanding of
+      whether a detected figure is a good-faith range, never as a
+      compliance check.
+      Ethics: donations-only, no per-scan fee, no incentive to bias a
+      classification toward any outcome, and it gets strictly more useful
+      the more states a visitor selects rather than steering toward fewer.
+
   - slug: hidden-unicode-check
     scores:
       ai_leverage: 1
@@ -16715,3 +16771,52 @@ ventures:
       and it never scans or fingerprints third-party infrastructure since
       it only reads text the visitor pastes or a file they explicitly
       choose to load.
+
+  - slug: skill-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately -- no call of any kind to an LLM
+      to judge a skill. Every finding is a deterministic pattern match
+      (frontmatter parse, a fixed trigger-cue regex list, Jaccard
+      vocabulary overlap, a character-count token estimate) against text
+      the user pastes.
+    basis: >-
+      Screened and built 2026-09-24 (see the venture's own VENTURE.yaml for
+      the full duplicate_check.py run, none clearing the 0.45 bar, and the
+      pipeline's "archetype itself" note this write-up already applies).
+      Defensibility 3: a frontmatter parser plus a few pattern-match
+      heuristics is moderately easy to reproduce, scored a point above
+      hidden-unicode-check's 4 because the description-vagueness and
+      cross-skill-overlap heuristics (not just a codepoint table) took more
+      judgment to tune than a pure lookup. Distribution 5: named,
+      current (early-2026) developer-tooling channels (r/ClaudeAI,
+      r/LocalLLaMA agent-tooling threads, HN Show threads on Claude Code
+      Skills, the GitHub SKILL.md topic surface) plus footer cross-links
+      with mcp-config-risk-check and hidden-unicode-check, matching those
+      two ventures' own distribution score for the same reasoning. No
+      search-volume tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic pattern match against text
+      the user pastes, no network call of any kind, no LLM call to judge
+      the skill, and no claim that a skill will or will not actually
+      trigger inside a real agent session -- every finding is framed as
+      "worth a look, not a verdict" and a clean result as "not a guarantee
+      the skill will trigger correctly", mirroring mcp-config-risk-check's
+      and hidden-unicode-check's own liability framing.
+      Ethics: strictly beneficial as it scales -- helps a skill author
+      catch an authoring mistake before publishing, no affiliate link, no
+      referral fee, donations-only, and it does not scan, fingerprint, or
+      contact any third-party system, registry, or agent runtime.
