@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 136 files, 555025 bytes
 #   portfolio-front-tools-9: 126 files, 555963 bytes
 #   portfolio-front-tools-10: 122 files, 555277 bytes
-#   portfolio-front-tools-11: 116 files, 543157 bytes
+#   portfolio-front-tools-11: 117 files, 547924 bytes
 #   portfolio-front-tools-12: 119 files, 550482 bytes
 #   portfolio-front-tools-13: 130 files, 550059 bytes
 #   portfolio-front-tools-14: 134 files, 556483 bytes
@@ -1565,6 +1565,7 @@ configMapGenerator:
       - hot-tub-bid-calculator__index.html.gz=hot-tub-bid-calculator__index.html.gz
       - hot-tub-bid-calculator__share.mjs.gz=hot-tub-bid-calculator__share.mjs.gz
       - hot-tub-bid-calculator__usage.mjs.gz=hot-tub-bid-calculator__usage.mjs.gz
+      - hot-tub-bid-calculator__vs-a-flat-499-setup-special.html.gz=hot-tub-bid-calculator__vs-a-flat-499-setup-special.html.gz
       - hot-tub-bid-calculator__vs-jobber.html.gz=hot-tub-bid-calculator__vs-jobber.html.gz
       - hreflang-reciprocity-check__check.mjs.gz=hreflang-reciprocity-check__check.mjs.gz
       - hreflang-reciprocity-check__engine.mjs.gz=hreflang-reciprocity-check__engine.mjs.gz
