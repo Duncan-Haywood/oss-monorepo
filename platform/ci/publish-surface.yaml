@@ -425,6 +425,9 @@ workflows:
 - workflow: email-auth-check-ci.yml
   classification: none
   publishes: []
+- workflow: employee-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: entry-door-bid-calculator-ci.yml
   classification: none
   publishes: []

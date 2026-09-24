@@ -2295,7 +2295,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # evidence" checker shape as `git-exposure-check` and
     # `dotenv-exposure-check`, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 342  # `infra/OWNER_CHECKLIST.md`'s own "N of the 342 tools" wording.
+    #
+    # 343 since this merge: `employee-cost-calculator` graduated -- a
+    # browser calculator comparing the fully-loaded annual cost of a W-2
+    # employee against a 1099 contractor for the same role (capped
+    # FUTA/SUTA employer-burden arithmetic, ongoing-vs-year-one cost split,
+    # a break-even contractor rate), with a static `index.html` from its
+    # first commit, same shape as the rest of this running count.
+    total = 343  # `infra/OWNER_CHECKLIST.md`'s own "N of the 343 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

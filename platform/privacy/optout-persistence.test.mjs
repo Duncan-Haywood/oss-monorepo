@@ -592,7 +592,14 @@ const RELATIVE_SELF = relative(
 // `backup-file-exposure-check-usage` storage name). Exactly one added
 // `usage.mjs` (`ventures/backup-file-exposure-check/usage.mjs`), no
 // deletions.
-const SWITCHES_IN_THE_CATALOGUE = 324;
+//
+// 324 -> 325 on 2026-09-24: `employee-cost-calculator` graduated,
+// concurrently on `main`, adding one `usage.mjs` following the same
+// opt-out pattern as its siblings (`readOptOut`/`writeOptOut` gating
+// `recordUsage`, keyed under its own `employee-cost-usage` storage name).
+// Exactly one added `usage.mjs`
+// (`ventures/employee-cost-calculator/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 325;
 
 let counter = 0;
 function fixture(source) {
