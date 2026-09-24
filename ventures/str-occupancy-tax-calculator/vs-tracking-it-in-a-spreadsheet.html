@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. tracking occupancy tax in a spreadsheet | STR Occupancy Tax Calculator</title>
+<meta name="description" content="Occupancy tax on a short-term rental stay is arithmetic, and a spreadsheet can do arithmetic — but the mistake it does not catch on its own is the one that costs a host money: quietly assuming a platform's collection agreement covers a tax layer it does not. On the worked example this calculator opens with, that gap alone is $57.50 per stay.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-tracking-it-in-a-spreadsheet.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="This calculator vs. tracking occupancy tax in a spreadsheet">
+<meta property="og:description" content="A hand-built spreadsheet tracks the total tax rate fine. What it rarely tracks, layer by layer, is which of those layers a platform's collection agreement actually covers — and that gap is the part a host has to self-file.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/str-occupancy-tax-calculator/vs-tracking-it-in-a-spreadsheet.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't occupancy tax just a total rate I can put in a spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"The arithmetic is simple — a percentage of a taxable base — and a spreadsheet handles that fine. What it does not do on its own is track each tax layer's remittance status separately: a state sales tax a platform collects automatically sitting next to a county tourist tax it does not. A single blended rate cell answers \"what is owed\" and stays silent on \"who already paid it\", which is the question that actually determines whether a host has a filing to do."}},{"@type":"Question","name":"What does missing that distinction actually cost?","acceptedAnswer":{"@type":"Answer","text":"On the worked example this calculator opens with — a $1,150.00 taxable base, a 6% state layer the platform fully collects, and a 5% county layer it does not — the total tax is $126.50. A spreadsheet tracking only the blended 11% rate shows that figure and nothing else. The host still owes $57.50 in county tax with no reminder that it was never withheld, because the sheet never modeled the platform's collection agreement as a separate fact from the tax rate itself."}},{"@type":"Question","name":"Why not just add a column for what the platform collects?","acceptedAnswer":{"@type":"Answer","text":"You can, and a correctly built sheet gets the same split this calculator does — it is the same arithmetic either way. What a spreadsheet will not do unprompted is flag the case worth flagging: a layer entered at a rate but never marked as either fully covered or fully uncovered, which looks in a cell exactly like a layer already handled. This calculator raises that flag on every stay; a spreadsheet only raises it if someone remembered to build the check."}}]}</script>
+<style>
+  :root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b2430;background:#eef0f2}
+  body{max-width:900px;margin:0 auto;padding:1.5rem}
+  a{color:#143a5e;overflow-wrap:anywhere}
+  .eyebrow{font-weight:700}
+  header{margin:1rem 0}
+  h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;letter-spacing:-.04em}
+  .lede{font-size:1.05rem;max-width:66ch;color:#47535e}
+  section{background:#fbfcfd;border:1px solid #ccd4da;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #12283310;margin:1rem 0}
+  h2{margin-top:0}
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #d5dce1;vertical-align:top}
+  th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#47535e}
+  .fine,.note{font-size:.88rem;color:#47535e}
+  footer{color:#47535e;font-size:.86rem}
+  footer p{margin:.6rem 0}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; STR Occupancy Tax Calculator</a></p>
+<header>
+<h1>This calculator vs. tracking occupancy tax in a spreadsheet</h1>
+<p class="lede">Occupancy tax is arithmetic, and a spreadsheet can do arithmetic. What a hand-built sheet usually misses is not the rate math but which layer of it a platform's collection agreement actually covers.</p>
+</header>
+<section>
+<h2>Where a hand-built spreadsheet usually goes wrong</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Common spreadsheet shortcut</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Tax owed</td><td>One blended rate cell, or one row per authority with only a rate column.</td><td>Up to four named layers, each with its own rate, plus a flat per-night fee some jurisdictions charge separately.</td></tr>
+<tr><td>Who already remitted it</td><td>Usually not modeled at all — a layer entered at a rate looks the same whether or not the platform withholds it.</td><td>A per-layer "platform collects" percentage, splitting every layer into what is already covered and what is left for the host.</td></tr>
+<tr><td>The taxable base</td><td>Often just the nightly total, with the cleaning fee tracked separately and left out of the tax math.</td><td>Nightly rate times nights plus the cleaning fee, since most jurisdictions tax both.</td></tr>
+<tr><td>Does anything I type get uploaded anywhere?</td><td>N/A</td><td>No. The calculation runs entirely in your browser; nothing you enter is sent to a server.</td></tr>
+</tbody>
+</table>
+</div>
+<h2>What the missing distinction costs, on the calculator's own worked example</h2>
+<p>
+  The stay this calculator opens with is $250 a night for four nights plus a $150 cleaning fee, for a
+  <strong>$1,150.00</strong> taxable base. A 6% state sales tax layer and a 5% county tourist-development tax
+  layer together owe <strong>$126.50</strong>. A spreadsheet tracking only that blended 11% total shows the same
+  figure and stops there.
+</p>
+<p>
+  The platform's collection agreement covers the state layer in full &mdash; <strong>$69.00</strong> &mdash; and
+  none of the county layer. That leaves <strong>$57.50</strong> that never appears on a payout statement and is
+  not withheld anywhere. A host reading only the blended total has no way to see that gap; a host reading a
+  per-layer split sees exactly which $57.50 is theirs to file, on every stay, all year.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+<p class="note">
+  Open the <a href="./">STR Occupancy Tax Calculator</a> to work your own stay, or compare payout fees across
+  platforms with the <a href="../str-host-payout-calculator/">STR host payout calculator</a>.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't occupancy tax just a total rate I can put in a spreadsheet?</h3>
+<p>The arithmetic is simple — a percentage of a taxable base — and a spreadsheet handles that fine. What it does not do on its own is track each tax layer's remittance status separately: a state sales tax a platform collects automatically sitting next to a county tourist tax it does not. A single blended rate cell answers "what is owed" and stays silent on "who already paid it", which is the question that actually determines whether a host has a filing to do.</p>
+<h3>What does missing that distinction actually cost?</h3>
+<p>On the worked example this calculator opens with — a $1,150.00 taxable base, a 6% state layer the platform fully collects, and a 5% county layer it does not — the total tax is $126.50. A spreadsheet tracking only the blended 11% rate shows that figure and nothing else. The host still owes $57.50 in county tax with no reminder that it was never withheld, because the sheet never modeled the platform's collection agreement as a separate fact from the tax rate itself.</p>
+<h3>Why not just add a column for what the platform collects?</h3>
+<p>You can, and a correctly built sheet gets the same split this calculator does — it is the same arithmetic either way. What a spreadsheet will not do unprompted is flag the case worth flagging: a layer entered at a rate but never marked as either fully covered or fully uncovered, which looks in a cell exactly like a layer already handled. This calculator raises that flag on every stay; a spreadsheet only raises it if someone remembered to build the check.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about which taxing authorities apply to a specific listing, what a platform's current collection agreements cover, or what you owe — and the figures on this page are an illustrative example rather than a rate table. It is arithmetic on the numbers you type. Verify every figure against each taxing authority's own guidance, the platform's tax pages for that specific address, and a qualified tax professional before you rely on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your nightly rate, fees, tax layers and the figures worked out here are never uploaded and never appear in a usage count.</p>
+<p class="support">Free and open source. If it saves you from a surprise county tax bill, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

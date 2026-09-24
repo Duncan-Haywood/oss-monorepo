@@ -134,8 +134,15 @@ test('no network calls anywhere on the page: no fetch/XHR/sendBeacon/WebSocket/E
   assert.doesNotMatch(html, /\bimport\s*\(/);
 });
 
-test('the page names no specific commercial product or competitor, so it needs no not-affiliated clause (this pass ships no vs-*.html comparison page)', () => {
+test('the index page names no specific commercial product or competitor, so it needs no not-affiliated clause', () => {
   assert.doesNotMatch(html, /not affiliated with/i);
-  const files = readdirSync(new URL('./', import.meta.url));
-  assert.ok(!files.some(name => name.startsWith('vs-')), 'no vs-*.html comparison page in this first pass');
+});
+
+// vs-a-flat-per-vehicle-size-price.html compares against a generic pricing
+// method (a flat per-vehicle price by size class), not a named product, so
+// it carries no not-affiliated clause either -- see its own test file and
+// platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT.
+test('the venture has exactly one vs-*.html comparison page, and it is the generic-method one', () => {
+  const files = readdirSync(new URL('./', import.meta.url)).filter(name => name.startsWith('vs-') && name.endsWith('.html'));
+  assert.deepEqual(files, ['vs-a-flat-per-vehicle-size-price.html']);
 });
