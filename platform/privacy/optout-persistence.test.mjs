@@ -569,7 +569,12 @@ const RELATIVE_SELF = relative(
 // `subdomain-takeover-check-usage` storage name). Verified the way this
 // file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/subdomain-takeover-check/usage.mjs`) and no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 321;
+// 321 -> 322 on 2026-09-24, when `slopsquatting-check` graduated with a
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// its siblings (`dependency-confusion-check`, `npm-lifecycle-script-check`),
+// keyed under its own `slopsquatting-check-usage` storage name. Exactly one
+// added `usage.mjs` (`ventures/slopsquatting-check/usage.mjs`), no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 322;
 
 let counter = 0;
 function fixture(source) {
