@@ -6970,6 +6970,28 @@ products:
           having measured nothing. `campaign_calculated` is the one worth
           watching: `pledge_calculated` alone means a visitor only checked
           one reward tier, not a whole campaign estimate.
+  - slug: depop-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-24
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          regions_compared: 0
+          numbers_saved: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/depop-fee-calculator/`) from its first commit. The
+          visitor signal is null rather than zero for the same reason as
+          every other row here: GitHub Pages exposes no server-side
+          analytics and the local counters are opt-out and never leave the
+          device, so nobody has measured yet -- that is not the same as
+          having measured nothing. `regions_compared` is the one worth
+          watching: it is the feature this venture's write-up bets on,
+          since it answers whether a seller unsure which of Depop's three
+          regional fee schedules applies to their account actually uses
+          the side-by-side comparison rather than guessing.
   - slug: salary-range-posting-check
     surface: github-pages
     readings:
