@@ -1289,6 +1289,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause for that reason. Same reasoning as the other
   // generic-method pages above.
   'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
+  // Compares against "estimating egress in a spreadsheet" -- a method every
+  // engineer pricing a workload already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-aws-pricing-calculator.html, vs-azure-pricing-calculator.html and
+  // vs-google-cloud-pricing-calculator.html, which each name a specific
+  // provider's own tool and already carry that provider's "not affiliated"
+  // clause for that reason. Same reasoning as the other vs-a-spreadsheet
+  // pages above.
+  'cloud-egress-calculator/vs-a-spreadsheet.html',
   // Compares against "planning cuts by hand" -- a manual layout habit every
   // woodworking or sign shop already has, not a company or product this
   // could be mistaken for. Distinct from this venture's own
@@ -1296,6 +1305,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // hosted services and already carries the "not affiliated" clause for
   // that reason. Same reasoning as the other generic-method pages above.
   'cut-list-optimizer/vs-planning-cuts-by-hand.html',
+  // Compares against "a flat $1,495 well-pump special" -- a generic
+  // advertised price every well-service shop is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-servicetitan.html, which names a specific field
+  // service platform and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other flat-rate generic-method
+  // pages above (e.g. shed-install-bid-calculator's).
+  'well-pump-bid-calculator/vs-a-flat-well-pump-special.html',
   // Compares against "opening settings.json or an mcpServers block and
   // reading it by eye before committing" -- a generic manual habit every
   // developer and reviewer already has access to, not a company or product
