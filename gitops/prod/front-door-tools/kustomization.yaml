@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 113 files, 553974 bytes
 #   portfolio-front-tools-17: 121 files, 540616 bytes
 #   portfolio-front-tools-18: 123 files, 554312 bytes
-#   portfolio-front-tools-19: 55 files, 297219 bytes
+#   portfolio-front-tools-19: 56 files, 301131 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2612,3 +2612,4 @@ configMapGenerator:
       - world-clock-widget__solar.mjs.gz=world-clock-widget__solar.mjs.gz
       - world-clock-widget__usage.mjs.gz=world-clock-widget__usage.mjs.gz
       - world-clock-widget__vs-your-phones-clock-app.html.gz=world-clock-widget__vs-your-phones-clock-app.html.gz
+      - world-clock-widget__why-is-indias-time-zone-utc-5-30.html.gz=world-clock-widget__why-is-indias-time-zone-utc-5-30.html.gz
