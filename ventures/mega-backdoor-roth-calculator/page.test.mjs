@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const guide = readFileSync(new URL('./which-conversion-cadence-should-i-use.html', import.meta.url), 'utf8');
+const vsByHand = readFileSync(new URL('./vs-doing-the-math-by-hand.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 const calcSource = readFileSync(new URL('./calc.mjs', import.meta.url), 'utf8');
 
@@ -64,6 +65,36 @@ test('the entry page links to the guide page', () => {
 
 test('the guide page names no vendor or competing product', () => {
   assert.doesNotMatch(guide, /Fidelity|Vanguard|Schwab|Empower|Voya|Principal/i);
+});
+
+test('the entry page links to the by-hand comparison, and it links back', () => {
+  assert.match(html, /href="vs-doing-the-math-by-hand\.html"/);
+  assert.match(vsByHand, /<a href="\.\/">/);
+});
+
+test('the by-hand comparison page names no vendor or competing product', () => {
+  assert.doesNotMatch(vsByHand, /Fidelity|Vanguard|Schwab|Empower|Voya|Principal/i);
+  assert.match(vsByHand, /names no specific plan provider/i);
+});
+
+test('the by-hand comparison page stays crawlable and is listed in the sitemap', () => {
+  assert.match(vsByHand, /<title>This calculator vs\. working out/);
+  assert.match(vsByHand, /name="robots" content="index,follow"/);
+  assert.match(sitemap, /vs-doing-the-math-by-hand\.html/);
+});
+
+test('the by-hand comparison page carries the no-warranty disclaimer', () => {
+  assert.match(vsByHand, /<strong>No warranty\.<\/strong>/);
+});
+
+test('the by-hand comparison page carries FAQPage JSON-LD that parses as valid JSON and matches visible headings', () => {
+  const match = vsByHand.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, 'no FAQPage schema found on the by-hand comparison page');
+  const schema = JSON.parse(match[1]);
+  assert.ok(schema.mainEntity.length >= 4);
+  for (const question of schema.mainEntity) {
+    assert.ok(vsByHand.includes(`<h3>${question.name}</h3>`), `by-hand FAQ schema question "${question.name}" has no matching <h3>`);
+  }
 });
 
 test('the entry page distinguishes this from a regular backdoor Roth IRA', () => {
