@@ -1910,6 +1910,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-oneradon.html, which names Sun Nuclear's OneRADON software
   // specifically and already carries the trademark disclaimer.
   'radon-mitigation-bid-calculator/vs-a-flat-1195-radon-special.html',
+  // Compares against "a flat price-per-watt quote" -- a common dollars-per-
+  // watt rate any solar installer already quotes from, sized for the roof
+  // and panel condition the rate was set on, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-aurora-solar.html, which names Aurora Solar specifically and already
+  // carries the trademark disclaimer.
+  'solar-pv-bid-calculator/vs-a-flat-price-per-watt.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
