@@ -41089,3 +41089,55 @@ entries:
         counts remain at zero, which no single session's product output
         can close on its own.
     mrr_end: 0
+  - venture: photo-booth-event-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Selected via portfolio/router/allocate.py's merit ranking
+        intersected with surface-budget.mjs's 0-generic-method ventures
+        (session_gate.py reported PROCEED, the build-now pipeline empty, and
+        no open PRs to overlap with). Added
+        vs-a-flat-package-price.html: fills the venture's 0/1
+        generic-method comparison budget. calc.mjs's own top-of-file
+        comment names the exact scenario -- a flat "3-hour, $500" package
+        prices only the hours a guest sees the booth running and leaves out
+        setup/teardown, travel, and the print-volume risk an unlimited-print
+        package hides.
+      - >-
+        Worked examples are pinned against calc.mjs in the page's own
+        test.mjs, run through calc.mjs's own DEFAULTS (the same values
+        index.html ships as form defaults): the exact booking a $500
+        package is sized for -- a 24-mile round trip, one attendant, 150
+        prints -- walks away at $468.68, comfortably inside the package.
+        The same 3 booked hours with a busier open bar (40-mile round trip,
+        400 prints) walks away at $640.38, $140.38 over the package. A
+        Saturday wedding with a second attendant (60-mile round trip, 500
+        prints) walks away at $1,032.50, $532.50 over the package. Unlike
+        several sibling comparison pages, the base case is priced fairly by
+        the flat rate -- it is travel, attendant count, and print volume
+        moving away from that base case that break it, which matches this
+        calculator's own stated reason for existing.
+      - >-
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic
+        pricing method, not a named competitor -- distinct from this
+        venture's own vs-photobooth-supply-co.html, which names a real
+        product and carries the affiliation disclaimer), linked from
+        index.html, added to sitemap.xml, and the front-door mirror
+        regenerated (regen.mjs) so the new page ships to the served surface
+        in the same commit. sync_tree_counts.py confirmed no drift (no new
+        venture, so the mirrored-tool count is unchanged).
+      - >-
+        Verified locally, Actions confirmed starved for the duration
+        (ci_starvation.py: runner_id 0, ~4s, no steps, on the last several
+        pushes to main): the venture's own 78-assertion suite,
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1287/1287, clean after regen), `platform/proposal/*.test.mjs`
+        (101/101), `platform/privacy/*.test.mjs platform/webcheck/*.test.mjs`
+        (142/142), `python3 -m pytest gitops/tests -q` (613 passed, 25
+        skipped -- environmental), `platform/ci`'s 27 unittest modules +
+        `agent_review`'s 21, `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` (446 passed),
+        `checklist_coverage.py` and `regen.mjs --verify` both clean.
+    mrr_end: 0
