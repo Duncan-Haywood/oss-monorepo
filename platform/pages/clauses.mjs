@@ -883,6 +883,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries its own "not affiliated" clause. Same reasoning as the other
   // vs-doing-it-by-hand / vs-spreadsheet pages above.
   'childcare-tuition-calculator/vs-doing-it-by-hand.html',
+  // Compares against "tallying a serve's profit by hand or in a spreadsheet"
+  // -- the generic method every independent process server already has, not
+  // a company or product this could be mistaken for. The page names no
+  // spreadsheet application or notebook app at all -- distinct from this
+  // venture's own vs-servemanager.html, which does name a product and
+  // carries its own "not affiliated" clause. Same reasoning as the other
+  // vs-doing-it-by-hand / vs-spreadsheet pages above.
+  'process-server-fee-calculator/vs-doing-it-by-hand.html',
   // Compares against "tracking orders in a spreadsheet" -- the generic
   // method every Etsy seller already has, not a company or product this
   // could be mistaken for. The page names no spreadsheet application or
