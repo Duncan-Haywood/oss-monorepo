@@ -42874,3 +42874,47 @@ entries:
         confirmed-visitor counts remain at zero, which this does not
         change on its own.
     mrr_end: 0
+  - venture: pool-plaster-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        vs-a-flat-8-a-square-foot-quote.html, comparing the calculator
+        against a flat per-water-surface-square-foot pool-plaster quote --
+        the exact convention calc.mjs's own docstring already names ("a
+        flat '$8 a square foot' plaster quote treats the homeowner's
+        water-surface number ... as the takeoff"). Picked via
+        surface-budget.mjs --check (82 ventures then had zero
+        generic-method pages) cross-referenced against
+        router/allocate.py's merit ranking; this venture ranked #103 by
+        merit (6.67) among candidates still at zero, ahead of every other
+        zero-generic-method venture allocate.py surfaced. Worked all four
+        of calc.mjs's own JOB_PRESETS against the form's own defaults ($36
+        wage, 30% burden, 15% overhead, 26% target margin): a flat $8/sf
+        water-surface quote misses the wall area a per-water-surface rate
+        never counts, so it is short of break-even even on the "brochure
+        special" preset ($1,695.23 short) and catastrophically short once
+        a chip-out, spa, tile, or coping is added (up to $37,054.06
+        short). JSON-LD FAQPage answers are verified byte-identical to
+        the visible copy (a script-checked, not just eyeballed,
+        comparison, given the recurring em-dash/"--" divergence bug in
+        recent sibling PRs). Wired into index.html, sitemap.xml, and
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names no vendor).
+        Regenerated the front-door mirror (node
+        platform/marketing/regen.mjs) so the served ConfigMap picks up
+        the new page and the kustomization mount line, per regen.mjs
+        --verify's own guidance.
+      - >-
+        Verified: the venture's own suite (120/120, including this
+        page's new worked-example test asserting the table figures
+        against calc.mjs run with the same presets and defaults),
+        surface-budget.mjs --for pool-plaster-bid-calculator (at budget,
+        1 generic-method page), clauses.mjs --check (1537 pages across
+        359 surfaces carry required clauses), checklist_coverage.py
+        (clean), regen.mjs --verify (clean after regen), and the full
+        platform/marketing + platform/pages suite (1290/1290). Checked
+        origin/main and open PRs immediately before committing; no open
+        PR touches this venture. Revenue and confirmed-visitor counts
+        remain at zero, which this does not change on its own.
+    mrr_end: 0

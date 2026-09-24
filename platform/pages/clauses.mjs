@@ -1984,6 +1984,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a verbal, ungoverned habit any restaurant or bar already has, not a
   // company or product this could be mistaken for.
   'tip-pool-compliance-calculator/vs-guessing-from-a-staff-meeting.html',
+  // Compares against "a flat $8-a-square-foot quote" -- a generic pricing
+  // convention plastering and resurfacing shops use industry-wide, not a
+  // company or product this could be mistaken for. Names no vendor.
+  'pool-plaster-bid-calculator/vs-a-flat-8-a-square-foot-quote.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
