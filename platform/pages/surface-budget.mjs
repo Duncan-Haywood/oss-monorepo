@@ -119,6 +119,20 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'an evening differential, and that same team-interpreting recommendation -- but neither page\'s worked ' +
       'example or conclusion duplicates the other\'s. Allowed at two, which still blocks a third.',
   },
+  'apparel-decoration-price-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-24: two sessions each added a generic-method page for this venture within the same ' +
+      'window, this session\'s own "vs. a flat price per shirt" (a decorator who quotes one flat per-piece rate ' +
+      'no matter the job) and #5387\'s "vs. a spreadsheet" (a decorator who already builds a per-piece formula ' +
+      'but gets specific mechanics wrong -- setup spread over the wrong quantity, blanks bought without a ' +
+      'spoilage margin, embroidery machine time divided by heads when hooping should not be). Both landed ' +
+      'cleanly against an overlap check that was correct when it ran -- the same collision shape ' +
+      'surface-budget.mjs\'s own docstring already describes for overtime-pay-calculator, shopify-fee-calculator ' +
+      'and sign-language-interpreter-rate-calculator, from a fourth pair of angles: no formula at all versus a ' +
+      'formula with specific, identified defects. Neither page\'s worked example or conclusion duplicates the ' +
+      'other\'s. Allowed at two, which still blocks a third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */
