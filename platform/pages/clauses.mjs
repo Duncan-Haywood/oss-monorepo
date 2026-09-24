@@ -1060,6 +1060,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // file's own git-exposure-check/vs-checking-the-url-by-hand.html entry
   // above.
   'graphql-introspection-exposure-check/vs-checking-introspection-by-hand.html',
+  // Compares against "reviewing a workflow file by eye" -- a generic manual
+  // habit every GitHub Actions maintainer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-zizmor.html, which names a specific open-source tool and already
+  // carries the "not affiliated" clause for that reason.
+  'actions-cache-poisoning-check/vs-checking-by-hand.html',
+  // Compares against "a flat price per window" -- a generic pricing habit
+  // any window-cleaning operator already reaches for, not a company or
+  // product this could be mistaken for. Same reasoning as this file's own
+  // git-exposure-check/vs-checking-the-url-by-hand.html entry above.
+  'window-cleaning-bid-calculator/vs-a-flat-price-per-window.html',
   // Compares against "doing the math yourself" -- a generic method (adding
   // up wall-clock minutes by hand) every repository maintainer already
   // does, not a company or product this could be mistaken for. Distinct
@@ -1207,6 +1218,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'docker-base-image-pin-check/vs-reading-a-dockerfile-by-hand.html',
+  // Compares against "matching an SBOM to advisories by hand" -- a manual
+  // review habit anyone with the two export files already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-dependency-track.html, which names a specific
+  // open-source project and already carries the "not affiliated" clause for
+  // that reason. Same reasoning as the other vs-checking-*-by-hand pages
+  // above.
+  'cra-evidence-desk/vs-matching-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
