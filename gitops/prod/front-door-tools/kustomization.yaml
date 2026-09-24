@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 126 files, 552781 bytes
 #   portfolio-front-tools-10: 124 files, 556929 bytes
 #   portfolio-front-tools-11: 116 files, 555763 bytes
-#   portfolio-front-tools-12: 118 files, 548470 bytes
+#   portfolio-front-tools-12: 118 files, 548296 bytes
 #   portfolio-front-tools-13: 128 files, 556192 bytes
 #   portfolio-front-tools-14: 136 files, 550558 bytes
 #   portfolio-front-tools-15: 111 files, 552678 bytes
@@ -1717,6 +1717,7 @@ configMapGenerator:
       - license-drift-check__index.html.gz=license-drift-check__index.html.gz
       - license-drift-check__usage.mjs.gz=license-drift-check__usage.mjs.gz
       - license-drift-check__vs-fossa.html.gz=license-drift-check__vs-fossa.html.gz
+      - license-drift-check__vs-manually-rechecking-licenses.html.gz=license-drift-check__vs-manually-rechecking-licenses.html.gz
       - llms-txt-generator__cli.mjs.gz=llms-txt-generator__cli.mjs.gz
       - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
       - llms-txt-generator__index.html.gz=llms-txt-generator__index.html.gz
@@ -1742,7 +1743,6 @@ configMapGenerator:
       - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
       - mcp-supply-chain-watch__index.html.gz=mcp-supply-chain-watch__index.html.gz
       - mcp-supply-chain-watch__usage.mjs.gz=mcp-supply-chain-watch__usage.mjs.gz
-      - mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz=mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz
       - mcp-supply-chain-watch__vs-snyk.html.gz=mcp-supply-chain-watch__vs-snyk.html.gz
       - mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz=mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz
       - menu-engineering-calculator__calc.mjs.gz=menu-engineering-calculator__calc.mjs.gz
