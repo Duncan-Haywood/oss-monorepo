@@ -39265,3 +39265,121 @@ entries:
         append-only ledger's own conflict resolved by keeping both
         sessions' entries.
     mrr_end: 0
+  - venture: s3-bucket-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per DIRECTION.md's North star point 2 and
+        the pipeline README's "archetype itself" section: screened a fresh
+        niche rather than picking up an existing candidate, named a real
+        distribution channel as a graduation condition (not polish), and
+        weighed the checker/CLI shape over another `<trade>-bid-calculator`
+        given 141+ of those with zero confirmed visitors. Ran
+        duplicate_check.py first against the exact mechanism description
+        (unsigned ListBucket + GetBucketAcl requests against a named S3
+        bucket) -- every existing venture scored 0.22 or below, well under
+        the 0.45 flag bar; supabase-rls-check and firebase-rules-check were
+        the closest matches, a different exposure class (application-level
+        database access control, not object-storage bucket permissions).
+      - >-
+        Channel evidence, verified rather than assumed: the GitHub API
+        (mcp__github__search_repositories) confirmed the open-source CLI
+        sa7mon/S3Scanner -- which performs the same external, unsigned,
+        no-AWS-account bucket check this venture does -- carries 3,176
+        stars, 412 forks, and the topics aws/bugbounty/gcp/infosec/s3/
+        s3scanner, last updated the same day (actively maintained, not
+        abandoned). WebSearch confirmed real, current search demand and at
+        least three named hosted competitors targeting the identical
+        no-login intent (BreachFocus, S4E.io, GrayHatWarfare) plus AWS's
+        own storage blog and docs pages dedicated to helping customers find
+        their own exposed buckets. Named competitors and an actively
+        starred open-source tool are evidence of real demand, not evidence
+        the niche is unserved -- the same reading this portfolio's README
+        already gives Corsy against cors-misconfig-check and VibeAppScanner
+        against supabase-rls-check.
+      - >-
+        Scored honestly against both gates: liability_containment 6 (both
+        requests unsigned GET only, listing capped to 10 keys, ACL read
+        only -- never a write/update/delete; object file CONTENT never
+        fetched anywhere, only key names S3's own capped listing already
+        returns and ACL grant metadata; a response the tool cannot classify
+        is reported as an error, never guessed in either direction) and
+        ethical_robustness 8 (exists to let a bucket owner find their own
+        exposure before an attacker or one of the many existing scanners
+        does; cannot be used to cause the exposure, only reveal one that
+        already exists). Composite 6.375 (pipeline scoring), 6.167
+        (portfolio/scoring's 6-dimension venture-scores.yaml schema),
+        floor 1 (ai_leverage -- deterministic classification against a
+        fixed decision table, no model in the loop, by design).
+      - >-
+        Shipped ventures/s3-bucket-exposure-check: a free browser tool + CLI
+        that sends two unsigned GET requests to a named S3 bucket's own REST
+        endpoint (ListBucket capped to 10 keys, GetBucketAcl) and names
+        anonymous-listing exposure plus AllUsers/AuthenticatedUsers
+        ACL-grant exposure (read and write scored as separate findings,
+        since a bucket can block listing while its ACL still grants access,
+        and FULL_CONTROL correctly triggers both). Retries once against the
+        bucket's own region endpoint on a region-mismatch response (reading
+        the x-amz-bucket-region header), the same approach S3Scanner uses.
+        probe.mjs and analyze.mjs are shared unmodified between the browser
+        page and the CLI; S3 does not send permissive CORS by default, so
+        the CLI is documented as the guaranteed path, the same
+        discrimination dotenv-exposure-check and git-exposure-check already
+        make. Full pipeline write-up at
+        portfolio/pipeline/candidates/s3-bucket-exposure-check.md; scored in
+        candidates.yaml, venture-scores.yaml, and README.md's table (in
+        composite-descending order -- validate_doc_consistency.py's
+        check_ranking enforces this strictly, no "appended out of order"
+        exception, so the row had to be moved to position 46 rather than
+        appended at the tail); filed in the front-door's "CI checks &
+        developer gates" category on its first commit (build.mjs's regex
+        extended) with reciprocal Related links added to supabase-rls-check
+        and firebase-rules-check's own footers, closing the crawlable-orphan
+        gap a new venture otherwise opens.
+      - >-
+        Two real defects this session's own verification found and fixed,
+        both worth recording because they are not covered by the venture's
+        own 63/63 unit tests: (1) the venture's generic-method comparison
+        page happens to share its exact filename/title angle
+        ("vs-checking-by-hand.html", "... vs. checking by hand") with
+        dotenv-exposure-check's own page, which pushed the shared
+        cross-venture "compared by more than one tool" apex aggregator
+        (front-door.mjs's vs__checking-by-hand.html) over its 2-tool
+        threshold for the first time -- front-door.test.mjs correctly
+        caught that gitops/prod/kustomization.yaml did not yet mount the
+        newly-created file, one hand-maintained line added to fix (the
+        generator sweeps stale entries but does not add new ones to that
+        list itself, same as every other named vs__<product> entry in that
+        file). (2) faq-visible.test.mjs caught the visible "Common
+        questions" prose on index.html and vs-checking-by-hand.html
+        drifting from the FAQPage JSON-LD by punctuation (--  vs an em
+        dash, straight vs curly quotes) and, on one question, by actually
+        different wording -- corrected to byte-identical text, the same
+        defect class supabase-rls-check's own ledger entry already records
+        against this checker family.
+      - >-
+        Verified locally rather than assuming CI: venture's own 63/63
+        tests; platform/marketing + platform/pages suites (full run,
+        pending -- see this session's final verification pass); gitops/tests
+        637 passed/1 skipped, after running sync_tree_counts.py (mirrored
+        tools 339->340, opt-out switches 321->322, both with a running-
+        comment entry added by hand per this file's own instruction, not
+        just the numeric rewrite) and adding
+        .github/workflows/s3-bucket-exposure-check-ci.yml plus
+        publish_surface.py --write (0 live, test-only workflow) after
+        platform/ci's test_validate_workflows caught the venture's five
+        test files running in no workflow; all 15 platform/ci unittest
+        modules and agent_review's test_review green; portfolio/{ledger,
+        scoring,router,usage,pipeline} + infra/tests 446 passed;
+        check_no_payment_code.py, checklist_coverage.py,
+        validate_candidates.py, validate_doc_consistency.py,
+        router/validate.py, score_ventures.py --check, surface-budget.mjs
+        (after registering the vs-checking-by-hand.html page in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set -- it was misclassified as a
+        named-product page and counted against the budget until that
+        registration), clauses.mjs s3-bucket-exposure-check: all clean.
+        regen.mjs --verify current after regenerating twice (once for the
+        new venture's files, once more after the FAQ/kustomization fixes
+        above).
+    mrr_end: 0

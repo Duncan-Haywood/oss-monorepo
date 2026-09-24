@@ -15992,3 +15992,69 @@ ventures:
       own HTTP response, no crawling, no enumeration of a domain's other
       subdomains, and the report is explicit that a clean result describes
       only the hostnames checked, not a full DNS-zone audit.
+  - slug: s3-bucket-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 8
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a bucket is exposed is
+      decided by the HTTP status and XML S3 itself returns from two
+      unsigned requests, against a fixed decision table -- a factual,
+      deterministic classification, not a model judgment, and it never
+      claims a full security audit.
+    basis: >-
+      Screened 2026-09-23 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency browser tool + CLI, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture at 0.22 or below against the final description (unsigned
+      ListBucket + GetBucketAcl requests against a named S3 bucket,
+      reporting object key names and ACL grants, never object content),
+      well under the 0.45 flag bar; supabase-rls-check and
+      firebase-rules-check are the closest matches, a different exposure
+      class entirely (application-level database access control, not
+      object-storage bucket permissions). Autonomous ops 10 / gross margin
+      10: every request runs from the visitor's own browser (when the
+      target's CORS policy allows it) or machine (for the CLI) against a
+      bucket of their choosing, so serving one more user costs a static
+      file and needs no human review of any output.
+      Distribution 8, a point above the sibling checker family's typical
+      6-7: measured via the GitHub API 2026-09-23, the open-source CLI
+      sa7mon/S3Scanner -- which performs the same external, unsigned
+      bucket check this venture does -- carries 3,176 stars, 412 forks,
+      and the topics aws/bugbounty/gcp/infosec/s3/s3scanner, and was
+      updated the same day (actively maintained). At least three named
+      hosted competitors (BreachFocus, S4E.io, GrayHatWarfare) target the
+      identical no-login search intent, and AWS's own storage blog and
+      docs pages exist specifically to help customers find their own
+      exposed buckets -- unusually concrete, current evidence for this
+      family. Time to revenue 6, matching supabase-rls-check: donations
+      only, but a developer who has just read one of those pages or hit a
+      bug-bounty recon step wants an immediate self-check.
+      Defensibility 2: transparent, narrow probe-and-classify tool with no
+      data moat; a 3,176-star open-source CLI and three named hosted
+      competitors already do the same check.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, scored at 6, the same as supabase-rls-check and for the same
+      reason: read-only by construction (unsigned GET only, listing capped
+      to 10 keys, never a write/update/delete), but a successful listing
+      check briefly surfaces real object key NAMES (which can themselves
+      be sensitive filenames) rather than only response metadata, so it is
+      not scored above the family's typical ceiling the way a
+      headers/config-only checker (source-map-leak-check) is. Object file
+      CONTENT is never fetched anywhere in the tool -- only key names S3's
+      own capped listing already returns and ACL grant metadata. Every
+      page and the README carry an explicit "only test a bucket you own or
+      are authorised to test" caution. A response the tool cannot classify
+      (network error, unexpected status) is reported as an error, never
+      folded into either "exposed" or "blocked".

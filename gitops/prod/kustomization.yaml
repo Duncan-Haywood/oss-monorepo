@@ -285,6 +285,7 @@ configMapGenerator:
       - vs__flat-day-rate.html.gz=front-door/vs__flat-day-rate.html.gz
       - vs__flat-price-per-square-foot.html.gz=front-door/vs__flat-price-per-square-foot.html.gz
       - vs__doing-the-math-yourself.html.gz=front-door/vs__doing-the-math-yourself.html.gz
+      - vs__checking-by-hand.html.gz=front-door/vs__checking-by-hand.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

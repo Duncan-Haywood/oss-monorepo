@@ -941,6 +941,9 @@ workflows:
 - workflow: roofing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: s3-bucket-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []

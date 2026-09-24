@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 339 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 340 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free tool: paste your podcast&#39;s RSS feed XML and check it against the documented Apple Podcasts feed requirements and the RSS 2.0 spec -- missing title/description/language/category/explicit/artwork, an invalid pubDate format, a missing atom:link rel=self, and duplicate episode guids (the documented cause of an episode reappearing as new or disappearing from a podcast app). A zero-dependency CLI fetches your feed URL for real. Runs in your browser or as a CI check. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>S3 Bucket Exposure Checker — Is Your Bucket Publicly Listable or Writable?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s3-bucket-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/s3-bucket-exposure-check</id>
+    <published>2026-09-23T00:00:00Z</published>
+    <updated>2026-09-23T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste an S3 bucket name and it sends two real, unsigned GET requests -- one asking the bucket to list its own contents, one asking to read its ACL -- to name whether anonymous listing is enabled and whether the ACL grants read or write access to AllUsers or AuthenticatedUsers. Object file contents are never fetched, only key names. Nothing uploaded to us.</summary>
   </entry>
   <entry>
     <title>Sign Language Interpreter Rate Calculator — Free, No Sign-Up</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the federal &#39;no tax on tips&#39; and &#39;no tax on overtime&#39; deductions (2025-2028): applies the $25,000 tip cap, the $12,500/$25,000 overtime cap, and the shared MAGI phase-out, and computes the overtime deduction&#39;s easy-to-miss half-time-premium-only rule. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>NY LLC Transparency Act Tracker — Deadline &amp; Filing Organizer</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ny-llc-transparency-act-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/ny-llc-transparency-act-tracker</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free browser tool for New York LLCs: check whether your LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under the NY LLC Transparency Act, see your filing deadline counted down, and organize the beneficial-owner details you&#39;ll need before you email NYDOS yourself. Nothing you type is uploaded.</summary>
   </entry>
 </feed>

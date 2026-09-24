@@ -1066,6 +1066,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Heroku, GitHub Pages) only as CNAME-target examples, not as the thing
   // being compared against.
   'subdomain-takeover-check/vs-checking-dig-by-hand.html',
+  // Compares against "typing the bucket URL into a browser tab" -- a
+  // generic manual habit every AWS developer already has, not a company or
+  // product this could be mistaken for. The page mentions AWS's own tools
+  // (Trusted Advisor, IAM Access Analyzer) only to contrast "checks from
+  // inside the account" with this tool's "checks from outside, no login",
+  // never as the thing being compared against -- the same reasoning as
+  // git-exposure-check's and dotenv-exposure-check's own by-hand pages.
+  's3-bucket-exposure-check/vs-checking-by-hand.html',
   // Compares against "a flat rate per square foot" -- a generic pricing
   // method every garage-floor coating contractor already has access to, not
   // a company or product this could be mistaken for. Same reasoning as the
