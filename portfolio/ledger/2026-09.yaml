@@ -42122,39 +42122,6 @@ entries:
         session cannot reach) and none had new information to add this
         session.
     mrr_end: 0
-  - venture: kickstarter-fee-calculator
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
-        Shipped this venture's first marketing surface: a generic-method
-        comparison page ("vs. the flat 8-10% rule of thumb"), following
-        session_gate.py PROCEED and picking from the two ventures
-        surface-budget.mjs reported at zero marketing surface out of 363
-        (the other, depop-fee-calculator, had just landed the same day via
-        #5679 and was left for a later session). Worked example uses the
-        calculator's own calc.mjs and shipped default inputs: a flat 9%
-        guess (the "8-10%" midpoint) prices a $10,000 raise at $9,100 net
-        regardless of backer count, while the real net payout is $9,170 at
-        150 backers ($66.67 average pledge) and $8,937.50 at 1,250 backers
-        ($8.00 average pledge, the micro-pledge tier) -- a $232.50 swing on
-        an identical guess, and the micro-pledge case's 10.625% effective
-        rate falls outside the quoted "8-10%" range entirely.
-      - >-
-        Ran node --test on the venture's own suite (32/32) and the full
-        platform/marketing + platform/pages suite (1290/1290) after fixing
-        two regressions the new page introduced: a JSON-LD FAQ block that
-        diverged from the visible copy by punctuation (curly vs. straight
-        quotes, and a stray backslash before dollar signs), caught by
-        faq-visible.test.mjs, and a venture sitemap.xml that omitted the
-        new page, caught by venture-sitemap-coverage.test.mjs. Ran
-        regen.mjs and committed the front-door mirror it rewrote so the
-        apex serves the new page rather than 404ing on it.
-      - >-
-        Left the owner's decision queue untouched: every top item remains
-        genuinely owner-blocked (credentials or money decisions this
-        session cannot reach) with nothing new to add.
-    mrr_end: 0
   - venture: actions-permissions-check
     agent_spend_usd: null
     human_hours: 0
@@ -42660,6 +42627,44 @@ entries:
         confirms no steering document reports that null as an observed
         zero.
     mrr_end: 0
+  - venture: snow-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the venture's first generic-method marketing surface ("vs.
+        quoting one flat seasonal rate for every driveway"):
+        surface-budget.mjs listed it among 83 ventures at 0 generic-method
+        comparison pages (it already carried one named-product page,
+        vs-aspire.html). Worked example computed live from the venture's own
+        calc.mjs on its shipped defaults (8 two-car-driveway sites, $22/hr
+        operator, $45/hr truck, 30% burden, $8/bag salt, 15% overhead, 20%
+        target margin, 10 snow + 6 ice events): a $950 flat seasonal clears
+        19.5% margin on a two-car driveway and 23.7% on a sidewalks-only
+        stop, but loses $1,921.96 (-202.3% margin) the moment it is quoted
+        to a medium commercial lot instead; held on the same driveway across
+        8/10/14 snow events, the same $950 flat quote goes from +$286.01
+        (30.1%) to +$185.05 (19.5%) to -$16.86 (underwater) as the storm
+        count rises.
+      - >-
+        Linked from index.html, added to sitemap.xml, and added to
+        platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set (it
+        compares against a generic pricing habit, not a named competitor --
+        the venture's separate vs-aspire.html already carries the trademark
+        disclaimer). Caught one drafting defect before pushing: the JSON-LD
+        FAQ answers used a plain "--" where the visible prose used an em
+        dash, which the page's own faq-visible-style verbatim-echo test
+        correctly flagged.
+      - >-
+        Refreshed the front-door mirror (platform/marketing/regen.mjs) so
+        the apex catalogue serves the new page.
+      - >-
+        Verified before pushing, since Actions is starved this session
+        (ci_starvation.py confirmed runner_id: 0 on this session's own
+        infra_state-refresh PR, #5738): venture's own suite 90/90,
+        checklist_coverage.py clean, surface-budget.mjs --check clean
+        (venture now 1/1 generic-method), regen.mjs --verify clean.
+    mrr_end: 0
   - venture: pour-cost-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -42818,4 +42823,107 @@ entries:
         design, an artifact this local runner cannot build (_site,
         pages-freshness), or an already-tracked, already-queued item
         (#5712 covers republishing gh-pages)).
+    mrr_end: 0
+  - venture: claude-code-settings-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, sourced by this session rather than a pipeline
+        candidate: a free browser tool checking a pasted Claude Code
+        settings.json (and optionally settings.local.json) for the
+        structural mistakes in hooks and permissions that fail silently --
+        an uncompilable matcher regex, a hook with no command, an event/
+        hook-type name outside this tool's dated, documented list, a
+        permission rule with unbalanced parentheses or an empty specifier,
+        a rule duplicated across allow/deny/ask, and a rule that
+        contradicts itself across the two settings files. Same
+        deterministic, client-side, no-upload shape as this session's
+        sibling AI-agent-tooling checkers (hidden-unicode-check,
+        mcp-config-risk-check, skill-manifest-check), justified the same
+        way: this session is Claude Code itself, with unusually direct
+        knowledge of the exact schema being checked.
+        duplicate_check.py cleared with nothing scoring above 0.13 (see
+        the venture's own VENTURE.yaml for the full table and channel
+        notes). Registered in launched.json, filed in build.mjs's
+        developer-tooling category, scored in venture-scores.yaml,
+        cross-linked reciprocally with all three sibling checkers'
+        footers, and given its own CI workflow (recorded in
+        publish-surface.yaml as publishing "none").
+      - >-
+        Found and fixed a real, pre-existing production defect while
+        verifying the merge: gitops/prod/kustomization.yaml's per-product
+        comparison-page mount list is hand-maintained, and
+        mcp-config-risk-check's vs-mcp-scan.html (#5730) had crossed the
+        two-comparison threshold that makes a product page mounted --
+        without the mount line ever being added. The rendered
+        vs__mcp-scan.html.gz existed in gitops/prod/front-door/ but was
+        never reachable through the served kustomization. Added the
+        missing line; front-door.test.mjs's own guard for exactly this
+        case now passes.
+      - >-
+        Also resynced the mirrored-tool and runs-on counts
+        (sync_tree_counts.py, sync_readme_counts.py) after two other
+        ventures graduated concurrently during the session
+        (auto-loan-interest-deduction-calculator and this one).
+      - >-
+        Verified on the final merged tree: the venture's own suite
+        (60/60), checklist_coverage.py, router/validate.py,
+        score_ventures.py --check, clauses.mjs, surface-budget.mjs
+        --check, regen.mjs --verify clean, front-door.test.mjs (118/118,
+        confirming the kustomization fix), the full platform/marketing +
+        platform/pages suite (1290/1290), gitops/tests (637 passed/1
+        skipped), every platform/ci unittest module, agent_review's
+        test_review, and portfolio/ledger + scoring + router + usage +
+        pipeline + infra/tests pytest (446 passed). Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.
+    mrr_end: 0
+  - venture: voiceover-project-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-a-flat-rate-regardless-of-usage.html, a generic-method
+        comparison page against quoting one flat project rate no matter how
+        the buyer plans to use the recording -- a habit the venture's own
+        FAQ already named as leaving money on the table for broadcast and
+        buyout work. surface-budget.mjs reported 0 generic-method pages for
+        this venture (0/81 fleet-wide with the budget still open); it now
+        carries its one-page budget. Worked example (150-word script,
+        $0.30/word, $45.00 base fee -- the calculator's shipped default)
+        shows a flat quote sending $45.00 regardless of usage against this
+        calculator's usage-scaled $45.00/$58.50/$81.00/$123.75/$180.00
+        across the five usage tiers -- a $135.00 gap at full buyout. The
+        dedicated test recomputes every usage-term total directly against
+        computeProjectQuote in calc.mjs rather than hand-typing the figures,
+        so a change to the shipped arithmetic would make the page's claim
+        false and the test red.
+      - >-
+        Found and fixed a second, unrelated defect while verifying: the
+        session's first `platform/marketing` + `platform/pages` full-suite
+        run showed pour-cost-calculator/vs-a-spreadsheet.html's FAQPage
+        JSON-LD diverging from its visible copy by "--" vs an em dash.
+        Fixed it locally, then found on the next `git fetch origin main`
+        that another session had landed the identical fix as #5754 while
+        this branch was in flight -- discarded the local fix and merged
+        main's version instead rather than carrying a duplicate change.
+      - >-
+        Verified on the final merged tree (main fetched twice during the
+        session; no further drift after the second merge): the venture's
+        own suite (51/51), clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        registration, surface-budget.mjs --for and --check (no venture over
+        budget fleet-wide), checklist_coverage.py, sync_tree_counts.py
+        (359 mirrored tools / 339 opt-out switches, both agreeing with the
+        tree post-merge), regen.mjs --verify clean before and after
+        regenerating the front-door mirror, the full platform/marketing +
+        platform/pages suite (1290/1290 after the em-dash fix merged in),
+        gitops/tests (613 passed / 25 skipped -- environmental), every
+        platform/ci unittest module (27/27), and the
+        ledger/scoring/router/usage/pipeline/infra pytest suite (446
+        passed). Actions confirmed starved via ci_starvation.py on the
+        latest portfolio-validate.yml push run (runner_id 0, no real
+        runner assigned) both before and after the merge. Revenue and
+        confirmed-visitor counts remain at zero, which this does not
+        change on its own.
     mrr_end: 0

@@ -266,6 +266,9 @@ workflows:
 - workflow: chrome-extension-permission-check-ci.yml
   classification: none
   publishes: []
+- workflow: claude-code-settings-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
@@ -702,6 +705,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: medical-courier-route-margin-ci.yml
+  classification: none
+  publishes: []
+- workflow: mega-backdoor-roth-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: menu-engineering-calculator-ci.yml

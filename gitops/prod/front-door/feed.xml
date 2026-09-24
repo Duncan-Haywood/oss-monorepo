@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 358 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 360 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste your site&#39;s URL and it sends real GET requests to eight well-known backup filenames (backup.zip, backup.tar.gz, backup.sql, db.sql, and more), verifying the response against a real archive&#39;s magic bytes or a real SQL dump&#39;s line shape -- not just an HTTP status -- to name whether your deployment is publicly serving a full site or database backup. Never reads row data out of a matched SQL dump, never extracts a matched archive. Nothing uploaded to us.</summary>
+  </entry>
+  <entry>
+    <title>Claude Code Settings Check — find hooks that never fire and permission rules that never match</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-code-settings-check/"/>
+    <id>tag:marisstella.dev,2026:tool/claude-code-settings-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a Claude Code settings.json (and, optionally, settings.local.json) and get every structural mistake flagged: a hook matcher that can&#39;t compile, a hook with no command, a misspelled event name, a permission rule with unbalanced parentheses, a rule duplicated across allow/deny/ask, and a rule that contradicts itself across the two files. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Cloud Bucket Exposure Checker — is your S3/GCS/Azure bucket publicly listable?</title>
@@ -114,6 +123,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Mega Backdoor Roth 401(k) Calculator — After-Tax Contribution Headroom</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mega-backdoor-roth-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mega-backdoor-roth-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions, and after-tax contributions and get your remaining after-tax headroom under the 2025/2026 IRS 415(c) limit, plus the per-paycheck amount to use it up by year-end. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>S-Corp Reasonable Compensation Calculator — Salary vs. Distribution</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Check whether a marketplace, payment app, or platform is likely to send you a Form 1099-K, per platform and per tax year. Covers the federal threshold&#39;s four changes since 2022 ($20,000/200 transactions, $5,000 in 2024, back to $20,000/200 from 2025 on) plus the four states with their own stricter $600 rule. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>1099-NEC Vendor Tracker — Free 2026 $2,000 Threshold Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/1099-vendor-tracker/"/>
-    <id>tag:marisstella.dev,2026:tool/1099-vendor-tracker</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Track which contractors need a 1099-NEC under the 2026 $2,000 reporting threshold (up from $600), check the corporation exemption, and see missing W-9s before the January 31 deadline. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GitHub Actions Secret Leak Check — Masking Bypass Scanner</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-secret-leak-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-secret-leak-check</id>
-    <published>2026-09-17T00:00:00Z</published>
-    <updated>2026-09-17T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find the two documented ways a secret slips past GitHub&#39;s own log masking: transforming it (base64/hex/substring) before printing, and exporting it to $GITHUB_ENV/$GITHUB_OUTPUT without ::add-mask::. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
