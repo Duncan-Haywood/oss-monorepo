@@ -1668,6 +1668,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other vs-checking-*-by-hand pages above (e.g.
   // actions-injection-check's).
   'actions-permissions-check/vs-checking-permissions-by-hand.html',
+  // Compares against "tracking grant deadlines in a spreadsheet" -- the
+  // generic method most small-nonprofit coordinators already use, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-instrumentl.html, which names Instrumentl specifically
+  // and already carries the trademark disclaimer. Same reasoning as the
+  // other generic-method pages above.
+  'grant-deadline-tracker/vs-tracking-deadlines-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
