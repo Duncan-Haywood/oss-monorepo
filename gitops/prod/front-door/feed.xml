@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 365 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 367 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -170,6 +170,15 @@
     <summary type="text">Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions, and after-tax contributions and get your remaining after-tax headroom under the 2025/2026 IRS 415(c) limit, plus the per-paycheck amount to use it up by year-end. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>npm Provenance Check — Which of Your Dependencies Lack Trusted Publishing?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-provenance-check/"/>
+    <id>tag:marisstella.dev,2026:tool/npm-provenance-check</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a package-lock.json, package.json, or a plain package list and see which packages were published with a provenance attestation (npm trusted publishing / OIDC, or --provenance) and which still rely on a classic publish token -- the mechanism the 2025-2026 Shai-Hulud worm abused. Free, no account, one read-only request per package to the public npm registry.</summary>
+  </entry>
+  <entry>
     <title>S-Corp Reasonable Compensation Calculator — Salary vs. Distribution</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/s-corp-reasonable-compensation-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/s-corp-reasonable-compensation-calculator</id>
@@ -231,6 +240,15 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Check a mandatory tip pool against federal FLSA rules: managers and supervisors are never eligible, and back-of-house staff are eligible only if you take no tip credit. See the tip-credit back-wage exposure a non-compliant pool creates. Free, private, nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Trump Account Calculator — Growth &amp; Withdrawal Tax Estimator, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trump-account-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/trump-account-calculator</id>
+    <published>2026-09-24T00:00:00Z</published>
+    <updated>2026-09-24T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the federal Trump Account child savings account (One Big Beautiful Bill Act, 26 U.S.C. 530A): projects the $1,000 federal seed deposit plus family and employer contributions to age 18 or later, and applies the IRA-style pro-rata withdrawal rule -- the mechanic every 529-plan comparison misses. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Window Tinting Bid Calculator — Auto Tint Job Pricing</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free rate calculator for freelance ASL/sign language interpreters. Price a single assignment from hours, the 2-hour booking minimum, portal-to-portal travel, mileage, an after-hours/weekend/holiday differential, and a team-interpreting flag for long legal/medical/mental-health bookings — plus a late-cancellation fee calculator. Entirely client-side.</summary>
-  </entry>
-  <entry>
-    <title>Source Map Leak Checker — Is Your Production JS Exposing Original Source?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/source-map-leak-check/"/>
-    <id>tag:marisstella.dev,2026:tool/source-map-leak-check</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste your site&#39;s URL (or a list of JS file URLs), and it finds every script&#39;s sourceMappingURL comment, fetches the map, and names which ones are publicly readable and whether they embed full original source text. Nothing uploaded to us.</summary>
-  </entry>
-  <entry>
-    <title>Subdomain Takeover Checker — Is Your CNAME Dangling?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/subdomain-takeover-check/"/>
-    <id>tag:marisstella.dev,2026:tool/subdomain-takeover-check</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste a hostname and it follows its real CNAME chain, then -- if the chain ends at a known takeover-prone provider (S3, Heroku, GitHub Pages, Azure, and 20 more) -- sends one live GET request and checks the response against that provider&#39;s own &#39;nothing is claimed at this name&#39; page. Confirms a dangling CNAME with live evidence, not just a DNS guess. Nothing uploaded to us.</summary>
   </entry>
 </feed>
