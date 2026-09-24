@@ -347,6 +347,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // data than anything typed into a form. Same reasoning as
   // auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html.
   'owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html',
+  // Compares against "checking a vendor's terms, privacy, or subprocessor
+  // page from memory" -- a manual habit every practitioner already has, not
+  // a company or product this could be mistaken for. The page names no
+  // specific vendor-monitoring service; its sibling comparison page,
+  // vs-changedetection-io.html, names a real product and carries its own
+  // trademark disclaimer separately. Same reasoning as the other
+  // manual-method pages above.
+  'vendor-change-watch/vs-checking-vendor-pages-by-hand.html',
   // Compares against "reading your own workflow files" -- the manual habit a
   // maintainer already has, not a company or product this could be mistaken
   // for. It does name GitHub, unavoidably, because GitHub Actions workflow
