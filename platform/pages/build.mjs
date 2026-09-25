@@ -1330,6 +1330,29 @@ const CATEGORY_RULES = [
       // floor/ceiling shape, one on state and local tax, the other on
       // charitable giving.
       //
+      // `excess-business-loss-calculator` joined 2026-09-25, filed here on
+      // its first commit rather than after a spell in the catch-all --
+      // what `build.test.mjs`'s catch-all bound is for. Same "downstream
+      // federal tax threshold on figures the filer already has" axis as
+      // `qbi-deduction-calculator` right above it in this rule --
+      // computing the IRC 461(l) excess-business-loss threshold and the
+      // resulting NOL carryforward, never a filed position made on the
+      // visitor's behalf. It cross-links `qbi-deduction-calculator` as its
+      // nearest sibling: both serve pass-through business owners and flag
+      // (without computing) the interaction between the two calculations.
+      //
+      // `qsbs-exclusion-calculator` joined 2026-09-25, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream
+      // federal tax exclusion on figures the filer already has" axis as
+      // `excess-business-loss-calculator` right above it in this rule --
+      // computing the Section 1202 QSBS capital-gain exclusion, never a
+      // filed position made on the visitor's behalf. It cross-links
+      // `excess-business-loss-calculator` as its nearest sibling: both are
+      // OBBBA provisions made permanent/expanded in 2025 with a
+      // cap-and-threshold shape, one on ordinary business losses, the
+      // other on capital gains from a stock sale.
+      //
       // `exempt-salary-threshold-checker` joined 2026-09-25, filed here on
       // its first commit rather than after a spell in the catch-all --
       // what `build.test.mjs`'s catch-all bound is for. Same "federal
@@ -1340,7 +1363,7 @@ const CATEGORY_RULES = [
       // visitor's behalf. It cross-links `tip-pool-compliance-calculator`
       // as its nearest sibling: both check one FLSA wage-and-hour rule
       // against a fixed federal-or-state table, neither computes pay.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|exempt-salary-threshold-checker)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker)/.test(slug),
   },
   {
     id: 'ci',

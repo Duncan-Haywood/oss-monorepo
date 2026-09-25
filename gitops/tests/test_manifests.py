@@ -2624,14 +2624,34 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Static `index.html` plus one docs/comparison page from its first
     # commit, same shape as the rest of this running count.
     #
-    # 375 -> 376: `exempt-salary-threshold-checker` also graduated -- a
-    # browser-local calculator checking a weekly salary against the 2026
-    # federal FLSA white-collar exemption threshold and the higher state
-    # figure in California, Washington, Maine, Alaska, or New York
-    # (including New York's carve-out excluding the professional
-    # exemption from its higher figure). Static `index.html` only, no
-    # comparison page, from its first commit.
-    total = 376  # `infra/OWNER_CHECKLIST.md`'s own "N of the 376 tools" wording.
+    # 375 -> 376: `excess-business-loss-calculator` also graduated -- a
+    # browser-local calculator computing the IRC 461(l) excess business
+    # loss threshold (permanent under OBBBA, with a 2026 figure that
+    # counterintuitively falls below 2025's rather than rising) and the
+    # resulting net operating loss carryforward, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 376 -> 377: `qsbs-exclusion-calculator` also graduated -- a
+    # browser-local calculator computing the Section 1202 QSBS capital-gain
+    # exclusion, expanded by OBBBA for stock acquired after July 4, 2025
+    # (a new tiered 3/4/5-year schedule and a higher per-issuer cap,
+    # replacing the old all-or-nothing 5-year cliff for earlier stock),
+    # plus a vs-doing-the-math-by-hand.html comparison page. Static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 377 -> 378: `exempt-salary-threshold-checker` also graduated,
+    # concurrently and invisibly to both branches above -- a browser-local
+    # calculator checking a weekly salary against the 2026 federal FLSA
+    # white-collar exemption threshold and the higher state figure in
+    # California, Washington, Maine, Alaska, or New York (including New
+    # York's carve-out excluding the professional exemption from its
+    # higher figure). Static `index.html` only, no comparison page, from
+    # its first commit. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    total = 378  # `infra/OWNER_CHECKLIST.md`'s own "N of the 378 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

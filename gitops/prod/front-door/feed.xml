@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 376 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 377 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -35,13 +35,13 @@
     <summary type="text">Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
-    <title>Exempt Salary Threshold Checker — Federal + State, 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/exempt-salary-threshold-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/exempt-salary-threshold-checker</id>
+    <title>Excess Business Loss Calculator — 2025-2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/excess-business-loss-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/excess-business-loss-calculator</id>
     <published>2026-09-25T00:00:00Z</published>
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the 2026 FLSA white-collar overtime-exemption salary threshold — checks a weekly salary against the federal $684/week figure and the higher state threshold in California, Washington, New York, Maine, or Alaska, including New York&#39;s professional-exemption carve-out. Entirely client-side, nothing uploaded.</summary>
+    <summary type="text">Free calculator for the IRC 461(l) excess business loss limitation, now permanent under OBBBA — computes how much of a pass-through owner&#39;s net business loss is deductible this year against the 2025/2026 threshold, and how much becomes a net operating loss carryforward. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>MRR Waterfall Calculator — Net &amp; Gross Revenue Retention</title>
@@ -69,6 +69,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a requirements.txt, a PEP 621 pyproject.toml, or a plain package list and see which Python packages were published with a PyPI provenance attestation (trusted publishing / OIDC via GitHub Actions or another supported CI) and which still rely on a classic, stealable API token. Free, no account, two read-only requests per package to the public PyPI API.</summary>
+  </entry>
+  <entry>
+    <title>QSBS Exclusion Calculator — Section 1202, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/qsbs-exclusion-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/qsbs-exclusion-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the Section 1202 Qualified Small Business Stock (QSBS) gain exclusion, expanded by OBBBA — compares the old all-or-nothing 5-year rule against the new tiered 3/4/5-year schedule for stock acquired after July 4, 2025, and the higher $15M exclusion cap. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>SALT Deduction Cap Calculator — 2025-2026, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dotenv Exposure Checker — Is Your .env File Publicly Readable?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dotenv-exposure-check/"/>
-    <id>tag:marisstella.dev,2026:tool/dotenv-exposure-check</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste your site&#39;s URL and it sends real GET requests to .env, .env.local, .env.production, and two other well-known dotenv filenames, verifying the response body actually looks like a real KEY=VALUE file -- not just an HTTP status -- to name whether your deployment is publicly serving its own environment-variable secrets. Reports key NAMES only, never values. Nothing uploaded to us.</summary>
   </entry>
 </feed>

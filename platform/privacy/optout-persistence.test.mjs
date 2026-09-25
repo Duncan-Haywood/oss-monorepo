@@ -859,14 +859,30 @@ const RELATIVE_SELF = relative(
 // `charitable-deduction-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
 //
-// 354 -> 355: `exempt-salary-threshold-checker` also graduated -- adding
-// one more `usage.mjs` (`ventures/exempt-salary-threshold-checker/
-// usage.mjs`), the same boilerplate opt-out toggle copied from
-// `salt-cap-calculator` (`record`/`setUsageOptOut`/`usageOptedOut` gating
-// localStorage writes, keyed under its own
-// `exempt-salary-threshold-checker-usage` storage name). Exactly one
+// 354 -> 355: `excess-business-loss-calculator` also graduated -- adding
+// one more `usage.mjs` (`ventures/excess-business-loss-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `excess-business-loss-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 355;
+//
+// 355 -> 356: `qsbs-exclusion-calculator` also graduated -- adding one
+// more `usage.mjs` (`ventures/qsbs-exclusion-calculator/usage.mjs`)
+// following the same opt-out toggle shape as its
+// `excess-business-loss-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `qsbs-exclusion-calculator-usage` storage name). Exactly one added
+// `usage.mjs`, no deletions.
+//
+// 356 -> 357: `exempt-salary-threshold-checker` also graduated,
+// concurrently and invisibly to both branches above -- adding one more
+// `usage.mjs` (`ventures/exempt-salary-threshold-checker/usage.mjs`), the
+// same boilerplate opt-out toggle copied from `salt-cap-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `exempt-salary-threshold-checker-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 357;
 
 let counter = 0;
 function fixture(source) {
