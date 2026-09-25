@@ -2413,6 +2413,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark/affiliation disclaimer. Same reasoning as the other
   // generic-method pages above.
   'merchant-feed-check/vs-eyeballing-the-feed-in-a-spreadsheet.html',
+  // Compares against pricing a placement's markup and margin in a
+  // spreadsheet formula -- the generic practice most staffing desks already
+  // use, not a company or product this could be mistaken for (it names no
+  // specific spreadsheet software). Distinct from this venture's own
+  // vs-tempworks.html, which names TempWorks Software, Inc. and carries the
+  // trademark/affiliation disclaimer.
+  'staffing-markup-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
