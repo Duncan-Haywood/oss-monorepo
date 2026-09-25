@@ -54,7 +54,7 @@
 #   portfolio-front-tools-18: 114 files, 555386 bytes
 #   portfolio-front-tools-19: 126 files, 552741 bytes
 #   portfolio-front-tools-20: 118 files, 547598 bytes
-#   portfolio-front-tools-21: 103 files, 508258 bytes
+#   portfolio-front-tools-21: 104 files, 513926 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2927,6 +2927,7 @@ configMapGenerator:
       - wordpress-plugin-review-check__scan.mjs.gz=wordpress-plugin-review-check__scan.mjs.gz
       - wordpress-plugin-review-check__stable-tag-mismatch.html.gz=wordpress-plugin-review-check__stable-tag-mismatch.html.gz
       - wordpress-plugin-review-check__usage.mjs.gz=wordpress-plugin-review-check__usage.mjs.gz
+      - wordpress-plugin-review-check__vs-manually-checking-against-the-guidelines.html.gz=wordpress-plugin-review-check__vs-manually-checking-against-the-guidelines.html.gz
       - wordpress-plugin-review-check__vs-plugin-check.html.gz=wordpress-plugin-review-check__vs-plugin-check.html.gz
       - world-clock-widget__index.html.gz=world-clock-widget__index.html.gz
       - world-clock-widget__solar.mjs.gz=world-clock-widget__solar.mjs.gz

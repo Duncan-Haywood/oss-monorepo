@@ -2356,6 +2356,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the trademark/affiliation disclaimer. Same reasoning as the other
   // generic-method pages above.
   'cam-reconciliation-check/vs-square-footage-alone.html',
+  // Compares against "reading the guidelines and checking your own files by
+  // eye" -- the generic first pass every plugin author already does, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-plugin-check.html, which names wordpress.org's Plugin
+  // Check and carries the trademark/affiliation disclaimer. Same reasoning
+  // as the other generic-method pages above.
+  'wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
