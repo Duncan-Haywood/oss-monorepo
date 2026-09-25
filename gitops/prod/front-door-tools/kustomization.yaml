@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 141 files, 528085 bytes
+#   portfolio-front-tools-0: 142 files, 532698 bytes
 #   portfolio-front-tools-1: 91 files, 550867 bytes
 #   portfolio-front-tools-2: 145 files, 557052 bytes
 #   portfolio-front-tools-3: 132 files, 554690 bytes
@@ -204,6 +204,7 @@ configMapGenerator:
       - pool-route-pricing__index.html.gz=pool-route-pricing__index.html.gz
       - pool-route-pricing__share.mjs.gz=pool-route-pricing__share.mjs.gz
       - pool-route-pricing__usage.mjs.gz=pool-route-pricing__usage.mjs.gz
+      - pool-route-pricing__vs-a-flat-per-pool-monthly-rate.html.gz=pool-route-pricing__vs-a-flat-per-pool-monthly-rate.html.gz
       - pool-route-pricing__vs-skimmer.html.gz=pool-route-pricing__vs-skimmer.html.gz
       - grant-reporting-tracker__calc.mjs.gz=grant-reporting-tracker__calc.mjs.gz
       - grant-reporting-tracker__index.html.gz=grant-reporting-tracker__index.html.gz
