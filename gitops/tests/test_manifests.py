@@ -2563,7 +2563,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # same shape as the rest of this running count. Total re-derived here
     # by `sync_tree_counts.py` against the fully merged tree rather than
     # by hand.
-    total = 367  # `infra/OWNER_CHECKLIST.md`'s own "N of the 367 tools" wording.
+    #
+    # 367 -> 368: `section-174a-catchup-calculator` also graduated -- a
+    # browser-local calculator comparing the two Rev. Proc. 2025-28 Section
+    # 174A domestic R&E catch-up election paths (deduct the whole remaining
+    # unamortized 2022-2024 balance in 2025, or split it over 2025-2026),
+    # with an NOL flag and a present-value comparison, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as the
+    # rest of this running count. Total re-derived here by
+    # `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 368  # `infra/OWNER_CHECKLIST.md`'s own "N of the 368 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

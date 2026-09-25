@@ -1013,6 +1013,9 @@ workflows:
 - workflow: screened-porch-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: section-174a-catchup-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: security-camera-bid-calculator-ci.yml
   classification: none
   publishes: []
