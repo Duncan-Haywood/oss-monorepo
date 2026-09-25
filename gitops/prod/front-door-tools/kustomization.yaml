@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 125 files, 551240 bytes
 #   portfolio-front-tools-11: 122 files, 550251 bytes
 #   portfolio-front-tools-12: 116 files, 555024 bytes
-#   portfolio-front-tools-13: 125 files, 551396 bytes
+#   portfolio-front-tools-13: 126 files, 554425 bytes
 #   portfolio-front-tools-14: 129 files, 556663 bytes
 #   portfolio-front-tools-15: 125 files, 554990 bytes
 #   portfolio-front-tools-16: 134 files, 542463 bytes
@@ -1836,6 +1836,7 @@ configMapGenerator:
       - kdp-royalty-calculator__vs-a-spreadsheet.html.gz=kdp-royalty-calculator__vs-a-spreadsheet.html.gz
       - kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz=kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz
       - kickstarter-fee-calculator__calc.mjs.gz=kickstarter-fee-calculator__calc.mjs.gz
+      - kickstarter-fee-calculator__how-much-does-kickstarter-take.html.gz=kickstarter-fee-calculator__how-much-does-kickstarter-take.html.gz
       - kickstarter-fee-calculator__index.html.gz=kickstarter-fee-calculator__index.html.gz
       - kickstarter-fee-calculator__usage.mjs.gz=kickstarter-fee-calculator__usage.mjs.gz
       - kickstarter-fee-calculator__vs-the-flat-8-10-percent-rule-of-thumb.html.gz=kickstarter-fee-calculator__vs-the-flat-8-10-percent-rule-of-thumb.html.gz
