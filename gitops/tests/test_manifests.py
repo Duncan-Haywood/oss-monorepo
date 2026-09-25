@@ -2623,7 +2623,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # ceiling, plus a vs-doing-the-math-by-hand.html comparison page.
     # Static `index.html` plus one docs/comparison page from its first
     # commit, same shape as the rest of this running count.
-    total = 375  # `infra/OWNER_CHECKLIST.md`'s own "N of the 375 tools" wording.
+    #
+    # 375 -> 376: `gambling-loss-deduction-calculator` also graduated -- a
+    # browser-local calculator computing the allowable gambling-loss
+    # deduction under OBBBA's new 90%-of-winnings cap (IRC Section 165(d)),
+    # plus a vs-doing-the-math-by-hand.html comparison page. Static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count.
+    total = 376  # `infra/OWNER_CHECKLIST.md`'s own "N of the 376 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
