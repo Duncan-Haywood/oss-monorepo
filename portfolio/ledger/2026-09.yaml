@@ -45774,3 +45774,64 @@ entries:
         every recent main check). Refreshed the gh-pages publish snapshot
         after merging.
     mrr_end: 0
+  - venture: merchant-feed-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page,
+        vs-eyeballing-the-feed-in-a-spreadsheet.html -- surface-budget.mjs
+        flagged this venture with 0 generic-method pages (already had a
+        named-product comparison, vs-datafeedwatch.html, and a guide page).
+        The angle: a spreadsheet scan of a product feed catches the obvious
+        disapproval triggers (a screaming promotional title, a duplicate
+        SKU) but is structurally blind to two of the most common documented
+        ones, because the failing value is the exact same length and shape
+        as every valid value around it -- a GTIN with a transposed digit
+        still reads as a normal 13-digit code, and a price missing its
+        currency code still reads as a normal price once a spreadsheet
+        applies its own currency formatting. Worked example: a four-row
+        feed where one row's GTIN differs from a valid one by two
+        transposed digits (fails only the GS1 checksum) and another's price
+        is "19.99" instead of "19.99 USD" (fails only the format rule),
+        both otherwise visually identical to a clean row. Every number on
+        the page is asserted against engine.mjs's own checkFeed(), not
+        invented. Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (names no competitor, and deliberately names no specific
+        spreadsheet software either).
+      - >-
+        Caught and fixed a real defect during verification, not a race: the
+        first draft linked directly from the page to its own .test.mjs
+        file, which front-door-tools.mjs's dead-link check correctly flags
+        (test files are not mirrored). Because other ventures link to
+        merchant-feed-check (e.g. structured-data-drift-check), that one
+        dead link cascaded through the mirror's collateral-drop pass and
+        took roughly 80 unrelated tools down with it -- caught by running
+        the generator directly and comparing tool counts (launched.json
+        said 375, the generated mirror said 295) rather than trusting
+        regen.mjs --verify alone, which does not distinguish a shrunk-but-
+        internally-consistent mirror from a correct one. Removed the link
+        (plain text instead); the generator went back to 375/375 (then
+        376, 377 as sibling ventures landed mid-session) with zero drops.
+      - >-
+        Earlier in this session also picked up open PR #5873
+        (self-storage-rate-increase-calculator's comparison page), resolved
+        its front-door mirror conflicts against a moved main, and pushed
+        the fix -- another session merged it directly before the push
+        landed, so no separate PR was needed there. Also ran the full
+        whole-catalogue browser/accessibility sweep (contrast, opt-out,
+        interactive-tool smoke test, whole-site journey) for the first time
+        in a while after browser_state.py reported all 8 checks stale;
+        1673 pages / 2 viewports, 0 WCAG A/AA violations, 0 failures --
+        recorded as a clean baseline in #5900.
+      - >-
+        Verified: venture's own suite 79/79; node
+        platform/marketing/front-door-tools.mjs run directly (not just
+        --verify) confirmed 0 collateral drops and 0 dead links after the
+        fix; full platform/marketing + platform/pages suite 1290/1290 (run
+        three times across successive main-merges during this session,
+        clean each time); surface-budget.mjs --check, checklist_coverage.py,
+        sync_tree_counts.py, regen.mjs --verify, check_ledger_only.py all
+        clean. CI starved this session throughout (ci_starvation.py
+        confirmed runner_id: 0 on every recent main check).
+    mrr_end: 0
