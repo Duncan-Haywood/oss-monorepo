@@ -95,6 +95,8 @@ echo "vite\nleft-pad@1.3.0" | node cli.mjs -    # freeform list on stdin</pre>
     <p>No. The file is parsed entirely in your browser. What does leave your browser is one read-only GET request per package name/version to <code>registry.npmjs.org</code>, the same public registry <code>npm install</code> already talks to.</p>
     <h3>What counts as a provenance attestation?</h3>
     <p>The registry's own per-version metadata carries a <code>dist.attestations.provenance</code> field when that version was published via trusted publishing or <code>npm publish --provenance</code> from a supported CI. This tool reports exactly that field.</p>
+    <h3>How is this different from a supply-chain security platform like Socket?</h3>
+    <p>Different layers. Socket watches a connected dependency graph and the public registries on an ongoing basis across dozens of risk categories. This tool answers one narrower, one-time question from a pasted lockfile or the CLI: does this exact package version carry the registry's own provenance field? See <a href="vs-socket.html">this checker vs. Socket</a>.</p>
   </section>
 
   <footer>

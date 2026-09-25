@@ -2108,6 +2108,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-jobber.html, which does name a product and carries its own "not
   // affiliated" clause.
   'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
+  // Compares against "a flat per-square-foot special" -- the yard-sign and
+  // Facebook-post pricing habit every sod crew is shopped against, not a
+  // company or product this could be mistaken for. Same shape as this
+  // venture's own vinyl-liner sibling above; distinct from vs-aspire.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'sod-install-bid-calculator/vs-a-flat-per-square-foot-special.html',
   // Compares against "manually checking each exports target by eye" -- the
   // habit every package.json author already has, not a company or product
   // this could be mistaken for. The page's own first paragraph says so
@@ -2127,6 +2133,18 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names GrantHub/Foundant specifically and carries the trademark
   // disclaimer.
   'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
+  // Compares against "guessing a flat rate" -- copying a round CPM figure
+  // from a blog post or a competitor's public rate card, a pricing habit
+  // every newsletter operator already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-paved.html,
+  // which names Paved specifically and carries the trademark disclaimer.
+  'newsletter-sponsorship-rate-calculator/vs-guessing-a-flat-rate.html',
+  // Compares against "looking up the density-to-class table yourself" -- a
+  // manual lookup habit any shipper already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
+  // carries the trademark disclaimer.
+  'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
   // Compares against "a flat rate per square foot" -- the "$8 a square
   // foot" quoting habit every masonry contractor is shopped against, not
   // a company or product this could be mistaken for. The page names no
