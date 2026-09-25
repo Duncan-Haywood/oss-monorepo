@@ -2615,7 +2615,24 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # a vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
-    total = 374  # `infra/OWNER_CHECKLIST.md`'s own "N of the 374 tools" wording.
+    #
+    # 374 -> 375: `charitable-deduction-calculator` also graduated -- a
+    # browser-local calculator comparing the new 2026 non-itemizer
+    # above-the-line charitable deduction against itemizing cash gifts
+    # after the new 0.5%-of-AGI floor and the permanent 60%-of-AGI
+    # ceiling, plus a vs-doing-the-math-by-hand.html comparison page.
+    # Static `index.html` plus one docs/comparison page from its first
+    # commit, same shape as the rest of this running count.
+    #
+    # 375 -> 376: `excess-business-loss-calculator` also graduated -- a
+    # browser-local calculator computing the IRC 461(l) excess business
+    # loss threshold (permanent under OBBBA, with a 2026 figure that
+    # counterintuitively falls below 2025's rather than rising) and the
+    # resulting net operating loss carryforward, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    total = 376  # `infra/OWNER_CHECKLIST.md`'s own "N of the 376 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -2123,6 +2123,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as bonus-depreciation-calculator's own
   // vs-doing-the-math-by-hand.html right above.
   'salt-cap-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the two 2026 charitable-giving deduction
+  // paths by hand -- a generic method every donor or preparer already has
+  // access to, not a company or product this could be mistaken for. Names
+  // no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as salt-cap-calculator's own vs-doing-the-math-by-hand.html
+  // right above.
+  'charitable-deduction-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the excess business loss limitation by
+  // hand -- a generic method every business owner or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as charitable-deduction-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'excess-business-loss-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2318,6 +2332,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // than named-product -- see facebook-marketplace-fee-calculator's entry
   // above for what happens when a generic-method page is shipped without it.
   'patreon-fee-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "a flat per-square-foot attic price" -- the published
+  // coupon-style rate ("$3.50/sf") that every spray-foam contractor in this
+  // trade is shopped against, not one company's product. The venture's own
+  // calc.mjs docstring and pricing walkthrough describe this exact generic
+  // method as the thing board-foot pricing corrects for; the page names no
+  // vendor and its own footer says so explicitly ("names no specific
+  // company or product"). Distinct from this venture's own vs-jobber.html,
+  // which names a real field-service platform and carries the trademark
+  // disclaimer.
+  'spray-foam-bid-calculator/vs-a-flat-per-square-foot-price.html',
   // Compares against "comparing the quoted rates by eye" -- reading two
   // per-job numbers off a rate card and picking the lower one -- a generic
   // habit any operator comparing vendor quotes already has, not a company
@@ -2332,6 +2356,41 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries the trademark disclaimer. Same reasoning as the other
   // generic-method pages above.
   'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
+  // Compares against "a flat rate per square foot of water surface" -- a
+  // generic pricing shortcut every pool-replaster shop already reaches for,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-buildxact.html, which names Buildxact and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'pool-plaster-bid-calculator/vs-a-flat-rate-per-square-foot-of-water.html',
+  // Compares against "reconciling CAM by square footage alone" -- the plain
+  // area-share arithmetic every CAM statement starts from, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-yardi.html and vs-appfolio.html, which name real platforms and carry
+  // the trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'cam-reconciliation-check/vs-square-footage-alone.html',
+  // Compares against "reading the guidelines and checking your own files by
+  // eye" -- the generic first pass every plugin author already does, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-plugin-check.html, which names wordpress.org's Plugin
+  // Check and carries the trademark/affiliation disclaimer. Same reasoning
+  // as the other generic-method pages above.
+  'wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html',
+  // Compares against "reading the manifest by eye" during review -- the
+  // generic first pass every team already does, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-polaris.html, which names Polaris/Fairwinds and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html',
+  // Compares against "comparing the two trace exports by eye" -- the
+  // generic first pass anyone reviewing a consent sequence already does,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-cookiebot.html, which names Cookiebot/
+  // Usercentrics and carries the trademark disclaimer. Same reasoning as
+  // the other generic-method pages above.
+  'consent-change-record/vs-comparing-the-traces-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

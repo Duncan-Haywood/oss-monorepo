@@ -18172,3 +18172,104 @@ ventures:
       understand a real, easy-to-get-wrong phase-out; no scraped or
       personal data, nothing adversarial, scales with zero externality --
       one filer's calculation does not affect another's.
+  - slug: charitable-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a
+      deterministic floor/cap/ceiling comparison against published
+      statutory figures, never an inference step. time_to_revenue ties it
+      at 1: donations-only, same as most other ventures in this file with
+      no paid tier.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.24 -- no existing venture combines the new
+      non-itemizer above-the-line charitable deduction, the new 0.5%-of-AGI
+      itemized floor, and the permanent 60%-of-AGI ceiling in one
+      side-by-side comparison. autonomous_ops and gross_margin score 10
+      for the same reason as its sibling OBBBA calculators: a static page
+      with a pure-function calculator, $0 marginal cost, no server,
+      nothing to operate. defensibility scores 2 -- the arithmetic is
+      published federal law anyone could replicate, same gate class as
+      every other deterministic tax-rules calculator in this file.
+      distribution scores 6: a genuinely new 2026 provision affecting a
+      wide population of donors (every non-itemizer who gives to charity,
+      not a narrow age- or purchase-triggered population), with several
+      CPA-firm explainers and at least three SEO-oriented calculator sites
+      already covering it, found during this session's research.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (filing status, AGI, cash giving) is a figure
+      the filer already has or is instructed to get from their own return;
+      output is a capped-deduction estimate against published statutory
+      figures, never a filed election or a claim about the filer's other
+      itemized deductions, whether itemizing beats the standard deduction
+      overall, or the top-bracket itemized-deduction limitation, each
+      explicitly flagged as out of scope rather than silently assumed. No
+      warranty and no-advice disclaimers appear on every page. Ethics:
+      purely informational, helps a taxpayer understand a real,
+      easy-to-get-wrong choice between two new giving paths; no scraped or
+      personal data, nothing adversarial, scales with zero externality --
+      one filer's calculation does not affect another's.
+  - slug: excess-business-loss-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 5
+    composite: 4.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a
+      deterministic threshold comparison against published statutory
+      figures, never an inference step. time_to_revenue ties it at 1:
+      donations-only, same as most other ventures in this file with no
+      paid tier.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.25 -- no existing venture models the IRC
+      461(l) excess business loss limitation. autonomous_ops and
+      gross_margin score 10 for the same reason as its sibling OBBBA
+      calculators: a static page with a pure-function calculator, $0
+      marginal cost, no server, nothing to operate. defensibility scores
+      2 -- the arithmetic is published federal law anyone could
+      replicate, same gate class as every other deterministic tax-rules
+      calculator in this file. distribution scores 5, a point below its
+      OBBBA siblings: the audience (pass-through owners with a large
+      current-year business loss) is real but narrower than a cap
+      affecting every itemizer or every non-itemizing donor -- several
+      CPA-firm explainers cover the 2026 threshold decrease specifically,
+      but no existing interactive calculator combining both years was
+      found.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (filing status, business income, business
+      deductions) is a figure the filer already has or is instructed to
+      get from their own books/K-1; output is a capped-deduction estimate
+      against a published statutory threshold, never a filed position or
+      a claim about the filer's QBI deduction or a future NOL's value,
+      both explicitly flagged as out of scope rather than silently
+      assumed. No warranty and no-advice disclaimers appear on every
+      page. Ethics: purely informational, helps a business owner
+      understand a real, easy-to-get-backwards threshold change; no
+      scraped or personal data, nothing adversarial, scales with zero
+      externality -- one filer's calculation does not affect another's.
