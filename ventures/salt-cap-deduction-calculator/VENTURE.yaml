@@ -1,0 +1,105 @@
+name: salt-cap-deduction-calculator
+description: Free browser calculator for the new federal SALT (state and local tax) itemized deduction cap, applying the $40,000 cap (2025) and the IRS's own confirmed $40,400 cap (2026) from the One Big Beautiful Bill Act, tax years 2025-2029, the 30%-of-excess-MAGI phase-down with a $10,000 floor, projected 2027-2029 figures, the 2030 reversion to a flat $10,000 cap, and -- unlike other free SALT calculators found during research -- an explicit itemize-vs-standard-deduction marginal-benefit comparison showing how much of the deduction is genuinely additive tax savings. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty; DIRECTION.md's owner direction ranks a fresh
+# gate-cleared niche ahead of a parity feature). duplicate_check.py scored
+# every venture, screened-out row, ai-first-markets idea, and pipeline
+# candidate at 0.21 or below for "the new federal SALT cap increase under
+# OBBBA -- $10,000 to $40,000, phased down for MAGI over $500,000, itemize
+# vs standard deduction" -- well under the 0.45 review bar, and the closest
+# match (auto-loan-interest-deduction-calculator, 0.21) is a different
+# statutory provision (IRC 164(b)(6) SALT cap vs. IRC 163(h)(4) vehicle-loan
+# interest) with entirely different mechanics (a phase-DOWN of an existing
+# itemized-deduction cap vs. a new above-the-line deduction with an
+# eligibility checklist), confirmed by grepping every existing venture's
+# source for "SALT", "state and local tax", and "164(b)(6)" (no matches
+# outside a single unrelated passing mention in
+# economic-nexus-threshold-tracker's own guide page, about an unrelated
+# sales-tax-nexus topic). Not in portfolio/pipeline/screened-out.md: no row
+# mentions SALT, state and local tax deduction, or the SALT cap.
+#
+# Same regulatory-threshold-change shape that graduated
+# auto-loan-interest-deduction-calculator, senior-deduction-calculator,
+# no-tax-on-tips-overtime-calculator, and section-174a-catchup-calculator
+# the same and prior weeks -- a specific, high-dollar-value OBBBA provision
+# nobody in this portfolio had built a dedicated, private, no-signup tool
+# for -- with mechanics verified via WebSearch on 2026-09-25 (not
+# screening-estimate figures): Kiplinger's own 2026 SALT-deduction update,
+# Venable LLP's "SALT Alert" client bulletin, Thomson Reuters Tax &
+# Accounting's OBBB itemized-deduction explainer, the Bipartisan Policy
+# Center's own explainer, several independent CPA-firm summaries (Anchin,
+# HCVT, Creative Planning, Maxwell Locke & Ritter, Harper & Company Plus),
+# and the IRS's own newsroom release "IRS releases tax inflation
+# adjustments for tax year 2026, including amendments from the One, Big,
+# Beautiful Bill" -- cross-checked against each other and against the IRS's
+# own confirmed 2026 figures ($40,400 cap / $505,000 threshold), which this
+# calculator's 2027-2029 projection formula reproduces exactly when run
+# backward against the confirmed 2025->2026 step (both up exactly 1%).
+#
+# Differentiation from existing SALT-cap coverage found during research
+# (TurboTax, Fidelity, Kiplinger, and several CPA-firm sites each publish an
+# explainer, and some embed a simple cap/phase-down widget): this is
+# privacy-first with no upsell, models the full multi-year table (2025
+# through the 2030 reversion) rather than only the current year, and is --
+# as far as this research found -- the first free calculator to compute the
+# itemize-vs-standard-deduction marginal-benefit split explicitly, which is
+# the detail that actually determines whether a given filer benefits at all
+# and which every competitor page found treats as implicit or skips.
+
+hypotheses:
+  - claim: >-
+      Itemizing homeowners in high-tax states (and the CPAs and tax-prep
+      professionals fielding their questions) will search plain-language
+      phrases ("SALT cap calculator", "new SALT deduction 2026", "is the
+      $40,000 SALT cap worth it") as the 2025 filing season's extended
+      deadline passes and 2026 tax planning begins, and some will prefer a
+      free, private, no-signup, no-upsell calculator over a paid tax-prep
+      marketing page or an ad-supported finance blog's embedded widget.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published finance-site explainers
+      and calculators for this exact provision (TurboTax, Fidelity,
+      Kiplinger, and multiple CPA-firm sites, found during WebSearch
+      research 2026-09-25) is evidence of real, proven search volume for
+      these phrases; the explicit itemize-vs-standard-deduction marginal
+      benefit computation is a real differentiation none of the researched
+      competitors offer, not just a duplicate entrant into a crowded field.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors who land here from this portfolio's own
+      auto-loan-interest-deduction-calculator or senior-deduction-calculator
+      (all three are OBBBA-era federal deductions a high-income filer may be
+      evaluating in the same season) will follow the one-hop cross-links
+      between them, a cross-venture return-visit signal this portfolio does
+      not yet have confirmed evidence for on any pair of siblings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic by the end of the
+    2027 April filing season (the first full season under this deduction's
+    second confirmed year and this venture's natural traffic peak).
+  - Fewer than three unsolicited signals (star, fork, referral, or feedback)
+    within 90 days of the 2027 April filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/salt-cap-deduction-calculator/
+  analytics: null

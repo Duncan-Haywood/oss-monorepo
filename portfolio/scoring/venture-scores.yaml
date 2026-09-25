@@ -17156,6 +17156,55 @@ ventures:
       data, and there is no revenue model that would reward mistuning the
       arithmetic in either direction (donations only).
 
+  - slug: salt-cap-deduction-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The SALT cap, its 30%-of-excess
+      phase-down, and the itemize-vs-standard-deduction comparison are
+      fixed arithmetic on a published statute and a filer's own numbers --
+      exactly where a model has no business guessing.
+    basis: >-
+      Graduated on 2026-09-25 as a browser-local calculator for the new
+      federal SALT (state and local tax) itemized deduction cap increase
+      (OBBBA, tax years 2025-2029). Scored with the sibling
+      auto-loan-interest-deduction-calculator and senior-deduction-calculator
+      on gross margin and ops -- serving one more filer costs a static
+      file. Defensibility 3 (one point above the auto-loan sibling):
+      several finance-site SALT explainers and simple cap widgets already
+      exist (TurboTax, Fidelity, Kiplinger, and multiple CPA-firm sites,
+      found via WebSearch 2026-09-25), so the arithmetic itself is easily
+      reimplemented, but the explicit itemize-vs-standard-deduction
+      marginal-benefit computation is a real, currently-unmatched
+      differentiator among the competitors found rather than a cosmetic
+      one. Distribution 7 reflects the same confirmed, high-dollar-value
+      search-demand evidence class (multiple independent finance sites
+      already publishing calculators/explainers for this exact provision)
+      that justified the sibling deduction calculators' scores.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Every figure is either a published, cited statutory cap,
+      threshold, or floor, or a number the user supplies (including their
+      own standard deduction reference figure, which the tool deliberately
+      does not assert on the user's behalf); the tool never files anything
+      and never determines a specific return's outcome, only estimates one
+      deduction and one comparison. Nothing entered leaves the browser.
+      Ethics: the tool only helps a filer see whether and how much a
+      published cap increase actually benefits their specific return, and
+      there is no revenue model that would reward mistuning the arithmetic
+      in either direction (donations only).
+
   - slug: tip-pool-compliance-calculator
     scores:
       ai_leverage: 1

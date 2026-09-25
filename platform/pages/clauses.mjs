@@ -278,6 +278,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // this could be mistaken for. The page names no specific tax-prep
   // company or competing calculator at all.
   'auto-loan-interest-deduction-calculator/vs-estimating-the-deduction-by-hand.html',
+  // Compares against "estimating the SALT cap benefit by hand" -- a
+  // generic method every filer already has, not a company or product this
+  // could be mistaken for. The page names no specific tax-prep company or
+  // competing calculator at all.
+  'salt-cap-deduction-calculator/vs-estimating-the-salt-benefit-by-hand.html',
   // Compares against "the Form 8995-A worksheet by hand" -- the IRS's own
   // published worksheet, a generic method every filer already has, not a
   // company or product this could be mistaken for. The page names no

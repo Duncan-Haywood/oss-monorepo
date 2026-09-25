@@ -1022,6 +1022,9 @@ workflows:
 - workflow: salary-range-posting-check-ci.yml
   classification: none
   publishes: []
+- workflow: salt-cap-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sbom-diff-check-ci.yml
   classification: none
   publishes: []

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SALT Cap Deduction Calculator — 2026 $40,000 Estimator, Free</title>
+  <meta name="description" content="Free calculator for the new federal SALT (state and local tax) deduction cap under the One Big Beautiful Bill Act: applies the $40,000 cap (2025), the IRS's own confirmed $40,400 cap (2026), the 30%-of-MAGI-over-$500,000 phase-down, the $10,000 floor, and the itemize-vs-standard-deduction interaction most calculators skip. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="SALT Cap Deduction Calculator — free 2026 estimator">
+  <meta property="og:description" content="Estimate how much of your state and local tax is actually deductible under the new $40,000 SALT cap, including the 30% income phase-down and whether itemizing even beats the standard deduction once you add it up. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"SALT Cap Deduction Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates the federal SALT (state and local tax) itemized deduction under the One Big Beautiful Bill Act's temporary cap increase: $40,000 for 2025 ($20,000 married filing separately), confirmed at $40,400 for 2026 by the IRS's own inflation-adjustment release, phased DOWN by 30% of the amount MAGI exceeds $500,000 ($250,000 MFS) but never below a $10,000 floor, reverting to a flat $10,000 cap starting tax year 2030. Also computes how much of the SALT deduction is genuinely additive once compared against the standard deduction, rather than just duplicating it. Entirely client-side; nothing is uploaded.","featureList":"SALT deduction cap with 30% MAGI phase-down and floor, tax years 2025 through 2030+ including projected future-year figures, married-filing-separately support with its own halved cap and threshold, itemize-vs-standard-deduction marginal benefit analysis, rough tax-savings estimate at a chosen marginal rate"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much state and local tax can I deduct now?","acceptedAnswer":{"@type":"Answer","text":"Up to $40,000 for tax year 2025 ($20,000 if married filing separately), up from the prior flat $10,000 cap. The IRS has confirmed $40,400 ($20,200 MFS) for tax year 2026. The cap and its income threshold both rise 1% per year through 2029, then the whole increase reverts to a flat $10,000 cap starting tax year 2030 under current law."}},{"@type":"Question","name":"What is the SALT cap phase-down?","acceptedAnswer":{"@type":"Answer","text":"For 2025, the $40,000 cap is reduced by 30% of the amount your modified adjusted gross income (MAGI) exceeds $500,000 ($250,000 married filing separately) -- but it never drops below a $10,000 floor ($5,000 MFS). At a MAGI of roughly $600,000 ($300,000 MFS) or more, the cap is fully phased down to that floor and the increase provides no benefit at all."}},{"@type":"Question","name":"Does the SALT deduction actually save me money if I would take the standard deduction anyway?","acceptedAnswer":{"@type":"Answer","text":"Only the portion that pushes your TOTAL itemized deductions past your standard deduction is genuinely additive. If your other itemized deductions (mortgage interest, charitable giving, etc.) already exceed the standard deduction on their own, every dollar of your SALT deduction saves you tax. If they don't, the first part of your SALT deduction just duplicates a benefit you would get anyway by not itemizing at all -- this calculator shows that split explicitly."}},{"@type":"Question","name":"Are the 2027-2029 figures official?","acceptedAnswer":{"@type":"Answer","text":"No. The IRS has published official figures only through tax year 2026. Figures for 2027-2029 shown here are projected by applying the statute's own 1%-per-year indexing formula to the confirmed 2026 base, and are clearly labeled as projections, not official IRS figures -- verify against the IRS's own Revenue Procedure once it is published for that year."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator applies the published statutory cap, phase-down formula, and floor to the numbers you enter. It is not a full tax return, it does not know your complete itemized deduction total or state tax situation, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.15rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SALT CAP DEDUCTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your state and local tax is actually deductible now?</h1>
+    <p>The federal cap on the SALT (state and local tax) itemized deduction
+    jumped from a flat $10,000 to <strong>$40,000</strong> for tax year 2025
+    (confirmed at <strong>$40,400</strong> for 2026 by the IRS's own
+    release) — but it <strong>phases down</strong> by 30% of the amount your
+    income exceeds $500,000, never below a $10,000 floor, and reverts to
+    the old flat $10,000 cap in 2030. This applies the exact cap, the
+    phase-down, and shows whether the extra deduction even beats the
+    standard deduction once you add it up.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Filing status, tax year &amp; income</h2>
+    <div class="grid">
+      <div>
+        <label for="filing-status">Filing status</label>
+        <select id="filing-status">
+          <option value="single">Single</option>
+          <option value="hoh">Head of household</option>
+          <option value="joint">Married filing jointly</option>
+          <option value="mfs">Married filing separately</option>
+        </select>
+      </div>
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027 (projected)</option>
+          <option value="2028">2028 (projected)</option>
+          <option value="2029">2029 (projected)</option>
+          <option value="2030">2030 (cap reverts to $10,000)</option>
+        </select>
+      </div>
+      <div>
+        <label for="magi">Estimated MAGI ($)</label>
+        <input type="number" id="magi" min="0" step="1000" placeholder="e.g. 320000">
+      </div>
+      <div>
+        <label for="marginal-rate">Your marginal federal tax rate</label>
+        <select id="marginal-rate">
+          <option value="10">10%</option>
+          <option value="12">12%</option>
+          <option value="22">22%</option>
+          <option value="24" selected>24%</option>
+          <option value="32">32%</option>
+          <option value="35">35%</option>
+          <option value="37">37%</option>
+        </select>
+      </div>
+    </div>
+    <p class="note">MAGI here is modified adjusted gross income — for most
+    filers with no foreign income or certain exclusions, this is close to
+    the AGI on your return. 2027-2029 figures are <strong>projected</strong>
+    from the statute's own 1%/year formula — the IRS has only published
+    official figures through 2026.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. State and local tax paid, and your other itemized deductions</h2>
+    <div class="grid">
+      <div>
+        <label for="salt-paid">State &amp; local tax paid this year ($)</label>
+        <input type="number" id="salt-paid" min="0" step="1" placeholder="e.g. 28000">
+      </div>
+      <div>
+        <label for="other-itemized">Other itemized deductions ($)</label>
+        <input type="number" id="other-itemized" min="0" step="1" placeholder="e.g. 14000">
+      </div>
+      <div>
+        <label for="standard-deduction">Your standard deduction ($)</label>
+        <input type="number" id="standard-deduction" min="0" step="1" placeholder="e.g. 31500">
+      </div>
+    </div>
+    <p class="note"><strong>State &amp; local tax paid</strong> is the total
+    of property tax plus state/local income OR sales tax (whichever you
+    itemize), before any cap is applied — your county tax bill and W-2
+    state withholding (or Schedule A worksheet) show this.
+    <strong>Other itemized deductions</strong> is everything else on
+    Schedule A — mortgage interest, charitable giving, medical expenses
+    above the AGI floor. <strong>Standard deduction</strong> is your own
+    reference figure for your filing status and tax year (see the reference
+    table below) — enter it yourself so this tool never asserts a number it
+    can't confirm applies to your return.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Fill in filing status, tax year, MAGI, SALT paid, and your other itemized total, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Estimate</h2>
+    <p class="stats" id="report-stats"></p>
+    <p class="stats" id="report-itemize"></p>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Not a full tax return.</strong> This estimates one
+      deduction and one comparison only — not your total tax liability,
+      other deductions, credits, or Alternative Minimum Tax (AMT), which
+      the SALT deduction can interact with separately.</li>
+      <li><strong>State conformity.</strong> This is a FEDERAL deduction.
+      Whether your state's own return allows a SALT deduction, and how
+      much, is a separate question this tool does not answer.</li>
+      <li><strong>Pass-through entity tax (PTET) workarounds</strong> —
+      many states let business owners pay state tax at the entity level as
+      a fully deductible business expense, sidestepping this cap entirely
+      on the business side. This calculator only models the individual
+      itemized deduction, not a PTET election.</li>
+      <li><strong>2027-2029 figures are projections</strong>, not official
+      IRS numbers — see the FAQ.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>SALT cap, threshold &amp; floor by tax year (reference)</h2>
+    <p class="note">Sourced from the IRS's own tax-year-2026 inflation
+    adjustment release for 2025-2026; 2027-2029 are this calculator's own
+    projection from the statute's 1%/year indexing formula.</p>
+    <table>
+      <thead><tr><th>Tax year</th><th>Cap (most filers)</th><th>Cap (MFS)</th><th>Phase-down starts at MAGI</th><th>Floor</th></tr></thead>
+      <tbody>
+        <tr><td>2025</td><td>$40,000</td><td>$20,000</td><td>$500,000 ($250,000 MFS)</td><td>$10,000 ($5,000 MFS)</td></tr>
+        <tr><td>2026</td><td>$40,400</td><td>$20,200</td><td>$505,000 ($252,500 MFS)</td><td>$10,000 ($5,000 MFS)</td></tr>
+        <tr><td>2027 (projected)</td><td>$40,804</td><td>$20,402</td><td>$510,050 ($255,025 MFS)</td><td>$10,000 ($5,000 MFS)</td></tr>
+        <tr><td>2028 (projected)</td><td>$41,212</td><td>$20,606</td><td>$515,151 ($257,575 MFS)</td><td>$10,000 ($5,000 MFS)</td></tr>
+        <tr><td>2029 (projected)</td><td>$41,624</td><td>$20,812</td><td>$520,303 ($260,151 MFS)</td><td>$10,000 ($5,000 MFS)</td></tr>
+        <tr><td>2030 and later</td><td colspan="4">Reverts to a flat $10,000 ($5,000 MFS), no income phase-down, under current law.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>2025-2026 standard deduction (reference)</h2>
+    <p class="note">For the "your standard deduction" field above. Sourced
+    from the IRS's own published figures for 2025 and 2026; verify against
+    the current year's own IRS figures before filing.</p>
+    <table>
+      <thead><tr><th>Filing status</th><th>2025</th><th>2026</th></tr></thead>
+      <tbody>
+        <tr><td>Single / married filing separately</td><td>$15,750</td><td>$16,100</td></tr>
+        <tr><td>Married filing jointly</td><td>$31,500</td><td>$32,200</td></tr>
+        <tr><td>Head of household</td><td>$23,625</td><td>$24,150</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much state and local tax can I deduct now?</h3>
+    <p>Up to $40,000 for tax year 2025 ($20,000 if married filing separately), up from the prior flat $10,000 cap. The IRS has confirmed $40,400 ($20,200 MFS) for tax year 2026. The cap and its income threshold both rise 1% per year through 2029, then the whole increase reverts to a flat $10,000 cap starting tax year 2030 under current law.</p>
+    <h3>What is the SALT cap phase-down?</h3>
+    <p>For 2025, the $40,000 cap is reduced by 30% of the amount your modified adjusted gross income (MAGI) exceeds $500,000 ($250,000 married filing separately) -- but it never drops below a $10,000 floor ($5,000 MFS). At a MAGI of roughly $600,000 ($300,000 MFS) or more, the cap is fully phased down to that floor and the increase provides no benefit at all.</p>
+    <h3>Does the SALT deduction actually save me money if I would take the standard deduction anyway?</h3>
+    <p>Only the portion that pushes your TOTAL itemized deductions past your standard deduction is genuinely additive. If your other itemized deductions (mortgage interest, charitable giving, etc.) already exceed the standard deduction on their own, every dollar of your SALT deduction saves you tax. If they don't, the first part of your SALT deduction just duplicates a benefit you would get anyway by not itemizing at all -- this calculator shows that split explicitly.</p>
+    <h3>Are the 2027-2029 figures official?</h3>
+    <p>No. The IRS has published official figures only through tax year 2026. Figures for 2027-2029 shown here are projected by applying the statute's own 1%-per-year indexing formula to the confirmed 2026 base, and are clearly labeled as projections, not official IRS figures -- verify against the IRS's own Revenue Procedure once it is published for that year.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This calculator applies the published statutory cap, phase-down formula, and floor to the numbers you enter. It is not a full tax return, it does not know your complete itemized deduction total or state tax situation, and it is not a substitute for reviewing the IRS's own guidance or consulting a qualified tax professional before you file.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own MAGI, itemized deduction total, and state tax situation before filing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also claiming a new 2025 OBBBA deduction? See the <a href="../auto-loan-interest-deduction-calculator/">auto loan interest deduction calculator</a> or the <a href="../senior-deduction-calculator/">senior deduction calculator</a> — both are separate, stackable federal deductions from this SALT cap increase.</p>
+    <p>Estimating this by hand instead? See <a href="./vs-estimating-the-salt-benefit-by-hand.html">where a hand estimate of the SALT benefit usually goes wrong</a>. Wondering whether the higher cap even helps you? See <a href="./does-the-salt-cap-increase-help-me-if-i-take-the-standard-deduction.html">does the SALT cap increase help me if I'd otherwise take the standard deduction?</a></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeSaltCapDeduction, marginalItemizedBenefit, estimateTaxSavings, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      filingStatus: $("#filing-status"), taxYear: $("#tax-year"), magi: $("#magi"), marginalRate: $("#marginal-rate"),
+      saltPaid: $("#salt-paid"), otherItemized: $("#other-itemized"), standardDeduction: $("#standard-deduction"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"), itemize: $("#report-itemize"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const filingStatus = els.filingStatus.value;
+      const year = Number(els.taxYear.value);
+      const magi = Number(els.magi.value) || 0;
+      const saltResult = computeSaltCapDeduction({
+        saltPaid: Number(els.saltPaid.value) || 0,
+        magi,
+        year,
+        filingStatus,
+      });
+
+      const marginal = marginalItemizedBenefit({
+        saltDeduction: saltResult.deduction,
+        otherItemizedDeductions: Number(els.otherItemized.value) || 0,
+        standardDeduction: Number(els.standardDeduction.value) || 0,
+        marginalRatePercent: Number(els.marginalRate.value),
+      });
+
+      const savings = estimateTaxSavings(marginal.marginalSalt, Number(els.marginalRate.value));
+
+      els.stats.innerHTML = `Allowed SALT cap for ${year}: <strong><span class="price">${money(saltResult.cap)}</span></strong> — deductible SALT: <strong>${money(saltResult.deduction)}</strong>${saltResult.disallowed > 0 ? ` (${money(saltResult.disallowed)} disallowed)` : ""}.`;
+      els.itemize.innerHTML = marginal.recommendItemize
+        ? `Itemizing beats your standard deduction by <strong>${money(marginal.excessOverStandard)}</strong>. Of your SALT deduction, <strong>${money(marginal.marginalSalt)}</strong> is genuinely additive tax benefit — roughly <strong>${money(savings)}</strong> less federal income tax at your selected marginal rate.`
+        : `Your total itemized deductions (${money(marginal.totalItemized)}) do not exceed your standard deduction — itemizing would not help this year, and none of your SALT deduction is producing additional tax savings.`;
+      renderFindings(els.findings, saltResult.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("estimate_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.filingStatus.value = "joint";
+      els.taxYear.value = "2026";
+      els.magi.value = "560000";
+      els.marginalRate.value = "32";
+      els.saltPaid.value = "34000";
+      els.otherItemized.value = "12000";
+      els.standardDeduction.value = "32200";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: married filing jointly, $560,000 MAGI in 2026, $34,000 of state and local tax paid, $12,000 of other itemized deductions.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.magi.value = "";
+      els.saltPaid.value = "";
+      els.otherItemized.value = "";
+      els.standardDeduction.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Fill in filing status, tax year, MAGI, SALT paid, and your other itemized total, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
