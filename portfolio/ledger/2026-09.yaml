@@ -46293,3 +46293,88 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 earlier) -- verified
         fully locally per CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: soffit-fascia-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        vs-a-flat-rate-per-lineal-foot.html -- one of 36 ventures
+        surface-budget.mjs reported at zero generic-method pages.
+        Compares against a flat $/LF "wrap and fascia special", the
+        method calc.mjs's own header comment already names as the
+        trade's actual loss pattern: using the venture's own JOB_PRESETS,
+        a rate set from a 160-LF 1-story wrap ($20.72/LF) underprices a
+        200-LF two-story wood-replace job with rot and a gutter reset by
+        68% (the flat rate covers ~32% of the real $13,057.93 cost).
+        Linked from index.html, added to sitemap.xml, and registered in
+        platform/pages/clauses.mjs's disclaimer-exemption set (generic
+        pricing method, not a named competitor -- distinct from this
+        venture's own vs-jobber.html).
+      - >-
+        Regenerated the front-door mirror twice: once after authoring the
+        page, then again after merging a fast-moving main forward twice
+        (two new ventures landed mid-session) -- resolving the
+        front-door-tools/ ConfigMap-shard conflict with
+        platform/marketing/resolve-mirror-merge.sh and the separate
+        front-door/ generator's own conflicting output by hand, per its
+        documented "never hand-edit, always regenerate" rule.
+      - >-
+        Verified: venture's own suite 131/131 (164/164 once merged
+        alongside the concurrently-landed gambling-loss-deduction-
+        calculator's own suite); full platform/marketing + platform/pages
+        suite 1290/1290, run twice (pre- and post-merge) after an earlier
+        run mid-session showed 6 failures traced to running regen.mjs
+        concurrently with that suite's own read of gitops/prod/ -- the
+        exact race CLAUDE.md documents against backgrounding --verify
+        beside a test run, reproduced here with a bare regen.mjs instead;
+        gitops/tests 613 passed/25 skipped (missing-binary skips only);
+        platform/ci unittest sweep (15 modules) clean; checklist_coverage.py,
+        sync_tree_counts.py, regen.mjs --verify all clean. CI on the PR
+        showed 14 red checks within seconds of each other;
+        ci_starvation.py confirmed runner_id: 0 on every underlying
+        workflow run -- verified fully locally per CLAUDE.md's starvation
+        checklist and said so on the PR before merging.
+    mrr_end: 0
+  - venture: stucco-repair-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        vs-a-flat-rate-per-square-foot.html -- the other of two
+        -bid-calculator ventures surface-budget.mjs reported at zero
+        generic-method pages (the other, soffit-fascia-bid-calculator,
+        shipped earlier this session). Compares against a flat $/sq ft
+        rate, the method calc.mjs's own header comment already names as
+        the trade's actual loss pattern: using the venture's own
+        JOB_PRESETS, a rate set from an 80 SF first-story one-coat patch
+        ($38.12/sq ft) covers about 70% of the real cost of a 220 SF
+        two-story EIFS tear-off with a moisture investigation and four
+        flashings ($11,941.26 real vs. $8,387.47 naive, a $3,553.79
+        shortfall). Reported the ratio honestly as a modest 1.4x rather
+        than reaching for the venture's more dramatic-sounding but
+        dimensionally mismatched brochure preset (JOB_PRESETS[0], a
+        crack-only job with zero repair square footage, so no $/sq ft
+        rate exists for it to anchor a comparison on).
+      - >-
+        Linked from index.html, added to sitemap.xml, and registered in
+        platform/pages/clauses.mjs's disclaimer-exemption set (generic
+        pricing method, not a named competitor -- distinct from this
+        venture's own vs-jobber.html). Regenerated the front-door mirror.
+      - >-
+        Also carries this session's ledger entry for the earlier
+        soffit-fascia-bid-calculator comparison page (PR #5929, already
+        merged): check_ledger_only.py correctly refused a ledger-only
+        branch after that PR merged without the entry riding along, so
+        the entry rode forward to this commit instead of becoming a
+        second, disallowed ledger-only PR.
+      - >-
+        Verified: venture's own suite 114/114; gitops/tests 613 passed/25
+        skipped (missing-binary skips only); platform/ci unittest sweep
+        (15 modules) clean; checklist_coverage.py, sync_tree_counts.py,
+        regen.mjs --verify all clean; full platform/marketing +
+        platform/pages suite run in the background, not backgrounded
+        alongside any regen.mjs call this time (the exact race an earlier
+        run this session hit and diagnosed).
+    mrr_end: 0
