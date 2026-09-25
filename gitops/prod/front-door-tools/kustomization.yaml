@@ -48,12 +48,12 @@
 #   portfolio-front-tools-12: 113 files, 556626 bytes
 #   portfolio-front-tools-13: 125 files, 556308 bytes
 #   portfolio-front-tools-14: 132 files, 553674 bytes
-#   portfolio-front-tools-15: 125 files, 555061 bytes
+#   portfolio-front-tools-15: 125 files, 555062 bytes
 #   portfolio-front-tools-16: 134 files, 556718 bytes
 #   portfolio-front-tools-17: 111 files, 556571 bytes
 #   portfolio-front-tools-18: 114 files, 551767 bytes
 #   portfolio-front-tools-19: 125 files, 546034 bytes
-#   portfolio-front-tools-20: 118 files, 542582 bytes
+#   portfolio-front-tools-20: 119 files, 547249 bytes
 #   portfolio-front-tools-21: 96 files, 479808 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2783,6 +2783,7 @@ configMapGenerator:
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
+      - vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz=vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
       - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
