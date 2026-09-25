@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 372 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 373 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>MRR Waterfall Calculator — Net &amp; Gross Revenue Retention</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mrr-waterfall-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/mrr-waterfall-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Break starting MRR into new, expansion, reactivation, contraction, and churned MRR, then get ending MRR, gross and net revenue retention, and your growth-to-loss quick ratio. Runs entirely in your browser.</summary>
   </entry>
   <entry>
     <title>Patreon Fee Calculator — Real Monthly Payout After Platform and Processing Fees</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: run a CLI that sends two real requests to your site (.git/HEAD and .git/config), then paste the JSON here for a plain-English report on whether your .git directory is publicly exposed -- letting anyone reconstruct your full source history, including secrets removed in a later commit. Correctly tells a real exposure apart from a 200-status soft-404 page. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GraphQL Introspection Exposure Checker — Is Your Schema Public?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/graphql-introspection-exposure-check/"/>
-    <id>tag:marisstella.dev,2026:tool/graphql-introspection-exposure-check</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query, mutation, and type name, including ones no client links to. Runs in your browser when the target&#39;s CORS policy allows it, or via a zero-dependency CLI. Nothing uploaded.</summary>
   </entry>
 </feed>
