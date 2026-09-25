@@ -91,3 +91,46 @@ test('the FAQPage JSON-LD questions match the visible FAQ headings', () => {
     assert.ok(names.includes(heading), `visible heading not found in FAQPage JSON-LD: ${heading}`);
   }
 });
+
+test('the how-much guide links back and is linked from index', () => {
+  const guide = page('how-much-does-kickstarter-take.html');
+  assert.match(markup, /how-much-does-kickstarter-take\.html/);
+  assert.match(guide, /href="\.\/">/);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not affiliated with, endorsed by, or sponsored by kickstarter/i);
+});
+
+test('the how-much guide worked-example figures match calc.mjs for the same inputs', () => {
+  const guide = page('how-much-does-kickstarter-take.html');
+
+  const p50 = calculatePledge({ pledgeAmount: 50 });
+  assert.equal(p50.totalFee.toFixed(2), '4.20');
+  assert.equal(p50.netContribution.toFixed(2), '45.80');
+  assert.match(guide, /\$4\.20/);
+  assert.match(guide, /\$45\.80/);
+
+  const p5 = calculatePledge({ pledgeAmount: 5 });
+  assert.equal(p5.tier, 'micro');
+  assert.equal(p5.totalFee.toFixed(2), '0.55');
+  assert.equal(p5.netContribution.toFixed(2), '4.45');
+  assert.match(guide, /\$0\.55/);
+  assert.match(guide, /\$4\.45/);
+
+  const campaignA = calculateCampaign({ totalRaised: 10000, backerCount: 500 });
+  assert.equal(campaignA.totalFee.toFixed(0), '900');
+  const campaignB = calculateCampaign({ totalRaised: 10000, backerCount: 1000 });
+  assert.equal(campaignB.totalFee.toFixed(0), '1000');
+  assert.match(guide, /\$900/);
+  assert.match(guide, /\$1,000/);
+});
+
+test('every authored FAQPage question and answer text is echoed on the how-much guide, verbatim', () => {
+  const guide = page('how-much-does-kickstarter-take.html');
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'no FAQPage JSON-LD block found on the how-much guide');
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(guide.includes(name), `question not visible verbatim: ${name}`);
+    assert.ok(guide.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
