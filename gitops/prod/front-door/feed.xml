@@ -26,6 +26,15 @@
     <summary type="text">Free calculator comparing two 2026 OBBBA charitable-giving paths: the new $1,000/$2,000 above-the-line deduction for non-itemizers vs. itemizing cash gifts after the new 0.5%-of-AGI floor. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Child Tax Credit Calculator — Free 2025/2026 CTC &amp; ACTC Estimator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/child-tax-credit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/child-tax-credit-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the federal Child Tax Credit and Credit for Other Dependents (One Big Beautiful Bill Act, permanent from 2025): $2,200 per qualifying child, $500 per other dependent, the $50-per-$1,000 MAGI phase-out above $200,000 single or $400,000 joint, the filer-SSN requirement, and the refundable Additional Child Tax Credit ceiling. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Claude Code Hooks Security Check — scan hook commands for dangerous shapes</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-code-hooks-security-check/"/>
     <id>tag:marisstella.dev,2026:tool/claude-code-hooks-security-check</id>

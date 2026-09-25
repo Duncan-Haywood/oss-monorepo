@@ -2676,22 +2676,36 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # California, Washington, Maine, Alaska, or New York (including New
     # York's carve-out excluding the professional exemption from its
     # higher figure). Static `index.html` only, no comparison page, from
-    # its first commit. Total re-derived here by `sync_tree_counts.py`
-    # against the fully merged tree rather than by hand.
+    # its first commit.
+    #
+    # 380 -> 381: `child-tax-credit-calculator` also graduated -- a
+    # browser-local calculator applying the permanent $2,200-per-child
+    # Child Tax Credit, the $500 Credit for Other Dependents, their
+    # combined MAGI phase-out, and the refundable Additional Child Tax
+    # Credit ceiling, plus a vs-doing-the-math-by-hand.html comparison
+    # page. Static `index.html` plus one docs/comparison page from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 381 -> 382: `gambling-loss-deduction-calculator` also graduated,
+    # concurrently and invisibly to the entry above -- a browser-local
+    # calculator applying OBBBA's new 90%-of-winnings cap on gambling loss
+    # deductions, the resulting phantom-income consequence, and the
+    # professional-gambler business-expense fold-in, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
     #
     # also graduated, concurrently and invisibly to the entries above:
     # `freelance-writer-rate-calculator` -- a browser-local calculator
     # comparing a freelance writer's per-word rate against a flat
     # per-project fee for the same job by effective hourly rate, counting
     # research and revision hours (which a per-word rate does not
-    # separately compensate) alongside writing time; and
-    # `gambling-loss-deduction-calculator` -- a browser-local calculator
-    # applying OBBBA's 90% gambling-loss deduction cap. Both static
-    # `index.html` from their first commit. Total re-derived here by
-    # `sync_tree_counts.py` against the fully merged tree rather than by
-    # hand -- the exact per-step numbering above is best-effort narrative,
-    # not arithmetic this assertion depends on.
-    total = 382  # `infra/OWNER_CHECKLIST.md`'s own "N of the 382 tools" wording.
+    # separately compensate) alongside writing time. Static `index.html`
+    # from its first commit. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand -- the exact
+    # per-step numbering above is best-effort narrative, not arithmetic
+    # this assertion depends on.
+    total = 383  # `infra/OWNER_CHECKLIST.md`'s own "N of the 383 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

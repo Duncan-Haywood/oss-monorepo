@@ -266,6 +266,9 @@ workflows:
 - workflow: checklist-coverage.yml
   classification: none
   publishes: []
+- workflow: child-tax-credit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: childcare-tuition-calculator-ci.yml
   classification: none
   publishes: []

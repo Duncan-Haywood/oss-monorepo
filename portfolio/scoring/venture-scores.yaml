@@ -18558,6 +18558,62 @@ ventures:
       tax consequence of gambling activity the user already engaged in;
       no scraped or personal data, nothing adversarial, scales with zero
       externality -- one filer's calculation does not affect another's.
+  - slug: child-tax-credit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 8
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a fixed
+      statutory amount, a stepped phase-out formula, and a three-way
+      minimum applied to the numbers the user types, never an inference
+      step.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.32 -- senior-deduction-calculator is the
+      closest existing venture and is a different federal provision
+      entirely (a temporary age-65+ deduction vs. a permanent per-child
+      credit). autonomous_ops and gross_margin score 10 for the same
+      reason as this portfolio's other deterministic federal-calculator
+      ventures: a static page with a pure-function lookup, $0 marginal
+      cost, no server, nothing to operate. defensibility scores 3: the
+      CTC/ODC amounts and phase-out formula are published on Schedule
+      8812 and easy to reproduce once someone reads the IRS instructions
+      -- the moat is the ODC/CTC phase-out residual split (verified
+      2026-09-25 against the IRS's own worksheet method rather than
+      guessed) and the explicit refundable-ceiling framing most existing
+      calculators skip, not the arithmetic itself. distribution scores 8:
+      the Child Tax Credit is one of the most widely searched individual
+      tax topics every filing season, applying to nearly every household
+      with a child rather than a narrow professional or industry segment,
+      confirmed via live WebSearch against the IRS's own newsroom release
+      and several independent CPA/payroll-firm summaries. No search-volume
+      tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (filing status, MAGI, earned income,
+      dependent counts, filer-SSN checkbox) is a figure the filer already
+      has; output is a credit estimate against published statutory
+      amounts and formulas, never a filed Schedule 8812 or a claim about
+      total tax liability -- the refundable-ACTC figure is explicitly
+      labeled a ceiling, not a guaranteed refund, in the findings, the
+      FAQ, and the footer, and the page names IRS guidance and a qualified
+      tax professional as the source to verify against. No warranty and
+      no-advice disclaimers appear on every page.
+      Ethics: purely informational, helps a filer estimate a credit they
+      are already entitled to; no scraped or personal data, nothing
+      adversarial, scales with zero externality -- one filer's estimate
+      does not affect another's.
   - slug: freelance-writer-rate-calculator
     scores:
       ai_leverage: 1
