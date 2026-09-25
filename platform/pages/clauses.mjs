@@ -628,6 +628,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific linter, CI product, or
   // company at all. Same reasoning as the other manual-method pages above.
   'docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html',
+  // Compares against "reading the plan JSON by eye" and "grepping it for
+  // known secret shapes" -- manual habits every Terraform user already has
+  // access to, not a company or product this could be mistaken for. Same
+  // reasoning as the other manual-method pages above.
+  'terraform-plan-secret-exposure-check/vs-manually-reading-the-plan-json.html',
   // Compares against "guessing your payroll burden and overhead from
   // memory" -- the 20%/10% rule of thumb every trade contractor already
   // reaches for, not a company or product this could be mistaken for. The
