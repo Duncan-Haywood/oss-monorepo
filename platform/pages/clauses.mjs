@@ -1393,6 +1393,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'actions-cache-poisoning-check/vs-checking-by-hand.html',
+  // Compares against "reviewing workflows by eye" -- a manual review habit
+  // every GitHub Actions user already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-zizmor.html,
+  // which names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above.
+  'actions-secrets-inherit-check/vs-checking-by-hand.html',
   // Compares against "a flat price per window" -- a pricing method every
   // window cleaner already has, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-servicemonster.html,
