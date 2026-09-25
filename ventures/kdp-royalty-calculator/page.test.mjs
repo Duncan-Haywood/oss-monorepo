@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { faqEntries } from '../../platform/pages/build.mjs';
-import { compareExclusiveVsWide, DEFAULTS } from './calc.mjs';
+import { compareExclusiveVsWide, DEFAULTS, ebookNet, printCost, paperbackNet } from './calc.mjs';
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 
@@ -135,5 +135,41 @@ test('every recordUsage call passes the event name first, as this venture spells
       /^'[a-z_]+'$/,
       `recordUsage's first argument must be the event name, got \`${first}\` — see usage.mjs`,
     );
+  }
+});
+
+test('the how-much guide links back and is linked from index', () => {
+  const html = page('how-much-does-kdp-take.html');
+  assert.match(page('index.html'), /how-much-does-kdp-take\.html/);
+  assert.match(html, /href="\.\/"/);
+  assert.match(html, /No warranty/);
+});
+
+test('the how-much guide uses the same worked-example figures the tests lock', () => {
+  const html = page('how-much-does-kdp-take.html');
+
+  const eb1 = ebookNet({ list: 4.99, plan: '70', fileSizeMb: 2, deliveryPerMb: 0.15 });
+  assert.equal(eb1.toFixed(3), '3.193');
+  assert.match(html, /\$3\.193/);
+
+  const eb2 = ebookNet({ list: 2.00, plan: '35', fileSizeMb: 2, deliveryPerMb: 0.15 });
+  assert.equal(eb2.toFixed(2), '0.70');
+  assert.match(html, /\$0\.70/);
+
+  const print = printCost({ pages: 280, color: false, override: '', bwFixed: 0.85, bwPerPage: 0.012 });
+  assert.equal(print.toFixed(2), '4.21');
+  const pb = paperbackNet({ list: 14.99, royaltyRate: 0.6, print });
+  assert.equal(pb.toFixed(3), '4.784');
+  assert.match(html, /\$4\.784/);
+});
+
+test('every authored FAQPage question and answer text is echoed on the how-much guide, verbatim', () => {
+  const html = page('how-much-does-kdp-take.html');
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'no FAQPage JSON-LD block found on the how-much guide');
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(html.includes(name), `question not visible verbatim: ${name}`);
+    assert.ok(html.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
   }
 });
