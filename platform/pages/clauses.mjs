@@ -2163,6 +2163,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // be mistaken for. Distinct from this venture's own vs-jobber.html, which
   // names Jobber specifically and carries the trademark disclaimer.
   'sewer-hydrojet-bid-calculator/vs-building-your-own-spreadsheet.html',
+  // Compares against "reading the workflow YAML by hand" -- a manual review
+  // habit any maintainer already has, not a company or product this could
+  // be mistaken for. Same reasoning as actions-permissions-check's and
+  // actions-artifact-poisoning-check's own pages of the same name. Distinct
+  // from this venture's own vs-openssf-scorecard.html, which names OpenSSF
+  // Scorecard specifically and carries the trademark disclaimer.
+  'pinned-actions-check/vs-reading-the-workflow-yaml-by-hand.html',
   // Compares against "tracking sales in a spreadsheet" -- the hand-built
   // rate/minimum/local-pickup worksheet every Facebook Marketplace seller
   // already has, not a company or product this could be mistaken for. The

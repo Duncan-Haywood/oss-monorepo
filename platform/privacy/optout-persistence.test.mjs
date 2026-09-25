@@ -809,7 +809,7 @@ const RELATIVE_SELF = relative(
 // own `claude-code-hooks-security-check:usage` storage name), no
 // deletions. Re-derived here by `sync_tree_counts.py` against the fully
 // merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 347;
+const SWITCHES_IN_THE_CATALOGUE = 348;
 
 let counter = 0;
 function fixture(source) {
