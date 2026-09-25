@@ -500,6 +500,9 @@ workflows:
 - workflow: excess-business-loss-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: exempt-salary-threshold-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: exterior-painting-bid-calculator-ci.yml
   classification: none
   publishes: []

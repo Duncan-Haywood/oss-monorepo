@@ -1366,7 +1366,19 @@ const CATEGORY_RULES = [
       // sibling: both are OBBBA provisions made permanent/expanded in
       // 2025 with a cap-and-threshold shape, one on ordinary business
       // losses, the other on capital gains from a stock sale.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator)/.test(slug),
+      //
+      // `exempt-salary-threshold-checker` joined 2026-09-25, also
+      // concurrently, filed here on its first commit rather than after a
+      // spell in the catch-all -- what `build.test.mjs`'s catch-all bound
+      // is for. Same "federal wage-and-hour figure checked against a
+      // state's own higher number" axis as `tip-pool-compliance-calculator`
+      // above in this rule -- a salary-threshold comparison for the FLSA
+      // white-collar exemption, never a duties-test or salary-basis
+      // determination made on the visitor's behalf. It cross-links
+      // `tip-pool-compliance-calculator` as its nearest sibling: both check
+      // one FLSA wage-and-hour rule against a fixed federal-or-state table,
+      // neither computes pay.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker)/.test(slug),
   },
   {
     id: 'ci',

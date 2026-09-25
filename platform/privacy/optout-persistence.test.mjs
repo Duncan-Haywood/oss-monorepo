@@ -892,14 +892,22 @@ const RELATIVE_SELF = relative(
 // `referrer-permissions-policy-check-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
 //
-// 358 -> 359: `freelance-writer-rate-calculator` also graduated,
-// concurrently and invisibly to the three entries above -- adding one
-// more `usage.mjs` (`ventures/freelance-writer-rate-calculator/
-// usage.mjs`) following the same opt-out toggle shape as its siblings
-// above (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage
-// writes, keyed under its own `freelance-writer-rate-calculator-usage`
-// storage name). Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 359;
+// 358 -> 359: `exempt-salary-threshold-checker` also graduated,
+// concurrently and invisibly to the entries above -- adding one more
+// `usage.mjs` (`ventures/exempt-salary-threshold-checker/usage.mjs`), the
+// same boilerplate opt-out toggle copied from `salt-cap-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `exempt-salary-threshold-checker-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+//
+// 359 -> 360: `freelance-writer-rate-calculator` also graduated,
+// concurrently and invisibly to the entries above -- adding one more
+// `usage.mjs` (`ventures/freelance-writer-rate-calculator/usage.mjs`)
+// following the same opt-out toggle shape as its siblings above
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `freelance-writer-rate-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 360;
 
 let counter = 0;
 function fixture(source) {
