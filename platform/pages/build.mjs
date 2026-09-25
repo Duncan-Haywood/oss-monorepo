@@ -1330,29 +1330,43 @@ const CATEGORY_RULES = [
       // floor/ceiling shape, one on state and local tax, the other on
       // charitable giving.
       //
-      // `excess-business-loss-calculator` joined 2026-09-25, filed here on
+      // `estate-tax-exemption-calculator` joined 2026-09-25, filed here on
       // its first commit rather than after a spell in the catch-all --
       // what `build.test.mjs`'s catch-all bound is for. Same "downstream
-      // federal tax threshold on figures the filer already has" axis as
-      // `qbi-deduction-calculator` right above it in this rule --
-      // computing the IRC 461(l) excess-business-loss threshold and the
-      // resulting NOL carryforward, never a filed position made on the
-      // visitor's behalf. It cross-links `qbi-deduction-calculator` as its
-      // nearest sibling: both serve pass-through business owners and flag
-      // (without computing) the interaction between the two calculations.
+      // federal tax figure applied to numbers the filer already has" axis
+      // as the other OBBBA calculators in this rule -- projecting federal
+      // estate tax exposure under OBBBA's permanent 2026 $15,000,000
+      // basic exclusion amount, never a filed Form 706/709 made on the
+      // visitor's behalf. It cross-links `trump-account-calculator` as its
+      // nearest sibling: both are brand-new federal OBBBA wealth-transfer
+      // provisions -- one a parent-to-child savings account, the other the
+      // lifetime/at-death estate and gift exclusion -- with no closer
+      // topical match in this portfolio.
       //
-      // `qsbs-exclusion-calculator` joined 2026-09-25, filed here on its
-      // first commit rather than after a spell in the catch-all -- what
-      // `build.test.mjs`'s catch-all bound is for. Same "downstream
-      // federal tax exclusion on figures the filer already has" axis as
-      // `excess-business-loss-calculator` right above it in this rule --
-      // computing the Section 1202 QSBS capital-gain exclusion, never a
-      // filed position made on the visitor's behalf. It cross-links
-      // `excess-business-loss-calculator` as its nearest sibling: both are
-      // OBBBA provisions made permanent/expanded in 2025 with a
-      // cap-and-threshold shape, one on ordinary business losses, the
-      // other on capital gains from a stock sale.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator)/.test(slug),
+      // `excess-business-loss-calculator` joined 2026-09-25, concurrently,
+      // filed here on its first commit rather than after a spell in the
+      // catch-all -- what `build.test.mjs`'s catch-all bound is for. Same
+      // "downstream federal tax threshold on figures the filer already
+      // has" axis as `qbi-deduction-calculator` right above it in this
+      // rule -- computing the IRC 461(l) excess-business-loss threshold
+      // and the resulting NOL carryforward, never a filed position made
+      // on the visitor's behalf. It cross-links `qbi-deduction-calculator`
+      // as its nearest sibling: both serve pass-through business owners
+      // and flag (without computing) the interaction between the two
+      // calculations.
+      //
+      // `qsbs-exclusion-calculator` joined 2026-09-25, also concurrently,
+      // filed here on its first commit rather than after a spell in the
+      // catch-all -- what `build.test.mjs`'s catch-all bound is for. Same
+      // "downstream federal tax exclusion on figures the filer already
+      // has" axis as `excess-business-loss-calculator` right above it in
+      // this rule -- computing the Section 1202 QSBS capital-gain
+      // exclusion, never a filed position made on the visitor's behalf.
+      // It cross-links `excess-business-loss-calculator` as its nearest
+      // sibling: both are OBBBA provisions made permanent/expanded in
+      // 2025 with a cap-and-threshold shape, one on ordinary business
+      // losses, the other on capital gains from a stock sale.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -2264,8 +2278,24 @@ const CATEGORY_RULES = [
     // judging the new arrival in isolation is what found the fix, the same
     // method this file's own comments already record three times over for
     // this exact guard.
+    //
+    // `referrer-permissions-policy-check` joined 2026-09-25, filed here on
+    // its first commit rather than after a spell in the catch-all -- the
+    // same lesson. Same shape as `cors-misconfig-check` and
+    // `cache-control-check` right above: a zero-dependency CLI plus a
+    // matching browser report-viewer, sending one real GET request and
+    // classifying the response's own headers -- just for Referrer-Policy
+    // (an unsafe-url full-URL leak, an unrecognised or missing value) and
+    // Permissions-Policy (a malformed structured-field allowlist, a
+    // wildcard on a sensitive feature like camera/microphone, the
+    // deprecated Feature-Policy header) rather than CSP, cookies, or
+    // caching. No sibling venture reads either header. It cross-links
+    // `security-headers-check` and `cookie-security-check` as Related in
+    // its footer (reciprocal link not yet added to those two's own
+    // footers -- left for a future pass, the same as several siblings
+    // above that only cross-link one direction at graduation).
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|referrer-permissions-policy-check)/.test(
         slug,
       ),
   },

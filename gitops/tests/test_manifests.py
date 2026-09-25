@@ -2624,32 +2624,52 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Static `index.html` plus one docs/comparison page from its first
     # commit, same shape as the rest of this running count.
     #
-    # 375 -> 376: `excess-business-loss-calculator` also graduated -- a
-    # browser-local calculator computing the IRC 461(l) excess business
-    # loss threshold (permanent under OBBBA, with a 2026 figure that
-    # counterintuitively falls below 2025's rather than rising) and the
-    # resulting net operating loss carryforward, plus a
+    # 375 -> 376: `estate-tax-exemption-calculator` also graduated -- a
+    # browser-local calculator projecting federal estate tax exposure
+    # under OBBBA's permanent 2026 $15,000,000 basic exclusion amount
+    # (up to $30,000,000 married with portability), plus a
     # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
     #
-    # 376 -> 377: `qsbs-exclusion-calculator` also graduated -- a
-    # browser-local calculator computing the Section 1202 QSBS capital-gain
-    # exclusion, expanded by OBBBA for stock acquired after July 4, 2025
-    # (a new tiered 3/4/5-year schedule and a higher per-issuer cap,
-    # replacing the old all-or-nothing 5-year cliff for earlier stock),
-    # plus a vs-doing-the-math-by-hand.html comparison page. Static
-    # `index.html` plus one docs/comparison page from its first commit,
-    # same shape as the rest of this running count.
+    # 376 -> 377: `excess-business-loss-calculator` also graduated,
+    # concurrently -- a browser-local calculator computing the IRC 461(l)
+    # excess business loss threshold (permanent under OBBBA, with a 2026
+    # figure that counterintuitively falls below 2025's rather than
+    # rising) and the resulting net operating loss carryforward, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
     #
-    # 377 -> 378: `freelance-writer-rate-calculator` also graduated -- a
-    # browser-local calculator comparing a freelance writer's per-word rate
-    # against a flat per-project fee for the same job by effective hourly
-    # rate, counting research and revision hours (which a per-word rate does
-    # not separately compensate) alongside writing time. Static
+    # 377 -> 378: `qsbs-exclusion-calculator` also graduated, also
+    # concurrently -- a browser-local calculator computing the Section
+    # 1202 QSBS capital-gain exclusion, expanded by OBBBA for stock
+    # acquired after July 4, 2025 (a new tiered 3/4/5-year schedule and a
+    # higher per-issuer cap, replacing the old all-or-nothing 5-year cliff
+    # for earlier stock), plus a vs-doing-the-math-by-hand.html comparison
+    # page. Static `index.html` plus one docs/comparison page from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 378 -> 379: `referrer-permissions-policy-check` also graduated,
+    # concurrently and invisibly to the two entries above -- a
+    # zero-dependency CLI + browser report viewer sending one real GET
+    # request and classifying the response's Referrer-Policy (an
+    # unsafe-url full-URL leak, a missing or unrecognised value, the
+    # legacy no-referrer-when-downgrade value) and Permissions-Policy (a
+    # malformed structured-field allowlist, a wildcard on a sensitive
+    # feature like camera/microphone, reliance on the deprecated
+    # Feature-Policy header alone). Static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    #
+    # 379 -> 380: `freelance-writer-rate-calculator` also graduated,
+    # concurrently and invisibly to the three entries above -- a
+    # browser-local calculator comparing a freelance writer's per-word
+    # rate against a flat per-project fee for the same job by effective
+    # hourly rate, counting research and revision hours (which a per-word
+    # rate does not separately compensate) alongside writing time. Static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 378  # `infra/OWNER_CHECKLIST.md`'s own "N of the 378 tools" wording.
+    total = 380  # `infra/OWNER_CHECKLIST.md`'s own "N of the 380 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

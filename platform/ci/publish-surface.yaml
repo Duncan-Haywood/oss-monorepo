@@ -488,6 +488,9 @@ workflows:
 - workflow: estate-sale-net-proceeds-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: estate-tax-exemption-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []
@@ -988,6 +991,9 @@ workflows:
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
 - workflow: redirect-chain-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: referrer-permissions-policy-check-ci.yml
   classification: none
   publishes: []
 - workflow: register-change-rate-ci.yml
