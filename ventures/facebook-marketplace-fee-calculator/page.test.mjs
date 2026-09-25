@@ -99,24 +99,6 @@ test('the worked-example figures on the how-much guide match the real arithmetic
   assert.match(guide, /\$50\.00/);
 });
 
-test('the doing-it-by-hand comparison page links back, names no specific product, and is linked from index', () => {
-  const byHand = page('vs-doing-the-fee-math-by-hand.html');
-  assert.match(markup, /vs-doing-the-fee-math-by-hand\.html/);
-  assert.match(byHand, /<a href="\.\/">/);
-  assert.match(byHand, /names no specific product/i);
-  assert.match(byHand, /No warranty/);
-  assert.match(byHand, /no SLA/i);
-  assert.match(byHand, /where-to-sell-calculator\/"/);
-
-  const blocks = [...byHand.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
-  const faq = blocks.find(b => b['@type'] === 'FAQPage');
-  assert.ok(faq, 'no FAQPage JSON-LD block found on the comparison page');
-  for (const { name, acceptedAnswer } of faq.mainEntity) {
-    assert.ok(byHand.includes(name), `question not visible verbatim: ${name}`);
-    assert.ok(byHand.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
-  }
-});
-
 test('every published page carries Open Graph tags and a robots/canonical pair', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter(name => name.endsWith('.html'));

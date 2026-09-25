@@ -2151,12 +2151,6 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
   // carries the trademark disclaimer.
   'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
-  // Compares against "doing the fee math by hand" -- mental arithmetic every
-  // seller already does, not a company or product this could be mistaken
-  // for. Distinct from this venture's own
-  // vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html, which is
-  // its own separate comparison page.
-  'facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html',
   // Compares against "tracking sales in a spreadsheet" -- the hand-built
   // rate/minimum/local-pickup worksheet every Facebook Marketplace seller
   // already has, not a company or product this could be mistaken for. The
