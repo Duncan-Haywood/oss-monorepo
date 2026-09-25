@@ -2491,6 +2491,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // disclaimer. Same reasoning as source-map-leak-check's
   // vs-checking-devtools-by-hand.html above.
   'pwa-installability-check/vs-reading-the-manifest-by-eye.html',
+  // Compares against "reviewing workflow files by eye for a self-hosted
+  // runner under a risky trigger" -- the generic manual-review habit any
+  // maintainer already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-stepsecurity.html,
+  // which names StepSecurity, Inc. and carries the trademark/affiliation
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'actions-self-hosted-exposure-check/vs-reviewing-workflows-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
