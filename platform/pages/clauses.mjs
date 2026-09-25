@@ -2311,6 +2311,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // than named-product -- see facebook-marketplace-fee-calculator's entry
   // above for what happens when a generic-method page is shipped without it.
   'patreon-fee-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "comparing the quoted rates by eye" -- reading two
+  // per-job numbers off a rate card and picking the lower one -- a generic
+  // habit any operator comparing vendor quotes already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-crest-capital.html, which names Crest Capital and carries the
+  // trademark/affiliation disclaimer.
+  'vendor-rate-break-even/vs-comparing-rates-by-eye.html',
   // Compares against "pricing a move-out at the tenant's rent" -- a generic
   // mental model every self-storage operator already reaches for, not a
   // company or product this could be mistaken for. Distinct from this
