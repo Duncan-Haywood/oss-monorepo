@@ -44084,6 +44084,78 @@ entries:
         GitHub Pages snapshot after merging. Revenue and confirmed-visitor
         counts remain at zero.
     mrr_end: 0
+  - venture: bonus-depreciation-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture this session (session_gate.py:
+        build-now queue empty, PROCEED verdict; a full browser-checks sweep
+        and the whole portfolio/gitops/platform test suite were run first
+        and came back clean, so no defect or stale-CI signal outranked new
+        work; the fleet's own "generic-method comparison page" pattern is
+        saturated across nearly every existing trade-bid and marketplace-fee
+        venture, so a fresh niche beat another parity page). Picked bonus
+        depreciation vs. Section 179 for a 2025/2026 equipment purchase:
+        duplicate_check.py scored every venture, screened-out row, and
+        pipeline candidate at 0.30 or below (closest match
+        section-174a-catchup-calculator, an unrelated R&E election), well
+        under the 0.45 review bar. Mechanics verified via WebSearch
+        2026-09-25 against BDO's, RSM US's, and Grant Thornton's OBBBA
+        coverage, Section179.org's 2026 guide, Instead's 2026 limits post,
+        Thomson Reuters', and WCG's bonus-vs-179 comparisons -- including
+        the detail most likely to be gotten wrong by hand: bonus
+        depreciation (100%, permanent, no income limit) creates or increases
+        an NOL when it exceeds income, while Section 179's excess carries
+        forward as a differently-limited SECTION 179 deduction, never an
+        NOL -- and that the phase-out counts every qualifying purchase for
+        the year, not just the one asset.
+      - >-
+        Shipped a free, static, browser-local calculator comparing three
+        paths on one purchase -- 100% bonus depreciation, a Section 179
+        election (with the 2025 $2.5M/$4M and 2026 $2.56M/$4.09M
+        limit/phase-out), and plain MACRS with no election -- each with its
+        current-year cash tax saving and an explicit NOL-vs-179-carryforward
+        flag. Ships LICENSE, README with the required value sentence and
+        disclaimer, VENTURE.yaml with untested hypotheses and kill_criteria,
+        calc.mjs (24 test assertions) plus usage.mjs/page.test.mjs (45 total
+        across the venture), index.html with FAQPage/SoftwareApplication
+        JSON-LD matching the visible copy, the required
+        vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT as a generic-method
+        page), an opt-out local usage counter honouring DNT/GPC,
+        robots.txt/sitemap.xml, and a dedicated CI workflow. Filed into
+        build.mjs's `backoffice` category next to its nearest sibling,
+        depreciation-recapture-calculator (the opposite end of the same
+        depreciation lifecycle -- buying vs. selling) -- added a reciprocal
+        footer link both ways, each side's own page.test.mjs pins the link
+        back so neither venture is a crawlable orphan. Scored in
+        venture-scores.yaml.
+      - >-
+        Ran the full local verification loop rather than trusting a partial
+        run: node --test across the new venture, depreciation-recapture-
+        calculator, and the whole platform/marketing + platform/pages suite
+        (1290/1290 after two fix rounds), python3 -m pytest gitops/tests
+        (637/1, after fixing an unrelated pre-existing drift my new CI
+        workflow's `runs-on` line exposed -- see below), router/validate.py,
+        score_ventures.py --check, checklist_coverage.py, surface-budget.mjs
+        --check, and siblings.mjs --check. Ran regen.mjs (not --verify, since
+        the mirror was genuinely stale) to publish the new venture's four
+        files into the gitops front-door mirror, then regen.mjs --verify to
+        confirm the committed surface matches. Also ran sync_tree_counts.py
+        after this venture's usage.mjs pushed the mirrored-tool and
+        opt-out-switch counts from 370/349 to 371/350, and wrote the
+        required running-comment entry in optout-persistence.test.mjs
+        explaining why (the other four count sites needed no hand comment,
+        already self-deriving via sync_tree_counts.py). Separately,
+        this venture's own CI workflow file added one more `runs-on` line,
+        which desynced gitops/ci/README.md's hand-maintained switch count
+        (a pre-existing drift class this repo has hit four times before) --
+        caught by gitops/tests/test_ci_runner.py, fixed with
+        gitops/ci/sync_readme_counts.py. No revenue or confirmed-visitor
+        signal moved -- this is a new prototype-stage venture, not a
+        measured one.
+    mrr_end: 0
   - venture: vector-db-cost-calculator
     agent_spend_usd: null
     human_hours: 0

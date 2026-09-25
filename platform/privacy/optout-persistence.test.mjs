@@ -825,7 +825,7 @@ const RELATIVE_SELF = relative(
 // (`recordUsage`/`readOptOut`/`writeOptOut` gating localStorage writes,
 // keyed under its own `mrr-waterfall-calculator-usage-v1` storage name).
 //
-// 350 -> 351 on this merge: `patreon-fee-calculator` also graduated,
+// 350 -> 351 on that merge: `patreon-fee-calculator` also graduated,
 // concurrently and invisibly to the `mrr-waterfall-calculator` branch
 // above -- adding one more `usage.mjs`
 // (`ventures/patreon-fee-calculator/usage.mjs`) following the same
@@ -833,9 +833,17 @@ const RELATIVE_SELF = relative(
 // (`recordEvent`/`toggleUsage`/`usageAllowed` gating localStorage writes,
 // keyed under its own `patreon-fee-calculator-usage` storage name). Both
 // additions are real, taking 349 to 351.
+//
+// 351 -> 352 on this merge: `bonus-depreciation-calculator` also
+// graduated, concurrently and invisibly to both branches above -- adding
+// one more `usage.mjs` (`ventures/bonus-depreciation-calculator/usage.mjs`)
+// following the same opt-out toggle shape as its
+// `section-174a-catchup-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `bonus-depreciation-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions. Re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 351;
+const SWITCHES_IN_THE_CATALOGUE = 352;
 
 let counter = 0;
 function fixture(source) {
