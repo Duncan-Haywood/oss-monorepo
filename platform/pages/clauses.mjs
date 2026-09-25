@@ -2098,6 +2098,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as trump-account-calculator's own
   // vs-doing-the-math-by-hand.html right above.
   'section-174a-catchup-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out bonus depreciation and Section 179 by
+  // hand -- a generic method every business owner or preparer evaluating
+  // an equipment purchase already has access to, not a company or product
+  // this could be mistaken for. Names no accounting firm, software vendor,
+  // or tax-prep product. Same reasoning as section-174a-catchup-calculator's
+  // own vs-doing-the-math-by-hand.html right above.
+  'bonus-depreciation-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.

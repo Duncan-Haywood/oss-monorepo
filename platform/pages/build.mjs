@@ -1292,7 +1292,19 @@ const CATEGORY_RULES = [
       // visitor's behalf. It cross-links `trump-account-calculator` as its
       // nearest sibling: both are brand-new, deterministic 2025-2026 OBBBA
       // calculators with no closer topical match in this portfolio.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator)/.test(slug),
+      //
+      // `bonus-depreciation-calculator` joined 2026-09-25, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream federal
+      // tax election on figures the filer already has" axis as
+      // `section-174a-catchup-calculator` right above it in this rule --
+      // comparing bonus depreciation, a Section 179 election, and plain
+      // MACRS for a new equipment purchase, never a filed election made on
+      // the visitor's behalf. It cross-links
+      // `depreciation-recapture-calculator` as its nearest sibling: the two
+      // opposite ends of one asset's depreciation lifecycle, buying new
+      // property vs. selling depreciated property.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator)/.test(slug),
   },
   {
     id: 'ci',
