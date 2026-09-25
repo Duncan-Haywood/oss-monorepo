@@ -260,6 +260,9 @@ workflows:
 - workflow: chargeback-evidence-packet-ci.yml
   classification: none
   publishes: []
+- workflow: charitable-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: checklist-coverage.yml
   classification: none
   publishes: []
