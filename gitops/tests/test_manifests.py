@@ -2548,9 +2548,32 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # concurrently on `main` -- a browser checker for CAA (Certification
     # Authority Authorization) DNS records, static `index.html` from its
     # first commit, same shape as the rest of this running count.
-    # Total re-derived here by `sync_tree_counts.py` against the fully
-    # merged tree rather than by hand.
-    total = 365  # `infra/OWNER_CHECKLIST.md`'s own "N of the 365 tools" wording.
+    #
+    # 367 on this merge: two further ventures graduated concurrently on
+    # `main`, neither visible to the other branch until this merge -- this
+    # branch's own `npm-provenance-check` (a browser/CLI checker reporting
+    # which packages in a pasted lockfile carry an npm provenance
+    # attestation, trusted publishing / --provenance, with a
+    # why-not-just-npm-audit-signatures.html docs page) and
+    # `trump-account-calculator` (a browser-local calculator projecting a
+    # federal "Trump Account" child savings account, One Big Beautiful
+    # Bill Act, 26 U.S.C. 530A, to age 18 or later, with a
+    # vs-doing-the-math-by-hand.html comparison page). Each is static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count. Total re-derived here
+    # by `sync_tree_counts.py` against the fully merged tree rather than
+    # by hand.
+    #
+    # 368 on this merge: `claude-code-hooks-security-check` also graduated
+    # -- a browser tool scanning the command strings inside a pasted Claude
+    # Code hooks configuration for known-dangerous shapes (remote
+    # pipe-to-shell, credential exfiltration, unguarded recursive delete,
+    # and others), complementing the portfolio's existing structural
+    # checkers for the same ecosystem (`claude-code-settings-check`,
+    # `claude-code-subagent-check`, `mcp-config-risk-check`,
+    # `skill-manifest-check`). Static `index.html` plus one docs page from
+    # its first commit, same shape as the rest of this running count.
+    total = 368  # `infra/OWNER_CHECKLIST.md`'s own "N of the 368 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

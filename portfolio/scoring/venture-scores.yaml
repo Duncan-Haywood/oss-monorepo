@@ -17529,7 +17529,63 @@ ventures:
       listing correctly instead of guessing from a stale blog post, no
       affiliate link, no referral fee, donations-only, and it does not
       scan, fingerprint, or contact Facebook or any third-party system.
-      third-party system or agent runtime.
+
+  - slug: trump-account-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is compounding
+      arithmetic and a pro-rata split against a published statutory seed
+      deposit and contribution cap, never an inference step. time_to_revenue
+      ties it at 1: donations-only, same as most other ventures in this
+      file with no paid tier.
+    basis: >-
+      Screened 2026-09-24. duplicate_check.py against the final description
+      scored every venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate at or below 0.10 -- no existing venture or
+      candidate addresses the federal Trump Account (26 U.S.C. 530A), and
+      this is a distinct account (a federal child savings account funded by
+      a one-time seed deposit) from the portfolio's other IRS-dollar-limit
+      calculator, mega-backdoor-roth-calculator (a 401(k) after-tax
+      bucket). Distribution 6: WebSearch 2026-09-24 found several
+      already-published CPA-firm and finance-site explainers
+      (trumpaccounts.guide, TaxSharkInc, and multiple accounting-firm blog
+      posts) confirming real, brand-new search demand as accounts opened
+      through 2026, but every one found is a static explainer or a
+      generic-inputs projector, not an interactive calculator modeling the
+      IRA pro-rata basis split this tool is built around -- real but
+      unproven-for-this-exact-tool demand, one point below the fully
+      confirmed-and-differentiated auto-loan-interest-deduction-calculator
+      sibling's 7. Defensibility 2: the compounding arithmetic itself is
+      easy to reproduce, same class as this portfolio's other tax-arithmetic
+      calculators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every dollar input (age, contribution amounts, assumed
+      return, tax rate) is a figure the saver already has or chooses;
+      output is a balance projection and a tax-free/taxable split to
+      verify, never a filed contribution, a citizenship/eligibility
+      determination, or investment advice about which fund to hold. The
+      page states plainly this is not a full tax return and points at IRS
+      guidance and a qualified tax professional before acting on it, same
+      gate class as the sibling auto-loan-interest-deduction-calculator and
+      mega-backdoor-roth-calculator. Ethics: strictly beneficial as it
+      scales -- helps a saver understand a withdrawal-tax mechanic
+      (pro-rata basis) that is easy to get backwards from a 529-plan
+      mental model, never toward evading an obligation, no personal or
+      scraped data, no referral fee or affiliate link to any 529 plan,
+      brokerage, or bank named in the research above.
   - slug: claude-skill-scaffold-generator
     scores:
       ai_leverage: 1
@@ -17654,3 +17710,123 @@ ventures:
       no-delegation debugging session, no affiliate link, no referral
       fee, donations-only, and it does not scan, fingerprint, or contact
       any third-party system or agent runtime.
+  - slug: npm-provenance-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. It reports one factual
+      registry field (dist.attestations.provenance) per package, verified
+      in-repo against real currently-published versions on 2026-09-24
+      rather than assumed from documentation. time_to_revenue at 5, not 1:
+      same dev-tool-checker class as this file's dependency-confusion-check
+      (6) and npm-lifecycle-script-check (5), which carry a plausible
+      near-term hosted/CI-dashboard upsell a one-shot consumer calculator
+      does not, even though today it is donations-only like every other
+      venture in this file.
+    basis: >-
+      Screened 2026-09-24. duplicate_check.py against the final
+      description scored every venture, screened-out row, ai-first-markets
+      idea, and pipeline candidate at or below 0.14 -- the closest match
+      was npm-lifecycle-script-check (0.14, shares npm/lockfile
+      vocabulary but checks install-time scripts, a different registry
+      field and attack class). A targeted read of every existing
+      check/drift/watch venture (85+) found dependency-confusion-check,
+      slopsquatting-check, and npm-lifecycle-script-check as the npm-
+      supply-chain-adjacent siblings; none reads
+      dist.attestations.provenance or reports publish-mechanism
+      hardening. Distribution 4: WebSearch 2026-09-24 found real, current,
+      dated (2026) discussion of npm trusted-publishing migration across
+      five independent sources following its July 2025 GA and the
+      2025-2026 Shai-Hulud worm, but no confirmed community hub with the
+      recurring-thread density mega-backdoor-roth-calculator found on
+      Bogleheads, and no dedicated third-party bulk/paste provenance
+      checker was found in the same search pass -- a real, current query,
+      not yet a demonstrated open channel with proven volume.
+      Defensibility 3: the registry field is public and the lookup is
+      trivial to reproduce, typical for this portfolio's checker shape;
+      the paste-and-go/bulk-JSON/cross-repo-scripting angle is the edge,
+      not the mechanism, matching the sibling checkers' score.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input is a package name/version the user already
+      has in their own lockfile or is about to add; output is a single
+      factual registry field per package, never a security determination
+      -- the page and CLI both state explicitly that absence of
+      provenance is not evidence of compromise and presence is not a
+      safety guarantee, same shape and gate class as the sibling
+      npm-lifecycle-script-check and slopsquatting-check.
+      Ethics: purely informational, helps a maintainer or consumer see a
+      real npm-documented hardening signal more easily; no scraped or
+      personal data, nothing adversarial, scales with zero externality --
+      one user's lookup does not affect another's.
+  - slug: claude-code-hooks-security-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every finding (a remote download
+      piped into a shell, a credential file read and sent over the
+      network, an unguarded recursive delete, and the rest) is decided by
+      a fixed set of textual/regex pattern checks against the pasted
+      command strings -- a deterministic comparison, not a model
+      judgment, and it never claims a command that matches nothing is
+      safe or that one which matches something is malicious.
+    basis: >-
+      Screened and built 2026-09-25 (see the venture's own VENTURE.yaml
+      for the full duplicate_check.py run, nothing clearing the 0.45
+      bar). Autonomous ops 10 / gross margin 10: every check runs
+      client-side against text the visitor pastes, nothing uploaded, no
+      server of ours in the loop, so serving one more visitor costs a
+      static file -- same shape as claude-code-settings-check,
+      mcp-config-risk-check, and skill-manifest-check. Defensibility 4: a
+      curated set of regex/token pattern checks is moderately easy to
+      reproduce, matching claude-code-settings-check's and
+      mcp-config-risk-check's own defensibility score in the same domain
+      (a fixed pattern/lookup shape, not the heuristic vagueness tuning
+      that separated skill-manifest-check's 3). Distribution 5: named,
+      current developer-tooling channels (r/ClaudeAI and r/LocalLLaMA
+      agent-tooling threads, where hook safety is an actively discussed
+      topic, Anthropic's own developer community, HN Show threads on
+      Claude Code tooling and agent security, GitHub topic search for
+      committed .claude/settings.json files with a hooks section) plus
+      footer cross-links with all four sibling AI-agent-tooling checkers,
+      matching their own distribution score for the same reasoning. No
+      search-volume tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic, textual pattern match
+      against a command string the user pastes, no execution of any
+      kind, no network call, no LLM call, and no claim that a command
+      which matches nothing is safe or that one which matches something
+      is malicious -- every finding is framed as "worth a look, not a
+      verdict," and the dedicated why-a-clean-scan-isnt-a-safety-
+      guarantee.html page states plainly, with concrete examples in both
+      directions, what the patterns can and can't see, mirroring the
+      other four AI-agent-tooling ventures' own liability framing.
+      Ethics: strictly beneficial as it scales -- purely defensive,
+      read-only pattern scanning over text the user already has (their
+      own hooks config, or one they're about to trust from a cloned
+      project), helps catch a dangerous hook command before it runs
+      unattended, no affiliate link, no referral fee, donations-only, and
+      it does not scan, fingerprint, or contact any third-party system.

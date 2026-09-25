@@ -76,3 +76,14 @@ test('index links one hop to the vscode-extension-drift-check sibling', async ()
     'index must link ../vscode-extension-drift-check/ so crawlers reach that tool in one hop',
   );
 });
+
+// Reciprocal of npm-provenance-check's own sibling-link test: keeps that
+// venture from shipping as a crawlable orphan with no inbound link.
+test('index links one hop to the npm-provenance-check sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/npm-provenance-check\/"/,
+    'index must link ../npm-provenance-check/ so crawlers reach that tool in one hop',
+  );
+});

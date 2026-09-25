@@ -741,19 +741,18 @@ const RELATIVE_SELF = relative(
 // `mega-backdoor-roth-calculator`, which also graduated concurrently, added
 // no `usage.mjs` of its own, so it does not move this count.
 //
-<<<<<<< HEAD
 // 340 -> 341: `claude-code-subagent-check` also graduated, independently on
 // `main` at the same 339 predecessor -- adding one more `usage.mjs`
 // (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
 // toggle shape as its `claude-code-settings-check` sibling
-// (`usageAllowed`/`setUsageEnabled`/`countUsage`, keyed under its own
-// `claude-code-subagent-check:usage` storage name), no deletions. Both this
-// venture and `claude-skill-scaffold-generator` above claimed the same next
-// number (340) from the same 339 predecessor -- the same ordinary collision
-// shape recorded throughout this list, this time with both additions real
-// and neither superseding the other. `mega-backdoor-roth-calculator`, which
-// also graduated concurrently, added no `usage.mjs` of its own, so it does
-// not move this count.
+// (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
+// under its own `claude-code-subagent-check:usage` storage name), no
+// deletions. Both this venture and `claude-skill-scaffold-generator` above
+// claimed the same next number (340) from the same 339 predecessor -- the
+// same ordinary collision shape recorded throughout this list, this time
+// with both additions real and neither superseding the other.
+// `mega-backdoor-roth-calculator`, which also graduated concurrently, added
+// no `usage.mjs` of its own, so it does not move this count.
 //
 // 341 -> 342: `senior-deduction-calculator` also graduated (#5765),
 // concurrently on `main` -- adding one more `usage.mjs`
@@ -782,9 +781,35 @@ const RELATIVE_SELF = relative(
 // 343 -> 344: `caa-record-check` also graduated, concurrently on `main` --
 // adding one more `usage.mjs` (`ventures/caa-record-check/usage.mjs`), no
 // deletions.
+//
+// 344 -> 345: `trump-account-calculator` also graduated -- adding one more
+// `usage.mjs` (`ventures/trump-account-calculator/usage.mjs`) following the
+// same opt-in/opt-out toggle shape as its
+// `auto-loan-interest-deduction-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `trump-account-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
 // Re-derived here by `sync_tree_counts.py` against the fully merged tree
 // rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 344;
+//
+// 346 on this merge: this branch's own `npm-provenance-check` also
+// graduated, concurrently and invisibly to the `trump-account-calculator`
+// branch above -- adding one more `usage.mjs`
+// (`ventures/npm-provenance-check/usage.mjs`) following the same opt-out
+// pattern as its dev-tool-checker siblings (`usageOptedOut`/
+// `setUsageOptOut` gating `record`, keyed under its own
+// `npm-provenance-check-usage` storage name), no deletions. Both
+// additions are real, taking 344 to 346.
+//
+// 346 -> 347: `claude-code-hooks-security-check` also graduated -- adding
+// one more `usage.mjs`
+// (`ventures/claude-code-hooks-security-check/usage.mjs`) following the
+// same opt-out pattern as its AI-agent-tooling-checker siblings
+// (`usageAllowed`/`setUsageEnabled` gating `countUsage`, keyed under its
+// own `claude-code-hooks-security-check:usage` storage name), no
+// deletions. Re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 347;
 
 let counter = 0;
 function fixture(source) {

@@ -2078,6 +2078,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // specific plan provider"). Same reasoning as the other vs-doing-it-by-hand
   // / vs-a-spreadsheet pages above (e.g. depreciation-recapture-calculator's).
   'mega-backdoor-roth-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out a Trump Account's growth and withdrawal
+  // tax by hand -- a generic method every parent evaluating one already has
+  // access to, not a company or product this could be mistaken for. Names
+  // no vendor, brokerage, or 529 plan provider. Same reasoning as
+  // mega-backdoor-roth-calculator's own vs-doing-the-math-by-hand.html
+  // right above.
+  'trump-account-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2101,6 +2108,49 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-jobber.html, which does name a product and carries its own "not
   // affiliated" clause.
   'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
+  // Compares against "a flat per-square-foot special" -- the yard-sign and
+  // Facebook-post pricing habit every sod crew is shopped against, not a
+  // company or product this could be mistaken for. Same shape as this
+  // venture's own vinyl-liner sibling above; distinct from vs-aspire.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'sod-install-bid-calculator/vs-a-flat-per-square-foot-special.html',
+  // Compares against "manually checking each exports target by eye" -- the
+  // habit every package.json author already has, not a company or product
+  // this could be mistaken for. The page's own first paragraph says so
+  // ("Names no specific product or company") and its own test pins that
+  // sentence, same shape as branch-protection-drift-check's and
+  // source-map-leak-check's by-hand pages above.
+  'package-exports-drift-check/vs-manually-checking-exports-targets.html',
+  // Compares against "doing the trip math yourself" -- a mental-estimate
+  // habit every mobile notary already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own
+  // vs-notarygadget.html, which names NotaryGadget specifically and
+  // carries the trademark disclaimer.
+  'notary-trip-quote/vs-doing-the-trip-math-yourself.html',
+  // Compares against "tracking grants in a spreadsheet" -- a hand-maintained
+  // habit every small nonprofit already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-granthub.html,
+  // which names GrantHub/Foundant specifically and carries the trademark
+  // disclaimer.
+  'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
+  // Compares against "guessing a flat rate" -- copying a round CPM figure
+  // from a blog post or a competitor's public rate card, a pricing habit
+  // every newsletter operator already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-paved.html,
+  // which names Paved specifically and carries the trademark disclaimer.
+  'newsletter-sponsorship-rate-calculator/vs-guessing-a-flat-rate.html',
+  // Compares against "looking up the density-to-class table yourself" -- a
+  // manual lookup habit any shipper already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
+  // carries the trademark disclaimer.
+  'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
+  // Compares against "doing the fee math by hand" -- mental arithmetic every
+  // seller already does, not a company or product this could be mistaken
+  // for. Distinct from this venture's own
+  // vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html, which is
+  // its own separate comparison page.
+  'facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
