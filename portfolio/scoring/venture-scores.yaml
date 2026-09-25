@@ -1291,6 +1291,50 @@ ventures:
       rather than a standard or benchmark, and nothing the user enters
       leaves the browser.
 
+  - slug: boi-reporting-exemption-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an entity still owes a
+      federal BOI filing, and the deadline and which owners to report, is
+      decided entirely by applying FinCEN's own August 2026 final rule to
+      the filer's own four answers -- never a model judgment.
+    basis: >-
+      Screened 2026-09-25 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py scored every venture, screened-out row, and
+      pipeline candidate at or below 0.25 against the final description.
+      Distribution 7 reflects a real, dated, verified channel: FinCEN's
+      August 11, 2026 final rule permanently exempted every U.S.-formed
+      entity from BOI reporting, a nationally-publicized reversal of the
+      2024-2025 enforcement saga that affected an estimated 32 million
+      small businesses, confirmed via WebSearch against FinCEN's own news
+      release, the Federal Register notice, and two law-firm summaries.
+      Defensibility 3, same as its nearest sibling
+      ny-llc-transparency-act-tracker: a fixed rule applying published
+      federal thresholds and dates, easily replicated by a competitor
+      reading the same Federal Register notice.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the page states in three places (intro, a dedicated "what this
+      does not cover" section, and the footer) that this is a
+      rule-application aid, not a filing service or legal opinion, and
+      that formation jurisdiction, registration status, and each owner's
+      U.S.-person status are all self-reported and unverified. Every date
+      and figure was verified against FinCEN's own primary sources plus
+      two independent law-firm summaries before being committed.
+
   - slug: boiler-replacement-bid-calculator
     scores:
       ai_leverage: 1

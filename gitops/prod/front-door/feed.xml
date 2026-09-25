@@ -8,6 +8,15 @@
   <updated>2026-09-25T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>BOI Reporting Exemption Checker — 2026 FinCEN Rule, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boi-reporting-exemption-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/boi-reporting-exemption-checker</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free checker for whether your company still owes a federal Corporate Transparency Act beneficial ownership report after FinCEN&#39;s August 2026 final rule permanently exempted every U.S.-formed entity. Applies to foreign-formed entities registered to do business in the U.S. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Bonus Depreciation vs. Section 179 Calculator — 2025-2026, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bonus-depreciation-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/bonus-depreciation-calculator</id>
