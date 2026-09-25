@@ -2342,6 +2342,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries the trademark disclaimer. Same reasoning as the other
   // generic-method pages above.
   'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
+  // Compares against "reconciling CAM by square footage alone" -- the plain
+  // area-share arithmetic every CAM statement starts from, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-yardi.html and vs-appfolio.html, which name real platforms and carry
+  // the trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'cam-reconciliation-check/vs-square-footage-alone.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
