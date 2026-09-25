@@ -2377,6 +2377,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Check and carries the trademark/affiliation disclaimer. Same reasoning
   // as the other generic-method pages above.
   'wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html',
+  // Compares against "a flat per-word rate" -- the generic pricing habit of
+  // multiplying total word count by one number, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-smartcat.html, which names a real CAT-tool platform and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'translator-project-quote/vs-a-flat-per-word-rate.html',
   // Compares against "reading the manifest by eye" during review -- the
   // generic first pass every team already does, not a company or product
   // this could be mistaken for. Distinct from this venture's own
