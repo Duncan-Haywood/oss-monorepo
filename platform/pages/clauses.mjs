@@ -1393,6 +1393,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // affiliated" clause for that reason. Same reasoning as the other
   // vs-checking-*-by-hand pages above.
   'actions-cache-poisoning-check/vs-checking-by-hand.html',
+  // Compares against "reviewing workflows by eye" -- a manual review habit
+  // every GitHub Actions user already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-zizmor.html,
+  // which names a specific open-source tool and already carries the "not
+  // affiliated" clause for that reason. Same reasoning as the other
+  // vs-checking-*-by-hand pages above.
+  'actions-secrets-inherit-check/vs-checking-by-hand.html',
   // Compares against "a flat price per window" -- a pricing method every
   // window cleaner already has, not a company or product this could be
   // mistaken for. Distinct from this venture's own vs-servicemonster.html,
@@ -2242,6 +2249,24 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as the other generic-method flat-rate pages above (e.g.
   // boiler-replacement-bid-calculator's flat-rate page).
   'sewer-line-replace-bid-calculator/vs-a-flat-per-foot-price.html',
+  // Compares against "reading the settings.json by eye" -- a manual review
+  // habit anyone editing a Claude Code settings.json already has, not a
+  // company or product this could be mistaken for. Same reasoning as the
+  // other vs-reading-*-by-hand/-by-eye pages above (e.g.
+  // claude-code-hooks-security-check's, mcp-config-risk-check's). This
+  // venture names no named-product comparison at all.
+  'claude-code-settings-check/vs-reading-the-settings-json-by-eye.html',
+  // Compares against "reading the subagent file by eye" -- a manual review
+  // habit anyone writing a Claude Code subagent definition already has, not
+  // a company or product this could be mistaken for. Same reasoning as the
+  // other vs-reading-*-by-hand/-by-eye pages above. This venture names no
+  // named-product comparison at all.
+  'claude-code-subagent-check/vs-reading-the-subagent-file-by-eye.html',
+  // Compares against "writing the frontmatter by hand" (copying a sibling
+  // skill's SKILL.md and editing it) -- a manual habit any Claude Skill
+  // author already has, not a company or product this could be mistaken
+  // for. This venture names no named-product comparison at all.
+  'claude-skill-scaffold-generator/vs-writing-the-frontmatter-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
