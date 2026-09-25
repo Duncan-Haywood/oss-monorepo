@@ -5,6 +5,7 @@ import { calculate, payoutGap, DEFAULTS } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const guideHtml = readFileSync(new URL('./does-per-creation-billing-cost-more-in-fees.html', import.meta.url), 'utf8');
+const vsHtml = readFileSync(new URL('./vs-doing-the-math-yourself.html', import.meta.url), 'utf8');
 
 test('every DEFAULTS field has a matching input or select on the page', () => {
   for (const id of Object.keys(DEFAULTS)) {
@@ -140,4 +141,38 @@ test('index links one hop to the twitch-payout-calculator sibling', () => {
 test('index links one hop to the brand-deal-rate-calculator and newsletter-sponsorship-rate-calculator siblings', () => {
   assert.match(html, /href="\.\.\/brand-deal-rate-calculator\/"/);
   assert.match(html, /href="\.\.\/newsletter-sponsorship-rate-calculator\/"/);
+});
+
+test('the tool links to the doing-the-math-yourself generic-method comparison page', () => {
+  assert.match(html, /href="vs-doing-the-math-yourself\.html"/);
+});
+
+test('the generic-method comparison page links back to the calculator and carries the required clauses', () => {
+  assert.match(vsHtml, /<a href="\.\/">/);
+  assert.match(vsHtml, /No warranty\.<\/strong> This (tool|page)/);
+  assert.match(vsHtml, /not tax, financial, or business advice/);
+  assert.match(vsHtml, /not affiliated with, endorsed by, or sponsored by Patreon/i);
+});
+
+test('the comparison page\'s worked numbers reproduce from calc.mjs DEFAULTS, not invented figures', () => {
+  const money = (v) => `\\$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const result = calculate(DEFAULTS);
+  const naiveNetPayout = result.grossRevenue - result.platformFee;
+  const overestimate = naiveNetPayout - result.netPayout;
+  const fixedFeeTotal = result.totalCharges * 0.30;
+  assert.equal(result.grossRevenue, 1400);
+  assert.equal(result.totalCharges, 330);
+  assert.match(vsHtml, new RegExp(money(naiveNetPayout)));
+  assert.match(vsHtml, new RegExp(money(result.netPayout)));
+  assert.match(vsHtml, new RegExp(money(overestimate)));
+  assert.match(vsHtml, new RegExp(money(fixedFeeTotal)));
+});
+
+test('every visible FAQ question and answer on the comparison page also appears in its FAQPage block', () => {
+  const questions = [...vsHtml.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]);
+  assert.ok(questions.length >= 4, `expected at least 4 visible questions, saw ${questions.length}`);
+  const schema = vsHtml.slice(vsHtml.indexOf('"@type":"FAQPage"'));
+  for (const question of questions) {
+    assert.ok(schema.includes(JSON.stringify(question).slice(1, -1)), `visible question is missing from the FAQPage block: ${question}`);
+  }
 });

@@ -1,0 +1,121 @@
+name: bonus-depreciation-calculator
+description: >-
+  Free browser calculator comparing three ways to write off a new equipment
+  or asset purchase: 100% bonus depreciation (permanent under the One Big
+  Beautiful Bill Act for property acquired and placed in service after
+  January 19, 2025), a Section 179 election (with the 2025/2026 dollar limit
+  and phase-out threshold), and plain MACRS depreciation with no election.
+  Computes each path's current-year cash tax saving and flags whether an
+  over-large deduction creates a net operating loss (bonus/MACRS) or a
+  Section 179 carryforward -- a different, income-limited mechanism.
+  Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session. duplicate_check.py
+# scored every venture, screened-out row, and pipeline candidate at or below
+# 0.30 for the final description above -- well under the 0.45 review bar.
+# The closest match (section-174a-catchup-calculator, 0.30) shares only the
+# "OBBBA / deduction / net operating loss" vocabulary; it models a one-time
+# R&E catch-up election timing choice, not an equipment-purchase expensing
+# election. depreciation-recapture-calculator (0.08) is the opposite end of
+# the same asset's lifecycle -- selling depreciated property, not buying new
+# property -- confirmed by reading both files, not just the score.
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25 against BDO's
+# "One Big Beautiful Bill Act Expands 100% Depreciation Expensing
+# Opportunities", RSM US's "The OBBBA restores and expands bonus
+# depreciation", Grant Thornton's "OBBBA offers new ways to accelerate
+# depreciation", Section179.org's 2026 deduction guide and its "Section 179
+# vs Bonus Depreciation" comparison, Instead's "Section 179 expensing limits
+# for 2026", Thomson Reuters' "Who needs Sec. 179 expensing when 100% bonus
+# depreciation is available?", and WCG's "Section 179 or Bonus
+# Depreciation", cross-checked against each other: the One Big Beautiful
+# Bill Act (OBBBA, signed July 4, 2025) made 100% bonus depreciation
+# permanent for qualifying tangible property (20-year class life or less,
+# including used property) both acquired and placed in service after
+# January 19, 2025, with no taxable-income limitation and no dollar cap or
+# phase-out. Section 179 separately lets a business elect specific dollar
+# amounts of the same property up to an annual limit -- $2,500,000 for 2025,
+# $2,560,000 for 2026 -- that phases out dollar-for-dollar once total
+# qualifying purchases for the year exceed $4,000,000 (2025) / $4,090,000
+# (2026), and IS capped at the taxpayer's aggregate business taxable income;
+# any elected amount disallowed for that reason carries forward indefinitely
+# as a Section 179 carryforward, still income-limited every future year,
+# which is a materially different mechanism from a net operating loss (NOLs
+# carry forward subject to an 80%-of-taxable-income limitation instead).
+# Property at 50% or less business use does not qualify for either
+# accelerated method and must use the straight-line Alternative Depreciation
+# System, which this calculator flags but does not model.
+#
+# Differentiation from existing coverage found during research (BDO, RSM,
+# Grant Thornton, Section179.org, Instead, Thomson Reuters, WCG, and several
+# others all publish OBBBA/bonus-depreciation/Section 179 explainers, and
+# Section179.org itself hosts a bonus-vs-179 calculator): every interactive
+# calculator found models ONE election in isolation or a simple side-by-side
+# without the phase-out arithmetic against a user-supplied "other purchases"
+# figure, and none surface the NOL-vs-179-carryforward distinction as an
+# explicit flag alongside the numbers. This tool runs all three paths
+# (bonus, 179, plain MACRS) on one purchase with that distinction stated
+# plainly, no signup, no upsell, and nothing uploaded.
+
+hypotheses:
+  - claim: >-
+      Small-business owners and the accountants/CPAs advising them on a
+      2025 or 2026 equipment purchase will search plain-language phrases
+      ("bonus depreciation calculator 2026", "section 179 vs bonus
+      depreciation calculator", "section 179 phase out calculator") and
+      some will prefer a free, private, no-signup comparison tool over
+      reading a CPA-firm blog post and building their own spreadsheet,
+      especially during Q4 year-end equipment-purchase planning season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published bonus-depreciation/Section
+      179 explainer articles and at least one existing single-purpose
+      calculator (found during WebSearch research 2026-09-25) is evidence of
+      real, current search and professional interest in this exact
+      decision, and none combine bonus depreciation, Section 179 (with the
+      phase-out applied against a user-supplied "other purchases" figure),
+      and plain MACRS in one three-way comparison with the NOL-vs-carryforward
+      distinction stated explicitly -- so this is a real differentiation,
+      not a duplicate entrant into an already-served niche.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A business owner or preparer working this out by hand is likely to
+      check a single asset's cost against the Section 179 dollar limit
+      without accounting for other qualifying purchases against the
+      phase-out threshold, and to treat an over-large deduction the same
+      way under both elections -- missing that bonus depreciation's excess
+      becomes a net operating loss while Section 179's excess becomes a
+      differently-limited carryforward -- and a calculator that surfaces
+      both explicitly prevents a materially wrong comparison.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the 2026 tax-filing season closing (October 2027, covering extended
+    2025 and 2026 returns), by which point most businesses planning a
+    year-end equipment purchase around this decision should already have
+    filed.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bonus-depreciation-calculator/
+  analytics: null

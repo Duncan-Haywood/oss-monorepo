@@ -17941,6 +17941,55 @@ ventures:
       real PyPI-documented hardening signal more easily; no scraped or
       personal data, nothing adversarial, scales with zero externality --
       one user's lookup does not affect another's.
+  - slug: bonus-depreciation-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a capped
+      deduction-against-income comparison and a dollar-for-dollar phase-out
+      calculation against published statutory limits, never an inference
+      step. time_to_revenue ties it at 1: donations-only, same as most other
+      ventures in this file with no paid tier.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final description
+      scored every venture, screened-out row, and pipeline candidate at or
+      below 0.30 -- no existing venture combines bonus depreciation, Section
+      179 (with its phase-out and income cap), and plain MACRS in one
+      three-way comparison. autonomous_ops and gross_margin score 10 for the
+      same reason as its sibling section-174a-catchup-calculator: a static
+      page with a pure-function calculator, $0 marginal cost, no server,
+      nothing to operate. defensibility scores 2 -- the arithmetic is
+      published federal law anyone could replicate, same gate class as every
+      other deterministic tax-rules calculator in this file.
+      distribution scores 6: this targets small-business owners and CPAs
+      actively researching a 2025/2026 year-end equipment-purchase decision,
+      a live, current search topic (WebSearch 2026-09-25 found active 2026
+      CPA-firm coverage and at least one existing single-purpose
+      calculator), not a speculative one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Deterministic, published-formula tax arithmetic with explicit
+      disclaimers (not tax advice, points to IRS guidance and a qualified
+      professional, flags every income-limitation and eligibility edge case
+      it does not model) -- same gate class as the sibling
+      section-174a-catchup-calculator and depreciation-recapture-calculator.
+      Strictly beneficial as it scales: helps a business owner understand a
+      real, easy-to-get-wrong distinction (NOL vs. Section 179 carryforward)
+      rather than pushing toward any particular election; never toward
+      evading a tax obligation, no personal or scraped data, no referral fee
+      or affiliate link to any accounting software or advisor named in the
+      research above.
   - slug: mrr-waterfall-calculator
     scores:
       ai_leverage: 1

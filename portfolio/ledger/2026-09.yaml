@@ -44084,6 +44084,78 @@ entries:
         GitHub Pages snapshot after merging. Revenue and confirmed-visitor
         counts remain at zero.
     mrr_end: 0
+  - venture: bonus-depreciation-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture this session (session_gate.py:
+        build-now queue empty, PROCEED verdict; a full browser-checks sweep
+        and the whole portfolio/gitops/platform test suite were run first
+        and came back clean, so no defect or stale-CI signal outranked new
+        work; the fleet's own "generic-method comparison page" pattern is
+        saturated across nearly every existing trade-bid and marketplace-fee
+        venture, so a fresh niche beat another parity page). Picked bonus
+        depreciation vs. Section 179 for a 2025/2026 equipment purchase:
+        duplicate_check.py scored every venture, screened-out row, and
+        pipeline candidate at 0.30 or below (closest match
+        section-174a-catchup-calculator, an unrelated R&E election), well
+        under the 0.45 review bar. Mechanics verified via WebSearch
+        2026-09-25 against BDO's, RSM US's, and Grant Thornton's OBBBA
+        coverage, Section179.org's 2026 guide, Instead's 2026 limits post,
+        Thomson Reuters', and WCG's bonus-vs-179 comparisons -- including
+        the detail most likely to be gotten wrong by hand: bonus
+        depreciation (100%, permanent, no income limit) creates or increases
+        an NOL when it exceeds income, while Section 179's excess carries
+        forward as a differently-limited SECTION 179 deduction, never an
+        NOL -- and that the phase-out counts every qualifying purchase for
+        the year, not just the one asset.
+      - >-
+        Shipped a free, static, browser-local calculator comparing three
+        paths on one purchase -- 100% bonus depreciation, a Section 179
+        election (with the 2025 $2.5M/$4M and 2026 $2.56M/$4.09M
+        limit/phase-out), and plain MACRS with no election -- each with its
+        current-year cash tax saving and an explicit NOL-vs-179-carryforward
+        flag. Ships LICENSE, README with the required value sentence and
+        disclaimer, VENTURE.yaml with untested hypotheses and kill_criteria,
+        calc.mjs (24 test assertions) plus usage.mjs/page.test.mjs (45 total
+        across the venture), index.html with FAQPage/SoftwareApplication
+        JSON-LD matching the visible copy, the required
+        vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT as a generic-method
+        page), an opt-out local usage counter honouring DNT/GPC,
+        robots.txt/sitemap.xml, and a dedicated CI workflow. Filed into
+        build.mjs's `backoffice` category next to its nearest sibling,
+        depreciation-recapture-calculator (the opposite end of the same
+        depreciation lifecycle -- buying vs. selling) -- added a reciprocal
+        footer link both ways, each side's own page.test.mjs pins the link
+        back so neither venture is a crawlable orphan. Scored in
+        venture-scores.yaml.
+      - >-
+        Ran the full local verification loop rather than trusting a partial
+        run: node --test across the new venture, depreciation-recapture-
+        calculator, and the whole platform/marketing + platform/pages suite
+        (1290/1290 after two fix rounds), python3 -m pytest gitops/tests
+        (637/1, after fixing an unrelated pre-existing drift my new CI
+        workflow's `runs-on` line exposed -- see below), router/validate.py,
+        score_ventures.py --check, checklist_coverage.py, surface-budget.mjs
+        --check, and siblings.mjs --check. Ran regen.mjs (not --verify, since
+        the mirror was genuinely stale) to publish the new venture's four
+        files into the gitops front-door mirror, then regen.mjs --verify to
+        confirm the committed surface matches. Also ran sync_tree_counts.py
+        after this venture's usage.mjs pushed the mirrored-tool and
+        opt-out-switch counts from 370/349 to 371/350, and wrote the
+        required running-comment entry in optout-persistence.test.mjs
+        explaining why (the other four count sites needed no hand comment,
+        already self-deriving via sync_tree_counts.py). Separately,
+        this venture's own CI workflow file added one more `runs-on` line,
+        which desynced gitops/ci/README.md's hand-maintained switch count
+        (a pre-existing drift class this repo has hit four times before) --
+        caught by gitops/tests/test_ci_runner.py, fixed with
+        gitops/ci/sync_readme_counts.py. No revenue or confirmed-visitor
+        signal moved -- this is a new prototype-stage venture, not a
+        measured one.
+    mrr_end: 0
   - venture: vector-db-cost-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -44682,4 +44754,119 @@ entries:
         steps passed (remaining UNRUN/SKIPPED steps are the documented
         base-ref/dependency-install/uses: limitations of this sandbox, not
         failures).
+    mrr_end: 0
+  - venture: npm-provenance-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-checking-each-package-on-npmjs-by-hand.html, the
+        venture's first generic-method comparison page --
+        surface-budget.mjs had flagged it with 0 (only the named-product
+        vs-socket.html existed). npm-registry sibling of
+        pypi-provenance-check's own generic-method page from earlier
+        this session. Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set, linked from index.html and
+        sitemap.xml, front-door mirror regenerated.
+      - >-
+        Landed as PR #5865 after merging origin/main to pick up several
+        sibling ventures that shipped underneath it (pool-route-pricing,
+        mrr-waterfall-calculator, section-174a-catchup-calculator guide
+        page). Conflicts were confined to the generated mirror
+        (gitops/prod/front-door/ and front-door-tools/, plus the
+        append-only ledger file) -- resolved with --ours on the mirror
+        directories followed by a full node platform/marketing/regen.mjs
+        pass, verified clean with --verify. sync_tree_counts.py already
+        agreed with the merged tree (372 mirrored tools, 351 opt-out
+        switches).
+      - >-
+        Verified on the merged tree: venture's own suite 49/49; full
+        platform/marketing + platform/pages suite 1290/1290;
+        checklist_coverage.py, surface-budget.mjs --check,
+        router/validate.py, score_ventures.py --check, siblings.mjs
+        --check, usage/validate_usage.py, and check_ledger_only.py all
+        clean. CI note: ci_starvation.py confirmed runner_id: 0 on the
+        sampled main-tip jobs (Actions starved), and the PR's own head
+        commit carried zero check runs -- merged on the strength of the
+        local verification above rather than CI.
+    mrr_end: 0
+  - venture: patreon-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added vs-doing-the-math-yourself.html, the venture's first
+        generic-method comparison page (surface-budget.mjs had flagged it
+        at 0 generic-method / 1 named-product / 1 guide, one of 54 ventures
+        with that gap). Covers the mental-math trap of subtracting only the
+        flat platform-fee percentage from gross pledges and missing the
+        per-charge fixed processing fee entirely: on the calculator's own
+        DEFAULTS scenario (200/100/30 patrons at $3/$5/$10, Standard plan,
+        monthly billing -- 330 total charges), that naive estimate gives
+        $1,260.00 against the calculator's actual $1,120.40 net payout, a
+        $139.60 overestimate, 71% of which ($99.00) is the fixed $0.30 fee
+        multiplied by charge count -- invisible to a percentage-only
+        estimate. Every dollar figure on the page is pinned against
+        calc.mjs's own calculate(DEFAULTS) output via a dedicated test, not
+        invented. Registered the page in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set so surface-budget.mjs classifies it
+        as generic-method rather than named-product (the page also carries
+        the standalone "not affiliated with Patreon" clause on its own
+        merits). Linked from index.html and added to sitemap.xml; regenerated
+        the gitops front-door mirror (regen.mjs) so the apex serves the new
+        page immediately.
+      - >-
+        Verified locally (CI starved -- ci_starvation.py confirmed
+        runner_id: 0 on main's recent pushes): venture suite 59/59;
+        targeted platform/pages suite (clauses, surface-budget,
+        venture-sitemap-coverage, guide-coverage, faq-coverage/visible/
+        duplicate, link, ink, input-label) 128/128; checklist_coverage.py
+        clean; surface-budget.mjs --check clean (venture now at 1/1 budget);
+        regen.mjs --verify confirmed stale before regen.mjs and clean after;
+        check_ledger_only.py clean. Also monitored two other open PRs
+        (#5865 npm-provenance-check, #5867 bonus-depreciation-calculator)
+        via background agents to merge-conflict-resolve them against a
+        fast-moving main rather than leaving them stuck dirty.
+    mrr_end: 0
+  - venture: patreon-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed a live stale-mirror defect on `main`: PR #5869
+        (patreon-fee-calculator's own generic-method comparison page,
+        merged earlier this session) landed with its own local
+        `regen.mjs --verify` reported clean, but by the time it actually
+        merged -- squashed on top of #5867's own large mirror-shard
+        rewrite, merged minutes earlier -- the committed
+        `gitops/prod/front-door-tools/` mirror no longer matched. Caught
+        while independently re-verifying `main`'s tree state after
+        driving #5867 to merge: `regen.mjs --verify` on a fresh checkout
+        of the current tip reported 7 stale artifacts
+        (`kustomization.yaml`, both `patreon-fee-calculator__*.gz`
+        shards, and four front-door/ apex files -- `catalog.json.gz`,
+        `compare.html.gz`, `llms.txt.gz`, `sitemap.xml.gz`). Concretely:
+        the apex was serving the pre-comparison-page copy of the venture
+        while its own `sitemap.xml` already advertised the new URL --
+        the exact defect this file's CLAUDE.md records costing live
+        product multiple times (#3256-3258, #5007/#5012/#5020). Fixed
+        with a plain `node platform/marketing/regen.mjs`; no source
+        edits, only regenerated output.
+      - >-
+        Also re-derived the mirrored-tool count via sync_tree_counts.py
+        against the corrected tree (settles at 373, matching the count
+        this session already verified twice while merging #5865 and
+        #5867) and confirmed gitops/ci/README.md's runs-on count is
+        still current -- neither needed a further edit; sync_tree_counts.py
+        reported "every hand-written count agrees with the tree" after
+        regen.
+      - >-
+        Verified on the corrected tree: full platform/marketing +
+        platform/pages suite 1290/1290; checklist_coverage.py,
+        siblings.mjs --check (0 orphans of 373), surface-budget.mjs
+        --check, score_ventures.py --check (381 scores), router/validate.py
+        (380 ventures) all clean; regen.mjs --verify confirmed clean
+        after the fix. CI note: Actions starved this session
+        (ci_starvation.py confirmed runner_id: 0 repeatedly) -- merged on
+        the strength of the local verification above.
     mrr_end: 0
