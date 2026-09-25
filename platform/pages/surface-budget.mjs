@@ -179,6 +179,22 @@ export const GENERIC_BUDGET_OVERRIDES = {
       'no formula at all. Neither page\'s worked example or conclusion duplicates the other\'s. Allowed at two, ' +
       'which still blocks a third.',
   },
+  'facebook-marketplace-fee-calculator': {
+    allowed: 2,
+    why:
+      'Recorded 2026-09-25. This venture shipped with vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html ' +
+      'at launch (#5772), but that page was never registered in clauses.mjs\'s COMPARISON_DISCLAIMER_EXEMPT set, ' +
+      'so surface-budget.mjs misclassified it as named-product and reported "room for 1 more generic-method page" ' +
+      'on a venture that already had one. Two sessions read that false signal within the same window and took two ' +
+      'different, correct actions on it: this session registered the existing page\'s exemption (the fix the false ' +
+      'signal actually called for), and #5813 -- reading the same signal before this fix landed -- added a second, ' +
+      'independent page, "vs. doing the fee math by hand" (an eighth instance of the pair surface-budget.mjs\'s own ' +
+      'docstring already describes for overtime-pay-calculator, shopify-fee-calculator, ' +
+      'sign-language-interpreter-rate-calculator, apparel-decoration-price-calculator, atm-route-margin, ' +
+      'fleet-repair-or-replace-planner and menu-engineering-calculator: a spreadsheet formula versus no formula at ' +
+      'all). Neither page\'s worked example or conclusion duplicates the other\'s, and removing either loses real, ' +
+      'independently written coverage rather than fixing a duplication. Allowed at two, which still blocks a third.',
+  },
 };
 
 /** How many generic-method comparison pages `slug` may carry. */

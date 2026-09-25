@@ -571,8 +571,8 @@ readings:
 
   github-pages-branch-route:
     verdict: up
-    measured: "2026-09-24"
-    run: 36074183198
+    measured: "2026-09-25"
+    run: 36081923200
     how: >-
       `python3 platform/ci/pages_state.py --record`, which takes the reading
       and writes the three fields above. It needs no runner, no cluster and no
