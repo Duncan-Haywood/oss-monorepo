@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 142 files, 532677 bytes
 #   portfolio-front-tools-1: 91 files, 550865 bytes
 #   portfolio-front-tools-2: 144 files, 552250 bytes
-#   portfolio-front-tools-3: 130 files, 548960 bytes
+#   portfolio-front-tools-3: 131 files, 553371 bytes
 #   portfolio-front-tools-4: 141 files, 554423 bytes
 #   portfolio-front-tools-5: 124 files, 542059 bytes
 #   portfolio-front-tools-6: 127 files, 552185 bytes
@@ -501,6 +501,7 @@ configMapGenerator:
       - vendor-rate-break-even__is-switching-vendors-worth-it.html.gz=vendor-rate-break-even__is-switching-vendors-worth-it.html.gz
       - vendor-rate-break-even__share.mjs.gz=vendor-rate-break-even__share.mjs.gz
       - vendor-rate-break-even__usage.mjs.gz=vendor-rate-break-even__usage.mjs.gz
+      - vendor-rate-break-even__vs-comparing-rates-by-eye.html.gz=vendor-rate-break-even__vs-comparing-rates-by-eye.html.gz
       - vendor-rate-break-even__vs-crest-capital.html.gz=vendor-rate-break-even__vs-crest-capital.html.gz
       - music-lesson-break-even__calc.mjs.gz=music-lesson-break-even__calc.mjs.gz
       - music-lesson-break-even__how-to-price-music-lessons.html.gz=music-lesson-break-even__how-to-price-music-lessons.html.gz
