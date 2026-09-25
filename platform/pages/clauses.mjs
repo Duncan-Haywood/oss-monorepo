@@ -2249,6 +2249,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pypi-attestations verify CLI, which is a first-party tool comparison,
   // not a competing product, and predates this generic-method page).
   'pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html',
+  // Compares against "checking each package on npmjs.com by hand" -- a
+  // manual review habit any maintainer or reviewer already has, not a
+  // company or product this could be mistaken for. This page names no
+  // named-product comparison at all (the venture's own vs-socket.html is a
+  // separate page for that). Same reasoning as this venture's PyPI sibling
+  // immediately above.
+  'npm-provenance-check/vs-checking-each-package-on-npmjs-by-hand.html',
   // Compares against tracking MRR movements in a spreadsheet -- a habit
   // any SaaS operator without a subscription-analytics platform already
   // has, not a company or product this could be mistaken for.
@@ -2278,6 +2285,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // author already has, not a company or product this could be mistaken
   // for. This venture names no named-product comparison at all.
   'claude-skill-scaffold-generator/vs-writing-the-frontmatter-by-hand.html',
+  // Compares against "a flat per-pool monthly rate" -- a generic pricing
+  // method every independent pool service operator already has access to,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-skimmer.html, which names Skimmer and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above (e.g. sewer-line-replace-bid-calculator's flat-per-foot page).
+  'pool-route-pricing/vs-a-flat-per-pool-monthly-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
