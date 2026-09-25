@@ -43827,3 +43827,55 @@ entries:
         passed/25 skipped), all 15 platform/ci unittest modules +
         agent_review, and the portfolio-wide pytest suite (446 passed).
     mrr_end: null
+  - venture: tuckpointing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page
+        (surface-budget.mjs had flagged it as one of 67 ventures at
+        zero, out of a budget of one) -- "vs. a flat rate per square
+        foot", the same "$8 a square foot" quoting habit trades pages
+        elsewhere in the catalogue already compare against. Worked
+        example computed from the calculator's own shipped job
+        presets via calc.mjs directly (pinned in a test), not
+        invented: a 320 sq ft single-story ground-level smear prices
+        at $5.28/sq ft while a 1,008 sq ft three-story historic
+        swing-stage lime grind with 80 replacement bricks and 3
+        lintels prices at $21.97/sq ft -- applying the cheap job's
+        flat rate to the historic job undercuts its own break-even
+        cost by $12,400.06 and its target-margin price by $16,830.07.
+      - >-
+        Registered the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (names no vendor), linked it from index.html and sitemap.xml,
+        and regenerated the front-door mirror (regen.mjs) so the apex
+        serves it rather than going stale. Two sibling ventures
+        (sod-install-bid-calculator #5812, facebook-marketplace-fee-
+        calculator #5813) landed their own generic-method pages on
+        main while this branch was in flight, colliding in both
+        clauses.mjs and the generated mirror; merged origin/main twice
+        and reconciled each time per resolve-mirror-merge.sh's
+        guidance (hand-resolve the authored clauses.mjs conflict,
+        regenerate the mirror rather than picking a side in the
+        binary .gz conflicts).
+      - >-
+        Verified: venture's own suite 135/135; full platform/marketing
+        + platform/pages suite 1290/1290 on an uncontended re-run (a
+        contended run mid-session showed one transient failure from
+        the documented regen.mjs --verify race against concurrent test
+        processes reading gitops/prod/ mid-rewrite, reproduced clean
+        once uncontended); gitops/tests 613 passed/25 skipped (missing
+        nginx/ssh binaries, installed and re-verified per CLAUDE.md);
+        checklist_coverage.py and surface-budget.mjs --check clean;
+        run_workflow_locally.py --for-changes: portfolio-validate.yml
+        70/70, portfolio-pages.yml 3/3,
+        tuckpointing-bid-calculator-ci.yml 2/2 (its two reported
+        failures -- Pages-freshness snapshot staleness and a build
+        step run_workflow_locally.py cannot evaluate -- confirmed
+        pre-existing/tooling artifacts via a manual build.mjs +
+        check_pages_links.py pass showing every local reference
+        resolves); regen.mjs --verify clean after both merges. PR
+        #5816. No revenue or confirmed-visitor signal moved -- this
+        is marketing-surface work on an existing prototype-stage
+        venture, not a new product or a usage reading.
+    mrr_end: 0
