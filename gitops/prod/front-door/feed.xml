@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 384 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 385 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the 2026 FLSA white-collar overtime-exemption salary threshold — checks a weekly salary against the federal $684/week figure and the higher state threshold in California, Washington, New York, Maine, or Alaska, including New York&#39;s professional-exemption carve-out. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Final Paycheck Deadline Calculator — By State, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/final-paycheck-deadline-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/final-paycheck-deadline-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free calculator for the legal deadline on a departing employee&#39;s final paycheck — by US state and separation type (fired/laid off vs. quit), including California&#39;s notice-based rule, Minnesota&#39;s demand-triggered 24-hour rule, and whether the state requires accrued unused vacation/PTO to be paid out. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Freelance Writer Rate Calculator — Per-Word vs. Flat Fee, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the new federal &#39;senior bonus&#39; deduction (One Big Beautiful Bill Act, tax years 2025-2028): up to $6,000 per qualifying taxpayer age 65+ ($12,000 if both spouses qualify), the 6%-per-dollar MAGI phase-out above $75,000 single/HOH/QSS or $150,000 joint, and the married-filing-separately exclusion. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Skill Manifest Check — lint a SKILL.md before it ships</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/skill-manifest-check/"/>
-    <id>tag:marisstella.dev,2026:tool/skill-manifest-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a SKILL.md file (the format Claude Code and similar agent systems use) and get every common authoring mistake flagged: missing or malformed frontmatter, a description too vague to trigger reliably, overlapping triggers across sibling skills, and a body-size caution against a context budget. Free SKILL.md linter and Claude skill checker, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
