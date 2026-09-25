@@ -2356,6 +2356,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries the trademark disclaimer. Same reasoning as the other
   // generic-method pages above.
   'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
+  // Compares against "a flat rate per square foot of water surface" -- a
+  // generic pricing shortcut every pool-replaster shop already reaches for,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-buildxact.html, which names Buildxact and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'pool-plaster-bid-calculator/vs-a-flat-rate-per-square-foot-of-water.html',
   // Compares against "reconciling CAM by square footage alone" -- the plain
   // area-share arithmetic every CAM statement starts from, not a company or
   // product this could be mistaken for. Distinct from this venture's own
