@@ -46342,6 +46342,53 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 earlier) -- verified
         fully locally per CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: hreflang-reciprocity-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        vs-checking-hreflang-tags-by-hand.html (surface-budget.mjs flagged
+        it with zero generic-method pages; it only had a named-product
+        comparison against Merkle's hosted tool and a guide page).
+      - >-
+        The angle: a hreflang set that looks complete at a glance can
+        still be invalid and non-reciprocal. Worked example computed
+        directly from this venture's own buildReport(): a 4-language set
+        (en, en-uk, fr, es) with every <link> tag present and well-formed
+        reports 2 danger-level findings once actually checked -- "en-uk"
+        is not a valid ISO 3166-1 region code (the real one is "GB"), and
+        the es page never links back to en, breaking reciprocity for that
+        pair -- plus 1 notice for a missing x-default. Neither failure is
+        visible from reading the page you'd actually be looking at.
+      - >-
+        Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no competitor, only the
+        generic manual-review habit -- distinct from this venture's own
+        vs-merkle-hreflang-tool.html, which does name a competitor and
+        carries its own not-affiliated clause).
+      - >-
+        Also discarded a duplicate attempt at soffit-fascia-bid-
+        calculator's own generic-method comparison page this session,
+        after rebasing turned up that PR #5929 had already shipped the
+        identical page minutes earlier -- confirmed via
+        supersede_check.py-style reasoning before doing any more work on
+        it, per CLAUDE.md's Duplicate PRs section.
+      - >-
+        Verified: venture's own suite 88/88 (new comparison-page test
+        file); platform/pages/faq-visible.test.mjs 4/4 (the fleet-wide
+        JSON-LD/visible-prose consistency check -- caught and fixed a
+        real JSON-LD/visible-prose dash-encoding mismatch on this exact
+        page before it would have failed CI); surface-budget.mjs --check
+        and clauses.mjs both clean across the full catalogue. CI starved
+        this session (ci_starvation.py confirmed runner_id: 0 on a recent
+        main push) -- verified fully locally per CLAUDE.md's starvation
+        checklist, including the platform/ci unittest sweep (15 modules),
+        agent_review's test_review, pytest across
+        ledger/scoring/router/usage/pipeline/infra (446 passed), and
+        gitops/tests (637 passed, 1 skipped) -- all clean on main before
+        this change.
+    mrr_end: 0
   - venture: final-paycheck-deadline-calculator
     agent_spend_usd: null
     human_hours: 0
