@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 380 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 381 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -51,6 +51,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the IRC 461(l) excess business loss limitation, now permanent under OBBBA — computes how much of a pass-through owner&#39;s net business loss is deductible this year against the 2025/2026 threshold, and how much becomes a net operating loss carryforward. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Exempt Salary Threshold Checker — Federal + State, 2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/exempt-salary-threshold-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/exempt-salary-threshold-checker</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the 2026 FLSA white-collar overtime-exemption salary threshold — checks a weekly salary against the federal $684/week figure and the higher state threshold in California, Washington, New York, Maine, or Alaska, including New York&#39;s professional-exemption carve-out. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Freelance Writer Rate Calculator — Per-Word vs. Flat Fee, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Check a mandatory tip pool against federal FLSA rules: managers and supervisors are never eligible, and back-of-house staff are eligible only if you take no tip credit. See the tip-credit back-wage exposure a non-compliant pool creates. Free, private, nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Trump Account Calculator — Growth &amp; Withdrawal Tax Estimator, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/trump-account-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/trump-account-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the federal Trump Account child savings account (One Big Beautiful Bill Act, 26 U.S.C. 530A): projects the $1,000 federal seed deposit plus family and employer contributions to age 18 or later, and applies the IRA-style pro-rata withdrawal rule -- the mechanic every 529-plan comparison misses. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
