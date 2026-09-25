@@ -2632,7 +2632,27 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
-    total = 376  # `infra/OWNER_CHECKLIST.md`'s own "N of the 376 tools" wording.
+    #
+    # 376 -> 377: `referrer-permissions-policy-check` also graduated,
+    # concurrently and invisibly to both branches above -- a
+    # zero-dependency CLI + browser report viewer sending one real GET
+    # request and classifying the response's Referrer-Policy (an
+    # unsafe-url full-URL leak, a missing or unrecognised value, the
+    # legacy no-referrer-when-downgrade value) and Permissions-Policy (a
+    # malformed structured-field allowlist, a wildcard on a sensitive
+    # feature like camera/microphone, reliance on the deprecated
+    # Feature-Policy header alone). Static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    #
+    # 377 -> 378: `qsbs-exclusion-calculator` also graduated, concurrently
+    # and invisibly to the branch above -- a browser-local calculator
+    # computing the Section 1202 QSBS capital-gain exclusion, expanded by
+    # OBBBA for stock acquired after July 4, 2025 (a new tiered 3/4/5-year
+    # schedule and a higher per-issuer cap, replacing the old all-or-nothing
+    # 5-year cliff for earlier stock), plus a vs-doing-the-math-by-hand.html
+    # comparison page. Static `index.html` plus one docs/comparison page
+    # from its first commit, same shape as the rest of this running count.
+    total = 378  # `infra/OWNER_CHECKLIST.md`'s own "N of the 378 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
