@@ -43769,6 +43769,64 @@ entries:
         session's work was deploy freshness and verification, not new
         product surface.
     mrr_end: null
+  - venture: newsletter-sponsorship-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #5811: the venture's first generic-method comparison page
+        (vs. guessing a flat rate copied from a blog post or a competitor's
+        rate card), closing the gap surface-budget.mjs reports -- it had a
+        named-product page (vs-paved.html) but none against the generic
+        habit. Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set,
+        added to the venture's sitemap.xml, mirrored via regen.mjs.
+      - >-
+        origin/main advanced six commits while the branch was open,
+        including another venture's own new generic-method page
+        (ltl-freight-class-estimator) that conflicted in the same
+        clauses.mjs set and in the generated gitops/prod mirror -- resolved
+        via resolve-mirror-merge.sh plus a full regen.mjs re-run rather than
+        hand-picking a side of the generated files, then re-verified
+        (check_venture_regression.py --base origin/main, sync_tree_counts.py,
+        checklist_coverage.py all clean post-merge).
+      - >-
+        All six checks that ran on the PR came back red in 2-3s; confirmed
+        starvation with ci_starvation.py (runner_id 0 on every one, not a
+        real failure) and merged on the strength of local verification: the
+        venture's own suite (47/47), platform/pages full suite (1015/1015),
+        platform/marketing full suite (275/275), regen.mjs --verify clean,
+        gitops/tests (613 passed/25 skipped for missing nginx/ssh binaries),
+        all 15 platform/ci unittest modules + agent_review, the
+        portfolio-wide pytest suite (446 passed), and
+        run_workflow_locally.py --for-changes (70/70 run steps passed).
+        Refreshed the Pages snapshot after merge (was 1 commit stale).
+    mrr_end: null
+  - venture: pinned-actions-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page (vs.
+        reading the workflow YAML by hand -- an abbreviated commit SHA
+        looks pinned to a quick read but is not what the checker or
+        GitHub's own hardening guidance counts as pinned). Same reasoning
+        and filename already established by actions-permissions-check and
+        actions-artifact-poisoning-check's own pages; registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set, added to the
+        venture's sitemap.xml, mirrored via regen.mjs.
+      - >-
+        origin/main advanced twice more while working (another venture's
+        own new generic-method page landed in between, again colliding in
+        clauses.mjs and the generated mirror) -- resolved the same way as
+        the prior entry, via resolve-mirror-merge.sh plus a full regen.mjs
+        re-run.
+      - >-
+        Verified locally before pushing: the venture's own suite (56/56),
+        platform/pages full suite (1015/1015), platform/marketing full
+        suite (275/275), regen.mjs --verify clean, gitops/tests (613
+        passed/25 skipped), all 15 platform/ci unittest modules +
+        agent_review, and the portfolio-wide pytest suite (446 passed).
+    mrr_end: null
   - venture: tuckpointing-bid-calculator
     agent_spend_usd: null
     human_hours: 0
