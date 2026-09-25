@@ -2643,7 +2643,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # feature like camera/microphone, reliance on the deprecated
     # Feature-Policy header alone). Static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 377  # `infra/OWNER_CHECKLIST.md`'s own "N of the 377 tools" wording.
+    #
+    # 377 -> 378: `qsbs-exclusion-calculator` also graduated, concurrently
+    # and invisibly to the branch above -- a browser-local calculator
+    # computing the Section 1202 QSBS capital-gain exclusion, expanded by
+    # OBBBA for stock acquired after July 4, 2025 (a new tiered 3/4/5-year
+    # schedule and a higher per-issuer cap, replacing the old all-or-nothing
+    # 5-year cliff for earlier stock), plus a vs-doing-the-math-by-hand.html
+    # comparison page. Static `index.html` plus one docs/comparison page
+    # from its first commit, same shape as the rest of this running count.
+    total = 378  # `infra/OWNER_CHECKLIST.md`'s own "N of the 378 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

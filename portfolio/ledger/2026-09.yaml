@@ -45631,6 +45631,75 @@ entries:
         --check, gitops/tests (613 passed/25 skipped) all clean. No open
         PRs at the time, so no duplicate-page risk to check against.
     mrr_end: 0
+  - venture: qsbs-exclusion-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a fourth new venture this session
+        (session_gate.py: build-now queue empty, PROCEED verdict, no
+        in-progress venture work). Deliberately picked a niche serving a
+        different audience than this session's other three OBBBA
+        calculators (all W-2/itemizer-facing): the Section 1202 Qualified
+        Small Business Stock (QSBS) capital-gain exclusion, expanded by
+        OBBBA for equity holders and founders. duplicate_check.py scored
+        every venture, screened-out row, and pipeline candidate at 0.18
+        or below (closest match qbi-deduction-calculator -- shares only
+        generic "deduction/gain" vocabulary, an unrelated pass-through-
+        income deduction), well under the 0.45 review bar. Mechanics
+        verified via WebSearch 2026-09-25 against Kutak Rock, Baker
+        Tilly, The Tax Adviser (two articles), K&L Gates, Grant Thornton,
+        and a cross-check search confirming the pre-OBBBA rule had no
+        partial exclusion at all -- including the detail most likely to
+        be gotten wrong by hand: which rule applies is determined by
+        ACQUISITION DATE (before/after July 4, 2025), not the tax year of
+        sale, unlike every other OBBBA calculator this session built
+        which keys off tax year; and that the exclusion cap applies to
+        eligible gain BEFORE the holding-period percentage, not after.
+      - >-
+        Shipped a free, static, browser-local calculator toggling between
+        the old all-or-nothing 5-year rule and the new tiered 3/4/5-year
+        schedule, reporting the exclusion cap (greater of a fixed dollar
+        figure or 10x basis), eligible/excluded/taxable gain, and the
+        next holding-period milestone. Caught and fixed a real
+        JSON-LD/visible-text em-dash mismatch during development this
+        time (the fourth venture built this session, second time this
+        specific defect class recurred despite the explicit up-front
+        check) -- both the SoftwareApplication and FAQPage JSON-LD blocks
+        had been typed with ASCII "--" while the visible prose used "--"
+        (em-dash); caught by grep before page.test.mjs even ran, not by
+        the shared suite. Ships LICENSE, README with the required value
+        sentence and disclaimer, VENTURE.yaml with untested hypotheses
+        and kill_criteria, calc.mjs (14 test assertions) plus usage.mjs/
+        page.test.mjs (35 total across the venture), index.html with
+        FAQPage/SoftwareApplication JSON-LD matching the visible copy,
+        the required vs-doing-the-math-by-hand.html comparison page
+        (added to clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT), an
+        opt-out local usage counter honouring DNT/GPC, robots.txt/
+        sitemap.xml, and a dedicated CI workflow.
+      - >-
+        Filed into build.mjs's backoffice category next to its nearest
+        sibling, excess-business-loss-calculator (both OBBBA provisions
+        made permanent/expanded in 2025 with a cap-and-threshold shape,
+        one on ordinary losses, the other on capital gains) -- with a
+        reciprocal footer link both ways. Scored in venture-scores.yaml.
+        Regenerated the gitops front-door mirror, synced the mirrored-
+        tool/opt-out-switch running counts (376->377, 355->356) and the
+        gitops/ci/README.md runs-on count, registered the new CI workflow
+        in publish-surface.yaml, and registered the venture in
+        platform/pages/launched.json before running the shared suite.
+      - >-
+        Verified: venture's own suite 35/35; excess-business-loss-
+        calculator's suite re-run after the reciprocal-link edit, 34/34
+        unaffected; targeted faq-visible.test.mjs + launched.test.mjs run
+        alongside the venture's own suite, 62/62 clean after the dash
+        fix. checklist_coverage.py, sync_tree_counts.py, router/
+        validate.py (384 ventures), score_ventures.py --check (385
+        scores), siblings.mjs --check (0 orphans of 377), surface-
+        budget.mjs --check, regen.mjs --verify all clean. CI note:
+        Actions confirmed starved earlier this session (ci_starvation.py:
+        runner_id: 0 on sampled jobs) -- expect the same on this PR.
+    mrr_end: 0
   - venture: consent-change-record
     agent_spend_usd: null
     human_hours: 0
@@ -45660,4 +45729,48 @@ entries:
         sync_tree_counts.py, regen.mjs --verify, surface-budget.mjs
         --check, gitops/tests (613 passed/25 skipped) all clean. No open
         PRs at the time.
+    mrr_end: 0
+  - venture: translator-project-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page, vs-a-flat-per-word-rate.html
+        -- surface-budget.mjs flagged this venture with 0 generic-method
+        pages (already had a named-product comparison, vs-smartcat.html, and
+        a guide page). The angle: a single flat rate per word (hourly rate
+        divided by words-per-hour) applied to the raw word count, with the
+        fuzzy-match discount, QA/DTP/rush add-ons, and margin all expected to
+        net out inside that one number. Two worked examples reused this
+        venture's own guide and calc.test.mjs figures rather than inventing
+        new ones, both pinned directly against calc.mjs's calculate().
+        Caught and fixed two real defects during verification: a
+        straight-vs-em-dash mismatch between the FAQPage JSON-LD and the
+        visible markup (the same defect class recorded against several
+        sibling comparison-page PRs this month), and an unregistered
+        &frasl; entity flagged by entities.test.mjs. Registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked from index.html,
+        listed in sitemap.xml.
+      - >-
+        Also picked up and merged the fleet's one other open PR (#5892,
+        pool-plaster-bid-calculator's comparison page) this session --
+        resolved its front-door mirror conflicts against a moved main with
+        resolve-mirror-merge.sh plus a full regen.mjs pass, verified locally,
+        and merged it before starting new work.
+      - >-
+        Verified: venture's own suite 84/84; platform/pages/
+        clauses+faq-visible+surface-budget+entities all clean; full
+        platform/marketing + platform/pages suite 1290/1290 (run three
+        times across two main-merges during this session, clean each time);
+        checklist_coverage.py, sync_tree_counts.py, regen.mjs --verify all
+        clean; scoped browser/accessibility sweep (--only
+        translator-project-quote) 7/8 passed (highlight skipped, missing
+        dependency); portfolio/{ledger,scoring,router,usage,pipeline} +
+        infra/tests 446 passed; gitops/tests 637 passed/1 skipped
+        (environmental); all 15 platform/ci unittest modules +
+        agent_review/test_review pass; platform/proposal 101/101;
+        platform/privacy + platform/webcheck 142/142. CI starved this
+        session throughout (ci_starvation.py confirmed runner_id: 0 on
+        every recent main check). Refreshed the gh-pages publish snapshot
+        after merging.
     mrr_end: 0
