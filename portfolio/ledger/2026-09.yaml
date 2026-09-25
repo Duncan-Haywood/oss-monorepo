@@ -44870,3 +44870,53 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 repeatedly) -- merged on
         the strength of the local verification above.
     mrr_end: 0
+  - venture: patreon-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran a whole-catalogue `browser_checks.py --checks contrast` sweep
+        (axe-core, desktop+phone, 1656 pages) as part of continuing the
+        fleet's own checklist; it found 46 WCAG AA contrast violations, all
+        from two brand colors on patreon-fee-calculator (the venture had
+        just shipped that session), spread across all three pages it had
+        published by the time the sweep ran: white/light text on the
+        `#ff424d` payout-result background (3.42:1, 2.64:1, 2.70:1 across
+        `.result`, `.result .note`, `.err` -- all below the 4.5:1 AA
+        threshold), and the `#c5501f` legend/heading orange at 4.23:1
+        against the page background, just under 4.5:1.
+      - >-
+        Fixed in PR #5875: darkened the result background to `#c2262f`
+        (5.81:1 for white text) and lightened the two dependent text
+        colors to stay above 5:1 against it; darkened the orange to
+        `#a8420f` (5.57:1), applied to every `<legend>`/`<h1>`/`<h2>` using
+        it across all three pages. Regenerated the front-door mirror in
+        the same PR (regen.mjs --verify caught it stale once the source
+        pages changed).
+      - >-
+        Note for future sessions: the whole-catalogue 8-check
+        `browser_checks.py --record` sweep (sideways/presets/roundtrip/
+        highlight/contrast/optout/sweep/journey) died silently partway
+        through `contrast` in this session with no error in its log and
+        no process left running -- ran the 4 checks before it cleanly
+        (sideways, presets, roundtrip, highlight all ok), then nothing.
+        Re-running `contrast` alone via `--checks contrast` completed in
+        a few minutes and found the violations above; the full 8-check
+        `--record` run was not retried this session, so `browser_state.py`
+        still reports all 8 checks stale. A separate real defect
+        (section-174a-catchup-calculator's own sideways-scroll bug, also
+        found by the `sideways` check) was independently found and fixed
+        by another concurrent session (#5860) before this session's own
+        fix for it could be pushed; discarded rather than duplicated.
+      - >-
+        Verified: venture suite 59/59; `browser_checks.py --checks
+        contrast --only patreon-fee-calculator` 0 violations across 3
+        pages, 2 viewports (was 46); regen.mjs --verify clean;
+        checklist_coverage.py clean; sync_tree_counts.py clean;
+        gitops/tests 637 passed/1 skipped (environmental-only);
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests 446
+        passed; platform/marketing + platform/pages front-door-tools/
+        front-door suites 220/220 (re-verified after this fix). CI starved
+        this session (ci_starvation.py confirmed runner_id: 0) -- merged
+        on the strength of the local verification above.
+    mrr_end: 0
