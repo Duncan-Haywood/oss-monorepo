@@ -2164,6 +2164,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-securitytxt-org-generator.html, which names a real site and
   // already carries its own non-affiliation disclaimer.
   'security-txt-check/vs-checking-it-by-eye.html',
+  // Compares against working out the Child Tax Credit by hand -- a generic
+  // method every parent or preparer already has access to, not a company
+  // or product this could be mistaken for. Names no tax-prep firm or
+  // software vendor. Same reasoning as qsbs-exclusion-calculator's own
+  // vs-doing-the-math-by-hand.html above.
+  'child-tax-credit-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2459,6 +2465,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Distinct from this venture's own vs-jobber.html, which names Jobber
   // and carries the trademark/affiliation disclaimer.
   'stucco-repair-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat rate per lineal foot" -- the $12-or-so
+  // wrap-and-fascia special every soffit and fascia crew already has access
+  // to, not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-jobber.html, which names Jobber and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above (e.g. asbestos-abatement-bid-calculator's
+  // flat-rate page).
+  'soffit-fascia-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
