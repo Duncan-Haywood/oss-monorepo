@@ -2384,6 +2384,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above.
   'k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html',
+  // Compares against "comparing the two trace exports by eye" -- the
+  // generic first pass anyone reviewing a consent sequence already does,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-cookiebot.html, which names Cookiebot/
+  // Usercentrics and carries the trademark disclaimer. Same reasoning as
+  // the other generic-method pages above.
+  'consent-change-record/vs-comparing-the-traces-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
