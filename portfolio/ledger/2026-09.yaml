@@ -44084,3 +44084,252 @@ entries:
         GitHub Pages snapshot after merging. Revenue and confirmed-visitor
         counts remain at zero.
     mrr_end: 0
+  - venture: vector-db-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "vs. Qdrant" named-product comparison page alongside the
+        existing vs-pinecone.html -- unbudgeted under surface-budget.mjs's
+        generic-method cap, which only limits "vs. doing it yourself"
+        pages, not comparisons against distinct named products. Same
+        no-unverifiable-price discipline as the Pinecone page: Qdrant's
+        own pricing page is not reachable from this session, so no dollar
+        figure is claimed for it, only its documented plan shape
+        (self-hosted vs. Qdrant Cloud). Linked from the venture's index
+        and sitemap; regenerated the mirrored front-door artifacts.
+      - >-
+        Also refreshed the published GitHub Pages snapshot early this
+        session while it was several commits stale, hitting "refusing to
+        publish backwards" once (another session published mid-build) --
+        left it and re-ran from a fresh origin/main once that landed, then
+        recorded the reading via pages_state.py --record. That row was
+        independently refreshed again by a concurrent session (#5840)
+        before this branch could push, so the ledger-worthy read is: the
+        publish-backwards race this file already documents is routine at
+        the current session-concurrency level, not a one-off.
+      - >-
+        Verified an open product PR (#5827, kdp-royalty-calculator guide
+        page) was sound -- checklist_coverage, sync_tree_counts,
+        score_ventures --check, and a starved (runner_id: 0) CI run
+        confirmed via ci_starvation.py -- and began merging it forward
+        past a merge conflict in the generated mirror; a concurrent
+        session merged and closed it first with an equivalent resolution
+        before this branch's push landed. No revenue or confirmed-visitor
+        signal moved -- this is marketing-surface work on an existing
+        prototype-stage venture, not a new product or a usage reading.
+    mrr_end: 0
+  - venture: llms-txt-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added ventures/llms-txt-generator/vs-writing-llms-txt-by-hand.html,
+        its budgeted generic-method comparison page (surface-budget.mjs
+        flagged the venture at 0 of 1). Covers the three mechanical
+        failure modes of hand-writing llms.txt: exact Markdown link
+        bullet syntax, required "## Section" grouping, and staying in
+        sync as pages change -- versus the tool's browser generator/
+        validator and the CLI's --dir/--sitemap regeneration modes.
+      - >-
+        Registered the page in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set, linked it from index.html and
+        the venture's sitemap.xml, and regenerated the front-door mirror
+        (platform/marketing/regen.mjs). origin/main advanced three times
+        more while this was in progress (PR #5819's own merge, a new
+        pypi-provenance-check venture, and a sewer-hydrojet-bid-calculator
+        comparison page); reconciled via resolve-mirror-merge.sh guidance
+        each round -- hand-resolved the authored clauses.mjs and ledger
+        conflicts, took the generated .gz/kustomization.yaml conflicts
+        from either side as a placeholder, then re-ran regen.mjs to make
+        the merged tree authoritative rather than picking a side.
+      - >-
+        Verified: venture's own suite 46/46; full platform/marketing +
+        platform/pages suite 1290/1290 (one failure surfaced mid-session
+        -- the new page's FAQ JSON-LD used "--" where the visible page
+        used an em dash, the same defect class #5806 hit; fixed, then
+        clean, then regen.mjs --verify re-run clean after the fix
+        re-staled the mirror); gitops/tests 631 passed/7 skipped;
+        platform/ci unittest sweep (15 modules) and agent_review's
+        test_review (21/21) both clean; surface-budget.mjs --check and
+        checklist_coverage.py clean. No revenue or confirmed-visitor
+        signal moved -- this is marketing-surface work on an existing
+        prototype-stage venture, not a new product or a usage reading.
+      - >-
+        A merge round briefly surfaced what looked like a real,
+        pre-existing FAQPage JSON-LD/visible-text divergence on
+        pypi-provenance-check/index.html (unrelated to this change) --
+        this branch's working copy still carried the pre-#5828 state,
+        so faq-visible.test.mjs failed against it before the merge. #5828
+        had already fixed the identical divergence on `main` (in the
+        opposite direction: editing the visible <p> copy to match the
+        JSON-LD) by the time this branch merged; a same-file, non-
+        overlapping-lines edit made here independently (editing the
+        JSON-LD to match the pre-#5828 <p> copy) merged cleanly with no
+        conflict, which silently reintroduced the mismatch in reverse.
+        Caught by re-running faq-visible.test.mjs after the merge rather
+        than trusting the earlier green result; reverted this branch's
+        edit to that file entirely (now byte-identical to `main`) rather
+        than layering a second fix on top of #5828's. (Note: a later
+        merge round showed the fleet's own re-derivation approach --
+        editing the JSON-LD to match the visible copy, per the
+        kdp-royalty-calculator entry above -- is what ultimately landed
+        and stuck on `main`.)
+    mrr_end: 0
+  - venture: auto-loan-interest-deduction-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added does-married-filing-separately-get-this-deduction.html,
+        the venture's first guide page (surface-budget.mjs flagged it at
+        1 comparison / 0 guide pages). Targets a distinct, high-intent
+        search query and covers the venture's own key differentiator:
+        unlike this portfolio's no-tax-on-tips-overtime-calculator and
+        senior-deduction-calculator, married filing separately is NOT
+        excluded from this deduction -- each spouse gets an independent
+        $10,000 cap at the single-filer thresholds. Includes a worked
+        example pinned against calc.mjs where two MFS spouses at $120k
+        MAGI each ($240k combined) get a combined $12,000 deduction vs.
+        $2,000 for the same couple filing jointly at the same combined
+        MAGI. Linked from index.html and added to the venture's
+        sitemap.xml; front-door mirror regenerated (regen.mjs --verify
+        clean after).
+      - >-
+        Verified: venture's own suite 40/40; full platform/marketing +
+        platform/pages suite 1290/1290 (one failure surfaced first --
+        the guide's FAQ JSON-LD used single quotes around 'no tax on
+        tips'/'no tax on overtime' while the visible paragraph used
+        double quotes; fixed the visible copy to match the sibling
+        comparison page's existing single-quote convention, then clean);
+        gitops/tests 613 passed/25 skipped; platform/ci unittest sweep
+        (27 modules) and agent_review's test_review (21/21) both clean;
+        checklist_coverage.py and sync_tree_counts.py clean. Merged
+        origin/main once mid-session (a llms-txt-generator comparison
+        page landing concurrently); resolved the generated front-door
+        mirror conflict via regen.mjs rather than picking a side, per
+        resolve-mirror-merge.sh. No revenue or confirmed-visitor signal
+        moved -- this is marketing-surface work on an existing
+        prototype-stage venture, not a new product or a usage reading.
+      - >-
+        CI note: Actions confirmed starved this session
+        (ci_starvation.py --run 36084953418 -> runner_id: 0, 3s, no
+        steps), so ran the full local checklist above instead of relying
+        on CI, and merged PR #5843 after it came back clean.
+    mrr_end: 0
+  - venture: senior-deduction-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added why-does-the-senior-deduction-phase-out-completely.html, the
+        venture's first guide page (surface-budget.mjs flagged it at 1
+        comparison / 0 guide pages). Answers a distinct, high-intent
+        search query -- the exact MAGI where the $6,000 senior deduction
+        reaches $0 ($175,000 single/HoH/QSS, $250,000 joint, always
+        threshold + $100,000 since $6,000 / 0.06 = $100,000) -- with
+        worked examples at four MAGI points, a table showing the
+        phase-out reaches $0 at the SAME MAGI whether one or two spouses
+        qualify, and a contrast with the auto-loan-interest-deduction-
+        calculator sibling's stepped/rounded phase-out (this one is
+        continuous, no rounding cliff). All figures pinned against
+        calc.mjs. Linked from index.html and added to the venture's
+        sitemap.xml; front-door mirror regenerated (regen.mjs --verify
+        clean after).
+      - >-
+        Verified: venture's own suite 49/49; full platform/marketing +
+        platform/pages suite 1290/1290 clean on the first run (learned
+        from the auto-loan session earlier today -- ran this suite only
+        after regen.mjs had already settled, not concurrently with it, to
+        avoid the read-during-write race platform/marketing/regen.mjs's
+        own docs warn about); gitops/tests 613 passed/25 skipped;
+        platform/ci unittest sweep (27 modules) and agent_review's
+        test_review (21/21) both clean; checklist_coverage.py and
+        sync_tree_counts.py clean.
+      - >-
+        CI note: Actions confirmed starved this session
+        (ci_starvation.py --run 36084953418 -> runner_id: 0, 3s, no
+        steps), so ran the full local checklist above instead of relying
+        on CI.
+    mrr_end: 0
+  - venture: kickstarter-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped how-much-does-kickstarter-take.html, the venture's first
+        guide page. Three worked examples pinned against calc.mjs: a $50
+        pledge (5% platform fee + standard-tier 3%+$0.20 processing,
+        $4.20 total fee, 91.6% kept), a $5 micro-pledge (pledges under
+        $10 fall into the 5%+$0.05 micro processing tier instead of
+        3%+$0.20, so a smaller pledge pays a higher effective rate --
+        89% kept), and a campaign-level comparison: $10,000 raised from
+        500 backers pays $900 (9%) while the same $10,000 from 1,000
+        backers pays $1,000 (10%), because the flat per-pledge
+        processing charge is spread across twice as many transactions.
+        Linked from index.html in place of the old in-page FAQ anchor;
+        also linked the venture's existing vs-the-flat-8-10-percent-
+        rule-of-thumb.html comparison page from index for the first
+        time (it had no inbound link before this). Added to sitemap.xml.
+      - >-
+        Verified: venture's own suite 40/40 (three new page.test.mjs
+        tests: guide links back and is linked from index, worked-example
+        figures match calc.mjs to the cent, every FAQPage JSON-LD
+        question/answer is echoed verbatim in visible text); full
+        platform/marketing + platform/pages suite 1290/1290 clean after
+        regen.mjs --verify confirmed the mirror current; sync_tree_counts
+        and checklist_coverage.py both clean; faq-visible.test.mjs and
+        siblings.test.mjs spot-checked clean.
+      - >-
+        Landed as PR #5849 after four rounds of git merge origin/main
+        while the fleet kept shipping sibling guide/comparison pages
+        underneath -- each round's mirror-only conflicts (kustomization
+        .yaml, front-door/catalog.json.gz, front-door/sitemap.xml.gz)
+        resolved with resolve-mirror-merge.sh plus a manual --ours +
+        regen.mjs pass for the two front-door/ non-tools binaries the
+        script doesn't cover, exactly as CLAUDE.md's Duplicate-PRs
+        section documents. CI note: the PR's own checks all came back
+        red in ~3s; ci_starvation.py --run 36088359801 confirmed 4/6
+        jobs on runner_id: 0 (never assigned a runner), so merged on the
+        strength of the local verification above rather than CI.
+    mrr_end: 0
+  - venture: trump-account-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped how-is-a-trump-account-taxed-when-you-withdraw.html, the
+        venture's first guide page (surface-budget.mjs flagged it at 1
+        comparison / 0 guide). Three worked examples pinned against
+        calc.mjs's projectTrumpAccount: a baseline non-qualified
+        withdrawal at 18 ($166,654.30 balance, 54.0% tax-free, $9,198.52
+        income tax + $7,665.43 penalty), the same withdrawal for a
+        recognized use (penalty waived, the $9,198.52 income tax
+        unchanged -- illustrating that unlike a 529 plan, a Trump
+        Account never waives tax on withdrawal, only the 10% penalty),
+        and the sharpest illustration of the pro-rata rule: routing
+        $2,500/year of the same $5,000/year total contribution through
+        an employer instead of a family member produces the identical
+        $166,654.30 balance but cuts the tax-free fraction from 54.0% to
+        27.0%, because employer contributions create no basis at all.
+        Linked from index.html's footer and added to sitemap.xml.
+      - >-
+        Verified: venture's own suite 47/47 (5 new page.test.mjs tests:
+        guide linked from/to index, all three scenarios' figures match
+        calc.mjs to the cent, FAQPage JSON-LD matches visible FAQ text
+        verbatim); full platform/marketing + platform/pages suite
+        1290/1290 clean after regen.mjs --verify confirmed the mirror
+        current; sync_tree_counts.py, checklist_coverage.py, and
+        surface-budget.mjs --check all clean; faq-visible.test.mjs and
+        siblings.test.mjs spot-checked clean. No new venture-scores.yaml
+        row needed (existing venture, no new VENTURE.yaml).
+      - >-
+        Landed as PR #5853 with a single, clean git merge origin/main
+        (no conflicts at all -- main had not touched this venture or the
+        front-door-tools mirror's kustomization.yaml shard boundary
+        since the prior PR's merge round) and merged on the first
+        attempt. CI note: the PR's own checks again came back red in
+        ~2-3s; ci_starvation.py --run 36089021606 confirmed 4/6 jobs on
+        runner_id: 0, consistent with #5849 minutes earlier -- merged on
+        the strength of the local verification above rather than CI.
+    mrr_end: 0

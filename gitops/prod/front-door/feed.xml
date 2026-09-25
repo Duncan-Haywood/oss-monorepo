@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 371 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 372 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Break starting MRR into new, expansion, reactivation, contraction, and churned MRR, then get ending MRR, gross and net revenue retention, and your growth-to-loss quick ratio. Runs entirely in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Patreon Fee Calculator — Real Monthly Payout After Platform and Processing Fees</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/patreon-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/patreon-fee-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for Patreon creators: find real monthly take-home after your plan&#39;s platform fee (10% Standard, or 5/8/12% on a legacy Lite/Pro/Premium page) and per-charge payment processing, see whether per-creation billing is quietly costing you more in fees than monthly billing, and check how many more patrons close a monthly income gap.</summary>
   </entry>
   <entry>
     <title>PyPI Provenance Check — Which of Your Python Dependencies Lack Trusted Publishing?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: sends one real introspection query to a GraphQL endpoint URL you choose and reports whether introspection is enabled -- exposing every query, mutation, and type name, including ones no client links to. Runs in your browser when the target&#39;s CORS policy allows it, or via a zero-dependency CLI. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Mercari Fee Calculator — What You Actually Keep After the 10% Fee</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mercari-fee-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/mercari-fee-calculator</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free Mercari seller fee calculator for the current schedule (10% on item price + buyer-paid shipping, effective Jan 6 2025) and the legacy pre-2025 schedule (10% on item price plus 2.9%+$0.50 processing). Real profit, price for a target profit, and which schedule pays more. Nothing leaves your browser.</summary>
   </entry>
 </feed>

@@ -824,9 +824,18 @@ const RELATIVE_SELF = relative(
 // same opt-out toggle shape as `subscription-price-impact`'s
 // (`recordUsage`/`readOptOut`/`writeOptOut` gating localStorage writes,
 // keyed under its own `mrr-waterfall-calculator-usage-v1` storage name).
+//
+// 350 -> 351 on this merge: `patreon-fee-calculator` also graduated,
+// concurrently and invisibly to the `mrr-waterfall-calculator` branch
+// above -- adding one more `usage.mjs`
+// (`ventures/patreon-fee-calculator/usage.mjs`) following the same
+// opt-out toggle shape as its `twitch-payout-calculator` sibling
+// (`recordEvent`/`toggleUsage`/`usageAllowed` gating localStorage writes,
+// keyed under its own `patreon-fee-calculator-usage` storage name). Both
+// additions are real, taking 349 to 351.
 // Exactly one added `usage.mjs`, no deletions. Re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 350;
+const SWITCHES_IN_THE_CATALOGUE = 351;
 
 let counter = 0;
 function fixture(source) {

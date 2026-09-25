@@ -830,6 +830,9 @@ workflows:
 - workflow: patio-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: patreon-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: paver-patio-bid-calculator-ci.yml
   classification: none
   publishes: []
