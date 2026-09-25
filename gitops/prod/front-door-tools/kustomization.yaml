@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545706 bytes
-#   portfolio-front-tools-1: 92 files, 554470 bytes
-#   portfolio-front-tools-2: 145 files, 557044 bytes
-#   portfolio-front-tools-3: 131 files, 556628 bytes
-#   portfolio-front-tools-4: 143 files, 556574 bytes
-#   portfolio-front-tools-5: 124 files, 553411 bytes
-#   portfolio-front-tools-6: 131 files, 554636 bytes
-#   portfolio-front-tools-7: 136 files, 554480 bytes
-#   portfolio-front-tools-8: 122 files, 555856 bytes
-#   portfolio-front-tools-9: 135 files, 556120 bytes
-#   portfolio-front-tools-10: 131 files, 549008 bytes
-#   portfolio-front-tools-11: 124 files, 556370 bytes
-#   portfolio-front-tools-12: 117 files, 550085 bytes
-#   portfolio-front-tools-13: 121 files, 556453 bytes
-#   portfolio-front-tools-14: 129 files, 555962 bytes
-#   portfolio-front-tools-15: 127 files, 540612 bytes
-#   portfolio-front-tools-16: 134 files, 552925 bytes
-#   portfolio-front-tools-17: 121 files, 554401 bytes
-#   portfolio-front-tools-18: 104 files, 554702 bytes
-#   portfolio-front-tools-19: 123 files, 556585 bytes
-#   portfolio-front-tools-20: 128 files, 555972 bytes
-#   portfolio-front-tools-21: 71 files, 342440 bytes
-#   portfolio-front-tools-22: 50 files, 264868 bytes
+#   portfolio-front-tools-0: 145 files, 545718 bytes
+#   portfolio-front-tools-1: 92 files, 554476 bytes
+#   portfolio-front-tools-2: 145 files, 557046 bytes
+#   portfolio-front-tools-3: 131 files, 556632 bytes
+#   portfolio-front-tools-4: 143 files, 556573 bytes
+#   portfolio-front-tools-5: 124 files, 553405 bytes
+#   portfolio-front-tools-6: 131 files, 554630 bytes
+#   portfolio-front-tools-7: 136 files, 554586 bytes
+#   portfolio-front-tools-8: 122 files, 555913 bytes
+#   portfolio-front-tools-9: 135 files, 556100 bytes
+#   portfolio-front-tools-10: 131 files, 548921 bytes
+#   portfolio-front-tools-11: 124 files, 554068 bytes
+#   portfolio-front-tools-12: 120 files, 555753 bytes
+#   portfolio-front-tools-13: 119 files, 555934 bytes
+#   portfolio-front-tools-14: 129 files, 555256 bytes
+#   portfolio-front-tools-15: 130 files, 552886 bytes
+#   portfolio-front-tools-16: 134 files, 552930 bytes
+#   portfolio-front-tools-17: 121 files, 554517 bytes
+#   portfolio-front-tools-18: 104 files, 554709 bytes
+#   portfolio-front-tools-19: 123 files, 556660 bytes
+#   portfolio-front-tools-20: 128 files, 555949 bytes
+#   portfolio-front-tools-21: 71 files, 342428 bytes
+#   portfolio-front-tools-22: 50 files, 264884 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1616,6 +1616,10 @@ configMapGenerator:
       - furnace-bid-calculator__usage.mjs.gz=furnace-bid-calculator__usage.mjs.gz
       - furnace-bid-calculator__vs-a-flat-2495-furnace-special.html.gz=furnace-bid-calculator__vs-a-flat-2495-furnace-special.html.gz
       - furnace-bid-calculator__vs-servicetitan.html.gz=furnace-bid-calculator__vs-servicetitan.html.gz
+      - gambling-loss-deduction-calculator__calc.mjs.gz=gambling-loss-deduction-calculator__calc.mjs.gz
+      - gambling-loss-deduction-calculator__index.html.gz=gambling-loss-deduction-calculator__index.html.gz
+      - gambling-loss-deduction-calculator__usage.mjs.gz=gambling-loss-deduction-calculator__usage.mjs.gz
+      - gambling-loss-deduction-calculator__vs-doing-the-math-by-hand.html.gz=gambling-loss-deduction-calculator__vs-doing-the-math-by-hand.html.gz
       - garage-door-bid-calculator__calc.mjs.gz=garage-door-bid-calculator__calc.mjs.gz
       - garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz=garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz
       - garage-door-bid-calculator__how-much-to-charge-to-replace-a-garage-door.html.gz=garage-door-bid-calculator__how-much-to-charge-to-replace-a-garage-door.html.gz
@@ -1688,15 +1692,15 @@ configMapGenerator:
       - helm-values-schema-check__vs-helm-lint.html.gz=helm-values-schema-check__vs-helm-lint.html.gz
       - helm-values-schema-check__why-helm-silently-accepts-a-typo-in-values-yaml.html.gz=helm-values-schema-check__why-helm-silently-accepts-a-typo-in-values-yaml.html.gz
       - helm-values-schema-check__yaml.mjs.gz=helm-values-schema-check__yaml.mjs.gz
-      - hidden-unicode-check__calc.mjs.gz=hidden-unicode-check__calc.mjs.gz
-      - hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz=hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz
-      - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
-      - hidden-unicode-check__usage.mjs.gz=hidden-unicode-check__usage.mjs.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hidden-unicode-check__calc.mjs.gz=hidden-unicode-check__calc.mjs.gz
+      - hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz=hidden-unicode-check__how-to-remove-hidden-unicode-characters.html.gz
+      - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
+      - hidden-unicode-check__usage.mjs.gz=hidden-unicode-check__usage.mjs.gz
       - hidden-unicode-check__vs-mcp-scan.html.gz=hidden-unicode-check__vs-mcp-scan.html.gz
       - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
@@ -1813,12 +1817,12 @@ configMapGenerator:
       - irrigation-winterization-bid-calculator__vs-jobber.html.gz=irrigation-winterization-bid-calculator__vs-jobber.html.gz
       - janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz=janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz
       - janitorial-bid-calculator__area-name.mjs.gz=janitorial-bid-calculator__area-name.mjs.gz
-      - janitorial-bid-calculator__calc.mjs.gz=janitorial-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - janitorial-bid-calculator__calc.mjs.gz=janitorial-bid-calculator__calc.mjs.gz
       - janitorial-bid-calculator__index.html.gz=janitorial-bid-calculator__index.html.gz
       - janitorial-bid-calculator__second-site.html.gz=janitorial-bid-calculator__second-site.html.gz
       - janitorial-bid-calculator__second-site.mjs.gz=janitorial-bid-calculator__second-site.mjs.gz
@@ -1937,14 +1941,14 @@ configMapGenerator:
       - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
       - mcp-supply-chain-watch__index.html.gz=mcp-supply-chain-watch__index.html.gz
       - mcp-supply-chain-watch__usage.mjs.gz=mcp-supply-chain-watch__usage.mjs.gz
-      - mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz=mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz
-      - mcp-supply-chain-watch__vs-snyk.html.gz=mcp-supply-chain-watch__vs-snyk.html.gz
-      - mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz=mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz=mcp-supply-chain-watch__vs-comparing-manifests-by-eye.html.gz
+      - mcp-supply-chain-watch__vs-snyk.html.gz=mcp-supply-chain-watch__vs-snyk.html.gz
+      - mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz=mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz
       - mega-backdoor-roth-calculator__calc.mjs.gz=mega-backdoor-roth-calculator__calc.mjs.gz
       - mega-backdoor-roth-calculator__index.html.gz=mega-backdoor-roth-calculator__index.html.gz
       - mega-backdoor-roth-calculator__vs-doing-the-math-by-hand.html.gz=mega-backdoor-roth-calculator__vs-doing-the-math-by-hand.html.gz
@@ -2071,14 +2075,14 @@ configMapGenerator:
       - openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz=openapi-breaking-change-check__why-does-adding-an-enum-count-as-breaking.html.gz
       - osha-trir-dart-calculator__calc.mjs.gz=osha-trir-dart-calculator__calc.mjs.gz
       - osha-trir-dart-calculator__how-to-calculate-trir.html.gz=osha-trir-dart-calculator__how-to-calculate-trir.html.gz
-      - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
-      - osha-trir-dart-calculator__usage.mjs.gz=osha-trir-dart-calculator__usage.mjs.gz
-      - osha-trir-dart-calculator__vs-spreadsheet.html.gz=osha-trir-dart-calculator__vs-spreadsheet.html.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - osha-trir-dart-calculator__index.html.gz=osha-trir-dart-calculator__index.html.gz
+      - osha-trir-dart-calculator__usage.mjs.gz=osha-trir-dart-calculator__usage.mjs.gz
+      - osha-trir-dart-calculator__vs-spreadsheet.html.gz=osha-trir-dart-calculator__vs-spreadsheet.html.gz
       - overtime-pay-calculator__calc.mjs.gz=overtime-pay-calculator__calc.mjs.gz
       - overtime-pay-calculator__index.html.gz=overtime-pay-calculator__index.html.gz
       - overtime-pay-calculator__usage.mjs.gz=overtime-pay-calculator__usage.mjs.gz
