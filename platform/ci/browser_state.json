@@ -4,44 +4,6 @@
       "checks": [
         "contrast",
         "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "92414dfe4c94faea1be420621011c1065b560b5e",
-      "measured": "2026-09-24",
-      "pages": 1489,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "d90469d33f48a0e0991c8179c2302706ed010b91",
-        "platform/pages": "94b24103c1905ab29b3754ade7b2cf432d8eb41a",
-        "ventures": "656ecfddcf8136e1a6d7fa154bf70c0da9a29053"
-      }
-    },
-    {
-      "checks": [
-        "journey",
-        "sweep"
-      ],
-      "commit": "b26adf4e14d572f804784fa65de101885fb0ba5d",
-      "measured": "2026-09-24",
-      "pages": 1490,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "d90469d33f48a0e0991c8179c2302706ed010b91",
-        "platform/pages": "94b24103c1905ab29b3754ade7b2cf432d8eb41a",
-        "ventures": "0d0ff8f0793431f9e86e36ff7ae2fca94f7a0c84"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
         "optout",
         "presets",
         "roundtrip",
@@ -452,6 +414,28 @@
         "platform/marketing": "5dff75665fc817a99dc6a65631d7b02b061701c3",
         "platform/pages": "3575170f1653acd89c5303c0656f49a4dbf48b27",
         "ventures": "a4a28046a5896479b56846bcc33e5eefecd45d3a"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "d61e9c95acaa875aee5e55aecb1aef29b8483878",
+      "measured": "2026-09-25",
+      "pages": 1675,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "5dff75665fc817a99dc6a65631d7b02b061701c3",
+        "platform/pages": "434fea5129f2ddb8d2cc2cdecd351a34a64d6bbc",
+        "ventures": "23a08a832b5c744b1c6e0bffcb9f6edd7f4bf471"
       }
     }
   ]
