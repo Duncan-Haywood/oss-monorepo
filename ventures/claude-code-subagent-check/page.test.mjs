@@ -104,7 +104,7 @@ test("the example is present in the script source", () => {
 
 test("sitemap lists every published page and no extras", () => {
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs.sort(), ["./"]);
+  assert.deepEqual(locs.sort(), ["./", "./vs-reading-the-subagent-file-by-eye.html"]);
 });
 
 test("robots.txt allows crawling", () => {
