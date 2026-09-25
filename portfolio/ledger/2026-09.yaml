@@ -45406,3 +45406,76 @@ entries:
         strength of local verification per CLAUDE.md's starvation
         checklist.
     mrr_end: 0
+  - venture: estate-tax-exemption-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled/automated session (session_gate.py: build-now queue
+        empty, PROCEED verdict; no in-progress venture work). Per
+        DIRECTION.md's standing owner direction, screened and shipped a
+        fresh new venture rather than a parity feature on an existing one.
+        Picked the OBBBA's permanent 2026 federal estate/gift/GST tax
+        basic exclusion amount ($15,000,000 per person, $30,000,000
+        married with portability): duplicate_check.py scored every
+        venture, screened-out row, ai-first-markets idea, and pipeline
+        candidate at 0.13 or below (closest match trump-account-calculator
+        -- shares only general OBBBA vocabulary), well under the 0.45
+        review bar, and a grep of the whole ventures/ tree for "estate
+        tax", "gift tax", and "generation-skipping" returned no matches
+        before this venture was created.
+      - >-
+        Mechanics verified via WebSearch 2026-09-25 against the IRS's own
+        newsroom release ("IRS releases tax inflation adjustments for tax
+        year 2026, including amendments from the One, Big, Beautiful
+        Bill"), Morgan Lewis, Spencer Fane, Bowditch & Dewey, and Haynes
+        Boone, cross-checked against each other: the $15,000,000 basic
+        exclusion is permanent with no sunset (replacing a scheduled
+        reversion to roughly $7,000,000), portability (DSUE) is not
+        automatic and requires a timely Form 706 election, the GST
+        exemption shares the same $15,000,000 figure but has never been
+        portable between spouses (the detail most consumer-facing
+        explainers get backwards or omit), lifetime taxable gifts reduce
+        the exclusion available at death (one unified bucket), and the
+        federal rate above the exclusion is a flat 40%.
+      - >-
+        Shipped a free, static, browser-local calculator projecting
+        federal estate tax exposure from a gross estate, prior taxable
+        gifts, filing status, and any DSUE elected, with explicit findings
+        for the portability reminder, gifts-exceed-exclusion case, and the
+        GST non-portability and state-estate-tax-out-of-scope flags. Ships
+        LICENSE, README with the required value sentence and disclaimer,
+        VENTURE.yaml with untested hypotheses and kill_criteria, calc.mjs
+        (17 test assertions) plus usage.mjs/page.test.mjs (38 total across
+        the venture), index.html with FAQPage/SoftwareApplication JSON-LD
+        matching the visible copy, the required
+        vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT), an opt-out local
+        usage counter honouring DNT/GPC, robots.txt/sitemap.xml, and a
+        dedicated CI workflow.
+      - >-
+        Filed into build.mjs's backoffice category next to its nearest
+        sibling, trump-account-calculator (another brand-new federal
+        OBBBA wealth-transfer provision -- a parent-to-child savings
+        account rather than the lifetime estate/gift exclusion),
+        reciprocal link added both ways. launched.json, publish-
+        surface.yaml, and a scoring row in venture-scores.yaml added up
+        front this time. Mirror regenerated (376 mirrored tools), tree
+        counts synced (376 mirrored tools, 355 opt-out switches, with the
+        running-comment entries recording why each moved), gitops/ci
+        README's runs-on count synced via sync_readme_counts.py (470 of
+        472 across 431 workflows).
+      - >-
+        Verified: venture's own suite 38/38; full platform/marketing +
+        platform/pages suite 1290/1290; platform/privacy +
+        platform/webcheck 142/142; checklist_coverage.py,
+        surface-budget.mjs --for (1 generic-method page, at budget),
+        regen.mjs --verify, score_ventures.py --check (384 scores) all
+        clean; platform/ci unittest (26 modules) all pass;
+        agent_review unittest 21/21; gitops/tests pytest 637 passed/1
+        skipped; portfolio/ledger+scoring+router+usage+pipeline and
+        infra/tests pytest all pass. CI starved this session
+        (ci_starvation.py --run 36101488985 confirmed runner_id: 0 on the
+        most recent main push) -- merged on the strength of local
+        verification per CLAUDE.md's starvation checklist.
+    mrr_end: 0

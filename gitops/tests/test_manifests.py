@@ -2623,7 +2623,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # ceiling, plus a vs-doing-the-math-by-hand.html comparison page.
     # Static `index.html` plus one docs/comparison page from its first
     # commit, same shape as the rest of this running count.
-    total = 375  # `infra/OWNER_CHECKLIST.md`'s own "N of the 375 tools" wording.
+    #
+    # 375 -> 376: `estate-tax-exemption-calculator` also graduated -- a
+    # browser-local calculator projecting federal estate tax exposure
+    # under OBBBA's permanent 2026 $15,000,000 basic exclusion amount
+    # (up to $30,000,000 married with portability), plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    total = 376  # `infra/OWNER_CHECKLIST.md`'s own "N of the 376 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

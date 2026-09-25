@@ -858,7 +858,15 @@ const RELATIVE_SELF = relative(
 // `usageOptedOut` gating localStorage writes, keyed under its own
 // `charitable-deduction-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 354;
+//
+// 354 -> 355: `estate-tax-exemption-calculator` also graduated -- adding
+// one more `usage.mjs` (`ventures/estate-tax-exemption-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `estate-tax-exemption-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 355;
 
 let counter = 0;
 function fixture(source) {
