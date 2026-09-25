@@ -18122,3 +18122,53 @@ ventures:
       never touches authentication, payment collection, or payout
       movement -- it is read-only arithmetic on figures the creator
       already has.
+  - slug: salt-cap-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 5.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a
+      deterministic cap-and-phase-out calculation against published
+      statutory dollar figures, never an inference step. time_to_revenue
+      ties it at 1: donations-only, same as most other ventures in this
+      file with no paid tier.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.34 -- no existing venture combines the SALT
+      itemized-deduction cap, its filing-status equality point, and the
+      MAGI-based phase-out floor. autonomous_ops and gross_margin score 10
+      for the same reason as its sibling OBBBA calculators: a static page
+      with a pure-function calculator, $0 marginal cost, no server,
+      nothing to operate. defensibility scores 2 -- the arithmetic is
+      published federal law anyone could replicate, same gate class as
+      every other deterministic tax-rules calculator in this file.
+      distribution scores 7, a point above its closest OBBBA siblings: the
+      SALT cap was the single most widely covered OBBBA provision found
+      during this session's research (nine independent CPA-firm and
+      financial-media explainers, plus one existing competing calculator),
+      and it applies to every itemizing taxpayer in a high-tax state
+      rather than a narrower age- or purchase-triggered population.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (filing status, MAGI, state and local tax
+      paid) is a figure the filer already has or is instructed to get from
+      their own return; output is a capped-deduction estimate against
+      published statutory dollar figures, never a filed election or a
+      claim about the filer's MAGI, itemizing decision, or a state's PTET
+      election, each of which is explicitly flagged as out of scope rather
+      than silently assumed. No warranty and no-advice disclaimers appear
+      on every page. Ethics: purely informational, helps a taxpayer
+      understand a real, easy-to-get-wrong phase-out; no scraped or
+      personal data, nothing adversarial, scales with zero externality --
+      one filer's calculation does not affect another's.

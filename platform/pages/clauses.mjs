@@ -2116,6 +2116,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or tax-prep product. Same reasoning as section-174a-catchup-calculator's
   // own vs-doing-the-math-by-hand.html right above.
   'bonus-depreciation-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the SALT deduction cap phase-out by
+  // hand -- a generic method every itemizing filer or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as bonus-depreciation-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'salt-cap-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2321,6 +2328,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names a real field-service platform and carries the trademark
   // disclaimer.
   'spray-foam-bid-calculator/vs-a-flat-per-square-foot-price.html',
+  // Compares against "comparing the quoted rates by eye" -- reading two
+  // per-job numbers off a rate card and picking the lower one -- a generic
+  // habit any operator comparing vendor quotes already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-crest-capital.html, which names Crest Capital and carries the
+  // trademark/affiliation disclaimer.
+  'vendor-rate-break-even/vs-comparing-rates-by-eye.html',
+  // Compares against "pricing a move-out at the tenant's rent" -- a generic
+  // mental model every self-storage operator already reaches for, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-sitelink.html, which names SiteLink/Storable and
+  // carries the trademark disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
