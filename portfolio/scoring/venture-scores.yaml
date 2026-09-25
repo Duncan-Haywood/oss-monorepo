@@ -18658,3 +18658,118 @@ ventures:
       are already entitled to; no scraped or personal data, nothing
       adversarial, scales with zero externality -- one filer's estimate
       does not affect another's.
+  - slug: final-paycheck-deadline-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a fixed
+      state-statute lookup and calendar arithmetic on the date the user
+      types, never an inference step.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.11 -- call-recording-consent-check is the
+      closest existing venture and checks a different question (one-party
+      vs. all-party recording consent, not final-pay timing), sharing only
+      the "US-jurisdiction employment-law reference table with an explicit
+      not-a-determination disclaimer" archetype. autonomous_ops and
+      gross_margin score 10 for the same reason as this portfolio's other
+      deterministic-table calculators: a static page with a pure-function
+      lookup, $0 marginal cost, no server, nothing to operate.
+      defensibility scores 3, matching exempt-salary-threshold-checker's
+      own reasoning: the eleven-state table and the California/Minnesota
+      branch rules are easy to reproduce once someone reads the underlying
+      state statutes and agency guidance -- the moat is being first with
+      the specific framing, not the arithmetic itself. distribution scores
+      7: unlike a narrow, industry-specific compliance topic, every
+      employer with any termination or resignation eventually faces this
+      question, it recurs continuously rather than once a year like a
+      dollar-threshold figure, and it is a perennial, heavily-published
+      HR-compliance topic this session confirmed via live WebSearch
+      against nine-plus independent sources (state statute citations,
+      state labor-department pages, and multiple payroll-compliance and
+      employment-law explainers). No search-volume tool was queried to
+      confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (state, separation type, dates, optional
+      accrued-hours/rate) is a figure the employer already has; output is
+      a deadline-date lookup against published state statutes, never a
+      determination of which state's law actually governs -- explicitly
+      flagged as out of scope in three places (intro, dedicated section,
+      footer) rather than silently assumed, and the page names a qualified
+      employment attorney as the source to verify against. No warranty and
+      no-advice disclaimers appear on every page. Ethics: purely
+      informational, helps an employer avoid a real, easy-to-get-wrong
+      wage-and-hour violation; no scraped or personal data, nothing
+      adversarial, scales with zero externality -- one employer's
+      calculation does not affect another's.
+  - slug: freelance-writer-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a
+      deterministic hours/rate arithmetic comparison against the writer's
+      own inputs, never an inference step, the same floor class as every
+      other calculator in this file.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.15 -- no existing venture compares a
+      freelance writer's per-word rate against a flat project fee for the
+      same job (the fleet's other freelance/creator tools price a
+      different decision: freelance-platform-fee-calculator compares
+      Upwork vs. Fiverr's platform cut, freelance-retainer-calculator
+      compares a retainer against hourly billing, and
+      voiceover-project-rate-calculator prices a different profession
+      entirely). autonomous_ops and gross_margin score 10 for the same
+      reason as every other browser calculator in this file: a static
+      page with a pure-function calculator, $0 marginal cost, no server,
+      nothing to operate. time_to_revenue and defensibility and
+      distribution are scored identically to voiceover-project-rate-
+      calculator, the closest sibling by shape (a solo creative
+      professional turning their own job inputs into a defensible rate):
+      time_to_revenue 6 and defensibility 3 (the arithmetic itself is
+      simple and replicable, but the specific per-word-vs-flat-fee
+      framing combined with research/revision time is not something an
+      existing rate-guide article does interactively), distribution 6 (a
+      real, searchable audience of freelance writers and copywriters
+      deciding between two pricing models, evidenced by multiple 2026
+      rate-guide sources discussing the trade-off in prose, but narrower
+      than a tool serving every taxpayer or every gig driver).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (word count, writing speed, research hours,
+      revision rounds, the two prices on offer) is a figure the writer
+      already has or estimates themselves; output is an effective-hourly-
+      rate comparison for the job as described, never a claim about what
+      a specific client will pay or a guarantee of market rates, both
+      explicitly flagged as out of scope in the "what this does not
+      cover" section rather than silently assumed. No warranty and
+      not-advice disclaimers appear on the page. Ethics: purely
+      informational, helps a freelancer understand which of two prices
+      they were already offered pays more per hour; no scraped or
+      personal data, nothing adversarial, scales with zero externality --
+      one writer's calculation does not affect another's.
