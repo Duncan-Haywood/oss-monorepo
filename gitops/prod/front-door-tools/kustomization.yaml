@@ -48,13 +48,13 @@
 #   portfolio-front-tools-12: 119 files, 556602 bytes
 #   portfolio-front-tools-13: 120 files, 555819 bytes
 #   portfolio-front-tools-14: 127 files, 553181 bytes
-#   portfolio-front-tools-15: 131 files, 554438 bytes
-#   portfolio-front-tools-16: 135 files, 556732 bytes
-#   portfolio-front-tools-17: 127 files, 553947 bytes
-#   portfolio-front-tools-18: 102 files, 545248 bytes
-#   portfolio-front-tools-19: 117 files, 556292 bytes
-#   portfolio-front-tools-20: 130 files, 554525 bytes
-#   portfolio-front-tools-21: 99 files, 473345 bytes
+#   portfolio-front-tools-15: 130 files, 549451 bytes
+#   portfolio-front-tools-16: 134 files, 553572 bytes
+#   portfolio-front-tools-17: 127 files, 548477 bytes
+#   portfolio-front-tools-18: 102 files, 553387 bytes
+#   portfolio-front-tools-19: 117 files, 555166 bytes
+#   portfolio-front-tools-20: 130 files, 556260 bytes
+#   portfolio-front-tools-21: 102 files, 482512 bytes
 #   portfolio-front-tools-22: 50 files, 264874 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2090,6 +2090,7 @@ configMapGenerator:
       - oidc-trust-policy-check__index.html.gz=oidc-trust-policy-check__index.html.gz
       - oidc-trust-policy-check__sub-claim-and-wildcard-traps.html.gz=oidc-trust-policy-check__sub-claim-and-wildcard-traps.html.gz
       - oidc-trust-policy-check__usage.mjs.gz=oidc-trust-policy-check__usage.mjs.gz
+      - oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz=oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz
       - oidc-trust-policy-check__vs-wiz.html.gz=oidc-trust-policy-check__vs-wiz.html.gz
       - openapi-breaking-change-check__diff.mjs.gz=openapi-breaking-change-check__diff.mjs.gz
       - openapi-breaking-change-check__index.html.gz=openapi-breaking-change-check__index.html.gz
@@ -2203,13 +2204,13 @@ configMapGenerator:
       - pinned-actions-check__check.py.gz=pinned-actions-check__check.py.gz
       - pinned-actions-check__classify.mjs.gz=pinned-actions-check__classify.mjs.gz
       - pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz=pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz
-      - pinned-actions-check__index.html.gz=pinned-actions-check__index.html.gz
-      - pinned-actions-check__usage.mjs.gz=pinned-actions-check__usage.mjs.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pinned-actions-check__index.html.gz=pinned-actions-check__index.html.gz
+      - pinned-actions-check__usage.mjs.gz=pinned-actions-check__usage.mjs.gz
       - pinned-actions-check__vs-openssf-scorecard.html.gz=pinned-actions-check__vs-openssf-scorecard.html.gz
       - pinned-actions-check__vs-reading-the-workflow-yaml-by-hand.html.gz=pinned-actions-check__vs-reading-the-workflow-yaml-by-hand.html.gz
       - plantation-shutter-bid-calculator__calc.mjs.gz=plantation-shutter-bid-calculator__calc.mjs.gz
@@ -2342,14 +2343,14 @@ configMapGenerator:
       - quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz=quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz
       - quote-margin-check__summary.mjs.gz=quote-margin-check__summary.mjs.gz
       - quote-margin-check__usage.mjs.gz=quote-margin-check__usage.mjs.gz
-      - quote-margin-check__vs-bonsai.html.gz=quote-margin-check__vs-bonsai.html.gz
-      - quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz=quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz
-      - radon-mitigation-bid-calculator__calc.mjs.gz=radon-mitigation-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - quote-margin-check__vs-bonsai.html.gz=quote-margin-check__vs-bonsai.html.gz
+      - quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz=quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz
+      - radon-mitigation-bid-calculator__calc.mjs.gz=radon-mitigation-bid-calculator__calc.mjs.gz
       - radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz=radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz
       - radon-mitigation-bid-calculator__index.html.gz=radon-mitigation-bid-calculator__index.html.gz
       - radon-mitigation-bid-calculator__share.mjs.gz=radon-mitigation-bid-calculator__share.mjs.gz
@@ -2474,14 +2475,14 @@ configMapGenerator:
       - senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz=senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
-      - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
-      - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
-      - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
+      - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
+      - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
       - septic-pumping-bid-calculator__vs-a-flat-pump-special.html.gz=septic-pumping-bid-calculator__vs-a-flat-pump-special.html.gz
       - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
       - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
@@ -2581,14 +2582,14 @@ configMapGenerator:
       - slopsquatting-check__usage.mjs.gz=slopsquatting-check__usage.mjs.gz
       - slopsquatting-check__vs-checking-package-names-by-eye.html.gz=slopsquatting-check__vs-checking-package-names-by-eye.html.gz
       - slopsquatting-check__vs-socket.html.gz=slopsquatting-check__vs-socket.html.gz
-      - slopsquatting-check__what-is-slopsquatting.html.gz=slopsquatting-check__what-is-slopsquatting.html.gz
-      - snow-removal-bid-calculator__calc.mjs.gz=snow-removal-bid-calculator__calc.mjs.gz
-      - snow-removal-bid-calculator__how-much-to-charge.html.gz=snow-removal-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - slopsquatting-check__what-is-slopsquatting.html.gz=slopsquatting-check__what-is-slopsquatting.html.gz
+      - snow-removal-bid-calculator__calc.mjs.gz=snow-removal-bid-calculator__calc.mjs.gz
+      - snow-removal-bid-calculator__how-much-to-charge.html.gz=snow-removal-bid-calculator__how-much-to-charge.html.gz
       - snow-removal-bid-calculator__index.html.gz=snow-removal-bid-calculator__index.html.gz
       - snow-removal-bid-calculator__share.mjs.gz=snow-removal-bid-calculator__share.mjs.gz
       - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
@@ -2703,14 +2704,14 @@ configMapGenerator:
       - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
       - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
-      - stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
-      - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
-      - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
+      - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
+      - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
       - subdomain-takeover-check__check.mjs.gz=subdomain-takeover-check__check.mjs.gz
       - subdomain-takeover-check__fingerprints.mjs.gz=subdomain-takeover-check__fingerprints.mjs.gz
       - subdomain-takeover-check__index.html.gz=subdomain-takeover-check__index.html.gz
@@ -2838,14 +2839,14 @@ configMapGenerator:
       - vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz=vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
-      - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
-      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
-      - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
+      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
+      - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
