@@ -100,6 +100,15 @@ test('index links back to security-txt-check, closing the sibling pair', () => {
   assert.match(html, /href="\.\.\/security-txt-check\/"/);
 });
 
+// referrer-permissions-policy-check is new and links here as its own
+// nearest sibling; this is the return half of that pair. Asserted rather
+// than left to a footer edit for the same reason as security-txt-check
+// above: siblings.mjs's orphan budget is 0, so dropping the link silently
+// turns a run red.
+test('index links to referrer-permissions-policy-check, closing the sibling pair', () => {
+  assert.match(html, /href="\.\.\/referrer-permissions-policy-check\/"/);
+});
+
 test('a worked-example button exists as an alternative to running the CLI first', () => {
   assert.match(html, /id="load-example"/);
 });

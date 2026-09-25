@@ -981,6 +981,9 @@ workflows:
 - workflow: redirect-chain-check-ci.yml
   classification: none
   publishes: []
+- workflow: referrer-permissions-policy-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []
