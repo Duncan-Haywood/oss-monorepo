@@ -44050,6 +44050,40 @@ entries:
         this is marketing-surface work on an existing prototype-stage
         venture, not a new product or a usage reading.
     mrr_end: 0
+  - venture: kdp-royalty-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "how much does KDP take" worked-example guide page (#5827)
+        -- the venture had zero guide pages of this shape. Covers the 70%
+        royalty plan's per-MB delivery fee and the sharper point: the
+        $2.99 eligibility floor means a $2.00 ebook doesn't get a smaller
+        slice of 70%, it drops onto the separate 35% plan entirely
+        ($0.70 vs. $3.193 on a $4.99 book). All figures pinned by a test
+        against calc.mjs's real output.
+      - >-
+        Also fixed a real, pre-existing defect surfaced by faq-visible.test.mjs
+        while merging: pypi-provenance-check/index.html's hand-authored
+        FAQPage JSON-LD had drifted from its visible prose (not just
+        punctuation -- substantively different wording), twice, as two
+        other concurrent sessions each independently rewrote the visible
+        copy without updating the JSON-LD alongside it. Re-derived the
+        JSON-LD from the current visible h3/p pairs each time the drift
+        reappeared across three merge rounds, verified clean each time.
+      - >-
+        Chose an existing-venture guide page over a new venture again this
+        session, per the same collision-cost reasoning recorded for the
+        prior facebook-marketplace-fee-calculator guide page: confirmed
+        by the ~7 merge rounds this PR itself still needed (fleet
+        continued graduating new ventures throughout), none of which
+        touched build.mjs/test_manifests.py/optout-persistence.test.mjs/
+        venture-scores.yaml -- all the conflict volume was in the
+        generated mirror, resolved mechanically each round via
+        resolve-mirror-merge.sh + regen.mjs. Refreshed the published
+        GitHub Pages snapshot after merging. Revenue and confirmed-visitor
+        counts remain at zero.
+    mrr_end: 0
   - venture: llms-txt-generator
     agent_spend_usd: null
     human_hours: 0
@@ -44101,5 +44135,9 @@ entries:
         Caught by re-running faq-visible.test.mjs after the merge rather
         than trusting the earlier green result; reverted this branch's
         edit to that file entirely (now byte-identical to `main`) rather
-        than layering a second fix on top of #5828's.
+        than layering a second fix on top of #5828's. (Note: a later
+        merge round showed the fleet's own re-derivation approach --
+        editing the JSON-LD to match the visible copy, per the
+        kdp-royalty-calculator entry above -- is what ultimately landed
+        and stuck on `main`.)
     mrr_end: 0
