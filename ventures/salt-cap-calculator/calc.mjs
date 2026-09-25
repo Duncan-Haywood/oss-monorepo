@@ -66,9 +66,71 @@ export const SALT_FLOOR_MFS = 5_000;
 
 export const PHASEOUT_RATE = 0.30;
 
+// 2025 figures are OBBBA's own increase, effective for 2025-2028 (a fifth,
+// larger senior-specific bonus aside). 2026 figures are the IRS's published
+// inflation adjustment (Rev. Proc. 2025-32 / IRS 2026 inflation-adjustment
+// release), a ~2.2% rise consistent with the chained-CPI adjustments this
+// portfolio's other 2025/2026 calculators already use. "mfs" duplicates
+// "single" here (both $15,750/$16,100) rather than reusing one key, so a
+// caller can index this table by filing status exactly as it indexes
+// SALT_CAP_RULES without a special case.
+export const STANDARD_DEDUCTION = {
+  2025: { single: 15_750, mfs: 15_750, hoh: 23_625, mfj: 31_500 },
+  2026: { single: 16_100, mfs: 16_100, hoh: 24_150, mfj: 32_200 },
+};
+
 function num(v) {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
+}
+
+/** The standard deduction for a filing status and tax year. */
+export function standardDeductionFor({ filingStatus = "single", taxYear = 2025 } = {}) {
+  const table = STANDARD_DEDUCTION[taxYear] || STANDARD_DEDUCTION[2025];
+  return table[filingStatus] ?? table.single;
+}
+
+/**
+ * Isolates how much of a SALT deduction is genuine ADDITIONAL tax savings,
+ * as opposed to ground the standard deduction would have covered anyway.
+ *
+ * A filer only benefits from itemizing at all once total itemized
+ * deductions exceed the standard deduction -- and even then, only the
+ * SALT-specific slice that pushes them past what they would have claimed
+ * without it is SALT's own contribution. Comparing "SALT deduction" to
+ * "cap after phase-out" (what saltCapOutcome reports) answers a different
+ * question than this: a filer can have a large capped SALT deduction and
+ * still get zero marginal benefit from it, if their other itemized
+ * deductions plus SALT still don't clear the standard deduction.
+ */
+export function itemizeVsStandardBenefit({
+  filingStatus = "single",
+  taxYear = 2025,
+  saltDeduction = 0,
+  otherItemizedDeductions = 0,
+} = {}) {
+  const standardDeduction = standardDeductionFor({ filingStatus, taxYear });
+  const salt = Math.max(0, num(saltDeduction));
+  const other = Math.max(0, num(otherItemizedDeductions));
+  const totalItemized = salt + other;
+
+  // What the filer gets with SALT in the picture, vs. what they would have
+  // gotten without it -- each is "the larger of itemizing or the standard
+  // deduction" evaluated on its own set of itemized deductions.
+  const bestWithSalt = Math.max(totalItemized, standardDeduction);
+  const bestWithoutSalt = Math.max(other, standardDeduction);
+  const marginalBenefit = bestWithSalt - bestWithoutSalt;
+
+  return {
+    standardDeduction,
+    totalItemized,
+    itemizes: totalItemized > standardDeduction,
+    bestWithSalt,
+    bestWithoutSalt,
+    marginalBenefit,
+    fullyAdditive: marginalBenefit === salt,
+    whollyAbsorbed: salt > 0 && marginalBenefit === 0,
+  };
 }
 
 export function money(n) {

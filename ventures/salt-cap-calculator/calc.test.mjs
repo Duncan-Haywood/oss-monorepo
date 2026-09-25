@@ -1,6 +1,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { saltCapOutcome, magiAtFloor, money, SALT_CAP_RULES, SALT_FLOOR, SALT_FLOOR_MFS } from "./calc.mjs";
+import {
+  saltCapOutcome,
+  magiAtFloor,
+  money,
+  SALT_CAP_RULES,
+  SALT_FLOOR,
+  SALT_FLOOR_MFS,
+  standardDeductionFor,
+  itemizeVsStandardBenefit,
+  STANDARD_DEDUCTION,
+} from "./calc.mjs";
 
 test("below the threshold, the cap is unreduced", () => {
   const r = saltCapOutcome({ filingStatus: "single", magi: 300_000, stateLocalTaxesPaid: 25_000, taxYear: 2025 });
@@ -111,4 +121,79 @@ test("money() formats negative values with a leading minus and no double sign", 
   assert.equal(money(1234), "$1,234");
   assert.equal(money(-1234), "-$1,234");
   assert.equal(money(0), "$0");
+});
+
+test("standardDeductionFor returns the right figure per filing status and year", () => {
+  assert.equal(standardDeductionFor({ filingStatus: "single", taxYear: 2025 }), 15_750);
+  assert.equal(standardDeductionFor({ filingStatus: "mfs", taxYear: 2025 }), 15_750);
+  assert.equal(standardDeductionFor({ filingStatus: "hoh", taxYear: 2025 }), 23_625);
+  assert.equal(standardDeductionFor({ filingStatus: "mfj", taxYear: 2025 }), 31_500);
+  assert.equal(standardDeductionFor({ filingStatus: "mfj", taxYear: 2026 }), 32_200);
+});
+
+test("an unrecognized tax year or filing status falls back to 2025 single", () => {
+  assert.equal(standardDeductionFor({ filingStatus: "single", taxYear: 2099 }), 15_750);
+  assert.equal(standardDeductionFor({ filingStatus: "nonsense", taxYear: 2025 }), 15_750);
+});
+
+test("itemizeVsStandardBenefit: SALT is fully additive once other itemized deductions alone clear the standard deduction", () => {
+  const salt = saltCapOutcome({ filingStatus: "mfj", magi: 200_000, stateLocalTaxesPaid: 12_000, taxYear: 2025 });
+  assert.equal(salt.deduction, 12_000);
+  const r = itemizeVsStandardBenefit({
+    filingStatus: "mfj",
+    taxYear: 2025,
+    saltDeduction: salt.deduction,
+    otherItemizedDeductions: 35_000,
+  });
+  assert.equal(r.standardDeduction, 31_500);
+  assert.equal(r.totalItemized, 47_000);
+  assert.equal(r.marginalBenefit, 12_000);
+  assert.equal(r.fullyAdditive, true);
+  assert.equal(r.whollyAbsorbed, false);
+});
+
+test("itemizeVsStandardBenefit: SALT is only partly additive when other itemized deductions alone fall short", () => {
+  const salt = saltCapOutcome({ filingStatus: "mfj", magi: 200_000, stateLocalTaxesPaid: 12_000, taxYear: 2025 });
+  const r = itemizeVsStandardBenefit({
+    filingStatus: "mfj",
+    taxYear: 2025,
+    saltDeduction: salt.deduction,
+    otherItemizedDeductions: 20_000,
+  });
+  assert.equal(r.totalItemized, 32_000);
+  // $20,000 other + $12,000 SALT = $32,000, only $500 above the $31,500
+  // standard deduction -- $11,500 of the $12,000 SALT deduction just
+  // matches ground the standard deduction already covered.
+  assert.equal(r.marginalBenefit, 500);
+  assert.equal(r.fullyAdditive, false);
+  assert.equal(r.whollyAbsorbed, false);
+});
+
+test("itemizeVsStandardBenefit: SALT is wholly absorbed by the standard deduction when total itemized still falls short", () => {
+  const salt = saltCapOutcome({ filingStatus: "single", magi: 100_000, stateLocalTaxesPaid: 8_000, taxYear: 2025 });
+  const r = itemizeVsStandardBenefit({
+    filingStatus: "single",
+    taxYear: 2025,
+    saltDeduction: salt.deduction,
+    otherItemizedDeductions: 3_000,
+  });
+  assert.equal(r.totalItemized, 11_000);
+  assert.equal(r.standardDeduction, 15_750);
+  assert.equal(r.itemizes, false);
+  assert.equal(r.marginalBenefit, 0);
+  assert.equal(r.whollyAbsorbed, true);
+});
+
+test("itemizeVsStandardBenefit: with no SALT deduction at all, marginalBenefit and whollyAbsorbed are both zero/false", () => {
+  const r = itemizeVsStandardBenefit({ filingStatus: "single", taxYear: 2025, saltDeduction: 0, otherItemizedDeductions: 20_000 });
+  assert.equal(r.marginalBenefit, 0);
+  assert.equal(r.whollyAbsorbed, false, "no SALT deduction to absorb -- this is a different case from wholly-absorbed");
+});
+
+test("STANDARD_DEDUCTION table has both tax years the venture supports, for every filing status", () => {
+  for (const year of [2025, 2026]) {
+    for (const status of ["single", "mfs", "hoh", "mfj"]) {
+      assert.equal(typeof STANDARD_DEDUCTION[year][status], "number");
+    }
+  }
 });

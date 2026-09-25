@@ -494,6 +494,9 @@ workflows:
 - workflow: ev-charger-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: excess-business-loss-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: exterior-painting-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -954,6 +957,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: qbi-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: qsbs-exclusion-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: quarterly-estimated-tax-calendar-ci.yml
