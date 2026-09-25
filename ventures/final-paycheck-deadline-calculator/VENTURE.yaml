@@ -1,0 +1,97 @@
+name: final-paycheck-deadline-calculator
+description: >-
+  Free browser calculator for the legal deadline on a departing employee's
+  final paycheck -- by US state (California, Colorado, Massachusetts,
+  Montana, Illinois, Minnesota, Arizona, Texas, New York, Washington, and
+  Nevada, plus a general next-payday default for every other state) and
+  separation type (fired/laid off vs. quit), including California's
+  notice-based rule and Minnesota's demand-triggered 24-hour rule, and
+  reporting whether that state requires accrued unused vacation/PTO to be
+  paid out as wages. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; a fresh gate-cleared niche in a
+# different category, per this session's explicit collision-avoidance
+# brief -- not a tax/OBBBA calculator, and not another dev/security
+# checker, both of which are saturated with concurrent same-afternoon
+# activity). duplicate_check.py scored every venture, screened-out row,
+# and pipeline candidate at 0.11 or below for the final description --
+# well under the 0.45 review bar. The closest existing venture,
+# call-recording-consent-check, is the same "US-jurisdiction employment-law
+# reference table with an explicit not-a-determination disclaimer" shape,
+# but checks a different question entirely (one-party vs. all-party
+# recording consent, not final-pay timing); salary-range-posting-check and
+# tip-pool-compliance-calculator are the next closest and likewise check
+# unrelated questions (pay-range posting disclosure; tip-credit
+# eligibility).
+#
+# Distribution channel, named rather than assumed: small-business owners,
+# HR administrators, and payroll processors handling a termination or
+# resignation search variants of "when is a final paycheck due in
+# [state]" or "final paycheck laws by state" -- a perennial, heavily
+# published HR-compliance topic this session confirmed via live WebSearch
+# (nine-plus law-firm, payroll-platform, and state-agency sources, several
+# with their own "2026 guide" pages already ranking for this exact
+# phrase). No external search-volume tool was queried to confirm
+# magnitude, matching this pipeline's standing caveat for every checker at
+# graduation. The topic recurs every time an employee leaves, unlike an
+# annual dollar-threshold figure -- so, unlike the OBBBA-driven
+# calculators this session was steered away from, it has no single
+# expiration date to go stale against.
+#
+# Liability: same shape and mitigation as call-recording-consent-check and
+# salary-range-posting-check (a jurisdictional legal-reference table with
+# heavy, explicit disclosure of scope). Getting a deadline wrong could
+# cause a real employer to violate a wage-and-hour statute, so the page
+# states in three places (the intro, a dedicated "what this does not
+# cover" section, and the footer) that this tool does not determine which
+# state's law actually governs, does not model city/county ordinances,
+# and does not cover commissions, bonuses, or expense reimbursement. All
+# eleven states' figures were verified against at least two independent
+# named sources each (a state statute citation or agency page plus a
+# payroll-compliance or employment-law explainer) via live WebSearch
+# before being committed, following the same diligence bar as
+# exempt-salary-threshold-checker's same-session precedent.
+
+hypotheses:
+  - claim: >-
+      A small-business owner or HR administrator processing a termination
+      or resignation will search a plain-language phrase ("final paycheck
+      deadline [state]", "when is last paycheck due", "final paycheck laws
+      by state") and return to a free, no-signup calculator that computes
+      the actual date from a separation date, rather than piecing the rule
+      together from a state-by-state blog table by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A user checking California's voluntary-quit rule will be surprised
+      that giving 72 hours' notice collapses the deadline to the same day
+      as a firing, and will return to re-check other departures once they
+      learn the notice-based split exists.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page looks everything up from a fixed
+  # table shipped with it (nothing uploaded, nothing fetched). Serving one
+  # more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports relying on the tool's deadline to actually pay or withhold a final paycheck without independently verifying which state's law governs and checking that state's current guidance, despite the disclaimer -- at that point the disclaimer wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/final-paycheck-deadline-calculator/
+  analytics: null

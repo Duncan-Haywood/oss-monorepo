@@ -524,6 +524,9 @@ workflows:
 - workflow: fifo-pick-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: final-paycheck-deadline-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: fire-extinguisher-inspection-route-margin-ci.yml
   classification: none
   publishes: []

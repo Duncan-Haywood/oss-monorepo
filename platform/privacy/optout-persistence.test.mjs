@@ -901,7 +901,7 @@ const RELATIVE_SELF = relative(
 // `referrer-permissions-policy-check-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
 //
-// 359 -> 360: `exempt-salary-threshold-checker` also graduated,
+// 358 -> 359: `exempt-salary-threshold-checker` also graduated,
 // concurrently and invisibly to the entries above -- adding one more
 // `usage.mjs` (`ventures/exempt-salary-threshold-checker/usage.mjs`), the
 // same boilerplate opt-out toggle copied from `salt-cap-calculator`
@@ -909,42 +909,44 @@ const RELATIVE_SELF = relative(
 // keyed under its own `exempt-salary-threshold-checker-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions.
 //
-// 359 -> 360: `boi-reporting-exemption-checker` also graduated,
+// 359 -> 360: `gambling-loss-deduction-calculator` also graduated,
 // concurrently -- adding one more `usage.mjs`
-// (`ventures/boi-reporting-exemption-checker/usage.mjs`), the same
-// boilerplate opt-out toggle copied from `exempt-salary-threshold-checker`
-// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
-// keyed under its own `boi-reporting-exemption-checker-usage` storage
-// name). Exactly one added `usage.mjs`, no deletions.
+// (`ventures/gambling-loss-deduction-calculator/usage.mjs`), the same
+// opt-out toggle shape. Exactly one added `usage.mjs`, no deletions.
 //
-// 360 -> 361: `gambling-loss-deduction-calculator` also graduated,
-// concurrently and invisibly to the entry above -- adding one more
-// `usage.mjs` (`ventures/gambling-loss-deduction-calculator/usage.mjs`),
-// the same boilerplate opt-out toggle copied from
-// `bonus-depreciation-calculator` (`record`/`setUsageOptOut`/
-// `usageOptedOut` gating localStorage writes, keyed under its own
-// `gambling-loss-deduction-calculator-usage` storage name). Exactly one
-// added `usage.mjs`, no deletions. Landed on `main` before this branch's
-// fetch, so its switch was absent from this branch's own count until
-// this merge.
-//
-// 361 -> 362: `child-tax-credit-calculator` also graduated, concurrently
-// and invisibly to both entries above -- adding one more `usage.mjs`
+// 360 -> 361: `child-tax-credit-calculator` also graduated, concurrently
+// and invisibly to the entry above -- adding one more `usage.mjs`
 // (`ventures/child-tax-credit-calculator/usage.mjs`), the same
 // boilerplate opt-out toggle copied from `senior-deduction-calculator`
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `child-tax-credit-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions.
 //
+// 361 -> 362: `final-paycheck-deadline-calculator` also joined,
+// concurrently and invisibly to the two entries above -- the same
+// opt-out `usage.mjs` shape (`record`/`setUsageOptOut`/`usageOptedOut`
+// gating localStorage writes, keyed under its own
+// `final-paycheck-deadline-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 362 -> 363: `boi-reporting-exemption-checker` also graduated,
+// concurrently and invisibly to the three entries above -- adding one
+// more `usage.mjs` (`ventures/boi-reporting-exemption-checker/usage.mjs`),
+// the same boilerplate opt-out toggle copied from
+// `exempt-salary-threshold-checker` (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `boi-reporting-exemption-checker-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
 // also graduated, concurrently and invisibly to the entries above:
-// `freelance-writer-rate-calculator` and `boi-reporting-exemption-
-// checker`, each adding one more `usage.mjs` following the same opt-out
-// toggle shape as the siblings above (`record`/`setUsageOptOut`/
-// `usageOptedOut` gating localStorage writes, each keyed under its own
-// `<slug>-usage` storage name). Exactly two added `usage.mjs`, no
-// deletions. Count re-derived here by `sync_tree_counts.py` against the
-// fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 363;
+// `freelance-writer-rate-calculator`, adding one more `usage.mjs`
+// following the same opt-out toggle shape as the siblings above
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `freelance-writer-rate-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions. Total re-derived
+// here by `sync_tree_counts.py` against the fully merged tree rather
+// than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 364;
 
 let counter = 0;
 function fixture(source) {
