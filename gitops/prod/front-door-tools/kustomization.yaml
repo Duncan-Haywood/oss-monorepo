@@ -49,12 +49,12 @@
 #   portfolio-front-tools-13: 120 files, 556897 bytes
 #   portfolio-front-tools-14: 127 files, 556601 bytes
 #   portfolio-front-tools-15: 130 files, 552185 bytes
-#   portfolio-front-tools-16: 134 files, 556934 bytes
-#   portfolio-front-tools-17: 127 files, 548924 bytes
-#   portfolio-front-tools-18: 103 files, 554999 bytes
-#   portfolio-front-tools-19: 120 files, 554341 bytes
-#   portfolio-front-tools-20: 125 files, 555950 bytes
-#   portfolio-front-tools-21: 96 files, 447366 bytes
+#   portfolio-front-tools-16: 132 files, 542732 bytes
+#   portfolio-front-tools-17: 127 files, 555006 bytes
+#   portfolio-front-tools-18: 103 files, 556983 bytes
+#   portfolio-front-tools-19: 119 files, 555467 bytes
+#   portfolio-front-tools-20: 128 files, 548482 bytes
+#   portfolio-front-tools-21: 97 files, 463947 bytes
 #   portfolio-front-tools-22: 50 files, 264887 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2298,6 +2298,7 @@ configMapGenerator:
       - pwa-installability-check__probe.mjs.gz=pwa-installability-check__probe.mjs.gz
       - pwa-installability-check__usage.mjs.gz=pwa-installability-check__usage.mjs.gz
       - pwa-installability-check__vs-lighthouse.html.gz=pwa-installability-check__vs-lighthouse.html.gz
+      - pwa-installability-check__vs-reading-the-manifest-by-eye.html.gz=pwa-installability-check__vs-reading-the-manifest-by-eye.html.gz
       - pypi-provenance-check__cli.mjs.gz=pypi-provenance-check__cli.mjs.gz
       - pypi-provenance-check__engine.mjs.gz=pypi-provenance-check__engine.mjs.gz
       - pypi-provenance-check__index.html.gz=pypi-provenance-check__index.html.gz
@@ -2341,14 +2342,14 @@ configMapGenerator:
       - quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz=quote-margin-check__vs-tracking-quotes-in-a-spreadsheet.html.gz
       - radon-mitigation-bid-calculator__calc.mjs.gz=radon-mitigation-bid-calculator__calc.mjs.gz
       - radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz=radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz
-      - radon-mitigation-bid-calculator__index.html.gz=radon-mitigation-bid-calculator__index.html.gz
-      - radon-mitigation-bid-calculator__share.mjs.gz=radon-mitigation-bid-calculator__share.mjs.gz
-      - radon-mitigation-bid-calculator__usage.mjs.gz=radon-mitigation-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - radon-mitigation-bid-calculator__index.html.gz=radon-mitigation-bid-calculator__index.html.gz
+      - radon-mitigation-bid-calculator__share.mjs.gz=radon-mitigation-bid-calculator__share.mjs.gz
+      - radon-mitigation-bid-calculator__usage.mjs.gz=radon-mitigation-bid-calculator__usage.mjs.gz
       - radon-mitigation-bid-calculator__vs-a-flat-1195-radon-special.html.gz=radon-mitigation-bid-calculator__vs-a-flat-1195-radon-special.html.gz
       - radon-mitigation-bid-calculator__vs-oneradon.html.gz=radon-mitigation-bid-calculator__vs-oneradon.html.gz
       - real-estate-agent-photo-app__index.html.gz=real-estate-agent-photo-app__index.html.gz
@@ -2473,14 +2474,14 @@ configMapGenerator:
       - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
       - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
       - septic-pumping-bid-calculator__vs-a-flat-pump-special.html.gz=septic-pumping-bid-calculator__vs-a-flat-pump-special.html.gz
-      - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
-      - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
-      - sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz=sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
+      - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
+      - sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz=sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz
       - sewer-hydrojet-bid-calculator__index.html.gz=sewer-hydrojet-bid-calculator__index.html.gz
       - sewer-hydrojet-bid-calculator__share.mjs.gz=sewer-hydrojet-bid-calculator__share.mjs.gz
       - sewer-hydrojet-bid-calculator__usage.mjs.gz=sewer-hydrojet-bid-calculator__usage.mjs.gz
@@ -2581,14 +2582,14 @@ configMapGenerator:
       - snow-removal-bid-calculator__how-much-to-charge.html.gz=snow-removal-bid-calculator__how-much-to-charge.html.gz
       - snow-removal-bid-calculator__index.html.gz=snow-removal-bid-calculator__index.html.gz
       - snow-removal-bid-calculator__share.mjs.gz=snow-removal-bid-calculator__share.mjs.gz
-      - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
-      - snow-removal-bid-calculator__vs-a-flat-seasonal-rate.html.gz=snow-removal-bid-calculator__vs-a-flat-seasonal-rate.html.gz
-      - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
+      - snow-removal-bid-calculator__vs-a-flat-seasonal-rate.html.gz=snow-removal-bid-calculator__vs-a-flat-seasonal-rate.html.gz
+      - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
       - social-preview-check__analyze.mjs.gz=social-preview-check__analyze.mjs.gz
       - social-preview-check__index.html.gz=social-preview-check__index.html.gz
       - social-preview-check__social-preview-fallback-rules.html.gz=social-preview-check__social-preview-fallback-rules.html.gz
@@ -2705,15 +2706,15 @@ configMapGenerator:
       - subdomain-takeover-check__fingerprints.mjs.gz=subdomain-takeover-check__fingerprints.mjs.gz
       - subdomain-takeover-check__index.html.gz=subdomain-takeover-check__index.html.gz
       - subdomain-takeover-check__lookup.mjs.gz=subdomain-takeover-check__lookup.mjs.gz
-      - subdomain-takeover-check__probe.mjs.gz=subdomain-takeover-check__probe.mjs.gz
-      - subdomain-takeover-check__usage.mjs.gz=subdomain-takeover-check__usage.mjs.gz
-      - subdomain-takeover-check__vs-checking-dig-by-hand.html.gz=subdomain-takeover-check__vs-checking-dig-by-hand.html.gz
-      - subdomain-takeover-check__why-cnames-end-up-dangling.html.gz=subdomain-takeover-check__why-cnames-end-up-dangling.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - subdomain-takeover-check__probe.mjs.gz=subdomain-takeover-check__probe.mjs.gz
+      - subdomain-takeover-check__usage.mjs.gz=subdomain-takeover-check__usage.mjs.gz
+      - subdomain-takeover-check__vs-checking-dig-by-hand.html.gz=subdomain-takeover-check__vs-checking-dig-by-hand.html.gz
+      - subdomain-takeover-check__why-cnames-end-up-dangling.html.gz=subdomain-takeover-check__why-cnames-end-up-dangling.html.gz
       - subpath-robots-check__analyze.mjs.gz=subpath-robots-check__analyze.mjs.gz
       - subpath-robots-check__cli.mjs.gz=subpath-robots-check__cli.mjs.gz
       - subpath-robots-check__index.html.gz=subpath-robots-check__index.html.gz
@@ -2838,12 +2839,12 @@ configMapGenerator:
       - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
-      - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz=vinyl-liner-bid-calculator__vs-a-flat-2999-special.html.gz
