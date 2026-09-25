@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Patreon Fee Calculator vs. Doing the Payout Math Yourself | Patreon Payout Guide</title>
+<meta name="description" content="Subtracting just the platform fee percentage from your pledge total looks like a reasonable mental estimate. On 330 charges a month it overstates the payout by $139.60 -- because the fixed per-charge processing fee never shows up in a percentage-only guess.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Patreon Fee Calculator vs. Doing the Payout Math Yourself">
+<meta property="og:description" content="A back-of-envelope estimate that subtracts only the platform fee percentage misses the fixed per-charge processing fee entirely. On the calculator's own default scenario that is a $139.60 overestimate -- 71% of it from a fixed fee a percentage guess cannot see.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="./vs-doing-the-math-yourself.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does subtracting just the platform fee percentage overstate the payout?","acceptedAnswer":{"@type":"Answer","text":"Because payment processing charges a fixed fee (about $0.30 on the Standard plan) on every charge, not a percentage of revenue, and a percentage-only mental estimate has no place to put a fixed dollar amount. On the calculator's own default scenario -- 200 patrons at $3, 100 at $5, and 30 at $10, all billed monthly on the Standard plan -- 330 charges each carry that fixed fee, for $99.00 that a flat 10% deduction never accounts for."}},{"@type":"Question","name":"How big is the gap in dollars?","acceptedAnswer":{"@type":"Answer","text":"On that same default scenario, subtracting only the 10% platform fee from $1,400.00 gross gives $1,260.00. The calculator's actual net payout, after both the platform fee and processing fees, is $1,120.40 -- a $139.60 overestimate, or about 12.5% too high."}},{"@type":"Question","name":"Does the gap depend on patron count and pledge size, or just total revenue?","acceptedAnswer":{"@type":"Answer","text":"It depends on how many charges the total revenue is split across, which total revenue alone does not tell you. Two creators with identical $1,400 gross pledge revenue can have very different processing-fee bills if one has many small pledges (more charges) and the other has fewer, larger ones (fewer charges) -- a percentage-of-revenue estimate treats them as identical when they are not."}},{"@type":"Question","name":"Is the fixed fee the whole gap, or does the percentage matter too?","acceptedAnswer":{"@type":"Answer","text":"Both apply, but the fixed fee is the larger and more easily forgotten part. In the default scenario, processing fees total $139.60: $99.00 of that is the fixed $0.30 charged 330 times, and the remaining $40.60 is the 2.9% processing rate applied to $1,400 of revenue. A mental estimate that remembers \"there's a processing fee, roughly 3%\" still misses the $99.00 fixed portion -- 71% of the true processing-fee bill."}},{"@type":"Question","name":"When is a quick mental estimate close enough?","acceptedAnswer":{"@type":"Answer","text":"When you have very few, very large pledges, so the fixed per-charge fee is a rounding error next to the percentage fee -- one $500 pledge on the Standard plan pays $14.80 in processing (2.9% plus one $0.30 fixed fee), close to a flat percentage guess. The trap grows with patron count and shrinks with average pledge size, and per-creation billing (charging once per post instead of once a month) multiplies the charge count further -- see the calculator's own per-creation-billing guide for that case."}},{"@type":"Question","name":"Could Patreon's fee structure change and make this comparison stale?","acceptedAnswer":{"@type":"Answer","text":"Yes. Patreon retired the three-tier legacy plan for new creators in August 2025 in favor of a single Standard plan, and it publishes no live feed a static page could read. The dollar figures on this page are current as of the date on this page and reproduce from calc.mjs's own DEFAULTS -- verify anything material against your own current Patreon creator dashboard and Patreon's own current help documentation."}}]}</script>
+<style>
+:root{font:16px/1.55 system-ui,sans-serif;color:#2a1810;background:#fdf3ec}body{max-width:800px;margin:auto;padding:28px 16px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.02;letter-spacing:-.05em;margin:.2em 0;color:#a8420f}
+h2{color:#a8420f;font-size:1.15rem;margin-top:1.7em}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:1em 0}
+th,td{text-align:left;padding:.5rem .4rem;border-bottom:1px solid #f0c9a8}
+a{color:#b8480f}
+.cta{display:inline-block;margin:8px 0 0;padding:10px 14px;border-radius:7px;background:#c2262f;color:#fff;text-decoration:none;font-weight:700}
+footer{border-top:1px solid #f0c9a8;padding-top:18px;margin-top:2em;font-size:.85rem;color:#6b5142}
+</style></head>
+<body>
+<p><a href="./">← Patreon fee calculator</a></p>
+<h1>Patreon fee calculator vs. doing the payout math yourself</h1>
+<p>The quick mental estimate most creators reach for is "gross pledges times (1 minus the platform fee)" -- $1,400 pledged, 10% platform fee, so about $1,260 lands in the bank. That estimate is not wrong about the platform fee. It is wrong about the other fee: payment processing charges a <strong>fixed dollar amount on every charge</strong>, not a share of revenue, and a percentage-only estimate has nowhere to put a fixed dollar amount. On the calculator's own default scenario, that gap is $139.60 -- real money, and it does not show up until you count charges instead of dollars.</p>
+<p><a class="cta" href="./">Open the free payout calculator</a></p>
+
+<h2>The worked comparison</h2>
+<p>Take the calculator's own defaults: 200 patrons at $3, 100 patrons at $5, and 30 patrons at $10, all billed monthly on the Standard plan (10% platform fee, ~2.9% + $0.30 processing on every charge). Gross pledge revenue is $1,400.00, across 330 total charges (200 + 100 + 30 -- one charge per patron under monthly billing). Here is what a flat-percentage mental estimate gets wrong:</p>
+<table>
+<thead><tr><th>Figure</th><th>Mental estimate (gross &times; 90%)</th><th>Actual (calculator)</th></tr></thead>
+<tbody>
+<tr><td>Gross pledge revenue</td><td>$1,400.00</td><td>$1,400.00</td></tr>
+<tr><td>Platform fee (10%)</td><td>$140.00</td><td>$140.00</td></tr>
+<tr><td>Processing fees</td><td>not counted</td><td>$139.60 (330 charges &times; ~2.9% + $0.30 each)</td></tr>
+<tr><td>Total fees</td><td>$140.00</td><td>$279.60</td></tr>
+<tr><td>Net payout</td><td>$1,260.00</td><td>$1,120.40</td></tr>
+<tr><td>Effective take-home rate</td><td>90.0%</td><td>80.0%</td></tr>
+</tbody>
+</table>
+<p>$139.60 too high, on identical gross revenue -- a 12.5% overestimate of the actual net payout. Of the $139.60 in processing fees the estimate missed entirely, $99.00 is the fixed $0.30 fee charged 330 times (71% of the processing bill), and only the remaining $40.60 is the 2.9% percentage rate a "roughly 3%" mental adjustment might have caught.</p>
+
+<h2>Why revenue alone does not predict the gap</h2>
+<p>Two creators with the same $1,400 gross pledge revenue can owe very different processing fees, because the fixed fee scales with <em>charge count</em>, not with dollars. A creator with 330 small pledges pays that $0.30 fixed fee 330 times; a creator with the same $1,400 total spread across a handful of large pledges pays it only a handful of times. A percentage-of-revenue mental estimate cannot see the difference, because it never looks at how many charges produced the revenue. Billing frequency compounds the same trap -- switching from monthly to per-creation billing multiplies the charge count for the same pledge total, which the calculator's own <a href="does-per-creation-billing-cost-more-in-fees.html">per-creation-billing guide</a> works through in detail.</p>
+
+<h2>When mental math is close enough</h2>
+<p>The gap shrinks toward zero as the average charge size grows, because a fixed $0.30 fee is a rounding error against a $500 charge and a real bite against a $3 one. A creator with a few large pledges and monthly billing will find a flat-percentage estimate reasonably close. The trap is specifically many small pledges, a legacy plan's under-$3 micropayment charges, or per-creation billing splitting one pledge into several charges a month -- exactly the shape the calculator's tier and billing inputs are built to catch.</p>
+
+<h2>Common questions</h2>
+<h3>Why does subtracting just the platform fee percentage overstate the payout?</h3><p>Because payment processing charges a fixed fee (about $0.30 on the Standard plan) on every charge, not a percentage of revenue, and a percentage-only mental estimate has no place to put a fixed dollar amount. On the calculator's own default scenario -- 200 patrons at $3, 100 at $5, and 30 at $10, all billed monthly on the Standard plan -- 330 charges each carry that fixed fee, for $99.00 that a flat 10% deduction never accounts for.</p>
+<h3>How big is the gap in dollars?</h3><p>On that same default scenario, subtracting only the 10% platform fee from $1,400.00 gross gives $1,260.00. The calculator's actual net payout, after both the platform fee and processing fees, is $1,120.40 -- a $139.60 overestimate, or about 12.5% too high.</p>
+<h3>Does the gap depend on patron count and pledge size, or just total revenue?</h3><p>It depends on how many charges the total revenue is split across, which total revenue alone does not tell you. Two creators with identical $1,400 gross pledge revenue can have very different processing-fee bills if one has many small pledges (more charges) and the other has fewer, larger ones (fewer charges) -- a percentage-of-revenue estimate treats them as identical when they are not.</p>
+<h3>Is the fixed fee the whole gap, or does the percentage matter too?</h3><p>Both apply, but the fixed fee is the larger and more easily forgotten part. In the default scenario, processing fees total $139.60: $99.00 of that is the fixed $0.30 charged 330 times, and the remaining $40.60 is the 2.9% processing rate applied to $1,400 of revenue. A mental estimate that remembers "there's a processing fee, roughly 3%" still misses the $99.00 fixed portion -- 71% of the true processing-fee bill.</p>
+<h3>When is a quick mental estimate close enough?</h3><p>When you have very few, very large pledges, so the fixed per-charge fee is a rounding error next to the percentage fee -- one $500 pledge on the Standard plan pays $14.80 in processing (2.9% plus one $0.30 fixed fee), close to a flat percentage guess. The trap grows with patron count and shrinks with average pledge size, and per-creation billing (charging once per post instead of once a month) multiplies the charge count further -- see the calculator's own per-creation-billing guide for that case.</p>
+<h3>Could Patreon's fee structure change and make this comparison stale?</h3><p>Yes. Patreon retired the three-tier legacy plan for new creators in August 2025 in favor of a single Standard plan, and it publishes no live feed a static page could read. The dollar figures on this page are current as of the date on this page and reproduce from calc.mjs's own DEFAULTS -- verify anything material against your own current Patreon creator dashboard and Patreon's own current help documentation.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the calculator it explains are provided free and as-is, without warranty of any kind, express or implied. They are not tax, financial, or business advice, and do not replace a qualified professional. This is also not a payout tracker or a substitute for your own Patreon dashboard and payout statements. You are responsible for reviewing and verifying anything here before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with, endorsed by, or sponsored by Patreon. Patreon is a trademark of Patreon, Inc., named here only to describe what this page explains, and its platform fee percentages and processing rates change over time — verify against your own current Patreon dashboard and Patreon's own help documentation. Everything on the linked calculator runs in your browser; no data is uploaded.</p>
+<p>MIT licensed. <a href="LICENSE" rel="noopener">Code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p><a href="./">Use the calculator</a></p>
+</footer>
+</body>
+</html>

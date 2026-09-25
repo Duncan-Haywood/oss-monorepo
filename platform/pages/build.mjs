@@ -1304,7 +1304,19 @@ const CATEGORY_RULES = [
       // `depreciation-recapture-calculator` as its nearest sibling: the two
       // opposite ends of one asset's depreciation lifecycle, buying new
       // property vs. selling depreciated property.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator)/.test(slug),
+      //
+      // `salt-cap-calculator` joined 2026-09-25, filed here on its first
+      // commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream
+      // federal tax election/limit on figures the filer already has" axis
+      // as `senior-deduction-calculator` and the other OBBBA calculators
+      // in this rule -- computing the SALT itemized-deduction cap after
+      // its MAGI-based phase-out, never a filed election made on the
+      // visitor's behalf. It cross-links `senior-deduction-calculator` as
+      // its nearest sibling: both are new-in-2025 OBBBA provisions with an
+      // income-based MAGI phase-out, but this one floors at a fixed dollar
+      // amount while the senior deduction phases fully to zero.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator)/.test(slug),
   },
   {
     id: 'ci',

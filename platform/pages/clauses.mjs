@@ -2116,6 +2116,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or tax-prep product. Same reasoning as section-174a-catchup-calculator's
   // own vs-doing-the-math-by-hand.html right above.
   'bonus-depreciation-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the SALT deduction cap phase-out by
+  // hand -- a generic method every itemizing filer or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as bonus-depreciation-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'salt-cap-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2292,6 +2299,39 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above (e.g. sewer-line-replace-bid-calculator's flat-per-foot page).
   'pool-route-pricing/vs-a-flat-per-pool-monthly-rate.html',
+  // Compares against "filling out the VPAT template by hand" -- typing
+  // into ITI's own published Word/Excel template, a manual habit any VPAT
+  // author already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-hiring-a-vpat-consultant.html,
+  // which discusses paid consulting engagements generically without naming
+  // a specific firm. Same reasoning as the other generic-method pages
+  // above (e.g. claude-skill-scaffold-generator's frontmatter-by-hand page).
+  'vpat-acr-generator/vs-filling-out-the-vpat-template-by-hand.html',
+  // Compares against "doing the payout math yourself" (a mental estimate
+  // that subtracts only the platform fee percentage) -- a generic
+  // estimation habit any creator already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own guide
+  // page, which names no competitor either. The page still carries the
+  // "not affiliated with Patreon" clause on its own merits (Patreon is
+  // named as background context throughout), so this registration is
+  // purely so surface-budget.mjs classifies it as generic-method rather
+  // than named-product -- see facebook-marketplace-fee-calculator's entry
+  // above for what happens when a generic-method page is shipped without it.
+  'patreon-fee-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "comparing the quoted rates by eye" -- reading two
+  // per-job numbers off a rate card and picking the lower one -- a generic
+  // habit any operator comparing vendor quotes already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-crest-capital.html, which names Crest Capital and carries the
+  // trademark/affiliation disclaimer.
+  'vendor-rate-break-even/vs-comparing-rates-by-eye.html',
+  // Compares against "pricing a move-out at the tenant's rent" -- a generic
+  // mental model every self-storage operator already reaches for, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-sitelink.html, which names SiteLink/Storable and
+  // carries the trademark disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

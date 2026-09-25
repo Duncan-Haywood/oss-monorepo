@@ -2607,7 +2607,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commit, same shape as the rest of this running count. Total
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
-    total = 373  # `infra/OWNER_CHECKLIST.md`'s own "N of the 373 tools" wording.
+    #
+    # 373 -> 374: `salt-cap-calculator` also graduated -- a browser-local
+    # calculator computing the SALT itemized-deduction cap after its
+    # 2025/2026 MAGI-based phase-out (30 cents per dollar of excess MAGI,
+    # floored at a fixed dollar amount rather than phasing to zero), plus
+    # a vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    total = 374  # `infra/OWNER_CHECKLIST.md`'s own "N of the 374 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
