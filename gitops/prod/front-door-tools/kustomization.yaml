@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 120 files, 548693 bytes
 #   portfolio-front-tools-13: 120 files, 556897 bytes
 #   portfolio-front-tools-14: 127 files, 556601 bytes
-#   portfolio-front-tools-15: 130 files, 552185 bytes
+#   portfolio-front-tools-15: 131 files, 556483 bytes
 #   portfolio-front-tools-16: 132 files, 542732 bytes
 #   portfolio-front-tools-17: 127 files, 555006 bytes
 #   portfolio-front-tools-18: 103 files, 556983 bytes
@@ -2086,6 +2086,7 @@ configMapGenerator:
       - oidc-trust-policy-check__index.html.gz=oidc-trust-policy-check__index.html.gz
       - oidc-trust-policy-check__sub-claim-and-wildcard-traps.html.gz=oidc-trust-policy-check__sub-claim-and-wildcard-traps.html.gz
       - oidc-trust-policy-check__usage.mjs.gz=oidc-trust-policy-check__usage.mjs.gz
+      - oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz=oidc-trust-policy-check__vs-reading-the-trust-policy-by-eye.html.gz
       - oidc-trust-policy-check__vs-wiz.html.gz=oidc-trust-policy-check__vs-wiz.html.gz
       - openapi-breaking-change-check__diff.mjs.gz=openapi-breaking-change-check__diff.mjs.gz
       - openapi-breaking-change-check__index.html.gz=openapi-breaking-change-check__index.html.gz
