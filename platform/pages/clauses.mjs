@@ -2377,6 +2377,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Check and carries the trademark/affiliation disclaimer. Same reasoning
   // as the other generic-method pages above.
   'wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html',
+  // Compares against "reading the manifest by eye" during review -- the
+  // generic first pass every team already does, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-polaris.html, which names Polaris/Fairwinds and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
