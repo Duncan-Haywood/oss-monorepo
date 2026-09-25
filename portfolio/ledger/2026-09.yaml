@@ -45032,3 +45032,54 @@ entries:
         -- a flake under load, not a product defect, confirmed by
         re-running --checks sideways alone.
     mrr_end: 0
+  - venture: tip-pool-compliance-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This session also merged PR #5873 above: its branch had gone
+        `mergeable_state: dirty` against a moved `main`. Fetched it,
+        merged `origin/main`, and resolved the front-door mirror's binary
+        conflicts by taking `main`'s committed copies (never hand-picking
+        a side on a generated artifact) plus a regen. A concurrent
+        session pushed an equivalent, already-current resolution to the
+        same branch while this was in progress; verified their
+        resolution instead of force-pushing a duplicate (regen.mjs
+        --verify clean, venture + clauses suites 93/93,
+        checklist_coverage.py and sync_tree_counts.py clean on their
+        commit) and merged it via the GitHub API. All 21 check runs on
+        the PR came back red within seconds of the push;
+        `ci_starvation.py` against three of them (`check`, `page-integrity`,
+        `validate`) confirmed `runner_id: 0` on each -- starvation, not a
+        real failure. Merged on the strength of local verification
+        (gitops/tests 613 passed/25 skipped; full
+        platform/marketing+platform/pages suite 1290/1290).
+      - >-
+        Added `can-managers-be-in-a-tip-pool.html`, a generic guide page
+        for tip-pool-compliance-calculator (previously 0 guide pages, 1
+        generic-method comparison already at budget). The venture's own
+        VENTURE.yaml hypotheses name the exact search intent ("can
+        managers be in a tip pool", "can dishwashers be in a tip pool")
+        this page answers for the manager half of the FLSA rule -- a flat
+        2018 prohibition, independent of the back-of-house/tip-credit
+        rule the existing comparison page already covers. Worked example
+        isolates a single manager violation (dishwashers correctly left
+        out of the pool) and reuses the same $5.12/4-week scenario as the
+        calculator's own default, computed from calc.mjs's checkPool(),
+        not invented. Linked from and to the index, added to sitemap.xml,
+        and extended page.test.mjs with dedicated coverage (sitemap
+        listing, sibling links, the isolated-violation figures, and the
+        FAQPage JSON-LD matching its visible headings/answers verbatim).
+      - >-
+        Verified: venture suite 48/48 (was 21, +27 including the new
+        tests); platform/pages/faq-visible.test.mjs 4/4 (repo-wide
+        verbatim-FAQ scan, checked the new page's JSON-LD against its
+        visible text); clauses.test.mjs, venture-sitemap-coverage.test.mjs,
+        only-slugs.test.mjs, guide-coverage.test.mjs 46/46;
+        surface-budget.mjs --check clean (guide pages are unbudgeted);
+        regen.mjs --verify stale before regen, clean after;
+        checklist_coverage.py and sync_tree_counts.py clean; gitops/tests
+        manifest-related subset 87/87. CI starved this session
+        (ci_starvation.py confirmed runner_id: 0 on the #5873 checks
+        above) -- merged on the strength of local verification.
+    mrr_end: 0

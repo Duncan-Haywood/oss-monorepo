@@ -14,6 +14,7 @@ import { ROLE_COUNT, ROLE_FIELDS, GLOBAL_INPUT_IDS, checkPool } from './calc.mjs
 
 const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const comparison = readFileSync(new URL('./vs-guessing-from-a-staff-meeting.html', import.meta.url), 'utf8');
+const managerGuide = readFileSync(new URL('./can-managers-be-in-a-tip-pool.html', import.meta.url), 'utf8');
 const PAGES = [
   ['index', index],
 ];
@@ -104,8 +105,8 @@ test('both pages quote the worked example: front-of-house hours, weekly exposure
   }
 });
 
-test('both pages carry the no-warranty clause and the determinations this must not be read as making', () => {
-  for (const [name, html] of [...PAGES, ['vs-guessing-from-a-staff-meeting', comparison]]) {
+test('every page carries the no-warranty clause and the determinations this must not be read as making', () => {
+  for (const [name, html] of [...PAGES, ['vs-guessing-from-a-staff-meeting', comparison], ['can-managers-be-in-a-tip-pool', managerGuide]]) {
     assert.match(html, /No warranty\./, `${name} is missing the liability clause`);
     assert.match(html, /not legal, tax, accounting, or financial advice/, name);
     assert.match(html, /accept no liability/, name);
@@ -114,8 +115,8 @@ test('both pages carry the no-warranty clause and the determinations this must n
   }
 });
 
-test('both pages promise, and keep, that nothing is uploaded', () => {
-  for (const [name, html] of [...PAGES, ['vs-guessing-from-a-staff-meeting', comparison]]) {
+test('every page promises, and keeps, that nothing is uploaded', () => {
+  for (const [name, html] of [...PAGES, ['vs-guessing-from-a-staff-meeting', comparison], ['can-managers-be-in-a-tip-pool', managerGuide]]) {
     assert.match(html, /Nothing leaves your browser|nothing you enter is sent to a server/, name);
     assert.doesNotMatch(html, /\bfetch\s*\(/, `${name} must not make network requests`);
     assert.doesNotMatch(html, /XMLHttpRequest|navigator\.sendBeacon|new WebSocket|EventSource/, name);
@@ -135,15 +136,65 @@ test('the index links its nearest sibling venture', () => {
   assert.match(index, /\.\.\/no-tax-on-tips-overtime-calculator\//);
 });
 
-test('both pages carry the optional sponsor link', () => {
-  for (const [name, html] of [...PAGES, ['vs-guessing-from-a-staff-meeting', comparison]]) {
+test('every page carries the optional sponsor link', () => {
+  for (const [name, html] of [...PAGES, ['vs-guessing-from-a-staff-meeting', comparison], ['can-managers-be-in-a-tip-pool', managerGuide]]) {
     assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/, `${name} should carry the optional sponsor link`);
   }
 });
 
-test('the two pages point at each other', () => {
+test('the comparison page and the index point at each other', () => {
   assert.match(index, /href="\.\/vs-guessing-from-a-staff-meeting\.html"/);
   assert.match(comparison, /href="\.\/"/);
+});
+
+test('the manager guide and the index point at each other', () => {
+  assert.match(index, /href="\.\/can-managers-be-in-a-tip-pool\.html"/);
+  assert.match(managerGuide, /href="\.\/" class="back"/);
+});
+
+test('the manager guide is listed in the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /can-managers-be-in-a-tip-pool\.html/);
+});
+
+test('the manager guide worked example isolates the manager violation and matches calc.mjs', () => {
+  // Same dollar figures as the page's own default roster, but with the
+  // dishwashers correctly left out of the pool -- so this scenario has
+  // exactly one violation (the manager), not two, which is the point of a
+  // guide page about the manager rule specifically.
+  const managerOnly = checkPool({
+    tipCreditTaken: true,
+    tipCreditPerHour: '5.12',
+    weeksExposed: '4',
+    rows: [
+      { name: 'Servers', category: 'front', inPool: true, hoursPerWeek: '30', headcount: '6' },
+      { name: 'Bartenders', category: 'front', inPool: true, hoursPerWeek: '25', headcount: '2' },
+      { name: 'Dishwashers', category: 'back', inPool: false, hoursPerWeek: '35', headcount: '2' },
+      { name: 'Shift manager', category: 'manager', inPool: true, hoursPerWeek: '40', headcount: '1' },
+    ],
+  });
+  assert.equal(managerOnly.ok, true);
+  assert.equal(managerOnly.violations.length, 1);
+  assert.equal(managerOnly.managerViolations.length, 1);
+  assert.equal(managerOnly.backOfHouseViolations.length, 0);
+  assert.equal(managerOnly.frontHoursPerWeek, 230);
+  assert.equal(money(managerOnly.weeklyExposure), '1,177.60');
+  assert.equal(money(managerOnly.totalExposure), '4,710.40');
+  assert.ok(managerGuide.includes(String(managerOnly.frontHoursPerWeek)), 'guide should quote the front-of-house hours pooled');
+  assert.ok(managerGuide.includes(money(managerOnly.weeklyExposure)), 'guide should quote the weekly exposure');
+  assert.ok(managerGuide.includes(money(managerOnly.totalExposure)), 'guide should quote the total exposure');
+});
+
+test('the manager guide FAQ markup and its FAQ structured data say the same things', () => {
+  const ld = managerGuide.match(/"@type":"FAQPage","mainEntity":(\[[\s\S]*\])\}<\/script>/);
+  assert.ok(ld, 'the guide should carry FAQPage structured data');
+  const questions = JSON.parse(ld[1]);
+  const headings = [...managerGuide.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]);
+  assert.equal(questions.length, headings.length, 'every structured-data question needs a visible heading');
+  for (const q of questions) {
+    assert.ok(headings.includes(q.name), `structured data asks "${q.name}" but no visible heading does`);
+    assert.ok(managerGuide.includes(q.acceptedAnswer.text), `structured data answer for "${q.name}" is not visible verbatim on the page`);
+  }
 });
 
 test('the FAQ markup and the FAQ structured data say the same things', () => {
