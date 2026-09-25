@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 376 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 377 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the 2026 OBBBA federal estate, gift, and GST tax exclusion -- $15,000,000 per person, up to $30,000,000 married with portability. Projects taxable estate and the flat 40% federal tax. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Excess Business Loss Calculator — 2025-2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/excess-business-loss-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/excess-business-loss-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the IRC 461(l) excess business loss limitation, now permanent under OBBBA — computes how much of a pass-through owner&#39;s net business loss is deductible this year against the 2025/2026 threshold, and how much becomes a net operating loss carryforward. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>MRR Waterfall Calculator — Net &amp; Gross Revenue Retention</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Dotenv Exposure Checker — Is Your .env File Publicly Readable?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dotenv-exposure-check/"/>
-    <id>tag:marisstella.dev,2026:tool/dotenv-exposure-check</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste your site&#39;s URL and it sends real GET requests to .env, .env.local, .env.production, and two other well-known dotenv filenames, verifying the response body actually looks like a real KEY=VALUE file -- not just an HTTP status -- to name whether your deployment is publicly serving its own environment-variable secrets. Reports key NAMES only, never values. Nothing uploaded to us.</summary>
   </entry>
 </feed>

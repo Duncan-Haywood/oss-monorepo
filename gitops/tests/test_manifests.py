@@ -2631,7 +2631,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
-    total = 376  # `infra/OWNER_CHECKLIST.md`'s own "N of the 376 tools" wording.
+    #
+    # 376 -> 377: `excess-business-loss-calculator` also graduated,
+    # concurrently -- a browser-local calculator computing the IRC 461(l)
+    # excess business loss threshold (permanent under OBBBA, with a 2026
+    # figure that counterintuitively falls below 2025's rather than
+    # rising) and the resulting net operating loss carryforward, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    total = 377  # `infra/OWNER_CHECKLIST.md`'s own "N of the 377 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

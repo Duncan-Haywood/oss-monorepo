@@ -1342,7 +1342,19 @@ const CATEGORY_RULES = [
       // provisions -- one a parent-to-child savings account, the other the
       // lifetime/at-death estate and gift exclusion -- with no closer
       // topical match in this portfolio.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|estate-tax-exemption-calculator)/.test(slug),
+      //
+      // `excess-business-loss-calculator` joined 2026-09-25, concurrently,
+      // filed here on its first commit rather than after a spell in the
+      // catch-all -- what `build.test.mjs`'s catch-all bound is for. Same
+      // "downstream federal tax threshold on figures the filer already
+      // has" axis as `qbi-deduction-calculator` right above it in this
+      // rule -- computing the IRC 461(l) excess-business-loss threshold
+      // and the resulting NOL carryforward, never a filed position made
+      // on the visitor's behalf. It cross-links `qbi-deduction-calculator`
+      // as its nearest sibling: both serve pass-through business owners
+      // and flag (without computing) the interaction between the two
+      // calculations.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator)/.test(slug),
   },
   {
     id: 'ci',
