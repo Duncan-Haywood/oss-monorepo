@@ -745,14 +745,14 @@ const RELATIVE_SELF = relative(
 // `main` at the same 339 predecessor -- adding one more `usage.mjs`
 // (`ventures/claude-code-subagent-check/usage.mjs`), the same opt-in/opt-out
 // toggle shape as its `claude-code-settings-check` sibling
-// (`usageAllowed`/`setUsageEnabled`/`countUsage`, keyed under its own
-// `claude-code-subagent-check:usage` storage name), no deletions. Both this
-// venture and `claude-skill-scaffold-generator` above claimed the same next
-// number (340) from the same 339 predecessor -- the same ordinary collision
-// shape recorded throughout this list, this time with both additions real
-// and neither superseding the other. `mega-backdoor-roth-calculator`, which
-// also graduated concurrently, added no `usage.mjs` of its own, so it does
-// not move this count.
+// (`usageAllowed`/`setUsageEnabled`/`countUsage` gating `countUsage`, keyed
+// under its own `claude-code-subagent-check:usage` storage name), no
+// deletions. Both this venture and `claude-skill-scaffold-generator` above
+// claimed the same next number (340) from the same 339 predecessor -- the
+// same ordinary collision shape recorded throughout this list, this time
+// with both additions real and neither superseding the other.
+// `mega-backdoor-roth-calculator`, which also graduated concurrently, added
+// no `usage.mjs` of its own, so it does not move this count.
 //
 // 341 -> 342: `senior-deduction-calculator` also graduated (#5765),
 // concurrently on `main` -- adding one more `usage.mjs`
@@ -787,9 +787,25 @@ const RELATIVE_SELF = relative(
 // the same opt-out pattern as its sibling fee/cost calculators
 // (`readOptOut`/`writeOptOut` gating `recordUsage`, keyed under its own
 // `recipe-costing-calculator-usage` storage name), no deletions.
+//
+// 345 -> 347 on this later merge: two further ventures graduated
+// concurrently on `main`, neither visible to this branch until this
+// merge -- `trump-account-calculator` (adding one more `usage.mjs`
+// following the same opt-in/opt-out toggle shape as its
+// `auto-loan-interest-deduction-calculator` sibling,
+// `record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `trump-account-calculator-usage` storage name) and
+// `npm-provenance-check` (adding one more `usage.mjs` following the same
+// opt-out pattern as its dev-tool-checker siblings,
+// `usageOptedOut`/`setUsageOptOut` gating `record`, keyed under its own
+// `npm-provenance-check-usage` storage name). Both additions are real, no
+// deletions, taking 345 to 347. This branch only ever knew its own
+// predecessor's number (345, from its own `recipe-costing-calculator`)
+// until this merge -- the same ordinary collision shape recorded
+// throughout this list.
 // Re-derived here by `sync_tree_counts.py` against the fully merged tree
 // rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 345;
+const SWITCHES_IN_THE_CATALOGUE = 347;
 
 let counter = 0;
 function fixture(source) {

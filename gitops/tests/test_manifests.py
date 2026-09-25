@@ -2557,9 +2557,25 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `vs-estimating-recipe-cost-in-a-spreadsheet.html` comparison page,
     # both from their first commit, same shape as the rest of this running
     # count.
+    #
+    # 367 on this later merge: two further ventures graduated concurrently
+    # on `main`, neither visible to this branch until this merge -- a
+    # `npm-provenance-check` (a browser/CLI checker reporting which
+    # packages in a pasted lockfile carry an npm provenance attestation,
+    # trusted publishing / --provenance, with a
+    # why-not-just-npm-audit-signatures.html docs page) and
+    # `trump-account-calculator` (a browser-local calculator projecting a
+    # federal "Trump Account" child savings account, One Big Beautiful
+    # Bill Act, 26 U.S.C. 530A, to age 18 or later, with a
+    # vs-doing-the-math-by-hand.html comparison page). Each is static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count. This branch only ever
+    # knew its own predecessor's number (366, from its own
+    # `recipe-costing-calculator`) until this merge -- the same ordinary
+    # collision shape recorded throughout this list.
     # Total re-derived here by `sync_tree_counts.py` against the fully
     # merged tree rather than by hand.
-    total = 366  # `infra/OWNER_CHECKLIST.md`'s own "N of the 366 tools" wording.
+    total = 368  # `infra/OWNER_CHECKLIST.md`'s own "N of the 368 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
