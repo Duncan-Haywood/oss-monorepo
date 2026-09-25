@@ -44330,3 +44330,121 @@ entries:
         checklist_coverage.py, regen.mjs --verify and guard_state.py all
         clean.
     mrr_end: 0
+  - venture: trump-account-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped how-is-a-trump-account-taxed-when-you-withdraw.html, the
+        venture's first guide page (surface-budget.mjs flagged it at 1
+        comparison / 0 guide). Three worked examples pinned against
+        calc.mjs's projectTrumpAccount: a baseline non-qualified
+        withdrawal at 18 ($166,654.30 balance, 54.0% tax-free, $9,198.52
+        income tax + $7,665.43 penalty), the same withdrawal for a
+        recognized use (penalty waived, the $9,198.52 income tax
+        unchanged -- illustrating that unlike a 529 plan, a Trump
+        Account never waives tax on withdrawal, only the 10% penalty),
+        and the sharpest illustration of the pro-rata rule: routing
+        $2,500/year of the same $5,000/year total contribution through
+        an employer instead of a family member produces the identical
+        $166,654.30 balance but cuts the tax-free fraction from 54.0% to
+        27.0%, because employer contributions create no basis at all.
+        Linked from index.html's footer and added to sitemap.xml.
+      - >-
+        Verified: venture's own suite 47/47 (5 new page.test.mjs tests:
+        guide linked from/to index, all three scenarios' figures match
+        calc.mjs to the cent, FAQPage JSON-LD matches visible FAQ text
+        verbatim); full platform/marketing + platform/pages suite
+        1290/1290 clean after regen.mjs --verify confirmed the mirror
+        current; sync_tree_counts.py, checklist_coverage.py, and
+        surface-budget.mjs --check all clean; faq-visible.test.mjs and
+        siblings.test.mjs spot-checked clean. No new venture-scores.yaml
+        row needed (existing venture, no new VENTURE.yaml).
+      - >-
+        Landed as PR #5853 with a single, clean git merge origin/main
+        (no conflicts at all -- main had not touched this venture or the
+        front-door-tools mirror's kustomization.yaml shard boundary
+        since the prior PR's merge round) and merged on the first
+        attempt. CI note: the PR's own checks again came back red in
+        ~2-3s; ci_starvation.py --run 36089021606 confirmed 4/6 jobs on
+        runner_id: 0, consistent with #5849 minutes earlier -- merged on
+        the strength of the local verification above rather than CI.
+    mrr_end: 0
+  - venture: patreon-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a private browser calculator for Patreon creators to
+        find real monthly payout from three pledge tiers after the plan's
+        platform fee (10% Standard for pages created after August 4,
+        2025, or legacy 5%/8%/12% Lite/Pro/Premium for pages that predate
+        it) and per-charge payment processing (~2.9% + $0.30 standard, or
+        ~5% + $0.10 "micropayment" under $3, legacy plans only). Screened
+        first: duplicate_check.py scored every existing venture,
+        screened-out row, ai-first-markets idea, and pipeline candidate
+        at or below 0.40 (kickstarter-fee-calculator), under the 0.45
+        near-duplicate bar.
+      - >-
+        Three WebSearch passes against Patreon's own Help Center
+        (2026-09-25) caught and corrected a wrong first draft that had
+        modeled every plan as Lite/Pro/Premium 8/10/12% -- a structure
+        Patreon retired for new creators in August 2025. Shipped with the
+        corrected two-plan-family model instead.
+      - >-
+        Differentiating mechanic: compareBillingFrequency shows billing
+        patrons "per creation" instead of monthly pays the processing
+        fee's fixed component more often for identical revenue --
+        $90/month more on the Standard plan, $20.50/month more on a
+        legacy Pro plan, for 100 patrons at a $5 pledge over 4 posts.
+        Worked into does-per-creation-billing-cost-more-in-fees.html,
+        every figure pinned against calc.mjs in tests.
+      - >-
+        Shipped the standard five things (LICENSE, no-warranty +
+        not-affiliated disclaimers, privacy section, opt-out-able usage
+        counting, discoverability), a venture-scores.yaml row (composite
+        5.667; distribution scored low at 3 given at least ten existing
+        dedicated "Patreon fee calculator" sites found in the same search
+        pass), and a *-ci.yml test workflow. Shipped with an inbound
+        sibling link from its first commit (twitch-payout-calculator's
+        footer links back) rather than landing as a new crawlable orphan;
+        siblings-budget.json's orphan ceiling lowered back to 0 in the
+        same commit.
+      - >-
+        Also reclassified two already-graduated ventures
+        (claude-code-hooks-security-check, pypi-provenance-check) out of
+        build.mjs's catch-all category, which this venture's arrival
+        pushed to 6 against build.test.mjs's bound of 5 -- both are
+        un-added siblings of existing ci-category tools, left out of the
+        category regex at their own graduation. Also fixed a real WCAG
+        link-contrast regression (4.23:1 -> 4.86:1) caught by
+        ink.test.mjs.
+      - >-
+        Verified: venture's own suite 55/55; full platform/pages
+        (1015/1015, including the two guards this change required
+        fixing) and platform/marketing (275/275) suites clean after
+        regen.mjs --verify confirmed the mirror current; gitops/tests
+        (637 passed, 1 skipped); portfolio/ledger+scoring+router+usage+
+        pipeline+infra/tests (446 passed); platform/ci unittest sweep (15
+        modules) + agent_review; sync_tree_counts.py and
+        gitops/ci/sync_readme_counts.py both clean; siblings.mjs --check
+        and surface-budget.mjs --check both clean; score_ventures.py
+        --check, router/validate.py, and publish_surface.py --check all
+        clean.
+      - >-
+        Landed as PR #5856 after merging origin/main three times while
+        the branch was open (18+2+1 sibling commits), resolving the
+        generated front-door mirror conflicts per
+        resolve-mirror-merge.sh's documented procedure each time; merged
+        on the first attempt with no rebase needed. CI note: the PR's own
+        checks came back red in ~3s across all 24 jobs;
+        ci_starvation.py --run 36089572042 confirmed runner_id: 0 --
+        merged on the strength of the local verification above rather
+        than CI. Published the branch and recorded the Pages snapshot
+        after merging (CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh; pages_state.py --record).
+        IndexNow announce attempted and refused by this sandbox's own
+        egress proxy (403 on api.indexnow.org, not from IndexNow) -- the
+        same documented, unfixable-from-here limitation as every other
+        reading in indexnow_state.py's log.
+    mrr_end: 0

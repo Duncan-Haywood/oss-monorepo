@@ -7095,3 +7095,26 @@ products:
           short for a multi-repo or CI use case. `check_run` is the signal
           worth watching first: it fires only when a visitor pastes their
           own input and clicks Check, not on page load.
+  - slug: patreon-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-25
+        signals:
+          live_url_visitors: null
+          month-priced: 0
+          gap-checked: 0
+          link-copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          browser-local calculator turning a Patreon creator's three
+          pledge tiers into real net payout after the plan's platform fee
+          (Lite/Pro/Premium) and per-charge payment processing, and
+          showing when per-creation billing is quietly costing more in
+          fees than monthly billing for the same total pledge.
+          `live_url_visitors` is null, not zero -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in, so nobody
+          has measured yet. `month-priced` and `gap-checked` are the
+          signals worth watching first: they fire on every input change,
+          so they are the acts a visitor who actually uses the form
+          completes.
