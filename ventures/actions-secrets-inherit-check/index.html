@@ -100,7 +100,7 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste your workflow YAML and the scan runs entirely in this page.</p>
     <h3>Does a clean scan mean my workflows are safe?</h3>
     <p>No. This checks two specific, well-documented patterns in a single workflow file at a time. It is not a security audit and makes no claim about your repository's overall security. It does not evaluate whether the called workflow is actually trustworthy, and it does not follow a local reusable workflow to see what it in turn calls.</p>
-    <p>More: <a href="what-is-github-actions-secrets-inherit.html">what is <code>secrets: inherit</code> and when is it risky?</a> &middot; already run <a href="vs-zizmor.html">zizmor</a>? see what its <code>secrets-inherit</code> audit does and does not check.</p>
+    <p>More: <a href="what-is-github-actions-secrets-inherit.html">what is <code>secrets: inherit</code> and when is it risky?</a> &middot; already run <a href="vs-zizmor.html">zizmor</a>? see what its <code>secrets-inherit</code> audit does and does not check &middot; reviewing workflows by hand instead? see <a href="vs-checking-by-hand.html">where that holds up and where it slips</a>.</p>
   </section>
 
   <footer>
