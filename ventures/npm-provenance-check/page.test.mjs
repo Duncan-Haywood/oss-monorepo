@@ -67,6 +67,12 @@ test('index links one hop to the slopsquatting-check sibling', async () => {
   assert.match(page, /href="\.\.\/slopsquatting-check\/"/);
 });
 
+// Reciprocal half of pypi-provenance-check's own inbound-link test.
+test('index links one hop to the pypi-provenance-check sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\.\/pypi-provenance-check\/"/);
+});
+
 test('index has a title and meta description carrying the target search phrase', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /<title>[^<]*provenance[^<]*<\/title>/i);
