@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545739 bytes
-#   portfolio-front-tools-1: 91 files, 550873 bytes
-#   portfolio-front-tools-2: 144 files, 552251 bytes
-#   portfolio-front-tools-3: 131 files, 553185 bytes
-#   portfolio-front-tools-4: 141 files, 554426 bytes
-#   portfolio-front-tools-5: 124 files, 542008 bytes
-#   portfolio-front-tools-6: 127 files, 552243 bytes
-#   portfolio-front-tools-7: 137 files, 553817 bytes
-#   portfolio-front-tools-8: 121 files, 553277 bytes
-#   portfolio-front-tools-9: 134 files, 554613 bytes
-#   portfolio-front-tools-10: 134 files, 553182 bytes
-#   portfolio-front-tools-11: 121 files, 549907 bytes
-#   portfolio-front-tools-12: 118 files, 547903 bytes
-#   portfolio-front-tools-13: 119 files, 555993 bytes
-#   portfolio-front-tools-14: 129 files, 555332 bytes
-#   portfolio-front-tools-15: 130 files, 552855 bytes
-#   portfolio-front-tools-16: 132 files, 550236 bytes
-#   portfolio-front-tools-17: 120 files, 551492 bytes
-#   portfolio-front-tools-18: 104 files, 550192 bytes
-#   portfolio-front-tools-19: 122 files, 553164 bytes
-#   portfolio-front-tools-20: 125 files, 544445 bytes
-#   portfolio-front-tools-21: 71 files, 342423 bytes
-#   portfolio-front-tools-22: 50 files, 264916 bytes
+#   portfolio-front-tools-0: 145 files, 545749 bytes
+#   portfolio-front-tools-1: 91 files, 550883 bytes
+#   portfolio-front-tools-2: 144 files, 552250 bytes
+#   portfolio-front-tools-3: 131 files, 553190 bytes
+#   portfolio-front-tools-4: 141 files, 554436 bytes
+#   portfolio-front-tools-5: 124 files, 542020 bytes
+#   portfolio-front-tools-6: 127 files, 552248 bytes
+#   portfolio-front-tools-7: 137 files, 553876 bytes
+#   portfolio-front-tools-8: 121 files, 553327 bytes
+#   portfolio-front-tools-9: 134 files, 554644 bytes
+#   portfolio-front-tools-10: 134 files, 553135 bytes
+#   portfolio-front-tools-11: 121 files, 549874 bytes
+#   portfolio-front-tools-12: 118 files, 547877 bytes
+#   portfolio-front-tools-13: 119 files, 555924 bytes
+#   portfolio-front-tools-14: 129 files, 555289 bytes
+#   portfolio-front-tools-15: 130 files, 552917 bytes
+#   portfolio-front-tools-16: 134 files, 552901 bytes
+#   portfolio-front-tools-17: 121 files, 554967 bytes
+#   portfolio-front-tools-18: 104 files, 554091 bytes
+#   portfolio-front-tools-19: 122 files, 556038 bytes
+#   portfolio-front-tools-20: 127 files, 548031 bytes
+#   portfolio-front-tools-21: 71 files, 342448 bytes
+#   portfolio-front-tools-22: 50 files, 264867 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2333,14 +2333,19 @@ configMapGenerator:
       - redirect-chain-check__vs-checking-a-chain-by-hand.html.gz=redirect-chain-check__vs-checking-a-chain-by-hand.html.gz
       - redirect-chain-check__vs-httpstatus-io.html.gz=redirect-chain-check__vs-httpstatus-io.html.gz
       - redirect-chain-check__why-redirect-chains-matter.html.gz=redirect-chain-check__why-redirect-chains-matter.html.gz
-      - required-checks-drift-check__check.py.gz=required-checks-drift-check__check.py.gz
-      - required-checks-drift-check__classify.mjs.gz=required-checks-drift-check__classify.mjs.gz
-      - required-checks-drift-check__how-required-status-checks-go-stale.html.gz=required-checks-drift-check__how-required-status-checks-go-stale.html.gz
+      - referrer-permissions-policy-check__analyze.mjs.gz=referrer-permissions-policy-check__analyze.mjs.gz
+      - referrer-permissions-policy-check__check.mjs.gz=referrer-permissions-policy-check__check.mjs.gz
+      - referrer-permissions-policy-check__index.html.gz=referrer-permissions-policy-check__index.html.gz
+      - referrer-permissions-policy-check__probe.mjs.gz=referrer-permissions-policy-check__probe.mjs.gz
+      - referrer-permissions-policy-check__usage.mjs.gz=referrer-permissions-policy-check__usage.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - required-checks-drift-check__check.py.gz=required-checks-drift-check__check.py.gz
+      - required-checks-drift-check__classify.mjs.gz=required-checks-drift-check__classify.mjs.gz
+      - required-checks-drift-check__how-required-status-checks-go-stale.html.gz=required-checks-drift-check__how-required-status-checks-go-stale.html.gz
       - required-checks-drift-check__index.html.gz=required-checks-drift-check__index.html.gz
       - required-checks-drift-check__usage.mjs.gz=required-checks-drift-check__usage.mjs.gz
       - required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz=required-checks-drift-check__vs-reading-every-workflow-file-by-hand.html.gz
@@ -2459,13 +2464,13 @@ configMapGenerator:
       - shed-install-bid-calculator__index.html.gz=shed-install-bid-calculator__index.html.gz
       - shed-install-bid-calculator__usage.mjs.gz=shed-install-bid-calculator__usage.mjs.gz
       - shed-install-bid-calculator__vs-a-flat-price-per-square-foot.html.gz=shed-install-bid-calculator__vs-a-flat-price-per-square-foot.html.gz
-      - shed-install-bid-calculator__vs-jobber.html.gz=shed-install-bid-calculator__vs-jobber.html.gz
-      - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shed-install-bid-calculator__vs-jobber.html.gz=shed-install-bid-calculator__vs-jobber.html.gz
+      - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz
       - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
@@ -2568,13 +2573,13 @@ configMapGenerator:
       - soffit-fascia-bid-calculator__index.html.gz=soffit-fascia-bid-calculator__index.html.gz
       - soffit-fascia-bid-calculator__usage.mjs.gz=soffit-fascia-bid-calculator__usage.mjs.gz
       - soffit-fascia-bid-calculator__vs-jobber.html.gz=soffit-fascia-bid-calculator__vs-jobber.html.gz
-      - solar-pv-bid-calculator__calc.mjs.gz=solar-pv-bid-calculator__calc.mjs.gz
-      - solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz=solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - solar-pv-bid-calculator__calc.mjs.gz=solar-pv-bid-calculator__calc.mjs.gz
+      - solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz=solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz
       - solar-pv-bid-calculator__index.html.gz=solar-pv-bid-calculator__index.html.gz
       - solar-pv-bid-calculator__share.mjs.gz=solar-pv-bid-calculator__share.mjs.gz
       - solar-pv-bid-calculator__usage.mjs.gz=solar-pv-bid-calculator__usage.mjs.gz
@@ -2695,13 +2700,13 @@ configMapGenerator:
       - supabase-rls-check__analyze.mjs.gz=supabase-rls-check__analyze.mjs.gz
       - supabase-rls-check__check.mjs.gz=supabase-rls-check__check.mjs.gz
       - supabase-rls-check__index.html.gz=supabase-rls-check__index.html.gz
-      - supabase-rls-check__probe.mjs.gz=supabase-rls-check__probe.mjs.gz
-      - supabase-rls-check__usage.mjs.gz=supabase-rls-check__usage.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - supabase-rls-check__probe.mjs.gz=supabase-rls-check__probe.mjs.gz
+      - supabase-rls-check__usage.mjs.gz=supabase-rls-check__usage.mjs.gz
       - supabase-rls-check__vs-manually-checking-the-dashboard.html.gz=supabase-rls-check__vs-manually-checking-the-dashboard.html.gz
       - supabase-rls-check__vs-vibeappscanner.html.gz=supabase-rls-check__vs-vibeappscanner.html.gz
       - supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz=supabase-rls-check__why-does-disabling-rls-expose-my-supabase-data.html.gz

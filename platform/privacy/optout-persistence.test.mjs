@@ -882,7 +882,16 @@ const RELATIVE_SELF = relative(
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `qsbs-exclusion-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 357;
+//
+// 357 -> 358: `referrer-permissions-policy-check` also graduated,
+// concurrently and invisibly to the two entries above -- adding one
+// more `usage.mjs` (`ventures/referrer-permissions-policy-check/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `cache-control-check` sibling (`recordUsage`/`readOptOut`/
+// `writeOptOut` gating localStorage writes, keyed under its own
+// `referrer-permissions-policy-check-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 358;
 
 let counter = 0;
 function fixture(source) {
