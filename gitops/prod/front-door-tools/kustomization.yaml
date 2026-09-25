@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 129 files, 556621 bytes
 #   portfolio-front-tools-15: 126 files, 556964 bytes
 #   portfolio-front-tools-16: 136 files, 550981 bytes
-#   portfolio-front-tools-17: 101 files, 552975 bytes
+#   portfolio-front-tools-17: 102 files, 556882 bytes
 #   portfolio-front-tools-18: 118 files, 554354 bytes
 #   portfolio-front-tools-19: 126 files, 554917 bytes
 #   portfolio-front-tools-20: 123 files, 556047 bytes
@@ -2350,6 +2350,7 @@ configMapGenerator:
       - screened-porch-bid-calculator__vs-buildxact.html.gz=screened-porch-bid-calculator__vs-buildxact.html.gz
       - section-174a-catchup-calculator__calc.mjs.gz=section-174a-catchup-calculator__calc.mjs.gz
       - section-174a-catchup-calculator__index.html.gz=section-174a-catchup-calculator__index.html.gz
+      - section-174a-catchup-calculator__should-i-take-the-174a-catchup-in-one-year-or-two.html.gz=section-174a-catchup-calculator__should-i-take-the-174a-catchup-in-one-year-or-two.html.gz
       - section-174a-catchup-calculator__usage.mjs.gz=section-174a-catchup-calculator__usage.mjs.gz
       - section-174a-catchup-calculator__vs-doing-the-math-by-hand.html.gz=section-174a-catchup-calculator__vs-doing-the-math-by-hand.html.gz
       - security-camera-bid-calculator__calc.mjs.gz=security-camera-bid-calculator__calc.mjs.gz
