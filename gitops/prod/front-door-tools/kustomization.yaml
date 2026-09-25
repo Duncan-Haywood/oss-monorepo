@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545738 bytes
-#   portfolio-front-tools-1: 91 files, 550874 bytes
-#   portfolio-front-tools-2: 144 files, 552254 bytes
-#   portfolio-front-tools-3: 131 files, 553222 bytes
-#   portfolio-front-tools-4: 141 files, 554432 bytes
-#   portfolio-front-tools-5: 124 files, 541974 bytes
-#   portfolio-front-tools-6: 127 files, 552223 bytes
-#   portfolio-front-tools-7: 137 files, 553867 bytes
-#   portfolio-front-tools-8: 121 files, 553233 bytes
-#   portfolio-front-tools-9: 134 files, 554614 bytes
-#   portfolio-front-tools-10: 132 files, 552929 bytes
-#   portfolio-front-tools-11: 123 files, 553454 bytes
-#   portfolio-front-tools-12: 115 files, 541437 bytes
-#   portfolio-front-tools-13: 121 files, 556426 bytes
-#   portfolio-front-tools-14: 129 files, 555913 bytes
-#   portfolio-front-tools-15: 127 files, 540742 bytes
-#   portfolio-front-tools-16: 132 files, 550114 bytes
-#   portfolio-front-tools-17: 120 files, 551573 bytes
-#   portfolio-front-tools-18: 104 files, 550211 bytes
-#   portfolio-front-tools-19: 122 files, 553119 bytes
-#   portfolio-front-tools-20: 125 files, 544238 bytes
-#   portfolio-front-tools-21: 71 files, 342442 bytes
-#   portfolio-front-tools-22: 50 files, 264939 bytes
+#   portfolio-front-tools-0: 145 files, 545739 bytes
+#   portfolio-front-tools-1: 91 files, 550873 bytes
+#   portfolio-front-tools-2: 144 files, 552251 bytes
+#   portfolio-front-tools-3: 131 files, 553184 bytes
+#   portfolio-front-tools-4: 141 files, 554426 bytes
+#   portfolio-front-tools-5: 124 files, 542008 bytes
+#   portfolio-front-tools-6: 127 files, 552245 bytes
+#   portfolio-front-tools-7: 137 files, 553817 bytes
+#   portfolio-front-tools-8: 121 files, 553277 bytes
+#   portfolio-front-tools-9: 134 files, 554613 bytes
+#   portfolio-front-tools-10: 134 files, 556486 bytes
+#   portfolio-front-tools-11: 123 files, 556889 bytes
+#   portfolio-front-tools-12: 116 files, 545515 bytes
+#   portfolio-front-tools-13: 121 files, 556506 bytes
+#   portfolio-front-tools-14: 129 files, 555931 bytes
+#   portfolio-front-tools-15: 127 files, 540676 bytes
+#   portfolio-front-tools-16: 132 files, 550236 bytes
+#   portfolio-front-tools-17: 120 files, 551492 bytes
+#   portfolio-front-tools-18: 104 files, 550192 bytes
+#   portfolio-front-tools-19: 122 files, 553164 bytes
+#   portfolio-front-tools-20: 125 files, 544433 bytes
+#   portfolio-front-tools-21: 71 files, 342423 bytes
+#   portfolio-front-tools-22: 50 files, 264916 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1485,6 +1485,9 @@ configMapGenerator:
       - excess-business-loss-calculator__index.html.gz=excess-business-loss-calculator__index.html.gz
       - excess-business-loss-calculator__usage.mjs.gz=excess-business-loss-calculator__usage.mjs.gz
       - excess-business-loss-calculator__vs-doing-the-math-by-hand.html.gz=excess-business-loss-calculator__vs-doing-the-math-by-hand.html.gz
+      - exempt-salary-threshold-checker__calc.mjs.gz=exempt-salary-threshold-checker__calc.mjs.gz
+      - exempt-salary-threshold-checker__index.html.gz=exempt-salary-threshold-checker__index.html.gz
+      - exempt-salary-threshold-checker__usage.mjs.gz=exempt-salary-threshold-checker__usage.mjs.gz
       - exterior-painting-bid-calculator__calc.mjs.gz=exterior-painting-bid-calculator__calc.mjs.gz
       - exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz=exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz
       - exterior-painting-bid-calculator__index.html.gz=exterior-painting-bid-calculator__index.html.gz
@@ -1554,12 +1557,12 @@ configMapGenerator:
       - food-truck-event-margin-calculator__vs-a-flat-per-guest-price.html.gz=food-truck-event-margin-calculator__vs-a-flat-per-guest-price.html.gz
       - food-truck-event-margin-calculator__vs-roaminghunger.html.gz=food-truck-event-margin-calculator__vs-roaminghunger.html.gz
       - forestry-mulching-bid-calculator__calc.mjs.gz=forestry-mulching-bid-calculator__calc.mjs.gz
-      - forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz=forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz=forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz
       - forestry-mulching-bid-calculator__index.html.gz=forestry-mulching-bid-calculator__index.html.gz
       - forestry-mulching-bid-calculator__share.mjs.gz=forestry-mulching-bid-calculator__share.mjs.gz
       - forestry-mulching-bid-calculator__usage.mjs.gz=forestry-mulching-bid-calculator__usage.mjs.gz
@@ -1682,12 +1685,12 @@ configMapGenerator:
       - hidden-unicode-check__index.html.gz=hidden-unicode-check__index.html.gz
       - hidden-unicode-check__usage.mjs.gz=hidden-unicode-check__usage.mjs.gz
       - hidden-unicode-check__vs-mcp-scan.html.gz=hidden-unicode-check__vs-mcp-scan.html.gz
-      - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hidden-unicode-check__vs-reading-the-file-by-hand.html.gz=hidden-unicode-check__vs-reading-the-file-by-hand.html.gz
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
