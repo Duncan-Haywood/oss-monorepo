@@ -46206,6 +46206,55 @@ entries:
         start), siblings.mjs --check (0 orphans of 378), score_ventures.py
         --check (386 scores) all clean on the tree this PR ships.
     mrr_end: 0
+  - venture: stucco-repair-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-flat-rate-per-square-foot.html: a generic-method
+        comparison page against the flat "$X a square foot" quote the
+        trade already shops. Filled one of the 39 ventures
+        surface-budget.mjs --check reported with zero generic-method
+        comparison pages. Computed the worked example from calc.mjs's own
+        shipped job presets rather than inventing numbers: an 80 sq ft
+        first-story one-coat delamination patch prices at $38.12/sq ft
+        ($3,049.99 on $2,195.99 cost), a 220 sq ft second-story EIFS
+        tear-off with a moisture investigation prices at $54.28/sq ft
+        ($11,941.26 on $8,597.71 cost), and quoting the second job at the
+        first job's flat rate ($38.12 x 220 = $8,387.47) prices it
+        $210.24 below its own break-even cost -- before counting the
+        $3,553.79 shortfall against this calculator's own price. Also
+        named the case a flat per-square-foot rate cannot even address:
+        a crack-only job has no repair square footage to multiply against
+        (pricePerRepairSf is null), so the comparison page's FAQ and test
+        suite cover that gap explicitly rather than only the two-job
+        pricing example. Registered the exemption in clauses.mjs, linked
+        from index.html and sitemap.xml, regenerated the front-door
+        mirror.
+      - >-
+        Verified: venture's own suite 115/115 (including the new
+        pricePerRepairSf-is-null assertion for the crack-only preset);
+        full platform/marketing + platform/pages suite 1290/1290 (run
+        twice -- an in-progress run showed 6 spurious failures caused by
+        running regen.mjs --verify concurrently with the test suite,
+        exactly the race CLAUDE.md documents against gitops/prod/; a
+        sequential rerun with nothing else touching gitops/prod/ came back
+        clean, confirming the failures were the documented race and not a
+        real defect); regen.mjs --verify, checklist_coverage.py,
+        surface-budget.mjs --check (38 ventures now carry zero, down from
+        39 at session start), siblings.mjs --check (0 orphans of 380),
+        score_ventures.py --check (388 scores), portfolio/router/validate.py
+        (387 VENTURE.yaml), pipeline/validate_doc_consistency.py,
+        pipeline/validate_candidates.py, probes/validate_probe_index.py,
+        pipeline/score_sensitivity.py, usage/validate_usage.py all clean;
+        python3 -m pytest gitops/tests -q 613 passed / 25 skipped
+        (documented environmental skips); platform/ci's 26 unittest
+        modules all OK; portfolio/ledger + scoring + router + usage +
+        pipeline + infra/tests pytest suite 446 passed. ci_starvation.py
+        --run 36109390628 confirmed Actions starved this session
+        (runner_id: 0, 3s, no steps), so verified fully locally as above
+        before merging.
+    mrr_end: 0
   - venture: child-tax-credit-calculator
     agent_spend_usd: null
     human_hours: 0
