@@ -44087,19 +44087,19 @@ entries:
         signal moved -- this is marketing-surface work on an existing
         prototype-stage venture, not a new product or a usage reading.
       - >-
-        A second merge round surfaced a real, pre-existing defect on
-        `main` unrelated to this change: pypi-provenance-check/index.html
-        (landed via #5826) shipped with four FAQPage JSON-LD answers that
-        no longer matched their own visible <p> prose word-for-word (a
-        missing lead-in clause, a dropped word, punctuation), which
-        faq-visible.test.mjs failed on. A concurrent session's own ledger
-        entry (sewer-hydrojet-bid-calculator, this same file) claims to
-        have already fixed the identical divergence via a since-merged
-        #5828 -- but `git show origin/main:ventures/pypi-provenance-check/
-        index.html` at the point this branch merged still carried the
-        original, unfixed text verbatim, so that fix evidently never
-        landed. Fixed forward here instead, in the other direction
-        (correcting the JSON-LD to match the already-live visible prose,
-        per faq-visible.test.mjs's own stated convention); re-verified
-        clean afterward.
+        A merge round briefly surfaced what looked like a real,
+        pre-existing FAQPage JSON-LD/visible-text divergence on
+        pypi-provenance-check/index.html (unrelated to this change) --
+        this branch's working copy still carried the pre-#5828 state,
+        so faq-visible.test.mjs failed against it before the merge. #5828
+        had already fixed the identical divergence on `main` (in the
+        opposite direction: editing the visible <p> copy to match the
+        JSON-LD) by the time this branch merged; a same-file, non-
+        overlapping-lines edit made here independently (editing the
+        JSON-LD to match the pre-#5828 <p> copy) merged cleanly with no
+        conflict, which silently reintroduced the mismatch in reverse.
+        Caught by re-running faq-visible.test.mjs after the merge rather
+        than trusting the earlier green result; reverted this branch's
+        edit to that file entirely (now byte-identical to `main`) rather
+        than layering a second fix on top of #5828's.
     mrr_end: 0
