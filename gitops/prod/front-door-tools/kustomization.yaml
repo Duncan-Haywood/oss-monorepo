@@ -52,8 +52,8 @@
 #   portfolio-front-tools-16: 136 files, 550981 bytes
 #   portfolio-front-tools-17: 101 files, 552978 bytes
 #   portfolio-front-tools-18: 118 files, 554354 bytes
-#   portfolio-front-tools-19: 125 files, 551249 bytes
-#   portfolio-front-tools-20: 123 files, 555932 bytes
+#   portfolio-front-tools-19: 126 files, 554917 bytes
+#   portfolio-front-tools-20: 123 files, 556047 bytes
 #   portfolio-front-tools-21: 77 files, 389625 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2695,6 +2695,7 @@ configMapGenerator:
       - tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz=tree-service-bid-calculator__vs-a-flat-per-inch-rate.html.gz
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
       - trump-account-calculator__calc.mjs.gz=trump-account-calculator__calc.mjs.gz
+      - trump-account-calculator__how-is-a-trump-account-taxed-when-you-withdraw.html.gz=trump-account-calculator__how-is-a-trump-account-taxed-when-you-withdraw.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
