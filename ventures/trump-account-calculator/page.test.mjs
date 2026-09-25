@@ -129,6 +129,69 @@ test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
   assert.equal(app.offers.price, "0");
 });
 
+test("index links to the how-is-a-trump-account-taxed-when-you-withdraw guide", () => {
+  assert.match(page("index.html"), /href="\.\/how-is-a-trump-account-taxed-when-you-withdraw\.html"/);
+});
+
+test("the withdrawal-tax guide links back to the calculator and is listed in the venture sitemap", () => {
+  const guide = page("how-is-a-trump-account-taxed-when-you-withdraw.html");
+  assert.match(guide, /href="\.\/"/);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /Nothing leaves your browser/);
+  const sitemap = page("sitemap.xml");
+  assert.match(sitemap, /how-is-a-trump-account-taxed-when-you-withdraw\.html/);
+});
+
+test("the withdrawal-tax guide's worked-example figures match calc.mjs for the same inputs", async () => {
+  const { projectTrumpAccount } = await import("./calc.mjs");
+  const guide = page("how-is-a-trump-account-taxed-when-you-withdraw.html");
+
+  const base = {
+    currentAge: 0, withdrawalAge: 18, seedEligible: true,
+    annualFamilyContribution: 5000, annualEmployerContribution: 0,
+    annualReturnPercent: 6, marginalTaxRatePercent: 12,
+  };
+
+  const nonQualified = projectTrumpAccount({ ...base, qualifiedUse: false });
+  assert.equal(nonQualified.balance.toFixed(2), "166654.30");
+  assert.equal(nonQualified.basis.toFixed(2), "90000.00");
+  assert.equal((nonQualified.taxFreeFraction * 100).toFixed(1), "54.0");
+  assert.equal(nonQualified.incomeTax.toFixed(2), "9198.52");
+  assert.equal(nonQualified.penalty.toFixed(2), "7665.43");
+  assert.equal(nonQualified.netAfterTax.toFixed(2), "149790.35");
+  assert.match(guide, /\$166,654\.30/);
+  assert.match(guide, /\$9,198\.52/);
+  assert.match(guide, /\$7,665\.43/);
+  assert.match(guide, /\$149,790\.35/);
+
+  const qualified = projectTrumpAccount({ ...base, qualifiedUse: true });
+  assert.equal(qualified.penalty.toFixed(2), "0.00");
+  assert.equal(qualified.netAfterTax.toFixed(2), "157455.78");
+  assert.match(guide, /\$157,455\.78/);
+
+  const halfEmployer = projectTrumpAccount({
+    ...base, qualifiedUse: false,
+    annualFamilyContribution: 2500, annualEmployerContribution: 2500,
+  });
+  assert.equal(halfEmployer.balance.toFixed(2), "166654.30");
+  assert.equal(halfEmployer.basis.toFixed(2), "45000.00");
+  assert.equal((halfEmployer.taxFreeFraction * 100).toFixed(1), "27.0");
+  assert.match(guide, /\$45,000\.00/);
+  assert.match(guide, /27\.0%/);
+});
+
+test("the withdrawal-tax guide's FAQPage JSON-LD matches its visible FAQ text exactly", () => {
+  const guide = page("how-is-a-trump-account-taxed-when-you-withdraw.html");
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const faq = blocks.find((b) => b["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the withdrawal-tax guide");
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(guide.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(guide.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
 test("no module in this venture can reach the network", () => {
   const calcSource = readFileSync(new URL("./calc.mjs", import.meta.url), "utf8");
   const html = page("index.html");

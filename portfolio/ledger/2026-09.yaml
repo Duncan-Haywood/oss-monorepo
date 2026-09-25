@@ -44293,3 +44293,43 @@ entries:
         jobs on runner_id: 0 (never assigned a runner), so merged on the
         strength of the local verification above rather than CI.
     mrr_end: 0
+  - venture: trump-account-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped how-is-a-trump-account-taxed-when-you-withdraw.html, the
+        venture's first guide page (surface-budget.mjs flagged it at 1
+        comparison / 0 guide). Three worked examples pinned against
+        calc.mjs's projectTrumpAccount: a baseline non-qualified
+        withdrawal at 18 ($166,654.30 balance, 54.0% tax-free, $9,198.52
+        income tax + $7,665.43 penalty), the same withdrawal for a
+        recognized use (penalty waived, the $9,198.52 income tax
+        unchanged -- illustrating that unlike a 529 plan, a Trump
+        Account never waives tax on withdrawal, only the 10% penalty),
+        and the sharpest illustration of the pro-rata rule: routing
+        $2,500/year of the same $5,000/year total contribution through
+        an employer instead of a family member produces the identical
+        $166,654.30 balance but cuts the tax-free fraction from 54.0% to
+        27.0%, because employer contributions create no basis at all.
+        Linked from index.html's footer and added to sitemap.xml.
+      - >-
+        Verified: venture's own suite 47/47 (5 new page.test.mjs tests:
+        guide linked from/to index, all three scenarios' figures match
+        calc.mjs to the cent, FAQPage JSON-LD matches visible FAQ text
+        verbatim); full platform/marketing + platform/pages suite
+        1290/1290 clean after regen.mjs --verify confirmed the mirror
+        current; sync_tree_counts.py, checklist_coverage.py, and
+        surface-budget.mjs --check all clean; faq-visible.test.mjs and
+        siblings.test.mjs spot-checked clean. No new venture-scores.yaml
+        row needed (existing venture, no new VENTURE.yaml).
+      - >-
+        Landed as PR #5853 with a single, clean git merge origin/main
+        (no conflicts at all -- main had not touched this venture or the
+        front-door-tools mirror's kustomization.yaml shard boundary
+        since the prior PR's merge round) and merged on the first
+        attempt. CI note: the PR's own checks again came back red in
+        ~2-3s; ci_starvation.py --run 36089021606 confirmed 4/6 jobs on
+        runner_id: 0, consistent with #5849 minutes earlier -- merged on
+        the strength of the local verification above rather than CI.
+    mrr_end: 0
