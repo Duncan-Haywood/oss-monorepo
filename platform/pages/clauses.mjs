@@ -2114,6 +2114,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vinyl-liner sibling above; distinct from vs-aspire.html,
   // which does name a product and carries its own "not affiliated" clause.
   'sod-install-bid-calculator/vs-a-flat-per-square-foot-special.html',
+  // Compares against "a flat $55-a-square-foot special" -- the yard-sign
+  // pricing habit every porch/lanai crew is shopped against, not a company
+  // or product this could be mistaken for. Same shape as the sod-install
+  // and vinyl-liner siblings above; distinct from this venture's own
+  // vs-buildxact.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'screened-porch-bid-calculator/vs-a-flat-55-a-square-foot-special.html',
   // Compares against "manually checking each exports target by eye" -- the
   // habit every package.json author already has, not a company or product
   // this could be mistaken for. The page's own first paragraph says so
