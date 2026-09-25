@@ -46127,3 +46127,82 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 on every recent main
         check).
     mrr_end: 0
+  - venture: staffing-markup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-spreadsheet.html (#5917, merged): a generic-method
+        comparison page against pricing a placement's markup and margin in
+        a hand-built spreadsheet formula. surface-budget.mjs --check had
+        reported 41 ventures carrying zero generic-method comparison
+        pages; this filled one of them with the venture's own strongest
+        angle -- the trade's usual markup/(1+markup) margin identity is
+        only correct when the pay rate is the whole cost, and calc.mjs
+        already prices the gap (capped FUTA/SUTA, the comp class rate
+        with the OT premium excluded, payment-term carry) that a
+        one-line formula misses. Registered the page's exemption in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT set and regenerated
+        the front-door mirror.
+      - >-
+        One real defect caught during verification, the same shape
+        CLAUDE.md already records against faq-visible.test.mjs elsewhere:
+        the FAQPage JSON-LD used ASCII "--" where the visible prose used
+        an em-dash. The test caught it before it shipped; normalized the
+        JSON-LD to match.
+      - >-
+        Merged origin/main mid-session (two sibling PRs landed:
+        referrer-permissions-policy-check and a subcontractor-
+        cashflow-planner comparison page) and resolved the generated
+        front-door mirror conflicts by regenerating from the merged
+        sources rather than picking a side, per resolve-mirror-merge.sh's
+        own guidance -- the one real hand-written conflict, in
+        clauses.mjs, was purely additive (both new exemption entries
+        kept).
+      - >-
+        Verified: venture's own suite 112/112 (including
+        faq-visible.test.mjs); full platform/marketing + platform/pages
+        suite 1290/1290, run three times (pre-merge, immediately after
+        resolving the mirror conflict, and once more on the merged tree)
+        to confirm the regenerated mirror stayed clean each time;
+        regen.mjs --verify, checklist_coverage.py, sync_tree_counts.py
+        (378 mirrored tools, 357 opt-out switches), surface-budget.mjs
+        --check, siblings.mjs --check (0 orphans of 378), score_ventures.py
+        --check (386 scores) all clean; python3 -m pytest gitops/tests -q
+        613 passed / 25 skipped (documented environmental skips).
+        ci_starvation.py --run 36106426880 confirmed Actions starved this
+        session (runner_id: 0, 3s, no steps), so verified fully locally
+        as above before merging.
+    mrr_end: 0
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-spreadsheet.html: a second generic-method comparison
+        page in the same session, against a one-line referral-percentage
+        spreadsheet. The venture's own README already named the angle --
+        "a spreadsheet that forgot the referral floor, WFS storage, the
+        match, the Buy Box, return processing, aged storage, ad
+        attribution, or take rate on a price drop" -- so the page states
+        the per-item referral floor Walmart charges (the larger of the
+        category percentage or a fixed minimum, which a bare price*rate
+        formula silently understates on cheap SKUs) and lists the six
+        follow-on decisions calc.mjs answers that a fee-only spreadsheet
+        does not. Registered the exemption in clauses.mjs, linked from
+        index.html and sitemap.xml, regenerated the front-door mirror.
+      - >-
+        Hit the identical em-dash-vs-"--" JSON-LD mismatch as the
+        staffing-markup-calculator page above, caught by the same
+        faq-visible.test.mjs run -- worth naming twice in one entry,
+        because writing FAQPage JSON-LD by hand from prose that uses
+        &mdash; is now a repeated failure mode across two ventures in one
+        session, not a one-off.
+      - >-
+        Verified: venture's own suite 139/139; full platform/marketing +
+        platform/pages suite 1290/1290; regen.mjs --verify,
+        checklist_coverage.py, sync_tree_counts.py, surface-budget.mjs
+        --check (39 ventures now carry zero, down from 41 at session
+        start), siblings.mjs --check (0 orphans of 378), score_ventures.py
+        --check (386 scores) all clean on the tree this PR ships.
+    mrr_end: 0

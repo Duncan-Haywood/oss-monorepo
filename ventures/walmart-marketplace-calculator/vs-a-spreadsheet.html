@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a spreadsheet</title>
+  <meta name="description" content="A Walmart fee spreadsheet usually applies one referral percentage and stops. This free calculator applies the per-item referral floor, WFS size-tier fulfillment and storage, the price match, and six follow-on decisions -- returns, aged inventory, Walmart Connect, and the box-size fee -- to your own numbers.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="vs-a-spreadsheet.html">
+  <meta property="og:title" content="This calculator vs. a spreadsheet">
+  <meta property="og:description" content="A spreadsheet can price a Walmart listing correctly, if it carries a formula for the referral floor, WFS storage, and every follow-on decision. This calculator applies all of them to your own numbers directly.">
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d3e2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #445064; }
+    .note { font-size: .85rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can a spreadsheet price a Walmart Marketplace listing correctly?","acceptedAnswer":{"@type":"Answer","text":"It can, but the one-line version most sellers start with — sale price times one referral percentage — misses the per-item referral floor that bites cheap SKUs, the WFS size-tier fulfillment fee and storage, and the shipping label cost on a seller-fulfilled order. A spreadsheet can model all of those correctly too, but it has to carry a formula for each one and get the size-tier and floor logic right, and it still stops at the fee — it does not answer whether WFS beats seller fulfilled, whether a price match still leaves a profit, or the other listing-level decisions below."}},{"@type":"Question","name":"What does a one-line referral-percentage spreadsheet miss?","acceptedAnswer":{"@type":"Answer","text":"The per-item referral floor: Walmart charges the larger of the category percentage or a fixed minimum, so a cheap SKU's real referral fee is the floor, not the percentage — a formula that only multiplies price by rate understates the fee on exactly the listings where margin is already thin. It also misses WFS's size-tier fulfillment fee, which is a step function of dimensions and weight rather than a percentage, and the storage fee for however long the unit sits."}},{"@type":"Question","name":"What decisions does this calculator answer that a fee spreadsheet does not?","acceptedAnswer":{"@type":"Answer","text":"Whether WFS or shipping the order yourself nets more on this SKU's numbers, whether matching a lower competing offer still leaves a profit, whether a seller-fulfilled 2-day label still beats WFS after take rate, whether WFS still beats seller fulfilled once Walmart's return rate is counted, whether pulling leftover WFS units beats paying aged storage, whether extra Walmart Connect ad spend still covers its own attributed sales, and whether a smaller box crosses a WFS size-tier boundary and cuts the fee. A referral-fee spreadsheet answers none of these; each is a separate comparison this calculator runs from the same inputs."}},{"@type":"Question","name":"Is anything I enter uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator this page links to runs entirely in your browser. The optional Copy shareable link feature puts your inputs in the URL fragment, which browsers never send to a server."}}]}</script>
+</head>
+<body>
+  <p><a href="./">&larr; Walmart Marketplace WFS vs seller-fulfilled calculator</a></p>
+  <h1>This calculator vs. a spreadsheet</h1>
+  <p>
+    A spreadsheet can price a Walmart listing correctly, and plenty of
+    sellers already have one: sale price times a referral percentage,
+    maybe a fulfillment fee guessed from memory. That formula is exactly
+    right when the SKU is priced well above the referral floor and the
+    only question is the fee on one order. It stops being right the
+    moment either of those changes, and it never answers the six
+    follow-on decisions below.
+  </p>
+  <p>
+    <strong>Walmart charges the larger of the category referral
+    percentage or a fixed per-item minimum</strong> &mdash; a one-line
+    <code>price &times; rate</code> formula silently understates the fee
+    on every SKU cheap enough for the floor to bind, which is exactly
+    where margin is already thin. WFS fulfillment is a size-tier step
+    function of dimensions and weight, not a percentage, and storage
+    accrues for however long the unit actually sits. A spreadsheet can
+    model all three correctly &mdash; this calculator applies the same
+    method to your own numbers directly, then goes further.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What is the real referral fee on a SKU near the per-item floor?</td>
+        <td>This calculator &mdash; it applies <code>max(price &times; rate, floor)</code>, so the floor shows up on its own rather than needing a spreadsheet formula to catch it.</td>
+      </tr>
+      <tr>
+        <td>Does WFS or shipping it myself net more on this SKU?</td>
+        <td>This calculator's WFS-vs-seller-fulfilled comparison, including size-tier fulfillment, storage, inbound, and the label you would buy yourself.</td>
+      </tr>
+      <tr>
+        <td>Does matching a lower competing offer still leave a profit?</td>
+        <td>This calculator's price-match comparison &mdash; a question a fee-only spreadsheet does not model at all.</td>
+      </tr>
+      <tr>
+        <td>Do returns, aged inventory, ads, or box size change the answer?</td>
+        <td>This calculator's four follow-on comparisons, run from the same listing inputs. A referral-fee spreadsheet answers none of these.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Nothing here says a spreadsheet is the wrong way to price a Walmart
+    listing &mdash; a correctly built one gets the fee right too. The
+    difference is what it costs to keep it right: this calculator applies
+    the referral floor, size-tier fulfillment, and every follow-on
+    decision the same way every time, with no formula to write, extend,
+    or re-check after Walmart's fee schedule changes.
+  </p>
+  <p>
+    It needs no account and no sign-in: it is a static page, the
+    arithmetic runs in your browser, and once it has loaded it keeps
+    working with the connection off. Nothing you type is uploaded
+    anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Can a spreadsheet price a Walmart Marketplace listing correctly?</h3>
+  <p>It can, but the one-line version most sellers start with &mdash; sale price times one referral percentage &mdash; misses the per-item referral floor that bites cheap SKUs, the WFS size-tier fulfillment fee and storage, and the shipping label cost on a seller-fulfilled order. A spreadsheet can model all of those correctly too, but it has to carry a formula for each one and get the size-tier and floor logic right, and it still stops at the fee &mdash; it does not answer whether WFS beats seller fulfilled, whether a price match still leaves a profit, or the other listing-level decisions below.</p>
+  <h3>What does a one-line referral-percentage spreadsheet miss?</h3>
+  <p>The per-item referral floor: Walmart charges the larger of the category percentage or a fixed minimum, so a cheap SKU's real referral fee is the floor, not the percentage &mdash; a formula that only multiplies price by rate understates the fee on exactly the listings where margin is already thin. It also misses WFS's size-tier fulfillment fee, which is a step function of dimensions and weight rather than a percentage, and the storage fee for however long the unit sits.</p>
+  <h3>What decisions does this calculator answer that a fee spreadsheet does not?</h3>
+  <p>Whether WFS or shipping the order yourself nets more on this SKU's numbers, whether matching a lower competing offer still leaves a profit, whether a seller-fulfilled 2-day label still beats WFS after take rate, whether WFS still beats seller fulfilled once Walmart's return rate is counted, whether pulling leftover WFS units beats paying aged storage, whether extra Walmart Connect ad spend still covers its own attributed sales, and whether a smaller box crosses a WFS size-tier boundary and cuts the fee. A referral-fee spreadsheet answers none of these; each is a separate comparison this calculator runs from the same inputs.</p>
+  <h3>Is anything I enter uploaded anywhere?</h3>
+  <p>No. The calculator this page links to runs entirely in your browser. The optional Copy shareable link feature puts your inputs in the URL fragment, which browsers never send to a server.</p>
+  <p class="note">
+    Open the <a href="./">Walmart Marketplace calculator</a> to run the
+    comparison on your own numbers.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This is not tax, financial, or business advice. Verify every rate against your current Seller Center fee preview before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
