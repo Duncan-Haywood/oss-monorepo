@@ -34,7 +34,7 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 145 files, 545706 bytes
-#   portfolio-front-tools-1: 91 files, 550850 bytes
+#   portfolio-front-tools-1: 92 files, 554470 bytes
 #   portfolio-front-tools-2: 145 files, 557044 bytes
 #   portfolio-front-tools-3: 131 files, 556651 bytes
 #   portfolio-front-tools-4: 143 files, 556625 bytes
@@ -316,6 +316,7 @@ configMapGenerator:
       - walmart-marketplace-calculator__should-i-run-walmart-connect-ads.html.gz=walmart-marketplace-calculator__should-i-run-walmart-connect-ads.html.gz
       - walmart-marketplace-calculator__should-i-use-wfs-with-walmart-returns.html.gz=walmart-marketplace-calculator__should-i-use-wfs-with-walmart-returns.html.gz
       - walmart-marketplace-calculator__usage.mjs.gz=walmart-marketplace-calculator__usage.mjs.gz
+      - walmart-marketplace-calculator__vs-a-spreadsheet.html.gz=walmart-marketplace-calculator__vs-a-spreadsheet.html.gz
       - walmart-marketplace-calculator__vs-wfs-cost-estimator.html.gz=walmart-marketplace-calculator__vs-wfs-cost-estimator.html.gz
       - walmart-marketplace-calculator__wfs-vs-seller-fulfilled.html.gz=walmart-marketplace-calculator__wfs-vs-seller-fulfilled.html.gz
       - tiktok-shop-fee-calculator__affiliate-commission-on-returns.html.gz=tiktok-shop-fee-calculator__affiliate-commission-on-returns.html.gz
