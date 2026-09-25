@@ -45784,13 +45784,34 @@ entries:
         running any test -- clean this time.
       - >-
         Verified: venture's own suite 82/82; faq-visible.test.mjs run
-        alongside it, 86/86 clean on the first pass; full
-        platform/marketing + platform/pages suite 1290/1290;
-        checklist_coverage.py, sync_tree_counts.py (unchanged -- no new
-        mirrored tool or opt-out switch, only a new page on an existing
-        one), siblings.mjs --check (0 orphans of 377), surface-budget.mjs
-        --for security-txt-check (now at its 1-page budget), regen.mjs
-        --verify all clean. CI note: Actions confirmed starved earlier
-        this session (ci_starvation.py: runner_id: 0 on sampled jobs) --
-        expect the same on this PR.
+        alongside it, 86/86 clean on the first pass. checklist_coverage.py,
+        sync_tree_counts.py (unchanged -- no new mirrored tool or opt-out
+        switch, only a new page on an existing one), siblings.mjs --check
+        (0 orphans of 377), surface-budget.mjs --for security-txt-check
+        (now at its 1-page budget), regen.mjs --verify all clean.
+      - >-
+        The FIRST full platform/marketing + platform/pages run came back
+        1289/1290: front-door.test.mjs's "every rendered per-product
+        comparison page is mounted by the kustomization" -- this page's
+        comparison subject ("checking it by eye", the text after "vs." in
+        its own <h1>) exactly matches structured-data-drift-check's
+        existing vs-checking-it-by-eye.html, so adding a second venture
+        with that subject crossed front-door.mjs's
+        COMPARE_PRODUCT_MIN_TOOLS=2 threshold and promoted it into a
+        shared apex page for the first time. The generator already wrote
+        gitops/prod/front-door/vs__checking-it-by-eye.html.gz;
+        gitops/prod/kustomization.yaml, which mounts that file into the
+        ConfigMap, is deliberately hand-kept rather than generated (per
+        the test's own comment) and was simply missing the new line --
+        the page would have been dark (unreachable) had this merged
+        unnoticed. Added the one missing kustomization.yaml line; re-run
+        confirmed 118/118 on front-door.test.mjs alone and 1290/1290 on
+        the full suite. Neither `regen.mjs --verify` nor
+        `sync_tree_counts.py` would have caught this -- both only check
+        files the generators themselves write, and this file is outside
+        that set by design.
+      - >-
+        CI note: Actions confirmed starved earlier this session
+        (ci_starvation.py: runner_id: 0 on sampled jobs) -- expect the
+        same on this PR.
     mrr_end: 0
