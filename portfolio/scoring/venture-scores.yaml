@@ -2895,6 +2895,48 @@ ventures:
       classification, a carrier quote, or a booking instruction.
       Nothing the user enters leaves the browser.
 
+  - slug: hsa-contribution-limit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against a published, dated table of IRS dollar limits --
+      a coverage-type lookup, a monthly proration, and a fixed catch-up
+      addition, never an inference step.
+    basis: >-
+      Screened 2026-09-25 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py scored every venture, screened-out row, and
+      pipeline candidate at or below 0.15 against the final description.
+      Distribution 6 reflects open-enrollment seasonality (October-
+      December) driving a predictable annual search spike for "HSA
+      contribution limit 2026", confirmed via WebSearch against Fidelity,
+      Thomson Reuters Tax, Mercer, and IRS Rev. Proc. 2025-19 itself.
+      Defensibility 2, lower than its nearest sibling
+      mega-backdoor-roth-calculator (2): a single published IRS table
+      applied via arithmetic, trivially replicated by any competitor
+      reading the same Rev. Proc.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the page states in three places (the intro caveat, the
+      dedicated finding shown when the last-month rule is selected, and
+      the FAQ) that the last-month rule's testing-period consequence can
+      make excess contributions taxable plus a 10% additional tax, rather
+      than only stating the rule's benefit. Every dollar figure was
+      verified against three independent named sources plus the IRS's own
+      Rev. Proc. before being committed.
+
   - slug: hvac-maintenance-contract-calculator
     scores:
       ai_leverage: 1
