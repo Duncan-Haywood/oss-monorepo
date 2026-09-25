@@ -2670,7 +2670,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # higher figure). Static `index.html` only, no comparison page, from
     # its first commit. Total re-derived here by `sync_tree_counts.py`
     # against the fully merged tree rather than by hand.
-    total = 380  # `infra/OWNER_CHECKLIST.md`'s own "N of the 380 tools" wording.
+    #
+    # 380 -> 381: `boi-reporting-exemption-checker` also graduated -- a
+    # browser-local checker for whether an entity still owes a federal
+    # Corporate Transparency Act beneficial ownership report after
+    # FinCEN's August 2026 final rule permanently exempted every
+    # U.S.-formed entity, applying only to foreign-formed entities
+    # registered to do business in the U.S. Static `index.html` only, no
+    # comparison page, from its first commit.
+    total = 381  # `infra/OWNER_CHECKLIST.md`'s own "N of the 381 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

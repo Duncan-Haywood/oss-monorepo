@@ -899,7 +899,15 @@ const RELATIVE_SELF = relative(
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `exempt-salary-threshold-checker-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 359;
+//
+// 359 -> 360: `boi-reporting-exemption-checker` also graduated -- adding
+// one more `usage.mjs` (`ventures/boi-reporting-exemption-checker/
+// usage.mjs`), the same boilerplate opt-out toggle copied from
+// `exempt-salary-threshold-checker` (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `boi-reporting-exemption-checker-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 360;
 
 let counter = 0;
 function fixture(source) {
