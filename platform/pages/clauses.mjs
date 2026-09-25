@@ -2108,6 +2108,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-jobber.html, which does name a product and carries its own "not
   // affiliated" clause.
   'vinyl-liner-bid-calculator/vs-a-flat-2999-special.html',
+  // Compares against "a flat per-square-foot special" -- the yard-sign and
+  // Facebook-post pricing habit every sod crew is shopped against, not a
+  // company or product this could be mistaken for. Same shape as this
+  // venture's own vinyl-liner sibling above; distinct from vs-aspire.html,
+  // which does name a product and carries its own "not affiliated" clause.
+  'sod-install-bid-calculator/vs-a-flat-per-square-foot-special.html',
   // Compares against "manually checking each exports target by eye" -- the
   // habit every package.json author already has, not a company or product
   // this could be mistaken for. The page's own first paragraph says so
@@ -2146,6 +2152,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // from this venture's own vs-openssf-scorecard.html, which names OpenSSF
   // Scorecard specifically and carries the trademark disclaimer.
   'pinned-actions-check/vs-reading-the-workflow-yaml-by-hand.html',
+  // Compares against "doing the fee math by hand" -- mental arithmetic every
+  // seller already does, not a company or product this could be mistaken
+  // for. Distinct from this venture's own
+  // vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html, which is
+  // its own separate comparison page.
+  'facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
