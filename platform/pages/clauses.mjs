@@ -2318,6 +2318,16 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // than named-product -- see facebook-marketplace-fee-calculator's entry
   // above for what happens when a generic-method page is shipped without it.
   'patreon-fee-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "a flat per-square-foot attic price" -- the published
+  // coupon-style rate ("$3.50/sf") that every spray-foam contractor in this
+  // trade is shopped against, not one company's product. The venture's own
+  // calc.mjs docstring and pricing walkthrough describe this exact generic
+  // method as the thing board-foot pricing corrects for; the page names no
+  // vendor and its own footer says so explicitly ("names no specific
+  // company or product"). Distinct from this venture's own vs-jobber.html,
+  // which names a real field-service platform and carries the trademark
+  // disclaimer.
+  'spray-foam-bid-calculator/vs-a-flat-per-square-foot-price.html',
   // Compares against "comparing the quoted rates by eye" -- reading two
   // per-job numbers off a rate card and picking the lower one -- a generic
   // habit any operator comparing vendor quotes already has, not a company
