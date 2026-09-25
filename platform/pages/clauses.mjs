@@ -2114,6 +2114,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // venture's own vinyl-liner sibling above; distinct from vs-aspire.html,
   // which does name a product and carries its own "not affiliated" clause.
   'sod-install-bid-calculator/vs-a-flat-per-square-foot-special.html',
+  // Compares against "a flat $55-a-square-foot special" -- the yard-sign
+  // pricing habit every porch/lanai crew is shopped against, not a company
+  // or product this could be mistaken for. Same shape as the sod-install
+  // and vinyl-liner siblings above; distinct from this venture's own
+  // vs-buildxact.html, which does name a product and carries its own "not
+  // affiliated" clause.
+  'screened-porch-bid-calculator/vs-a-flat-55-a-square-foot-special.html',
   // Compares against "manually checking each exports target by eye" -- the
   // habit every package.json author already has, not a company or product
   // this could be mistaken for. The page's own first paragraph says so
@@ -2133,6 +2140,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names GrantHub/Foundant specifically and carries the trademark
   // disclaimer.
   'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
+  // Compares against "doing the cost math yourself" -- a mental estimate
+  // every laundromat and pickup-and-delivery operator already does, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-cents.html, which names Cents specifically and carries
+  // the trademark disclaimer.
+  'wash-and-fold-price-calculator/vs-doing-the-cost-math-yourself.html',
   // Compares against "guessing a flat rate" -- copying a round CPM figure
   // from a blog post or a competitor's public rate card, a pricing habit
   // every newsletter operator already has, not a company or product this
