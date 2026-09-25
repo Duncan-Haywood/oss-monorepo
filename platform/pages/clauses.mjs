@@ -2109,6 +2109,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as trump-account-calculator's own
   // vs-doing-the-math-by-hand.html right above.
   'section-174a-catchup-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out bonus depreciation and Section 179 by
+  // hand -- a generic method every business owner or preparer evaluating
+  // an equipment purchase already has access to, not a company or product
+  // this could be mistaken for. Names no accounting firm, software vendor,
+  // or tax-prep product. Same reasoning as section-174a-catchup-calculator's
+  // own vs-doing-the-math-by-hand.html right above.
+  'bonus-depreciation-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2242,6 +2249,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pypi-attestations verify CLI, which is a first-party tool comparison,
   // not a competing product, and predates this generic-method page).
   'pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html',
+  // Compares against "checking each package on npmjs.com by hand" -- a
+  // manual review habit any maintainer or reviewer already has, not a
+  // company or product this could be mistaken for. This page names no
+  // named-product comparison at all (the venture's own vs-socket.html is a
+  // separate page for that). Same reasoning as this venture's PyPI sibling
+  // immediately above.
+  'npm-provenance-check/vs-checking-each-package-on-npmjs-by-hand.html',
   // Compares against tracking MRR movements in a spreadsheet -- a habit
   // any SaaS operator without a subscription-analytics platform already
   // has, not a company or product this could be mistaken for.
