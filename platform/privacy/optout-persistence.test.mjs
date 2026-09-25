@@ -909,13 +909,33 @@ const RELATIVE_SELF = relative(
 // keyed under its own `exempt-salary-threshold-checker-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions.
 //
-// 360 -> 361: `child-tax-credit-calculator` also graduated -- adding one
-// more `usage.mjs` (`ventures/child-tax-credit-calculator/usage.mjs`), the
-// same boilerplate opt-out toggle copied from `senior-deduction-calculator`
+// 359 -> 360: `boi-reporting-exemption-checker` also graduated,
+// concurrently -- adding one more `usage.mjs`
+// (`ventures/boi-reporting-exemption-checker/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `exempt-salary-threshold-checker`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `boi-reporting-exemption-checker-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+//
+// 360 -> 361: `gambling-loss-deduction-calculator` also graduated,
+// concurrently and invisibly to the entry above -- adding one more
+// `usage.mjs` (`ventures/gambling-loss-deduction-calculator/usage.mjs`),
+// the same boilerplate opt-out toggle copied from
+// `bonus-depreciation-calculator` (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `gambling-loss-deduction-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions. Landed on `main` before this branch's
+// fetch, so its switch was absent from this branch's own count until
+// this merge.
+//
+// 361 -> 362: `child-tax-credit-calculator` also graduated, concurrently
+// and invisibly to both entries above -- adding one more `usage.mjs`
+// (`ventures/child-tax-credit-calculator/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `senior-deduction-calculator`
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `child-tax-credit-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 361;
+const SWITCHES_IN_THE_CATALOGUE = 362;
 
 let counter = 0;
 function fixture(source) {

@@ -1,0 +1,91 @@
+name: boi-reporting-exemption-checker
+description: >-
+  Free browser checker for whether an entity still owes a federal Corporate
+  Transparency Act beneficial ownership information (BOI) report to FinCEN,
+  after FinCEN's August 2026 final rule permanently exempted every
+  U.S.-formed entity and U.S. person. Applies only to foreign-formed
+  entities registered to do business in a U.S. state or Tribal
+  jurisdiction, computing the filing deadline and flagging that only
+  non-U.S.-person owners get reported. A rule-application aid only, never
+  a filing service. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (no build-now
+# candidate in candidates.yaml -- all 60 already graduated per
+# validate_candidates.py -- so per DIRECTION.md's standing owner direction
+# a fresh gate-cleared niche ranks ahead of a parity feature).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.25 or below for the final description above -- well under
+# the 0.45 review bar. The closest existing venture,
+# ny-llc-transparency-act-tracker, checks a completely different law (New
+# York's own state-level LLC beneficial-ownership disclosure statute, which
+# applies regardless of this federal rule) and shares only the
+# "beneficial-ownership disclosure" surface phrase.
+#
+# Distribution channel, named rather than assumed: small-business owners,
+# bookkeepers, and company-formation services who filed or nearly filed a
+# BOI report during 2024-2025's on-again/off-again enforcement saga and are
+# now searching "do I still need to file BOI" or "beneficial ownership
+# report 2026" after FinCEN's August 2026 final rule made the exemption
+# permanent -- a live, heavily-published regulatory reversal this session
+# confirmed via WebSearch against FinCEN.gov's own release, the Federal
+# Register notice, and two law-firm summaries. No external search-volume
+# tool was queried to confirm magnitude, matching this pipeline's standing
+# caveat for every checker at graduation.
+#
+# Liability: same shape and mitigation as exempt-salary-threshold-checker
+# and ny-llc-transparency-act-tracker (a jurisdictional/regulatory
+# rule-application aid with heavy, explicit disclosure of scope). Getting
+# this wrong could mean a real business either misses a filing it still
+# owes or wastes effort filing one that no longer applies, so the page
+# states in three places (the intro, a dedicated "what this does not
+# cover" section, and the footer) that this is a rule-application aid, not
+# a filing service or legal opinion, and that formation jurisdiction,
+# registration status, and each owner's U.S.-person status are all
+# self-reported and unverified. Every date and figure was verified against
+# FinCEN's own primary sources (its BOI page, its own news release, and
+# the Federal Register notice) plus two independent law-firm summaries
+# before being committed.
+
+hypotheses:
+  - claim: >-
+      A small-business owner or bookkeeper who filed or nearly filed a BOI
+      report during 2024-2025's enforcement back-and-forth will search
+      "do I still need to file BOI" or "beneficial ownership report 2026"
+      after hearing the rule changed again, and will return to a free,
+      no-signup checker that gives a plain yes/no plus the reason, rather
+      than reading a law firm's multi-page client alert.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A company-formation service or registered-agent business with
+      foreign-formed clients registered to do business in the U.S. will
+      use this to triage which clients still have an active filing
+      obligation, since the permanent U.S.-entity exemption does not
+      apply to their foreign-formed book of business.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page applies a fixed rule to the
+  # answers the user types in (nothing uploaded, nothing fetched). Serving
+  # one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A future FinCEN rulemaking or court ruling reverses the August 2026 final rule and this page is not updated within 14 days of that being confirmed -- a stale answer here is actively harmful, unlike most of this portfolio's static reference tables.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/boi-reporting-exemption-checker/
+  analytics: null
