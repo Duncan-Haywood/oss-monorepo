@@ -45406,6 +45406,93 @@ entries:
         strength of local verification per CLAUDE.md's starvation
         checklist.
     mrr_end: 0
+  - venture: referrer-permissions-policy-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `referrer-permissions-policy-check`, a
+        free zero-dependency CLI + browser report-viewer that sends one
+        real HTTP GET request and classifies the response's
+        Referrer-Policy and Permissions-Policy headers -- Referrer-Policy:
+        unsafe-url (leaks the full URL, path and query string included, on
+        every request including an HTTPS-to-HTTP downgrade), a missing or
+        unrecognised Referrer-Policy value, the legacy
+        no-referrer-when-downgrade value, a Permissions-Policy directive
+        whose allowlist syntax does not match the spec's
+        bare-wildcard-or-parenthesised-list shape (a bare unparenthesised
+        origin, e.g. `camera=self` instead of `camera=(self)`, is the most
+        common real mistake), a wildcard allowlist on a sensitive feature
+        (camera, microphone, geolocation, payment, and nine others), and
+        reliance on the deprecated Feature-Policy header alone. Same shape
+        as the existing header-checker family (security-headers-check,
+        cors-misconfig-check, cookie-security-check, cache-control-check):
+        a pure classification module (`analyze.mjs`) shared by the CLI and
+        the browser page, a network layer tested only against a local
+        loopback server, and a CI-gate exit code for wiring into a user's
+        own staging pipeline.
+      - >-
+        `duplicate_check.py` against the final description scored every
+        venture, screened-out row, and pipeline candidate at 0.20 or
+        below -- the closest match (security-headers-check) shares only
+        the "sends one real GET request and classifies response headers"
+        vocabulary the whole checker family uses, and its own write-up
+        explicitly scopes out Permissions-Policy and cookie flags. No
+        sibling venture reads Referrer-Policy, Permissions-Policy, or
+        Feature-Policy. Technical fact pattern is drawn from the stable,
+        versioned Referrer Policy and Permissions Policy specs (not a
+        dated statute or a platform rollout status), and the one place the
+        write-up is not fully certain -- per-browser fallback behaviour on
+        a malformed Permissions-Policy directive -- is worded as a hedge
+        ("browsers do not all handle this the same way") rather than
+        asserted as universal fact, both in the finding text and in the
+        venture-scores.yaml gate_note.
+      - >-
+        Closed a crawlable-orphan finding `platform/pages/siblings.mjs`
+        raised on first run: added a reciprocal link from
+        security-headers-check's footer and FAQ back to this new venture
+        (its own FAQ already named Permissions-Policy as out of scope, so
+        the link landed on an existing sentence rather than a new one),
+        with a matching `page.test.mjs` assertion on that side so the pair
+        cannot silently drift apart again. Regenerated the front-door
+        mirror after that edit too.
+      - >-
+        Registered everywhere a new venture needs to be known:
+        `.github/workflows/referrer-permissions-policy-check-ci.yml`
+        (registered in `publish-surface.yaml` as `none`, verified against
+        the actual workflow steps -- test-only, no deploy/push), filed
+        into `build.mjs`'s `ci` category (CI checks & developer gates)
+        rather than left for the catch-all, `launched.json` updated via
+        `launched.mjs --write`, `venture-scores.yaml` scored (ai_leverage
+        1, autonomous_ops 10, time_to_revenue 6, gross_margin 10,
+        defensibility 3, distribution 7, composite 6.167 -- identical
+        dimension scores to its four header-checker siblings, same
+        reasoning), both gates pass. Mirror regenerated
+        (`regen.mjs`/`--verify` both clean before and after), tree counts
+        synced (376 mirrored tools, 355 opt-out switches,
+        `gitops/ci/README.md`'s runs-on sentence 470/472 across 431
+        workflows via `sync_readme_counts.py` -- caught by
+        `test_ci_runner.py`, not by anything this checklist names by
+        default).
+      - >-
+        Verified: venture's own suite 60/60 (quoted glob per CLAUDE.md);
+        `node platform/pages/clauses.mjs referrer-permissions-policy-check`
+        and `... security-headers-check` both clean;
+        `checklist_coverage.py`, `router/validate.py` (384 ventures),
+        `score_ventures.py --check` (384 scores),
+        `siblings.mjs --check` (0 orphans of 376),
+        `surface-budget.mjs --check`, `sync_tree_counts.py --check`,
+        `regen.mjs --verify` all clean; full
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` suite
+        1291/1291 (re-run after the security-headers-check sibling-link
+        fix); `gitops/tests` 613 passed / 25 skipped (the documented
+        nginx/ssh-key binary skips) via `python3 -m pytest`;
+        `platform/ci` 369/369 across its `unittest` modules plus
+        `agent_review` 21/21; `portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests`
+        446/446. `platform/proposal` 101/101, `platform/privacy` +
+        `platform/webcheck` 142/142.
+    mrr_end: 0
   - venture: excess-business-loss-calculator
     agent_spend_usd: null
     human_hours: 0
