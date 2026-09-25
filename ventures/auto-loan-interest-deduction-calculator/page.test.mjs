@@ -112,6 +112,48 @@ test("the comparison page carries the no-warranty clause and is listed in the ve
   assert.match(sitemap, /vs-estimating-the-deduction-by-hand\.html/);
 });
 
+test("index links to the does-married-filing-separately guide page, and the guide links back", () => {
+  assert.match(page("index.html"), /href="\.\/does-married-filing-separately-get-this-deduction\.html"/);
+  const guide = page("does-married-filing-separately-get-this-deduction.html");
+  assert.match(guide, /href="\.\/"/);
+  const sitemap = page("sitemap.xml");
+  assert.match(sitemap, /does-married-filing-separately-get-this-deduction\.html/);
+});
+
+test("the MFS guide page carries the no-warranty clause and valid FAQPage JSON-LD matching visible text", () => {
+  const guide = page("does-married-filing-separately-get-this-deduction.html");
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /Nothing leaves your browser/);
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the MFS guide page");
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(guide.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(guide.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the MFS guide page's worked example matches calc.mjs for the exact inputs stated", async () => {
+  const { computeQualifiedVehicleInterestDeduction } = await import("./calc.mjs");
+  const full = {
+    isNew: true, finalAssemblyUs: true, personalUse: true, securedFirstLien: true,
+    isLoanNotLease: true, notSalvageOrParts: true, vehicleTypeOk: true, debtAfter2024: true,
+  };
+  const guide = page("does-married-filing-separately-get-this-deduction.html");
+
+  const mfsSpouse = computeQualifiedVehicleInterestDeduction({ interestPaid: 8000, filingStatus: "mfs", magi: 120000, criteria: full });
+  assert.equal(mfsSpouse.deduction, 6000);
+  assert.match(guide, /\$6,000/);
+
+  const joint = computeQualifiedVehicleInterestDeduction({ interestPaid: 8000, filingStatus: "joint", magi: 240000, criteria: full });
+  assert.equal(joint.deduction, 2000);
+  assert.match(guide, /\$2,000/);
+
+  assert.match(guide, /\$12,000/); // the two MFS spouses' combined deduction
+});
+
 test("the FAQPage JSON-LD on index matches visible copy exactly", () => {
   const html = page("index.html");
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
