@@ -45748,3 +45748,49 @@ entries:
         clean. CI starved this session throughout (ci_starvation.py
         confirmed runner_id: 0 on every recent main check).
     mrr_end: 0
+  - venture: security-txt-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-checking-it-by-eye.html -- one of 41 ventures surface-budget.mjs
+        flagged with 0 generic-method pages (this one already had a
+        named-product comparison, vs-securitytxt-org-generator.html, and a
+        guide page). Switched to this smaller task after this session's
+        fourth new venture, since two other concurrent sessions were
+        already mid-flight on their own new ventures and re-verification
+        share was climbing. The angle: every field the worked example gets
+        wrong (an expired Expires, a bare-address Contact, the British
+        spelling of Acknowledgments, a plain-http Encryption, a language
+        name instead of a tag, a Policy line missing its colon) still
+        reads as ordinary, complete text to a person scanning the file --
+        none of the six looks broken, which is the whole case for a
+        parser over a read. Worked example reused verbatim from
+        index.html's own bundled example rather than inventing one, and
+        pinned directly against engine.mjs's buildReport() (3 danger + 3
+        notice findings, verified by running the parser directly before
+        writing a word of copy) rather than asserted from memory.
+      - >-
+        Extended page.test.mjs to cover the new page: FAQPage JSON-LD
+        validity, the generic-method non-affiliation disclaimer, the
+        index<->page link pair, and a pin of all six worked-example field
+        strings against the page's own table so the comparison cannot
+        silently drift from the example it describes. Registered in
+        platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names
+        no competitor, distinct from the venture's own named-product
+        comparison). Checked for the JSON-LD/visible-text em-dash
+        mismatch that hit two of this session's earlier ventures before
+        running any test -- clean this time.
+      - >-
+        Verified: venture's own suite 82/82; faq-visible.test.mjs run
+        alongside it, 86/86 clean on the first pass; full
+        platform/marketing + platform/pages suite 1290/1290;
+        checklist_coverage.py, sync_tree_counts.py (unchanged -- no new
+        mirrored tool or opt-out switch, only a new page on an existing
+        one), siblings.mjs --check (0 orphans of 377), surface-budget.mjs
+        --for security-txt-check (now at its 1-page budget), regen.mjs
+        --verify all clean. CI note: Actions confirmed starved earlier
+        this session (ci_starvation.py: runner_id: 0 on sampled jobs) --
+        expect the same on this PR.
+    mrr_end: 0

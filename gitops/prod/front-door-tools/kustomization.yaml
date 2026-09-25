@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 129 files, 555913 bytes
 #   portfolio-front-tools-15: 127 files, 540742 bytes
 #   portfolio-front-tools-16: 132 files, 550114 bytes
-#   portfolio-front-tools-17: 120 files, 551573 bytes
+#   portfolio-front-tools-17: 121 files, 555840 bytes
 #   portfolio-front-tools-18: 104 files, 550211 bytes
 #   portfolio-front-tools-19: 122 files, 553119 bytes
 #   portfolio-front-tools-20: 125 files, 544238 bytes
@@ -2416,6 +2416,7 @@ configMapGenerator:
       - security-txt-check__fetch-url.mjs.gz=security-txt-check__fetch-url.mjs.gz
       - security-txt-check__index.html.gz=security-txt-check__index.html.gz
       - security-txt-check__usage.mjs.gz=security-txt-check__usage.mjs.gz
+      - security-txt-check__vs-checking-it-by-eye.html.gz=security-txt-check__vs-checking-it-by-eye.html.gz
       - security-txt-check__vs-securitytxt-org-generator.html.gz=security-txt-check__vs-securitytxt-org-generator.html.gz
       - security-txt-check__why-security-txt-expires.html.gz=security-txt-check__why-security-txt-expires.html.gz
       - self-storage-rate-increase-calculator__calc.mjs.gz=self-storage-rate-increase-calculator__calc.mjs.gz
