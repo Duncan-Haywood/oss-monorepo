@@ -935,7 +935,15 @@ const RELATIVE_SELF = relative(
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `child-tax-credit-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 362;
+//
+// 362 -> 363: `hsa-contribution-limit-calculator` also graduated --
+// adding one more `usage.mjs`
+// (`ventures/hsa-contribution-limit-calculator/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `boi-reporting-exemption-checker`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `hsa-contribution-limit-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 363;
 
 let counter = 0;
 function fixture(source) {

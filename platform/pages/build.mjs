@@ -1420,7 +1420,21 @@ const CATEGORY_RULES = [
       // calculator` as its nearest sibling: both are child/family-focused
       // federal OBBBA provisions -- one a recurring annual tax credit, the
       // other a one-time child-savings-account seed deposit.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator)/.test(slug),
+      //
+      // `hsa-contribution-limit-calculator` joined 2026-09-25, filed here
+      // on its first commit rather than after a spell in the catch-all --
+      // what `build.test.mjs`'s catch-all bound is for. Same "IRS
+      // dollar-limit lookup against a filer's own numbers" axis as
+      // `mega-backdoor-roth-calculator` above it in this rule -- a
+      // published, dated annual contribution cap (with monthly proration
+      // or the last-month-rule alternative) applied to a saver's own HDHP
+      // eligibility, never a filed election or plan-compliance
+      // determination -- just for an HSA instead of a 401(k)'s after-tax
+      // bucket. It cross-links `mega-backdoor-roth-calculator` as its
+      // nearest sibling: both are annually-indexed IRS contribution-limit
+      // lookups with an eligibility wrinkle the headline number alone
+      // does not capture.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|hsa-contribution-limit-calculator)/.test(slug),
   },
   {
     id: 'ci',

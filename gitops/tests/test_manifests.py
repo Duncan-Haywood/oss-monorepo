@@ -2702,10 +2702,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # professional-gambler business-expense fold-in, plus a
     # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
-    # the rest of this running count. Total re-derived here by
-    # `sync_tree_counts.py` against the fully merged tree rather than by
-    # hand.
-    total = 383  # `infra/OWNER_CHECKLIST.md`'s own "N of the 383 tools" wording.
+    # the rest of this running count.
+    #
+    # 383 -> 384: `hsa-contribution-limit-calculator` also graduated -- a
+    # browser-local calculator computing the 2026 HSA contribution limit
+    # for self-only or family HDHP coverage, prorated by months of
+    # eligibility or the full amount under the last-month rule, plus the
+    # fixed $1,000 age-55 catch-up and an HDHP-qualification check. Static
+    # `index.html` only, no comparison page, from its first commit. Total
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    total = 384  # `infra/OWNER_CHECKLIST.md`'s own "N of the 384 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
