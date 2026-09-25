@@ -2137,6 +2137,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as charitable-deduction-calculator's own
   // vs-doing-the-math-by-hand.html right above.
   'excess-business-loss-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the QSBS exclusion by hand -- a generic
+  // method every shareholder or preparer already has access to, not a
+  // company or product this could be mistaken for. Names no accounting
+  // firm, law firm, or tax-prep product. Same reasoning as
+  // excess-business-loss-calculator's own vs-doing-the-math-by-hand.html
+  // right above.
+  'qsbs-exclusion-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
