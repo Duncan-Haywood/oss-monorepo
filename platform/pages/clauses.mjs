@@ -2116,6 +2116,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or tax-prep product. Same reasoning as section-174a-catchup-calculator's
   // own vs-doing-the-math-by-hand.html right above.
   'bonus-depreciation-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the SALT deduction cap phase-out by
+  // hand -- a generic method every itemizing filer or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as bonus-depreciation-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'salt-cap-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
