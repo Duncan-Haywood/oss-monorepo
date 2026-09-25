@@ -43879,3 +43879,40 @@ entries:
         is marketing-surface work on an existing prototype-stage
         venture, not a new product or a usage reading.
     mrr_end: 0
+  - venture: llms-txt-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added ventures/llms-txt-generator/vs-writing-llms-txt-by-hand.html,
+        its budgeted generic-method comparison page (surface-budget.mjs
+        flagged the venture at 0 of 1). Covers the three mechanical
+        failure modes of hand-writing llms.txt: exact Markdown link
+        bullet syntax, required "## Section" grouping, and staying in
+        sync as pages change -- versus the tool's browser generator/
+        validator and the CLI's --dir/--sitemap regeneration modes.
+      - >-
+        Registered the page in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set, linked it from index.html and
+        the venture's sitemap.xml, and regenerated the front-door mirror
+        (platform/marketing/regen.mjs). origin/main advanced twice more
+        while this was in progress (PR #5819's own merge, and a new
+        pypi-provenance-check venture); reconciled via
+        resolve-mirror-merge.sh guidance -- hand-resolved the authored
+        clauses.mjs conflict, took the generated .gz/kustomization.yaml
+        conflicts from either side as a placeholder, then re-ran
+        regen.mjs to make the merged tree authoritative rather than
+        picking a side.
+      - >-
+        Verified: venture's own suite 46/46; full platform/marketing +
+        platform/pages suite 1290/1290 (one failure surfaced mid-session
+        -- the new page's FAQ JSON-LD used "--" where the visible page
+        used an em dash, the same defect class #5806 hit; fixed, then
+        clean, then regen.mjs --verify re-run clean after the fix
+        re-staled the mirror); gitops/tests 631 passed/7 skipped;
+        platform/ci unittest sweep (15 modules) and agent_review's
+        test_review (21/21) both clean; surface-budget.mjs --check and
+        checklist_coverage.py clean. No revenue or confirmed-visitor
+        signal moved -- this is marketing-surface work on an existing
+        prototype-stage venture, not a new product or a usage reading.
+    mrr_end: 0
