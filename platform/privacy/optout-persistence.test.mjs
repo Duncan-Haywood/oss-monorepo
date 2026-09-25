@@ -858,7 +858,15 @@ const RELATIVE_SELF = relative(
 // `usageOptedOut` gating localStorage writes, keyed under its own
 // `charitable-deduction-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 354;
+//
+// 354 -> 355: `exempt-salary-threshold-checker` also graduated -- adding
+// one more `usage.mjs` (`ventures/exempt-salary-threshold-checker/
+// usage.mjs`), the same boilerplate opt-out toggle copied from
+// `salt-cap-calculator` (`record`/`setUsageOptOut`/`usageOptedOut` gating
+// localStorage writes, keyed under its own
+// `exempt-salary-threshold-checker-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 355;
 
 let counter = 0;
 function fixture(source) {
