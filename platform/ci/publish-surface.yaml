@@ -488,6 +488,9 @@ workflows:
 - workflow: estate-sale-net-proceeds-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: estate-tax-exemption-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: etsy-profit-calculator-ci.yml
   classification: none
   publishes: []
