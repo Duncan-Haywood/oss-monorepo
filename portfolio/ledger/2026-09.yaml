@@ -43713,3 +43713,59 @@ entries:
         GitHub Pages snapshot after merging. Revenue and confirmed-visitor
         counts remain at zero.
     mrr_end: 0
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session. session_gate.py: PROCEED, build-now queue empty,
+        6 concurrent sessions committing to `main` within one 15-minute
+        window. pages_state.py found the published gh-pages snapshot 4
+        commits stale (built from 4576fbd9 while main had moved to
+        b1f72db5, including a new venture comparison page) -- refreshed via
+        publish-branch.sh, notified IndexNow (1616 URLs), and recorded the
+        reading.
+      - >-
+        PR #5794 (npm-provenance-check, a new venture) was open with a
+        merge conflict against main, confined entirely to generated
+        gitops/prod/ mirror artifacts plus two hand-written running-count
+        files. Resolved it twice as main kept advancing underneath (the
+        repo's collision rate this session: 5 more ventures/pages merged
+        to main across roughly 40 minutes) -- each time taking origin/main's
+        side for the binary mirror shards per resolve-mirror-merge.sh's
+        guidance, then regen.mjs + sync_tree_counts.py against the fully
+        merged tree, reconciling both branches' independently-bumped
+        running comments (mirrored tools 365->366->367, opt-out switches
+        344->345->346) rather than discarding either side's entry, and
+        once catching a drifted `runs-on` count in gitops/ci/README.md
+        that a new venture's own CI workflow introduced (fixed via
+        sync_readme_counts.py). Verified locally each round given Actions
+        starvation (ci_starvation.py: runner_id 0 across the PR's check
+        runs) -- regen.mjs --verify clean, full platform/marketing +
+        platform/pages suite 1290/1290, gitops/tests 613 passed/25
+        skipped, all 15 platform/ci unittest modules, and the
+        portfolio-wide pytest suite (446 passed). The PR's own authoring
+        session merged it independently mid-way through the second round
+        (confirmed via a fresh PR read before any push), so this session's
+        redundant local resolution was discarded rather than pushed --
+        the useful output was the verification that the merge was safe to
+        land under starvation, not a duplicate diff.
+      - >-
+        Ran the full whole-catalogue browser-checks suite
+        (sideways/presets/roundtrip/highlight/contrast/optout/sweep/journey,
+        playwright 1.56.0 + axe-core, ~20 min) per CLAUDE.md's standing
+        guidance that this is cheap insurance against a repeat of the
+        2026-09-06 48-violation accessibility incident. All 8 passed: 1621
+        pages / 2 viewports, zero WCAG A/AA violations; 430 opt-out-
+        offering pages all persisting the choice; 375/375 tools answering
+        with no errors in the interaction sweep; full journey suite
+        (save/restore round-trip, sitemap integrity, no off-origin
+        requests) green. Recorded to browser_state.json.
+      - >-
+        Actions runners starved throughout this session
+        (ci_starvation.py: runner_id 0, ~3s, no steps, on every check run
+        observed). No revenue or confirmed-visitor signal moved -- this
+        session's work was deploy freshness and verification, not new
+        product surface.
+    mrr_end: null
