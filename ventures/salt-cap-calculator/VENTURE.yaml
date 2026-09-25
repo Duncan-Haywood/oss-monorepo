@@ -1,0 +1,112 @@
+name: salt-cap-calculator
+description: >-
+  Free browser calculator for the SALT (state and local tax) itemized
+  deduction cap under the One Big Beautiful Bill Act -- computes the
+  effective SALT cap after the 30%-of-excess-MAGI phase-out above the
+  2025/2026 income thresholds ($500,000/$505,000, half for married filing
+  separately), the resulting deductible amount for state and local taxes
+  paid, and the exact MAGI at which the cap floors out at $10,000/$5,000 and
+  stops falling further. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; no in-progress venture work, so
+# per DIRECTION.md's standing owner direction a fresh gate-cleared niche
+# ranks ahead of a parity feature). duplicate_check.py scored every
+# venture, screened-out row, and pipeline candidate at 0.34 or below for
+# the final description above -- well under the 0.45 review bar. The
+# closest matches (senior-deduction-calculator 0.34,
+# auto-loan-interest-deduction-calculator 0.34, bonus-depreciation-calculator
+# 0.33) share only the "OBBBA / MAGI / phase-out" vocabulary; each models a
+# different, unrelated federal provision -- a new age-65 deduction, a new
+# car-loan-interest deduction, and an equipment-expensing election,
+# respectively, none of which touch the SALT itemized-deduction cap at all.
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25 against The
+# Tax Adviser's "Cap raised, strings attached: The 2025 SALT shake-up",
+# TaxAct's "SALT Tax Deduction 2025: What the New $40K Cap Means for You",
+# Fidelity's "How the new SALT deduction cap could affect your taxes",
+# KahnLitwin's "SALT Deduction Raised to $40,000 -- But a Hidden Phaseout
+# Could Cost You", Anchin's "SALT Deduction Cap Under OBBBA", KMK Ventures'
+# "SALT Tax Deduction 2025-2026", TaxSharkInc's "How Does the SALT Cap
+# Phase Out Above $500,000?", and Ourtaxpartner's "New SALT Deduction
+# Caps", cross-checked against each other: the One Big Beautiful Bill Act
+# (OBBBA, signed July 4, 2025) temporarily raised the SALT itemized-
+# deduction cap (IRC Section 164) from $10,000 ($5,000 MFS) to $40,000
+# ($20,000 MFS) for 2025 through 2029, increasing 1% per year --
+# $40,400/$20,200 for 2026. Single, head-of-household, and
+# married-filing-jointly filers share the identical cap and threshold; a
+# joint return is not doubled. Above $500,000 MAGI ($250,000 MFS, both
+# figures indexed for 2026 to $505,000/$252,500), the increased cap is
+# reduced by 30 cents per dollar of excess MAGI, but can never drop below
+# the permanent-law floor of $10,000/$5,000 -- reached at exactly
+# $600,000/$300,000 MAGI in 2025. In 2030 the cap reverts to $10,000/$5,000
+# unless Congress acts again. Several states offer a pass-through entity
+# tax (PTET) election letting a partnership or S corporation deduct state
+# tax above this individual cap entirely -- out of scope for this
+# individual-filer tool, flagged explicitly rather than silently ignored.
+#
+# Differentiation from existing coverage found during research: every
+# source above publishes a SALT-cap explainer, and National Tax Tools hosts
+# an interactive SALT deduction calculator -- but none found combine the
+# filing-status-equality point (single/HOH/MFJ share one figure, only MFS
+# differs), the exact floor-reached-at-MAGI figure, and the explicit PTET
+# out-of-scope flag in one free, no-signup, client-side tool. No signup, no
+# upsell, nothing uploaded.
+
+hypotheses:
+  - claim: >-
+      Itemizing taxpayers in high-tax states and the accountants/CPAs
+      advising them will search plain-language phrases ("SALT cap
+      calculator 2026", "SALT deduction phase-out calculator", "SALT cap
+      $500,000 MAGI") and some will prefer a free, private, no-signup
+      calculator over reading a CPA-firm blog post and doing the phase-out
+      arithmetic by hand, especially during Q4 year-end tax planning and
+      the following filing season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published SALT-cap explainer
+      articles and at least one existing calculator (National Tax Tools,
+      found during WebSearch research 2026-09-25) is evidence of real,
+      current search and professional interest in this exact topic -- one
+      of the most widely covered OBBBA provisions found during this
+      session's research -- so this is a real, validated-demand niche, not
+      a speculative one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A taxpayer or preparer working this out by hand is likely to assume a
+      joint return doubles the single cap, or to keep subtracting the 30%
+      phase-out past the point where the cap would go negative -- both
+      materially wrong -- and a calculator that floors the result and
+      states the filing-status equality explicitly prevents a wrong
+      comparison.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the 2026 tax-filing season closing (October 2027, covering extended
+    2025 and 2026 returns), by which point most itemizing taxpayers
+    planning around this cap should already have filed.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/salt-cap-calculator/
+  analytics: null
