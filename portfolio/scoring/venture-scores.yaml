@@ -18815,3 +18815,62 @@ ventures:
       they were already offered pays more per hour; no scraped or
       personal data, nothing adversarial, scales with zero externality --
       one writer's calculation does not affect another's.
+  - slug: eitc-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 9
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a fixed
+      phase-in/plateau/phase-out formula and a dual earned-income/AGI
+      lookup applied to the numbers the user types, never an inference
+      step.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.19 -- senior-deduction-calculator is the
+      closest existing venture and is a different federal provision
+      entirely (a temporary age-65+ deduction vs. a decades-old,
+      mass-claimed earned-income credit). autonomous_ops and gross_margin
+      score 10 for the same reason as this portfolio's other deterministic
+      federal-calculator ventures: a static page with a pure-function
+      lookup, $0 marginal cost, no server, nothing to operate.
+      defensibility scores 3: the EITC's phase-in/phase-out tables are
+      published in IRS Publication 596 and easy to reproduce once someone
+      reads it -- the moat is implementing Publication 596's own
+      dual-lookup (earned income AND AGI, smaller wins) method correctly,
+      which most existing free calculators skip in favor of an
+      earned-income-only approximation, not the arithmetic itself.
+      distribution scores 9, the highest of this portfolio's federal tax
+      calculators: the EITC is the largest federal anti-poverty tax credit
+      by dollar volume, claimed by tens of millions of filers every
+      season -- a fundamentally larger and older search population than
+      this portfolio's narrower, newer OBBBA-provision calculators.
+      WebFetch access to irs.gov, kiplinger.com, and ustax.tools was
+      blocked by the agent egress proxy, so every dollar figure was
+      WebSearch-cross-validated across at least three independent sources
+      rather than fetched from a single primary source. No search-volume
+      tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (filing status, earned income, AGI,
+      investment income, qualifying-child count, eligibility checkboxes)
+      is a figure the filer already has; output is a credit estimate
+      against published statutory amounts and formulas, never a filed
+      Schedule EIC or a claim about total tax liability, and the
+      qualifying-child tests themselves are explicitly flagged as out of
+      scope rather than silently assumed. No warranty and no-advice
+      disclaimers appear on every page.
+      Ethics: purely informational, helps a filer estimate a credit they
+      are already entitled to; no scraped or personal data, nothing
+      adversarial, scales with zero externality -- one filer's estimate
+      does not affect another's.

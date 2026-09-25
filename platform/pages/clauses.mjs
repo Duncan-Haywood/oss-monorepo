@@ -2181,6 +2181,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // software vendor. Same reasoning as qsbs-exclusion-calculator's own
   // vs-doing-the-math-by-hand.html above.
   'child-tax-credit-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the EITC by hand -- a generic method
+  // every filer or preparer already has access to, not a company or
+  // product this could be mistaken for. Names no tax-prep firm or
+  // software vendor. Same reasoning as child-tax-credit-calculator's own
+  // vs-doing-the-math-by-hand.html above.
+  'eitc-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
