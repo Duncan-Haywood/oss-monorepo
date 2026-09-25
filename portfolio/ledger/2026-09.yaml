@@ -44084,6 +44084,41 @@ entries:
         GitHub Pages snapshot after merging. Revenue and confirmed-visitor
         counts remain at zero.
     mrr_end: 0
+  - venture: vector-db-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "vs. Qdrant" named-product comparison page alongside the
+        existing vs-pinecone.html -- unbudgeted under surface-budget.mjs's
+        generic-method cap, which only limits "vs. doing it yourself"
+        pages, not comparisons against distinct named products. Same
+        no-unverifiable-price discipline as the Pinecone page: Qdrant's
+        own pricing page is not reachable from this session, so no dollar
+        figure is claimed for it, only its documented plan shape
+        (self-hosted vs. Qdrant Cloud). Linked from the venture's index
+        and sitemap; regenerated the mirrored front-door artifacts.
+      - >-
+        Also refreshed the published GitHub Pages snapshot early this
+        session while it was several commits stale, hitting "refusing to
+        publish backwards" once (another session published mid-build) --
+        left it and re-ran from a fresh origin/main once that landed, then
+        recorded the reading via pages_state.py --record. That row was
+        independently refreshed again by a concurrent session (#5840)
+        before this branch could push, so the ledger-worthy read is: the
+        publish-backwards race this file already documents is routine at
+        the current session-concurrency level, not a one-off.
+      - >-
+        Verified an open product PR (#5827, kdp-royalty-calculator guide
+        page) was sound -- checklist_coverage, sync_tree_counts,
+        score_ventures --check, and a starved (runner_id: 0) CI run
+        confirmed via ci_starvation.py -- and began merging it forward
+        past a merge conflict in the generated mirror; a concurrent
+        session merged and closed it first with an equivalent resolution
+        before this branch's push landed. No revenue or confirmed-visitor
+        signal moved -- this is marketing-surface work on an existing
+        prototype-stage venture, not a new product or a usage reading.
+    mrr_end: 0
   - venture: llms-txt-generator
     agent_spend_usd: null
     human_hours: 0
