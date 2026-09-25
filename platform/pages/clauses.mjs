@@ -88,6 +88,10 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "writing llms.txt by hand" -- a generic authoring
+  // practice every site owner can do without any tool, not a company or
+  // product this could be mistaken for.
+  'llms-txt-generator/vs-writing-llms-txt-by-hand.html',
   // Compares against "law-firm client alerts" -- a genre of publication that
   // dozens of different firms produce, not one specific company or product
   // this could be mistaken for. The page's own first paragraph says so
