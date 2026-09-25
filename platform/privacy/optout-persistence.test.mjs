@@ -818,7 +818,15 @@ const RELATIVE_SELF = relative(
 // keyed under its own `section-174a-catchup-calculator-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions. Re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 349;
+//
+// 349 -> 350: `mrr-waterfall-calculator` graduated -- adding one more
+// `usage.mjs` (`ventures/mrr-waterfall-calculator/usage.mjs`) following the
+// same opt-out toggle shape as `subscription-price-impact`'s
+// (`recordUsage`/`readOptOut`/`writeOptOut` gating localStorage writes,
+// keyed under its own `mrr-waterfall-calculator-usage-v1` storage name).
+// Exactly one added `usage.mjs`, no deletions. Re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 350;
 
 let counter = 0;
 function fixture(source) {
