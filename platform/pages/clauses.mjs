@@ -2130,6 +2130,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as salt-cap-calculator's own vs-doing-the-math-by-hand.html
   // right above.
   'charitable-deduction-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the OBBBA 90% gambling-loss deduction cap
+  // by hand -- a generic method every gambler or preparer already has
+  // access to, not a company or product this could be mistaken for. Names
+  // no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as charitable-deduction-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'gambling-loss-deduction-calculator/vs-doing-the-math-by-hand.html',
   // Compares against working out the 2026 federal estate tax exclusion by
   // hand -- a generic method every estate planning attorney, CPA, or
   // individual already has access to, not a company or product this could
