@@ -53,7 +53,7 @@
 #   portfolio-front-tools-17: 101 files, 552274 bytes
 #   portfolio-front-tools-18: 115 files, 541248 bytes
 #   portfolio-front-tools-19: 126 files, 556613 bytes
-#   portfolio-front-tools-20: 121 files, 546619 bytes
+#   portfolio-front-tools-20: 122 files, 550367 bytes
 #   portfolio-front-tools-21: 76 files, 386291 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2721,6 +2721,7 @@ configMapGenerator:
       - vector-db-cost-calculator__usage.mjs.gz=vector-db-cost-calculator__usage.mjs.gz
       - vector-db-cost-calculator__vs-doing-the-math-yourself.html.gz=vector-db-cost-calculator__vs-doing-the-math-yourself.html.gz
       - vector-db-cost-calculator__vs-pinecone.html.gz=vector-db-cost-calculator__vs-pinecone.html.gz
+      - vector-db-cost-calculator__vs-qdrant.html.gz=vector-db-cost-calculator__vs-qdrant.html.gz
       - vector-db-cost-calculator__what-is-vector-index-overhead.html.gz=vector-db-cost-calculator__what-is-vector-index-overhead.html.gz
       - vehicle-wrap-bid-calculator__calc.mjs.gz=vehicle-wrap-bid-calculator__calc.mjs.gz
       - vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz=vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz
