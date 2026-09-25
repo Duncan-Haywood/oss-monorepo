@@ -969,3 +969,19 @@ readings:
       `indexnow_state.py`'s `never` verdict is unaffected (it reads only
       workflow history by design). Re-announce again after further
       catalogue growth.
+      **2026-09-25 (another by-hand announcement, ordinal not tracked for the
+      same reason as above): re-measured again, same `selective: false`
+      environment** -- `git fetch origin gh-pages` then
+      `platform/marketing/indexnow.mjs --submit --ref origin/gh-pages`
+      succeeded (`POST https://api.indexnow.org/indexnow -> 200`, 1624 URLs
+      from the `gh-pages` snapshot at `36d1d295`, pushed
+      2026-09-25T00:04:53Z, tip of `main` at that point was `dcb97f8c`).
+      `indexnow_state.py --require-announced` still exits non-zero
+      immediately afterward, unaffected as designed. Confirms the pattern
+      rather than changing it; re-announce again after further catalogue
+      growth. Note for the next session: `--ref gh-pages` alone fails with
+      "invalid object name" unless a local branch by that name exists (a
+      plain `git fetch` only leaves `origin/gh-pages`) -- pass `--ref
+      origin/gh-pages` instead, or run `git branch -f gh-pages
+      origin/gh-pages` first, both noted already in the 2026-09-24 entry
+      above.
