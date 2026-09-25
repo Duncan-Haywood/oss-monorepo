@@ -2427,6 +2427,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark/affiliation disclaimer. Same reasoning as the other
   // generic-method pages above.
   'subcontractor-cashflow-planner/vs-treating-materials-as-cash-out-on-day-one.html',
+  // Compares against a one-line referral-percentage spreadsheet -- the
+  // generic pricing habit most Walmart sellers already have, not a company
+  // or product this could be mistaken for. Distinct from this venture's own
+  // vs-wfs-cost-estimator.html, which names Walmart's own WFS Cost
+  // Estimator and carries the trademark/affiliation disclaimer.
+  'walmart-marketplace-calculator/vs-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
