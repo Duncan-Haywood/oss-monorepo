@@ -44870,6 +44870,96 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 repeatedly) -- merged on
         the strength of the local verification above.
     mrr_end: 0
+  - venture: salt-cap-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture this session (session_gate.py:
+        build-now queue empty, PROCEED verdict, no in-progress venture
+        work, and the previous work this session was clearing a stalled
+        PR backlog and a live production bug, so a fresh niche was the
+        next thing due). Picked the SALT (state and local tax) itemized
+        deduction cap under OBBBA: duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.34 or
+        below (closest matches senior-deduction-calculator,
+        auto-loan-interest-deduction-calculator, and
+        bonus-depreciation-calculator -- share only "OBBBA/MAGI/phase-out"
+        vocabulary, each a different, unrelated provision), well under
+        the 0.45 review bar. Mechanics verified via WebSearch 2026-09-25
+        against nine independent CPA-firm/financial-media sources (The
+        Tax Adviser, TaxAct, Fidelity, KahnLitwin, Anchin, KMK Ventures,
+        TaxSharkInc, Ourtaxpartner, plus a cross-check search), the widest
+        source coverage found for any OBBBA provision this session --
+        including the detail most likely to be gotten wrong by hand: the
+        $40,000/$40,400 cap and $500,000/$505,000 threshold are IDENTICAL
+        for single, head-of-household, and married-filing-jointly filers
+        (a joint return is not doubled), only married-filing-separately
+        gets a distinct halved figure, and the 30%-of-excess-MAGI
+        phase-out floors at a fixed $10,000/$5,000 rather than reaching
+        zero -- reached at exactly $600,000 MAGI in 2025 for the
+        non-MFS group, derived and pinned in calc.test.mjs rather than
+        just asserted.
+      - >-
+        Shipped a free, static, browser-local calculator computing the
+        effective SALT cap after the phase-out, the deductible amount for
+        state/local taxes paid, the non-deductible excess, and the exact
+        MAGI at which the floor is reached, with an explicit
+        pass-through-entity-tax (PTET) out-of-scope flag rather than
+        silently ignoring a workaround several sources mentioned. Ships
+        LICENSE, README with the required value sentence and disclaimer,
+        VENTURE.yaml with untested hypotheses and kill_criteria, calc.mjs
+        (14 test assertions) plus usage.mjs/page.test.mjs (35 total
+        across the venture), index.html with FAQPage/SoftwareApplication
+        JSON-LD matching the visible copy, the required
+        vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT as a generic-method
+        page), an opt-out local usage counter honouring DNT/GPC,
+        robots.txt/sitemap.xml, and a dedicated CI workflow.
+      - >-
+        Filed into build.mjs's backoffice category next to its nearest
+        sibling, senior-deduction-calculator (another new-in-2025 OBBBA
+        MAGI-phase-out provision, but one that floors at a fixed dollar
+        amount rather than phasing fully to zero like the senior
+        deduction) -- with a reciprocal footer link both ways so neither
+        venture is a crawlable orphan. Scored in venture-scores.yaml.
+        Regenerated the gitops front-door mirror (regen.mjs), synced the
+        mirrored-tool/opt-out-switch running counts (373->374, 352->353)
+        and the gitops/ci/README.md runs-on count (467/469/428 ->
+        468/470/429), and registered the new CI workflow in
+        publish-surface.yaml.
+      - >-
+        The full platform/marketing + platform/pages suite (run against
+        the fully staged tree, not just the venture's own files) caught
+        two real defects before merge: faq-visible.test.mjs found the
+        FAQPage JSON-LD used ASCII "--" while the visible prose used the
+        em-dash the rest of the portfolio's pages use, on both index.html
+        and the comparison page -- normalized both to match, exactly the
+        JSON-LD/visible-copy divergence this suite exists to catch.
+        launched.test.mjs found the new venture missing from
+        platform/pages/launched.json -- fixed with `node
+        platform/pages/launched.mjs --write` and re-regenerated the
+        mirror. Both would have been invisible to the venture's own
+        page.test.mjs (its JSON-LD check uses substring `.includes()`,
+        not exact-match) and to a review that only ran the new venture's
+        own test files.
+      - >-
+        Verified on the corrected tree: venture's own suite 35/35;
+        senior-deduction-calculator's suite re-run after the
+        reciprocal-link edit, 49/49 unaffected; full platform/marketing +
+        platform/pages suite 1290/1290 (0 failures, re-run clean after
+        the two fixes); gitops/tests 637 passed/1 environmental skip; all
+        15 platform/ci unittest modules and agent_review's test_review
+        (21/21) clean; portfolio/ledger+scoring+router+usage+pipeline
+        +infra/tests 446/446; checklist_coverage.py, sync_tree_counts.py,
+        surface-budget.mjs --check, siblings.mjs --check (0 orphans of
+        374), router/validate.py (381 ventures), score_ventures.py
+        --check (382 scores), usage/validate_usage.py, regen.mjs
+        --verify all clean. CI note: Actions confirmed starved earlier
+        this session (ci_starvation.py: runner_id: 0 on sampled jobs) --
+        expect the same on this PR; merging on the strength of the local
+        verification above.
+    mrr_end: 0
   - venture: vendor-rate-break-even
     agent_spend_usd: null
     human_hours: 0
@@ -44961,6 +45051,60 @@ entries:
         front-door suites 220/220 (re-verified after this fix). CI starved
         this session (ci_starvation.py confirmed runner_id: 0) -- merged
         on the strength of the local verification above.
+    mrr_end: 0
+  - venture: spray-foam-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-a-flat-per-square-foot-price.html -- the venture had a
+        named-product comparison (vs-jobber.html) and a guide page but
+        zero generic-method "you could work this out yourself" pages,
+        one of 51 ventures surface-budget.mjs flagged with that gap.
+        The angle is the venture's own founding premise: a published
+        flat "$3.50/sf of attic" rate prices the floor and cannot see
+        board feet, a closed-cell rim, a cell-type switch, or a
+        pitch-adjusted cathedral -- the exact gap calc.mjs's own
+        docstring and the existing pricing walkthrough already argue.
+        Linked from index.html, the pricing walkthrough, and listed in
+        sitemap.xml; registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no competitor, only a
+        generic pricing habit).
+      - >-
+        Caught and fixed a real defect during verification, not a
+        race: platform/pages/faq-visible.test.mjs failed on the new
+        page because the FAQPage JSON-LD used plain "--" while the
+        visible <h3>/<p> markup used "&mdash;" (rendered as an em
+        dash) in the same four answers -- the same defect shape the
+        vpat-acr-generator and patreon-fee-calculator PRs recorded a
+        session or two earlier. Fixed by replacing " -- " with a
+        literal em dash in the JSON-LD so it matches the visible copy
+        verbatim.
+      - >-
+        Ran node platform/marketing/regen.mjs to refresh the
+        front-door mirror after adding the page (regen.mjs --verify
+        caught it stale, as expected for any new venture page).
+      - >-
+        Verified locally (CI starved this session -- ci_starvation.py
+        confirmed runner_id: 0 on run 36096894947): venture's own
+        suite (ventures/spray-foam-bid-calculator/**/*.test.mjs)
+        110/110; platform/pages/clauses.mjs fleet-wide 1611 pages
+        clean; surface-budget.mjs --check clean; checklist_coverage.py
+        clean; sync_tree_counts.py clean (no drift); regen.mjs
+        --verify stale before regen, current after; gitops/tests 637
+        passed/1 skipped (environmental); platform/ci 15 unittest
+        modules + agent_review/test_review all passed;
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests
+        446 passed; platform/proposal 101/101; platform/privacy +
+        platform/webcheck 142/142; score_ventures.py --check,
+        router/validate.py, validate_doc_consistency.py all clean;
+        platform/marketing + platform/pages full suite first found the
+        2 issues above (mirror staleness, FAQ punctuation), then
+        front-door-tools.test.mjs + front-door.test.mjs +
+        faq-visible.test.mjs re-verified 224/224 clean after both
+        fixes; run_workflow_locally.py --for-changes run for the
+        workflows this change would trigger.
     mrr_end: 0
   - venture: self-storage-rate-increase-calculator
     agent_spend_usd: null
@@ -45086,4 +45230,55 @@ entries:
         was mid-way through resolving its merge conflict -- discarded the
         now-redundant local branch per the Duplicate-PRs section rather
         than pushing a second copy of the same change.
+    mrr_end: 0
+  - venture: tip-pool-compliance-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This session also merged PR #5873 above: its branch had gone
+        `mergeable_state: dirty` against a moved `main`. Fetched it,
+        merged `origin/main`, and resolved the front-door mirror's binary
+        conflicts by taking `main`'s committed copies (never hand-picking
+        a side on a generated artifact) plus a regen. A concurrent
+        session pushed an equivalent, already-current resolution to the
+        same branch while this was in progress; verified their
+        resolution instead of force-pushing a duplicate (regen.mjs
+        --verify clean, venture + clauses suites 93/93,
+        checklist_coverage.py and sync_tree_counts.py clean on their
+        commit) and merged it via the GitHub API. All 21 check runs on
+        the PR came back red within seconds of the push;
+        `ci_starvation.py` against three of them (`check`, `page-integrity`,
+        `validate`) confirmed `runner_id: 0` on each -- starvation, not a
+        real failure. Merged on the strength of local verification
+        (gitops/tests 613 passed/25 skipped; full
+        platform/marketing+platform/pages suite 1290/1290).
+      - >-
+        Added `can-managers-be-in-a-tip-pool.html`, a generic guide page
+        for tip-pool-compliance-calculator (previously 0 guide pages, 1
+        generic-method comparison already at budget). The venture's own
+        VENTURE.yaml hypotheses name the exact search intent ("can
+        managers be in a tip pool", "can dishwashers be in a tip pool")
+        this page answers for the manager half of the FLSA rule -- a flat
+        2018 prohibition, independent of the back-of-house/tip-credit
+        rule the existing comparison page already covers. Worked example
+        isolates a single manager violation (dishwashers correctly left
+        out of the pool) and reuses the same $5.12/4-week scenario as the
+        calculator's own default, computed from calc.mjs's checkPool(),
+        not invented. Linked from and to the index, added to sitemap.xml,
+        and extended page.test.mjs with dedicated coverage (sitemap
+        listing, sibling links, the isolated-violation figures, and the
+        FAQPage JSON-LD matching its visible headings/answers verbatim).
+      - >-
+        Verified: venture suite 48/48 (was 21, +27 including the new
+        tests); platform/pages/faq-visible.test.mjs 4/4 (repo-wide
+        verbatim-FAQ scan, checked the new page's JSON-LD against its
+        visible text); clauses.test.mjs, venture-sitemap-coverage.test.mjs,
+        only-slugs.test.mjs, guide-coverage.test.mjs 46/46;
+        surface-budget.mjs --check clean (guide pages are unbudgeted);
+        regen.mjs --verify stale before regen, clean after;
+        checklist_coverage.py and sync_tree_counts.py clean; gitops/tests
+        manifest-related subset 87/87. CI starved this session
+        (ci_starvation.py confirmed runner_id: 0 on the #5873 checks
+        above) -- merged on the strength of local verification.
     mrr_end: 0
