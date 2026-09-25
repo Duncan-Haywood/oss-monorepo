@@ -2297,6 +2297,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above (e.g. sewer-line-replace-bid-calculator's flat-per-foot page).
   'pool-route-pricing/vs-a-flat-per-pool-monthly-rate.html',
+  // Compares against "filling out the VPAT template by hand" -- typing
+  // into ITI's own published Word/Excel template, a manual habit any VPAT
+  // author already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-hiring-a-vpat-consultant.html,
+  // which discusses paid consulting engagements generically without naming
+  // a specific firm. Same reasoning as the other generic-method pages
+  // above (e.g. claude-skill-scaffold-generator's frontmatter-by-hand page).
+  'vpat-acr-generator/vs-filling-out-the-vpat-template-by-hand.html',
   // Compares against "doing the payout math yourself" (a mental estimate
   // that subtracts only the platform fee percentage) -- a generic
   // estimation habit any creator already has, not a company or product
@@ -2308,6 +2316,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // than named-product -- see facebook-marketplace-fee-calculator's entry
   // above for what happens when a generic-method page is shipped without it.
   'patreon-fee-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "pricing a move-out at the tenant's rent" -- a generic
+  // mental model every self-storage operator already reaches for, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-sitelink.html, which names SiteLink/Storable and
+  // carries the trademark disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
