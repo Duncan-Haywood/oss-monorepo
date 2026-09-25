@@ -44293,3 +44293,40 @@ entries:
         jobs on runner_id: 0 (never assigned a runner), so merged on the
         strength of the local verification above rather than CI.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the published gh-pages snapshot after session_gate.py
+        flagged it stale (built from 439d4e9c while main had advanced to
+        0caeacfd, one merged venture guide page behind). Ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`;
+        pages_state.py now reports the snapshot current and the managed
+        Pages builder deployed it (run 36089202398). IndexNow notified
+        successfully (200) for 1657 published URLs in the same run.
+      - >-
+        Installed pytest (apt, per CLAUDE.md's pip-timeout workaround) and
+        nginx-light/openssh-client, then ran guard_state.py
+        --require-runnable: every fixable pytest skip now runs; the one
+        remaining skip (test_front_door_serving.py) is genuinely
+        environmental (needs a GitHub-hosted runner).
+      - >-
+        Installed Playwright 1.56.0 + axe-core and ran the full 8-check
+        whole-catalogue browser/accessibility sweep (all 8 checks had gone
+        stale after the builder/front-door files last moved). It found one
+        real defect: section-174a-catchup-calculator/index.html scrolled
+        11px sideways at a 360px (phone) viewport -- the venture's .grid2
+        rule set grid-template-columns: minmax(320px, 1fr), wider than the
+        ~260px content width left inside the page's own body+card padding
+        at that viewport (WCAG 1.4.10 Reflow; see platform/pages/reflow.mjs
+        cause #2, "form control inside a grid track"). Fixed by lowering
+        the minmax floor to 220px, matching the value already used
+        page-wide (19 other ventures' .grid rules) and by this same page's
+        own untouched .grid rule. Verified with a targeted
+        `browser_checks.py --checks sideways --only
+        section-174a-catchup-calculator` run (0 scrolling, was 1) and the
+        venture's own suite (52/52). platform/pages suite 1015/1015 clean;
+        checklist_coverage.py, regen.mjs --verify and guard_state.py all
+        clean.
+    mrr_end: 0
