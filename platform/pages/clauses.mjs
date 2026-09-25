@@ -2158,6 +2158,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
   // carries the trademark disclaimer.
   'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
+  // Compares against "building your own bid spreadsheet" -- a hand-built
+  // sheet habit any shop already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html, which
+  // names Jobber specifically and carries the trademark disclaimer.
+  'sewer-hydrojet-bid-calculator/vs-building-your-own-spreadsheet.html',
   // Compares against "reading the workflow YAML by hand" -- a manual review
   // habit any maintainer already has, not a company or product this could
   // be mistaken for. Same reasoning as actions-permissions-check's and

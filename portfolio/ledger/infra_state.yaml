@@ -969,3 +969,27 @@ readings:
       `indexnow_state.py`'s `never` verdict is unaffected (it reads only
       workflow history by design). Re-announce again after further
       catalogue growth.
+      **2026-09-25: re-measured again, same `selective: false` environment
+      -- `platform/marketing/indexnow.mjs --submit --ref origin/gh-pages`
+      succeeded** (`POST https://api.indexnow.org/indexnow -> 200`, 1629
+      URLs from the `gh-pages` snapshot at `96f5bc3f`, built from `main`'s
+      own tip per `pages_state.py --require-current` the same session).
+      `origin/gh-pages` (the remote-tracking ref left by a plain
+      `git fetch origin gh-pages`) worked directly this time -- no local
+      `gh-pages` branch needed, unlike the 2026-09-24 sixth reading above.
+      `ci_starvation.py` confirmed Actions was starved on this session's own
+      three most recent `main` pushes (`runner_id: 0`, ~2-4s, no steps)
+      immediately beforehand, so `publish-pages-branch.yml`'s own announce
+      step still had no runner to fire from. Same pattern, unaffected
+      verdict; re-announce again after further catalogue growth.
+      **2026-09-25 (same session, ~10 minutes later): `main` had moved
+      (concurrent sessions merged `claude-code-hooks-security-check` and
+      three comparison pages), so `pages_state.py` read the `gh-pages`
+      snapshot as `stale` again immediately after the reading above.
+      Re-ran the standing job --
+      `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+      -- which pushed `gh-pages` to `c8e46340af` (built from `main`'s new
+      tip `d175c404`) and its own announce step succeeded** (`POST
+      https://api.indexnow.org/indexnow -> 200`, 1631 URLs). Confirms the
+      by-hand route remains the only one that fires during this starvation
+      window; `publish-pages-branch.yml` itself stayed starved throughout.
