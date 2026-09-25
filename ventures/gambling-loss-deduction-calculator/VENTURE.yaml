@@ -1,0 +1,131 @@
+name: gambling-loss-deduction-calculator
+description: >-
+  Free browser calculator for the OBBBA gambling loss deduction limitation
+  under IRC Section 165(d) -- for tax years beginning after December 31,
+  2025, computes the allowable Schedule A gambling-loss deduction as the
+  lesser of actual substantiated losses or 90% of winnings, and the
+  resulting taxable "phantom income" a break-even or net-losing gambler
+  still owes even though they did not come out ahead. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; the browser-check sweep and
+# guard_state.py had already come back clean, so per DIRECTION.md's
+# fleet-parity-trap ordering -- a new venture competes on equal footing
+# with parity work once no zero-usage venture is due a copied feature --
+# a fresh gate-cleared niche was the session's next move).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.15 or below for the final description above -- well
+# under the 0.45 review bar. The closest matches (bonus-depreciation-
+# calculator 0.15, section-174a-catchup-calculator 0.14, salt-cap-
+# calculator 0.13) share only the "OBBBA/deduction/calculator"
+# vocabulary; each models a different, unrelated federal provision.
+#
+# This niche was picked deliberately over a 301st <trade>-bid-calculator
+# or a 39th -checker (both archetypes flagged in pipeline/README.md as
+# having absorbed 100+ tries each with zero measured traffic) because it
+# has an unusually strong, named distribution channel that the tax-OBBBA
+# calculator family shares: this specific provision ("the 90% gambling
+# loss cap", "phantom income") is the subject of active, ongoing news
+# coverage and CPA-firm explainer articles into September 2026 -- more
+# than a year after OBBBA's signing -- because it is a genuinely
+# surprising, still-unresolved change (multiple repeal bills introduced,
+# none passed) affecting anyone who gambles recreationally, not a narrow
+# professional population. That "still being actively written about"
+# signal is stronger evidence of live search demand than most of this
+# portfolio's other new-venture sessions had at graduation time.
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25 against
+# Porte Brown's "Gambling Loss Deductions Narrow Under the OBBBA Starting
+# in 2026", Barnes Dennig's "Major Changes to Gambling Loss Deductions
+# Under the OBBBA", Beancount's "26 USC 165(d): OBBBA 90% Gambling Loss
+# Cap Creates Phantom Income", National Tax Tools' "Gambling Loss
+# Deduction Guide 2026 (and 2025)", the NATP's "Will the OBBBA gambling
+# deduction change be reversed?", and Monaco CPA's "90% Gambling Loss Cap
+# 2026: Phantom Income Explained", cross-checked against each other and
+# against the "lesser of 90% of winnings or actual losses" phrasing
+# repeated near-verbatim across independent sources: OBBBA amended IRC
+# Section 165(d) so that, for tax years beginning after December 31,
+# 2025, the gambling-loss deduction is capped at the LESSER of actual
+# substantiated losses or 90% of winnings -- on top of, not instead of,
+# the pre-existing rule that losses are never deductible beyond winnings.
+# This is permanent law with no scheduled sunset (unlike the SALT cap
+# increase or the tips/overtime deductions modeled elsewhere in this
+# portfolio, both of which expire after 2028/2029); multiple repeal bills
+# (one nicknamed the FAIR BET Act) have been introduced but none had
+# passed as of this session. Only itemizers can claim any gambling-loss
+# deduction at all, a pre-existing rule OBBBA does not touch. Separately,
+# OBBBA made permanent a TCJA rule (previously set to expire after 2025)
+# folding a professional gambler's trade-or-business wagering expenses
+# into this same 90% limitation.
+#
+# Differentiation from existing coverage found during research: every
+# source above publishes an explainer with at least one worked example,
+# and National Tax Tools hosts its own calculator -- but none found
+# combine the "which figure gets the 90%" arithmetic clarification (a
+# documented point of confusion: the cap is 90% of WINNINGS, not 90% of
+# losses), the phantom-income framing for a break-even gambler
+# specifically, the pre-2026 vs. 2026+ toggle, and the professional-
+# gambler business-expense note in one free, no-signup, client-side tool.
+# No signup, no upsell, nothing uploaded.
+
+hypotheses:
+  - claim: >-
+      Recreational gamblers, poker and sports-betting communities, and the
+      accountants/CPAs advising them will search plain-language phrases
+      ("gambling loss deduction calculator", "90% gambling loss cap
+      calculator", "phantom income gambling tax") and some will prefer a
+      free, private, no-signup calculator over reading a CPA-firm blog
+      post and doing the two-cap arithmetic by hand, especially during the
+      2026 tax-filing season when this provision is felt for the first
+      time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The volume and recency of published explainer articles found during
+      this session's research (CPA firms still actively publishing new
+      pieces on this exact topic more than a year after OBBBA's signing,
+      plus active gambling/poker-community discussion of the "phantom
+      income" problem and pending repeal bills) is evidence of unusually
+      strong, ongoing search and community interest -- a stronger
+      distribution signal than most other niches in this portfolio had at
+      graduation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A gambler or preparer working this out by hand is likely to apply
+      the 90% to their LOSSES figure rather than their WINNINGS figure
+      (the two give different, and for a net loser, materially different
+      answers), or to assume a break-even year owes no tax at all -- and a
+      calculator that applies the correct formula and explicitly names the
+      "phantom income" result prevents a materially wrong expectation
+      going into filing season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the 2026 tax-filing season closing (October 2027, covering the
+    first returns filed under this cap), by which point most affected
+    gamblers should already have filed.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/gambling-loss-deduction-calculator/
+  analytics: null

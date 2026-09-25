@@ -566,6 +566,9 @@ workflows:
 - workflow: furnace-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: gambling-loss-deduction-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: garage-door-bid-calculator-ci.yml
   classification: none
   publishes: []
