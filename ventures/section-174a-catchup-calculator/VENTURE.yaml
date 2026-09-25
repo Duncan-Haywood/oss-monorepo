@@ -1,0 +1,116 @@
+name: section-174a-catchup-calculator
+description: >-
+  Free browser calculator for the new federal Section 174A domestic
+  research and experimental (R&E) catch-up deduction (One Big Beautiful
+  Bill Act, Rev. Proc. 2025-28) -- compares deducting an eligible small
+  business's entire remaining unamortized 2022-2024 R&E balance in 2025
+  against spreading it ratably over 2025-2026, computing the actual
+  current-year cash tax saving each year (flagging when a deduction would
+  exceed that year's taxable income and create or increase a net operating
+  loss instead), the present value of the combined savings, and a
+  plain-language recommendation based on the numbers entered. Entirely
+  client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (named task: build
+# section-174a-catchup-calculator). duplicate_check.py scored every venture,
+# screened-out row, and pipeline candidate at or below 0.12 for the final
+# description above -- well under the 0.45 review bar, and the closest
+# match (mega-backdoor-roth-calculator, 0.12) is a different account/topic
+# entirely (401(k) after-tax contribution headroom vs. a business R&E
+# expensing election) -- confirmed by grepping the whole ventures/ tree and
+# portfolio/pipeline/screened-out.md for "174" and "R&D expensing" (no
+# matches beyond incidental substring hits in unrelated bid-calculator test
+# filenames) before this venture was created.
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25 against the
+# IRS's own Rev. Proc. 2025-28 (irs.gov/pub/irs-drop/rp-25-28.pdf), BDO's
+# and Grant Thornton's summaries of that IRS procedural guidance, RSM US's
+# coverage of the acceleration-election procedures, CalCPA's "Navigating
+# Sect. 174A Elections After OBBBA", Brady Ware's and Strike Tax's
+# OBBBA/Section 174A explainers, and Hungerford's "Big Changes to Section
+# 174 Treatment Under the 2025 Tax Act", cross-checked against each other:
+# the One Big Beautiful Bill Act (OBBBA, 2025) created new IRC Section
+# 174A, permanently restoring full, immediate expensing of domestic R&E
+# costs for tax years beginning after December 31, 2024. An "eligible
+# small business" (average annual gross receipts of $31 million or less
+# across 2022-2024, the Section 448(c) test) that had capitalized and was
+# amortizing domestic R&E costs from 2022-2024 gets a one-time catch-up
+# deduction for whatever remained unamortized at the start of its first
+# tax year beginning after December 31, 2024 (2025, for a calendar-year
+# filer). Rev. Proc. 2025-28 gives two ways to claim it on the 2025
+# return: the entire remaining balance in 2025 (the "1-year" option), or
+# ratably over 2025-2026 (the "2-year" option). A separate, fully
+# retroactive election to amend 2022-2024 returns directly existed under
+# the same Rev. Proc., but its window closed July 6, 2026 -- in the past
+# as of this build date -- so this calculator deliberately does not model
+# that path; it models only the live 1-year-vs-2-year choice on the 2025
+# return.
+#
+# Differentiation from existing CPA-firm/finance-site explainers found
+# during research (Plante Moran, Kaufman Rossin, EisnerAmper, Baker Newman
+# Noyes, Grant Thornton, Brady Ware, Strike Tax, and Hungerford all publish
+# OBBBA/174A explainers): every one found is static prose describing the
+# election in words, with no interactive calculator modeling either path's
+# actual cash tax outcome -- none compute the current-year cash saving
+# capped to that year's taxable income, flag the net-operating-loss
+# consequence of an over-large deduction, or compare the two paths in
+# present-value terms. This tool does all three, deterministically, with
+# no signup, no upsell, and nothing uploaded.
+
+hypotheses:
+  - claim: >-
+      Small-business owners and the accountants/CPAs fielding their
+      questions about the Section 174A catch-up election, filing 2025
+      returns through the 2026-2027 tax season, will search plain-language
+      phrases ("section 174a catch-up calculator", "174a 1 year vs 2 year
+      election", "R&D catch-up deduction calculator") and some will prefer
+      a free, private, no-signup, no-upsell comparison tool over reading a
+      CPA-firm blog post and building their own spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published Section 174A/OBBBA
+      explainer articles from CPA firms (found during WebSearch research
+      2026-09-25) is evidence of real, current search and professional
+      interest in this exact election, and none of them offer an
+      interactive calculator -- so a deterministic, present-value-aware
+      comparison tool is a real differentiation, not a duplicate entrant
+      into an already-served niche.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A business owner or preparer working this out by hand is likely to
+      compare the two election paths on nominal dollars alone, missing
+      both the time-value difference between a 2025 dollar and a 2026
+      dollar and the net-operating-loss consequence when a deduction
+      exceeds a year's taxable income -- and a calculator that surfaces
+      both explicitly prevents a materially wrong comparison.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the 2026 tax-filing season closing (October 2027, covering extended
+    2025 returns), by which point most eligible small businesses that will
+    make this election should already have filed.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/section-174a-catchup-calculator/
+  analytics: null
