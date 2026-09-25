@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
+import { calculateSale } from './calc.mjs';
 
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
@@ -52,6 +53,67 @@ test('the generic-method comparison page links back, names no specific product, 
   for (const { name, acceptedAnswer } of faq.mainEntity) {
     assert.ok(spreadsheetSeo.includes(name), `question not visible verbatim: ${name}`);
     assert.ok(spreadsheetSeo.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
+
+test('the guide page links back, is linked from index, and echoes its FAQ verbatim', () => {
+  const guide = page('how-much-does-facebook-marketplace-take.html');
+  assert.match(markup, /how-much-does-facebook-marketplace-take\.html/);
+  assert.match(guide, /<a href="\.\/">/);
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /not affiliated with, endorsed by, or sponsored by Meta or Facebook/i);
+
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+  const faq = blocks.find(b => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'no FAQPage JSON-LD block found on the guide page');
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(guide.includes(name), `question not visible verbatim: ${name}`);
+    assert.ok(guide.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
+
+test('the worked-example figures on the how-much guide match the real arithmetic', () => {
+  const guide = page('how-much-does-facebook-marketplace-take.html');
+
+  const fifty = calculateSale({ itemPrice: '50', buyerShipping: '0', channel: 'shipped' });
+  assert.equal(fifty.sellingFee, 5);
+  assert.equal(fifty.payout, 45);
+  assert.match(guide, /\$5\.00/);
+  assert.match(guide, /\$45\.00/);
+
+  const minimumFee = calculateSale({ itemPrice: '5', buyerShipping: '0', channel: 'shipped' });
+  assert.equal(minimumFee.sellingFee, 0.8);
+  assert.equal(minimumFee.payout, 4.2);
+  assert.match(guide, /\$0\.80/);
+  assert.match(guide, /\$4\.20/);
+
+  const withShipping = calculateSale({ itemPrice: '50', buyerShipping: '10', channel: 'shipped' });
+  assert.equal(withShipping.sellingFee, 6);
+  assert.equal(withShipping.payout, 54);
+  assert.match(guide, /\$6\.00/);
+  assert.match(guide, /\$54\.00/);
+
+  const local = calculateSale({ itemPrice: '50', buyerShipping: '0', channel: 'local' });
+  assert.equal(local.sellingFee, 0);
+  assert.equal(local.payout, 50);
+  assert.match(guide, /\$50\.00/);
+});
+
+test('the doing-it-by-hand comparison page links back, names no specific product, and is linked from index', () => {
+  const byHand = page('vs-doing-the-fee-math-by-hand.html');
+  assert.match(markup, /vs-doing-the-fee-math-by-hand\.html/);
+  assert.match(byHand, /<a href="\.\/">/);
+  assert.match(byHand, /names no specific product/i);
+  assert.match(byHand, /No warranty/);
+  assert.match(byHand, /no SLA/i);
+  assert.match(byHand, /where-to-sell-calculator\/"/);
+
+  const blocks = [...byHand.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+  const faq = blocks.find(b => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'no FAQPage JSON-LD block found on the comparison page');
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(byHand.includes(name), `question not visible verbatim: ${name}`);
+    assert.ok(byHand.includes(acceptedAnswer.text), `answer not visible verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
   }
 });
 

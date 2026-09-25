@@ -17824,3 +17824,63 @@ ventures:
       real npm-documented hardening signal more easily; no scraped or
       personal data, nothing adversarial, scales with zero externality --
       one user's lookup does not affect another's.
+  - slug: claude-code-hooks-security-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every finding (a remote download
+      piped into a shell, a credential file read and sent over the
+      network, an unguarded recursive delete, and the rest) is decided by
+      a fixed set of textual/regex pattern checks against the pasted
+      command strings -- a deterministic comparison, not a model
+      judgment, and it never claims a command that matches nothing is
+      safe or that one which matches something is malicious.
+    basis: >-
+      Screened and built 2026-09-25 (see the venture's own VENTURE.yaml
+      for the full duplicate_check.py run, nothing clearing the 0.45
+      bar). Autonomous ops 10 / gross margin 10: every check runs
+      client-side against text the visitor pastes, nothing uploaded, no
+      server of ours in the loop, so serving one more visitor costs a
+      static file -- same shape as claude-code-settings-check,
+      mcp-config-risk-check, and skill-manifest-check. Defensibility 4: a
+      curated set of regex/token pattern checks is moderately easy to
+      reproduce, matching claude-code-settings-check's and
+      mcp-config-risk-check's own defensibility score in the same domain
+      (a fixed pattern/lookup shape, not the heuristic vagueness tuning
+      that separated skill-manifest-check's 3). Distribution 5: named,
+      current developer-tooling channels (r/ClaudeAI and r/LocalLLaMA
+      agent-tooling threads, where hook safety is an actively discussed
+      topic, Anthropic's own developer community, HN Show threads on
+      Claude Code tooling and agent security, GitHub topic search for
+      committed .claude/settings.json files with a hooks section) plus
+      footer cross-links with all four sibling AI-agent-tooling checkers,
+      matching their own distribution score for the same reasoning. No
+      search-volume tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every check is a deterministic, textual pattern match
+      against a command string the user pastes, no execution of any
+      kind, no network call, no LLM call, and no claim that a command
+      which matches nothing is safe or that one which matches something
+      is malicious -- every finding is framed as "worth a look, not a
+      verdict," and the dedicated why-a-clean-scan-isnt-a-safety-
+      guarantee.html page states plainly, with concrete examples in both
+      directions, what the patterns can and can't see, mirroring the
+      other four AI-agent-tooling ventures' own liability framing.
+      Ethics: strictly beneficial as it scales -- purely defensive,
+      read-only pattern scanning over text the user already has (their
+      own hooks config, or one they're about to trust from a cloned
+      project), helps catch a dangerous hook command before it runs
+      unattended, no affiliate link, no referral fee, donations-only, and
+      it does not scan, fingerprint, or contact any third-party system.

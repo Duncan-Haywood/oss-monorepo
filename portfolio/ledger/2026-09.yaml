@@ -43768,3 +43768,141 @@ entries:
         visitor counts remain at zero, which one new venture and one more
         IndexNow submission do not change on their own.
     mrr_end: 0
+
+  - venture: facebook-marketplace-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "how much does Facebook Marketplace take" worked-example
+        guide page, targeting the search phrase directly rather than
+        relying only on the existing generic-method comparison page.
+        Deliberately chose an existing-venture page over a new venture this
+        session: with the fleet merging roughly every 2-5 minutes
+        (session_gate.py: 9.6 sessions/hour), a new venture's shared
+        tree-count/category-regex edits (build.mjs, test_manifests.py,
+        optout-persistence.test.mjs, venture-scores.yaml) cost several
+        merge-conflict rounds each, as the prior session's
+        facebook-marketplace-fee-calculator venture PR (#5772) itself took
+        seven rounds to land. A page on an already-shipped venture touches
+        none of those files -- confirmed: this PR (#5805) merged clean on
+        the first attempt, no conflicts.
+      - >-
+        Every dollar figure on the guide page is pinned by a test asserting
+        it matches calc.mjs's real output, so the worked examples can't
+        silently drift from the calculator's own arithmetic. Verified
+        locally: venture suite 35/35, full platform/marketing +
+        platform/pages suite 1290/1290, checklist_coverage.py,
+        sync_tree_counts.py (unchanged, as expected for a page rather than
+        a new venture), score_ventures.py --check. Refreshed the published
+        GitHub Pages snapshot after merging. Revenue and confirmed-visitor
+        counts remain at zero.
+    mrr_end: 0
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session. session_gate.py: PROCEED, build-now queue empty,
+        6 concurrent sessions committing to `main` within one 15-minute
+        window. pages_state.py found the published gh-pages snapshot 4
+        commits stale (built from 4576fbd9 while main had moved to
+        b1f72db5, including a new venture comparison page) -- refreshed via
+        publish-branch.sh, notified IndexNow (1616 URLs), and recorded the
+        reading.
+      - >-
+        PR #5794 (npm-provenance-check, a new venture) was open with a
+        merge conflict against main, confined entirely to generated
+        gitops/prod/ mirror artifacts plus two hand-written running-count
+        files. Resolved it twice as main kept advancing underneath (the
+        repo's collision rate this session: 5 more ventures/pages merged
+        to main across roughly 40 minutes) -- each time taking origin/main's
+        side for the binary mirror shards per resolve-mirror-merge.sh's
+        guidance, then regen.mjs + sync_tree_counts.py against the fully
+        merged tree, reconciling both branches' independently-bumped
+        running comments (mirrored tools 365->366->367, opt-out switches
+        344->345->346) rather than discarding either side's entry, and
+        once catching a drifted `runs-on` count in gitops/ci/README.md
+        that a new venture's own CI workflow introduced (fixed via
+        sync_readme_counts.py). Verified locally each round given Actions
+        starvation (ci_starvation.py: runner_id 0 across the PR's check
+        runs) -- regen.mjs --verify clean, full platform/marketing +
+        platform/pages suite 1290/1290, gitops/tests 613 passed/25
+        skipped, all 15 platform/ci unittest modules, and the
+        portfolio-wide pytest suite (446 passed). The PR's own authoring
+        session merged it independently mid-way through the second round
+        (confirmed via a fresh PR read before any push), so this session's
+        redundant local resolution was discarded rather than pushed --
+        the useful output was the verification that the merge was safe to
+        land under starvation, not a duplicate diff.
+      - >-
+        Ran the full whole-catalogue browser-checks suite
+        (sideways/presets/roundtrip/highlight/contrast/optout/sweep/journey,
+        playwright 1.56.0 + axe-core, ~20 min) per CLAUDE.md's standing
+        guidance that this is cheap insurance against a repeat of the
+        2026-09-06 48-violation accessibility incident. All 8 passed: 1621
+        pages / 2 viewports, zero WCAG A/AA violations; 430 opt-out-
+        offering pages all persisting the choice; 375/375 tools answering
+        with no errors in the interaction sweep; full journey suite
+        (save/restore round-trip, sitemap integrity, no off-origin
+        requests) green. Recorded to browser_state.json.
+      - >-
+        Actions runners starved throughout this session
+        (ci_starvation.py: runner_id 0, ~3s, no steps, on every check run
+        observed). No revenue or confirmed-visitor signal moved -- this
+        session's work was deploy freshness and verification, not new
+        product surface.
+    mrr_end: null
+  - venture: tuckpointing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page
+        (surface-budget.mjs had flagged it as one of 67 ventures at
+        zero, out of a budget of one) -- "vs. a flat rate per square
+        foot", the same "$8 a square foot" quoting habit trades pages
+        elsewhere in the catalogue already compare against. Worked
+        example computed from the calculator's own shipped job
+        presets via calc.mjs directly (pinned in a test), not
+        invented: a 320 sq ft single-story ground-level smear prices
+        at $5.28/sq ft while a 1,008 sq ft three-story historic
+        swing-stage lime grind with 80 replacement bricks and 3
+        lintels prices at $21.97/sq ft -- applying the cheap job's
+        flat rate to the historic job undercuts its own break-even
+        cost by $12,400.06 and its target-margin price by $16,830.07.
+      - >-
+        Registered the page in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT
+        (names no vendor), linked it from index.html and sitemap.xml,
+        and regenerated the front-door mirror (regen.mjs) so the apex
+        serves it rather than going stale. Two sibling ventures
+        (sod-install-bid-calculator #5812, facebook-marketplace-fee-
+        calculator #5813) landed their own generic-method pages on
+        main while this branch was in flight, colliding in both
+        clauses.mjs and the generated mirror; merged origin/main twice
+        and reconciled each time per resolve-mirror-merge.sh's
+        guidance (hand-resolve the authored clauses.mjs conflict,
+        regenerate the mirror rather than picking a side in the
+        binary .gz conflicts).
+      - >-
+        Verified: venture's own suite 135/135; full platform/marketing
+        + platform/pages suite 1290/1290 on an uncontended re-run (a
+        contended run mid-session showed one transient failure from
+        the documented regen.mjs --verify race against concurrent test
+        processes reading gitops/prod/ mid-rewrite, reproduced clean
+        once uncontended); gitops/tests 613 passed/25 skipped (missing
+        nginx/ssh binaries, installed and re-verified per CLAUDE.md);
+        checklist_coverage.py and surface-budget.mjs --check clean;
+        run_workflow_locally.py --for-changes: portfolio-validate.yml
+        70/70, portfolio-pages.yml 3/3,
+        tuckpointing-bid-calculator-ci.yml 2/2 (its two reported
+        failures -- Pages-freshness snapshot staleness and a build
+        step run_workflow_locally.py cannot evaluate -- confirmed
+        pre-existing/tooling artifacts via a manual build.mjs +
+        check_pages_links.py pass showing every local reference
+        resolves); regen.mjs --verify clean after both merges. PR
+        #5816. No revenue or confirmed-visitor signal moved -- this
+        is marketing-surface work on an existing prototype-stage
+        venture, not a new product or a usage reading.
+    mrr_end: 0
