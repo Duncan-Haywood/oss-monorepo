@@ -2641,7 +2641,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # plus a vs-doing-the-math-by-hand.html comparison page. Static
     # `index.html` plus one docs/comparison page from its first commit,
     # same shape as the rest of this running count.
-    total = 377  # `infra/OWNER_CHECKLIST.md`'s own "N of the 377 tools" wording.
+    #
+    # 377 -> 378: `freelance-writer-rate-calculator` also graduated -- a
+    # browser-local calculator comparing a freelance writer's per-word rate
+    # against a flat per-project fee for the same job by effective hourly
+    # rate, counting research and revision hours (which a per-word rate does
+    # not separately compensate) alongside writing time. Static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    total = 378  # `infra/OWNER_CHECKLIST.md`'s own "N of the 378 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

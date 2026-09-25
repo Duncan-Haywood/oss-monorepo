@@ -874,7 +874,14 @@ const RELATIVE_SELF = relative(
 // `usageOptedOut` gating localStorage writes, keyed under its own
 // `qsbs-exclusion-calculator-usage` storage name). Exactly one added
 // `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 356;
+//
+// 356 -> 357: `freelance-writer-rate-calculator` also graduated -- adding
+// one more `usage.mjs` (`ventures/freelance-writer-rate-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its siblings
+// above (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage
+// writes, keyed under its own `freelance-writer-rate-calculator-usage`
+// storage name). Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 357;
 
 let counter = 0;
 function fixture(source) {

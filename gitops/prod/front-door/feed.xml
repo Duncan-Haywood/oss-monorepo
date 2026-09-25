@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 377 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 378 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the IRC 461(l) excess business loss limitation, now permanent under OBBBA — computes how much of a pass-through owner&#39;s net business loss is deductible this year against the 2025/2026 threshold, and how much becomes a net operating loss carryforward. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Freelance Writer Rate Calculator — Per-Word vs. Flat Fee, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/freelance-writer-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/freelance-writer-rate-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free calculator for freelance writers, copywriters, and ghostwriters comparing a per-word rate against a flat project fee for the same job -- computing the real effective hourly rate each pricing method pays once research and revision time are counted, and the price needed to hit an hourly income goal. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>MRR Waterfall Calculator — Net &amp; Gross Revenue Retention</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find every secrets: inherit call that hands your whole secret set to an external reusable workflow, or to a job a fork can trigger. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Docker Base Image EOL Check — Is Your FROM Line Still Supported?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/docker-base-image-eol-check/"/>
-    <id>tag:marisstella.dev,2026:tool/docker-base-image-eol-check</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

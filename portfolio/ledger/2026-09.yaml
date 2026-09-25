@@ -45748,3 +45748,76 @@ entries:
         clean. CI starved this session throughout (ci_starvation.py
         confirmed runner_id: 0 on every recent main check).
     mrr_end: 0
+  - venture: freelance-writer-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free browser calculator comparing a
+        freelance writer's per-word rate against a flat per-project fee
+        for the same job, by effective hourly rate once research and
+        revision time (which a per-word rate does not separately
+        compensate) are counted alongside writing time, plus a
+        target-hourly-rate solver. Screened away from the tax/OBBBA and
+        trade-bid-calculator archetypes (both saturated in this
+        catalogue) and away from the marketplace-fee-calculator shape
+        (also saturated -- amazon-fba, ebay, etsy, depop, mercari,
+        poshmark, reverb, stockx, tiktok-shop, walmart, facebook-
+        marketplace, kickstarter, faire, freelance-platform-fee and a
+        dozen more already exist). duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.15 or
+        below for the final description -- the closest matches share only
+        generic freelance/pricing vocabulary, and no existing venture
+        compares a writer's per-word rate against a flat fee.
+      - >-
+        Facts verified via WebSearch against Upwork's 2026 freelance
+        writing rate guide, bestwriting.com's 42-data-point 2026 survey of
+        500 active freelance writers, the Editorial Freelancers
+        Association's 2026 Rate Chart, AWAI's 2026 copywriter rate survey,
+        and Peak Freelance's 2026 rates guide: 2026 per-word rates span
+        roughly $0.05-$0.10/word (entry level) to $0.50-$2.00+/word
+        (specialist); the 500-writer average was $0.42/word vs.
+        established copywriters' $0.70/word average; most writers do not
+        charge extra for ghostwriting, and of those who do, most add a
+        16-20% premium.
+      - >-
+        Filed into build.mjs's solo-earner category next to its closest
+        sibling by shape (voiceover-project-rate-calculator). Shipped
+        with a reciprocal inbound sibling link from
+        freelance-retainer-calculator's own commit (both price a
+        self-employed writer's own work, one an ongoing retainer, the
+        other a single job's per-word-vs-flat-fee decision) so
+        siblings.mjs --check stayed at the committed 0-orphan budget
+        rather than landing as a new orphan to close later. Registered
+        .github/workflows/freelance-writer-rate-calculator-ci.yml (same
+        shape as the sibling OBBBA calculators' CI), added a
+        venture-scores.yaml row, and regenerated the front-door mirror
+        (regen.mjs) plus the mirrored-tool/opt-out-switch tree counts
+        (sync_tree_counts.py: 377->378 mirrored tools, 356->357 opt-out
+        switches, with the running-comment entries in
+        gitops/tests/test_manifests.py and
+        platform/privacy/optout-persistence.test.mjs saying why).
+      - >-
+        Verified: venture's own suite 31/31 (calc.mjs 13, usage.mjs 6,
+        page.test.mjs 12) plus freelance-retainer-calculator's 28/28
+        after the reciprocal-link edit; full platform/marketing +
+        platform/pages suite 1290/1290 clean after fixing an em-dash vs.
+        "--" mismatch between this venture's FAQPage JSON-LD and its
+        visible copy (faq-visible.test.mjs) and a regen.mjs re-run after
+        that edit; score_ventures.py --check clean (386/386 scored);
+        siblings.mjs --check clean (0 orphans, budget 0);
+        checklist_coverage.py clean; validate_usage.py clean (no baseline
+        row added, matching the sibling OBBBA calculators' precedent);
+        gitops/tests 613 passed/25 skipped (expected binary-dependent
+        skips); all 26 platform/ci unittest modules pass, including
+        test_publish_surface.py after registering the new workflow in
+        platform/ci/publish-surface.yaml; platform/ci/agent_review's
+        test_review 21/21; portfolio/ledger + portfolio/scoring +
+        portfolio/router + portfolio/usage + portfolio/pipeline +
+        infra/tests pytest suite 446/446; platform/proposal 101/101;
+        platform/privacy + platform/webcheck 142/142 (including the
+        updated SWITCHES_IN_THE_CATALOGUE=357 assertion). Did not run the
+        Playwright/axe browser sweep or run_workflow_locally.py's full
+        sweep to completion in this session's time budget -- named as a
+        limitation rather than skipped silently.
+    mrr_end: 0
