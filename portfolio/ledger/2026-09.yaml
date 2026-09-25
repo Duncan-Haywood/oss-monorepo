@@ -43684,3 +43684,87 @@ entries:
         and confirmed-visitor counts remain at zero, which a single new
         venture does not change on its own.
     mrr_end: 0
+
+  - venture: section-174a-catchup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture this session (session_gate.py:
+        build-now queue empty, PROCEED verdict; decision_queue.py's 17
+        rows are all owner-gated credential/legal-person asks with nothing
+        session-actionable; DIRECTION.md's "What changes now that
+        distribution is solved" ordering checked first -- gh-pages
+        snapshot already current, usage_state.py still reports
+        never-measured so no product has a real signal to chase, no
+        product has had a fair zero-usage run worth retiring). Picked the
+        new federal Section 174A domestic R&E catch-up deduction (One Big
+        Beautiful Bill Act, Rev. Proc. 2025-28): duplicate_check.py scored
+        every venture, screened-out row, and pipeline candidate at 0.12 or
+        below (closest match mega-backdoor-roth-calculator, an unrelated
+        401(k) topic), well under the 0.45 review bar, confirmed by
+        grepping the whole ventures/ tree and screened-out.md for "174"
+        before building. Mechanics verified via WebSearch 2026-09-25
+        against the IRS's own Rev. Proc. 2025-28, BDO's, Grant Thornton's,
+        RSM US's, CalCPA's, Brady Ware's, Strike Tax's, and Hungerford's
+        OBBBA/174A coverage -- including the detail that matters most for
+        not shipping stale advice: the separate fully-retroactive
+        2022-2024 amended-return election window closed July 6, 2026,
+        already in the past, so the tool deliberately does not model that
+        path and instead covers the live choice a small business faces
+        right now on its 2025 return -- the full balance in 2025 vs.
+        spread ratably over 2025-2026.
+      - >-
+        Shipped a free, static, browser-local calculator: computes the
+        actual current-year cash tax saving each year for both election
+        paths, capped at that year's taxable income before the deduction
+        with an explicit net-operating-loss flag (and an honest statement
+        of what it does not model -- NOL carryforward value, the
+        Section 172(a) 80%-of-taxable-income limitation, state
+        conformity), a present-value comparison at an adjustable discount
+        rate (defaulted to 6%, sourced from 2026 Treasury-yield and
+        SBA-loan-rate ranges rather than invented), and a plain-language,
+        numbers-conditional recommendation. Ships LICENSE, README with the
+        required value sentence and disclaimer, VENTURE.yaml with
+        untested hypotheses and kill_criteria, calc.mjs (52 test
+        assertions across calc/page/usage suites), index.html with
+        FAQPage/SoftwareApplication JSON-LD matching the visible copy, the
+        required vs-doing-the-math-by-hand.html comparison page, an
+        opt-out local usage counter honouring DNT/GPC, robots.txt/
+        sitemap.xml, and a dedicated CI workflow. Filed into build.mjs's
+        `backoffice` category next to its nearest sibling,
+        trump-account-calculator (also a brand-new, deterministic
+        2025-2026 OBBBA calculator) -- added a reciprocal footer link both
+        ways, each side's own page.test.mjs pins the link back so neither
+        venture is a crawlable orphan. Scored in venture-scores.yaml.
+      - >-
+        Delegated the build to a subagent with a detailed brief (the
+        regulatory fact pattern, the exact repo conventions to mirror from
+        trump-account-calculator, and the full verification checklist to
+        run and report real output for, not just "ran it"); this session
+        then independently re-ran the load-bearing checks against the
+        finished branch rather than trusting the subagent's own report:
+        the venture's own suite (52/52), siblings.mjs --check (0 of 368
+        orphans), surface-budget.mjs --check (no venture over budget),
+        checklist_coverage.py (2200 venture test files reachable),
+        score_ventures.py --check (376/376 consistent),
+        router/validate.py (375/375 valid), regen.mjs --verify (clean
+        after the subagent's own regen run), and check_ledger_only.py
+        (1659 files outside ledger prose -- this entry rides with real
+        code, not on its own). Actions runners starved this session
+        throughout (`ci_starvation.py` on `Portfolio validate`:
+        `runner_id: 0`, real-runner failures on `Sibling links` /
+        `Pages freshness` / `hetzner-gitops CI` etc. at the same commit
+        were the same starvation signature, not a regression); verified
+        locally per CLAUDE.md's starvation checklist.
+      - >-
+        Separately, re-announced the full catalogue to IndexNow by hand
+        (`node platform/marketing/indexnow.mjs --submit --ref
+        origin/gh-pages`): a real `POST https://api.indexnow.org/indexnow
+        -> 200`, 1624 URLs, the latest in the running series of by-hand
+        announcements `infra_state.yaml`'s `sandbox-egress-policy` row
+        already tracks (the automated `publish-pages-branch.yml` route
+        remains starved on every recent run). Revenue and confirmed-
+        visitor counts remain at zero, which one new venture and one more
+        IndexNow submission do not change on their own.
+    mrr_end: 0
