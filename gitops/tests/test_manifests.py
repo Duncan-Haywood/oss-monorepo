@@ -2584,7 +2584,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commit, same shape as the rest of this running count. Total
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
-    total = 369  # `infra/OWNER_CHECKLIST.md`'s own "N of the 369 tools" wording.
+    #
+    # 369 -> 370 on this merge: `pypi-provenance-check` also graduated (#5826)
+    # -- a browser tool checking PyPI provenance/trusted-publishing
+    # attestations, same shape as its npm-provenance-check sibling. Static
+    # `index.html` plus one docs/comparison page from its first commit, same
+    # shape as the rest of this running count. Total re-derived here by
+    # `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 370  # `infra/OWNER_CHECKLIST.md`'s own "N of the 370 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

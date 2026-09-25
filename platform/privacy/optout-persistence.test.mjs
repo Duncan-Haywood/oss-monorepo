@@ -818,7 +818,13 @@ const RELATIVE_SELF = relative(
 // keyed under its own `section-174a-catchup-calculator-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions. Re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 348;
+//
+// 348 -> 349 on this merge: `pypi-provenance-check` also graduated (#5826) --
+// adding one more `usage.mjs` following the same opt-out pattern as its
+// npm-provenance-check sibling. Exactly one added `usage.mjs`, no
+// deletions. Re-derived here by `sync_tree_counts.py` against the fully
+// merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 349;
 
 let counter = 0;
 function fixture(source) {

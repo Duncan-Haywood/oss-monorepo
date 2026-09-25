@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 369 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 370 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>PyPI Provenance Check — Which of Your Python Dependencies Lack Trusted Publishing?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pypi-provenance-check/"/>
+    <id>tag:marisstella.dev,2026:tool/pypi-provenance-check</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste a requirements.txt, a PEP 621 pyproject.toml, or a plain package list and see which Python packages were published with a PyPI provenance attestation (trusted publishing / OIDC via GitHub Actions or another supported CI) and which still rely on a classic, stealable API token. Free, no account, two read-only requests per package to the public PyPI API.</summary>
   </entry>
   <entry>
     <title>Section 174A Catch-Up Deduction Calculator — 1-Year vs. 2-Year, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-23T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Free OSHA TRIR and DART rate calculator: turn your OSHA 300 log&#39;s recordable case count and total hours worked into the two rates GC prequalification forms and insurance renewals ask for, and see how many injury-free hours it takes to hit a target rate. Nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Personal Trainer Package Pricing Calculator — Package vs. Pay-Per-Session, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/personal-trainer-package-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/personal-trainer-package-pricing-calculator</id>
-    <published>2026-09-23T00:00:00Z</published>
-    <updated>2026-09-23T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free calculator for independent personal trainers: compares a discounted prepaid session package against pay-per-session pricing on net take-home pay per hour, after your gym or studio&#39;s percentage cut or flat facility fee — not just revenue. A flat per-session fee erodes a discounted package harder than it erodes full price, and a makeup-owed policy can turn a package&#39;s guaranteed revenue into a worse hourly rate. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
