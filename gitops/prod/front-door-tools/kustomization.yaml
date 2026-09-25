@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 134 files, 556688 bytes
 #   portfolio-front-tools-17: 122 files, 546683 bytes
 #   portfolio-front-tools-18: 104 files, 555135 bytes
-#   portfolio-front-tools-19: 120 files, 549181 bytes
+#   portfolio-front-tools-19: 121 files, 553876 bytes
 #   portfolio-front-tools-20: 128 files, 557044 bytes
 #   portfolio-front-tools-21: 78 files, 375799 bytes
 #   portfolio-front-tools-22: 50 files, 264886 bytes
@@ -2686,6 +2686,7 @@ configMapGenerator:
       - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
       - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
+      - stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
       - subdomain-takeover-check__check.mjs.gz=subdomain-takeover-check__check.mjs.gz
