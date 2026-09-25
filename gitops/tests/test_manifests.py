@@ -2564,8 +2564,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # by `sync_tree_counts.py` against the fully merged tree rather than
     # by hand.
     #
-    # 368 on this merge: `claude-code-hooks-security-check` also graduated
-    # -- a browser tool scanning the command strings inside a pasted Claude
+    # 367 -> 368: `claude-code-hooks-security-check` also graduated -- a
+    # browser tool scanning the command strings inside a pasted Claude
     # Code hooks configuration for known-dangerous shapes (remote
     # pipe-to-shell, credential exfiltration, unguarded recursive delete,
     # and others), complementing the portfolio's existing structural
@@ -2573,7 +2573,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `claude-code-subagent-check`, `mcp-config-risk-check`,
     # `skill-manifest-check`). Static `index.html` plus one docs page from
     # its first commit, same shape as the rest of this running count.
-    total = 368  # `infra/OWNER_CHECKLIST.md`'s own "N of the 368 tools" wording.
+    #
+    # 369 -> 370 on this merge: `section-174a-catchup-calculator` also
+    # graduated -- a browser-local calculator comparing the two
+    # Rev. Proc. 2025-28 Section 174A domestic R&E catch-up election paths
+    # (deduct the whole remaining unamortized 2022-2024 balance in 2025, or
+    # split it over 2025-2026), with an NOL flag and a present-value
+    # comparison, plus a vs-doing-the-math-by-hand.html comparison page.
+    # Static `index.html` plus one docs/comparison page from its first
+    # commit, same shape as the rest of this running count. Total
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    total = 370  # `infra/OWNER_CHECKLIST.md`'s own "N of the 370 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

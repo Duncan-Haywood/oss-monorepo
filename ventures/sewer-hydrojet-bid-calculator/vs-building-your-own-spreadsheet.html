@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. building your own spreadsheet | Hydro-Jet and Sewer Camera Bid Calculator</title>
+<meta name="description" content="A spreadsheet can hold the same footage, access, and condition line items this calculator does. Where a hand-built sheet actually drifts is the margin formula (price = cost / (1 - margin), not cost * (1 + margin)), the loaded wage, and keeping three mutually exclusive access methods from double-counting.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-building-your-own-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. building your own spreadsheet">
+<meta property="og:description" content="The line items are the same either way. What a hand-built bid sheet most often gets wrong is the margin formula, the loaded wage, and not double-counting a mutually exclusive access method -- not the footage or condition math itself.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a spreadsheet just as accurate as this calculator?","acceptedAnswer":{"@type":"Answer","text":"It can hold the same fields -- trip hours, footage past the included run, access method, roots, grease, hose run, materials, wage, overhead, and target margin. Where a hand-built sheet most often drifts is the formula that turns total cost into a price: writing price = cost * (1 + margin%) computes a markup, not a margin. At a 30% target on $700 of cost, that mistake prices the job at $910 instead of the $1,000 a true 30% margin requires -- a $90 gap that looks like a correct bid until you check what share of the price is actually profit."}},{"@type":"Question","name":"What does this calculator get right that a spreadsheet bid sheet often gets wrong?","acceptedAnswer":{"@type":"Answer","text":"Three things past the margin formula: it loads the hourly wage by payroll burden before multiplying by hours, so a burden rate typed into its own cell but never wired into the labor formula can't silently understate labor cost. It keeps toilet-pull, new-cleanout, and roof-vent access as mutually exclusive, so there's no risk of a sheet that lets two access-method cells get filled in and double-counts the hours. And it applies overhead to the full direct cost -- labor, materials, and travel together -- rather than to labor alone, which a sheet built one line at a time can miss if overhead was only wired to the labor row."}},{"@type":"Question","name":"When is a spreadsheet the better choice?","acceptedAnswer":{"@type":"Answer","text":"When you want to keep a running log of every job you've bid, customize the line items for a service this calculator doesn't cover, or share a file with a bookkeeper. This calculator stores nothing and keeps no history -- it exists to get one job's price right on the spot, not to replace your records."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2833; background: #eef4f4; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #0d7377; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 24ch; letter-spacing: -.05em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #4a5c64; }
+  section { background: #fff; border: 1px solid #d3e0e0; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #1a2a4a0d; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3e0e0; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5c64; }
+  .fine, .note { font-size: .88rem; color: #4a5c64; }
+  footer { color: #4a5c64; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Hydro-Jet and Sewer Camera Bid Calculator</a></p>
+<header>
+<h1>This calculator vs. building your own spreadsheet</h1>
+<p class="lede">A spreadsheet can hold the same footage, access, and condition line items this calculator does. Where a hand-built sheet most often drifts from a correct bid is the margin formula, the loaded wage, and keeping three mutually exclusive access methods from double-counting.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+  <strong>A spreadsheet</strong> can track every input this calculator
+  does &mdash; trip hours, line footage past the included run, access
+  method, roots, grease, a second line, hose run from the truck, material
+  costs, loaded wage, overhead, and target margin. None of the arithmetic
+  is exotic on its own. What tends to go wrong is the formula that turns a
+  pile of costs into a price: <code>price = cost * (1 + margin%)</code>
+  computes a markup, not a margin. At a 30% target on $700 of direct cost
+  plus overhead, that mistake prices the job at $910 instead of the $1,000
+  a true 30% margin requires &mdash; a $90 gap that reads as a correct bid
+  right up until you check what share of the price is actually profit.
+</p>
+<p>
+  <strong>This calculator</strong> uses <code>price = totalCost / (1 -
+  targetMargin / 100)</code>, so the margin you type is the margin you get.
+  It also loads the hourly wage by payroll burden before multiplying by
+  hours, keeps toilet-pull, new-cleanout, and roof-vent access mutually
+  exclusive so there's nothing to double-count, and applies overhead to
+  the full direct cost &mdash; labor, materials, and travel together
+  &mdash; rather than to labor alone.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Can a spreadsheet hold the same footage, access, and condition line items?</td><td>Yes &mdash; the fields are the same either way.</td></tr>
+<tr><td>Does typing a 30% target margin into the price formula actually return a 30% margin?</td><td>This calculator &mdash; a hand-built <code>cost * (1 + margin%)</code> formula returns a markup, which understates the price for the same target.</td></tr>
+<tr><td>Is the payroll burden rate actually wired into the labor cost, or just sitting in its own cell?</td><td>This calculator loads the wage by burden before multiplying by hours, every time.</td></tr>
+<tr><td>Could two access-method cells (toilet pull, new cleanout, roof vent) get filled in and double-count hours?</td><td>This calculator keeps the three mutually exclusive. A spreadsheet with one column per method can't guarantee that on its own.</td></tr>
+<tr><td>Is overhead applied to the whole direct cost, or only to the labor row it happened to be wired to?</td><td>This calculator applies it to labor, materials, and travel together.</td></tr>
+<tr><td>I want a running log of every job I've bid, or a shared file for a bookkeeper.</td><td>A spreadsheet &mdash; this calculator stores nothing and keeps no history.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't a spreadsheet just as accurate as this calculator?</h3>
+<p>It can hold the same fields -- trip hours, footage past the included run, access method, roots, grease, hose run, materials, wage, overhead, and target margin. Where a hand-built sheet most often drifts is the formula that turns total cost into a price: writing price = cost * (1 + margin%) computes a markup, not a margin. At a 30% target on $700 of cost, that mistake prices the job at $910 instead of the $1,000 a true 30% margin requires -- a $90 gap that looks like a correct bid until you check what share of the price is actually profit.</p>
+<h3>What does this calculator get right that a spreadsheet bid sheet often gets wrong?</h3>
+<p>Three things past the margin formula: it loads the hourly wage by payroll burden before multiplying by hours, so a burden rate typed into its own cell but never wired into the labor formula can't silently understate labor cost. It keeps toilet-pull, new-cleanout, and roof-vent access as mutually exclusive, so there's no risk of a sheet that lets two access-method cells get filled in and double-counts the hours. And it applies overhead to the full direct cost -- labor, materials, and travel together -- rather than to labor alone, which a sheet built one line at a time can miss if overhead was only wired to the labor row.</p>
+<h3>When is a spreadsheet the better choice?</h3>
+<p>When you want to keep a running log of every job you've bid, customize the line items for a service this calculator doesn't cover, or share a file with a bookkeeper. This calculator stores nothing and keeps no history -- it exists to get one job's price right on the spot, not to replace your records.</p>
+<p class="note">
+  Open the <a href="index.html">Hydro-Jet and Sewer Camera Bid Calculator</a> to price your own job.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a scope is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any spreadsheet software &mdash; it is a static page describing a common spreadsheet-authoring mistake.</p>
+<p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

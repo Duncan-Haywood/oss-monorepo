@@ -938,6 +938,9 @@ workflows:
 - workflow: pwa-installability-check-ci.yml
   classification: none
   publishes: []
+- workflow: pypi-provenance-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: qbi-deduction-calculator-ci.yml
   classification: none
   publishes: []
@@ -1014,6 +1017,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: screened-porch-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: section-174a-catchup-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: security-camera-bid-calculator-ci.yml
