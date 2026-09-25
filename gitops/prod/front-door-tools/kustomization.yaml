@@ -53,7 +53,7 @@
 #   portfolio-front-tools-17: 104 files, 554669 bytes
 #   portfolio-front-tools-18: 116 files, 552603 bytes
 #   portfolio-front-tools-19: 128 files, 554954 bytes
-#   portfolio-front-tools-20: 119 files, 542552 bytes
+#   portfolio-front-tools-20: 120 files, 546356 bytes
 #   portfolio-front-tools-21: 54 files, 288504 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2770,6 +2770,7 @@ configMapGenerator:
       - wash-and-fold-price-calculator__share.mjs.gz=wash-and-fold-price-calculator__share.mjs.gz
       - wash-and-fold-price-calculator__usage.mjs.gz=wash-and-fold-price-calculator__usage.mjs.gz
       - wash-and-fold-price-calculator__vs-cents.html.gz=wash-and-fold-price-calculator__vs-cents.html.gz
+      - wash-and-fold-price-calculator__vs-doing-the-cost-math-yourself.html.gz=wash-and-fold-price-calculator__vs-doing-the-cost-math-yourself.html.gz
       - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
       - water-heater-bid-calculator__how-much-to-charge.html.gz=water-heater-bid-calculator__how-much-to-charge.html.gz
       - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz
