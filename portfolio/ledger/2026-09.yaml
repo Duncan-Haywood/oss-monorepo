@@ -43769,3 +43769,51 @@ entries:
         session's work was deploy freshness and verification, not new
         product surface.
     mrr_end: null
+  - venture: sod-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-flat-per-square-foot-special.html, a generic-method
+        comparison page (surface-budget.mjs listed this venture among 70
+        with zero such pages, despite its own VENTURE.yaml hypothesis
+        naming the exact flat "$0.55 a square foot installed" special to
+        compare against). Every figure is derived from the venture's own
+        JOB_PRESETS and asserted against calc.mjs in a new test file
+        (vs-a-flat-per-square-foot-special.test.mjs, 9 tests): the
+        "cheap special" ready-soil job and the "where the special loses"
+        strip-and-haul job price at $0.93 and $1.84 a square foot (about
+        1.98x apart) even though a flat per-foot rate charges both the
+        same.
+      - >-
+        Caught and fixed a JSON-LD/visible-copy em-dash and quote-style
+        divergence via platform/pages/faq-visible.test.mjs before
+        merging -- the same defect class CLAUDE.md already records
+        against other ventures' comparison pages.
+      - >-
+        Merged as PR #5812 (squash) after full local verification, since
+        Actions was starved this session (ci_starvation.py: runner_id 0,
+        no steps): ventures/sod-install-bid-calculator's own suite
+        (137/137), platform/marketing (275/275), platform/pages
+        (1015/1015), platform/privacy + platform/webcheck (142/142),
+        platform/proposal (101/101), gitops/tests pytest (638 passed/1
+        skipped, environmental), portfolio/ledger + scoring + router +
+        usage + pipeline + infra/tests pytest (446 passed), all 15
+        platform/ci unittest modules, guard_state.py
+        --require-runnable (no fixable skips), regen.mjs --verify,
+        checklist_coverage.py, sync_tree_counts.py, surface-budget.mjs
+        --check, clauses.mjs, and the 8 CLAUDE.md validators
+        (router/validate.py, validate_doc_consistency.py,
+        validate_candidates.py, validate_probe_index.py,
+        score_sensitivity.py, score_ventures.py --check,
+        validate_usage.py, front-door-tools.mjs --headroom). A merge
+        conflict against a fast-moving main landed only in generated
+        gitops/prod/ artifacts (binary, can't auto-merge); resolved by
+        taking main's copies and re-running regen.mjs rather than
+        hand-merging, then reverified clean. Refreshed the Pages
+        snapshot after merging per CLAUDE.md's post-merge checklist.
+        Revenue and confirmed-visitor counts remain at zero, which one
+        comparison page does not change on its own -- the point is
+        giving this venture a real shot at its first search-traffic
+        visitor, per its own untested hypothesis.
+    mrr_end: null
