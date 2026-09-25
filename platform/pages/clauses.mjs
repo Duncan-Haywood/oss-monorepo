@@ -2242,6 +2242,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pypi-attestations verify CLI, which is a first-party tool comparison,
   // not a competing product, and predates this generic-method page).
   'pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html',
+  // Compares against "checking each package on npmjs.com by hand" -- a
+  // manual review habit any maintainer or reviewer already has, not a
+  // company or product this could be mistaken for. This page names no
+  // named-product comparison at all (the venture's own vs-socket.html is a
+  // separate page for that). Same reasoning as this venture's PyPI sibling
+  // immediately above.
+  'npm-provenance-check/vs-checking-each-package-on-npmjs-by-hand.html',
   // Compares against "a flat $125-a-foot" sewer-replacement price -- a
   // generic pricing method every plumbing/sewer-repair shop already has
   // access to, not a company or product this could be mistaken for. The
