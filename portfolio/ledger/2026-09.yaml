@@ -44497,3 +44497,71 @@ entries:
         every other PR this session -- merged on the strength of the
         local verification above rather than CI.
     mrr_end: 0
+  - venture: mrr-waterfall-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a browser-local calculator breaking starting MRR
+        into new, expansion, reactivation, contraction, and churned MRR,
+        then reporting ending MRR, gross revenue retention (capped at
+        100%, never counting growth), net revenue retention (uncapped),
+        and the growth-to-loss quick ratio. Screened via
+        duplicate_check.py (top match 0.11, subscription-price-impact --
+        same audience, a different question: reconciling actual
+        movements vs. testing a hypothetical price change). Ships the
+        standard set (LICENSE, disclaimer, privacy line, opt-out/DNT/GPC
+        usage counter, a generic-method comparison page against tracking
+        MRR in a spreadsheet, robots.txt/sitemap.xml, a dedicated CI
+        workflow, and a venture-scores.yaml entry with named
+        liability/ethics gates). Reciprocally sibling-linked with
+        subscription-price-impact.
+      - >-
+        Also pulled claude-code-hooks-security-check and
+        pypi-provenance-check out of the front-door "more" catch-all
+        category into "CI checks & developer gates" in build.mjs -- both
+        already matched every sibling checker's shape and were simply
+        never added to that category's regex. This venture's graduation
+        pushed the catch-all to 6 and build.test.mjs's bound of 5 fired;
+        enumerating the catch-all found the fix, the same method this
+        file's own comments already record for this exact guard.
+        patreon-fee-calculator hit the same bound independently in the
+        same window and both branches made the identical fix, reconciled
+        on merge.
+      - >-
+        Landed as PR #5857 after three rounds of git merge origin/main
+        while the fleet kept shipping. Round 1 collided with
+        patreon-fee-calculator (#5856) on the mirror plus five
+        hand-authored files this venture also touched (build.mjs's
+        catch-all fix, clauses.mjs's exemption set, venture-scores.yaml,
+        optout-persistence.test.mjs's SWITCHES_IN_THE_CATALOGUE, and
+        test_manifests.py's mirrored-tool total) -- both branches had
+        independently bumped the same running counts for their own new
+        venture, so the merged totals (351 switches, 372 mirrored tools)
+        were re-derived via sync_tree_counts.py rather than picked from
+        either side. Rounds 2 and 3 were mirror-only (a phone-scroll CSS
+        fix and a guide page on section-174a-catchup-calculator),
+        resolved via resolve-mirror-merge.sh. CI note: every check on
+        this PR came back red in 2-5s; ci_starvation.py confirmed
+        runner_id: 0 on the jobs sampled, consistent with every other PR
+        this session -- merged on the strength of local verification
+        (venture suite 31/31; full platform/marketing + platform/pages
+        1290/1290; platform/privacy + platform/webcheck 142/142;
+        gitops/tests 637 passed/1 environmental skip; all 27 platform/ci
+        unittest modules; agent_review's test_review;
+        portfolio/ledger+scoring+router+usage+pipeline+infra/tests 446
+        passed; checklist_coverage.py, sync_tree_counts.py, regen.mjs
+        --verify, siblings.mjs --check, surface-budget.mjs --check,
+        score_ventures.py --check, router/validate.py,
+        validate_workflows.py, and publish_surface.py --check all
+        clean).
+      - >-
+        Republished the gh-pages snapshot after merge
+        (CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-
+        branch.sh) and confirmed pages_state.py --require-current passes
+        and github-pages-branch-route recorded up. Attempted the by-hand
+        IndexNow announcement (node platform/marketing/indexnow.mjs
+        --submit --ref gh-pages); this sandbox's egress proxy still 403s
+        api.indexnow.org, so the submission did not reach IndexNow --
+        unresolved from this environment, per CLAUDE.md's standing note.
+    mrr_end: 0
