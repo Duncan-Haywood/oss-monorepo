@@ -2641,7 +2641,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # plus a vs-doing-the-math-by-hand.html comparison page. Static
     # `index.html` plus one docs/comparison page from its first commit,
     # same shape as the rest of this running count.
-    total = 377  # `infra/OWNER_CHECKLIST.md`'s own "N of the 377 tools" wording.
+    #
+    # 377 -> 378: `referrer-permissions-policy-check` also graduated -- a
+    # zero-dependency CLI + browser report viewer sending one real GET
+    # request and classifying the response's Referrer-Policy (an
+    # unsafe-url full-URL leak, a missing or unrecognised value, the
+    # legacy no-referrer-when-downgrade value) and Permissions-Policy (a
+    # malformed structured-field allowlist, a wildcard on a sensitive
+    # feature like camera/microphone, reliance on the deprecated
+    # Feature-Policy header alone). Static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 378  # `infra/OWNER_CHECKLIST.md`'s own "N of the 378 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
