@@ -13,16 +13,28 @@ test('docs page links back to the tool', async () => {
 });
 
 test('all pages carry the no-warranty clause', async () => {
-  for (const file of ['index.html', 'why-not-just-pypi-attestations-verify.html']) {
+  for (const file of ['index.html', 'why-not-just-pypi-attestations-verify.html', 'vs-socket.html']) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), 'utf8');
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }
 });
 
-test('sitemap lists both pages', async () => {
+test('sitemap lists all three pages', async () => {
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /index\.html/);
   assert.match(sitemap, /why-not-just-pypi-attestations-verify\.html/);
+  assert.match(sitemap, /vs-socket\.html/);
+});
+
+test('index links to the vs-socket comparison page', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="vs-socket\.html"/);
+});
+
+test('vs-socket page links back to the tool and carries the trademark disclaimer', async () => {
+  const page = await readFile(new URL('./vs-socket.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\/"/);
+  assert.match(page, /not affiliated with, endorsed by, or sponsored by socket/i);
 });
 
 test('index carries the sponsor link', async () => {
