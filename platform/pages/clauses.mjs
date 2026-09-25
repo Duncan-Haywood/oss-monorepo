@@ -2130,6 +2130,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as salt-cap-calculator's own vs-doing-the-math-by-hand.html
   // right above.
   'charitable-deduction-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the OBBBA 90% gambling-loss deduction cap
+  // by hand -- a generic method every gambler or preparer already has
+  // access to, not a company or product this could be mistaken for. Names
+  // no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as charitable-deduction-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'gambling-loss-deduction-calculator/vs-doing-the-math-by-hand.html',
   // Compares against working out the 2026 federal estate tax exclusion by
   // hand -- a generic method every estate planning attorney, CPA, or
   // individual already has access to, not a company or product this could
@@ -2157,6 +2164,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-securitytxt-org-generator.html, which names a real site and
   // already carries its own non-affiliation disclaimer.
   'security-txt-check/vs-checking-it-by-eye.html',
+  // Compares against working out the Child Tax Credit by hand -- a generic
+  // method every parent or preparer already has access to, not a company
+  // or product this could be mistaken for. Names no tax-prep firm or
+  // software vendor. Same reasoning as qsbs-exclusion-calculator's own
+  // vs-doing-the-math-by-hand.html above.
+  'child-tax-credit-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.

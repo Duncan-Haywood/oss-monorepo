@@ -859,7 +859,16 @@ const RELATIVE_SELF = relative(
 // `charitable-deduction-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
 //
-// 354 -> 355: `estate-tax-exemption-calculator` also graduated -- adding
+// 354 -> 355: `gambling-loss-deduction-calculator` also graduated,
+// concurrently with and invisibly to the five ventures below -- adding
+// one more `usage.mjs` (`ventures/gambling-loss-deduction-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `gambling-loss-deduction-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 355 -> 356: `estate-tax-exemption-calculator` also graduated -- adding
 // one more `usage.mjs` (`ventures/estate-tax-exemption-calculator/
 // usage.mjs`) following the same opt-out toggle shape as its
 // `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
@@ -867,7 +876,7 @@ const RELATIVE_SELF = relative(
 // `estate-tax-exemption-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
 //
-// 355 -> 356: `excess-business-loss-calculator` also graduated,
+// 356 -> 357: `excess-business-loss-calculator` also graduated,
 // concurrently -- adding one more `usage.mjs`
 // (`ventures/excess-business-loss-calculator/usage.mjs`) following the
 // same opt-out toggle shape as its `charitable-deduction-calculator`
@@ -875,7 +884,7 @@ const RELATIVE_SELF = relative(
 // writes, keyed under its own `excess-business-loss-calculator-usage`
 // storage name). Exactly one added `usage.mjs`, no deletions.
 //
-// 356 -> 357: `qsbs-exclusion-calculator` also graduated, also
+// 357 -> 358: `qsbs-exclusion-calculator` also graduated, also
 // concurrently -- adding one more `usage.mjs`
 // (`ventures/qsbs-exclusion-calculator/usage.mjs`) following the same
 // opt-out toggle shape as its `excess-business-loss-calculator` sibling
@@ -883,8 +892,8 @@ const RELATIVE_SELF = relative(
 // keyed under its own `qsbs-exclusion-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions.
 //
-// 357 -> 358: `referrer-permissions-policy-check` also graduated,
-// concurrently and invisibly to the two entries above -- adding one
+// 358 -> 359: `referrer-permissions-policy-check` also graduated,
+// concurrently and invisibly to the entries above -- adding one
 // more `usage.mjs` (`ventures/referrer-permissions-policy-check/
 // usage.mjs`) following the same opt-out toggle shape as its
 // `cache-control-check` sibling (`recordUsage`/`readOptOut`/
@@ -892,7 +901,7 @@ const RELATIVE_SELF = relative(
 // `referrer-permissions-policy-check-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
 //
-// 358 -> 359: `exempt-salary-threshold-checker` also graduated,
+// 359 -> 360: `exempt-salary-threshold-checker` also graduated,
 // concurrently and invisibly to the entries above -- adding one more
 // `usage.mjs` (`ventures/exempt-salary-threshold-checker/usage.mjs`), the
 // same boilerplate opt-out toggle copied from `salt-cap-calculator`
@@ -900,14 +909,33 @@ const RELATIVE_SELF = relative(
 // keyed under its own `exempt-salary-threshold-checker-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions.
 //
-// 359 -> 360: `boi-reporting-exemption-checker` also graduated -- adding
-// one more `usage.mjs` (`ventures/boi-reporting-exemption-checker/
-// usage.mjs`), the same boilerplate opt-out toggle copied from
-// `exempt-salary-threshold-checker` (`record`/`setUsageOptOut`/
+// 359 -> 360: `boi-reporting-exemption-checker` also graduated,
+// concurrently -- adding one more `usage.mjs`
+// (`ventures/boi-reporting-exemption-checker/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `exempt-salary-threshold-checker`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `boi-reporting-exemption-checker-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+//
+// 360 -> 361: `gambling-loss-deduction-calculator` also graduated,
+// concurrently and invisibly to the entry above -- adding one more
+// `usage.mjs` (`ventures/gambling-loss-deduction-calculator/usage.mjs`),
+// the same boilerplate opt-out toggle copied from
+// `bonus-depreciation-calculator` (`record`/`setUsageOptOut`/
 // `usageOptedOut` gating localStorage writes, keyed under its own
-// `boi-reporting-exemption-checker-usage` storage name). Exactly one
-// added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 360;
+// `gambling-loss-deduction-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions. Landed on `main` before this branch's
+// fetch, so its switch was absent from this branch's own count until
+// this merge.
+//
+// 361 -> 362: `child-tax-credit-calculator` also graduated, concurrently
+// and invisibly to both entries above -- adding one more `usage.mjs`
+// (`ventures/child-tax-credit-calculator/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `senior-deduction-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `child-tax-credit-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 362;
 
 let counter = 0;
 function fixture(source) {
