@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why not just pypi-attestations verify? — PyPI Provenance Check</title>
+  <meta name="description" content="pypi-attestations verify is PyPI's own official verification tool, and it's accurate -- but it checks one already-downloaded artifact at a time, with no bulk or CI-friendly report. Here's exactly what it does and doesn't cover, and when a requirements.txt-paste or CLI tool is the better fit.">
+  <link rel="canonical" href="./why-not-just-pypi-attestations-verify.html">
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.1; color: #17324a; }
+    h2 { font-size: 1.1rem; margin: 22px 0 8px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+    a { color: #1a4560; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; back to PyPI Provenance Check</a></p>
+  <h1>Why not just <code>pypi-attestations verify</code>?</h1>
+
+  <div class="card">
+    <p>PyPA's own tool already verifies a PEP 740 attestation:</p>
+    <pre class="cmd">pip install pypi-attestations
+pypi-attestations verify pypi --repository https://pypi.org <artifact-url-or-path></pre>
+    <p>It's the reference implementation, it's accurate, and if all you want is a one-time answer for one artifact you already have, it's the right tool -- this page isn't arguing against it. What it doesn't do is what this tool exists for.</p>
+  </div>
+
+  <div class="card">
+    <h2>Three gaps this tool fills</h2>
+    <p><strong>1. It needs one artifact at a time, already resolved.</strong> <code>pypi-attestations verify</code> checks a single wheel or sdist you point it at -- a URL or a local path. This tool works from a pasted <code>requirements.txt</code>, PEP 621 <code>pyproject.toml</code>, or even a plain list of names, resolving each package's latest or pinned version and its file itself. Useful when you're evaluating a whole dependency set before installing it, reviewing someone else's requirements file they sent you, or checking a repo you haven't cloned.</p>
+    <p><strong>2. It's one package at a time, with no report to hand off.</strong> If you maintain (or audit) more than one project, there's no built-in way to see "which of these 40 repos still has unmigrated dependencies" without invoking the CLI once per artifact and collecting results by hand. This tool's CLI emits <code>--json</code> for the whole file in one run, so a script can loop over repos and diff the output.</p>
+    <p><strong>3. No bulk or CI-shaped output.</strong> <code>pypi-attestations verify</code> is built to verify one artifact's cryptographic bundle, not to summarize a project's dependency tree. The CLI here has a flag built for exactly that:</p>
+    <pre class="cmd">node cli.mjs requirements.txt --without-provenance-only --json</pre>
+    <p>which returns just the packages still missing an attestation, as JSON, ready to file into a spreadsheet, a Slack digest, or a migration tracker.</p>
+  </div>
+
+  <div class="card">
+    <h2>What both tools read is the same fact</h2>
+    <p>There is no separate provenance database. Both <code>pypi-attestations verify</code> and this tool read from PyPI's PEP 740 integrity API -- <code>attestation_bundles</code> on a release file -- so they will never disagree about whether a given file carries an attestation. The difference is entirely in what you can start from and what you get out, not in what's being measured. <code>pypi-attestations verify</code> additionally checks the attestation's cryptographic validity end-to-end (the Sigstore bundle, the certificate chain, the Trusted Publisher identity match); this tool reports presence/absence and the publisher named in the certificate, but does not itself re-verify the cryptographic signature -- for that, run <code>pypi-attestations verify</code> against the specific file this tool flags.</p>
+  </div>
+
+  <div class="card">
+    <h2>Common questions</h2>
+    <h3>Does pypi-attestations verify already do this?</h3>
+    <p>It verifies the same underlying attestation this tool reports on, and it does the full cryptographic check this tool does not. What it does not do is work from a requirements file or pyproject.toml before you have downloaded anything, produce a report across more than one project, or emit JSON another tool can consume in bulk. Those three gaps are what this tool adds.</p>
+    <h3>Do pypi-attestations verify and this tool ever disagree about presence/absence?</h3>
+    <p>No. Both read from PyPI's own PEP 740 integrity API for the exact same release file. There is no separate provenance database for either tool to disagree about.</p>
+    <h3>When should I use pypi-attestations verify instead?</h3>
+    <p>When you already have a specific artifact (a URL or a downloaded file) and need the full cryptographic verification -- certificate chain, Sigstore bundle, Trusted Publisher identity match -- not just a presence/absence report across a dependency list.</p>
+  </div>
+
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does pypi-attestations verify already do this?","acceptedAnswer":{"@type":"Answer","text":"It verifies the same underlying attestation this tool reports on, and it does the full cryptographic check this tool does not. What it does not do is work from a requirements file or pyproject.toml before you have downloaded anything, produce a report across more than one project, or emit JSON another tool can consume in bulk. Those three gaps are what this tool adds."}},{"@type":"Question","name":"Do pypi-attestations verify and this tool ever disagree about presence/absence?","acceptedAnswer":{"@type":"Answer","text":"No. Both read from PyPI's own PEP 740 integrity API for the exact same release file. There is no separate provenance database for either tool to disagree about."}},{"@type":"Question","name":"When should I use pypi-attestations verify instead?","acceptedAnswer":{"@type":"Answer","text":"When you already have a specific artifact (a URL or a downloaded file) and need the full cryptographic verification -- certificate chain, Sigstore bundle, Trusted Publisher identity match -- not just a presence/absence report across a dependency list."}}]}</script>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It is not security advice. <strong>You are responsible for reviewing and verifying anything you rely on.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="./">Run the checker</a> — free, no account, MIT licensed.</p>
+  </footer>
+</body>
+</html>

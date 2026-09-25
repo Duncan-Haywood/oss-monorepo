@@ -17830,3 +17830,60 @@ ventures:
       project), helps catch a dangerous hook command before it runs
       unattended, no affiliate link, no referral fee, donations-only, and
       it does not scan, fingerprint, or contact any third-party system.
+  - slug: pypi-provenance-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. It reports one factual
+      integrity-API field (a non-empty attestation_bundles array) per
+      package, verified in-repo against real currently-published releases
+      on 2026-09-25 (pip, six, urllib3 against the live API) rather than
+      assumed from documentation. time_to_revenue at 5, not 1: same
+      dev-tool-checker class as this file's npm-provenance-check (5) and
+      dependency-confusion-check (6), even though today it is
+      donations-only like every other venture in this file.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, ai-first-markets
+      idea, and pipeline candidate at or below 0.38 -- the closest match
+      was npm-provenance-check itself (0.38, same defense pattern, the
+      intended sibling one ecosystem over, not a duplicate).
+      dependency-confusion-check and slopsquatting-check are the other
+      Python/npm-supply-chain-adjacent siblings; neither reads PyPI's PEP
+      740 integrity API. Distribution 4: WebSearch 2026-09-25 found real,
+      dated discussion spanning PyPI's own 2024-11-14 attestations launch
+      blog post (20,000+ attestations within days), Trail of Bits' and
+      Socket's writeups on the mechanism, and a 2026-dated analysis of a
+      May 2026 worm shipping malicious PyPI and npm packages with valid
+      attestations -- current evidence sharpening the "presence isn't a
+      safety guarantee" nuance, but no confirmed community hub with proven
+      recurring-thread volume, and no dedicated third-party bulk/paste
+      PyPI provenance checker found in the same search pass. Defensibility
+      3: the integrity API is public and the lookup is trivial to
+      reproduce, matching the sibling npm-provenance-check's score; the
+      paste-and-go/bulk-JSON/two-ecosystem-sibling angle is the edge, not
+      the mechanism.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input is a package name/version the user already
+      has in their own requirements file or is about to add; output is a
+      single factual API field per package, never a security
+      determination -- the page and CLI both state explicitly that
+      absence of provenance is not evidence of compromise and presence is
+      not a safety guarantee, citing the May 2026 cross-ecosystem worm,
+      same shape and gate class as the sibling npm-provenance-check.
+      Ethics: purely informational, helps a maintainer or consumer see a
+      real PyPI-documented hardening signal more easily; no scraped or
+      personal data, nothing adversarial, scales with zero externality --
+      one user's lookup does not affect another's.
