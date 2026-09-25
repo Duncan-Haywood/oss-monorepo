@@ -2504,6 +2504,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names StepSecurity, Inc. and carries the trademark/affiliation
   // disclaimer. Same reasoning as the other generic-method pages above.
   'actions-self-hosted-exposure-check/vs-reviewing-workflows-by-eye.html',
+  // Compares against "reading the trust policy JSON by eye" -- the free
+  // review habit any cloud/security engineer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-wiz.html, which names Wiz, Inc. and carries the trademark/affiliation
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
