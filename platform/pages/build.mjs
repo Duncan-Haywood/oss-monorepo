@@ -1351,6 +1351,19 @@ const CATEGORY_RULES = [
       // floor/ceiling shape, one on state and local tax, the other on
       // charitable giving.
       //
+      // `gambling-loss-deduction-calculator` joined 2026-09-25, filed here
+      // on its first commit rather than after a spell in the catch-all --
+      // what `build.test.mjs`'s catch-all bound is for. Same "downstream
+      // federal itemized-deduction change on figures the filer already
+      // has" axis as `charitable-deduction-calculator` right above it in
+      // this rule -- computing the allowable deduction under the new
+      // 90%-of-winnings gambling-loss cap and the resulting phantom
+      // taxable income, never a filed election made on the visitor's
+      // behalf. It cross-links `charitable-deduction-calculator` as its
+      // nearest sibling: both are new-in-2025/2026 OBBBA itemized-
+      // deduction changes with a percentage-based haircut rather than a
+      // flat dollar cap.
+      //
       // `estate-tax-exemption-calculator` joined 2026-09-25, filed here on
       // its first commit rather than after a spell in the catch-all --
       // what `build.test.mjs`'s catch-all bound is for. Same "downstream
@@ -1364,17 +1377,17 @@ const CATEGORY_RULES = [
       // lifetime/at-death estate and gift exclusion -- with no closer
       // topical match in this portfolio.
       //
-      // `excess-business-loss-calculator` joined 2026-09-25, concurrently,
-      // filed here on its first commit rather than after a spell in the
-      // catch-all -- what `build.test.mjs`'s catch-all bound is for. Same
-      // "downstream federal tax threshold on figures the filer already
-      // has" axis as `qbi-deduction-calculator` right above it in this
-      // rule -- computing the IRC 461(l) excess-business-loss threshold
-      // and the resulting NOL carryforward, never a filed position made
-      // on the visitor's behalf. It cross-links `qbi-deduction-calculator`
-      // as its nearest sibling: both serve pass-through business owners
-      // and flag (without computing) the interaction between the two
-      // calculations.
+      // `excess-business-loss-calculator` joined 2026-09-25, concurrently
+      // with the ventures above and invisible to them, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream
+      // federal tax threshold on figures the filer already has" axis as
+      // `qbi-deduction-calculator` right above it in this rule --
+      // computing the IRC 461(l) excess-business-loss threshold and the
+      // resulting NOL carryforward, never a filed position made on the
+      // visitor's behalf. It cross-links `qbi-deduction-calculator` as its
+      // nearest sibling: both serve pass-through business owners and flag
+      // (without computing) the interaction between the two calculations.
       //
       // `qsbs-exclusion-calculator` joined 2026-09-25, also concurrently,
       // filed here on its first commit rather than after a spell in the
@@ -1399,7 +1412,20 @@ const CATEGORY_RULES = [
       // `tip-pool-compliance-calculator` as its nearest sibling: both check
       // one FLSA wage-and-hour rule against a fixed federal-or-state table,
       // neither computes pay.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker)/.test(slug),
+      //
+      // `child-tax-credit-calculator` joined 2026-09-25, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream federal
+      // tax figure applied to numbers the filer already has" axis as the
+      // other OBBBA calculators in this rule -- applying the permanent
+      // $2,200-per-child Child Tax Credit, the $500 Credit for Other
+      // Dependents, their combined MAGI phase-out, and the refundable
+      // Additional Child Tax Credit ceiling, never a filed Schedule 8812
+      // made on the visitor's behalf. It cross-links `trump-account-
+      // calculator` as its nearest sibling: both are child/family-focused
+      // federal OBBBA provisions -- one a recurring annual tax credit, the
+      // other a one-time child-savings-account seed deposit.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator)/.test(slug),
   },
   {
     id: 'ci',

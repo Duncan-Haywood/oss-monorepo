@@ -266,6 +266,9 @@ workflows:
 - workflow: checklist-coverage.yml
   classification: none
   publishes: []
+- workflow: child-tax-credit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: childcare-tuition-calculator-ci.yml
   classification: none
   publishes: []
@@ -567,6 +570,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: furnace-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: gambling-loss-deduction-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: garage-door-bid-calculator-ci.yml

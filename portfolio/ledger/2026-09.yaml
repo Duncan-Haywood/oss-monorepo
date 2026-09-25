@@ -46206,3 +46206,191 @@ entries:
         start), siblings.mjs --check (0 orphans of 378), score_ventures.py
         --check (386 scores) all clean on the tree this PR ships.
     mrr_end: 0
+  - venture: child-tax-credit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator for the federal Child Tax
+        Credit and Credit for Other Dependents, made permanent by OBBBA
+        starting tax year 2025 -- $2,200 per qualifying child, $500 per
+        other dependent, their combined $50-per-$1,000 MAGI phase-out
+        above $200,000/$400,000, the OBBBA filer-SSN requirement, and a
+        ceiling on the refundable Additional Child Tax Credit. Screened
+        during a new-venture-first session (session_gate.py: build-now
+        queue empty, PROCEED, no open PRs and no in-progress venture work).
+        duplicate_check.py scored every venture, screened-out row, and
+        pipeline candidate at 0.32 or below -- senior-deduction-calculator
+        is the closest existing venture and is a different federal
+        provision (temporary age-65+ deduction vs. permanent per-child
+        credit).
+      - >-
+        Verified every figure via WebSearch against the IRS's own newsroom
+        release on 2026 inflation adjustments (confirming $2,200 CTC /
+        $1,700 ACTC unchanged from 2025, Rev. Proc. 2025-32), Kiplinger,
+        Jackson Hewitt, the Tax Policy Center, and Congress.gov's CRS
+        product on the OBBBA taxpayer-ID requirement, cross-checked against
+        each other. The differentiator: dependents without an SSN are not
+        simply excluded -- they get the separate, entirely-nonrefundable
+        $500 Credit for Other Dependents instead, a distinction most
+        existing CTC calculators skip.
+      - >-
+        The nontrivial arithmetic question this venture's calc.mjs answers
+        and documents in its header comment: how the combined phase-out
+        reduction splits between the CTC and ODC pools (needed because only
+        the CTC portion can become refundable). Derived and proved as an
+        identity rather than assumed -- since the reduction is a flat
+        number independent of pool composition, applying it to the ODC
+        pool first and spilling any remainder into the CTC pool always
+        reproduces the IRS's own "Credit Limit Worksheet B" residual split.
+        Pinned with two dedicated tests (reduction fully inside the ODC
+        pool; reduction spilling into the CTC pool).
+      - >-
+        The refundable Additional Child Tax Credit figure is explicitly
+        labeled a ceiling, not a guaranteed refund, in the findings, the
+        FAQ, and the footer -- this tool does not model total tax
+        liability (no other income, deductions, or credits collected), so
+        the real refund depends on how much of the credit is used
+        nonrefundably first. Named as its own dedicated test in
+        page.test.mjs ("states the refundable ceiling is a maximum, not a
+        guaranteed refund") so the caveat cannot be quietly dropped in a
+        future edit.
+      - >-
+        Ships LICENSE, README, VENTURE.yaml (untested hypotheses +
+        kill_criteria), calc.mjs (18 test assertions), usage.mjs/
+        page.test.mjs (40 total for the venture), index.html with
+        FAQPage/SoftwareApplication JSON-LD matching visible copy exactly,
+        a vs-doing-the-math-by-hand.html comparison page, an opt-out local
+        usage counter honouring DNT/GPC, robots.txt/sitemap.xml, and a
+        dedicated CI workflow. Filed into build.mjs's backoffice category
+        (the de facto federal-OBBBA-calculator bucket) next to its nearest
+        sibling, trump-account-calculator (both child/family-focused OBBBA
+        provisions -- one a recurring annual credit, the other a one-time
+        savings-account seed), with a reciprocal footer link both ways.
+        Scored in venture-scores.yaml (composite 6.333, gates pass).
+        Registered in launched.json, publish-surface.yaml (alphabetically,
+        ahead of childcare-tuition-calculator), and the CI-workflow
+        runs-on count (gitops/ci/sync_readme_counts.py). Regenerated the
+        gitops front-door mirror and synced the mirrored-tool/opt-out-
+        switch running counts via sync_tree_counts.py.
+      - >-
+        Checked for the kustomization-mounting gap this session's own
+        earlier security-txt-check PR found and documented (a promoted
+        shared comparison page needing a hand-added line in the top-level
+        gitops/prod/kustomization.yaml): this venture's comparison-page
+        subject text is unique enough that front-door.mjs did not promote
+        it into a shared apex page, so no such line was needed here --
+        confirmed by grepping gitops/prod/front-door/ for a matching
+        vs__*.html.gz before shipping, rather than assuming.
+      - >-
+        Verified: venture's own suite 40/40; full platform/marketing +
+        platform/pages suite 1290/1290; gitops/tests 637 passed/1 skipped
+        (environmental); platform/ci unittest sweep (15 modules) and
+        agent_review's test_review (21/21) both clean; checklist_coverage.py,
+        sync_tree_counts.py, score_ventures.py --check (389 scores),
+        siblings.mjs --check (0 orphans of 381), surface-budget.mjs
+        --check, regen.mjs --verify all clean. CI starved this session
+        (ci_starvation.py confirmed runner_id: 0 earlier) -- verified
+        fully locally per CLAUDE.md's starvation checklist.
+    mrr_end: 0
+  - venture: final-paycheck-deadline-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator computing the legal
+        deadline for a departing employee's final paycheck, by US state
+        (California, Colorado, Massachusetts, Montana, Illinois,
+        Minnesota, Arizona, Texas, New York, Washington, and Nevada, plus
+        a general next-payday default for every other state) and
+        separation type (fired/laid off vs. quit), including California's
+        72-hour-notice carve-out and Minnesota's demand-triggered 24-hour
+        rule, and reporting whether that state requires accrued unused
+        vacation/PTO to be paid out as wages. Screened during a
+        new-venture-first session per this session's explicit
+        collision-avoidance brief: not a tax/OBBBA calculator (saturated,
+        three more landed on `main` during this same session --
+        gambling-loss-deduction-calculator, child-tax-credit-calculator)
+        and not another dev/security checker (38+ already exist), a
+        different category entirely. duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.11 or
+        below for the final description -- well under the 0.45 review
+        bar. call-recording-consent-check is the closest existing venture
+        (same US-jurisdiction employment-law reference-table shape) and
+        checks an unrelated question (recording consent, not final-pay
+        timing).
+      - >-
+        All eleven states' figures verified via live WebSearch against at
+        least two independent sources each (a state statute citation or
+        agency page plus a payroll-compliance/employment-law explainer),
+        cross-checked against each other -- e.g. California's same-day
+        rule for a firing versus its notice-dependent rule for a
+        voluntary quit (same day with 72+ hours' notice, 3 calendar days
+        without), Minnesota's 24-hour clock that starts from a written
+        demand rather than from the separation date itself, and Montana's
+        "immediate by default, capped by a written policy at the next
+        payday or 15 days" rule. calc.mjs's `finalPaycheckDeadline()`
+        models each state's rule as one of five composable shapes
+        (same-day, N calendar days, N business days, next-payday, and
+        earlier-of over any combination), so Arizona's "7 working days or
+        the next payday, whichever is sooner" and Nevada/Montana's
+        earlier-of variants share one code path rather than each being a
+        one-off branch.
+      - >-
+        Ships LICENSE, README, VENTURE.yaml (untested hypotheses +
+        kill_criteria), calc.mjs (22 test assertions) + calc.test.mjs,
+        usage.mjs/usage.test.mjs (opt-out local usage counter honouring
+        DNT/GPC), index.html with FAQPage/SoftwareApplication JSON-LD
+        matching visible copy exactly, page.test.mjs, robots.txt/
+        sitemap.xml, and a dedicated CI workflow. Filed into build.mjs's
+        `evidence` category (Compliance checks & evidence records) next
+        to its nearest sibling, call-recording-consent-check, with a
+        reciprocal footer link both ways. Scored in venture-scores.yaml
+        (composite 6.167, gates pass). Registered in launched.json (via
+        platform/pages/launched.mjs --write), publish-surface.yaml (via
+        platform/ci/publish_surface.py --write), and the mirrored-tool/
+        opt-out running counts with a running-comment entry explaining
+        why each moved.
+      - >-
+        Caught the same em-dash-vs-ASCII-"--" JSON-LD/visible-copy
+        mismatch CLAUDE.md already records against several other recent
+        ventures: faq-visible.test.mjs failed on two FAQ answers where the
+        JSON-LD used plain "--" while the visible prose used an em dash --
+        fixed by normalizing the JSON-LD to match, per this month's
+        established convention.
+      - >-
+        Three ventures landed on `main` concurrently during this session
+        (final-paycheck-deadline-calculator, gambling-loss-deduction-
+        calculator, child-tax-credit-calculator), all touching the same
+        hand-written running-count files. Resolved by merging origin/main
+        into the venture branch: `git checkout --theirs` for the 1700+
+        generated gitops/prod/front-door-tools/front-door binary
+        conflicts, then `node platform/marketing/regen.mjs` to
+        regenerate; the six hand-written running-count files
+        (gitops/ci/README.md, gitops/prod/usage/aggregate.py,
+        gitops/tests/test_manifests.py, infra/OWNER_CHECKLIST.md,
+        platform/privacy/optout-persistence.test.mjs,
+        portfolio/scoring/venture-scores.yaml) combined by hand -- for
+        venture-scores.yaml this meant reconstructing three complete,
+        independent YAML entries from an interleaved diff rather than
+        picking a side -- then re-ran sync_tree_counts.py and
+        gitops/ci/sync_readme_counts.py to re-derive the final correct
+        counts (383 mirrored tools, 362 opt-out switches, 477 of 479
+        runs-on lines across 438 workflows) rather than hand-typing them.
+      - >-
+        Verified on the fully merged tree: venture's own suite 39/39;
+        call-recording-consent-check's own suite (reciprocal link target)
+        76/76; full platform/marketing + platform/pages suite 1290/1290;
+        gitops/tests 637 passed/1 skipped (environmental); portfolio/
+        ledger+scoring+router+usage+pipeline+infra/tests 446 passed;
+        platform/ci unittest sweep (27 modules) and agent_review's
+        test_review (21/21) both clean; checklist_coverage.py,
+        sync_tree_counts.py, score_ventures.py --check (391 scores),
+        router/validate.py (390 VENTURE.yaml files), siblings.mjs --check
+        (0 orphans of 383), surface-budget.mjs --check,
+        check_venture_regression.py --base origin/main (no live venture
+        disappears), and regen.mjs --verify all clean. CI starved this
+        session (ci_starvation.py confirmed runner_id: 0 on a recent main
+        push) -- verified fully locally per CLAUDE.md's starvation
+        checklist.
+    mrr_end: 0
