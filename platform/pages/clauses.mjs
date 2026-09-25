@@ -2127,6 +2127,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names GrantHub/Foundant specifically and carries the trademark
   // disclaimer.
   'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
+  // Compares against "guessing a flat rate" -- copying a round CPM figure
+  // from a blog post or a competitor's public rate card, a pricing habit
+  // every newsletter operator already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-paved.html,
+  // which names Paved specifically and carries the trademark disclaimer.
+  'newsletter-sponsorship-rate-calculator/vs-guessing-a-flat-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
