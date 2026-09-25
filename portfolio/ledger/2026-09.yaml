@@ -44872,12 +44872,34 @@ entries:
         468/470/429), and registered the new CI workflow in
         publish-surface.yaml.
       - >-
-        Verified: venture's own suite 35/35; senior-deduction-calculator's
-        suite re-run after the reciprocal-link edit, 49/49 unaffected;
-        checklist_coverage.py, surface-budget.mjs --check, siblings.mjs
-        --check (0 orphans of 374), router/validate.py (381 ventures),
-        score_ventures.py --check (382 scores), regen.mjs --verify all
-        clean. CI note: Actions confirmed starved earlier this session
-        (ci_starvation.py: runner_id: 0 on sampled jobs) -- expect the
-        same on this PR; merging on the strength of local verification.
+        The full platform/marketing + platform/pages suite (run against
+        the fully staged tree, not just the venture's own files) caught
+        two real defects before merge: faq-visible.test.mjs found the
+        FAQPage JSON-LD used ASCII "--" while the visible prose used the
+        em-dash the rest of the portfolio's pages use, on both index.html
+        and the comparison page -- normalized both to match, exactly the
+        JSON-LD/visible-copy divergence this suite exists to catch.
+        launched.test.mjs found the new venture missing from
+        platform/pages/launched.json -- fixed with `node
+        platform/pages/launched.mjs --write` and re-regenerated the
+        mirror. Both would have been invisible to the venture's own
+        page.test.mjs (its JSON-LD check uses substring `.includes()`,
+        not exact-match) and to a review that only ran the new venture's
+        own test files.
+      - >-
+        Verified on the corrected tree: venture's own suite 35/35;
+        senior-deduction-calculator's suite re-run after the
+        reciprocal-link edit, 49/49 unaffected; full platform/marketing +
+        platform/pages suite 1290/1290 (0 failures, re-run clean after
+        the two fixes); gitops/tests 637 passed/1 environmental skip; all
+        15 platform/ci unittest modules and agent_review's test_review
+        (21/21) clean; portfolio/ledger+scoring+router+usage+pipeline
+        +infra/tests 446/446; checklist_coverage.py, sync_tree_counts.py,
+        surface-budget.mjs --check, siblings.mjs --check (0 orphans of
+        374), router/validate.py (381 ventures), score_ventures.py
+        --check (382 scores), usage/validate_usage.py, regen.mjs
+        --verify all clean. CI note: Actions confirmed starved earlier
+        this session (ci_starvation.py: runner_id: 0 on sampled jobs) --
+        expect the same on this PR; merging on the strength of the local
+        verification above.
     mrr_end: 0
