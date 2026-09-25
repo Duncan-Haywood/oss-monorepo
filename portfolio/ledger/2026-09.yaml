@@ -43684,3 +43684,83 @@ entries:
         and confirmed-visitor counts remain at zero, which a single new
         venture does not change on its own.
     mrr_end: 0
+  - venture: recipe-costing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator converting as-purchased (AP)
+        ingredient price and a trim/cook yield percentage into
+        edible-portion (EP) cost, rolling a five-row ingredient list into a
+        total recipe cost and per-portion plate cost, and solving for the
+        menu price a target food-cost percentage needs (or the actual
+        food-cost % at a current menu price). Screened via
+        `duplicate_check.py` (top match 0.36 against
+        menu-engineering-calculator, which classifies dishes from a plate
+        cost the operator already has -- this venture computes that plate
+        cost in the first place, upstream and complementary rather than a
+        duplicate). Ships calc.mjs (32 tests), usage tracking (opt-out,
+        DNT/GPC aware), disclaimers, LICENSE, a generic-method comparison
+        page (vs-estimating-recipe-cost-in-a-spreadsheet.html, added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT), a dedicated CI
+        workflow (recorded in publish_surface.py as publishing nothing),
+        and a launched.json entry. Scored in venture-scores.yaml
+        (composite 5.333, both gates pass).
+      - >-
+        Also fixed a real, pre-existing defect found while verifying:
+        `platform/privacy/optout-persistence.test.mjs` carried a stray,
+        already-committed `<<<<<<< HEAD` conflict marker on `main` (no
+        matching `=======`/`>>>>>>>`) -- found via
+        `run_workflow_locally.py --for-changes` running
+        `conflict-markers-ci.yml`'s own checker. Removed the leftover
+        marker line; the surrounding running switch-count comment log was
+        otherwise intact and continuous. Ran a full-catalogue browser
+        check sweep (`browser_checks.py`, all 8 checks: sideways, presets,
+        roundtrip, highlight, contrast, optout, sweep, journey) earlier in
+        this session as a separate defect scan -- 1608 pages, 0 WCAG A/AA
+        violations, 0 page/console errors, recorded in
+        `platform/ci/browser_state.json`, though that specific recording
+        was superseded by a later concurrent session's own sweep before
+        this branch could commit it.
+      - >-
+        `main` advanced repeatedly while this branch was in flight
+        (several sibling venture/comparison-page PRs, plus
+        `npm-provenance-check` and `trump-account-calculator` graduating
+        concurrently). One `git merge origin/main` was needed; the
+        session's shallow clone initially refused it
+        ("refusing to merge unrelated histories") until
+        `git fetch --unshallow origin main` fixed it per CLAUDE.md's own
+        documented shallow-fetch trap. Resolved manually: ~1600 generated
+        `gitops/prod/*.gz` binaries (regenerated via
+        `platform/marketing/regen.mjs` rather than hand-merged),
+        `portfolio/scoring/venture-scores.yaml` (kept both new venture
+        score entries), and the running-comment count logs in
+        `gitops/tests/test_manifests.py` /
+        `platform/privacy/optout-persistence.test.mjs` (merged both
+        branches' entries, re-derived final totals -- 368 mirrored tools,
+        347 opt-out switches -- with `sync_tree_counts.py`, and
+        `gitops/ci/README.md`'s `runs-on` count with
+        `sync_readme_counts.py`).
+      - >-
+        Verified: the venture's own suite (32/32), the full
+        platform/marketing + platform/pages suite (1290/1290, run twice
+        clean after ruling out one transient failure caused by this
+        session's own concurrent `regen.mjs --verify` invocation racing a
+        background test run -- the exact hazard CLAUDE.md documents),
+        platform/privacy (83/83) and platform/webcheck (140/142, 2
+        skipped) together, platform/proposal (101/101), gitops/tests -q
+        (637 passed, 1 skipped), every platform/ci unittest module,
+        agent_review's test_review (21/21), portfolio/ledger + scoring +
+        router + usage + pipeline + infra/tests pytest (446 passed),
+        guard_state.py --require-runnable (no fixable skips),
+        check_conflict_markers.py, checklist_coverage.py,
+        router/validate.py, score_ventures.py --check,
+        check_no_payment_code.py, publish_surface.py --check,
+        check_venture_regression.py --base origin/main (no live venture
+        disappears), and a real `build_pages_site.py` +
+        `check_pages_links.py` build (366 products, every local reference
+        resolves) run by hand after `run_workflow_locally.py`'s own
+        `${{ }}`-expression limitation made that one step look, falsely,
+        like a broken link. Revenue and confirmed-visitor counts remain
+        at zero, which a single new venture does not change on its own.
+    mrr_end: 0
