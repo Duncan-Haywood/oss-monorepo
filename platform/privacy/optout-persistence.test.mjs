@@ -936,10 +936,17 @@ const RELATIVE_SELF = relative(
 // `exempt-salary-threshold-checker` (`record`/`setUsageOptOut`/
 // `usageOptedOut` gating localStorage writes, keyed under its own
 // `boi-reporting-exemption-checker-usage` storage name). Exactly one
-// added `usage.mjs`, no deletions. Total re-derived here by
-// `sync_tree_counts.py` against the fully merged tree rather than by
-// hand.
-const SWITCHES_IN_THE_CATALOGUE = 363;
+// added `usage.mjs`, no deletions.
+//
+// also graduated, concurrently and invisibly to the entries above:
+// `freelance-writer-rate-calculator`, adding one more `usage.mjs`
+// following the same opt-out toggle shape as the siblings above
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `freelance-writer-rate-calculator-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions. Total re-derived
+// here by `sync_tree_counts.py` against the fully merged tree rather
+// than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 364;
 
 let counter = 0;
 function fixture(source) {

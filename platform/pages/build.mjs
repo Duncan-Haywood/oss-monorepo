@@ -2475,6 +2475,19 @@ const CATEGORY_RULES = [
     // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
     // own labour, not a business quoting a customer.
     //
+    // `freelance-writer-rate-calculator` joined 2026-09-25: a freelance
+    // writer, copywriter, or ghostwriter comparing a per-word rate against a
+    // flat project fee for the same job is the same move as
+    // `voiceover-project-rate-calculator`'s voice-over artist and
+    // `tutor-package-pricing-calculator`'s instructor -- one person pricing
+    // their own labour from their own inputs (word count, research time,
+    // revision rounds), not a business quoting a customer. It shipped with a
+    // reciprocal inbound sibling link from `freelance-retainer-calculator`'s
+    // first commit rather than landing as an orphan to close later --
+    // freelance-retainer-calculator already links freelance-platform-fee-
+    // calculator for the same reason (one self-employed writer's two pricing
+    // decisions, an ongoing retainer vs. a single job).
+    //
     // `podcast-sponsorship-rate-calculator` joined the same day: a third
     // creator-economy channel alongside `newsletter-sponsorship-rate-
     // calculator` (email opens) and `brand-deal-rate-calculator` (social
@@ -2542,6 +2555,7 @@ const CATEGORY_RULES = [
         'cat-adjuster-fee-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
+        'freelance-writer-rate-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
