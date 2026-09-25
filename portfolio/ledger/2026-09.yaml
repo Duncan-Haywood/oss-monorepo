@@ -45613,3 +45613,33 @@ entries:
         Actions confirmed starved earlier this session (ci_starvation.py:
         runner_id: 0 on sampled jobs) -- expect the same on this PR.
     mrr_end: 0
+  - venture: consent-change-record
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page,
+        vs-comparing-the-traces-by-eye.html -- another of the ventures
+        surface-budget.mjs flagged with 0 generic-method pages (already
+        had a named-product comparison, vs-cookiebot.html, and a guide
+        page). The angle came straight from calc.mjs's own code comments:
+        presence-only matching between two trace exports is wrong the
+        moment a tracker fires more than once, because a request present
+        on both sides reads as "unchanged" even when it fired three times
+        before consent and once after -- exactly the defect compareTraces
+        was written to fix by counting occurrences per key instead of
+        checking presence. Worked example (a 3x-firing analytics request
+        reduced to 1x, plus a new storage key) pinned directly against
+        calc.mjs's compareTraces() rather than invented numbers.
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked
+        from index.html, listed in sitemap.xml.
+      - >-
+        Verified: venture's own suite 56/56; platform/pages/
+        clauses+faq-visible 12/12 (same straight-vs-curly-quote class of
+        mismatch as the k8s-resource-limits-check page earlier this
+        session, caught and fixed the same way); full platform/marketing
+        + platform/pages suite 1290/1290; checklist_coverage.py,
+        sync_tree_counts.py, regen.mjs --verify, surface-budget.mjs
+        --check, gitops/tests (613 passed/25 skipped) all clean. No open
+        PRs at the time.
+    mrr_end: 0
