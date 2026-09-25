@@ -2165,6 +2165,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
   // carries the trademark disclaimer.
   'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
+  // Compares against "building your own bid spreadsheet" -- a hand-built
+  // sheet habit any shop already has, not a company or product this could
+  // be mistaken for. Distinct from this venture's own vs-jobber.html, which
+  // names Jobber specifically and carries the trademark disclaimer.
+  'sewer-hydrojet-bid-calculator/vs-building-your-own-spreadsheet.html',
   // Compares against "reading the workflow YAML by hand" -- a manual review
   // habit any maintainer already has, not a company or product this could
   // be mistaken for. Same reasoning as actions-permissions-check's and
@@ -2206,6 +2211,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause. Same shape as asphalt-sealcoat-bid-calculator's
   // vs-a-flat-per-square-foot-price.html.
   'tuckpointing-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "reading the hooks config by eye" -- a manual review
+  // habit anyone trusting a Claude Code hooks configuration already has,
+  // not a company or product this could be mistaken for. Same reasoning as
+  // the other vs-reading-*-by-hand/-by-eye pages above (e.g.
+  // mcp-config-risk-check's, skill-manifest-check's). This venture names no
+  // named-product comparison at all.
+  'claude-code-hooks-security-check/vs-reading-the-hooks-config-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
