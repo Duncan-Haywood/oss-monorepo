@@ -110,7 +110,7 @@ test("the example loads as valid JSON in both fields", () => {
 
 test("sitemap lists every published page and no extras", () => {
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs.sort(), ["./"]);
+  assert.deepEqual(locs.sort(), ["./", "./vs-reading-the-settings-json-by-eye.html"]);
 });
 
 test("robots.txt allows crawling", () => {
