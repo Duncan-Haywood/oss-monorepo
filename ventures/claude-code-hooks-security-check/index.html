@@ -92,6 +92,7 @@
   <p>No. Every check is a deterministic, textual pattern match against the command strings you paste, entirely in your browser. It never runs a single command and never uploads anything.</p>
   <h3>Does a clean scan mean my hooks are safe?</h3>
   <p>No. A zero-finding result means none of this tool's known patterns matched the text you pasted -- it does not mean a command is safe. A command can be dangerous in a way this tool doesn't recognise, and a command can match a pattern here and be completely ordinary (rm -rf on a build directory shares a shape with rm -rf on your home directory). See “Why a clean scan isn’t a safety guarantee” for what this tool can and can't see.</p>
+  <p class="small">Read <a href="./why-a-clean-scan-isnt-a-safety-guarantee.html">why a clean scan isn't a safety guarantee</a>, or see <a href="./vs-reading-the-hooks-config-by-eye.html">this checker vs. reading the hooks config by eye</a> for what a manual read reliably catches and what it doesn't.</p>
 
   <footer class="small">
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security advice, and it is not a guarantee that a command is safe or unsafe. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for reviewing every hook command yourself regardless of what this tool reports. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
