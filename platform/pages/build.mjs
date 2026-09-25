@@ -1066,12 +1066,29 @@ const CATEGORY_RULES = [
     // Slug ends in `-calculator`, not any suffix this rule already
     // catches, so it is added by exact match rather than widening the
     // suffix list to a word this is the only user of.
+    //
+    // `boi-reporting-exemption-checker` joined 2026-09-25, concurrently,
+    // filed here on its first commit rather than after a spell in the
+    // catch-all -- what `build.test.mjs`'s catch-all bound is for. Its
+    // posture matches this section's blurb exactly: it applies FinCEN's
+    // own August 2026 final rule to the facts entered and reports whether
+    // a federal beneficial-ownership filing obligation still exists,
+    // explicitly stating on every page that it is a rule-application aid
+    // rather than a filing service or legal opinion -- the same shape as
+    // its nearest sibling, `ny-llc-transparency-act-tracker` (filed here
+    // via the `tracker$` suffix), which checks a different, state-level
+    // beneficial-ownership law. Slug ends in `-checker`, not `-check`, so
+    // `salary-range-posting-check`'s prefix rule does not reach it; added
+    // by exact slug match, the same way `1099-k-threshold-checker` was,
+    // rather than widening the suffix list to a word this is the only
+    // user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
-      || slug === 'final-paycheck-deadline-calculator',
+      || slug === 'final-paycheck-deadline-calculator'
+      || slug === 'boi-reporting-exemption-checker',
   },
   {
     id: 'backoffice',
