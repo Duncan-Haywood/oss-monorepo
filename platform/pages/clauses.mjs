@@ -2420,6 +2420,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-tempworks.html, which names TempWorks Software, Inc. and carries the
   // trademark/affiliation disclaimer.
   'staffing-markup-calculator/vs-a-spreadsheet.html',
+  // Compares against "treating materials as cash out on day one" -- the
+  // generic back-of-envelope budgeting habit any sub already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-billd.html, which names Billd and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'subcontractor-cashflow-planner/vs-treating-materials-as-cash-out-on-day-one.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
