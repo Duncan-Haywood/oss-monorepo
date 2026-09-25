@@ -99,6 +99,7 @@ echo "pip\nsix==1.17.0" | node cli.mjs -         # freeform list on stdin</pre>
     <p>PyPI's integrity API (PEP 740) serves a non-empty <code>attestation_bundles</code> array for a release file published via trusted publishing from a supported CI. This tool reports exactly that: present or absent, and, when present, the publisher's repository and workflow from the attestation's own certificate.</p>
     <h3>How is this different from a supply-chain security platform like Socket?</h3>
     <p>Different layers. Socket watches a connected dependency graph and the public registries on an ongoing basis across dozens of risk categories, including Python. This tool answers one narrower, one-time question from a pasted requirements file or the CLI: does this exact release file carry PyPI's own PEP 740 provenance attestation? See <a href="vs-socket.html">this checker vs. Socket</a>.</p>
+    <p>Been checking packages one at a time on pypi.org? See <a href="vs-checking-each-package-on-pypi-by-hand.html">this checker vs. checking each package on PyPI by hand</a>.</p>
   </section>
 
   <footer>

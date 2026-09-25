@@ -17586,6 +17586,60 @@ ventures:
       mental model, never toward evading an obligation, no personal or
       scraped data, no referral fee or affiliate link to any 529 plan,
       brokerage, or bank named in the research above.
+  - slug: section-174a-catchup-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a capped
+      deduction-against-income comparison and a present-value calculation
+      against a published statutory catch-up election structure, never an
+      inference step. time_to_revenue ties it at 1: donations-only, same as
+      most other ventures in this file with no paid tier.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final description
+      scored every venture, screened-out row, and pipeline candidate at or
+      below 0.12 -- no existing venture addresses Section 174A or the R&E
+      catch-up election, and this is a distinct topic (a business R&E
+      expensing election) from the portfolio's other IRS-dollar-limit
+      calculators (mega-backdoor-roth-calculator: a 401(k) after-tax
+      bucket; trump-account-calculator: a federal child savings account).
+      Distribution 6: WebSearch 2026-09-25 found several already-published
+      CPA-firm OBBBA/Section 174A explainers (Plante Moran, Kaufman
+      Rossin, EisnerAmper, Baker Newman Noyes, Grant Thornton, Brady Ware,
+      Strike Tax, Hungerford) confirming real, current professional and
+      small-business interest in this exact election, but every one found
+      is static prose describing the rule, not an interactive calculator
+      modeling either path's actual cash tax outcome -- real but
+      unproven-for-this-exact-tool demand, same class as
+      trump-account-calculator's own 6. Defensibility 2: the
+      capped-deduction and present-value arithmetic is easy to reproduce,
+      same class as this portfolio's other tax-arithmetic calculators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every dollar input (remaining balance, income, rates,
+      discount rate) is a figure the filer already has or chooses; output
+      is a cash-savings comparison and a present-value recommendation to
+      verify, never a filed election, an eligibility determination, or a
+      net-operating-loss carryforward valuation -- the page states plainly
+      it does not model NOL carryforward and points at Rev. Proc. 2025-28
+      and a qualified tax professional before acting on it, same gate
+      class as the sibling trump-account-calculator and
+      mega-backdoor-roth-calculator. Ethics: strictly beneficial as it
+      scales -- helps a small business compare two elections it is
+      already entitled to make, never toward evading an obligation, no
+      personal or scraped data, no referral fee or affiliate link to any
+      accounting firm or tax-prep product named in the research above.
   - slug: claude-skill-scaffold-generator
     scores:
       ai_leverage: 1
