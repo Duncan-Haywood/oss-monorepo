@@ -48,12 +48,12 @@
 #   portfolio-front-tools-12: 113 files, 556630 bytes
 #   portfolio-front-tools-13: 125 files, 556302 bytes
 #   portfolio-front-tools-14: 132 files, 553639 bytes
-#   portfolio-front-tools-15: 125 files, 555095 bytes
+#   portfolio-front-tools-15: 125 files, 555096 bytes
 #   portfolio-front-tools-16: 134 files, 556784 bytes
-#   portfolio-front-tools-17: 112 files, 552055 bytes
+#   portfolio-front-tools-17: 113 files, 556920 bytes
 #   portfolio-front-tools-18: 113 files, 556954 bytes
 #   portfolio-front-tools-19: 128 files, 555080 bytes
-#   portfolio-front-tools-20: 118 files, 542500 bytes
+#   portfolio-front-tools-20: 119 files, 547166 bytes
 #   portfolio-front-tools-21: 96 files, 479777 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2401,6 +2401,7 @@ configMapGenerator:
       - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
       - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz
       - self-storage-rate-increase-calculator__usage.mjs.gz=self-storage-rate-increase-calculator__usage.mjs.gz
+      - self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz=self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz
       - self-storage-rate-increase-calculator__vs-sitelink.html.gz=self-storage-rate-increase-calculator__vs-sitelink.html.gz
       - senior-deduction-calculator__calc.mjs.gz=senior-deduction-calculator__calc.mjs.gz
       - senior-deduction-calculator__index.html.gz=senior-deduction-calculator__index.html.gz
@@ -2786,6 +2787,7 @@ configMapGenerator:
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
+      - vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz=vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
       - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
