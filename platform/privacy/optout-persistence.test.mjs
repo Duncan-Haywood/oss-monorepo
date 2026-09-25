@@ -899,7 +899,13 @@ const RELATIVE_SELF = relative(
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `exempt-salary-threshold-checker-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 359;
+//
+// 359 -> 360: `final-paycheck-deadline-calculator` also joined -- the same
+// opt-out `usage.mjs` shape (`record`/`setUsageOptOut`/`usageOptedOut`
+// gating localStorage writes, keyed under its own
+// `final-paycheck-deadline-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 360;
 
 let counter = 0;
 function fixture(source) {

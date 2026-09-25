@@ -1046,11 +1046,32 @@ const CATEGORY_RULES = [
     // category's own rule does not claim (that rule is an explicit prefix
     // list, not a `-check$` suffix), so it is added here by prefix rather
     // than widening any suffix rule to a word this is the only user of.
+    //
+    // `final-paycheck-deadline-calculator` joined 2026-09-25, filed here on
+    // its first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. It is the same shape as
+    // `call-recording-consent-check` and `salary-range-posting-check`
+    // right above: a US-jurisdiction legal reference table (eleven states'
+    // final-paycheck-timing statutes) applied to dates the user supplies,
+    // with every page stating it does not determine which state's law
+    // governs and is not a compliance determination -- this section's
+    // exact "produce a dated observation you act on, never a determination
+    // made on your behalf" posture. It cross-links
+    // `call-recording-consent-check` as its nearest sibling (duplicate_check.py's
+    // top match): both are all-state-ish employment-law reference tables
+    // with the identical disclaimer posture, checking unrelated questions.
+    // Not `backoffice`, where the tax/deadline calculators sit: this is a
+    // legal-classification lookup with a not-a-determination disclaimer,
+    // not an arithmetic conversion of figures the filer already computed.
+    // Slug ends in `-calculator`, not any suffix this rule already
+    // catches, so it is added by exact match rather than widening the
+    // suffix list to a word this is the only user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
-      || slug === 'osha-trir-dart-calculator',
+      || slug === 'osha-trir-dart-calculator'
+      || slug === 'final-paycheck-deadline-calculator',
   },
   {
     id: 'backoffice',

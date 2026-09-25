@@ -2668,9 +2668,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # California, Washington, Maine, Alaska, or New York (including New
     # York's carve-out excluding the professional exemption from its
     # higher figure). Static `index.html` only, no comparison page, from
-    # its first commit. Total re-derived here by `sync_tree_counts.py`
-    # against the fully merged tree rather than by hand.
-    total = 380  # `infra/OWNER_CHECKLIST.md`'s own "N of the 380 tools" wording.
+    # its first commit.
+    #
+    # 380 -> 381: `final-paycheck-deadline-calculator` also graduated -- a
+    # browser-local calculator computing the legal deadline for a
+    # departing employee's final paycheck by US state and separation type
+    # (fired/laid off vs. quit), including California's notice-based rule
+    # and Minnesota's demand-triggered 24-hour rule, plus whether the
+    # state requires accrued unused vacation/PTO to be paid out as wages.
+    # Static `index.html` only, no comparison page, from its first commit.
+    # Total re-derived here by `sync_tree_counts.py` against the fully
+    # merged tree rather than by hand.
+    total = 381  # `infra/OWNER_CHECKLIST.md`'s own "N of the 381 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
