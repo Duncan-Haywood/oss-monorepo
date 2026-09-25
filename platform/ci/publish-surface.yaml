@@ -188,6 +188,9 @@ workflows:
 - workflow: biohazard-cleanup-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: boi-reporting-exemption-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -264,6 +267,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: checklist-coverage.yml
+  classification: none
+  publishes: []
+- workflow: child-tax-credit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: childcare-tuition-calculator-ci.yml
@@ -518,6 +524,9 @@ workflows:
 - workflow: fifo-pick-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: final-paycheck-deadline-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: fire-extinguisher-inspection-route-margin-ci.yml
   classification: none
   publishes: []
@@ -564,6 +573,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: furnace-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: gambling-loss-deduction-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: garage-door-bid-calculator-ci.yml

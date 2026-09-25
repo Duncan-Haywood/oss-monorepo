@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. working out the Child Tax Credit by hand</title>
+<meta name="description" content="Working out the Child Tax Credit and Credit for Other Dependents by hand usually goes wrong in the same places: forgetting the $500 ODC amount, misapplying the $50-per-$1,000 rounding rule, or assuming the refundable ceiling is a guaranteed refund. This free calculator applies the 2025/2026 rules the same way every time.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-doing-the-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. working out the Child Tax Credit by hand">
+<meta property="og:description" content="A hand estimate of the Child Tax Credit has a few common failure points, above all the $500 ODC amount, the rounding rule, and the refundable-ceiling assumption. This calculator applies the 2025/2026 rules the same way every time and shows the arithmetic.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the single most common mistake working this out by hand?","acceptedAnswer":{"@type":"Answer","text":"Forgetting the $500 Credit for Other Dependents entirely -- treating a dependent who has only an ITIN, or who turned 17 during the year, as simply not counting for anything. They usually still qualify for the separate, smaller, entirely nonrefundable $500 credit."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Getting the phase-out rounding wrong. The reduction is $50 for every $1,000 OR PART OF $1,000 of MAGI over the threshold -- so $1 over the line costs the same full $50 as $999 over it. A hand estimate that uses a continuous percentage instead of this stepped, round-up rule understates the reduction just above each $1,000 boundary."}},{"@type":"Question","name":"What arithmetic mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Treating the refundable Additional Child Tax Credit ceiling as a guaranteed refund rather than a maximum. The actual refund depends on how much of the credit is needed to offset tax liability first -- a hand estimate that reports the ceiling as \"your refund\" can overstate what actually comes back."}},{"@type":"Question","name":"What eligibility mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Missing the OBBBA filer Social Security number requirement -- assuming that because the CHILD has a valid SSN, the credit is automatically available. The taxpayer (and, on a joint return, at least one spouse) must also have a valid SSN, or neither credit can be claimed at all."}},{"@type":"Question","name":"Does this calculator know my complete tax situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page computes your total tax liability or models any credit or deduction besides these two. Both apply the same published federal credit and phase-out rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. working out the Child Tax Credit by hand</h1>
+<p class="lede">The headline number — $2,200 per child — is easy to remember.
+The part that goes wrong by hand is everything downstream of it: the
+smaller credit for dependents who do not qualify, the rounding rule on the
+phase-out, and what the refundable portion actually promises.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Dependents without an SSN</td><td>Assumes a dependent with only an ITIN, or who turned 17, gets nothing.</td><td>Applies the separate $500 Credit for Other Dependents to them automatically.</td></tr>
+<tr><td>Phase-out rounding</td><td>Uses a smooth percentage instead of the stepped rule, understating the reduction just above each $1,000 line.</td><td>Rounds UP to the next $1,000 of MAGI over the threshold, exactly as the statute's "or fraction thereof" language requires.</td></tr>
+<tr><td>Which pool the phase-out hits</td><td>Splits the reduction evenly, or guesses, between the CTC and ODC amounts.</td><td>Applies the reduction to the ODC pool first, then spills any remainder into the CTC pool -- the same split the IRS's own worksheet produces.</td></tr>
+<tr><td>The refundable ceiling</td><td>Reports the ACTC ceiling as "your refund."</td><td>Labels it a maximum, and explains that the real refund also depends on tax liability this tool does not model.</td></tr>
+<tr><td>Filer's own SSN</td><td>Assumes the credit is available because the CHILD has a valid SSN.</td><td>Checks the filer's own SSN status first and zeroes the credit with an explanation if it is missing.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the single most common mistake working this out by hand?</h3>
+<p>Forgetting the $500 Credit for Other Dependents entirely -- treating a dependent who has only an ITIN, or who turned 17 during the year, as simply not counting for anything. They usually still qualify for the separate, smaller, entirely nonrefundable $500 credit.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Getting the phase-out rounding wrong. The reduction is $50 for every $1,000 OR PART OF $1,000 of MAGI over the threshold -- so $1 over the line costs the same full $50 as $999 over it. A hand estimate that uses a continuous percentage instead of this stepped, round-up rule understates the reduction just above each $1,000 boundary.</p>
+<h3>What arithmetic mistake gets made most often?</h3>
+<p>Treating the refundable Additional Child Tax Credit ceiling as a guaranteed refund rather than a maximum. The actual refund depends on how much of the credit is needed to offset tax liability first -- a hand estimate that reports the ceiling as "your refund" can overstate what actually comes back.</p>
+<h3>What eligibility mistake gets made most often?</h3>
+<p>Missing the OBBBA filer Social Security number requirement -- assuming that because the CHILD has a valid SSN, the credit is automatically available. The taxpayer (and, on a joint return, at least one spouse) must also have a valid SSN, or neither credit can be claimed at all.</p>
+<h3>Does this calculator know my complete tax situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page computes your total tax liability or models any credit or deduction besides these two. Both apply the same published federal credit and phase-out rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published federal Child Tax Credit rules to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

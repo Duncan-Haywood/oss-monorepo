@@ -628,6 +628,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific linter, CI product, or
   // company at all. Same reasoning as the other manual-method pages above.
   'docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html',
+  // Compares against "reading the plan JSON by eye" and "grepping it for
+  // known secret shapes" -- manual habits every Terraform user already has
+  // access to, not a company or product this could be mistaken for. Same
+  // reasoning as the other manual-method pages above.
+  'terraform-plan-secret-exposure-check/vs-manually-reading-the-plan-json.html',
   // Compares against "guessing your payroll burden and overhead from
   // memory" -- the 20%/10% rule of thumb every trade contractor already
   // reaches for, not a company or product this could be mistaken for. The
@@ -2130,6 +2135,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as salt-cap-calculator's own vs-doing-the-math-by-hand.html
   // right above.
   'charitable-deduction-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the OBBBA 90% gambling-loss deduction cap
+  // by hand -- a generic method every gambler or preparer already has
+  // access to, not a company or product this could be mistaken for. Names
+  // no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as charitable-deduction-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'gambling-loss-deduction-calculator/vs-doing-the-math-by-hand.html',
   // Compares against working out the 2026 federal estate tax exclusion by
   // hand -- a generic method every estate planning attorney, CPA, or
   // individual already has access to, not a company or product this could
@@ -2157,6 +2169,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // own vs-securitytxt-org-generator.html, which names a real site and
   // already carries its own non-affiliation disclaimer.
   'security-txt-check/vs-checking-it-by-eye.html',
+  // Compares against working out the Child Tax Credit by hand -- a generic
+  // method every parent or preparer already has access to, not a company
+  // or product this could be mistaken for. Names no tax-prep firm or
+  // software vendor. Same reasoning as qsbs-exclusion-calculator's own
+  // vs-doing-the-math-by-hand.html above.
+  'child-tax-credit-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2446,6 +2464,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-wfs-cost-estimator.html, which names Walmart's own WFS Cost
   // Estimator and carries the trademark/affiliation disclaimer.
   'walmart-marketplace-calculator/vs-a-spreadsheet.html',
+  // Compares against pricing a stucco/EIFS repair by a flat rate per
+  // square foot -- the generic estimating shortcut any plastering shop
+  // already uses, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-jobber.html, which names Jobber
+  // and carries the trademark/affiliation disclaimer.
+  'stucco-repair-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat rate per lineal foot" -- the $12-or-so
+  // wrap-and-fascia special every soffit and fascia crew already has access
+  // to, not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-jobber.html, which names Jobber and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above (e.g. asbestos-abatement-bid-calculator's
+  // flat-rate page).
+  'soffit-fascia-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

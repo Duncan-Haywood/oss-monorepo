@@ -2624,7 +2624,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Static `index.html` plus one docs/comparison page from its first
     # commit, same shape as the rest of this running count.
     #
-    # 375 -> 376: `estate-tax-exemption-calculator` also graduated -- a
+    # 375 -> 376: `gambling-loss-deduction-calculator` also graduated,
+    # concurrently with and invisibly to the five ventures below -- a
+    # browser-local calculator computing the allowable gambling-loss
+    # deduction under OBBBA's new 90%-of-winnings cap (IRC Section 165(d)),
+    # plus a vs-doing-the-math-by-hand.html comparison page. Static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 376 -> 377: `estate-tax-exemption-calculator` also graduated -- a
     # browser-local calculator projecting federal estate tax exposure
     # under OBBBA's permanent 2026 $15,000,000 basic exclusion amount
     # (up to $30,000,000 married with portability), plus a
@@ -2632,7 +2640,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
     #
-    # 376 -> 377: `excess-business-loss-calculator` also graduated,
+    # 377 -> 378: `excess-business-loss-calculator` also graduated,
     # concurrently -- a browser-local calculator computing the IRC 461(l)
     # excess business loss threshold (permanent under OBBBA, with a 2026
     # figure that counterintuitively falls below 2025's rather than
@@ -2641,7 +2649,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
     #
-    # 377 -> 378: `qsbs-exclusion-calculator` also graduated, also
+    # 378 -> 379: `qsbs-exclusion-calculator` also graduated, also
     # concurrently -- a browser-local calculator computing the Section
     # 1202 QSBS capital-gain exclusion, expanded by OBBBA for stock
     # acquired after July 4, 2025 (a new tiered 3/4/5-year schedule and a
@@ -2650,8 +2658,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # page. Static `index.html` plus one docs/comparison page from its
     # first commit, same shape as the rest of this running count.
     #
-    # 378 -> 379: `referrer-permissions-policy-check` also graduated,
-    # concurrently and invisibly to the two entries above -- a
+    # 379 -> 380: `referrer-permissions-policy-check` also graduated,
+    # concurrently and invisibly to the entries above -- a
     # zero-dependency CLI + browser report viewer sending one real GET
     # request and classifying the response's Referrer-Policy (an
     # unsafe-url full-URL leak, a missing or unrecognised value, the
@@ -2661,16 +2669,52 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Feature-Policy header alone). Static `index.html` from its first
     # commit, same shape as the rest of this running count.
     #
-    # 379 -> 380: `exempt-salary-threshold-checker` also graduated,
+    # 380 -> 381: `exempt-salary-threshold-checker` also graduated,
     # concurrently and invisibly to the entries above -- a browser-local
     # calculator checking a weekly salary against the 2026 federal FLSA
     # white-collar exemption threshold and the higher state figure in
     # California, Washington, Maine, Alaska, or New York (including New
     # York's carve-out excluding the professional exemption from its
     # higher figure). Static `index.html` only, no comparison page, from
-    # its first commit. Total re-derived here by `sync_tree_counts.py`
-    # against the fully merged tree rather than by hand.
-    total = 380  # `infra/OWNER_CHECKLIST.md`'s own "N of the 380 tools" wording.
+    # its first commit.
+    #
+    # 380 -> 381: `final-paycheck-deadline-calculator` also graduated -- a
+    # browser-local calculator computing the legal deadline for a
+    # departing employee's final paycheck by US state and separation type
+    # (fired/laid off vs. quit), including California's notice-based rule
+    # and Minnesota's demand-triggered 24-hour rule, plus whether the
+    # state requires accrued unused vacation/PTO to be paid out as wages.
+    # Static `index.html` only, no comparison page, from its first commit.
+    #
+    # 381 -> 382: `boi-reporting-exemption-checker` also graduated,
+    # concurrently and invisibly to the entry above -- a browser-local
+    # checker for whether an entity still owes a federal Corporate
+    # Transparency Act beneficial ownership report after FinCEN's August
+    # 2026 final rule permanently exempted every U.S.-formed entity,
+    # applying only to foreign-formed entities registered to do business
+    # in the U.S. Static `index.html` only, no comparison page, from its
+    # first commit.
+    #
+    # 382 -> 383: `child-tax-credit-calculator` also graduated,
+    # concurrently and invisibly to the two entries above -- a
+    # browser-local calculator applying the permanent $2,200-per-child
+    # Child Tax Credit, the $500 Credit for Other Dependents, their
+    # combined MAGI phase-out, and the refundable Additional Child Tax
+    # Credit ceiling, plus a vs-doing-the-math-by-hand.html comparison
+    # page. Static `index.html` plus one docs/comparison page from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 383 -> 384: `gambling-loss-deduction-calculator` also graduated,
+    # concurrently and invisibly to the three entries above -- a
+    # browser-local calculator applying OBBBA's new 90%-of-winnings cap on
+    # gambling loss deductions, the resulting phantom-income consequence,
+    # and the professional-gambler business-expense fold-in, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count. Total re-derived here by
+    # `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 384  # `infra/OWNER_CHECKLIST.md`'s own "N of the 384 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1046,11 +1046,49 @@ const CATEGORY_RULES = [
     // category's own rule does not claim (that rule is an explicit prefix
     // list, not a `-check$` suffix), so it is added here by prefix rather
     // than widening any suffix rule to a word this is the only user of.
+    //
+    // `final-paycheck-deadline-calculator` joined 2026-09-25, filed here on
+    // its first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. It is the same shape as
+    // `call-recording-consent-check` and `salary-range-posting-check`
+    // right above: a US-jurisdiction legal reference table (eleven states'
+    // final-paycheck-timing statutes) applied to dates the user supplies,
+    // with every page stating it does not determine which state's law
+    // governs and is not a compliance determination -- this section's
+    // exact "produce a dated observation you act on, never a determination
+    // made on your behalf" posture. It cross-links
+    // `call-recording-consent-check` as its nearest sibling (duplicate_check.py's
+    // top match): both are all-state-ish employment-law reference tables
+    // with the identical disclaimer posture, checking unrelated questions.
+    // Not `backoffice`, where the tax/deadline calculators sit: this is a
+    // legal-classification lookup with a not-a-determination disclaimer,
+    // not an arithmetic conversion of figures the filer already computed.
+    // Slug ends in `-calculator`, not any suffix this rule already
+    // catches, so it is added by exact match rather than widening the
+    // suffix list to a word this is the only user of.
+    //
+    // `boi-reporting-exemption-checker` joined 2026-09-25, concurrently,
+    // filed here on its first commit rather than after a spell in the
+    // catch-all -- what `build.test.mjs`'s catch-all bound is for. Its
+    // posture matches this section's blurb exactly: it applies FinCEN's
+    // own August 2026 final rule to the facts entered and reports whether
+    // a federal beneficial-ownership filing obligation still exists,
+    // explicitly stating on every page that it is a rule-application aid
+    // rather than a filing service or legal opinion -- the same shape as
+    // its nearest sibling, `ny-llc-transparency-act-tracker` (filed here
+    // via the `tracker$` suffix), which checks a different, state-level
+    // beneficial-ownership law. Slug ends in `-checker`, not `-check`, so
+    // `salary-range-posting-check`'s prefix rule does not reach it; added
+    // by exact slug match, the same way `1099-k-threshold-checker` was,
+    // rather than widening the suffix list to a word this is the only
+    // user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
-      || slug === 'osha-trir-dart-calculator',
+      || slug === 'osha-trir-dart-calculator'
+      || slug === 'final-paycheck-deadline-calculator'
+      || slug === 'boi-reporting-exemption-checker',
   },
   {
     id: 'backoffice',
@@ -1330,6 +1368,19 @@ const CATEGORY_RULES = [
       // floor/ceiling shape, one on state and local tax, the other on
       // charitable giving.
       //
+      // `gambling-loss-deduction-calculator` joined 2026-09-25, filed here
+      // on its first commit rather than after a spell in the catch-all --
+      // what `build.test.mjs`'s catch-all bound is for. Same "downstream
+      // federal itemized-deduction change on figures the filer already
+      // has" axis as `charitable-deduction-calculator` right above it in
+      // this rule -- computing the allowable deduction under the new
+      // 90%-of-winnings gambling-loss cap and the resulting phantom
+      // taxable income, never a filed election made on the visitor's
+      // behalf. It cross-links `charitable-deduction-calculator` as its
+      // nearest sibling: both are new-in-2025/2026 OBBBA itemized-
+      // deduction changes with a percentage-based haircut rather than a
+      // flat dollar cap.
+      //
       // `estate-tax-exemption-calculator` joined 2026-09-25, filed here on
       // its first commit rather than after a spell in the catch-all --
       // what `build.test.mjs`'s catch-all bound is for. Same "downstream
@@ -1343,17 +1394,17 @@ const CATEGORY_RULES = [
       // lifetime/at-death estate and gift exclusion -- with no closer
       // topical match in this portfolio.
       //
-      // `excess-business-loss-calculator` joined 2026-09-25, concurrently,
-      // filed here on its first commit rather than after a spell in the
-      // catch-all -- what `build.test.mjs`'s catch-all bound is for. Same
-      // "downstream federal tax threshold on figures the filer already
-      // has" axis as `qbi-deduction-calculator` right above it in this
-      // rule -- computing the IRC 461(l) excess-business-loss threshold
-      // and the resulting NOL carryforward, never a filed position made
-      // on the visitor's behalf. It cross-links `qbi-deduction-calculator`
-      // as its nearest sibling: both serve pass-through business owners
-      // and flag (without computing) the interaction between the two
-      // calculations.
+      // `excess-business-loss-calculator` joined 2026-09-25, concurrently
+      // with the ventures above and invisible to them, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream
+      // federal tax threshold on figures the filer already has" axis as
+      // `qbi-deduction-calculator` right above it in this rule --
+      // computing the IRC 461(l) excess-business-loss threshold and the
+      // resulting NOL carryforward, never a filed position made on the
+      // visitor's behalf. It cross-links `qbi-deduction-calculator` as its
+      // nearest sibling: both serve pass-through business owners and flag
+      // (without computing) the interaction between the two calculations.
       //
       // `qsbs-exclusion-calculator` joined 2026-09-25, also concurrently,
       // filed here on its first commit rather than after a spell in the
@@ -1378,7 +1429,20 @@ const CATEGORY_RULES = [
       // `tip-pool-compliance-calculator` as its nearest sibling: both check
       // one FLSA wage-and-hour rule against a fixed federal-or-state table,
       // neither computes pay.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker)/.test(slug),
+      //
+      // `child-tax-credit-calculator` joined 2026-09-25, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream federal
+      // tax figure applied to numbers the filer already has" axis as the
+      // other OBBBA calculators in this rule -- applying the permanent
+      // $2,200-per-child Child Tax Credit, the $500 Credit for Other
+      // Dependents, their combined MAGI phase-out, and the refundable
+      // Additional Child Tax Credit ceiling, never a filed Schedule 8812
+      // made on the visitor's behalf. It cross-links `trump-account-
+      // calculator` as its nearest sibling: both are child/family-focused
+      // federal OBBBA provisions -- one a recurring annual tax credit, the
+      // other a one-time child-savings-account seed deposit.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator)/.test(slug),
   },
   {
     id: 'ci',
