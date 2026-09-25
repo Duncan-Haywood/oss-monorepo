@@ -49,8 +49,8 @@
 #   portfolio-front-tools-13: 120 files, 555259 bytes
 #   portfolio-front-tools-14: 128 files, 553301 bytes
 #   portfolio-front-tools-15: 131 files, 553782 bytes
-#   portfolio-front-tools-16: 134 files, 556688 bytes
-#   portfolio-front-tools-17: 122 files, 546683 bytes
+#   portfolio-front-tools-16: 133 files, 554563 bytes
+#   portfolio-front-tools-17: 124 files, 552909 bytes
 #   portfolio-front-tools-18: 104 files, 555135 bytes
 #   portfolio-front-tools-19: 121 files, 553876 bytes
 #   portfolio-front-tools-20: 128 files, 557044 bytes
@@ -2286,6 +2286,7 @@ configMapGenerator:
       - pwa-installability-check__probe.mjs.gz=pwa-installability-check__probe.mjs.gz
       - pwa-installability-check__usage.mjs.gz=pwa-installability-check__usage.mjs.gz
       - pwa-installability-check__vs-lighthouse.html.gz=pwa-installability-check__vs-lighthouse.html.gz
+      - pwa-installability-check__vs-reading-the-manifest-by-eye.html.gz=pwa-installability-check__vs-reading-the-manifest-by-eye.html.gz
       - pypi-provenance-check__cli.mjs.gz=pypi-provenance-check__cli.mjs.gz
       - pypi-provenance-check__engine.mjs.gz=pypi-provenance-check__engine.mjs.gz
       - pypi-provenance-check__index.html.gz=pypi-provenance-check__index.html.gz
@@ -2348,13 +2349,13 @@ configMapGenerator:
       - redirect-chain-check__vs-checking-a-chain-by-hand.html.gz=redirect-chain-check__vs-checking-a-chain-by-hand.html.gz
       - redirect-chain-check__vs-httpstatus-io.html.gz=redirect-chain-check__vs-httpstatus-io.html.gz
       - redirect-chain-check__why-redirect-chains-matter.html.gz=redirect-chain-check__why-redirect-chains-matter.html.gz
-      - referrer-permissions-policy-check__analyze.mjs.gz=referrer-permissions-policy-check__analyze.mjs.gz
-      - referrer-permissions-policy-check__check.mjs.gz=referrer-permissions-policy-check__check.mjs.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - referrer-permissions-policy-check__analyze.mjs.gz=referrer-permissions-policy-check__analyze.mjs.gz
+      - referrer-permissions-policy-check__check.mjs.gz=referrer-permissions-policy-check__check.mjs.gz
       - referrer-permissions-policy-check__index.html.gz=referrer-permissions-policy-check__index.html.gz
       - referrer-permissions-policy-check__probe.mjs.gz=referrer-permissions-policy-check__probe.mjs.gz
       - referrer-permissions-policy-check__usage.mjs.gz=referrer-permissions-policy-check__usage.mjs.gz

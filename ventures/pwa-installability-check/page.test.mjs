@@ -73,6 +73,25 @@ test('the page explains why a browser cannot fetch a third-party URL itself', ()
   assert.match(html, /cross-origin request/);
 });
 
+test('index links to the vs-reading-the-manifest-by-eye comparison page', () => {
+  assert.match(html, /href="vs-reading-the-manifest-by-eye\.html"/);
+});
+
+test('vs-reading-the-manifest-by-eye page links back to the tool', () => {
+  const page = readFileSync(join(HERE, 'vs-reading-the-manifest-by-eye.html'), 'utf8');
+  assert.match(page, /href="index\.html"/);
+});
+
+test('vs-reading-the-manifest-by-eye page carries the no-warranty clause', () => {
+  const page = readFileSync(join(HERE, 'vs-reading-the-manifest-by-eye.html'), 'utf8');
+  assert.match(page, /No warranty/);
+});
+
+test('vs-reading-the-manifest-by-eye page is listed in the sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-reading-the-manifest-by-eye\.html/);
+});
+
 function extractConst(name) {
   const re = new RegExp(`const ${name} = (\\{[\\s\\S]*?\\n  \\});`);
   const match = html.match(re);

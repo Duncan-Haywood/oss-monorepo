@@ -2478,6 +2478,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // generic-method pages above (e.g. asbestos-abatement-bid-calculator's
   // flat-rate page).
   'soffit-fascia-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "reading manifest.json by eye" -- the free habit any
+  // developer already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-lighthouse.html, which names
+  // Google's Lighthouse tool and carries the trademark/affiliation
+  // disclaimer. Same reasoning as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html above.
+  'pwa-installability-check/vs-reading-the-manifest-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
