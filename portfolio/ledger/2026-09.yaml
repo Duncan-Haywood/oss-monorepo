@@ -44813,3 +44813,71 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 repeatedly) -- merged on
         the strength of the local verification above.
     mrr_end: 0
+  - venture: salt-cap-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture this session (session_gate.py:
+        build-now queue empty, PROCEED verdict, no in-progress venture
+        work, and the previous work this session was clearing a stalled
+        PR backlog and a live production bug, so a fresh niche was the
+        next thing due). Picked the SALT (state and local tax) itemized
+        deduction cap under OBBBA: duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.34 or
+        below (closest matches senior-deduction-calculator,
+        auto-loan-interest-deduction-calculator, and
+        bonus-depreciation-calculator -- share only "OBBBA/MAGI/phase-out"
+        vocabulary, each a different, unrelated provision), well under
+        the 0.45 review bar. Mechanics verified via WebSearch 2026-09-25
+        against nine independent CPA-firm/financial-media sources (The
+        Tax Adviser, TaxAct, Fidelity, KahnLitwin, Anchin, KMK Ventures,
+        TaxSharkInc, Ourtaxpartner, plus a cross-check search), the widest
+        source coverage found for any OBBBA provision this session --
+        including the detail most likely to be gotten wrong by hand: the
+        $40,000/$40,400 cap and $500,000/$505,000 threshold are IDENTICAL
+        for single, head-of-household, and married-filing-jointly filers
+        (a joint return is not doubled), only married-filing-separately
+        gets a distinct halved figure, and the 30%-of-excess-MAGI
+        phase-out floors at a fixed $10,000/$5,000 rather than reaching
+        zero -- reached at exactly $600,000 MAGI in 2025 for the
+        non-MFS group, derived and pinned in calc.test.mjs rather than
+        just asserted.
+      - >-
+        Shipped a free, static, browser-local calculator computing the
+        effective SALT cap after the phase-out, the deductible amount for
+        state/local taxes paid, the non-deductible excess, and the exact
+        MAGI at which the floor is reached, with an explicit
+        pass-through-entity-tax (PTET) out-of-scope flag rather than
+        silently ignoring a workaround several sources mentioned. Ships
+        LICENSE, README with the required value sentence and disclaimer,
+        VENTURE.yaml with untested hypotheses and kill_criteria, calc.mjs
+        (14 test assertions) plus usage.mjs/page.test.mjs (35 total
+        across the venture), index.html with FAQPage/SoftwareApplication
+        JSON-LD matching the visible copy, the required
+        vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT as a generic-method
+        page), an opt-out local usage counter honouring DNT/GPC,
+        robots.txt/sitemap.xml, and a dedicated CI workflow.
+      - >-
+        Filed into build.mjs's backoffice category next to its nearest
+        sibling, senior-deduction-calculator (another new-in-2025 OBBBA
+        MAGI-phase-out provision, but one that floors at a fixed dollar
+        amount rather than phasing fully to zero like the senior
+        deduction) -- with a reciprocal footer link both ways so neither
+        venture is a crawlable orphan. Scored in venture-scores.yaml.
+        Regenerated the gitops front-door mirror (regen.mjs), synced the
+        mirrored-tool/opt-out-switch running counts (373->374, 352->353)
+        and the gitops/ci/README.md runs-on count (467/469/428 ->
+        468/470/429), and registered the new CI workflow in
+        publish-surface.yaml.
+      - >-
+        Verified: venture's own suite 35/35; senior-deduction-calculator's
+        suite re-run after the reciprocal-link edit, 49/49 unaffected;
+        checklist_coverage.py, surface-budget.mjs --check, siblings.mjs
+        --check (0 orphans of 374), router/validate.py (381 ventures),
+        score_ventures.py --check (382 scores), regen.mjs --verify all
+        clean. CI note: Actions confirmed starved earlier this session
+        (ci_starvation.py: runner_id: 0 on sampled jobs) -- expect the
+        same on this PR; merging on the strength of local verification.
+    mrr_end: 0
