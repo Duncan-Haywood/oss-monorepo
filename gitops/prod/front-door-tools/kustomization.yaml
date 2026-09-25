@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 132 files, 553674 bytes
 #   portfolio-front-tools-15: 125 files, 555062 bytes
 #   portfolio-front-tools-16: 134 files, 556718 bytes
-#   portfolio-front-tools-17: 110 files, 551707 bytes
+#   portfolio-front-tools-17: 111 files, 556571 bytes
 #   portfolio-front-tools-18: 114 files, 551767 bytes
 #   portfolio-front-tools-19: 125 files, 546034 bytes
 #   portfolio-front-tools-20: 119 files, 547249 bytes
@@ -2397,6 +2397,7 @@ configMapGenerator:
       - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
       - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz
       - self-storage-rate-increase-calculator__usage.mjs.gz=self-storage-rate-increase-calculator__usage.mjs.gz
+      - self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz=self-storage-rate-increase-calculator__vs-pricing-a-move-out-at-the-tenants-rent.html.gz
       - self-storage-rate-increase-calculator__vs-sitelink.html.gz=self-storage-rate-increase-calculator__vs-sitelink.html.gz
       - senior-deduction-calculator__calc.mjs.gz=senior-deduction-calculator__calc.mjs.gz
       - senior-deduction-calculator__index.html.gz=senior-deduction-calculator__index.html.gz

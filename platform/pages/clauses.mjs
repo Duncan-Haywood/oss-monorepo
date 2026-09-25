@@ -2311,6 +2311,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // than named-product -- see facebook-marketplace-fee-calculator's entry
   // above for what happens when a generic-method page is shipped without it.
   'patreon-fee-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "pricing a move-out at the tenant's rent" -- a generic
+  // mental model every self-storage operator already reaches for, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-sitelink.html, which names SiteLink/Storable and
+  // carries the trademark disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
