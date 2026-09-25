@@ -2139,6 +2139,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
   // carries the trademark disclaimer.
   'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
+  // Compares against "reading the workflow YAML by hand" -- a manual review
+  // habit any maintainer already has, not a company or product this could
+  // be mistaken for. Same reasoning as actions-permissions-check's and
+  // actions-artifact-poisoning-check's own pages of the same name. Distinct
+  // from this venture's own vs-openssf-scorecard.html, which names OpenSSF
+  // Scorecard specifically and carries the trademark disclaimer.
+  'pinned-actions-check/vs-reading-the-workflow-yaml-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
