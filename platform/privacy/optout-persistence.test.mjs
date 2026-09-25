@@ -907,23 +907,31 @@ const RELATIVE_SELF = relative(
 // same boilerplate opt-out toggle copied from `salt-cap-calculator`
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `exempt-salary-threshold-checker-usage` storage
-// name). Exactly one added `usage.mjs`, no deletions.
+// name). Exactly one added `usage.mjs`, no deletions. (This entry and the
+// one above it were originally both mis-recorded as "358 -> 359" from two
+// branches that each fetched `main` before the other's merge landed --
+// corrected here to chain sequentially.)
 //
-// 360 -> 361: `boi-reporting-exemption-checker` also graduated,
+// 360 -> 361: `final-paycheck-deadline-calculator` also joined,
+// concurrently and invisibly to the entry above -- the same opt-out
+// `usage.mjs` shape (`record`/`setUsageOptOut`/`usageOptedOut` gating
+// localStorage writes, keyed under its own
+// `final-paycheck-deadline-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions. (A later merge of this same
+// conflict pattern also separately re-recorded
+// `gambling-loss-deduction-calculator`'s switch -- already counted
+// earlier, at 354 -> 355 -- as if it were a second, new addition; that
+// duplicate is not repeated here.)
+//
+// 361 -> 362: `boi-reporting-exemption-checker` also graduated,
 // concurrently -- adding one more `usage.mjs`
 // (`ventures/boi-reporting-exemption-checker/usage.mjs`), the same
 // boilerplate opt-out toggle copied from `exempt-salary-threshold-checker`
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `boi-reporting-exemption-checker-usage` storage
-// name). Exactly one added `usage.mjs`, no deletions. (This entry and the
-// one above it were originally both mis-recorded as "359 -> 360" from two
-// branches that each fetched `main` before the other's merge landed --
-// corrected here to chain sequentially. `gambling-loss-deduction-
-// calculator`'s own switch was already counted earlier, at 354 -> 355 --
-// a later merge on this file mistakenly re-added it here as a second,
-// duplicate entry, since removed.)
+// name). Exactly one added `usage.mjs`, no deletions.
 //
-// 361 -> 362: `child-tax-credit-calculator` also graduated, concurrently
+// 362 -> 363: `child-tax-credit-calculator` also graduated, concurrently
 // and invisibly to both entries above -- adding one more `usage.mjs`
 // (`ventures/child-tax-credit-calculator/usage.mjs`), the same
 // boilerplate opt-out toggle copied from `senior-deduction-calculator`
@@ -931,13 +939,13 @@ const RELATIVE_SELF = relative(
 // keyed under its own `child-tax-credit-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions.
 //
-// 362 -> 363: `eitc-calculator` also graduated -- adding one more
+// 363 -> 364: `eitc-calculator` also graduated -- adding one more
 // `usage.mjs` (`ventures/eitc-calculator/usage.mjs`), the same
 // boilerplate opt-out toggle copied from `child-tax-credit-calculator`
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `eitc-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 363;
+const SWITCHES_IN_THE_CATALOGUE = 364;
 
 let counter = 0;
 function fixture(source) {

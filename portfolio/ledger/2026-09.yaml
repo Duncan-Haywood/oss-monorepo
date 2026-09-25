@@ -46342,6 +46342,107 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 earlier) -- verified
         fully locally per CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: final-paycheck-deadline-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator computing the legal
+        deadline for a departing employee's final paycheck, by US state
+        (California, Colorado, Massachusetts, Montana, Illinois,
+        Minnesota, Arizona, Texas, New York, Washington, and Nevada, plus
+        a general next-payday default for every other state) and
+        separation type (fired/laid off vs. quit), including California's
+        72-hour-notice carve-out and Minnesota's demand-triggered 24-hour
+        rule, and reporting whether that state requires accrued unused
+        vacation/PTO to be paid out as wages. Screened during a
+        new-venture-first session per this session's explicit
+        collision-avoidance brief: not a tax/OBBBA calculator (saturated,
+        three more landed on `main` during this same session --
+        gambling-loss-deduction-calculator, child-tax-credit-calculator)
+        and not another dev/security checker (38+ already exist), a
+        different category entirely. duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.11 or
+        below for the final description -- well under the 0.45 review
+        bar. call-recording-consent-check is the closest existing venture
+        (same US-jurisdiction employment-law reference-table shape) and
+        checks an unrelated question (recording consent, not final-pay
+        timing).
+      - >-
+        All eleven states' figures verified via live WebSearch against at
+        least two independent sources each (a state statute citation or
+        agency page plus a payroll-compliance/employment-law explainer),
+        cross-checked against each other -- e.g. California's same-day
+        rule for a firing versus its notice-dependent rule for a
+        voluntary quit (same day with 72+ hours' notice, 3 calendar days
+        without), Minnesota's 24-hour clock that starts from a written
+        demand rather than from the separation date itself, and Montana's
+        "immediate by default, capped by a written policy at the next
+        payday or 15 days" rule. calc.mjs's `finalPaycheckDeadline()`
+        models each state's rule as one of five composable shapes
+        (same-day, N calendar days, N business days, next-payday, and
+        earlier-of over any combination), so Arizona's "7 working days or
+        the next payday, whichever is sooner" and Nevada/Montana's
+        earlier-of variants share one code path rather than each being a
+        one-off branch.
+      - >-
+        Ships LICENSE, README, VENTURE.yaml (untested hypotheses +
+        kill_criteria), calc.mjs (22 test assertions) + calc.test.mjs,
+        usage.mjs/usage.test.mjs (opt-out local usage counter honouring
+        DNT/GPC), index.html with FAQPage/SoftwareApplication JSON-LD
+        matching visible copy exactly, page.test.mjs, robots.txt/
+        sitemap.xml, and a dedicated CI workflow. Filed into build.mjs's
+        `evidence` category (Compliance checks & evidence records) next
+        to its nearest sibling, call-recording-consent-check, with a
+        reciprocal footer link both ways. Scored in venture-scores.yaml
+        (composite 6.167, gates pass). Registered in launched.json (via
+        platform/pages/launched.mjs --write), publish-surface.yaml (via
+        platform/ci/publish_surface.py --write), and the mirrored-tool/
+        opt-out running counts with a running-comment entry explaining
+        why each moved.
+      - >-
+        Caught the same em-dash-vs-ASCII-"--" JSON-LD/visible-copy
+        mismatch CLAUDE.md already records against several other recent
+        ventures: faq-visible.test.mjs failed on two FAQ answers where the
+        JSON-LD used plain "--" while the visible prose used an em dash --
+        fixed by normalizing the JSON-LD to match, per this month's
+        established convention.
+      - >-
+        Three ventures landed on `main` concurrently during this session
+        (final-paycheck-deadline-calculator, gambling-loss-deduction-
+        calculator, child-tax-credit-calculator), all touching the same
+        hand-written running-count files. Resolved by merging origin/main
+        into the venture branch: `git checkout --theirs` for the 1700+
+        generated gitops/prod/front-door-tools/front-door binary
+        conflicts, then `node platform/marketing/regen.mjs` to
+        regenerate; the six hand-written running-count files
+        (gitops/ci/README.md, gitops/prod/usage/aggregate.py,
+        gitops/tests/test_manifests.py, infra/OWNER_CHECKLIST.md,
+        platform/privacy/optout-persistence.test.mjs,
+        portfolio/scoring/venture-scores.yaml) combined by hand -- for
+        venture-scores.yaml this meant reconstructing three complete,
+        independent YAML entries from an interleaved diff rather than
+        picking a side -- then re-ran sync_tree_counts.py and
+        gitops/ci/sync_readme_counts.py to re-derive the final correct
+        counts (383 mirrored tools, 362 opt-out switches, 477 of 479
+        runs-on lines across 438 workflows) rather than hand-typing them.
+      - >-
+        Verified on the fully merged tree: venture's own suite 39/39;
+        call-recording-consent-check's own suite (reciprocal link target)
+        76/76; full platform/marketing + platform/pages suite 1290/1290;
+        gitops/tests 637 passed/1 skipped (environmental); portfolio/
+        ledger+scoring+router+usage+pipeline+infra/tests 446 passed;
+        platform/ci unittest sweep (27 modules) and agent_review's
+        test_review (21/21) both clean; checklist_coverage.py,
+        sync_tree_counts.py, score_ventures.py --check (391 scores),
+        router/validate.py (390 VENTURE.yaml files), siblings.mjs --check
+        (0 orphans of 383), surface-budget.mjs --check,
+        check_venture_regression.py --base origin/main (no live venture
+        disappears), and regen.mjs --verify all clean. CI starved this
+        session (ci_starvation.py confirmed runner_id: 0 on a recent main
+        push) -- verified fully locally per CLAUDE.md's starvation
+        checklist.
+    mrr_end: 0
   - venture: eitc-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -46411,7 +46512,7 @@ entries:
         next to its nearest sibling, child-tax-credit-calculator (both
         federal per-household tax credits often claimed on the same
         return), with a reciprocal footer link both ways -- 0 crawlable
-        orphans of 383. Scored in venture-scores.yaml (composite 6.5,
+        orphans of 385. Scored in venture-scores.yaml (composite 6.5,
         gates pass, distribution 9 -- the highest of this portfolio's
         federal tax calculators, reflecting the EITC's much larger
         claimant population). Registered in launched.json,
@@ -46423,12 +46524,36 @@ entries:
         needed, confirmed by grepping gitops/prod/front-door/ before
         shipping rather than assuming.
       - >-
-        Verified: venture's own suite 43/43; checklist_coverage.py,
-        sync_tree_counts.py, score_ventures.py --check (391 scores),
-        siblings.mjs --check (0 orphans of 383), surface-budget.mjs
-        --check, regen.mjs --verify, router/validate.py (390 VENTURE.yaml)
+        While merging `origin/main`, found and fixed two real defects
+        introduced by earlier merges this session: (1)
+        `gambling-loss-deduction-calculator` had been double-counted in
+        both `gitops/tests/test_manifests.py` and
+        `platform/privacy/optout-persistence.test.mjs`'s running-count
+        comment chains -- a merge conflict resolution had mistakenly added
+        a second entry for a venture already recorded earlier in the same
+        file. (2) `final-paycheck-deadline-calculator`'s own merge into
+        `main` left its mirror files (`gitops/prod/front-door-tools/`)
+        written but the corresponding mount line in the top-level,
+        hand-maintained `gitops/prod/front-door-tools/kustomization.yaml`
+        absent -- caused by a `git checkout --ours` during THIS merge's
+        own conflict resolution overwriting an already-regenerated
+        `front-door-tools/` directory with this branch's stale pre-merge
+        copy; `_mirrored_venture_slugs()` catching the resulting undercount
+        (384 instead of the true 385) is what surfaced it, one commit
+        short of shipping a venture nobody could reach. Fixed by
+        re-running `front-door-tools.mjs --write` and `front-door.mjs
+        --write` directly, after the `--ours` checkout rather than relying
+        on it alone, and by removing the duplicate running-count
+        paragraphs and renumbering both chains sequentially.
+      - >-
+        Verified: venture's own suite 43/43; full platform/marketing +
+        platform/pages suite 1290/1290; gitops/tests 637 passed/1 skipped
+        (environmental); platform/ci unittest sweep (15 modules) and
+        agent_review's test_review (21/21) both clean; checklist_coverage.py,
+        sync_tree_counts.py, score_ventures.py --check (392 scores),
+        siblings.mjs --check (0 orphans of 385), surface-budget.mjs
+        --check, regen.mjs --verify, router/validate.py (391 VENTURE.yaml)
         all clean. CI starved this session (ci_starvation.py confirmed
-        runner_id: 0 earlier) -- verified locally per CLAUDE.md's
-        starvation checklist; full platform/marketing + platform/pages
-        suite queued to run before merge.
+        runner_id: 0 earlier) -- verified fully locally per CLAUDE.md's
+        starvation checklist.
     mrr_end: 0
