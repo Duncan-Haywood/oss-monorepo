@@ -44448,3 +44448,52 @@ entries:
         same documented, unfixable-from-here limitation as every other
         reading in indexnow_state.py's log.
     mrr_end: 0
+  - venture: section-174a-catchup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped should-i-take-the-174a-catchup-in-one-year-or-two.html,
+        the venture's first guide page (surface-budget.mjs flagged it at
+        1 comparison / 0 guide). Three worked examples pinned against
+        calc.mjs's compareCatchUpPaths on a $200,000 remaining
+        unamortized balance: equal 21% rates both years (a modest
+        $1,188.68 present-value edge to the 1-year path from time value
+        of money alone), a weak 2025 ($20,000 income before the
+        deduction) where the 1-year path can only use $20,000 of its
+        $200,000 claim and the other $180,000 becomes an unmodeled NOL
+        question instead of a cash saving -- the 2-year path wins by
+        $19,811.32 in present value, nearly five times the 1-year path's
+        total -- and an expected 2026 rate increase (21% to 30%) that
+        flips the same equal-income scenario from +$1,188.68 for the
+        1-year path to +$7,301.89 for the 2-year path. Linked from
+        index.html's footer and added to sitemap.xml.
+      - >-
+        Verified: venture's own suite 56/56 (5 new page.test.mjs tests:
+        guide linked from/to index, all three scenarios' figures match
+        calc.mjs to the cent, FAQPage JSON-LD matches visible FAQ text
+        verbatim); full platform/marketing + platform/pages suite
+        1290/1290 clean after regen.mjs --verify confirmed the mirror
+        current; sync_tree_counts.py, checklist_coverage.py, and
+        surface-budget.mjs --check all clean; faq-visible.test.mjs and
+        siblings.test.mjs spot-checked clean. No new venture-scores.yaml
+        row needed (existing venture, no new VENTURE.yaml).
+      - >-
+        Landed as PR #5862 after two rounds of git merge origin/main
+        while the fleet kept shipping (one round collided on this same
+        venture's mirror shard from a concurrent patreon-fee-calculator
+        graduation elsewhere in the tree; a second round collided with
+        #5860, a concurrent sideways-scroll CSS fix to THIS SAME
+        venture's index.html -- git's own three-way merge resolved that
+        text conflict cleanly with no manual intervention needed, since
+        the CSS fix and this guide's footer-link addition touched
+        different parts of the file). Both rounds' mirror-only conflicts
+        (kustomization.yaml, the venture's own front-door-tools shard,
+        and the two front-door/ non-tools binaries) resolved per
+        resolve-mirror-merge.sh + manual --ours/regen.mjs, exactly as
+        CLAUDE.md's Duplicate-PRs section documents. CI note: the PR's
+        own checks again came back red in ~3-5s; ci_starvation.py --run
+        36091236178 confirmed 4/6 jobs on runner_id: 0, consistent with
+        every other PR this session -- merged on the strength of the
+        local verification above rather than CI.
+    mrr_end: 0
