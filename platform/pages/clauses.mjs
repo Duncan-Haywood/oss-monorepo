@@ -2123,6 +2123,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as bonus-depreciation-calculator's own
   // vs-doing-the-math-by-hand.html right above.
   'salt-cap-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the two 2026 charitable-giving deduction
+  // paths by hand -- a generic method every donor or preparer already has
+  // access to, not a company or product this could be mistaken for. Names
+  // no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as salt-cap-calculator's own vs-doing-the-math-by-hand.html
+  // right above.
+  'charitable-deduction-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
