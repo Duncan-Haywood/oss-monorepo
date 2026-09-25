@@ -2278,6 +2278,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // author already has, not a company or product this could be mistaken
   // for. This venture names no named-product comparison at all.
   'claude-skill-scaffold-generator/vs-writing-the-frontmatter-by-hand.html',
+  // Compares against "a flat per-pool monthly rate" -- a generic pricing
+  // method every independent pool service operator already has access to,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-skimmer.html, which names Skimmer and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above (e.g. sewer-line-replace-bid-calculator's flat-per-foot page).
+  'pool-route-pricing/vs-a-flat-per-pool-monthly-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
