@@ -44365,6 +44365,43 @@ entries:
         jobs on runner_id: 0 (never assigned a runner), so merged on the
         strength of the local verification above rather than CI.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the published gh-pages snapshot after session_gate.py
+        flagged it stale (built from 439d4e9c while main had advanced to
+        0caeacfd, one merged venture guide page behind). Ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`;
+        pages_state.py now reports the snapshot current and the managed
+        Pages builder deployed it (run 36089202398). IndexNow notified
+        successfully (200) for 1657 published URLs in the same run.
+      - >-
+        Installed pytest (apt, per CLAUDE.md's pip-timeout workaround) and
+        nginx-light/openssh-client, then ran guard_state.py
+        --require-runnable: every fixable pytest skip now runs; the one
+        remaining skip (test_front_door_serving.py) is genuinely
+        environmental (needs a GitHub-hosted runner).
+      - >-
+        Installed Playwright 1.56.0 + axe-core and ran the full 8-check
+        whole-catalogue browser/accessibility sweep (all 8 checks had gone
+        stale after the builder/front-door files last moved). It found one
+        real defect: section-174a-catchup-calculator/index.html scrolled
+        11px sideways at a 360px (phone) viewport -- the venture's .grid2
+        rule set grid-template-columns: minmax(320px, 1fr), wider than the
+        ~260px content width left inside the page's own body+card padding
+        at that viewport (WCAG 1.4.10 Reflow; see platform/pages/reflow.mjs
+        cause #2, "form control inside a grid track"). Fixed by lowering
+        the minmax floor to 220px, matching the value already used
+        page-wide (19 other ventures' .grid rules) and by this same page's
+        own untouched .grid rule. Verified with a targeted
+        `browser_checks.py --checks sideways --only
+        section-174a-catchup-calculator` run (0 scrolling, was 1) and the
+        venture's own suite (52/52). platform/pages suite 1015/1015 clean;
+        checklist_coverage.py, regen.mjs --verify and guard_state.py all
+        clean.
+    mrr_end: 0
   - venture: trump-account-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -44404,4 +44441,199 @@ entries:
         ~2-3s; ci_starvation.py --run 36089021606 confirmed 4/6 jobs on
         runner_id: 0, consistent with #5849 minutes earlier -- merged on
         the strength of the local verification above rather than CI.
+    mrr_end: 0
+  - venture: patreon-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a private browser calculator for Patreon creators to
+        find real monthly payout from three pledge tiers after the plan's
+        platform fee (10% Standard for pages created after August 4,
+        2025, or legacy 5%/8%/12% Lite/Pro/Premium for pages that predate
+        it) and per-charge payment processing (~2.9% + $0.30 standard, or
+        ~5% + $0.10 "micropayment" under $3, legacy plans only). Screened
+        first: duplicate_check.py scored every existing venture,
+        screened-out row, ai-first-markets idea, and pipeline candidate
+        at or below 0.40 (kickstarter-fee-calculator), under the 0.45
+        near-duplicate bar.
+      - >-
+        Three WebSearch passes against Patreon's own Help Center
+        (2026-09-25) caught and corrected a wrong first draft that had
+        modeled every plan as Lite/Pro/Premium 8/10/12% -- a structure
+        Patreon retired for new creators in August 2025. Shipped with the
+        corrected two-plan-family model instead.
+      - >-
+        Differentiating mechanic: compareBillingFrequency shows billing
+        patrons "per creation" instead of monthly pays the processing
+        fee's fixed component more often for identical revenue --
+        $90/month more on the Standard plan, $20.50/month more on a
+        legacy Pro plan, for 100 patrons at a $5 pledge over 4 posts.
+        Worked into does-per-creation-billing-cost-more-in-fees.html,
+        every figure pinned against calc.mjs in tests.
+      - >-
+        Shipped the standard five things (LICENSE, no-warranty +
+        not-affiliated disclaimers, privacy section, opt-out-able usage
+        counting, discoverability), a venture-scores.yaml row (composite
+        5.667; distribution scored low at 3 given at least ten existing
+        dedicated "Patreon fee calculator" sites found in the same search
+        pass), and a *-ci.yml test workflow. Shipped with an inbound
+        sibling link from its first commit (twitch-payout-calculator's
+        footer links back) rather than landing as a new crawlable orphan;
+        siblings-budget.json's orphan ceiling lowered back to 0 in the
+        same commit.
+      - >-
+        Also reclassified two already-graduated ventures
+        (claude-code-hooks-security-check, pypi-provenance-check) out of
+        build.mjs's catch-all category, which this venture's arrival
+        pushed to 6 against build.test.mjs's bound of 5 -- both are
+        un-added siblings of existing ci-category tools, left out of the
+        category regex at their own graduation. Also fixed a real WCAG
+        link-contrast regression (4.23:1 -> 4.86:1) caught by
+        ink.test.mjs.
+      - >-
+        Verified: venture's own suite 55/55; full platform/pages
+        (1015/1015, including the two guards this change required
+        fixing) and platform/marketing (275/275) suites clean after
+        regen.mjs --verify confirmed the mirror current; gitops/tests
+        (637 passed, 1 skipped); portfolio/ledger+scoring+router+usage+
+        pipeline+infra/tests (446 passed); platform/ci unittest sweep (15
+        modules) + agent_review; sync_tree_counts.py and
+        gitops/ci/sync_readme_counts.py both clean; siblings.mjs --check
+        and surface-budget.mjs --check both clean; score_ventures.py
+        --check, router/validate.py, and publish_surface.py --check all
+        clean.
+      - >-
+        Landed as PR #5856 after merging origin/main three times while
+        the branch was open (18+2+1 sibling commits), resolving the
+        generated front-door mirror conflicts per
+        resolve-mirror-merge.sh's documented procedure each time; merged
+        on the first attempt with no rebase needed. CI note: the PR's own
+        checks came back red in ~3s across all 24 jobs;
+        ci_starvation.py --run 36089572042 confirmed runner_id: 0 --
+        merged on the strength of the local verification above rather
+        than CI. Published the branch and recorded the Pages snapshot
+        after merging (CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh; pages_state.py --record).
+        IndexNow announce attempted and refused by this sandbox's own
+        egress proxy (403 on api.indexnow.org, not from IndexNow) -- the
+        same documented, unfixable-from-here limitation as every other
+        reading in indexnow_state.py's log.
+    mrr_end: 0
+  - venture: section-174a-catchup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped should-i-take-the-174a-catchup-in-one-year-or-two.html,
+        the venture's first guide page (surface-budget.mjs flagged it at
+        1 comparison / 0 guide). Three worked examples pinned against
+        calc.mjs's compareCatchUpPaths on a $200,000 remaining
+        unamortized balance: equal 21% rates both years (a modest
+        $1,188.68 present-value edge to the 1-year path from time value
+        of money alone), a weak 2025 ($20,000 income before the
+        deduction) where the 1-year path can only use $20,000 of its
+        $200,000 claim and the other $180,000 becomes an unmodeled NOL
+        question instead of a cash saving -- the 2-year path wins by
+        $19,811.32 in present value, nearly five times the 1-year path's
+        total -- and an expected 2026 rate increase (21% to 30%) that
+        flips the same equal-income scenario from +$1,188.68 for the
+        1-year path to +$7,301.89 for the 2-year path. Linked from
+        index.html's footer and added to sitemap.xml.
+      - >-
+        Verified: venture's own suite 56/56 (5 new page.test.mjs tests:
+        guide linked from/to index, all three scenarios' figures match
+        calc.mjs to the cent, FAQPage JSON-LD matches visible FAQ text
+        verbatim); full platform/marketing + platform/pages suite
+        1290/1290 clean after regen.mjs --verify confirmed the mirror
+        current; sync_tree_counts.py, checklist_coverage.py, and
+        surface-budget.mjs --check all clean; faq-visible.test.mjs and
+        siblings.test.mjs spot-checked clean. No new venture-scores.yaml
+        row needed (existing venture, no new VENTURE.yaml).
+      - >-
+        Landed as PR #5862 after two rounds of git merge origin/main
+        while the fleet kept shipping (one round collided on this same
+        venture's mirror shard from a concurrent patreon-fee-calculator
+        graduation elsewhere in the tree; a second round collided with
+        #5860, a concurrent sideways-scroll CSS fix to THIS SAME
+        venture's index.html -- git's own three-way merge resolved that
+        text conflict cleanly with no manual intervention needed, since
+        the CSS fix and this guide's footer-link addition touched
+        different parts of the file). Both rounds' mirror-only conflicts
+        (kustomization.yaml, the venture's own front-door-tools shard,
+        and the two front-door/ non-tools binaries) resolved per
+        resolve-mirror-merge.sh + manual --ours/regen.mjs, exactly as
+        CLAUDE.md's Duplicate-PRs section documents. CI note: the PR's
+        own checks again came back red in ~3-5s; ci_starvation.py --run
+        36091236178 confirmed 4/6 jobs on runner_id: 0, consistent with
+        every other PR this session -- merged on the strength of the
+        local verification above rather than CI.
+    mrr_end: 0
+  - venture: mrr-waterfall-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a browser-local calculator breaking starting MRR
+        into new, expansion, reactivation, contraction, and churned MRR,
+        then reporting ending MRR, gross revenue retention (capped at
+        100%, never counting growth), net revenue retention (uncapped),
+        and the growth-to-loss quick ratio. Screened via
+        duplicate_check.py (top match 0.11, subscription-price-impact --
+        same audience, a different question: reconciling actual
+        movements vs. testing a hypothetical price change). Ships the
+        standard set (LICENSE, disclaimer, privacy line, opt-out/DNT/GPC
+        usage counter, a generic-method comparison page against tracking
+        MRR in a spreadsheet, robots.txt/sitemap.xml, a dedicated CI
+        workflow, and a venture-scores.yaml entry with named
+        liability/ethics gates). Reciprocally sibling-linked with
+        subscription-price-impact.
+      - >-
+        Also pulled claude-code-hooks-security-check and
+        pypi-provenance-check out of the front-door "more" catch-all
+        category into "CI checks & developer gates" in build.mjs -- both
+        already matched every sibling checker's shape and were simply
+        never added to that category's regex. This venture's graduation
+        pushed the catch-all to 6 and build.test.mjs's bound of 5 fired;
+        enumerating the catch-all found the fix, the same method this
+        file's own comments already record for this exact guard.
+        patreon-fee-calculator hit the same bound independently in the
+        same window and both branches made the identical fix, reconciled
+        on merge.
+      - >-
+        Landed as PR #5857 after three rounds of git merge origin/main
+        while the fleet kept shipping. Round 1 collided with
+        patreon-fee-calculator (#5856) on the mirror plus five
+        hand-authored files this venture also touched (build.mjs's
+        catch-all fix, clauses.mjs's exemption set, venture-scores.yaml,
+        optout-persistence.test.mjs's SWITCHES_IN_THE_CATALOGUE, and
+        test_manifests.py's mirrored-tool total) -- both branches had
+        independently bumped the same running counts for their own new
+        venture, so the merged totals (351 switches, 372 mirrored tools)
+        were re-derived via sync_tree_counts.py rather than picked from
+        either side. Rounds 2 and 3 were mirror-only (a phone-scroll CSS
+        fix and a guide page on section-174a-catchup-calculator),
+        resolved via resolve-mirror-merge.sh. CI note: every check on
+        this PR came back red in 2-5s; ci_starvation.py confirmed
+        runner_id: 0 on the jobs sampled, consistent with every other PR
+        this session -- merged on the strength of local verification
+        (venture suite 31/31; full platform/marketing + platform/pages
+        1290/1290; platform/privacy + platform/webcheck 142/142;
+        gitops/tests 637 passed/1 environmental skip; all 27 platform/ci
+        unittest modules; agent_review's test_review;
+        portfolio/ledger+scoring+router+usage+pipeline+infra/tests 446
+        passed; checklist_coverage.py, sync_tree_counts.py, regen.mjs
+        --verify, siblings.mjs --check, surface-budget.mjs --check,
+        score_ventures.py --check, router/validate.py,
+        validate_workflows.py, and publish_surface.py --check all
+        clean).
+      - >-
+        Republished the gh-pages snapshot after merge
+        (CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-
+        branch.sh) and confirmed pages_state.py --require-current passes
+        and github-pages-branch-route recorded up. Attempted the by-hand
+        IndexNow announcement (node platform/marketing/indexnow.mjs
+        --submit --ref gh-pages); this sandbox's egress proxy still 403s
+        api.indexnow.org, so the submission did not reach IndexNow --
+        unresolved from this environment, per CLAUDE.md's standing note.
     mrr_end: 0

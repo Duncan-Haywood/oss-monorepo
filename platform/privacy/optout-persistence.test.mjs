@@ -819,27 +819,31 @@ const RELATIVE_SELF = relative(
 // name). Exactly one added `usage.mjs`, no deletions. Re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by hand.
 //
-// 349 -> 350: `bonus-depreciation-calculator` also graduated -- adding one
-// more `usage.mjs` (`ventures/bonus-depreciation-calculator/usage.mjs`)
+// 349 -> 350: `mrr-waterfall-calculator` graduated -- adding one more
+// `usage.mjs` (`ventures/mrr-waterfall-calculator/usage.mjs`) following the
+// same opt-out toggle shape as `subscription-price-impact`'s
+// (`recordUsage`/`readOptOut`/`writeOptOut` gating localStorage writes,
+// keyed under its own `mrr-waterfall-calculator-usage-v1` storage name).
+//
+// 350 -> 351 on that merge: `patreon-fee-calculator` also graduated,
+// concurrently and invisibly to the `mrr-waterfall-calculator` branch
+// above -- adding one more `usage.mjs`
+// (`ventures/patreon-fee-calculator/usage.mjs`) following the same
+// opt-out toggle shape as its `twitch-payout-calculator` sibling
+// (`recordEvent`/`toggleUsage`/`usageAllowed` gating localStorage writes,
+// keyed under its own `patreon-fee-calculator-usage` storage name). Both
+// additions are real, taking 349 to 351.
+//
+// 351 -> 352 on this merge: `bonus-depreciation-calculator` also
+// graduated, concurrently and invisibly to both branches above -- adding
+// one more `usage.mjs` (`ventures/bonus-depreciation-calculator/usage.mjs`)
 // following the same opt-out toggle shape as its
 // `section-174a-catchup-calculator` sibling
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `bonus-depreciation-calculator-usage` storage name).
-// Exactly one added `usage.mjs`, no deletions.
-//
-// 350 -> 351 on this merge: two branches graduated a new venture with its
-// own `usage.mjs` concurrently against the same base (349) -- this is the
-// collision CLAUDE.md's "two numbers cannot be got right on a branch"
-// section describes, arrived at here rather than at the mirrored-tool
-// count. `patreon-fee-calculator` also graduated -- adding one more
-// `usage.mjs` (`ventures/patreon-fee-calculator/usage.mjs`) following the
-// same opt-out toggle shape as its `twitch-payout-calculator` sibling
-// (`recordEvent`/`toggleUsage`/`usageAllowed` gating localStorage writes,
-// keyed under its own `patreon-fee-calculator-usage` storage name). Two
-// added `usage.mjs` files across the two merged branches, no deletions.
-// Re-derived here by `sync_tree_counts.py` against the fully merged tree
-// rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 351;
+// Exactly one added `usage.mjs`, no deletions. Re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 352;
 
 let counter = 0;
 function fixture(source) {

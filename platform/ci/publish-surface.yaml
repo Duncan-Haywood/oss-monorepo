@@ -752,6 +752,9 @@ workflows:
 - workflow: moving-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: mrr-waterfall-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: music-lesson-break-even-ci.yml
   classification: none
   publishes: []

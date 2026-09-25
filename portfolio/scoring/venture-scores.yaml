@@ -17990,6 +17990,53 @@ ventures:
       evading a tax obligation, no personal or scraped data, no referral fee
       or affiliate link to any accounting software or advisor named in the
       research above.
+  - slug: mrr-waterfall-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic waterfall arithmetic and two retention-percentage
+      formulas. Adding inference would guess at MRR movements the operator
+      already has in their own billing export -- same reasoning as the
+      sibling subscription-price-impact.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final description
+      scored every venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate at or below 0.11 -- the closest match was
+      subscription-price-impact itself (0.11, same SaaS-operator audience,
+      a different question: last period's actual MRR movements rather than
+      a hypothetical price change). saas-seat-true-up (0.07) is the other
+      near neighbor, addressing seat utilization rather than revenue
+      retention. Distribution 6: gross vs. net revenue retention is a
+      recurring, dated question in indie-SaaS and micro-SaaS communities
+      (r/SaaS, r/microsaas, Indie Hackers) whenever a founder prepares a
+      board or investor update, though no single dominant thread or hub was
+      confirmed in this pass. Defensibility 3: the arithmetic is public and
+      trivial to reproduce in a spreadsheet once the gross/net exclusion
+      rule is known -- the tool's edge is enforcing that rule by
+      construction, not the formulas themselves, same class as
+      subscription-price-impact and the freelance-platform-fee-calculator's
+      spreadsheet comparison.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input is a revenue figure the operator already has
+      from their own billing system; output is a reconciliation of those
+      figures against two named, standard SaaS metrics definitions, never a
+      forecast or a determination made on the operator's behalf -- the page
+      states explicitly that the math is a reconciliation aid, not a
+      forecast. Ethics: purely computational, no scraped or personal data,
+      nothing adversarial, scales with zero externality -- one operator's
+      calculation does not affect another's.
   - slug: patreon-fee-calculator
     scores:
       ai_leverage: 1

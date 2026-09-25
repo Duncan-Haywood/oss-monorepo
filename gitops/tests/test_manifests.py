@@ -2585,29 +2585,29 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
     #
-    # 370 -> 371: `bonus-depreciation-calculator` also graduated -- a
+    # 371 -> 372 on that merge: `patreon-fee-calculator` also graduated,
+    # concurrently and invisibly to the `mrr-waterfall-calculator` branch
+    # above -- a browser-local calculator finding a Patreon creator's real
+    # monthly payout from three pledge tiers after the plan's platform fee
+    # (10% Standard, or legacy 5%/8%/12% Lite/Pro/Premium) and per-charge
+    # payment processing, with a docs/comparison page showing when
+    # per-creation billing costs more in fees than monthly billing for
+    # the same total pledge. Static `index.html` plus one docs/comparison
+    # page from its first commit, same shape as the rest of this running
+    # count. Both additions are real, taking 370 to 372.
+    #
+    # 372 -> 373 on this merge: `bonus-depreciation-calculator` also
+    # graduated, concurrently and invisibly to both branches above -- a
     # browser-local calculator comparing 100% bonus depreciation, a
     # Section 179 election (with the 2025/2026 dollar limit and
     # phase-out), and plain MACRS for a new equipment purchase, flagging
     # whether an over-large deduction creates an NOL or a Section 179
     # carryforward, plus a vs-doing-the-math-by-hand.html comparison page.
     # Static `index.html` plus one docs/comparison page from its first
-    # commit, same shape as the rest of this running count.
-    #
-    # 371 -> 372 on this merge: two branches graduated a new venture with
-    # its own mirrored `index.html` concurrently against the same base
-    # (370) -- the same collision the mirrored-tool count hits elsewhere
-    # in this tree, arrived at here. `patreon-fee-calculator` also
-    # graduated -- a browser-local calculator finding a Patreon creator's
-    # real monthly payout from three pledge tiers after the plan's
-    # platform fee (10% Standard, or legacy 5%/8%/12% Lite/Pro/Premium)
-    # and per-charge payment processing, with a docs/comparison page
-    # showing when per-creation billing costs more in fees than monthly
-    # billing for the same total pledge. Static `index.html` plus one
-    # docs/comparison page from its first commit, same shape as the rest
-    # of this running count. Total re-derived here by `sync_tree_counts.py`
-    # against the fully merged tree rather than by hand.
-    total = 372  # `infra/OWNER_CHECKLIST.md`'s own "N of the 372 tools" wording.
+    # commit, same shape as the rest of this running count. Total
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    total = 373  # `infra/OWNER_CHECKLIST.md`'s own "N of the 373 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

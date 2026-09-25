@@ -2249,6 +2249,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pypi-attestations verify CLI, which is a first-party tool comparison,
   // not a competing product, and predates this generic-method page).
   'pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html',
+  // Compares against tracking MRR movements in a spreadsheet -- a habit
+  // any SaaS operator without a subscription-analytics platform already
+  // has, not a company or product this could be mistaken for.
+  'mrr-waterfall-calculator/vs-tracking-mrr-in-a-spreadsheet.html',
   // Compares against "a flat $125-a-foot" sewer-replacement price -- a
   // generic pricing method every plumbing/sewer-repair shop already has
   // access to, not a company or product this could be mistaken for. The
