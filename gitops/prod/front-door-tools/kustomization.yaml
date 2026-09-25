@@ -40,10 +40,10 @@
 #   portfolio-front-tools-4: 141 files, 554424 bytes
 #   portfolio-front-tools-5: 124 files, 542030 bytes
 #   portfolio-front-tools-6: 127 files, 552211 bytes
-#   portfolio-front-tools-7: 137 files, 554203 bytes
-#   portfolio-front-tools-8: 121 files, 553404 bytes
-#   portfolio-front-tools-9: 135 files, 556242 bytes
-#   portfolio-front-tools-10: 130 files, 546256 bytes
+#   portfolio-front-tools-7: 137 files, 553825 bytes
+#   portfolio-front-tools-8: 121 files, 553233 bytes
+#   portfolio-front-tools-9: 134 files, 554591 bytes
+#   portfolio-front-tools-10: 132 files, 552832 bytes
 #   portfolio-front-tools-11: 123 files, 553457 bytes
 #   portfolio-front-tools-12: 115 files, 541429 bytes
 #   portfolio-front-tools-13: 121 files, 556420 bytes
@@ -1109,6 +1109,7 @@ configMapGenerator:
       - consent-change-record__tool__trackers.mjs.gz=consent-change-record__tool__trackers.mjs.gz
       - consent-change-record__tool__usage.mjs.gz=consent-change-record__tool__usage.mjs.gz
       - consent-change-record__usage.mjs.gz=consent-change-record__usage.mjs.gz
+      - consent-change-record__vs-comparing-the-traces-by-eye.html.gz=consent-change-record__vs-comparing-the-traces-by-eye.html.gz
       - consent-change-record__vs-cookiebot.html.gz=consent-change-record__vs-cookiebot.html.gz
       - consent-change-record__what-did-my-cookie-banner-actually-change.html.gz=consent-change-record__what-did-my-cookie-banner-actually-change.html.gz
       - cookie-security-check__analyze.mjs.gz=cookie-security-check__analyze.mjs.gz
@@ -1151,12 +1152,12 @@ configMapGenerator:
       - cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz=cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz
       - cra-evidence-desk__usage.mjs.gz=cra-evidence-desk__usage.mjs.gz
       - cra-evidence-desk__vs-dependency-track.html.gz=cra-evidence-desk__vs-dependency-track.html.gz
-      - cra-evidence-desk__vs-matching-by-hand.html.gz=cra-evidence-desk__vs-matching-by-hand.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cra-evidence-desk__vs-matching-by-hand.html.gz=cra-evidence-desk__vs-matching-by-hand.html.gz
       - craft-fair-booth-calculator__calc.mjs.gz=craft-fair-booth-calculator__calc.mjs.gz
       - craft-fair-booth-calculator__how-much-do-you-need-to-sell-at-a-craft-fair.html.gz=craft-fair-booth-calculator__how-much-do-you-need-to-sell-at-a-craft-fair.html.gz
       - craft-fair-booth-calculator__index.html.gz=craft-fair-booth-calculator__index.html.gz
@@ -1277,12 +1278,12 @@ configMapGenerator:
       - docker-build-secrets-check__how-to-pass-a-docker-build-secret-without-baking-it-into-the-image.html.gz=docker-build-secrets-check__how-to-pass-a-docker-build-secret-without-baking-it-into-the-image.html.gz
       - docker-build-secrets-check__index.html.gz=docker-build-secrets-check__index.html.gz
       - docker-build-secrets-check__usage.mjs.gz=docker-build-secrets-check__usage.mjs.gz
-      - docker-build-secrets-check__vs-gitleaks.html.gz=docker-build-secrets-check__vs-gitleaks.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - docker-build-secrets-check__vs-gitleaks.html.gz=docker-build-secrets-check__vs-gitleaks.html.gz
       - docker-build-secrets-check__vs-reading-a-dockerfile-by-hand.html.gz=docker-build-secrets-check__vs-reading-a-dockerfile-by-hand.html.gz
       - docker-cache-order-check__cli.mjs.gz=docker-cache-order-check__cli.mjs.gz
       - docker-cache-order-check__engine.mjs.gz=docker-cache-order-check__engine.mjs.gz
@@ -1416,13 +1417,13 @@ configMapGenerator:
       - entry-door-bid-calculator__share.mjs.gz=entry-door-bid-calculator__share.mjs.gz
       - entry-door-bid-calculator__usage.mjs.gz=entry-door-bid-calculator__usage.mjs.gz
       - entry-door-bid-calculator__vs-a-flat-1200-special.html.gz=entry-door-bid-calculator__vs-a-flat-1200-special.html.gz
-      - entry-door-bid-calculator__vs-jobber.html.gz=entry-door-bid-calculator__vs-jobber.html.gz
-      - env-example-drift-check__cli.mjs.gz=env-example-drift-check__cli.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - entry-door-bid-calculator__vs-jobber.html.gz=entry-door-bid-calculator__vs-jobber.html.gz
+      - env-example-drift-check__cli.mjs.gz=env-example-drift-check__cli.mjs.gz
       - env-example-drift-check__engine.mjs.gz=env-example-drift-check__engine.mjs.gz
       - env-example-drift-check__index.html.gz=env-example-drift-check__index.html.gz
       - env-example-drift-check__usage.mjs.gz=env-example-drift-check__usage.mjs.gz
