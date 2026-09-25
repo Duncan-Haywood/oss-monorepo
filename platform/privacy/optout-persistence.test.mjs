@@ -944,7 +944,7 @@ const RELATIVE_SELF = relative(
 // `<slug>-usage` storage name). Exactly two added `usage.mjs`, no
 // deletions. Count re-derived here by `sync_tree_counts.py` against the
 // fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 364;
+const SWITCHES_IN_THE_CATALOGUE = 363;
 
 let counter = 0;
 function fixture(source) {
