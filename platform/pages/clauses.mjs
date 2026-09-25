@@ -2127,6 +2127,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names GrantHub/Foundant specifically and carries the trademark
   // disclaimer.
   'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
+  // Compares against "a flat rate per square foot" -- the "$8 a square
+  // foot" quoting habit every masonry contractor is shopped against, not
+  // a company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-quoteiq.html, which does name a product and carries its own
+  // "not affiliated" clause. Same shape as asphalt-sealcoat-bid-calculator's
+  // vs-a-flat-per-square-foot-price.html.
+  'tuckpointing-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
