@@ -1571,6 +1571,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-a-flat-per-vehicle-price.html, pet-grooming-bid-calculator's
   // vs-a-flat-per-breed-price.html).
   'window-tinting-bid-calculator/vs-a-flat-per-vehicle-size-price.html',
+  // Compares against "quoting from the vehicle's bare surface area" -- the
+  // coverage-chart pricing habit every wrap shop is shopped against, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-shopvox.html, which does name a product and carries
+  // its own "not affiliated" clause.
+  'vehicle-wrap-bid-calculator/vs-quoting-from-bare-vehicle-surface-area.html',
   // Compares against a flat "$8 a stall" / "$400 for a 50-space lot"
   // striping special -- a generic advertised pricing habit the trade is
   // shopped against, not a company or product this could be mistaken for.
