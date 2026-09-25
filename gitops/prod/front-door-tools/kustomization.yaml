@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 132 files, 552355 bytes
 #   portfolio-front-tools-8: 126 files, 555601 bytes
 #   portfolio-front-tools-9: 134 files, 554868 bytes
-#   portfolio-front-tools-10: 126 files, 549341 bytes
+#   portfolio-front-tools-10: 127 files, 552542 bytes
 #   portfolio-front-tools-11: 120 files, 556582 bytes
 #   portfolio-front-tools-12: 120 files, 556292 bytes
 #   portfolio-front-tools-13: 122 files, 542329 bytes
@@ -1471,6 +1471,7 @@ configMapGenerator:
       - facebook-marketplace-fee-calculator__how-much-does-facebook-marketplace-take.html.gz=facebook-marketplace-fee-calculator__how-much-does-facebook-marketplace-take.html.gz
       - facebook-marketplace-fee-calculator__index.html.gz=facebook-marketplace-fee-calculator__index.html.gz
       - facebook-marketplace-fee-calculator__usage.mjs.gz=facebook-marketplace-fee-calculator__usage.mjs.gz
+      - facebook-marketplace-fee-calculator__vs-doing-the-fee-math-by-hand.html.gz=facebook-marketplace-fee-calculator__vs-doing-the-fee-math-by-hand.html.gz
       - facebook-marketplace-fee-calculator__vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html.gz=facebook-marketplace-fee-calculator__vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html.gz
       - fire-extinguisher-inspection-route-margin__calc.mjs.gz=fire-extinguisher-inspection-route-margin__calc.mjs.gz
       - fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz=fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz
