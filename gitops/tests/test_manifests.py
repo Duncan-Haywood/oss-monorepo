@@ -2713,23 +2713,34 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
     #
-    # also graduated, concurrently and invisibly to the entries above:
-    # `freelance-writer-rate-calculator` -- a browser-local calculator
-    # comparing a freelance writer's per-word rate against a flat
-    # per-project fee for the same job by effective hourly rate, counting
-    # research and revision hours (which a per-word rate does not
-    # separately compensate) alongside writing time -- `boi-reporting-
-    # exemption-checker` -- a browser-local calculator applying FinCEN's
-    # 2026 permanent exemption of domestic reporting companies from the
-    # Corporate Transparency Act's beneficial-ownership filing requirement
-    # -- and `final-paycheck-deadline-calculator` -- a browser-local
-    # calculator applying each state's final-paycheck deadline law to a
-    # termination or resignation date. All three static `index.html` from
-    # their first commit. Total re-derived here by `sync_tree_counts.py`
-    # against the fully merged tree rather than by hand -- the exact
-    # per-step numbering above is best-effort narrative, not arithmetic
-    # this assertion depends on.
-    total = 385  # `infra/OWNER_CHECKLIST.md`'s own "N of the 385 tools" wording.
+    # `hsa-contribution-limit-calculator` also graduated on this branch's
+    # own prior commit -- a browser-local calculator computing the 2026
+    # HSA contribution limit for self-only or family HDHP coverage,
+    # prorated by months of eligibility or the full amount under the
+    # last-month rule, plus the fixed $1,000 age-55 catch-up and an
+    # HDHP-qualification check. Static `index.html` only, no comparison
+    # page, from its first commit. Already folded into the 384 above
+    # before this merge started -- not a separate step here.
+    #
+    # 384 -> 385: `final-paycheck-deadline-calculator` also graduated,
+    # concurrently on `origin/main` -- a browser-local calculator applying
+    # each state's final-paycheck deadline law to a termination or
+    # resignation date. Static `index.html` from its first commit.
+    #
+    # 385 -> 386: `freelance-writer-rate-calculator` also graduated,
+    # concurrently and invisibly to the entry above -- a browser-local
+    # calculator comparing a freelance writer's per-word rate against a
+    # flat per-project fee for the same job by effective hourly rate,
+    # counting research and revision hours (which a per-word rate does
+    # not separately compensate) alongside writing time. Static
+    # `index.html` from its first commit. `boi-reporting-exemption-
+    # checker`, named in one branch's own count of this same collision, is
+    # NOT a further addition here -- it graduated earlier (#5938) and is
+    # already part of both branches' shared history; a branch forked
+    # before that merge landed still saw it as "new" from its own
+    # perspective. Total re-derived here by `sync_tree_counts.py` against
+    # the fully merged tree rather than by hand.
+    total = 386  # `infra/OWNER_CHECKLIST.md`'s own "N of the 386 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
