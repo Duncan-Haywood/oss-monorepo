@@ -2151,6 +2151,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html, which is
   // its own separate comparison page.
   'facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html',
+  // Compares against "a flat rate per square foot" -- the "$8 a square
+  // foot" quoting habit every masonry contractor is shopped against, not
+  // a company or product this could be mistaken for. The page names no
+  // vendor or competing calculator at all -- distinct from this venture's
+  // own vs-quoteiq.html, which does name a product and carries its own
+  // "not affiliated" clause. Same shape as asphalt-sealcoat-bid-calculator's
+  // vs-a-flat-per-square-foot-price.html.
+  'tuckpointing-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
