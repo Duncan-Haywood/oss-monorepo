@@ -2678,24 +2678,35 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # higher figure). Static `index.html` only, no comparison page, from
     # its first commit.
     #
-    # 380 -> 381: `final-paycheck-deadline-calculator` also graduated -- a
-    # browser-local calculator computing the legal deadline for a
-    # departing employee's final paycheck by US state and separation type
-    # (fired/laid off vs. quit), including California's notice-based rule
-    # and Minnesota's demand-triggered 24-hour rule, plus whether the
-    # state requires accrued unused vacation/PTO to be paid out as wages.
-    # Static `index.html` only, no comparison page, from its first commit.
-    #
-    # 381 -> 382: `boi-reporting-exemption-checker` also graduated,
+    # 381 -> 382: `final-paycheck-deadline-calculator` also graduated,
     # concurrently and invisibly to the entry above -- a browser-local
-    # checker for whether an entity still owes a federal Corporate
-    # Transparency Act beneficial ownership report after FinCEN's August
-    # 2026 final rule permanently exempted every U.S.-formed entity,
-    # applying only to foreign-formed entities registered to do business
-    # in the U.S. Static `index.html` only, no comparison page, from its
-    # first commit.
+    # calculator computing the legal deadline for a departing employee's
+    # final paycheck by US state and separation type (fired/laid off vs.
+    # quit), including California's notice-based rule and Minnesota's
+    # demand-triggered 24-hour rule, plus whether the state requires
+    # accrued unused vacation/PTO to be paid out as wages. Static
+    # `index.html` only, no comparison page, from its first commit. Its
+    # own merge into `main` left its mirror files written but its
+    # `gitops/prod/front-door-tools/kustomization.yaml` mount ABSENT --
+    # neither `regen.mjs --verify` nor a partial `regen.mjs` run inside a
+    # conflicted merge caught it, because `git checkout --ours` had
+    # already replaced the just-regenerated `front-door-tools/` directory
+    # with this branch's own stale pre-merge copy immediately afterward;
+    # `_mirrored_venture_slugs()` (this file) is what actually caught the
+    # gap, one commit short of shipping a venture nobody could reach.
+    # Fixed by re-running `front-door-tools.mjs --write` and
+    # `front-door.mjs --write` directly, after the `--ours` checkout, so
+    # the freshly-regenerated files are what actually get committed.
     #
-    # 382 -> 383: `child-tax-credit-calculator` also graduated,
+    # 382 -> 383: `boi-reporting-exemption-checker` also graduated,
+    # concurrently -- a browser-local checker for whether an entity still
+    # owes a federal Corporate Transparency Act beneficial ownership
+    # report after FinCEN's August 2026 final rule permanently exempted
+    # every U.S.-formed entity, applying only to foreign-formed entities
+    # registered to do business in the U.S. Static `index.html` only, no
+    # comparison page, from its first commit.
+    #
+    # 383 -> 384: `child-tax-credit-calculator` also graduated,
     # concurrently and invisibly to the two entries above -- a
     # browser-local calculator applying the permanent $2,200-per-child
     # Child Tax Credit, the $500 Credit for Other Dependents, their
@@ -2704,43 +2715,37 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # page. Static `index.html` plus one docs/comparison page from its
     # first commit, same shape as the rest of this running count.
     #
-    # 383 -> 384: `gambling-loss-deduction-calculator` also graduated,
-    # concurrently and invisibly to the three entries above -- a
-    # browser-local calculator applying OBBBA's new 90%-of-winnings cap on
-    # gambling loss deductions, the resulting phantom-income consequence,
-    # and the professional-gambler business-expense fold-in, plus a
+    # 384 -> 385: `eitc-calculator` also graduated -- a browser-local
+    # calculator for the federal Earned Income Tax Credit, applying the
+    # phase-in/plateau/phase-out formula by qualifying-child count and
+    # filing status, the investment income limit, and IRS Publication
+    # 596's own dual earned-income/AGI lookup, plus a
     # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
     #
-    # `hsa-contribution-limit-calculator` also graduated on this branch's
-    # own prior commit -- a browser-local calculator computing the 2026
-    # HSA contribution limit for self-only or family HDHP coverage,
-    # prorated by months of eligibility or the full amount under the
-    # last-month rule, plus the fixed $1,000 age-55 catch-up and an
-    # HDHP-qualification check. Static `index.html` only, no comparison
-    # page, from its first commit. Already folded into the 384 above
-    # before this merge started -- not a separate step here.
-    #
-    # 384 -> 385: `final-paycheck-deadline-calculator` also graduated,
-    # concurrently on `origin/main` -- a browser-local calculator applying
-    # each state's final-paycheck deadline law to a termination or
-    # resignation date. Static `index.html` from its first commit.
-    #
     # 385 -> 386: `freelance-writer-rate-calculator` also graduated,
-    # concurrently and invisibly to the entry above -- a browser-local
-    # calculator comparing a freelance writer's per-word rate against a
-    # flat per-project fee for the same job by effective hourly rate,
-    # counting research and revision hours (which a per-word rate does
-    # not separately compensate) alongside writing time. Static
-    # `index.html` from its first commit. `boi-reporting-exemption-
-    # checker`, named in one branch's own count of this same collision, is
-    # NOT a further addition here -- it graduated earlier (#5938) and is
-    # already part of both branches' shared history; a branch forked
-    # before that merge landed still saw it as "new" from its own
-    # perspective. Total re-derived here by `sync_tree_counts.py` against
-    # the fully merged tree rather than by hand.
-    total = 386  # `infra/OWNER_CHECKLIST.md`'s own "N of the 386 tools" wording.
+    # concurrently -- a browser-local calculator comparing a freelance
+    # writer's per-word rate against a flat per-project fee for the same
+    # job by effective hourly rate, counting research and revision hours
+    # (which a per-word rate does not separately compensate) alongside
+    # writing time. Static `index.html` from its first commit. `boi-
+    # reporting-exemption-checker` and `final-paycheck-deadline-
+    # calculator` are NOT re-added here -- both are already counted above,
+    # at 382 -> 383 and 381 -> 382 respectively; a sibling merge of this
+    # same conflict independently re-narrated them as new, which this
+    # resolution does not repeat.
+    #
+    # 386 -> 387: `hsa-contribution-limit-calculator` also graduated,
+    # concurrently on `origin/main` -- a browser-local calculator computing
+    # the 2026 HSA contribution limit for self-only or family HDHP
+    # coverage, prorated by months of eligibility or the full amount under
+    # the last-month rule, plus the fixed $1,000 age-55 catch-up and an
+    # HDHP-qualification check. Static `index.html` only, no comparison
+    # page, from its first commit. Total re-derived here by
+    # `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 387  # `infra/OWNER_CHECKLIST.md`'s own "N of the 387 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1443,6 +1443,19 @@ const CATEGORY_RULES = [
       // federal OBBBA provisions -- one a recurring annual tax credit, the
       // other a one-time child-savings-account seed deposit.
       //
+      // `eitc-calculator` joined 2026-09-25, also filed here on its first
+      // commit. Unlike every other rule in this section, the Earned Income
+      // Tax Credit is NOT an OBBBA provision -- it is a decades-old,
+      // mass-claimed credit -- but shares the same "downstream federal tax
+      // figure applied to numbers the filer already has" computational
+      // shape as the rest of this section, applying the EITC's
+      // phase-in/plateau/phase-out formula and the earned-income-vs-AGI
+      // dual lookup, never a filed Schedule EIC made on the visitor's
+      // behalf. It cross-links `child-tax-credit-calculator` as its
+      // nearest sibling: both are federal per-household tax credits often
+      // claimed on the same return, one built on earned income, the other
+      // on a per-child amount.
+      //
       // `hsa-contribution-limit-calculator` joined 2026-09-25, filed here
       // on its first commit rather than after a spell in the catch-all --
       // what `build.test.mjs`'s catch-all bound is for. Same "IRS
@@ -1456,7 +1469,7 @@ const CATEGORY_RULES = [
       // nearest sibling: both are annually-indexed IRS contribution-limit
       // lookups with an eligibility wrinkle the headline number alone
       // does not capture.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|hsa-contribution-limit-calculator)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator)/.test(slug),
   },
   {
     id: 'ci',
