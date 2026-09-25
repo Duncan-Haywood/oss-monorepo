@@ -2217,6 +2217,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // "not affiliated" clause. Same shape as asphalt-sealcoat-bid-calculator's
   // vs-a-flat-per-square-foot-price.html.
   'tuckpointing-bid-calculator/vs-a-flat-rate-per-square-foot.html',
+  // Compares against "a flat price per square foot" -- the per-attic-square-
+  // foot quoting habit every spray-foam contractor is shopped against, not a
+  // company or product this could be mistaken for. The page names no vendor
+  // or competing calculator at all -- distinct from this venture's own
+  // vs-jobber.html, which does name a product and carries its own "not
+  // affiliated" clause. Same shape as tuckpointing-bid-calculator's
+  // vs-a-flat-rate-per-square-foot.html above.
+  'spray-foam-bid-calculator/vs-a-flat-price-per-square-foot.html',
   // Compares against "reading the hooks config by eye" -- a manual review
   // habit anyone trusting a Claude Code hooks configuration already has,
   // not a company or product this could be mistaken for. Same reasoning as

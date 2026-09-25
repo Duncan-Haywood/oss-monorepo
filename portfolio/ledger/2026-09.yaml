@@ -44084,3 +44084,44 @@ entries:
         GitHub Pages snapshot after merging. Revenue and confirmed-visitor
         counts remain at zero.
     mrr_end: 0
+  - venture: spray-foam-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the venture's first generic-method comparison page,
+        vs-a-flat-price-per-square-foot.html, following the established
+        pattern from tuckpointing-bid-calculator's
+        vs-a-flat-rate-per-square-foot.html (surface-budget.mjs --check
+        listed this venture among 59 ventures with zero generic-method
+        pages, chosen to avoid colliding with the many sibling PRs
+        landing comparison pages for other ventures this session).
+        Worked-example numbers are computed from the calculator's own
+        JOB_PRESETS and calc.mjs logic, not invented: a 1,200 sf attic at
+        8" open-cell (no rim, no coating) prices at $10,978.82 ($9.15/sf,
+        cost $8,234.11), while a 1,800 sf cathedral (1,609.92 sf
+        pitch-adjusted) at 5.5" closed-cell plus an intumescent ignition
+        barrier prices at $24,397.19 ($15.15/sf, cost $18,297.90); quoting
+        the cathedral at the attic job's flat $9.15/sf rate would price it
+        at $14,729.18 -- $3,568.72 below its own break-even cost.
+        Registered the page in COMPARISON_DISCLAIMER_EXEMPT (names no
+        vendor), linked it from index.html and sitemap.xml, and added a
+        matching test file asserting the worked-example arithmetic,
+        FAQPage JSON-LD/visible-copy parity, disclaimer/licence
+        boilerplate, and that the page is neither orphaned from the tool
+        page nor missing from the sitemap. Ran node --test on the
+        venture's full suite (112/112) both before and after merging two
+        rounds of concurrent main (fast-forward both times, no
+        conflicts), surface-budget.mjs --check (still 0 over budget),
+        checklist_coverage.py, regen.mjs --verify/--verify again after
+        regenerating the front-door mirror, and the full
+        platform/marketing + platform/pages node --test suite
+        (1290/1290). Also ran a by-hand IndexNow re-announcement
+        (POST https://api.indexnow.org/indexnow -> 200, 1644 URLs from
+        the then-current gh-pages snapshot) before starting this work,
+        since publish-pages-branch.yml remained starved
+        (runner_id: 0) across ten consecutive recent runs. No revenue or
+        confirmed-visitor signal moved -- this is marketing-surface work
+        on an existing prototype-stage venture, not a new product or a
+        usage reading.
+    mrr_end: 0
