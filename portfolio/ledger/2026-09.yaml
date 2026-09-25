@@ -44252,3 +44252,44 @@ entries:
         steps), so ran the full local checklist above instead of relying
         on CI.
     mrr_end: 0
+  - venture: kickstarter-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped how-much-does-kickstarter-take.html, the venture's first
+        guide page. Three worked examples pinned against calc.mjs: a $50
+        pledge (5% platform fee + standard-tier 3%+$0.20 processing,
+        $4.20 total fee, 91.6% kept), a $5 micro-pledge (pledges under
+        $10 fall into the 5%+$0.05 micro processing tier instead of
+        3%+$0.20, so a smaller pledge pays a higher effective rate --
+        89% kept), and a campaign-level comparison: $10,000 raised from
+        500 backers pays $900 (9%) while the same $10,000 from 1,000
+        backers pays $1,000 (10%), because the flat per-pledge
+        processing charge is spread across twice as many transactions.
+        Linked from index.html in place of the old in-page FAQ anchor;
+        also linked the venture's existing vs-the-flat-8-10-percent-
+        rule-of-thumb.html comparison page from index for the first
+        time (it had no inbound link before this). Added to sitemap.xml.
+      - >-
+        Verified: venture's own suite 40/40 (three new page.test.mjs
+        tests: guide links back and is linked from index, worked-example
+        figures match calc.mjs to the cent, every FAQPage JSON-LD
+        question/answer is echoed verbatim in visible text); full
+        platform/marketing + platform/pages suite 1290/1290 clean after
+        regen.mjs --verify confirmed the mirror current; sync_tree_counts
+        and checklist_coverage.py both clean; faq-visible.test.mjs and
+        siblings.test.mjs spot-checked clean.
+      - >-
+        Landed as PR #5849 after four rounds of git merge origin/main
+        while the fleet kept shipping sibling guide/comparison pages
+        underneath -- each round's mirror-only conflicts (kustomization
+        .yaml, front-door/catalog.json.gz, front-door/sitemap.xml.gz)
+        resolved with resolve-mirror-merge.sh plus a manual --ours +
+        regen.mjs pass for the two front-door/ non-tools binaries the
+        script doesn't cover, exactly as CLAUDE.md's Duplicate-PRs
+        section documents. CI note: the PR's own checks all came back
+        red in ~3s; ci_starvation.py --run 36088359801 confirmed 4/6
+        jobs on runner_id: 0 (never assigned a runner), so merged on the
+        strength of the local verification above rather than CI.
+    mrr_end: 0
