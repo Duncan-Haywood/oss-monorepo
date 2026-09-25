@@ -45835,3 +45835,48 @@ entries:
         clean. CI starved this session throughout (ci_starvation.py
         confirmed runner_id: 0 on every recent main check).
     mrr_end: 0
+  - venture: subcontractor-cashflow-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page,
+        vs-treating-materials-as-cash-out-on-day-one.html --
+        surface-budget.mjs flagged this venture with 0 generic-method pages
+        (already had a named-product comparison, vs-billd.html, and a
+        guide page on payment-terms sensitivity). The angle, taken
+        directly from calc.mjs's own docstring rationale: a back-of-
+        envelope cash plan books a materials purchase as cash out on day
+        zero, which reads as the conservative assumption but can overstate
+        the funding gap by the entire amount, because most subs actually
+        buy on a supply-house account with net terms. Worked example
+        pinned against planCashflow(): on the calculator's own default
+        scenario (client pays day 44), a net-30 supplier account (due day
+        30, before the client pays) changes nothing -- gap stays $1,900 --
+        while a net-45 account (due day 45, one day after) erases the gap
+        to $0. Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT.
+      - >-
+        Caught and fixed a real defect during verification: the first
+        draft's visible FAQ paragraphs used &mdash; where the FAQPage
+        JSON-LD used literal -- for the same sentences, the same defect
+        class CLAUDE.md already records against several sibling comparison
+        pages. Fixed before committing.
+      - >-
+        Earlier in this session also ran the first whole-catalogue browser/
+        accessibility sweep in a while (1673 pages, 0 WCAG A/AA violations,
+        recorded in #5900), and shipped merchant-feed-check's own generic-
+        method comparison page (#5907), where the first draft's dead link
+        to its own .test.mjs file cascaded through the front-door mirror's
+        collateral-drop logic and silently dropped ~80 unrelated tools --
+        caught by running the generator directly rather than trusting
+        regen.mjs --verify alone, and fixed before it reached main.
+      - >-
+        Verified: venture's own suite 53/53; node
+        platform/marketing/front-door-tools.mjs run directly confirmed
+        377/377 tools mirrored with 0 collateral drops and 0 dead links;
+        full platform/marketing + platform/pages suite 1290/1290; surface-
+        budget.mjs --check, checklist_coverage.py, sync_tree_counts.py,
+        regen.mjs --verify all clean. CI starved this session throughout
+        (ci_starvation.py confirmed runner_id: 0 on every recent main
+        check).
+    mrr_end: 0
