@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. a flat per-pool monthly rate</title>
+<meta name="description" content="A flat '$X a month per pool' rate quotes a tight, dense route and a spread-out one the same. This free, private browser calculator prices what a flat rate hides -- drive time, chemicals, and overhead for this route -- no account, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-a-flat-per-pool-monthly-rate.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a flat per-pool monthly rate">
+<meta property="og:description" content="A tight route and a spread-out route can get quoted the same flat per-pool rate. One clears target margin; the other quietly falls short on every account, every month. This calculator prices each route's own drive time instead.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat per-pool rate get route pricing wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the cost driver is drive time between stops, not \"has a pool.\" A tight 40-account route at 12 minutes of drive per visit costs $6,869.33 a month to run and needs $264.21 per account at a 35% target margin. The same 40 accounts spread across a wider territory at 25 minutes of drive per visit costs $7,840.00 a month and needs $301.54 per account. A flat rate set on the tight route and quoted to both charges the spread-out one $37.33 a month short on every account -- the same rate, two different routes."}},{"@type":"Question","name":"What does a flat per-pool rate usually leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"Drive time between stops, which is paid labor even though no pool is serviced during it. A rate quoted per pool, off a memorized going rate or a competitor's flyer, has no line that moves when the next route is more spread out, when chemicals run higher on a problem pool, or when overhead per account changes. It was set once, on one route's density, and reused regardless of the next one's."}},{"@type":"Question","name":"How big is the pricing gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own defaults for a 40-account route at 4 visits a month, 35 minutes of service and 12 minutes of drive per visit: the route costs $6,869.33 a month and needs $264.21 per account to hit a 35% target margin. Widen the same 40-account route to 25 minutes of drive per visit -- a more spread-out territory, nothing else changed -- and the route costs $7,840.00 a month and needs $301.54 per account. Quote the second route the first route's $264.21 flat rate and it clears only 25.8% margin instead of 35%, short $37.33 per account per month, or $1,493.33 a month and $17,920.00 a year across the 40 accounts -- and it is still above break-even, so nothing about the shortfall shows up as an obviously losing route."}},{"@type":"Question","name":"Is a flat per-pool rate ever the right way to price a route?","acceptedAnswer":{"@type":"Answer","text":"For a narrow band of routes with genuinely similar density -- same visit frequency, similar drive time between stops, similar chemical demand -- a flat rate can land close. The risk is quoting it to the next route without checking whether that route is actually in the same band, because the flat number does not know the difference and neither does the operator until the drive time is added up."}},{"@type":"Question","name":"Does this calculator know what to charge in my market?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on local rates or what competing pool services charge. It takes your accounts, visits, service minutes, drive minutes, labor rate, chemical cost, overhead, and target margin, and turns them into a minimum monthly price for this route -- the arithmetic a flat per-pool rate skips, not a market survey."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#102a43;background:#eaf6f8}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5360;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#52717a}section{background:#fff;border:1px solid #b8dce2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #174e5a12;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #b8dce2;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#52717a}.fine,.note{font-size:.88rem;color:#52717a}footer{color:#52717a;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Pool route pricing calculator</a></p>
+<header>
+<h1>This calculator vs. a flat per-pool monthly rate</h1>
+<p class="lede">&ldquo;$X a month per pool, every account&rdquo; is not a price for a route &mdash; it is a price for one route's drive time and density, quietly applied to the next route regardless of how spread out it is.</p>
+</header>
+<section>
+<h2>What a flat per-pool rate is</h2>
+<p>
+A flat monthly rate per pool is the fastest way to quote: pick a round,
+competitive-sounding number and charge it on every account. It is easy to
+advertise, and it is the figure a homeowner holding a competitor's flyer
+will ask you to match.
+</p>
+<p>
+The number behind it was usually set once, off one route &mdash; a
+particular mix of service minutes and drive time between stops &mdash; and
+then reused for every account after that, whether the next route runs
+tight streets a few minutes apart or spans a wider territory with more
+windshield time between pools.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter your
+accounts, visits per account per month, service minutes and drive minutes
+per visit, loaded labor rate, chemical cost, overhead per account, and
+target margin. It prices the route's true labor &mdash; service time and
+drive time together &mdash; plus chemicals and overhead, and returns a
+minimum monthly price per account for this route, not a flat number
+carried over from a different one.
+</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th scope="col">What a flat per-pool rate does</th><th scope="col">What this calculator does instead</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Charges the same figure whether the route runs 12 minutes of drive between stops or 25, as long as the word "pool" applies.</td>
+<td>Prices route hours from your own service minutes plus drive minutes per visit, so a more spread-out route needs a higher price than a tight one.</td>
+</tr>
+<tr>
+<td>Has no line for chemicals or overhead that vary by account &mdash; every pool is assumed to cost the plan's original account the same to service.</td>
+<td>Adds chemicals per visit and overhead per account as their own lines, so a heavier-demand pool or a higher-overhead account shows up in the price.</td>
+</tr>
+<tr>
+<td>Gives the operator a number to quote, not a number to check an existing route against once it grows or its territory shifts.</td>
+<td>Accepts your current price and reports the actual margin and route profit it produces, so a route can be re-checked as it changes rather than trusted forever.</td>
+</tr>
+<tr>
+<td>Treats margin as a markup on a remembered cost figure, which is a different and usually smaller number than margin as a share of price.</td>
+<td>Divides route cost by one minus the target margin, so the price actually clears the margin you set instead of falling short of it by a common arithmetic mistake.</td>
+</tr>
+<tr>
+<td>Cannot say how much a shortfall is worth in dollars across the whole route.</td>
+<td>Multiplies the per-account gap by your account count, so a rate that is quietly short shows up as a monthly and annual number, not just a feeling.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<h2>Two routes, one flat rate</h2>
+<p>
+Using this calculator's own defaults for a 40-account route on 4 visits a
+month with 35 minutes of service per visit:
+</p>
+<p>
+A <strong>tight route</strong> at <strong>12 minutes of drive</strong> per
+visit runs <strong>125.3 route hours</strong> a month, costs
+<strong>$6,869.33</strong> to service, and this calculator prices it at
+<strong>$264.21</strong> per account at a 35% target margin. Widen the
+same 40 accounts to a <strong>spread-out route</strong> at
+<strong>25 minutes of drive</strong> per visit &mdash; nothing else
+changed &mdash; and route hours rise to <strong>160.0</strong>, cost rises
+to <strong>$7,840.00</strong>, and the price needed to hit the same 35%
+target margin is <strong>$301.54</strong> per account.
+</p>
+<p>
+Quote the spread-out route the tight route's flat <strong>$264.21</strong>
+instead and it clears only <strong>25.8%</strong> margin, not 35% &mdash;
+short <strong>$37.33</strong> per account per month, or
+<strong>$1,493.33</strong> a month and <strong>$17,920.00</strong> a year
+across the 40 accounts. The route is still above break-even, which is what
+makes the shortfall easy to miss: nothing about it looks like a losing
+route, it is simply a route earning ten points less margin than the
+operator believes it is.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does a flat per-pool rate get route pricing wrong?</h3>
+<p>Because the cost driver is drive time between stops, not "has a pool." A tight 40-account route at 12 minutes of drive per visit costs $6,869.33 a month to run and needs $264.21 per account at a 35% target margin. The same 40 accounts spread across a wider territory at 25 minutes of drive per visit costs $7,840.00 a month and needs $301.54 per account. A flat rate set on the tight route and quoted to both charges the spread-out one $37.33 a month short on every account -- the same rate, two different routes.</p>
+<h3>What does a flat per-pool rate usually leave out entirely?</h3>
+<p>Drive time between stops, which is paid labor even though no pool is serviced during it. A rate quoted per pool, off a memorized going rate or a competitor's flyer, has no line that moves when the next route is more spread out, when chemicals run higher on a problem pool, or when overhead per account changes. It was set once, on one route's density, and reused regardless of the next one's.</p>
+<h3>How big is the pricing gap in practice?</h3>
+<p>Using this calculator's own defaults for a 40-account route at 4 visits a month, 35 minutes of service and 12 minutes of drive per visit: the route costs $6,869.33 a month and needs $264.21 per account to hit a 35% target margin. Widen the same 40-account route to 25 minutes of drive per visit -- a more spread-out territory, nothing else changed -- and the route costs $7,840.00 a month and needs $301.54 per account. Quote the second route the first route's $264.21 flat rate and it clears only 25.8% margin instead of 35%, short $37.33 per account per month, or $1,493.33 a month and $17,920.00 a year across the 40 accounts -- and it is still above break-even, so nothing about the shortfall shows up as an obviously losing route.</p>
+<h3>Is a flat per-pool rate ever the right way to price a route?</h3>
+<p>For a narrow band of routes with genuinely similar density -- same visit frequency, similar drive time between stops, similar chemical demand -- a flat rate can land close. The risk is quoting it to the next route without checking whether that route is actually in the same band, because the flat number does not know the difference and neither does the operator until the drive time is added up.</p>
+<h3>Does this calculator know what to charge in my market?</h3>
+<p>No. It has no data on local rates or what competing pool services charge. It takes your accounts, visits, service minutes, drive minutes, labor rate, chemical cost, overhead, and target margin, and turns them into a minimum monthly price for this route -- the arithmetic a flat per-pool rate skips, not a market survey.</p>
+<p class="note">
+Open the <a href="./">Pool Route Pricing Calculator</a> to price your own route, or read <a href="how-much-to-charge-for-pool-service.html">How much to charge for monthly pool service</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and this page makes no live comparison against any competing service &mdash; it is a static page describing the calculator's own worked example.</p>
+<p>Free and open source. If it helped you price the next route, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
