@@ -90,6 +90,51 @@ test("no module in this venture can reach the network", () => {
   assert.doesNotMatch(html, /XMLHttpRequest/);
 });
 
+test("the guide page stays crawlable, is listed in the sitemap, and links back to the tool", () => {
+  const guide = page("do-i-still-need-to-file-a-boi-report.html");
+  const sitemap = page("sitemap.xml");
+  assert.match(guide, /<title>Do I Still Need to File a BOI Report in 2026\?/);
+  assert.match(guide, /name="description"/);
+  assert.match(guide, /"@type":"FAQPage"/);
+  assert.match(guide, /href="\.\/"/);
+  assert.match(guide, /Best-effort hosting, no SLA/);
+  assert.match(guide, /No warranty/);
+  assert.match(sitemap, /do-i-still-need-to-file-a-boi-report\.html/);
+  const html = page("index.html");
+  assert.match(html, /href="do-i-still-need-to-file-a-boi-report\.html"/, "the tool must link its own guide page");
+});
+
+test("the guide page states the permanent-vs-interim distinction and does not overclaim finality", () => {
+  const guide = page("do-i-still-need-to-file-a-boi-report.html");
+  assert.match(guide, /interim final rule/i);
+  assert.match(guide, /permanent/i);
+  assert.match(guide, /January 1, 2024/);
+  assert.match(guide, /March 2025/);
+  assert.match(guide, /August 11, 2026/);
+  // Must not tell a filer their 2024 filing needs correcting or resubmitting.
+  assert.doesNotMatch(guide, /must (correct|resubmit|withdraw) (your|a) (BOI )?(report|filing)/i);
+  assert.match(guide, /does not need to be corrected/i);
+});
+
+test("the guide page's FAQPage JSON-LD matches its own visible copy exactly", () => {
+  const guide = page("do-i-still-need-to-file-a-boi-report.html");
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the guide page");
+  for (const qa of faq.mainEntity) {
+    assert.ok(guide.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(guide.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the guide page never claims the network or a filing service either", () => {
+  const guide = page("do-i-still-need-to-file-a-boi-report.html");
+  assert.doesNotMatch(guide, /\bfetch\(/);
+  assert.doesNotMatch(guide, /XMLHttpRequest/);
+  assert.doesNotMatch(guide, /we (will|have) file(d)? this for you/i);
+});
+
 test("the worked example in the page script matches calc.mjs's own arithmetic", async () => {
   const html = page("index.html");
   const { boiExemptionOutcome } = await import("./calc.mjs");

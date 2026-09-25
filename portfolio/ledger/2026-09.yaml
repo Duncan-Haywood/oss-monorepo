@@ -46570,3 +46570,57 @@ entries:
         this session's time budget -- named as a limitation rather than
         skipped silently.
     mrr_end: 0
+  - venture: boi-reporting-exemption-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Discoverability follow-up on a venture that graduated with zero
+        marketing surface (index.html only, 0/1 generic-method budget per
+        surface-budget.mjs). Per DIRECTION.md's "fast scan" priority
+        order and PRODUCT_PLAYBOOK.md 5e ("one docs page per specific
+        question the niche asks"), added
+        do-i-still-need-to-file-a-boi-report.html -- a guide page
+        answering the exact search phrase this venture's own VENTURE.yaml
+        named as its distribution channel ("do I still need to file
+        BOI"). Not a fleet-parity feature: it is new, non-duplicative
+        content targeting the venture's own named channel, so it does not
+        fall under the fleet-parity-trap caution against copying a
+        sibling's feature onto a zero-usage product.
+      - >-
+        The guide covers ground index.html's own FAQ does not: the
+        2024-to-2026 rule-change timeline (why the answer kept changing
+        across the original CTA requirement, the 2025 interim exemption,
+        and this permanent 2026 rule), what a filer who already submitted
+        a 2024 report should do now (nothing -- the exemption does not
+        require undoing a prior filing, which nothing on the site had
+        said explicitly before), and whether the permanent rule could
+        reverse again. Carries its own FAQPage JSON-LD verified to match
+        its visible copy exactly (page.test.mjs), the standard
+        no-warranty/best-effort-hosting disclaimer, and reciprocal links
+        to and from index.html. Registered in sitemap.xml. No named
+        competitor, so no 5f trademark disclaimer applies.
+      - >-
+        Verified: venture's own suite 33/33 (5 new page.test.mjs
+        assertions covering the guide page's crawlability, sitemap entry,
+        back-link, and FAQ/visible-copy match). node platform/pages/
+        clauses.mjs boi-reporting-exemption-checker clean; surface-budget
+        --for boi-reporting-exemption-checker shows the new page filed as
+        a guide (no budget consumed). Ran node platform/marketing/
+        regen.mjs after merging origin/main (the front-door mirror
+        conflicted with three sibling ventures that landed concurrently
+        -- hreflang-reciprocity-check, final-paycheck-deadline-calculator,
+        freelance-writer-rate-calculator -- resolved per
+        resolve-mirror-merge.sh, then regenerated fresh from the merged
+        source tree rather than picking a side), then regen.mjs --verify
+        confirmed current. Fleet-wide, verified before the merge: node
+        --test 'ventures/**/*.test.mjs' 32006/32006; platform/pages suite
+        1015/1015; platform/marketing suite 275/275; gitops/tests 613
+        passed/25 skipped (environmental, nginx/ssh binaries not
+        installed -- documented in CLAUDE.md); checklist_coverage.py,
+        score_ventures.py --check (391 scores), validate_doc_
+        consistency.py, usage_state.py --require-honest all clean. CI
+        starved this session (ci_starvation.py confirmed runner_id: 0 on
+        main's latest commit) -- verified fully locally per CLAUDE.md's
+        starvation checklist.
+    mrr_end: 0
