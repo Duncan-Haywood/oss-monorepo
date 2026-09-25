@@ -45176,6 +45176,61 @@ entries:
         -- a flake under load, not a product defect, confirmed by
         re-running --checks sideways alone.
     mrr_end: 0
+  - venture: pool-plaster-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-flat-rate-per-square-foot-of-water.html, the
+        venture's first generic-method comparison page -- it had a
+        named-product comparison (vs-buildxact.html) and a guide page
+        but zero "you could work this out yourself" pages, one of the
+        ventures surface-budget.mjs flagged with room for one. The naive
+        method is the one the venture's own README already names: a
+        published pool-plaster price or a rate per square foot of water
+        surface (length x width, the floor only), reused across jobs
+        that differ in finish, chip-out, spa, tile, and coping. calc.mjs
+        already exposes both pricePerPlasterSf and pricePerWaterSf
+        specifically to contrast the two bases -- this page surfaces
+        that existing contrast rather than inventing a new one.
+      - >-
+        Worked example computed from the calculator's own JOB_PRESETS
+        and crew defaults, not invented: the 16x32 white-plaster "brochure
+        special" (512 sq ft water, 1,064 sq ft plaster) prices at
+        $7,825.99, a rate of $15.29 per square foot of water. Applying
+        that rate to the freeform-pebble "loss job" preset (620 sq ft
+        water, 1,275 sq ft plaster, full chip-out, spa, tile, coping)
+        gives a naive quote of $9,476.79. The calculator prices that same
+        job at $44,057.94 -- the naive water-surface rate covers about
+        21.5% of the real cost, a $34,581.15 shortfall, despite the two
+        jobs' water-surface numbers (512 vs. 620) looking similar. Every
+        figure asserted against calc.mjs's own calculateBid() in the
+        test, not invented. Linked from index.html and added to
+        sitemap.xml. Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (generic mental model, no
+        competitor named).
+      - >-
+        Verified: venture's own suite 118/118; platform/pages/
+        clauses.test.mjs, faq-visible.test.mjs, surface-budget.test.mjs
+        36/36; full platform/marketing + platform/pages suite 1290/1290
+        clean on a stable checkout (a first run against a checkout being
+        concurrently mutated by this session's own branch cleanup
+        reported an UNSTABLE CHECKOUT and was correctly discarded rather
+        than read as a result); checklist_coverage.py and
+        sync_tree_counts.py both clean; regen.mjs --verify stale before
+        regen, current after; scoped browser/accessibility sweep
+        (--only pool-plaster-bid-calculator) 6/6 checks passed, including
+        contrast (no WCAG A/AA violations) and highlight. CI note: Actions
+        confirmed starved this session (ci_starvation.py -> runner_id: 0
+        across recent main checks), so verified locally per CLAUDE.md.
+      - >-
+        Earlier this session, PR #5873
+        (self-storage-rate-increase-calculator's own generic-method page)
+        was found already merged by a concurrent session while this one
+        was mid-way through resolving its merge conflict -- discarded the
+        now-redundant local branch per the Duplicate-PRs section rather
+        than pushing a second copy of the same change.
+    mrr_end: 0
   - venture: tip-pool-compliance-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -45437,4 +45492,172 @@ entries:
         portfolio/router portfolio/usage portfolio/pipeline infra/tests`
         446/446. `platform/proposal` 101/101, `platform/privacy` +
         `platform/webcheck` 142/142.
+    mrr_end: 0
+  - venture: excess-business-loss-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a third new venture this session
+        (session_gate.py: build-now queue empty, PROCEED verdict, no
+        in-progress venture work after clearing PRs and a duplicate
+        browser-sweep PR from a concurrent session). Picked the IRC
+        461(l) excess business loss limitation, made permanent under
+        OBBBA: duplicate_check.py scored every venture, screened-out row,
+        and pipeline candidate at 0.25 or below (closest match
+        bonus-depreciation-calculator -- shares only "OBBBA/NOL/
+        deduction" vocabulary, an unrelated equipment-expensing
+        election), well under the 0.45 review bar. Mechanics verified via
+        WebSearch 2026-09-25 against Moss Adams, Baker Tilly, Hiltzik
+        CPA, Keiter, MBE CPAs, and a cross-check search against Tax
+        Notes' threshold reference table -- surfacing a genuinely
+        counterintuitive fact none of this session's other two OBBBA
+        calculators have: the 2026 threshold ($256,000 single/HOH/MFS,
+        $512,000 MFJ) is LOWER than 2025's ($313,000/$626,000), the
+        opposite direction from almost every other OBBBA-affected figure,
+        because OBBBA rebased the indexing formula rather than letting it
+        keep compounding from 2017. Built the calc.mjs finding to fire
+        specifically when a filer's loss crosses from "fully allowed
+        under the old threshold" to "limited under the new one" -- caught
+        and fixed one test/implementation mismatch during development
+        (the finding was firing unconditionally for any 2026 calculation
+        rather than only when the lower threshold actually bound), before
+        it ever reached the shared suite.
+      - >-
+        Shipped a free, static, browser-local calculator splitting a
+        filer's net trade-or-business loss into what is deductible this
+        year and what becomes a net operating loss carryforward, with an
+        explicit flag that only trade-or-business income/deductions count
+        (not wages or investment income) and that the Section 199A QBI
+        deduction interaction is out of scope. Ships LICENSE, README with
+        the required value sentence and disclaimer, VENTURE.yaml with
+        untested hypotheses and kill_criteria, calc.mjs (13 test
+        assertions) plus usage.mjs/page.test.mjs (34 total across the
+        venture), index.html with FAQPage/SoftwareApplication JSON-LD
+        matching the visible copy (em-dash consistency checked up front
+        again, third venture in a row clean on the first pass), the
+        required vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT), an opt-out local
+        usage counter honouring DNT/GPC, robots.txt/sitemap.xml, and a
+        dedicated CI workflow.
+      - >-
+        Filed into build.mjs's backoffice category next to its nearest
+        sibling, qbi-deduction-calculator (same pass-through-business-
+        owner audience; each flags, without computing, its interaction
+        with the other) -- with a reciprocal footer link both ways.
+        Scored in venture-scores.yaml. Regenerated the gitops front-door
+        mirror, synced the mirrored-tool/opt-out-switch running counts
+        (375->376, 354->355) and the gitops/ci/README.md runs-on count,
+        registered the new CI workflow in publish-surface.yaml, and
+        registered the venture in platform/pages/launched.json before
+        running the shared suite.
+      - >-
+        Verified: venture's own suite 34/34; qbi-deduction-calculator's
+        suite re-run after the reciprocal-link edit, 35/35 unaffected;
+        targeted faq-visible.test.mjs + launched.test.mjs run alongside
+        the venture's own suite, 61/61 clean on the first pass.
+        checklist_coverage.py, sync_tree_counts.py, router/validate.py
+        (383 ventures), score_ventures.py --check (384 scores),
+        siblings.mjs --check (0 orphans of 376), surface-budget.mjs
+        --check, regen.mjs --verify all clean. CI note: Actions confirmed
+        starved earlier this session (ci_starvation.py: runner_id: 0 on
+        sampled jobs) -- expect the same on this PR.
+    mrr_end: 0
+  - venture: pool-plaster-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled/automated session. Merged PR #5892 (pool-plaster-bid-
+        calculator's generic-method comparison page, written by a
+        concurrent session): resolved the merge's conflicts against a
+        fast-moving main (front-door-tools mirror binaries via
+        resolve-mirror-merge.sh, front-door/*.gz picked and regenerated,
+        clauses.mjs's two independent COMPARISON_DISCLAIMER_EXEMPT
+        insertions kept both). Mid-push the source branch turned out to
+        have already been independently re-merged and regenerated by
+        another concurrent session, so the duplicate local resolution was
+        discarded in favour of the already-pushed, already-current
+        branch rather than force-pushing over it.
+      - >-
+        Verified before merging: venture suite 118/118; platform/marketing
+        + platform/pages suite 1290/1290; checklist_coverage.py,
+        sync_tree_counts.py, regen.mjs --verify, surface-budget.mjs
+        --check all clean; all 26 platform/ci unittest modules; gitops/
+        tests 613 passed/25 skipped; portfolio ledger/scoring/router/
+        usage/pipeline + infra/tests 446 passed; agent_review unittest
+        21/21. CI starved this session (ci_starvation.py confirmed
+        runner_id: 0 on every failing check on the PR) -- merged on the
+        strength of local verification per CLAUDE.md's starvation
+        checklist.
+      - >-
+        Refreshed the published GitHub Pages snapshot
+        (pages_state.py --require-current showed stale after the merge);
+        publish-branch.sh's own push then lost a race to a concurrent
+        session's publish ("cannot lock ref gh-pages"), re-fetched and
+        confirmed the concurrent push already covered this session's
+        commit, so no separate publish was needed. Recorded with
+        pages_state.py --record.
+    mrr_end: 0
+  - venture: k8s-resource-limits-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page,
+        vs-reading-the-manifest-by-eye.html -- one of the 44 ventures
+        surface-budget.mjs flagged with 0 generic-method pages (this one
+        already had a named-product comparison, vs-polaris.html, and a
+        guide page). The angle: skimming a Deployment/StatefulSet's YAML
+        during review is the default pass every team already does, and it
+        reliably misses (1) a container whose resources block has some
+        fields set (so it reads as "resourced") but is missing the one
+        memory-limit field that matters, and (2) a CPU request that
+        exceeds its own CPU limit -- two values in different blocks that
+        the API server rejects at apply time rather than flags in review.
+        Worked example reuses the venture's own bundled "Load worked
+        example" fixture verbatim, pinned directly against engine.mjs's
+        analyzeSources()/summaryLine() rather than invented numbers (2
+        workloads, 2 risk, 3 warn, 2 info). Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html and
+        vs-polaris.html's sibling set, listed in sitemap.xml.
+      - >-
+        Verified: venture's own suite 76/76; platform/pages/
+        clauses+faq-visible 12/12 (fixed one straight-vs-curly-quote
+        mismatch between the FAQ's JSON-LD and its visible prose that
+        faq-visible.test.mjs caught); full platform/marketing +
+        platform/pages suite 1290/1290; checklist_coverage.py,
+        sync_tree_counts.py, regen.mjs --verify, surface-budget.mjs
+        --check, gitops/tests (613 passed/25 skipped) all clean. No open
+        PRs at the time, so no duplicate-page risk to check against.
+    mrr_end: 0
+  - venture: consent-change-record
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page,
+        vs-comparing-the-traces-by-eye.html -- another of the ventures
+        surface-budget.mjs flagged with 0 generic-method pages (already
+        had a named-product comparison, vs-cookiebot.html, and a guide
+        page). The angle came straight from calc.mjs's own code comments:
+        presence-only matching between two trace exports is wrong the
+        moment a tracker fires more than once, because a request present
+        on both sides reads as "unchanged" even when it fired three times
+        before consent and once after -- exactly the defect compareTraces
+        was written to fix by counting occurrences per key instead of
+        checking presence. Worked example (a 3x-firing analytics request
+        reduced to 1x, plus a new storage key) pinned directly against
+        calc.mjs's compareTraces() rather than invented numbers.
+        Registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT, linked
+        from index.html, listed in sitemap.xml.
+      - >-
+        Verified: venture's own suite 56/56; platform/pages/
+        clauses+faq-visible 12/12 (same straight-vs-curly-quote class of
+        mismatch as the k8s-resource-limits-check page earlier this
+        session, caught and fixed the same way); full platform/marketing
+        + platform/pages suite 1290/1290; checklist_coverage.py,
+        sync_tree_counts.py, regen.mjs --verify, surface-budget.mjs
+        --check, gitops/tests (613 passed/25 skipped) all clean. No open
+        PRs at the time.
     mrr_end: 0

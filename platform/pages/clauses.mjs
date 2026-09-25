@@ -2130,6 +2130,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as salt-cap-calculator's own vs-doing-the-math-by-hand.html
   // right above.
   'charitable-deduction-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the excess business loss limitation by
+  // hand -- a generic method every business owner or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as charitable-deduction-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'excess-business-loss-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2349,6 +2356,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries the trademark disclaimer. Same reasoning as the other
   // generic-method pages above.
   'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
+  // Compares against "a flat rate per square foot of water surface" -- a
+  // generic pricing shortcut every pool-replaster shop already reaches for,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-buildxact.html, which names Buildxact and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'pool-plaster-bid-calculator/vs-a-flat-rate-per-square-foot-of-water.html',
   // Compares against "reconciling CAM by square footage alone" -- the plain
   // area-share arithmetic every CAM statement starts from, not a company or
   // product this could be mistaken for. Distinct from this venture's own
@@ -2363,6 +2377,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Check and carries the trademark/affiliation disclaimer. Same reasoning
   // as the other generic-method pages above.
   'wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html',
+  // Compares against "reading the manifest by eye" during review -- the
+  // generic first pass every team already does, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-polaris.html, which names Polaris/Fairwinds and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html',
+  // Compares against "comparing the two trace exports by eye" -- the
+  // generic first pass anyone reviewing a consent sequence already does,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-cookiebot.html, which names Cookiebot/
+  // Usercentrics and carries the trademark disclaimer. Same reasoning as
+  // the other generic-method pages above.
+  'consent-change-record/vs-comparing-the-traces-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

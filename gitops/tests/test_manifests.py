@@ -2624,7 +2624,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Static `index.html` plus one docs/comparison page from its first
     # commit, same shape as the rest of this running count.
     #
-    # 375 -> 376: `referrer-permissions-policy-check` also graduated -- a
+    # 375 -> 376: `excess-business-loss-calculator` also graduated -- a
+    # browser-local calculator computing the IRC 461(l) excess business
+    # loss threshold (permanent under OBBBA, with a 2026 figure that
+    # counterintuitively falls below 2025's rather than rising) and the
+    # resulting net operating loss carryforward, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 376 -> 377: `referrer-permissions-policy-check` also graduated,
+    # concurrently and invisibly to both branches above -- a
     # zero-dependency CLI + browser report viewer sending one real GET
     # request and classifying the response's Referrer-Policy (an
     # unsafe-url full-URL leak, a missing or unrecognised value, the
@@ -2633,7 +2643,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # feature like camera/microphone, reliance on the deprecated
     # Feature-Policy header alone). Static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 376  # `infra/OWNER_CHECKLIST.md`'s own "N of the 376 tools" wording.
+    total = 377  # `infra/OWNER_CHECKLIST.md`'s own "N of the 377 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
