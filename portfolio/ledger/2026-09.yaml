@@ -46342,3 +46342,93 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 earlier) -- verified
         fully locally per CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: eitc-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator for the federal Earned
+        Income Tax Credit (EITC) -- the phase-in/plateau/phase-out formula
+        by number of qualifying children (0, 1, 2, 3+) and filing status,
+        the $12,200 investment income limit, the married-filing-separately
+        living-apart exception, and IRS Publication 596's own rule of
+        computing the credit twice (earned income and AGI) and keeping the
+        smaller result. Screened during a new-venture-first session
+        (session_gate.py: build-now queue empty, PROCEED, no open PRs and
+        no in-progress venture work). duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.19 or below
+        -- senior-deduction-calculator is the closest existing venture and
+        is a different federal provision (temporary age-65+ deduction vs.
+        a decades-old, mass-claimed earned-income credit). Unlike this
+        session's other new ventures, the EITC is NOT an OBBBA provision --
+        it is the largest federal anti-poverty tax credit by dollar
+        volume, claimed by tens of millions of filers every season, a
+        much larger and older search population than the narrower,
+        newer OBBBA-provision calculators this portfolio has been
+        building.
+      - >-
+        WebFetch access to irs.gov, kiplinger.com, and ustax.tools was
+        blocked by the agent egress proxy mid-research, so every dollar
+        figure was WebSearch-cross-validated across at least three
+        independent sources rather than fetched from a single primary
+        source -- including catching and resolving one direct
+        disagreement between sources ("$664" vs. "$649" for the
+        no-children maximum credit; $664 was repeated by five independent
+        sources against one, so it was used). The differentiator this
+        research surfaced: most existing free EITC calculators use earned
+        income alone, skipping IRS Publication 596's own dual-lookup
+        method (compute from earned income AND from AGI, keep the
+        smaller) -- calc.mjs implements both lookups explicitly and pins
+        the AGI-limits-the-credit case with a dedicated test.
+      - >-
+        Also derived and pinned a mechanical detail not obvious from the
+        raw figures: the phase-out THRESHOLD (where phase-out begins) is
+        the identical dollar amount for 1, 2, or 3+ qualifying children
+        ($23,890 single, $31,160 joint for 2026) -- only the phase-out
+        RATE and the completed-phaseout ceiling differ by child count, and
+        only the 0-children category has its own, lower threshold. A hand
+        calculation that assumes the threshold rises with each additional
+        child (a natural but wrong assumption) would misplace where the
+        phase-out starts for every "has children" case.
+      - >-
+        One real defect caught by the venture's own test suite before
+        shipping: eicTableLookup's phase-in/plateau boundary used `x <=
+        earnedIncomeAmount` for the phase-in branch, so looking up the
+        credit at exactly the published "earned income amount" computed
+        it via the phase-in multiplication (e.g. 13020 x 0.34 = 4426.80)
+        instead of returning the published, independently-rounded maximum
+        ($4,427) -- a one-line boundary fix (`<` instead of `<=`) so the
+        plateau branch, not the phase-in formula, owns the exact boundary
+        value.
+      - >-
+        Ships LICENSE, README, VENTURE.yaml (untested hypotheses +
+        kill_criteria), calc.mjs (21 test assertions), usage.mjs/
+        page.test.mjs (43 total for the venture), index.html with
+        FAQPage/SoftwareApplication JSON-LD matching visible copy exactly,
+        a vs-doing-the-math-by-hand.html comparison page, an opt-out local
+        usage counter honouring DNT/GPC, robots.txt/sitemap.xml, and a
+        dedicated CI workflow. Filed into build.mjs's backoffice category
+        next to its nearest sibling, child-tax-credit-calculator (both
+        federal per-household tax credits often claimed on the same
+        return), with a reciprocal footer link both ways -- 0 crawlable
+        orphans of 383. Scored in venture-scores.yaml (composite 6.5,
+        gates pass, distribution 9 -- the highest of this portfolio's
+        federal tax calculators, reflecting the EITC's much larger
+        claimant population). Registered in launched.json,
+        publish-surface.yaml, and the CI-workflow runs-on count. Checked
+        for the kustomization-mounting gap this session's earlier
+        security-txt-check PR found and documented -- this venture's
+        comparison-page subject text did not collide with a sibling
+        venture's page, so no gitops/prod/kustomization.yaml edit was
+        needed, confirmed by grepping gitops/prod/front-door/ before
+        shipping rather than assuming.
+      - >-
+        Verified: venture's own suite 43/43; checklist_coverage.py,
+        sync_tree_counts.py, score_ventures.py --check (391 scores),
+        siblings.mjs --check (0 orphans of 383), surface-budget.mjs
+        --check, regen.mjs --verify, router/validate.py (390 VENTURE.yaml)
+        all clean. CI starved this session (ci_starvation.py confirmed
+        runner_id: 0 earlier) -- verified locally per CLAUDE.md's
+        starvation checklist; full platform/marketing + platform/pages
+        suite queued to run before merge.
+    mrr_end: 0

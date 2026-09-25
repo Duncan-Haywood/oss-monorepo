@@ -915,7 +915,14 @@ const RELATIVE_SELF = relative(
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `child-tax-credit-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 361;
+//
+// 361 -> 362: `eitc-calculator` also graduated -- adding one more
+// `usage.mjs` (`ventures/eitc-calculator/usage.mjs`), the same
+// boilerplate opt-out toggle copied from `child-tax-credit-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `eitc-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 362;
 
 let counter = 0;
 function fixture(source) {

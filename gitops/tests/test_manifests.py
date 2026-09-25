@@ -2693,10 +2693,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # professional-gambler business-expense fold-in, plus a
     # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 382 -> 383: `eitc-calculator` also graduated -- a browser-local
+    # calculator for the federal Earned Income Tax Credit, applying the
+    # phase-in/plateau/phase-out formula by qualifying-child count and
+    # filing status, the investment income limit, and IRS Publication
+    # 596's own dual earned-income/AGI lookup, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count. Total re-derived here by
     # `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
-    total = 382  # `infra/OWNER_CHECKLIST.md`'s own "N of the 382 tools" wording.
+    total = 383  # `infra/OWNER_CHECKLIST.md`'s own "N of the 383 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

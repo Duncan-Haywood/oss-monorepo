@@ -125,6 +125,7 @@
     "economic-nexus-threshold-tracker": "2026-09-24",
     "egress-window-bid-calculator": "2026-08-25",
     "einvoice-preflight": "2026-08-24",
+    "eitc-calculator": "2026-09-25",
     "electrical-panel-upgrade-bid-calculator": "2026-08-26",
     "email-auth-check": "2026-09-10",
     "employee-cost-calculator": "2026-09-24",
