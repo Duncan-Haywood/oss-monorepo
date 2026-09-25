@@ -2145,11 +2145,31 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
   // carries the trademark disclaimer.
   'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
+  // Compares against "tracking sales in a spreadsheet" -- the hand-built
+  // rate/minimum/local-pickup worksheet every Facebook Marketplace seller
+  // already has, not a company or product this could be mistaken for. The
+  // page's own copy says so explicitly ("names no specific product -- it
+  // compares against the generic method of tracking these numbers in a
+  // spreadsheet, not a competing calculator"). Registering this closes a
+  // gap that had surface-budget.mjs reporting "room for 1 more
+  // generic-method page" on a venture that (as of this same window) already
+  // had two: this page, and vs-doing-the-fee-math-by-hand.html below, added
+  // independently by a concurrent session that read the same false signal
+  // and, unlike this fix, took it as license to add a second page rather
+  // than correct the classification. See that entry's own comment, and the
+  // GENERIC_BUDGET_OVERRIDES entry for this venture, for why both survive
+  // rather than one being removed.
+  'facebook-marketplace-fee-calculator/vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html',
   // Compares against "doing the fee math by hand" -- mental arithmetic every
   // seller already does, not a company or product this could be mistaken
   // for. Distinct from this venture's own
-  // vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html, which is
-  // its own separate comparison page.
+  // vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html above (a
+  // spreadsheet formula) -- the same "no formula at all" vs. "a formula with
+  // specific gaps" pair of angles GENERIC_BUDGET_OVERRIDES already
+  // recognizes for overtime-pay-calculator, shopify-fee-calculator,
+  // sign-language-interpreter-rate-calculator,
+  // apparel-decoration-price-calculator, atm-route-margin and
+  // fleet-repair-or-replace-planner.
   'facebook-marketplace-fee-calculator/vs-doing-the-fee-math-by-hand.html',
   // Compares against "a flat rate per square foot" -- the "$8 a square
   // foot" quoting habit every masonry contractor is shopped against, not
