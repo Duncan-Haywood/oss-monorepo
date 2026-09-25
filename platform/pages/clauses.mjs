@@ -2144,6 +2144,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as charitable-deduction-calculator's own
   // vs-doing-the-math-by-hand.html right above.
   'excess-business-loss-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the QSBS exclusion by hand -- a generic
+  // method every shareholder or preparer already has access to, not a
+  // company or product this could be mistaken for. Names no accounting
+  // firm, law firm, or tax-prep product. Same reasoning as
+  // excess-business-loss-calculator's own vs-doing-the-math-by-hand.html
+  // right above.
+  'qsbs-exclusion-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2384,6 +2391,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Check and carries the trademark/affiliation disclaimer. Same reasoning
   // as the other generic-method pages above.
   'wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html',
+  // Compares against "a flat per-word rate" -- the generic pricing habit of
+  // multiplying total word count by one number, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-smartcat.html, which names a real CAT-tool platform and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'translator-project-quote/vs-a-flat-per-word-rate.html',
   // Compares against "reading the manifest by eye" during review -- the
   // generic first pass every team already does, not a company or product
   // this could be mistaken for. Distinct from this venture's own
@@ -2398,6 +2412,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Usercentrics and carries the trademark disclaimer. Same reasoning as
   // the other generic-method pages above.
   'consent-change-record/vs-comparing-the-traces-by-eye.html',
+  // Compares against "eyeballing the feed in a spreadsheet" -- the generic
+  // visual scan any seller already does before a sync, not a company or
+  // product this could be mistaken for (it deliberately names no specific
+  // spreadsheet software). Distinct from this venture's own
+  // vs-datafeedwatch.html, which names DataFeedWatch and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'merchant-feed-check/vs-eyeballing-the-feed-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

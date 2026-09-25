@@ -874,7 +874,15 @@ const RELATIVE_SELF = relative(
 // sibling (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage
 // writes, keyed under its own `excess-business-loss-calculator-usage`
 // storage name). Exactly one added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 356;
+//
+// 356 -> 357: `qsbs-exclusion-calculator` also graduated, also
+// concurrently -- adding one more `usage.mjs`
+// (`ventures/qsbs-exclusion-calculator/usage.mjs`) following the same
+// opt-out toggle shape as its `excess-business-loss-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `qsbs-exclusion-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 357;
 
 let counter = 0;
 function fixture(source) {

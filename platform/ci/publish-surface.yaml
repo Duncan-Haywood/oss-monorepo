@@ -962,6 +962,9 @@ workflows:
 - workflow: qbi-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: qsbs-exclusion-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: quarterly-estimated-tax-calendar-ci.yml
   classification: none
   publishes: []
