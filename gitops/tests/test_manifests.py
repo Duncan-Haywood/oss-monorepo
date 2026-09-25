@@ -2573,7 +2573,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `claude-code-subagent-check`, `mcp-config-risk-check`,
     # `skill-manifest-check`). Static `index.html` plus one docs page from
     # its first commit, same shape as the rest of this running count.
-    total = 368  # `infra/OWNER_CHECKLIST.md`'s own "N of the 368 tools" wording.
+    total = 369  # `infra/OWNER_CHECKLIST.md`'s own "N of the 369 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
