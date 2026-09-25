@@ -2625,24 +2625,41 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commit, same shape as the rest of this running count.
     #
     # 375 -> 376: `gambling-loss-deduction-calculator` also graduated,
-    # concurrently with and invisibly to the three ventures below -- a
+    # concurrently with and invisibly to the five ventures below -- a
     # browser-local calculator computing the allowable gambling-loss
     # deduction under OBBBA's new 90%-of-winnings cap (IRC Section 165(d)),
     # plus a vs-doing-the-math-by-hand.html comparison page. Static
     # `index.html` plus one docs/comparison page from its first commit,
     # same shape as the rest of this running count.
     #
-    # 376 -> 377: `excess-business-loss-calculator` also graduated -- a
-    # browser-local calculator computing the IRC 461(l) excess business
-    # loss threshold (permanent under OBBBA, with a 2026 figure that
-    # counterintuitively falls below 2025's rather than rising) and the
-    # resulting net operating loss carryforward, plus a
+    # 376 -> 377: `estate-tax-exemption-calculator` also graduated -- a
+    # browser-local calculator projecting federal estate tax exposure
+    # under OBBBA's permanent 2026 $15,000,000 basic exclusion amount
+    # (up to $30,000,000 married with portability), plus a
     # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
     # plus one docs/comparison page from its first commit, same shape as
     # the rest of this running count.
     #
-    # 377 -> 378: `referrer-permissions-policy-check` also graduated,
-    # concurrently and invisibly to both branches above -- a
+    # 377 -> 378: `excess-business-loss-calculator` also graduated,
+    # concurrently -- a browser-local calculator computing the IRC 461(l)
+    # excess business loss threshold (permanent under OBBBA, with a 2026
+    # figure that counterintuitively falls below 2025's rather than
+    # rising) and the resulting net operating loss carryforward, plus a
+    # vs-doing-the-math-by-hand.html comparison page. Static `index.html`
+    # plus one docs/comparison page from its first commit, same shape as
+    # the rest of this running count.
+    #
+    # 378 -> 379: `qsbs-exclusion-calculator` also graduated, also
+    # concurrently -- a browser-local calculator computing the Section
+    # 1202 QSBS capital-gain exclusion, expanded by OBBBA for stock
+    # acquired after July 4, 2025 (a new tiered 3/4/5-year schedule and a
+    # higher per-issuer cap, replacing the old all-or-nothing 5-year cliff
+    # for earlier stock), plus a vs-doing-the-math-by-hand.html comparison
+    # page. Static `index.html` plus one docs/comparison page from its
+    # first commit, same shape as the rest of this running count.
+    #
+    # 379 -> 380: `referrer-permissions-policy-check` also graduated,
+    # concurrently and invisibly to the entries above -- a
     # zero-dependency CLI + browser report viewer sending one real GET
     # request and classifying the response's Referrer-Policy (an
     # unsafe-url full-URL leak, a missing or unrecognised value, the
@@ -2652,15 +2669,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # Feature-Policy header alone). Static `index.html` from its first
     # commit, same shape as the rest of this running count.
     #
-    # 378 -> 379: `qsbs-exclusion-calculator` also graduated, concurrently
-    # and invisibly to the branch above -- a browser-local calculator
-    # computing the Section 1202 QSBS capital-gain exclusion, expanded by
-    # OBBBA for stock acquired after July 4, 2025 (a new tiered 3/4/5-year
-    # schedule and a higher per-issuer cap, replacing the old all-or-nothing
-    # 5-year cliff for earlier stock), plus a vs-doing-the-math-by-hand.html
-    # comparison page. Static `index.html` plus one docs/comparison page
-    # from its first commit, same shape as the rest of this running count.
-    total = 379  # `infra/OWNER_CHECKLIST.md`'s own "N of the 379 tools" wording.
+    # 380 -> 381: `exempt-salary-threshold-checker` also graduated,
+    # concurrently and invisibly to the entries above -- a browser-local
+    # calculator checking a weekly salary against the 2026 federal FLSA
+    # white-collar exemption threshold and the higher state figure in
+    # California, Washington, Maine, Alaska, or New York (including New
+    # York's carve-out excluding the professional exemption from its
+    # higher figure). Static `index.html` only, no comparison page, from
+    # its first commit. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    total = 381  # `infra/OWNER_CHECKLIST.md`'s own "N of the 381 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

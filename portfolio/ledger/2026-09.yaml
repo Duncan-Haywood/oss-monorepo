@@ -45406,6 +45406,111 @@ entries:
         strength of local verification per CLAUDE.md's starvation
         checklist.
     mrr_end: 0
+  - venture: estate-tax-exemption-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled/automated session (session_gate.py: build-now queue
+        empty, PROCEED verdict; no in-progress venture work). Per
+        DIRECTION.md's standing owner direction, screened and shipped a
+        fresh new venture rather than a parity feature on an existing one.
+        Picked the OBBBA's permanent 2026 federal estate/gift/GST tax
+        basic exclusion amount ($15,000,000 per person, $30,000,000
+        married with portability): duplicate_check.py scored every
+        venture, screened-out row, ai-first-markets idea, and pipeline
+        candidate at 0.13 or below (closest match trump-account-calculator
+        -- shares only general OBBBA vocabulary), well under the 0.45
+        review bar, and a grep of the whole ventures/ tree for "estate
+        tax", "gift tax", and "generation-skipping" returned no matches
+        before this venture was created.
+      - >-
+        Mechanics verified via WebSearch 2026-09-25 against the IRS's own
+        newsroom release ("IRS releases tax inflation adjustments for tax
+        year 2026, including amendments from the One, Big, Beautiful
+        Bill"), Morgan Lewis, Spencer Fane, Bowditch & Dewey, and Haynes
+        Boone, cross-checked against each other: the $15,000,000 basic
+        exclusion is permanent with no sunset (replacing a scheduled
+        reversion to roughly $7,000,000), portability (DSUE) is not
+        automatic and requires a timely Form 706 election, the GST
+        exemption shares the same $15,000,000 figure but has never been
+        portable between spouses (the detail most consumer-facing
+        explainers get backwards or omit), lifetime taxable gifts reduce
+        the exclusion available at death (one unified bucket), and the
+        federal rate above the exclusion is a flat 40%.
+      - >-
+        Shipped a free, static, browser-local calculator projecting
+        federal estate tax exposure from a gross estate, prior taxable
+        gifts, filing status, and any DSUE elected, with explicit findings
+        for the portability reminder, gifts-exceed-exclusion case, and the
+        GST non-portability and state-estate-tax-out-of-scope flags. Ships
+        LICENSE, README with the required value sentence and disclaimer,
+        VENTURE.yaml with untested hypotheses and kill_criteria, calc.mjs
+        (17 test assertions) plus usage.mjs/page.test.mjs (38 total across
+        the venture), index.html with FAQPage/SoftwareApplication JSON-LD
+        matching the visible copy, the required
+        vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT), an opt-out local
+        usage counter honouring DNT/GPC, robots.txt/sitemap.xml, and a
+        dedicated CI workflow.
+      - >-
+        Filed into build.mjs's backoffice category next to its nearest
+        sibling, trump-account-calculator (another brand-new federal
+        OBBBA wealth-transfer provision -- a parent-to-child savings
+        account rather than the lifetime estate/gift exclusion),
+        reciprocal link added both ways. launched.json, publish-
+        surface.yaml, and a scoring row in venture-scores.yaml added up
+        front this time. Mirror regenerated, tree counts synced (377
+        mirrored tools, 356 opt-out switches after resolving a concurrent
+        collision with excess-business-loss-calculator's own graduation,
+        with the running-comment entries recording why each moved),
+        gitops/ci README's runs-on count synced via sync_readme_counts.py.
+      - >-
+        Verified: venture's own suite 38/38 (re-run after the merge,
+        unaffected); excess-business-loss-calculator's own suite 34/34
+        re-run after the reciprocal build.mjs edit, unaffected; full
+        platform/marketing + platform/pages suite 1290/1290 on the final
+        merged tree (caught and fixed one JSON-LD/visible-copy em-dash
+        mismatch on the first pass, faq-visible.test.mjs); platform/
+        privacy + platform/webcheck 142/142; checklist_coverage.py,
+        surface-budget.mjs --check (0 over budget), regen.mjs --verify,
+        score_ventures.py --check (385 scores), siblings.mjs --check (0
+        orphans of 377), router/validate.py (384 VENTURE.yaml files) all
+        clean; platform/ci unittest (26 modules) all pass; agent_review
+        unittest 21/21; gitops/tests pytest 635 passed/1 skipped (caught
+        and fixed a second-order staleness in gitops/ci/README.md's
+        runs-on count from the concurrent venture's own new CI workflow,
+        via sync_readme_counts.py); portfolio/ledger+scoring+router+
+        usage+pipeline and infra/tests pytest 446 passed; guard_state.py
+        --require-runnable clean (no fixable skips). CI starved this
+        session (ci_starvation.py --run 36101488985 confirmed
+        runner_id: 0 on the most recent main push) -- merged on the
+        strength of local verification per CLAUDE.md's starvation
+        checklist. Re-merged origin/main twice more while pushing
+        (excess-business-loss-calculator, then qsbs-exclusion-calculator,
+        each graduated concurrently by other sessions and each touching
+        the same wiring files); resolved every mirror conflict via
+        checkout --ours plus a full regen.mjs rather than
+        resolve-mirror-merge.sh alone (its own scope is front-door-tools/
+        only, and front-door/'s own generated files also conflicted), and
+        every authored-code conflict (build.mjs, test_manifests.py,
+        optout-persistence.test.mjs, venture-scores.yaml, portfolio/
+        ledger) by hand, combining running-count comments and ledger rows
+        rather than picking a side each time (final tree counts: 378
+        mirrored tools, 357 opt-out switches). Re-verified after the final
+        merge: full platform/marketing + platform/pages suite 1290/1290,
+        gitops/tests 637 passed/1 skipped, portfolio/ledger+scoring+
+        router+usage+pipeline and infra/tests 446 passed, platform/privacy
+        + platform/webcheck 142/142, platform/ci unittest (26 modules)
+        and agent_review unittest 21/21 all clean, checklist_coverage.py/
+        score_ventures.py --check (386 scores)/siblings.mjs --check (0
+        orphans of 378)/surface-budget.mjs --check/router/validate.py
+        (385 VENTURE.yaml files)/regen.mjs --verify all clean. Merged
+        origin/main a fourth time while pushing
+        (referrer-permissions-policy-check graduated concurrently);
+        resolved the same way, final tree counts 379 mirrored tools, 358
+        opt-out switches.
+    mrr_end: 0
   - venture: referrer-permissions-policy-check
     agent_spend_usd: null
     human_hours: 0
@@ -45834,6 +45939,148 @@ entries:
         sync_tree_counts.py, regen.mjs --verify, check_ledger_only.py all
         clean. CI starved this session throughout (ci_starvation.py
         confirmed runner_id: 0 on every recent main check).
+    mrr_end: 0
+  - venture: exempt-salary-threshold-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator checking a weekly salary
+        against the 2026 FLSA white-collar overtime-exemption threshold
+        -- the federal $684/week figure, or the higher state figure that
+        controls instead in California ($1,352/week), Washington
+        ($1,541.70/week), Maine ($871.16/week), Alaska ($1,120/week,
+        effective 2026-07-01), or New York (two regional figures).
+        Screened during a new-venture-first session (session_gate.py:
+        build-now queue empty, PROCEED). duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.13 or
+        below -- salary-range-posting-check is the closest existing
+        venture and checks a different question (pay-range posting
+        disclosure, not exemption thresholds).
+      - >-
+        The differentiator this session found via WebSearch against nine
+        independent sources (two law-firm client alerts, four payroll-
+        platform explainers, and the DOL's own May 2026 Federal Register
+        technical amendment): New York's higher salary figures apply only
+        to the executive and administrative exemptions, not the
+        professional exemption, which uses the federal $684/week figure
+        even in New York -- the detail a hand cross-reference of "New
+        York's threshold" against every exemption category most often
+        misses. calc.mjs's exemptionOutcome() models this carve-out
+        explicitly and page.test.mjs pins a worked example against it.
+      - >-
+        Ships LICENSE, README, VENTURE.yaml (untested hypotheses +
+        kill_criteria), calc.mjs (12 test assertions), usage.mjs/
+        page.test.mjs (30 total for the venture), index.html with
+        FAQPage/SoftwareApplication JSON-LD matching visible copy, an
+        opt-out local usage counter honouring DNT/GPC, robots.txt/
+        sitemap.xml, and a dedicated CI workflow. Filed into build.mjs's
+        backoffice category next to its nearest sibling,
+        tip-pool-compliance-calculator (both check one FLSA wage-and-hour
+        rule against a fixed table), with a reciprocal footer link both
+        ways. Scored in venture-scores.yaml (composite 6.167, gates
+        pass). Registered in launched.json, publish-surface.yaml, and
+        the CI-workflow runs-on count (gitops/ci/sync_readme_counts.py).
+        Regenerated the gitops front-door mirror and synced the
+        mirrored-tool/opt-out-switch running counts after merging main
+        (multiple sibling ventures had landed concurrently).
+      - >-
+        The full platform/marketing + platform/pages suite caught one
+        real defect before merge, invisible to the venture's own
+        page.test.mjs (its JSON-LD check uses substring match, not exact)
+        or to a review scoped only to the new venture's files:
+        faq-visible.test.mjs found the FAQPage JSON-LD used ASCII "--"
+        while the visible prose used the em-dash the rest of the
+        portfolio uses -- normalized the JSON-LD to match, per this
+        month's established convention of editing the JSON-LD rather than
+        the visible copy.
+      - >-
+        Verified: venture's own suite 30/30; full platform/marketing +
+        platform/pages suite 1290/1290 (re-verified clean after the
+        JSON-LD fix); gitops/tests 637 passed/1 skipped (environmental);
+        portfolio/ledger+scoring+router+usage+pipeline+infra/tests 446
+        passed; platform/ci unittest sweep (15 modules) and
+        agent_review's test_review (21/21) both clean;
+        checklist_coverage.py, sync_tree_counts.py, score_ventures.py
+        --check, siblings.mjs --check, surface-budget.mjs --check, and
+        regen.mjs --verify all clean. CI starved this session
+        (ci_starvation.py confirmed runner_id: 0 on a recent main push)
+        -- verified fully locally per CLAUDE.md's starvation checklist.
+        This PR was merged after `main` had advanced with several more
+        ventures (excess-business-loss-calculator,
+        pool-plaster-bid-calculator, k8s-resource-limits-check,
+        qsbs-exclusion-calculator, consent-change-record,
+        translator-project-quote, merchant-feed-check); the merge
+        commit resolved the resulting gitops/prod mirror and tree-count
+        conflicts by regenerating fresh from the merged tree rather than
+        hand-merging generated files.
+    mrr_end: 0
+  - venture: security-txt-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-checking-it-by-eye.html -- one of 41 ventures surface-budget.mjs
+        flagged with 0 generic-method pages (this one already had a
+        named-product comparison, vs-securitytxt-org-generator.html, and a
+        guide page). Switched to this smaller task after this session's
+        fourth new venture, since two other concurrent sessions were
+        already mid-flight on their own new ventures and re-verification
+        share was climbing. The angle: every field the worked example gets
+        wrong (an expired Expires, a bare-address Contact, the British
+        spelling of Acknowledgments, a plain-http Encryption, a language
+        name instead of a tag, a Policy line missing its colon) still
+        reads as ordinary, complete text to a person scanning the file --
+        none of the six looks broken, which is the whole case for a
+        parser over a read. Worked example reused verbatim from
+        index.html's own bundled example rather than inventing one, and
+        pinned directly against engine.mjs's buildReport() (3 danger + 3
+        notice findings, verified by running the parser directly before
+        writing a word of copy) rather than asserted from memory.
+      - >-
+        Extended page.test.mjs to cover the new page: FAQPage JSON-LD
+        validity, the generic-method non-affiliation disclaimer, the
+        index<->page link pair, and a pin of all six worked-example field
+        strings against the page's own table so the comparison cannot
+        silently drift from the example it describes. Registered in
+        platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (names
+        no competitor, distinct from the venture's own named-product
+        comparison). Checked for the JSON-LD/visible-text em-dash
+        mismatch that hit two of this session's earlier ventures before
+        running any test -- clean this time.
+      - >-
+        Verified: venture's own suite 82/82; faq-visible.test.mjs run
+        alongside it, 86/86 clean on the first pass. checklist_coverage.py,
+        sync_tree_counts.py (unchanged -- no new mirrored tool or opt-out
+        switch, only a new page on an existing one), siblings.mjs --check
+        (0 orphans of 377), surface-budget.mjs --for security-txt-check
+        (now at its 1-page budget), regen.mjs --verify all clean.
+      - >-
+        The FIRST full platform/marketing + platform/pages run came back
+        1289/1290: front-door.test.mjs's "every rendered per-product
+        comparison page is mounted by the kustomization" -- this page's
+        comparison subject ("checking it by eye", the text after "vs." in
+        its own <h1>) exactly matches structured-data-drift-check's
+        existing vs-checking-it-by-eye.html, so adding a second venture
+        with that subject crossed front-door.mjs's
+        COMPARE_PRODUCT_MIN_TOOLS=2 threshold and promoted it into a
+        shared apex page for the first time. The generator already wrote
+        gitops/prod/front-door/vs__checking-it-by-eye.html.gz;
+        gitops/prod/kustomization.yaml, which mounts that file into the
+        ConfigMap, is deliberately hand-kept rather than generated (per
+        the test's own comment) and was simply missing the new line --
+        the page would have been dark (unreachable) had this merged
+        unnoticed. Added the one missing kustomization.yaml line; re-run
+        confirmed 118/118 on front-door.test.mjs alone and 1290/1290 on
+        the full suite. Neither `regen.mjs --verify` nor
+        `sync_tree_counts.py` would have caught this -- both only check
+        files the generators themselves write, and this file is outside
+        that set by design.
+      - >-
+        CI note: Actions confirmed starved earlier this session
+        (ci_starvation.py: runner_id: 0 on sampled jobs) -- expect the
+        same on this PR.
     mrr_end: 0
   - venture: subcontractor-cashflow-planner
     agent_spend_usd: null

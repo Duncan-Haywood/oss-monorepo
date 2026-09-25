@@ -18223,6 +18223,56 @@ ventures:
       easy-to-get-wrong choice between two new giving paths; no scraped or
       personal data, nothing adversarial, scales with zero externality --
       one filer's calculation does not affect another's.
+  - slug: estate-tax-exemption-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 1
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a
+      deterministic exclusion/gift-offset/flat-rate comparison against
+      published statutory figures, never an inference step.
+      time_to_revenue ties it at 1: donations-only, same as most other
+      ventures in this file with no paid tier.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, ai-first-markets
+      idea, and pipeline candidate at or below 0.13 -- no existing venture
+      touches the federal estate, gift, or generation-skipping transfer
+      tax exclusion at all. autonomous_ops and gross_margin score 10 for
+      the same reason as its sibling OBBBA calculators: a static page with
+      a pure-function calculator, $0 marginal cost, no server, nothing to
+      operate. defensibility scores 2 -- the arithmetic is published
+      federal law anyone could replicate, same gate class as every other
+      deterministic tax-rules calculator in this file. distribution
+      scores 6: a permanent 2026 provision replacing a widely publicized
+      sunset scare, with at least nine already-published law/wealth-firm
+      explainers found during this session's research, though the buyer
+      population (high-net-worth individuals and their advisors) is
+      narrower than a mass-market deduction.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (gross estate, prior taxable gifts, DSUE) is
+      a figure the filer or their advisor already has or is instructed to
+      get from Form 706/709; output is an exclusion/tax estimate against
+      published statutory figures, never a filed return, a marital or
+      charitable deduction determination, or a claim about state estate
+      tax, each explicitly flagged as out of scope rather than silently
+      assumed. No warranty and no-advice disclaimers appear on every page.
+      Ethics: purely informational, helps a filer or advisor understand a
+      real, easy-to-get-wrong exclusion with a portability and a GST
+      non-portability trap; no scraped or personal data, nothing
+      adversarial, scales with zero externality -- one filer's calculation
+      does not affect another's.
   - slug: referrer-permissions-policy-check
     scores:
       ai_leverage: 1
@@ -18400,6 +18450,61 @@ ventures:
       calculation; no scraped or personal data, nothing adversarial,
       scales with zero externality -- one filer's calculation does not
       affect another's.
+  - slug: exempt-salary-threshold-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately -- every result is a fixed
+      federal-or-state threshold lookup and a comparison against the
+      salary the user types, never an inference step.
+    basis: >-
+      Screened 2026-09-25. duplicate_check.py against the final
+      description scored every venture, screened-out row, and pipeline
+      candidate at or below 0.13 -- salary-range-posting-check is the
+      closest existing venture and checks a different question (whether a
+      job posting discloses a pay range), not the exempt-salary threshold
+      itself. autonomous_ops and gross_margin score 10 for the same reason
+      as this portfolio's other deterministic-table calculators: a static
+      page with a pure-function lookup, $0 marginal cost, no server,
+      nothing to operate. defensibility scores 3, matching
+      tip-pool-compliance-calculator's own reasoning: the federal-and-
+      five-state table and New York's professional-exemption carve-out are
+      easy to reproduce once someone reads the underlying DOL and state
+      guidance -- the moat is being first with the specific
+      six-jurisdiction, two-category framing, not the arithmetic itself.
+      distribution scores 7: unlike a narrow, industry-specific compliance
+      topic (tip pooling, pay-range postings), this applies to every
+      employer with a salaried employee in any of five states raising
+      their figure for 2026, and it is a fast-growing, heavily-published
+      topic this session confirmed via live WebSearch against nine
+      independent sources (two law-firm client alerts, four payroll-
+      platform explainers, and the DOL's own Federal Register amendment).
+      No search-volume tool was queried to confirm magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: every input (state, exemption category, weekly salary) is
+      a figure the employer already has; output is a threshold comparison
+      against published federal and state dollar figures, never a full
+      exemption determination -- the salary-basis test and the duties test
+      are explicitly flagged as out of scope in three places (intro,
+      dedicated section, footer) rather than silently assumed, and the
+      page names a qualified employment attorney as the source to verify
+      against. No warranty and no-advice disclaimers appear on every page.
+      Ethics: purely informational, helps an employer avoid a real,
+      easy-to-get-wrong misclassification; no scraped or personal data,
+      nothing adversarial, scales with zero externality -- one employer's
+      check does not affect another's.
   - slug: gambling-loss-deduction-calculator
     scores:
       ai_leverage: 1

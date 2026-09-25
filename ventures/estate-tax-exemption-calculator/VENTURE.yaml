@@ -1,0 +1,139 @@
+name: estate-tax-exemption-calculator
+description: >-
+  Free browser calculator for the One Big Beautiful Bill Act's permanent
+  2026 federal estate, gift, and generation-skipping transfer (GST) tax
+  basic exclusion amount -- $15,000,000 per person, up to $30,000,000 for a
+  married couple who elects portability of a deceased spouse's unused
+  exclusion (DSUE). Subtracts prior taxable lifetime gifts and any DSUE
+  already received from the available exclusion, applies the flat 40%
+  federal rate to the resulting taxable estate, and flags that the GST
+  exemption -- unlike the estate/gift exemption -- is never portable
+  between spouses. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict; no in-progress venture work, so
+# per DIRECTION.md's standing owner direction a fresh gate-cleared niche
+# ranks ahead of a parity feature). duplicate_check.py scored every
+# venture, screened-out row, ai-first-markets idea, and pipeline candidate
+# at 0.13 or below for the final description above -- well under the 0.45
+# review bar. The closest matches (trump-account-calculator 0.13,
+# senior-deduction-calculator 0.12, charitable-deduction-calculator 0.12)
+# share only general OBBBA/federal-tax-provision vocabulary; none touch the
+# estate, gift, or GST exclusion at all -- confirmed by grepping the whole
+# ventures/ tree for "estate tax", "gift tax", and "generation-skipping"
+# (no matches before this venture was created) and by checking
+# screened-out.md for any "estate tax" or "gift tax" row (none).
+#
+# Regulatory fact pattern verified via WebSearch on 2026-09-25, cross-
+# checked against each other: the IRS's own newsroom release "IRS releases
+# tax inflation adjustments for tax year 2026, including amendments from
+# the One, Big, Beautiful Bill" (irs.gov), Morgan Lewis's "IRS Announces
+# Increased Gift and Estate Tax Exemption Amounts for 2026", Spencer Fane's
+# "Updated Inflation Adjustments for Gift Tax Annual Exclusion, Unified
+# Credit Amount, and GST Tax Exemption for 2026", Bowditch & Dewey's "Big
+# Increase in 2026 Federal Estate Exemption", and Haynes Boone's "Federal
+# Estate, Gift and GST Tax Highlights from the One Big Beautiful Bill Act":
+#
+#   - OBBBA (signed July 4, 2025, Public Law 119-21) permanently set the
+#     unified federal estate/gift basic exclusion amount (IRC 2010(c)) at
+#     $15,000,000 per person effective January 1, 2026 -- up from
+#     $13,990,000 for 2025 -- with NO sunset, replacing the scheduled TCJA
+#     reversion to roughly $7,000,000 (previously the 2017 base amount of
+#     $5,000,000 re-indexed for inflation) that would otherwise have taken
+#     effect January 1, 2026. Indexed for inflation starting in 2027 using
+#     2025 as the base year.
+#   - The GST exemption (IRC 2631) was raised to the identical
+#     $15,000,000 figure, but the GST exemption has never been portable
+#     between spouses (unlike the estate/gift exclusion) -- a detail this
+#     tool flags explicitly since it is easy to assume all three transfer
+#     taxes share one portable pool.
+#   - A surviving spouse can elect portability of a deceased spouse's
+#     unused exclusion (DSUE) by timely filing Form 706 for the deceased
+#     spouse's estate, even if no estate tax was owed -- OBBBA did not
+#     change this election mechanic (IRC 2010(c)).
+#   - The federal estate tax rate above the exclusion is a flat 40%.
+#   - The 2026 annual gift-tax exclusion (IRC 2503(b)) is $19,000 per
+#     recipient, unchanged from 2025 (the 2026 inflation computation
+#     produced no increase); the annual exclusion for gifts to a
+#     non-citizen spouse rises to $194,000.
+#   - Lifetime taxable gifts (gifts in excess of the annual exclusion,
+#     reported on Form 709) reduce the exclusion available at death --
+#     estate and gift tax share one unified lifetime/death exclusion
+#     bucket, not two separate ones.
+#
+# Differentiation from existing coverage found during research: every
+# source above publishes a 2026-figures explainer, and several estate-
+# planning firms (Lawvex, Q3 Advisors, Carter Wealth, Morkel Financial)
+# publish their own "$15 million made permanent" articles -- but this tool
+# is the one that actually computes a taxable estate and the resulting tax
+# from the visitor's own gross estate, prior taxable gifts, and DSUE
+# figures (not just restating the headline number), and is the only one
+# found that states the GST non-portability point next to the
+# estate/gift-IS-portable point in the same breath, which several
+# consumer-facing explainers omit or get backwards. No signup, no upsell,
+# nothing uploaded. State estate/inheritance taxes (which follow separate,
+# much lower state-level thresholds in states like Massachusetts, Oregon,
+# and Washington) are explicitly out of scope -- flagged, not computed,
+# since they vary by state of domicile and this tool has no way to know it
+# reliably.
+
+hypotheses:
+  - claim: >-
+      Estate planning attorneys, financial advisors, and individuals with
+      estates in the high-seven-to-eight-figure range will search plain-
+      language phrases ("2026 estate tax exemption calculator", "$15
+      million estate tax calculator", "DSUE portability calculator") and
+      some will prefer a free, private, no-signup calculator over reading a
+      law-firm client alert and doing the unified-credit arithmetic by
+      hand, especially while the exemption's permanence (vs. the widely
+      publicized pre-OBBBA sunset scare) is still new information in
+      2026.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of at least nine already-published 2026-exemption
+      explainer articles from law and wealth-management firms (found
+      during WebSearch research 2026-09-25) is evidence of real, current
+      search and professional interest in this exact figure -- a
+      permanent change replacing a widely anticipated, heavily marketed
+      sunset, not a speculative niche.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A person working this out by hand, or reading only a headline-number
+      explainer, is likely to assume the GST exemption is portable between
+      spouses the same way the estate/gift exclusion is (it is not), or to
+      forget that lifetime taxable gifts reduce the exclusion available at
+      death rather than sitting in a separate bucket -- and a calculator
+      that applies both correctly, on the visitor's own gross estate and
+      gift figures, prevents a materially wrong estimate of exposure.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of the 2026 tax-filing season closing (October 2027, covering the
+    first estate/gift returns filed under this permanent 2026 exclusion),
+    by which point most of the estate planning built around this figure
+    should already have been done.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of that filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/estate-tax-exemption-calculator/
+  analytics: null
