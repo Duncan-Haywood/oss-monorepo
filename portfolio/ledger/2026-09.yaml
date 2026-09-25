@@ -46342,6 +46342,43 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 earlier) -- verified
         fully locally per CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: actions-self-hosted-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-reviewing-workflows-by-eye.html -- this venture was one of the
+        ~20 ventures with 0 generic-method pages per
+        platform/pages/surface-budget.mjs (only a named-product page
+        against StepSecurity's Harden-Runner and a docs page). The angle:
+        a bare self-hosted-under-pull_request_target job is easy to spot
+        by eye, but a self-hosted label buried inside a runs-on: list, a
+        second job further down the same file, workflow_run/issue_comment
+        instead of pull_request_target, a runner group, or a `${{ }}`
+        matrix expression are all easy to miss or misjudge on a
+        read-through -- worked directly from this venture's own
+        classify.mjs classification logic rather than invented examples.
+      - >-
+        Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no competitor -- distinct
+        from this venture's own vs-stepsecurity.html, which does name one
+        and carries its own trademark/affiliation clause). Linked from
+        index.html and sitemap.xml. Regenerated the front-door mirror
+        (regen.mjs), which also picked up unrelated mirror drift already
+        present on main from earlier merges this session window.
+      - >-
+        Verified: venture's own suite 46/46 (including the new page's own
+        test file); platform/marketing + platform/pages suite 1290/1290;
+        platform/pages/faq-visible.test.mjs (fleet-wide JSON-LD/visible-copy
+        check) clean; surface-budget.mjs --check clean, no venture over
+        budget; clauses.mjs clean (1647 pages/383 surfaces);
+        sync_tree_counts.py --check clean (no venture added, no count
+        drift); regen.mjs --verify clean after regenerating;
+        checklist_coverage.py clean. CI starved this session
+        (ci_starvation.py: runner_id: 0 on a recent main push) -- verified
+        fully locally per CLAUDE.md's starvation checklist.
+    mrr_end: 0
   - venture: hreflang-reciprocity-check
     agent_spend_usd: null
     human_hours: 0

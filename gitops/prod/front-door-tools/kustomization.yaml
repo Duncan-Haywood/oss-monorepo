@@ -37,8 +37,8 @@
 #   portfolio-front-tools-1: 92 files, 554483 bytes
 #   portfolio-front-tools-2: 144 files, 552245 bytes
 #   portfolio-front-tools-3: 131 files, 553226 bytes
-#   portfolio-front-tools-4: 141 files, 554336 bytes
-#   portfolio-front-tools-5: 124 files, 541958 bytes
+#   portfolio-front-tools-4: 141 files, 555211 bytes
+#   portfolio-front-tools-5: 125 files, 546099 bytes
 #   portfolio-front-tools-6: 128 files, 556050 bytes
 #   portfolio-front-tools-7: 139 files, 555271 bytes
 #   portfolio-front-tools-8: 120 files, 553420 bytes
@@ -676,6 +676,7 @@ configMapGenerator:
       - actions-self-hosted-exposure-check__index.html.gz=actions-self-hosted-exposure-check__index.html.gz
       - actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz=actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz
       - actions-self-hosted-exposure-check__usage.mjs.gz=actions-self-hosted-exposure-check__usage.mjs.gz
+      - actions-self-hosted-exposure-check__vs-reviewing-workflows-by-eye.html.gz=actions-self-hosted-exposure-check__vs-reviewing-workflows-by-eye.html.gz
       - actions-self-hosted-exposure-check__vs-stepsecurity.html.gz=actions-self-hosted-exposure-check__vs-stepsecurity.html.gz
       - actions-transitive-pin-check__analyze.mjs.gz=actions-transitive-pin-check__analyze.mjs.gz
       - actions-transitive-pin-check__check.mjs.gz=actions-transitive-pin-check__check.mjs.gz
@@ -750,12 +751,12 @@ configMapGenerator:
       - android-data-safety-check__check.mjs.gz=android-data-safety-check__check.mjs.gz
       - android-data-safety-check__index.html.gz=android-data-safety-check__index.html.gz
       - android-data-safety-check__missing-data-safety-declaration.html.gz=android-data-safety-check__missing-data-safety-declaration.html.gz
-      - android-data-safety-check__scan.mjs.gz=android-data-safety-check__scan.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - android-data-safety-check__scan.mjs.gz=android-data-safety-check__scan.mjs.gz
       - android-data-safety-check__target-api-level.html.gz=android-data-safety-check__target-api-level.html.gz
       - android-data-safety-check__target-sdk-check.mjs.gz=android-data-safety-check__target-sdk-check.mjs.gz
       - android-data-safety-check__target-sdk-scan.mjs.gz=android-data-safety-check__target-sdk-scan.mjs.gz
