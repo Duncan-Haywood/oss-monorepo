@@ -2292,6 +2292,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // trademark disclaimer. Same reasoning as the other generic-method pages
   // above (e.g. sewer-line-replace-bid-calculator's flat-per-foot page).
   'pool-route-pricing/vs-a-flat-per-pool-monthly-rate.html',
+  // Compares against "doing the payout math yourself" (a mental estimate
+  // that subtracts only the platform fee percentage) -- a generic
+  // estimation habit any creator already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own guide
+  // page, which names no competitor either. The page still carries the
+  // "not affiliated with Patreon" clause on its own merits (Patreon is
+  // named as background context throughout), so this registration is
+  // purely so surface-budget.mjs classifies it as generic-method rather
+  // than named-product -- see facebook-marketplace-fee-calculator's entry
+  // above for what happens when a generic-method page is shipped without it.
+  'patreon-fee-calculator/vs-doing-the-math-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
