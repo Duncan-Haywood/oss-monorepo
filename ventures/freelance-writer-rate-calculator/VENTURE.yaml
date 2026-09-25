@@ -1,0 +1,102 @@
+name: freelance-writer-rate-calculator
+description: >-
+  Free browser calculator for freelance writers, copywriters, and
+  ghostwriters comparing a per-word rate against a flat per-project fee for
+  the same job -- computing the effective hourly rate each pricing method
+  actually pays once research, interviews, and revision rounds are counted
+  alongside writing time, and solving for the per-word rate or flat fee
+  needed to hit a target hourly income. Entirely client-side, nothing
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-25 new-venture-first session (CLAUDE.md
+# "Product-first default"; explicitly steered away from the tax/OBBBA and
+# trade-bid-calculator archetypes, both saturated in this catalogue -- see
+# portfolio/pipeline/README.md's 2026-09-07/09-11 notes on the
+# `-bid-calculator` (141+) and `-check`/`-checker` (38+) archetypes).
+# duplicate_check.py scored every venture, screened-out row, and pipeline
+# candidate at 0.15 or below for the description above -- well under the
+# 0.45 review bar. The closest matches (land-survey-bid-calculator 0.15,
+# personal-trainer-package-pricing-calculator 0.14, freelance-platform-fee-
+# calculator 0.14) share only generic freelance/pricing vocabulary; none
+# compares a per-word rate against a flat fee for the same job. Also
+# checked directly: no existing venture, screened-out.md row, or
+# ai-first-markets idea prices freelance writing at all -- the fleet's
+# existing freelance/creator tools (freelance-platform-fee-calculator:
+# Upwork vs. Fiverr platform cut; freelance-retainer-calculator: retainer
+# vs. hourly for recurring work; voiceover-project-rate-calculator: a
+# different profession entirely) leave this specific per-word-vs-flat-fee
+# decision unserved.
+#
+# Facts verified via WebSearch on 2026-09-25 against Upwork's "How To Set
+# Your Freelance Writing Rate in 2026", bestwriting.com's "Content Writing
+# Rates Statistics 2026" (42 data points, 500 active freelance writers
+# surveyed January 2026), the Editorial Freelancers Association's 2026
+# Rate Chart, AWAI's 2026 freelance copywriter rate survey, and Peak
+# Freelance's 2026 rates guide, cross-checked against each other: 2026
+# per-word rates span roughly $0.05-$0.10/word (entry level),
+# $0.10-$0.50/word (intermediate-to-senior generalist), and $0.50-$2.00+/
+# word (specialist legal/medical/expert B2B); the 500-writer survey's
+# across-the-board average was $0.42/word, the established-copywriter
+# survey's average was $0.70/word (different populations, not a
+# contradiction); most writers do not charge extra for ghostwriting, and of
+# those who do, most add a 16-20% premium over their bylined rate.
+#
+# Differentiation found during research: every rate-guide source above
+# states per-word AND flat-fee rate ranges, and several separately note
+# (in prose) that switching from per-word to project pricing is the most
+# reliable way an established writer raises real income -- but none found
+# lets a writer plug in one specific job's own word count, research time,
+# and revision rounds and see the two pricing methods' effective hourly
+# rates compared side by side for THAT job. No signup, no upsell, nothing
+# uploaded.
+
+hypotheses:
+  - claim: >-
+      Freelance writers, copywriters, and ghostwriters deciding whether to
+      accept a per-word rate or a flat project fee for the same job will use
+      a calculator that turns both into an effective hourly rate including
+      research and revision time, because neither a client's quote request
+      nor a generic per-word rate guide shows that comparison for the
+      writer's own specific job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Writers searching phrases like "per word vs flat rate writing",
+      "freelance writing hourly rate calculator", or "should I charge per
+      word or per project" are underserved by static rate-guide articles
+      that state ranges but do not let the writer compute their own job's
+      numbers.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A writer who runs one job through this tool will also want to solve
+      the reverse direction -- what per-word rate or flat fee would hit a
+      target hourly income for the same job -- rather than just seeing
+      whether their current offer clears some bar.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic within 6 months
+    of launch.
+  - Fewer than three unsolicited signals (star, fork, referral, or
+    feedback) within 90 days of launch.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelance-writer-rate-calculator/
+  analytics: null
