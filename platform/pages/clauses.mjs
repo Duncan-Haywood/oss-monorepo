@@ -2242,6 +2242,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // pypi-attestations verify CLI, which is a first-party tool comparison,
   // not a competing product, and predates this generic-method page).
   'pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html',
+  // Compares against "a flat $125-a-foot" sewer-replacement price -- a
+  // generic pricing method every plumbing/sewer-repair shop already has
+  // access to, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("common, honest shortcut"). Same
+  // reasoning as the other generic-method flat-rate pages above (e.g.
+  // boiler-replacement-bid-calculator's flat-rate page).
+  'sewer-line-replace-bid-calculator/vs-a-flat-per-foot-price.html',
   // Compares against "reading the settings.json by eye" -- a manual review
   // habit anyone editing a Claude Code settings.json already has, not a
   // company or product this could be mistaken for. Same reasoning as the
