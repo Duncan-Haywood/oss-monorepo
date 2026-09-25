@@ -569,6 +569,9 @@ workflows:
 - workflow: freelance-retainer-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: freelance-writer-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
   classification: none
   publishes: []
