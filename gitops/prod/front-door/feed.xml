@@ -13,7 +13,7 @@
     <id>tag:marisstella.dev,2026:tool/claude-code-hooks-security-check</id>
     <published>2026-09-25T00:00:00Z</published>
     <updated>2026-09-25T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
@@ -31,7 +31,7 @@
     <id>tag:marisstella.dev,2026:tool/pypi-provenance-check</id>
     <published>2026-09-25T00:00:00Z</published>
     <updated>2026-09-25T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a requirements.txt, a PEP 621 pyproject.toml, or a plain package list and see which Python packages were published with a PyPI provenance attestation (trusted publishing / OIDC via GitHub Actions or another supported CI) and which still rely on a classic, stealable API token. Free, no account, two read-only requests per package to the public PyPI API.</summary>
   </entry>
   <entry>
