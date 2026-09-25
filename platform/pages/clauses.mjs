@@ -628,6 +628,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page names no specific linter, CI product, or
   // company at all. Same reasoning as the other manual-method pages above.
   'docker-cache-order-check/vs-manually-reviewing-a-dockerfile.html',
+  // Compares against "reading the plan JSON by eye" and "grepping it for
+  // known secret shapes" -- manual habits every Terraform user already has
+  // access to, not a company or product this could be mistaken for. Same
+  // reasoning as the other manual-method pages above.
+  'terraform-plan-secret-exposure-check/vs-manually-reading-the-plan-json.html',
   // Compares against "guessing your payroll burden and overhead from
   // memory" -- the 20%/10% rule of thumb every trade contractor already
   // reaches for, not a company or product this could be mistaken for. The
@@ -2459,6 +2464,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-wfs-cost-estimator.html, which names Walmart's own WFS Cost
   // Estimator and carries the trademark/affiliation disclaimer.
   'walmart-marketplace-calculator/vs-a-spreadsheet.html',
+  // Compares against pricing a stucco/EIFS repair by a flat rate per
+  // square foot -- the generic estimating shortcut any plastering shop
+  // already uses, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-jobber.html, which names Jobber
+  // and carries the trademark/affiliation disclaimer.
+  'stucco-repair-bid-calculator/vs-a-flat-rate-per-square-foot.html',
   // Compares against "a flat rate per lineal foot" -- the $12-or-so
   // wrap-and-fascia special every soffit and fascia crew already has access
   // to, not a company or product this could be mistaken for. Distinct from

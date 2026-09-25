@@ -52,9 +52,9 @@
 #   portfolio-front-tools-16: 134 files, 556159 bytes
 #   portfolio-front-tools-17: 125 files, 555690 bytes
 #   portfolio-front-tools-18: 104 files, 556440 bytes
-#   portfolio-front-tools-19: 121 files, 554329 bytes
-#   portfolio-front-tools-20: 128 files, 555618 bytes
-#   portfolio-front-tools-21: 78 files, 375799 bytes
+#   portfolio-front-tools-19: 121 files, 553049 bytes
+#   portfolio-front-tools-20: 127 files, 551912 bytes
+#   portfolio-front-tools-21: 81 files, 389762 bytes
 #   portfolio-front-tools-22: 50 files, 264886 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -2686,6 +2686,7 @@ configMapGenerator:
       - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
       - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
+      - stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
       - subdomain-takeover-check__check.mjs.gz=subdomain-takeover-check__check.mjs.gz
@@ -2709,12 +2710,12 @@ configMapGenerator:
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-a-flat-pump-swap-special.html.gz=sump-pump-bid-calculator__vs-a-flat-pump-swap-special.html.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
-      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
       - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
       - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
       - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
@@ -2746,6 +2747,7 @@ configMapGenerator:
       - terraform-plan-secret-exposure-check__usage.mjs.gz=terraform-plan-secret-exposure-check__usage.mjs.gz
       - terraform-plan-secret-exposure-check__vs-checkov.html.gz=terraform-plan-secret-exposure-check__vs-checkov.html.gz
       - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
+      - terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz=terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz
       - terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz=terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz
       - tip-pool-compliance-calculator__calc.mjs.gz=tip-pool-compliance-calculator__calc.mjs.gz
       - tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz=tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz
@@ -2840,14 +2842,14 @@ configMapGenerator:
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
       - vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz=vpat-acr-generator__vs-filling-out-the-vpat-template-by-hand.html.gz
       - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
-      - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
-      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
-      - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
+      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
+      - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
       - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
