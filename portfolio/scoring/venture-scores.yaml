@@ -17941,3 +17941,88 @@ ventures:
       real PyPI-documented hardening signal more easily; no scraped or
       personal data, nothing adversarial, scales with zero externality --
       one user's lookup does not affect another's.
+  - slug: patreon-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 5
+      distribution: 3
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- Patreon's
+      August 2025 plan split (a single 10% Standard fee for pages created
+      since, versus a legacy Lite/Pro/Premium 5/8/12% tier plus an
+      under-$3 micropayment processing discount for pages that predate
+      it), and the per-charge fixed-fee arithmetic that makes per-creation
+      billing cost more than monthly billing for identical revenue -- and
+      it is arithmetic a creator has to be able to re-derive whenever
+      their plan, pledge amounts, or billing frequency changes.
+    basis: >-
+      Screened 2026-09-25 per portfolio/pipeline/README.md's scoring
+      process: `duplicate_check.py` scored every existing venture,
+      screened-out row, ai-first-markets idea, and pipeline candidate at
+      or below 0.40 (kickstarter-fee-calculator), under the 0.45
+      near-duplicate bar -- no existing venture models a creator
+      membership platform's own fee schedule; the closest,
+      `twitch-payout-calculator`, prices a subscription/Bits split with no
+      per-charge processing layer at all. Categorized under the fallback
+      "more" bucket by build.mjs's slug rules rather than `solo-earner` or
+      `marketplace`; cross-linked with twitch-payout-calculator by
+      mechanism (platform fee + per-charge processing deducted from a
+      creator's payout, then a gap-to-target check) regardless of that
+      bucket, per platform/pages/siblings-budget.json's "shipped with an
+      inbound link from its first commit" pattern.
+      Defensibility 5: three independent WebSearch passes (2026-09-25)
+      against Patreon's own Help Center confirm the plan split and the
+      under-$3 micropayment rate being legacy-only -- a fact this
+      venture's own first draft got wrong (it modeled Lite/Pro/Premium as
+      8/10/12% for every page, a structure Patreon retired for new
+      creators in August 2025) before the search corrected it, which is
+      itself evidence this is not a trivial "multiply by a percentage"
+      calculator to get right. The per-creation-vs-monthly billing fee gap
+      ($90/month on 100 patrons at a $5 pledge on the Standard plan,
+      $20.50 on a legacy Pro plan) is arithmetic a flat-rate estimate
+      cannot see at all. Scored at the fee-tier-venture anchor
+      (stockx-seller-payout-calculator, twitch-payout-calculator) rather
+      than above it, because whether the many competing calculators found
+      below already model the 2025 plan split correctly is not verifiable
+      from search snippets alone.
+      Distribution 3, well below the fee-tier anchor's 7: the same
+      WebSearch pass surfaced at least ten existing dedicated "Patreon fee
+      calculator" sites (Beamly, transferfees.io, feecalculator.us,
+      subscord, creatortake, sellerfeescalculator, feexivo,
+      ecommerce-platforms.com, cartmango, payoutmath,
+      creatorrevenuecalculator, among others), a materially more crowded
+      field than the six-competitor case CLAUDE.md already records for
+      no-tax-on-tips-overtime-calculator. "Patreon fee calculator" and
+      "how much does patreon take" are confirmed real, high-intent search
+      queries -- evidence searchers exist -- but the query is heavily
+      contested rather than open, and this portfolio has recorded zero
+      visitors on any product to date, so out-ranking ten incumbents is
+      unproven rather than merely undone.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page, guide page, and README state, near the
+      top and explicitly, that this is not a payout tracker of any kind --
+      it never reads the visitor's Patreon account and does not replace
+      their own creator dashboard and payout statements. No platform fee,
+      processing rate, or micropayment threshold is claimed as
+      Patreon's live, current figure without a verify-your-own-dashboard
+      caveat alongside it; every dollar in the worked examples comes from
+      the user's own typed pledge, patron count, and plan choice, with
+      currency conversion, payout-method fees, and any promotional rate
+      explicitly named as unmodeled rather than silently ignored. The
+      footer states plainly that Patreon's platform fee percentages and
+      processing rates change over time. Nothing entered leaves the
+      browser. Ethically: donations-only with no per-use fee, so nothing
+      biases the arithmetic toward a higher or lower result, and the tool
+      never touches authentication, payment collection, or payout
+      movement -- it is read-only arithmetic on figures the creator
+      already has.

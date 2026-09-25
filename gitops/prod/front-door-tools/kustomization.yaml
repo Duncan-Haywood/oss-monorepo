@@ -33,28 +33,28 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 141 files, 527974 bytes
-#   portfolio-front-tools-1: 91 files, 550864 bytes
-#   portfolio-front-tools-2: 145 files, 557044 bytes
-#   portfolio-front-tools-3: 132 files, 554687 bytes
-#   portfolio-front-tools-4: 142 files, 555449 bytes
-#   portfolio-front-tools-5: 124 files, 556456 bytes
-#   portfolio-front-tools-6: 132 files, 555385 bytes
-#   portfolio-front-tools-7: 132 files, 553763 bytes
-#   portfolio-front-tools-8: 124 files, 549469 bytes
-#   portfolio-front-tools-9: 136 files, 556268 bytes
-#   portfolio-front-tools-10: 125 files, 551240 bytes
-#   portfolio-front-tools-11: 122 files, 550251 bytes
-#   portfolio-front-tools-12: 116 files, 555024 bytes
-#   portfolio-front-tools-13: 126 files, 554425 bytes
-#   portfolio-front-tools-14: 129 files, 556663 bytes
-#   portfolio-front-tools-15: 125 files, 554990 bytes
-#   portfolio-front-tools-16: 134 files, 542463 bytes
-#   portfolio-front-tools-17: 101 files, 554707 bytes
-#   portfolio-front-tools-18: 118 files, 551100 bytes
-#   portfolio-front-tools-19: 125 files, 551511 bytes
-#   portfolio-front-tools-20: 123 files, 555932 bytes
-#   portfolio-front-tools-21: 77 files, 389612 bytes
+#   portfolio-front-tools-0: 141 files, 527967 bytes
+#   portfolio-front-tools-1: 91 files, 550863 bytes
+#   portfolio-front-tools-2: 145 files, 557050 bytes
+#   portfolio-front-tools-3: 132 files, 554690 bytes
+#   portfolio-front-tools-4: 142 files, 555500 bytes
+#   portfolio-front-tools-5: 124 files, 556487 bytes
+#   portfolio-front-tools-6: 132 files, 555431 bytes
+#   portfolio-front-tools-7: 132 files, 553849 bytes
+#   portfolio-front-tools-8: 124 files, 549569 bytes
+#   portfolio-front-tools-9: 136 files, 556284 bytes
+#   portfolio-front-tools-10: 125 files, 551156 bytes
+#   portfolio-front-tools-11: 122 files, 550192 bytes
+#   portfolio-front-tools-12: 116 files, 555002 bytes
+#   portfolio-front-tools-13: 126 files, 554362 bytes
+#   portfolio-front-tools-14: 129 files, 556621 bytes
+#   portfolio-front-tools-15: 126 files, 556964 bytes
+#   portfolio-front-tools-16: 136 files, 550981 bytes
+#   portfolio-front-tools-17: 102 files, 556884 bytes
+#   portfolio-front-tools-18: 118 files, 554354 bytes
+#   portfolio-front-tools-19: 126 files, 554917 bytes
+#   portfolio-front-tools-20: 123 files, 556047 bytes
+#   portfolio-front-tools-21: 77 files, 389625 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2074,6 +2074,11 @@ configMapGenerator:
       - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
       - patio-door-bid-calculator__vs-a-flat-installed-price.html.gz=patio-door-bid-calculator__vs-a-flat-installed-price.html.gz
       - patio-door-bid-calculator__vs-jobber.html.gz=patio-door-bid-calculator__vs-jobber.html.gz
+      - patreon-fee-calculator__calc.mjs.gz=patreon-fee-calculator__calc.mjs.gz
+      - patreon-fee-calculator__does-per-creation-billing-cost-more-in-fees.html.gz=patreon-fee-calculator__does-per-creation-billing-cost-more-in-fees.html.gz
+      - patreon-fee-calculator__index.html.gz=patreon-fee-calculator__index.html.gz
+      - patreon-fee-calculator__share.mjs.gz=patreon-fee-calculator__share.mjs.gz
+      - patreon-fee-calculator__usage.mjs.gz=patreon-fee-calculator__usage.mjs.gz
       - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
       - paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz=paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
@@ -2190,15 +2195,15 @@ configMapGenerator:
       - poshmark-fee-calculator__vs-tracking-poshmark-payouts-in-a-spreadsheet.html.gz=poshmark-fee-calculator__vs-tracking-poshmark-payouts-in-a-spreadsheet.html.gz
       - pour-cost-calculator__calc.mjs.gz=pour-cost-calculator__calc.mjs.gz
       - pour-cost-calculator__how-to-calculate-pour-cost.html.gz=pour-cost-calculator__how-to-calculate-pour-cost.html.gz
-      - pour-cost-calculator__index.html.gz=pour-cost-calculator__index.html.gz
-      - pour-cost-calculator__share.mjs.gz=pour-cost-calculator__share.mjs.gz
-      - pour-cost-calculator__usage.mjs.gz=pour-cost-calculator__usage.mjs.gz
-      - pour-cost-calculator__vs-a-spreadsheet.html.gz=pour-cost-calculator__vs-a-spreadsheet.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pour-cost-calculator__index.html.gz=pour-cost-calculator__index.html.gz
+      - pour-cost-calculator__share.mjs.gz=pour-cost-calculator__share.mjs.gz
+      - pour-cost-calculator__usage.mjs.gz=pour-cost-calculator__usage.mjs.gz
+      - pour-cost-calculator__vs-a-spreadsheet.html.gz=pour-cost-calculator__vs-a-spreadsheet.html.gz
       - pour-cost-calculator__vs-binwise.html.gz=pour-cost-calculator__vs-binwise.html.gz
       - pour-cost-calculator__vs-wisk.html.gz=pour-cost-calculator__vs-wisk.html.gz
       - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
@@ -2331,13 +2336,13 @@ configMapGenerator:
       - sbom-diff-check__vs-cyclonedx-cli-diff.html.gz=sbom-diff-check__vs-cyclonedx-cli-diff.html.gz
       - sbom-diff-check__vs-diffing-the-raw-json-files.html.gz=sbom-diff-check__vs-diffing-the-raw-json-files.html.gz
       - sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz=sbom-diff-check__why-did-one-version-bump-show-up-as-dozens-of-changes.html.gz
-      - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
-      - screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz=screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz
   - name: portfolio-front-tools-17
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
+      - screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz=screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz
       - screened-porch-bid-calculator__index.html.gz=screened-porch-bid-calculator__index.html.gz
       - screened-porch-bid-calculator__share.mjs.gz=screened-porch-bid-calculator__share.mjs.gz
       - screened-porch-bid-calculator__usage.mjs.gz=screened-porch-bid-calculator__usage.mjs.gz
@@ -2438,12 +2443,12 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz
       - shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz=shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz
       - shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz=shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz
-      - shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz=shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz=shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz
       - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
       - shopify-fee-calculator__to-where-to-sell.mjs.gz=shopify-fee-calculator__to-where-to-sell.mjs.gz
       - shopify-fee-calculator__usage.mjs.gz=shopify-fee-calculator__usage.mjs.gz
@@ -2561,12 +2566,12 @@ configMapGenerator:
       - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
       - staffing-markup-calculator__vs-tempworks.html.gz=staffing-markup-calculator__vs-tempworks.html.gz
       - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
-      - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
       - stair-lift-bid-calculator__index.html.gz=stair-lift-bid-calculator__index.html.gz
       - stair-lift-bid-calculator__should-i-expedite-a-stair-lift-for-hospital-discharge.html.gz=stair-lift-bid-calculator__should-i-expedite-a-stair-lift-for-hospital-discharge.html.gz
       - stair-lift-bid-calculator__should-i-install-a-customer-supplied-stair-lift.html.gz=stair-lift-bid-calculator__should-i-install-a-customer-supplied-stair-lift.html.gz
