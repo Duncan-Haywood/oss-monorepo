@@ -77,6 +77,17 @@ test("index links one hop to the mega-backdoor-roth-calculator sibling", () => {
   );
 });
 
+// section-174a-catchup-calculator joined 2026-09-25 as this venture's second
+// reciprocal sibling link (mega-backdoor-roth-calculator above is the
+// first); section-174a-catchup-calculator/page.test.mjs pins the link back.
+test("index links one hop to the section-174a-catchup-calculator sibling", () => {
+  assert.match(
+    page("index.html"),
+    /href="\.\.\/section-174a-catchup-calculator\/"/,
+    'index must link ../section-174a-catchup-calculator/ so crawlers reach the sibling in one hop',
+  );
+});
+
 test("index links to the vs-doing-the-math-by-hand comparison page", () => {
   assert.match(page("index.html"), /href="\.\/vs-doing-the-math-by-hand\.html"/);
 });

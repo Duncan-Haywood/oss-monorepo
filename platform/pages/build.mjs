@@ -1280,7 +1280,19 @@ const CATEGORY_RULES = [
       // determination -- just for a federal child savings account (26
       // U.S.C. 530A) instead of a 401(k)'s after-tax bucket. It cross-links
       // `mega-backdoor-roth-calculator` as its nearest sibling.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator)/.test(slug),
+      //
+      // `section-174a-catchup-calculator` joined 2026-09-25, filed here on
+      // its first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream federal
+      // tax election on figures the filer already has" axis as
+      // `depreciation-recapture-calculator` and `qbi-deduction-calculator`
+      // above it in this rule -- comparing the two Rev. Proc. 2025-28
+      // Section 174A R&E catch-up election paths (1-year vs. 2-year) rather
+      // than a single deduction estimate, never a filed election made on the
+      // visitor's behalf. It cross-links `trump-account-calculator` as its
+      // nearest sibling: both are brand-new, deterministic 2025-2026 OBBBA
+      // calculators with no closer topical match in this portfolio.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator)/.test(slug),
   },
   {
     id: 'ci',

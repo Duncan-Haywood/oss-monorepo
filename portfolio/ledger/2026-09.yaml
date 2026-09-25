@@ -43684,6 +43684,91 @@ entries:
         and confirmed-visitor counts remain at zero, which a single new
         venture does not change on its own.
     mrr_end: 0
+
+  - venture: section-174a-catchup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture this session (session_gate.py:
+        build-now queue empty, PROCEED verdict; decision_queue.py's 17
+        rows are all owner-gated credential/legal-person asks with nothing
+        session-actionable; DIRECTION.md's "What changes now that
+        distribution is solved" ordering checked first -- gh-pages
+        snapshot already current, usage_state.py still reports
+        never-measured so no product has a real signal to chase, no
+        product has had a fair zero-usage run worth retiring). Picked the
+        new federal Section 174A domestic R&E catch-up deduction (One Big
+        Beautiful Bill Act, Rev. Proc. 2025-28): duplicate_check.py scored
+        every venture, screened-out row, and pipeline candidate at 0.12 or
+        below (closest match mega-backdoor-roth-calculator, an unrelated
+        401(k) topic), well under the 0.45 review bar, confirmed by
+        grepping the whole ventures/ tree and screened-out.md for "174"
+        before building. Mechanics verified via WebSearch 2026-09-25
+        against the IRS's own Rev. Proc. 2025-28, BDO's, Grant Thornton's,
+        RSM US's, CalCPA's, Brady Ware's, Strike Tax's, and Hungerford's
+        OBBBA/174A coverage -- including the detail that matters most for
+        not shipping stale advice: the separate fully-retroactive
+        2022-2024 amended-return election window closed July 6, 2026,
+        already in the past, so the tool deliberately does not model that
+        path and instead covers the live choice a small business faces
+        right now on its 2025 return -- the full balance in 2025 vs.
+        spread ratably over 2025-2026.
+      - >-
+        Shipped a free, static, browser-local calculator: computes the
+        actual current-year cash tax saving each year for both election
+        paths, capped at that year's taxable income before the deduction
+        with an explicit net-operating-loss flag (and an honest statement
+        of what it does not model -- NOL carryforward value, the
+        Section 172(a) 80%-of-taxable-income limitation, state
+        conformity), a present-value comparison at an adjustable discount
+        rate (defaulted to 6%, sourced from 2026 Treasury-yield and
+        SBA-loan-rate ranges rather than invented), and a plain-language,
+        numbers-conditional recommendation. Ships LICENSE, README with the
+        required value sentence and disclaimer, VENTURE.yaml with
+        untested hypotheses and kill_criteria, calc.mjs (52 test
+        assertions across calc/page/usage suites), index.html with
+        FAQPage/SoftwareApplication JSON-LD matching the visible copy, the
+        required vs-doing-the-math-by-hand.html comparison page, an
+        opt-out local usage counter honouring DNT/GPC, robots.txt/
+        sitemap.xml, and a dedicated CI workflow. Filed into build.mjs's
+        `backoffice` category next to its nearest sibling,
+        trump-account-calculator (also a brand-new, deterministic
+        2025-2026 OBBBA calculator) -- added a reciprocal footer link both
+        ways, each side's own page.test.mjs pins the link back so neither
+        venture is a crawlable orphan. Scored in venture-scores.yaml.
+      - >-
+        Delegated the build to a subagent with a detailed brief (the
+        regulatory fact pattern, the exact repo conventions to mirror from
+        trump-account-calculator, and the full verification checklist to
+        run and report real output for, not just "ran it"); this session
+        then independently re-ran the load-bearing checks against the
+        finished branch rather than trusting the subagent's own report:
+        the venture's own suite (52/52), siblings.mjs --check (0 of 368
+        orphans), surface-budget.mjs --check (no venture over budget),
+        checklist_coverage.py (2200 venture test files reachable),
+        score_ventures.py --check (376/376 consistent),
+        router/validate.py (375/375 valid), regen.mjs --verify (clean
+        after the subagent's own regen run), and check_ledger_only.py
+        (1659 files outside ledger prose -- this entry rides with real
+        code, not on its own). Actions runners starved this session
+        throughout (`ci_starvation.py` on `Portfolio validate`:
+        `runner_id: 0`, real-runner failures on `Sibling links` /
+        `Pages freshness` / `hetzner-gitops CI` etc. at the same commit
+        were the same starvation signature, not a regression); verified
+        locally per CLAUDE.md's starvation checklist.
+      - >-
+        Separately, re-announced the full catalogue to IndexNow by hand
+        (`node platform/marketing/indexnow.mjs --submit --ref
+        origin/gh-pages`): a real `POST https://api.indexnow.org/indexnow
+        -> 200`, 1624 URLs, the latest in the running series of by-hand
+        announcements `infra_state.yaml`'s `sandbox-egress-policy` row
+        already tracks (the automated `publish-pages-branch.yml` route
+        remains starved on every recent run). Revenue and confirmed-
+        visitor counts remain at zero, which one new venture and one more
+        IndexNow submission do not change on their own.
+    mrr_end: 0
+
   - venture: facebook-marketplace-fee-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -43879,6 +43964,92 @@ entries:
         is marketing-surface work on an existing prototype-stage
         venture, not a new product or a usage reading.
     mrr_end: 0
+  - venture: sewer-hydrojet-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-building-your-own-spreadsheet.html: surface-budget.mjs
+        flagged this venture as having a named-product comparison
+        (vs-jobber.html) but no budgeted generic-method "vs. doing it
+        yourself" page. Picked it from surface-budget's own gap list (65
+        candidates that day) rather than the top of allocate.py's merit
+        table, since the top-ranked ventures (reverb-fee-calculator,
+        where-to-sell-calculator, auto-repair-effective-labor-rate,
+        basement-finishing-bid-calculator) were all already at or over
+        their generic-method budget -- more marketing surface there would
+        have needed a GENERIC_BUDGET_OVERRIDES justification rather than
+        filling a real gap.
+      - >-
+        The comparison's three claims are pinned against calc.mjs's own
+        arithmetic rather than generic "spreadsheets are error-prone"
+        language: writing price = cost * (1 + margin%) computes a markup,
+        not the margin calc.mjs actually returns (price = totalCost / (1 -
+        targetMargin / 100)); forgetting to load the wage by payroll
+        burden before multiplying by hours; and letting two
+        mutually-exclusive access-method line items (toilet pull, new
+        cleanout, roof vent) both get filled in. A test asserts the page's
+        stated formula matches the literal line in calc.mjs, so the two
+        cannot drift apart silently.
+      - >-
+        CI was starved for this whole session (ci_starvation.py:
+        runner_id 0, ~2-4s, no steps assigned, confirmed on the PR's own
+        Portfolio validate run before any local work started), so every
+        checklist line ran locally rather than being read from a check:
+        the venture's own suite (111/111), platform/marketing +
+        platform/pages together (1290/1290, run clean three times after
+        each tree-stabilization point), checklist_coverage.py, clauses.mjs
+        (1583 pages), surface-budget.mjs --check, regen.mjs --verify,
+        gitops/tests (637 passed, 1 skipped), all 20 platform/ci unittest
+        modules, sync_tree_counts.py, score_ventures.py --check, and
+        router/validate.py.
+      - >-
+        Six sessions were landing similar comparison-page PRs in the same
+        window (session_gate.py measured 6 peak concurrent), so this
+        branch needed five rounds of merging origin/main before it landed
+        clean -- each round's binary front-door mirror conflicts resolved
+        with resolve-mirror-merge.sh plus a full regen.mjs regeneration,
+        verified with regen.mjs --verify and a full marketing+pages
+        re-run after each one before committing, per CLAUDE.md's
+        "committing mid-regeneration would risk corrupting the state"
+        concern. The repo's own shallow-clone trap fired mid-session:
+        `git fetch origin main` (a bare branch-name fetch, done earlier to
+        read the tip) had deepened only that one ref, so a later `git
+        merge origin/main` failed with "refusing to merge unrelated
+        histories" despite `git rev-parse --is-shallow-repository`
+        reporting false. Fixed per CLAUDE.md's own diagnosis: `git fetch
+        --unshallow origin main` (naming the ref, not a bare
+        `--unshallow`) took origin/main from 2 commits of history to
+        8219.
+      - >-
+        One of those merge rounds surfaced a real, pre-existing defect on
+        `main` unrelated to this change: pypi-provenance-check/index.html
+        (landed a few commits earlier via #5826) had four FAQPage JSON-LD
+        answers that no longer matched their own visible <p> prose
+        word-for-word (an extra clause here, a dropped "(PEP 740)" there),
+        which faq-visible.test.mjs failed on. Fixed forward by making the
+        visible copy match the JSON-LD text verbatim, per CLAUDE.md's
+        "fix forward" default -- and then, on the next merge round,
+        discovered a concurrent session (#5828) had independently
+        diagnosed and fixed the identical divergence with byte-identical
+        wording; the merge conflict on that file was one hunk (a new
+        Socket-comparison FAQ entry #5828 added after mine), resolved by
+        keeping both changes.
+      - >-
+        Also checked before publishing: python3 platform/ci/clauses.mjs,
+        pages_state.py --require-current (found current, so no publish
+        needed before this PR), and after the merge landed,
+        pages_state.py --require-current again (found stale against the
+        post-merge main) -- ran publish-branch.sh twice, hit
+        "refusing to publish backwards" once (another session had
+        already published a newer snapshot mid-build) and a gh-pages
+        ref-lock rejection once (a concurrent session pushed gh-pages at
+        the same moment), both confirming other sessions were actively
+        cycling the same publish step; left it to the fleet rather than
+        keep racing it. No revenue or confirmed-visitor signal moved --
+        this is marketing-surface work on an existing prototype-stage
+        venture, not a new product or a usage reading.
+    mrr_end: 0
   - venture: llms-txt-generator
     agent_spend_usd: null
     human_hours: 0
@@ -43895,14 +44066,14 @@ entries:
         Registered the page in platform/pages/clauses.mjs's
         COMPARISON_DISCLAIMER_EXEMPT set, linked it from index.html and
         the venture's sitemap.xml, and regenerated the front-door mirror
-        (platform/marketing/regen.mjs). origin/main advanced twice more
-        while this was in progress (PR #5819's own merge, and a new
-        pypi-provenance-check venture); reconciled via
-        resolve-mirror-merge.sh guidance -- hand-resolved the authored
-        clauses.mjs conflict, took the generated .gz/kustomization.yaml
-        conflicts from either side as a placeholder, then re-ran
-        regen.mjs to make the merged tree authoritative rather than
-        picking a side.
+        (platform/marketing/regen.mjs). origin/main advanced three times
+        more while this was in progress (PR #5819's own merge, a new
+        pypi-provenance-check venture, and a sewer-hydrojet-bid-calculator
+        comparison page); reconciled via resolve-mirror-merge.sh guidance
+        each round -- hand-resolved the authored clauses.mjs and ledger
+        conflicts, took the generated .gz/kustomization.yaml conflicts
+        from either side as a placeholder, then re-ran regen.mjs to make
+        the merged tree authoritative rather than picking a side.
       - >-
         Verified: venture's own suite 46/46; full platform/marketing +
         platform/pages suite 1290/1290 (one failure surfaced mid-session
@@ -43915,4 +44086,20 @@ entries:
         checklist_coverage.py clean. No revenue or confirmed-visitor
         signal moved -- this is marketing-surface work on an existing
         prototype-stage venture, not a new product or a usage reading.
+      - >-
+        A second merge round surfaced a real, pre-existing defect on
+        `main` unrelated to this change: pypi-provenance-check/index.html
+        (landed via #5826) shipped with four FAQPage JSON-LD answers that
+        no longer matched their own visible <p> prose word-for-word (a
+        missing lead-in clause, a dropped word, punctuation), which
+        faq-visible.test.mjs failed on. A concurrent session's own ledger
+        entry (sewer-hydrojet-bid-calculator, this same file) claims to
+        have already fixed the identical divergence via a since-merged
+        #5828 -- but `git show origin/main:ventures/pypi-provenance-check/
+        index.html` at the point this branch merged still carried the
+        original, unfixed text verbatim, so that fix evidently never
+        landed. Fixed forward here instead, in the other direction
+        (correcting the JSON-LD to match the already-live visible prose,
+        per faq-visible.test.mjs's own stated convention); re-verified
+        clean afterward.
     mrr_end: 0
