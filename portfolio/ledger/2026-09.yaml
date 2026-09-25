@@ -44448,3 +44448,64 @@ entries:
         same documented, unfixable-from-here limitation as every other
         reading in indexnow_state.py's log.
     mrr_end: 0
+  - venture: pool-route-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-flat-per-pool-monthly-rate.html, the venture's first
+        generic-method comparison page -- it had a named-product
+        comparison (vs-skimmer.html) and a guide page but zero
+        "you could work this out yourself" pages, one of 54 ventures
+        surface-budget.mjs flagged with that gap. Worked example pinned
+        against calc.mjs's own calculate(): a tight 40-account route at
+        12 min drive per visit ($6,869.33/month, $264.21/account at 35%
+        target margin) vs. the same 40 accounts widened to 25 min drive
+        ($7,840.00/month, $301.54/account) -- quoting the second route
+        the first route's flat rate clears only 25.8% margin instead of
+        35%, $37.33/account/month short, $17,920.00/year across the
+        route. Linked from index.html and added to sitemap.xml.
+        Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (generic method, no competitor
+        named). Front-door mirror regenerated (regen.mjs --verify clean
+        after).
+      - >-
+        Also refreshed the published gh-pages snapshot at session start
+        (session_gate.py flagged it stale, 4 merged files behind main)
+        via publish-branch.sh, confirmed current with pages_state.py
+        --require-current, and recorded the reading. Attempted an
+        IndexNow announce for 1656 URLs by hand; refused by this
+        sandbox's own egress proxy (403 on api.indexnow.org, not from
+        IndexNow) -- the same documented, unfixable-from-here limitation
+        recorded elsewhere in indexnow_state.py's log. Also started the
+        whole-catalogue browser/accessibility sweep (stale since the
+        builder/front-door files last moved) in the background; its
+        result lands in a follow-up entry once it completes.
+      - >-
+        Verified: venture's own suite 53/53 (new
+        vs-a-flat-per-pool-monthly-rate.test.mjs); platform/pages/
+        clauses.test.mjs 21/21; full platform/marketing + platform/pages
+        suite 1290/1290 clean on the merged tree (re-run after an
+        earlier concurrent pass hit the documented read-during-write
+        race against gitops/prod/ while regen.mjs was running --
+        re-ran sequentially once settled); surface-budget.mjs --check
+        and checklist_coverage.py both clean; sync_tree_counts.py clean
+        (370->371 mirrored tools, 349->350 opt-out switches, both from
+        concurrent sibling PRs merging during this session, not this
+        change); gitops/tests 613 passed/25 skipped; platform/ci
+        unittest sweep (15 modules) and agent_review's test_review
+        (21/21) both clean; score_ventures.py --check and
+        router/validate.py both clean.
+      - >-
+        Landed as PR #5861 after two rounds of git merge origin/main
+        while the fleet kept shipping sibling pages and a new venture
+        (patreon-fee-calculator) underneath -- each round's mirror-only
+        conflicts (kustomization.yaml, the four front-door/ non-tools
+        binaries) resolved with resolve-mirror-merge.sh plus a manual
+        --ours + regen.mjs pass for the binaries the script doesn't
+        cover, exactly as CLAUDE.md's Duplicate-PRs section documents.
+        CI note: Actions confirmed starved this session
+        (ci_starvation.py --run 36090518018 -> runner_id: 0, 3s, no
+        steps), so merged on the strength of the local verification
+        above rather than CI.
+    mrr_end: 0
