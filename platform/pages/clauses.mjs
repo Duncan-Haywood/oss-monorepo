@@ -2217,6 +2217,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mcp-config-risk-check's, skill-manifest-check's). This venture names no
   // named-product comparison at all.
   'claude-code-hooks-security-check/vs-reading-the-hooks-config-by-eye.html',
+  // Compares against "checking each package on PyPI by hand" -- a manual
+  // review habit any maintainer or reviewer already has, not a company or
+  // product this could be mistaken for. This venture names no named-product
+  // comparison at all (its why-not-just page discusses PyPA's own
+  // pypi-attestations verify CLI, which is a first-party tool comparison,
+  // not a competing product, and predates this generic-method page).
+  'pypi-provenance-check/vs-checking-each-package-on-pypi-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
