@@ -44626,3 +44626,38 @@ entries:
         api.indexnow.org, so the submission did not reach IndexNow --
         unresolved from this environment, per CLAUDE.md's standing note.
     mrr_end: 0
+  - venture: npm-provenance-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-checking-each-package-on-npmjs-by-hand.html, the
+        venture's first generic-method comparison page --
+        surface-budget.mjs had flagged it with 0 (only the named-product
+        vs-socket.html existed). npm-registry sibling of
+        pypi-provenance-check's own generic-method page from earlier
+        this session. Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set, linked from index.html and
+        sitemap.xml, front-door mirror regenerated.
+      - >-
+        Landed as PR #5865 after merging origin/main to pick up several
+        sibling ventures that shipped underneath it (pool-route-pricing,
+        mrr-waterfall-calculator, section-174a-catchup-calculator guide
+        page). Conflicts were confined to the generated mirror
+        (gitops/prod/front-door/ and front-door-tools/, plus the
+        append-only ledger file) -- resolved with --ours on the mirror
+        directories followed by a full node platform/marketing/regen.mjs
+        pass, verified clean with --verify. sync_tree_counts.py already
+        agreed with the merged tree (372 mirrored tools, 351 opt-out
+        switches).
+      - >-
+        Verified on the merged tree: venture's own suite 49/49; full
+        platform/marketing + platform/pages suite 1290/1290;
+        checklist_coverage.py, surface-budget.mjs --check,
+        router/validate.py, score_ventures.py --check, siblings.mjs
+        --check, usage/validate_usage.py, and check_ledger_only.py all
+        clean. CI note: ci_starvation.py confirmed runner_id: 0 on the
+        sampled main-tip jobs (Actions starved), and the PR's own head
+        commit carried zero check runs -- merged on the strength of the
+        local verification above rather than CI.
+    mrr_end: 0
