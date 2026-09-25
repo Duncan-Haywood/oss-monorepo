@@ -1391,7 +1391,20 @@ const CATEGORY_RULES = [
       // `tip-pool-compliance-calculator` as its nearest sibling: both check
       // one FLSA wage-and-hour rule against a fixed federal-or-state table,
       // neither computes pay.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker)/.test(slug),
+      //
+      // `child-tax-credit-calculator` joined 2026-09-25, filed here on its
+      // first commit rather than after a spell in the catch-all -- what
+      // `build.test.mjs`'s catch-all bound is for. Same "downstream federal
+      // tax figure applied to numbers the filer already has" axis as the
+      // other OBBBA calculators in this rule -- applying the permanent
+      // $2,200-per-child Child Tax Credit, the $500 Credit for Other
+      // Dependents, their combined MAGI phase-out, and the refundable
+      // Additional Child Tax Credit ceiling, never a filed Schedule 8812
+      // made on the visitor's behalf. It cross-links `trump-account-
+      // calculator` as its nearest sibling: both are child/family-focused
+      // federal OBBBA provisions -- one a recurring annual tax credit, the
+      // other a one-time child-savings-account seed deposit.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator)/.test(slug),
   },
   {
     id: 'ci',
