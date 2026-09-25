@@ -51,7 +51,7 @@
 #   portfolio-front-tools-15: 125 files, 556092 bytes
 #   portfolio-front-tools-16: 135 files, 553100 bytes
 #   portfolio-front-tools-17: 104 files, 554119 bytes
-#   portfolio-front-tools-18: 116 files, 551186 bytes
+#   portfolio-front-tools-18: 117 files, 555957 bytes
 #   portfolio-front-tools-19: 129 files, 556429 bytes
 #   portfolio-front-tools-20: 117 files, 545221 bytes
 #   portfolio-front-tools-21: 50 files, 264271 bytes
@@ -2487,6 +2487,7 @@ configMapGenerator:
       - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz
       - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
       - sod-install-bid-calculator__usage.mjs.gz=sod-install-bid-calculator__usage.mjs.gz
+      - sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz=sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz
       - sod-install-bid-calculator__vs-aspire.html.gz=sod-install-bid-calculator__vs-aspire.html.gz
       - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
       - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
