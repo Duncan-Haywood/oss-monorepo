@@ -44771,3 +44771,45 @@ entries:
         via background agents to merge-conflict-resolve them against a
         fast-moving main rather than leaving them stuck dirty.
     mrr_end: 0
+  - venture: patreon-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed a live stale-mirror defect on `main`: PR #5869
+        (patreon-fee-calculator's own generic-method comparison page,
+        merged earlier this session) landed with its own local
+        `regen.mjs --verify` reported clean, but by the time it actually
+        merged -- squashed on top of #5867's own large mirror-shard
+        rewrite, merged minutes earlier -- the committed
+        `gitops/prod/front-door-tools/` mirror no longer matched. Caught
+        while independently re-verifying `main`'s tree state after
+        driving #5867 to merge: `regen.mjs --verify` on a fresh checkout
+        of the current tip reported 7 stale artifacts
+        (`kustomization.yaml`, both `patreon-fee-calculator__*.gz`
+        shards, and four front-door/ apex files -- `catalog.json.gz`,
+        `compare.html.gz`, `llms.txt.gz`, `sitemap.xml.gz`). Concretely:
+        the apex was serving the pre-comparison-page copy of the venture
+        while its own `sitemap.xml` already advertised the new URL --
+        the exact defect this file's CLAUDE.md records costing live
+        product multiple times (#3256-3258, #5007/#5012/#5020). Fixed
+        with a plain `node platform/marketing/regen.mjs`; no source
+        edits, only regenerated output.
+      - >-
+        Also re-derived the mirrored-tool count via sync_tree_counts.py
+        against the corrected tree (settles at 373, matching the count
+        this session already verified twice while merging #5865 and
+        #5867) and confirmed gitops/ci/README.md's runs-on count is
+        still current -- neither needed a further edit; sync_tree_counts.py
+        reported "every hand-written count agrees with the tree" after
+        regen.
+      - >-
+        Verified on the corrected tree: full platform/marketing +
+        platform/pages suite 1290/1290; checklist_coverage.py,
+        siblings.mjs --check (0 orphans of 373), surface-budget.mjs
+        --check, score_ventures.py --check (381 scores), router/validate.py
+        (380 ventures) all clean; regen.mjs --verify confirmed clean
+        after the fix. CI note: Actions starved this session
+        (ci_starvation.py confirmed runner_id: 0 repeatedly) -- merged on
+        the strength of the local verification above.
+    mrr_end: 0
