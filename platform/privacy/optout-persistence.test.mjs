@@ -859,14 +859,39 @@ const RELATIVE_SELF = relative(
 // `charitable-deduction-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
 //
-// 354 -> 355: `gambling-loss-deduction-calculator` also graduated -- adding
+// 354 -> 355: `gambling-loss-deduction-calculator` also graduated,
+// concurrently with and invisibly to the three ventures below -- adding
 // one more `usage.mjs` (`ventures/gambling-loss-deduction-calculator/
 // usage.mjs`) following the same opt-out toggle shape as its
 // `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
 // `usageOptedOut` gating localStorage writes, keyed under its own
 // `gambling-loss-deduction-calculator-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 355;
+//
+// 355 -> 356: `excess-business-loss-calculator` also graduated -- adding
+// one more `usage.mjs` (`ventures/excess-business-loss-calculator/
+// usage.mjs`) following the same opt-out toggle shape as its
+// `charitable-deduction-calculator` sibling (`record`/`setUsageOptOut`/
+// `usageOptedOut` gating localStorage writes, keyed under its own
+// `excess-business-loss-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions.
+//
+// 356 -> 357: `referrer-permissions-policy-check` also graduated,
+// concurrently and invisibly to both branches above -- adding one more
+// `usage.mjs` (`ventures/referrer-permissions-policy-check/usage.mjs`)
+// following the same opt-out toggle shape as its `cache-control-check`
+// sibling (`recordUsage`/`readOptOut`/`writeOptOut` gating localStorage
+// writes, keyed under its own `referrer-permissions-policy-check-usage`
+// storage name). Exactly one added `usage.mjs`, no deletions.
+//
+// 357 -> 358: `qsbs-exclusion-calculator` also graduated, concurrently
+// and invisibly to the branch above -- adding one more `usage.mjs`
+// (`ventures/qsbs-exclusion-calculator/usage.mjs`) following the same
+// opt-out toggle shape as its `excess-business-loss-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `qsbs-exclusion-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 358;
 
 let counter = 0;
 function fixture(source) {

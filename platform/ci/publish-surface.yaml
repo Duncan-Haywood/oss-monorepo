@@ -494,6 +494,9 @@ workflows:
 - workflow: ev-charger-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: excess-business-loss-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: exterior-painting-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -959,6 +962,9 @@ workflows:
 - workflow: qbi-deduction-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: qsbs-exclusion-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: quarterly-estimated-tax-calendar-ci.yml
   classification: none
   publishes: []
@@ -982,6 +988,9 @@ workflows:
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
 - workflow: redirect-chain-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: referrer-permissions-policy-check-ci.yml
   classification: none
   publishes: []
 - workflow: register-change-rate-ci.yml

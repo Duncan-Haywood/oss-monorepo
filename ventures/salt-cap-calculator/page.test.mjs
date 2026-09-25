@@ -133,3 +133,65 @@ test("no module in this venture can reach the network", () => {
   assert.doesNotMatch(html, /XMLHttpRequest/);
   assert.doesNotMatch(vsPage, /\bfetch\(/);
 });
+
+test("index links to the is-the-salt-deduction-worth-itemizing-for guide page", () => {
+  assert.match(page("index.html"), /href="\.\/is-the-salt-deduction-worth-itemizing-for\.html"/);
+});
+
+test("the itemize-vs-standard guide page links back to the calculator and carries valid FAQPage JSON-LD matching visible text", () => {
+  const guidePage = page("is-the-salt-deduction-worth-itemizing-for.html");
+  assert.match(guidePage, /href="\.\/"/);
+  const blocks = [...guidePage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the guide page");
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(guidePage.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(guidePage.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the itemize-vs-standard guide page carries the no-warranty clause and is listed in the venture sitemap", () => {
+  const guidePage = page("is-the-salt-deduction-worth-itemizing-for.html");
+  assert.match(guidePage, /No warranty/);
+  assert.match(guidePage, /Nothing leaves your browser/);
+  const sitemap = page("sitemap.xml");
+  assert.match(sitemap, /is-the-salt-deduction-worth-itemizing-for\.html/);
+});
+
+test("the itemize-vs-standard guide page's three worked examples are pinned against calc.mjs's own arithmetic", async () => {
+  const guidePage = page("is-the-salt-deduction-worth-itemizing-for.html");
+  const { saltCapOutcome, itemizeVsStandardBenefit } = await import("./calc.mjs");
+
+  const fully = saltCapOutcome({ filingStatus: "mfj", magi: 200_000, stateLocalTaxesPaid: 12_000, taxYear: 2025 });
+  const fullyBenefit = itemizeVsStandardBenefit({
+    filingStatus: "mfj",
+    taxYear: 2025,
+    saltDeduction: fully.deduction,
+    otherItemizedDeductions: 35_000,
+  });
+  assert.equal(fullyBenefit.marginalBenefit, 12_000);
+  assert.match(guidePage, /\$12,000 -- every dollar/);
+
+  const partly = saltCapOutcome({ filingStatus: "mfj", magi: 200_000, stateLocalTaxesPaid: 12_000, taxYear: 2025 });
+  const partlyBenefit = itemizeVsStandardBenefit({
+    filingStatus: "mfj",
+    taxYear: 2025,
+    saltDeduction: partly.deduction,
+    otherItemizedDeductions: 20_000,
+  });
+  assert.equal(partlyBenefit.marginalBenefit, 500);
+  assert.match(guidePage, /\$500 -- not \$12,000/);
+
+  const absorbed = saltCapOutcome({ filingStatus: "single", magi: 100_000, stateLocalTaxesPaid: 8_000, taxYear: 2025 });
+  const absorbedBenefit = itemizeVsStandardBenefit({
+    filingStatus: "single",
+    taxYear: 2025,
+    saltDeduction: absorbed.deduction,
+    otherItemizedDeductions: 3_000,
+  });
+  assert.equal(absorbedBenefit.marginalBenefit, 0);
+  assert.equal(absorbedBenefit.whollyAbsorbed, true);
+  assert.match(guidePage, /<strong>\$0<\/strong>/);
+});

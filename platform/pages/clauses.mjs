@@ -2137,6 +2137,20 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // reasoning as charitable-deduction-calculator's own
   // vs-doing-the-math-by-hand.html right above.
   'gambling-loss-deduction-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the excess business loss limitation by
+  // hand -- a generic method every business owner or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as charitable-deduction-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'excess-business-loss-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the QSBS exclusion by hand -- a generic
+  // method every shareholder or preparer already has access to, not a
+  // company or product this could be mistaken for. Names no accounting
+  // firm, law firm, or tax-prep product. Same reasoning as
+  // excess-business-loss-calculator's own vs-doing-the-math-by-hand.html
+  // right above.
+  'qsbs-exclusion-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2356,6 +2370,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // carries the trademark disclaimer. Same reasoning as the other
   // generic-method pages above.
   'self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html',
+  // Compares against "a flat rate per square foot of water surface" -- a
+  // generic pricing shortcut every pool-replaster shop already reaches for,
+  // not a company or product this could be mistaken for. Distinct from this
+  // venture's own vs-buildxact.html, which names Buildxact and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'pool-plaster-bid-calculator/vs-a-flat-rate-per-square-foot-of-water.html',
   // Compares against "reconciling CAM by square footage alone" -- the plain
   // area-share arithmetic every CAM statement starts from, not a company or
   // product this could be mistaken for. Distinct from this venture's own
@@ -2370,6 +2391,49 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Check and carries the trademark/affiliation disclaimer. Same reasoning
   // as the other generic-method pages above.
   'wordpress-plugin-review-check/vs-manually-checking-against-the-guidelines.html',
+  // Compares against "a flat per-word rate" -- the generic pricing habit of
+  // multiplying total word count by one number, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-smartcat.html, which names a real CAT-tool platform and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'translator-project-quote/vs-a-flat-per-word-rate.html',
+  // Compares against "reading the manifest by eye" during review -- the
+  // generic first pass every team already does, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-polaris.html, which names Polaris/Fairwinds and carries the
+  // trademark disclaimer. Same reasoning as the other generic-method pages
+  // above.
+  'k8s-resource-limits-check/vs-reading-the-manifest-by-eye.html',
+  // Compares against "comparing the two trace exports by eye" -- the
+  // generic first pass anyone reviewing a consent sequence already does,
+  // not a company or product this could be mistaken for. Distinct from
+  // this venture's own vs-cookiebot.html, which names Cookiebot/
+  // Usercentrics and carries the trademark disclaimer. Same reasoning as
+  // the other generic-method pages above.
+  'consent-change-record/vs-comparing-the-traces-by-eye.html',
+  // Compares against "eyeballing the feed in a spreadsheet" -- the generic
+  // visual scan any seller already does before a sync, not a company or
+  // product this could be mistaken for (it deliberately names no specific
+  // spreadsheet software). Distinct from this venture's own
+  // vs-datafeedwatch.html, which names DataFeedWatch and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'merchant-feed-check/vs-eyeballing-the-feed-in-a-spreadsheet.html',
+  // Compares against pricing a placement's markup and margin in a
+  // spreadsheet formula -- the generic practice most staffing desks already
+  // use, not a company or product this could be mistaken for (it names no
+  // specific spreadsheet software). Distinct from this venture's own
+  // vs-tempworks.html, which names TempWorks Software, Inc. and carries the
+  // trademark/affiliation disclaimer.
+  'staffing-markup-calculator/vs-a-spreadsheet.html',
+  // Compares against "treating materials as cash out on day one" -- the
+  // generic back-of-envelope budgeting habit any sub already has, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-billd.html, which names Billd and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'subcontractor-cashflow-planner/vs-treating-materials-as-cash-out-on-day-one.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
