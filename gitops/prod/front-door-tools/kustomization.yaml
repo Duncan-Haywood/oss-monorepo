@@ -47,11 +47,11 @@
 #   portfolio-front-tools-11: 120 files, 556582 bytes
 #   portfolio-front-tools-12: 120 files, 556292 bytes
 #   portfolio-front-tools-13: 122 files, 542329 bytes
-#   portfolio-front-tools-14: 126 files, 553027 bytes
+#   portfolio-front-tools-14: 127 files, 556425 bytes
 #   portfolio-front-tools-15: 125 files, 556092 bytes
 #   portfolio-front-tools-16: 135 files, 553100 bytes
 #   portfolio-front-tools-17: 104 files, 554119 bytes
-#   portfolio-front-tools-18: 116 files, 551186 bytes
+#   portfolio-front-tools-18: 117 files, 555957 bytes
 #   portfolio-front-tools-19: 129 files, 556429 bytes
 #   portfolio-front-tools-20: 117 files, 545221 bytes
 #   portfolio-front-tools-21: 50 files, 264271 bytes
@@ -1969,6 +1969,7 @@ configMapGenerator:
       - newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz=newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz
       - newsletter-sponsorship-rate-calculator__share.mjs.gz=newsletter-sponsorship-rate-calculator__share.mjs.gz
       - newsletter-sponsorship-rate-calculator__usage.mjs.gz=newsletter-sponsorship-rate-calculator__usage.mjs.gz
+      - newsletter-sponsorship-rate-calculator__vs-guessing-a-flat-rate.html.gz=newsletter-sponsorship-rate-calculator__vs-guessing-a-flat-rate.html.gz
       - newsletter-sponsorship-rate-calculator__vs-paved.html.gz=newsletter-sponsorship-rate-calculator__vs-paved.html.gz
       - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
       - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
@@ -2487,6 +2488,7 @@ configMapGenerator:
       - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz
       - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
       - sod-install-bid-calculator__usage.mjs.gz=sod-install-bid-calculator__usage.mjs.gz
+      - sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz=sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz
       - sod-install-bid-calculator__vs-aspire.html.gz=sod-install-bid-calculator__vs-aspire.html.gz
       - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
       - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
