@@ -100,6 +100,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // an author who later added "vs. <Firm> LLP" here would be claiming this
   // exemption for a page that had become the thing it exempts.
   'ny-llc-transparency-act-tracker/vs-reading-client-alerts.html',
+  // Compares against "checking hreflang tags by hand" -- a manual review
+  // habit every site owner already has, not a company or product this
+  // could be mistaken for. Same reasoning as this venture's own
+  // vs-merkle-hreflang-tool.html, which names a real competitor and so is
+  // not in this set.
+  'hreflang-reciprocity-check/vs-checking-hreflang-tags-by-hand.html',
   // Compares against "eyeballing Settings -> Branches" -- a manual habit
   // every repository admin already has, not a company or product this
   // could be mistaken for.
