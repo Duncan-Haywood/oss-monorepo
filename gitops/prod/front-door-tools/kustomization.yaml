@@ -51,7 +51,7 @@
 #   portfolio-front-tools-15: 125 files, 555062 bytes
 #   portfolio-front-tools-16: 134 files, 556718 bytes
 #   portfolio-front-tools-17: 110 files, 551707 bytes
-#   portfolio-front-tools-18: 114 files, 551767 bytes
+#   portfolio-front-tools-18: 115 files, 556020 bytes
 #   portfolio-front-tools-19: 125 files, 546034 bytes
 #   portfolio-front-tools-20: 119 files, 547249 bytes
 #   portfolio-front-tools-21: 96 files, 479808 bytes
@@ -2556,6 +2556,7 @@ configMapGenerator:
       - spray-foam-bid-calculator__index.html.gz=spray-foam-bid-calculator__index.html.gz
       - spray-foam-bid-calculator__share.mjs.gz=spray-foam-bid-calculator__share.mjs.gz
       - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
+      - spray-foam-bid-calculator__vs-a-flat-per-square-foot-price.html.gz=spray-foam-bid-calculator__vs-a-flat-per-square-foot-price.html.gz
       - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
       - sql-migration-lock-check__check.mjs.gz=sql-migration-lock-check__check.mjs.gz
       - sql-migration-lock-check__engine.mjs.gz=sql-migration-lock-check__engine.mjs.gz

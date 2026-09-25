@@ -44920,3 +44920,57 @@ entries:
         this session (ci_starvation.py confirmed runner_id: 0) -- merged
         on the strength of the local verification above.
     mrr_end: 0
+  - venture: spray-foam-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-a-flat-per-square-foot-price.html -- the venture had a
+        named-product comparison (vs-jobber.html) and a guide page but
+        zero generic-method "you could work this out yourself" pages,
+        one of 51 ventures surface-budget.mjs flagged with that gap.
+        The angle is the venture's own founding premise: a published
+        flat "$3.50/sf of attic" rate prices the floor and cannot see
+        board feet, a closed-cell rim, a cell-type switch, or a
+        pitch-adjusted cathedral -- the exact gap calc.mjs's own
+        docstring and the existing pricing walkthrough already argue.
+        Linked from index.html, the pricing walkthrough, and listed in
+        sitemap.xml; registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no competitor, only a
+        generic pricing habit).
+      - >-
+        Caught and fixed a real defect during verification, not a
+        race: platform/pages/faq-visible.test.mjs failed on the new
+        page because the FAQPage JSON-LD used plain "--" while the
+        visible <h3>/<p> markup used "&mdash;" (rendered as an em
+        dash) in the same four answers -- the same defect shape the
+        vpat-acr-generator and patreon-fee-calculator PRs recorded a
+        session or two earlier. Fixed by replacing " -- " with a
+        literal em dash in the JSON-LD so it matches the visible copy
+        verbatim.
+      - >-
+        Ran node platform/marketing/regen.mjs to refresh the
+        front-door mirror after adding the page (regen.mjs --verify
+        caught it stale, as expected for any new venture page).
+      - >-
+        Verified locally (CI starved this session -- ci_starvation.py
+        confirmed runner_id: 0 on run 36096894947): venture's own
+        suite (ventures/spray-foam-bid-calculator/**/*.test.mjs)
+        110/110; platform/pages/clauses.mjs fleet-wide 1611 pages
+        clean; surface-budget.mjs --check clean; checklist_coverage.py
+        clean; sync_tree_counts.py clean (no drift); regen.mjs
+        --verify stale before regen, current after; gitops/tests 637
+        passed/1 skipped (environmental); platform/ci 15 unittest
+        modules + agent_review/test_review all passed;
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests
+        446 passed; platform/proposal 101/101; platform/privacy +
+        platform/webcheck 142/142; score_ventures.py --check,
+        router/validate.py, validate_doc_consistency.py all clean;
+        platform/marketing + platform/pages full suite first found the
+        2 issues above (mirror staleness, FAQ punctuation), then
+        front-door-tools.test.mjs + front-door.test.mjs +
+        faq-visible.test.mjs re-verified 224/224 clean after both
+        fixes; run_workflow_locally.py --for-changes run for the
+        workflows this change would trigger.
+    mrr_end: 0
