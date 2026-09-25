@@ -2127,6 +2127,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names GrantHub/Foundant specifically and carries the trademark
   // disclaimer.
   'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
+  // Compares against "doing the cost math yourself" -- a mental estimate
+  // every laundromat and pickup-and-delivery operator already does, not a
+  // company or product this could be mistaken for. Distinct from this
+  // venture's own vs-cents.html, which names Cents specifically and carries
+  // the trademark disclaimer.
+  'wash-and-fold-price-calculator/vs-doing-the-cost-math-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
