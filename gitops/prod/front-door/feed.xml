@@ -89,6 +89,15 @@
     <summary type="text">Free calculator for the Section 1202 Qualified Small Business Stock (QSBS) gain exclusion, expanded by OBBBA — compares the old all-or-nothing 5-year rule against the new tiered 3/4/5-year schedule for stock acquired after July 4, 2025, and the higher $15M exclusion cap. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Referrer-Policy &amp; Permissions-Policy Checker — unsafe-url, wildcard features, syntax</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/referrer-permissions-policy-check/"/>
+    <id>tag:marisstella.dev,2026:tool/referrer-permissions-policy-check</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Referrer-Policy: unsafe-url (leaks full URLs, even on a downgrade), a missing or invalid Referrer-Policy, Permissions-Policy directives with a malformed allowlist syntax, and a wildcard allowlist on a sensitive feature like camera or microphone. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>SALT Deduction Cap Calculator — 2025-2026, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salt-cap-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/salt-cap-calculator</id>
