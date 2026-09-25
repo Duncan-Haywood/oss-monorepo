@@ -91,7 +91,9 @@ a new one. Nothing about either is proxied through this site.
 **A different job from a generic crawler.** If you need to check hreflang
 across an entire site at scale, that is a sitemap-crawling tool's job, not
 this one — see [`vs-merkle-hreflang-tool.html`](vs-merkle-hreflang-tool.html)
-for how this compares to an established single-URL hosted checker.
+for how this compares to an established single-URL hosted checker, and
+[`vs-checking-hreflang-tags-by-hand.html`](vs-checking-hreflang-tags-by-hand.html)
+for what a manual eyeball check structurally cannot catch.
 
 ## Privacy
 

@@ -1047,25 +1047,47 @@ const CATEGORY_RULES = [
     // list, not a `-check$` suffix), so it is added here by prefix rather
     // than widening any suffix rule to a word this is the only user of.
     //
-    // `boi-reporting-exemption-checker` joined 2026-09-25, filed here on
+    // `final-paycheck-deadline-calculator` joined 2026-09-25, filed here on
     // its first commit rather than after a spell in the catch-all -- what
-    // `build.test.mjs`'s catch-all bound is for. Its posture matches this
-    // section's blurb exactly: it applies FinCEN's own August 2026 final
-    // rule to the facts entered and reports whether a federal beneficial-
-    // ownership filing obligation still exists, explicitly stating on
-    // every page that it is a rule-application aid rather than a filing
-    // service or legal opinion -- the same shape as its nearest sibling,
-    // `ny-llc-transparency-act-tracker` (filed here via the `tracker$`
-    // suffix), which checks a different, state-level beneficial-ownership
-    // law. Slug ends in `-checker`, not `-check`, so `salary-range-
-    // posting-check`'s prefix rule does not reach it; added by exact slug
-    // match, the same way `1099-k-threshold-checker` was, rather than
-    // widening the suffix list to a word this is the only user of.
+    // `build.test.mjs`'s catch-all bound is for. It is the same shape as
+    // `call-recording-consent-check` and `salary-range-posting-check`
+    // right above: a US-jurisdiction legal reference table (eleven states'
+    // final-paycheck-timing statutes) applied to dates the user supplies,
+    // with every page stating it does not determine which state's law
+    // governs and is not a compliance determination -- this section's
+    // exact "produce a dated observation you act on, never a determination
+    // made on your behalf" posture. It cross-links
+    // `call-recording-consent-check` as its nearest sibling (duplicate_check.py's
+    // top match): both are all-state-ish employment-law reference tables
+    // with the identical disclaimer posture, checking unrelated questions.
+    // Not `backoffice`, where the tax/deadline calculators sit: this is a
+    // legal-classification lookup with a not-a-determination disclaimer,
+    // not an arithmetic conversion of figures the filer already computed.
+    // Slug ends in `-calculator`, not any suffix this rule already
+    // catches, so it is added by exact match rather than widening the
+    // suffix list to a word this is the only user of.
+    //
+    // `boi-reporting-exemption-checker` joined 2026-09-25, concurrently,
+    // filed here on its first commit rather than after a spell in the
+    // catch-all -- what `build.test.mjs`'s catch-all bound is for. Its
+    // posture matches this section's blurb exactly: it applies FinCEN's
+    // own August 2026 final rule to the facts entered and reports whether
+    // a federal beneficial-ownership filing obligation still exists,
+    // explicitly stating on every page that it is a rule-application aid
+    // rather than a filing service or legal opinion -- the same shape as
+    // its nearest sibling, `ny-llc-transparency-act-tracker` (filed here
+    // via the `tracker$` suffix), which checks a different, state-level
+    // beneficial-ownership law. Slug ends in `-checker`, not `-check`, so
+    // `salary-range-posting-check`'s prefix rule does not reach it; added
+    // by exact slug match, the same way `1099-k-threshold-checker` was,
+    // rather than widening the suffix list to a word this is the only
+    // user of.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
       || /^(einvoice|backup-verification|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check|salary-range-posting-check)/.test(slug)
       || slug === '1099-k-threshold-checker'
       || slug === 'osha-trir-dart-calculator'
+      || slug === 'final-paycheck-deadline-calculator'
       || slug === 'boi-reporting-exemption-checker',
   },
   {
@@ -2453,6 +2475,19 @@ const CATEGORY_RULES = [
     // `cat-adjuster-fee-calculator`'s adjuster -- one person pricing their
     // own labour, not a business quoting a customer.
     //
+    // `freelance-writer-rate-calculator` joined 2026-09-25: a freelance
+    // writer, copywriter, or ghostwriter comparing a per-word rate against a
+    // flat project fee for the same job is the same move as
+    // `voiceover-project-rate-calculator`'s voice-over artist and
+    // `tutor-package-pricing-calculator`'s instructor -- one person pricing
+    // their own labour from their own inputs (word count, research time,
+    // revision rounds), not a business quoting a customer. It shipped with a
+    // reciprocal inbound sibling link from `freelance-retainer-calculator`'s
+    // first commit rather than landing as an orphan to close later --
+    // freelance-retainer-calculator already links freelance-platform-fee-
+    // calculator for the same reason (one self-employed writer's two pricing
+    // decisions, an ongoing retainer vs. a single job).
+    //
     // `podcast-sponsorship-rate-calculator` joined the same day: a third
     // creator-economy channel alongside `newsletter-sponsorship-rate-
     // calculator` (email opens) and `brand-deal-rate-calculator` (social
@@ -2520,6 +2555,7 @@ const CATEGORY_RULES = [
         'cat-adjuster-fee-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
+        'freelance-writer-rate-calculator',
         'gig-driver-net-pay-calculator',
         'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
