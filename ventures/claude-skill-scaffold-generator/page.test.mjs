@@ -116,7 +116,7 @@ test("the example object is present and self-consistent", () => {
 
 test("sitemap lists every published page and no extras", () => {
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs.sort(), ["./"]);
+  assert.deepEqual(locs.sort(), ["./", "./vs-writing-the-frontmatter-by-hand.html"]);
 });
 
 test("robots.txt allows crawling", () => {
