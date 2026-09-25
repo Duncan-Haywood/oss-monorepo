@@ -45406,3 +45406,73 @@ entries:
         strength of local verification per CLAUDE.md's starvation
         checklist.
     mrr_end: 0
+  - venture: excess-business-loss-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a third new venture this session
+        (session_gate.py: build-now queue empty, PROCEED verdict, no
+        in-progress venture work after clearing PRs and a duplicate
+        browser-sweep PR from a concurrent session). Picked the IRC
+        461(l) excess business loss limitation, made permanent under
+        OBBBA: duplicate_check.py scored every venture, screened-out row,
+        and pipeline candidate at 0.25 or below (closest match
+        bonus-depreciation-calculator -- shares only "OBBBA/NOL/
+        deduction" vocabulary, an unrelated equipment-expensing
+        election), well under the 0.45 review bar. Mechanics verified via
+        WebSearch 2026-09-25 against Moss Adams, Baker Tilly, Hiltzik
+        CPA, Keiter, MBE CPAs, and a cross-check search against Tax
+        Notes' threshold reference table -- surfacing a genuinely
+        counterintuitive fact none of this session's other two OBBBA
+        calculators have: the 2026 threshold ($256,000 single/HOH/MFS,
+        $512,000 MFJ) is LOWER than 2025's ($313,000/$626,000), the
+        opposite direction from almost every other OBBBA-affected figure,
+        because OBBBA rebased the indexing formula rather than letting it
+        keep compounding from 2017. Built the calc.mjs finding to fire
+        specifically when a filer's loss crosses from "fully allowed
+        under the old threshold" to "limited under the new one" -- caught
+        and fixed one test/implementation mismatch during development
+        (the finding was firing unconditionally for any 2026 calculation
+        rather than only when the lower threshold actually bound), before
+        it ever reached the shared suite.
+      - >-
+        Shipped a free, static, browser-local calculator splitting a
+        filer's net trade-or-business loss into what is deductible this
+        year and what becomes a net operating loss carryforward, with an
+        explicit flag that only trade-or-business income/deductions count
+        (not wages or investment income) and that the Section 199A QBI
+        deduction interaction is out of scope. Ships LICENSE, README with
+        the required value sentence and disclaimer, VENTURE.yaml with
+        untested hypotheses and kill_criteria, calc.mjs (13 test
+        assertions) plus usage.mjs/page.test.mjs (34 total across the
+        venture), index.html with FAQPage/SoftwareApplication JSON-LD
+        matching the visible copy (em-dash consistency checked up front
+        again, third venture in a row clean on the first pass), the
+        required vs-doing-the-math-by-hand.html comparison page (added to
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT), an opt-out local
+        usage counter honouring DNT/GPC, robots.txt/sitemap.xml, and a
+        dedicated CI workflow.
+      - >-
+        Filed into build.mjs's backoffice category next to its nearest
+        sibling, qbi-deduction-calculator (same pass-through-business-
+        owner audience; each flags, without computing, its interaction
+        with the other) -- with a reciprocal footer link both ways.
+        Scored in venture-scores.yaml. Regenerated the gitops front-door
+        mirror, synced the mirrored-tool/opt-out-switch running counts
+        (375->376, 354->355) and the gitops/ci/README.md runs-on count,
+        registered the new CI workflow in publish-surface.yaml, and
+        registered the venture in platform/pages/launched.json before
+        running the shared suite.
+      - >-
+        Verified: venture's own suite 34/34; qbi-deduction-calculator's
+        suite re-run after the reciprocal-link edit, 35/35 unaffected;
+        targeted faq-visible.test.mjs + launched.test.mjs run alongside
+        the venture's own suite, 61/61 clean on the first pass.
+        checklist_coverage.py, sync_tree_counts.py, router/validate.py
+        (383 ventures), score_ventures.py --check (384 scores),
+        siblings.mjs --check (0 orphans of 376), surface-budget.mjs
+        --check, regen.mjs --verify all clean. CI note: Actions confirmed
+        starved earlier this session (ci_starvation.py: runner_id: 0 on
+        sampled jobs) -- expect the same on this PR.
+    mrr_end: 0
