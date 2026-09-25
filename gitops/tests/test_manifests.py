@@ -2608,18 +2608,28 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
     #
-    # 373 -> 374: `salt-cap-deduction-calculator` also graduated -- a
-    # browser-local calculator for the federal SALT itemized-deduction cap
-    # raised from $10,000 to $40,000 for tax years 2025-2029 by the OBBBA,
-    # with the 30%-of-excess-MAGI phase-down (never below a $10,000 floor)
-    # and an itemize-vs-standard-deduction marginal-benefit computation,
-    # plus a vs-estimating-the-salt-benefit-by-hand.html comparison page and
-    # a standard-deduction-interaction guide page. Static `index.html` plus
-    # two docs/comparison pages from its first commit, same shape as the
-    # rest of this running count. Total re-derived here by
-    # `sync_tree_counts.py` against the fully merged tree rather than by
-    # hand.
-    total = 374  # `infra/OWNER_CHECKLIST.md`'s own "N of the 374 tools" wording.
+    # 373 -> 374 on this merge: `salt-cap-calculator` also graduated -- a
+    # browser-local calculator computing the SALT itemized-deduction cap
+    # after its 2025/2026 MAGI-based phase-out (30 cents per dollar of
+    # excess MAGI, floored at a fixed dollar amount rather than phasing to
+    # zero), plus a vs-doing-the-math-by-hand.html comparison page. Static
+    # `index.html` plus one docs/comparison page from its first commit,
+    # same shape as the rest of this running count.
+    #
+    # 374 -> 375 on that merge: `salt-cap-deduction-calculator` also
+    # graduated, concurrently and unknown to the branch above -- both
+    # independently built a calculator for the same OBBBA SALT
+    # itemized-deduction cap increase ($10,000 to $40,000 for tax years
+    # 2025-2029, 30%-of-excess-MAGI phase-down, never below a $10,000
+    # floor). Its differentiator from its `salt-cap-calculator` sibling is
+    # an itemize-vs-standard-deduction marginal-benefit computation the
+    # sibling does not have, plus a vs-estimating-the-salt-benefit-by-hand
+    # comparison page and a standard-deduction-interaction guide page.
+    # Static `index.html` plus two docs/comparison pages from its first
+    # commit, same shape as the rest of this running count. Total
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    total = 375  # `infra/OWNER_CHECKLIST.md`'s own "N of the 375 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

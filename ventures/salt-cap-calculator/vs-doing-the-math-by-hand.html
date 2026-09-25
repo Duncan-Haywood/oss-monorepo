@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. working out the SALT cap phase-out by hand</title>
+<meta name="description" content="Working out the SALT deduction cap phase-out by hand usually goes wrong in the same places: assuming a joint return doubles the single cap, missing that the phase-out never reaches zero, or forgetting married filing separately uses halved figures. This free calculator applies the 2025/2026 rules the same way every time.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-doing-the-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. working out the SALT cap phase-out by hand">
+<meta property="og:description" content="A hand estimate of the SALT cap phase-out has a few common failure points, above all assuming the cap doubles for a joint return or phases to zero. This calculator applies the 2025/2026 rules the same way every time and shows the arithmetic.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the single most common mistake working this out by hand?","acceptedAnswer":{"@type":"Answer","text":"Assuming a married-filing-jointly return gets double the single cap — it does not. Single, head-of-household, and married-filing-jointly filers all share the exact same $40,000 (2025) / $40,400 (2026) cap and $500,000/$505,000 threshold. Only married filing separately gets a different, halved figure."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Assuming the phase-out eventually takes the deduction to zero. It does not — the cap can never drop below its permanent-law floor of $10,000 ($5,000 married filing separately), no matter how high MAGI goes. A hand estimate that keeps subtracting 30% of excess MAGI past that point understates the deduction."}},{"@type":"Question","name":"What arithmetic mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Applying the 30% reduction to the WRONG base — to total income rather than to the excess above the threshold, or to the taxes-paid figure rather than to the cap itself. The reduction is 30 cents per dollar of MAGI above the threshold, subtracted from the CAP, not from the amount of tax paid."}},{"@type":"Question","name":"What planning mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Not checking whether a pass-through entity tax (PTET) election is available. Several states let a partnership or S corporation pay state tax at the entity level, letting the owner deduct that share above this individual cap entirely — a hand estimate that only looks at the personal SALT cap can miss a substantially larger deduction already available through the business."}},{"@type":"Question","name":"Does this calculator know my complete tax situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page computes your MAGI, knows whether itemizing beats your standard deduction, or models a state's PTET election. Both apply the same published federal cap and phase-out rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. working out the SALT cap phase-out by hand</h1>
+<p class="lede">The arithmetic looks simple — 30 cents per dollar over a
+threshold. The part that goes wrong by hand is the shape of the rule: which
+filing statuses share a cap, where the reduction stops, and what it is a
+percentage of.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Filing-status cap</td><td>Assumes a joint return gets double the single cap.</td><td>Uses the correct shared $40,000/$40,400 figure for single, HOH, and MFJ alike, and the separately-halved MFS figure.</td></tr>
+<tr><td>Where the phase-out stops</td><td>Keeps subtracting 30% of excess MAGI past the point where the cap would go negative.</td><td>Floors the effective cap at $10,000 ($5,000 MFS) and shows the exact MAGI where that floor is reached.</td></tr>
+<tr><td>What the 30% applies to</td><td>Applies the reduction to income or to taxes paid, rather than to the cap.</td><td>Reduces the CAP by 30 cents per dollar of MAGI above the threshold, then applies that cap to taxes paid.</td></tr>
+<tr><td>Pass-through entity tax</td><td>Only checks the personal SALT cap, missing a state PTET election that could deduct more through a business.</td><td>Flags the PTET caveat explicitly as out of scope, so it is not silently assumed away.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the single most common mistake working this out by hand?</h3>
+<p>Assuming a married-filing-jointly return gets double the single cap — it does not. Single, head-of-household, and married-filing-jointly filers all share the exact same $40,000 (2025) / $40,400 (2026) cap and $500,000/$505,000 threshold. Only married filing separately gets a different, halved figure.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Assuming the phase-out eventually takes the deduction to zero. It does not — the cap can never drop below its permanent-law floor of $10,000 ($5,000 married filing separately), no matter how high MAGI goes. A hand estimate that keeps subtracting 30% of excess MAGI past that point understates the deduction.</p>
+<h3>What arithmetic mistake gets made most often?</h3>
+<p>Applying the 30% reduction to the WRONG base — to total income rather than to the excess above the threshold, or to the taxes-paid figure rather than to the cap itself. The reduction is 30 cents per dollar of MAGI above the threshold, subtracted from the CAP, not from the amount of tax paid.</p>
+<h3>What planning mistake gets made most often?</h3>
+<p>Not checking whether a pass-through entity tax (PTET) election is available. Several states let a partnership or S corporation pay state tax at the entity level, letting the owner deduct that share above this individual cap entirely — a hand estimate that only looks at the personal SALT cap can miss a substantially larger deduction already available through the business.</p>
+<h3>Does this calculator know my complete tax situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page computes your MAGI, knows whether itemizing beats your standard deduction, or models a state's PTET election. Both apply the same published federal cap and phase-out rules to the numbers you enter; verify against IRS guidance or a qualified tax professional before relying on either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published federal SALT-cap rules to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own numbers before filing a return. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

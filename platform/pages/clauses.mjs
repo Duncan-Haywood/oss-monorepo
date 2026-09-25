@@ -2121,6 +2121,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // or tax-prep product. Same reasoning as section-174a-catchup-calculator's
   // own vs-doing-the-math-by-hand.html right above.
   'bonus-depreciation-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the SALT deduction cap phase-out by
+  // hand -- a generic method every itemizing filer or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as bonus-depreciation-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'salt-cap-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2316,6 +2323,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // than named-product -- see facebook-marketplace-fee-calculator's entry
   // above for what happens when a generic-method page is shipped without it.
   'patreon-fee-calculator/vs-doing-the-math-yourself.html',
+  // Compares against "comparing the quoted rates by eye" -- reading two
+  // per-job numbers off a rate card and picking the lower one -- a generic
+  // habit any operator comparing vendor quotes already has, not a company
+  // or product this could be mistaken for. Distinct from this venture's
+  // own vs-crest-capital.html, which names Crest Capital and carries the
+  // trademark/affiliation disclaimer.
+  'vendor-rate-break-even/vs-comparing-rates-by-eye.html',
   // Compares against "pricing a move-out at the tenant's rent" -- a generic
   // mental model every self-storage operator already reaches for, not a
   // company or product this could be mistaken for. Distinct from this
