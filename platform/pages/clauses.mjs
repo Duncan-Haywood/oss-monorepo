@@ -2091,6 +2091,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mega-backdoor-roth-calculator's own vs-doing-the-math-by-hand.html
   // right above.
   'trump-account-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the Section 174A R&E catch-up election by
+  // hand -- a generic method every filer or preparer evaluating it already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no accounting firm, software vendor, or tax-prep product. Same
+  // reasoning as trump-account-calculator's own
+  // vs-doing-the-math-by-hand.html right above.
+  'section-174a-catchup-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
