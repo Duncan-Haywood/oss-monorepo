@@ -810,7 +810,7 @@ const RELATIVE_SELF = relative(
 // deletions. Re-derived here by `sync_tree_counts.py` against the fully
 // merged tree rather than by hand.
 //
-// 347 -> 348 on this merge: `section-174a-catchup-calculator` also
+// 348 -> 349 on this merge: `section-174a-catchup-calculator` also
 // graduated -- adding one more `usage.mjs`
 // (`ventures/section-174a-catchup-calculator/usage.mjs`) following the same
 // opt-out toggle shape as its `trump-account-calculator` sibling
@@ -818,7 +818,7 @@ const RELATIVE_SELF = relative(
 // keyed under its own `section-174a-catchup-calculator-usage` storage
 // name). Exactly one added `usage.mjs`, no deletions. Re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 348;
+const SWITCHES_IN_THE_CATALOGUE = 349;
 
 let counter = 0;
 function fixture(source) {

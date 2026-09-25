@@ -2574,7 +2574,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `skill-manifest-check`). Static `index.html` plus one docs page from
     # its first commit, same shape as the rest of this running count.
     #
-    # 368 -> 369 on this merge: `section-174a-catchup-calculator` also
+    # 369 -> 370 on this merge: `section-174a-catchup-calculator` also
     # graduated -- a browser-local calculator comparing the two
     # Rev. Proc. 2025-28 Section 174A domestic R&E catch-up election paths
     # (deduct the whole remaining unamortized 2022-2024 balance in 2025, or
@@ -2584,7 +2584,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commit, same shape as the rest of this running count. Total
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
-    total = 369  # `infra/OWNER_CHECKLIST.md`'s own "N of the 369 tools" wording.
+    total = 370  # `infra/OWNER_CHECKLIST.md`'s own "N of the 370 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
