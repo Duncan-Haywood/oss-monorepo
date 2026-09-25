@@ -37,12 +37,12 @@
 #   portfolio-front-tools-1: 91 files, 550864 bytes
 #   portfolio-front-tools-2: 145 files, 557044 bytes
 #   portfolio-front-tools-3: 132 files, 554687 bytes
-#   portfolio-front-tools-4: 143 files, 556766 bytes
-#   portfolio-front-tools-5: 123 files, 554594 bytes
-#   portfolio-front-tools-6: 133 files, 556649 bytes
-#   portfolio-front-tools-7: 132 files, 555231 bytes
-#   portfolio-front-tools-8: 125 files, 553610 bytes
-#   portfolio-front-tools-9: 133 files, 545339 bytes
+#   portfolio-front-tools-4: 142 files, 555449 bytes
+#   portfolio-front-tools-5: 124 files, 556456 bytes
+#   portfolio-front-tools-6: 132 files, 555385 bytes
+#   portfolio-front-tools-7: 132 files, 553763 bytes
+#   portfolio-front-tools-8: 124 files, 549469 bytes
+#   portfolio-front-tools-9: 136 files, 556268 bytes
 #   portfolio-front-tools-10: 125 files, 551240 bytes
 #   portfolio-front-tools-11: 122 files, 550251 bytes
 #   portfolio-front-tools-12: 116 files, 555024 bytes
@@ -50,8 +50,8 @@
 #   portfolio-front-tools-14: 129 files, 556663 bytes
 #   portfolio-front-tools-15: 125 files, 554990 bytes
 #   portfolio-front-tools-16: 134 files, 542463 bytes
-#   portfolio-front-tools-17: 101 files, 552274 bytes
-#   portfolio-front-tools-18: 115 files, 541248 bytes
+#   portfolio-front-tools-17: 100 files, 550801 bytes
+#   portfolio-front-tools-18: 118 files, 551100 bytes
 #   portfolio-front-tools-19: 126 files, 556613 bytes
 #   portfolio-front-tools-20: 122 files, 550367 bytes
 #   portfolio-front-tools-21: 76 files, 386291 bytes
@@ -661,6 +661,7 @@ configMapGenerator:
       - actions-secrets-inherit-check__classify.mjs.gz=actions-secrets-inherit-check__classify.mjs.gz
       - actions-secrets-inherit-check__index.html.gz=actions-secrets-inherit-check__index.html.gz
       - actions-secrets-inherit-check__usage.mjs.gz=actions-secrets-inherit-check__usage.mjs.gz
+      - actions-secrets-inherit-check__vs-checking-by-hand.html.gz=actions-secrets-inherit-check__vs-checking-by-hand.html.gz
       - actions-secrets-inherit-check__vs-zizmor.html.gz=actions-secrets-inherit-check__vs-zizmor.html.gz
       - actions-secrets-inherit-check__what-is-github-actions-secrets-inherit.html.gz=actions-secrets-inherit-check__what-is-github-actions-secrets-inherit.html.gz
       - actions-self-hosted-exposure-check__check.py.gz=actions-self-hosted-exposure-check__check.py.gz
@@ -747,13 +748,13 @@ configMapGenerator:
       - android-data-safety-check__target-sdk-check.mjs.gz=android-data-safety-check__target-sdk-check.mjs.gz
       - android-data-safety-check__target-sdk-scan.mjs.gz=android-data-safety-check__target-sdk-scan.mjs.gz
       - android-data-safety-check__usage.mjs.gz=android-data-safety-check__usage.mjs.gz
-      - android-data-safety-check__vs-manually-reviewing-play-console-warnings.html.gz=android-data-safety-check__vs-manually-reviewing-play-console-warnings.html.gz
-      - app-store-screenshot-check__check.mjs.gz=app-store-screenshot-check__check.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - android-data-safety-check__vs-manually-reviewing-play-console-warnings.html.gz=android-data-safety-check__vs-manually-reviewing-play-console-warnings.html.gz
+      - app-store-screenshot-check__check.mjs.gz=app-store-screenshot-check__check.mjs.gz
       - app-store-screenshot-check__engine.mjs.gz=app-store-screenshot-check__engine.mjs.gz
       - app-store-screenshot-check__image.mjs.gz=app-store-screenshot-check__image.mjs.gz
       - app-store-screenshot-check__index.html.gz=app-store-screenshot-check__index.html.gz
@@ -876,12 +877,12 @@ configMapGenerator:
       - basement-finishing-bid-calculator__should-i-charge-30-a-square-foot-to-finish-a-basement.html.gz=basement-finishing-bid-calculator__should-i-charge-30-a-square-foot-to-finish-a-basement.html.gz
       - basement-finishing-bid-calculator__usage.mjs.gz=basement-finishing-bid-calculator__usage.mjs.gz
       - basement-finishing-bid-calculator__vs-buildxact.html.gz=basement-finishing-bid-calculator__vs-buildxact.html.gz
-      - basement-finishing-bid-calculator__vs-jobtread.html.gz=basement-finishing-bid-calculator__vs-jobtread.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - basement-finishing-bid-calculator__vs-jobtread.html.gz=basement-finishing-bid-calculator__vs-jobtread.html.gz
       - basement-finishing-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz=basement-finishing-bid-calculator__vs-tracking-it-in-a-spreadsheet.html.gz
       - basement-waterproofing-bid-calculator__calc.mjs.gz=basement-waterproofing-bid-calculator__calc.mjs.gz
       - basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz=basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz
@@ -1013,13 +1014,13 @@ configMapGenerator:
       - certified-payroll-calculator__usage.mjs.gz=certified-payroll-calculator__usage.mjs.gz
       - certified-payroll-calculator__vs-doing-it-by-hand.html.gz=certified-payroll-calculator__vs-doing-it-by-hand.html.gz
       - certified-payroll-calculator__vs-lcptracker.html.gz=certified-payroll-calculator__vs-lcptracker.html.gz
-      - childcare-tuition-calculator__calc.mjs.gz=childcare-tuition-calculator__calc.mjs.gz
-      - childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz=childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - childcare-tuition-calculator__calc.mjs.gz=childcare-tuition-calculator__calc.mjs.gz
+      - childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz=childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz
       - childcare-tuition-calculator__index.html.gz=childcare-tuition-calculator__index.html.gz
       - childcare-tuition-calculator__share.mjs.gz=childcare-tuition-calculator__share.mjs.gz
       - childcare-tuition-calculator__usage.mjs.gz=childcare-tuition-calculator__usage.mjs.gz
@@ -1150,13 +1151,13 @@ configMapGenerator:
       - crawl-space-encapsulation-bid-calculator__index.html.gz=crawl-space-encapsulation-bid-calculator__index.html.gz
       - crawl-space-encapsulation-bid-calculator__usage.mjs.gz=crawl-space-encapsulation-bid-calculator__usage.mjs.gz
       - crawl-space-encapsulation-bid-calculator__vs-a-flat-4-dollar-sq-ft-special.html.gz=crawl-space-encapsulation-bid-calculator__vs-a-flat-4-dollar-sq-ft-special.html.gz
-      - crawl-space-encapsulation-bid-calculator__vs-quoteiq.html.gz=crawl-space-encapsulation-bid-calculator__vs-quoteiq.html.gz
-      - cron-dst-drift-check__cli.mjs.gz=cron-dst-drift-check__cli.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - crawl-space-encapsulation-bid-calculator__vs-quoteiq.html.gz=crawl-space-encapsulation-bid-calculator__vs-quoteiq.html.gz
+      - cron-dst-drift-check__cli.mjs.gz=cron-dst-drift-check__cli.mjs.gz
       - cron-dst-drift-check__engine.mjs.gz=cron-dst-drift-check__engine.mjs.gz
       - cron-dst-drift-check__index.html.gz=cron-dst-drift-check__index.html.gz
       - cron-dst-drift-check__usage.mjs.gz=cron-dst-drift-check__usage.mjs.gz
@@ -1279,14 +1280,14 @@ configMapGenerator:
       - dog-boarding-daycare-pricing__vs-a-flat-nightly-rate.html.gz=dog-boarding-daycare-pricing__vs-a-flat-nightly-rate.html.gz
       - dog-walking-route-pricing__calc.mjs.gz=dog-walking-route-pricing__calc.mjs.gz
       - dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz=dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz
-      - dog-walking-route-pricing__index.html.gz=dog-walking-route-pricing__index.html.gz
-      - dog-walking-route-pricing__share.mjs.gz=dog-walking-route-pricing__share.mjs.gz
-      - dog-walking-route-pricing__usage.mjs.gz=dog-walking-route-pricing__usage.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dog-walking-route-pricing__index.html.gz=dog-walking-route-pricing__index.html.gz
+      - dog-walking-route-pricing__share.mjs.gz=dog-walking-route-pricing__share.mjs.gz
+      - dog-walking-route-pricing__usage.mjs.gz=dog-walking-route-pricing__usage.mjs.gz
       - dog-walking-route-pricing__vs-a-flat-per-walk-rate.html.gz=dog-walking-route-pricing__vs-a-flat-per-walk-rate.html.gz
       - dog-walking-route-pricing__vs-rover.html.gz=dog-walking-route-pricing__vs-rover.html.gz
       - dotenv-exposure-check__analyze.mjs.gz=dotenv-exposure-check__analyze.mjs.gz
@@ -2384,6 +2385,7 @@ configMapGenerator:
       - senior-deduction-calculator__index.html.gz=senior-deduction-calculator__index.html.gz
       - senior-deduction-calculator__usage.mjs.gz=senior-deduction-calculator__usage.mjs.gz
       - senior-deduction-calculator__vs-estimating-the-deduction-by-hand.html.gz=senior-deduction-calculator__vs-estimating-the-deduction-by-hand.html.gz
+      - senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz=senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
@@ -2402,6 +2404,7 @@ configMapGenerator:
       - sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz=sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz
       - sewer-line-replace-bid-calculator__index.html.gz=sewer-line-replace-bid-calculator__index.html.gz
       - sewer-line-replace-bid-calculator__usage.mjs.gz=sewer-line-replace-bid-calculator__usage.mjs.gz
+      - sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz=sewer-line-replace-bid-calculator__vs-a-flat-per-foot-price.html.gz
       - sewer-line-replace-bid-calculator__vs-servicetitan.html.gz=sewer-line-replace-bid-calculator__vs-servicetitan.html.gz
       - shed-install-bid-calculator__calc.mjs.gz=shed-install-bid-calculator__calc.mjs.gz
       - shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz=shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz
@@ -2435,14 +2438,14 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz=shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz
       - shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz=shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz
       - shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz=shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz
-      - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
-      - shopify-fee-calculator__to-where-to-sell.mjs.gz=shopify-fee-calculator__to-where-to-sell.mjs.gz
-      - shopify-fee-calculator__usage.mjs.gz=shopify-fee-calculator__usage.mjs.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
+      - shopify-fee-calculator__to-where-to-sell.mjs.gz=shopify-fee-calculator__to-where-to-sell.mjs.gz
+      - shopify-fee-calculator__usage.mjs.gz=shopify-fee-calculator__usage.mjs.gz
       - shopify-fee-calculator__vs-a-flat-card-fee-guess.html.gz=shopify-fee-calculator__vs-a-flat-card-fee-guess.html.gz
       - shopify-fee-calculator__vs-beprofit.html.gz=shopify-fee-calculator__vs-beprofit.html.gz
       - shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz=shopify-fee-calculator__vs-doing-it-in-a-spreadsheet.html.gz

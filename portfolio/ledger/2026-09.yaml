@@ -44176,3 +44176,79 @@ entries:
         kdp-royalty-calculator entry above -- is what ultimately landed
         and stuck on `main`.)
     mrr_end: 0
+  - venture: auto-loan-interest-deduction-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added does-married-filing-separately-get-this-deduction.html,
+        the venture's first guide page (surface-budget.mjs flagged it at
+        1 comparison / 0 guide pages). Targets a distinct, high-intent
+        search query and covers the venture's own key differentiator:
+        unlike this portfolio's no-tax-on-tips-overtime-calculator and
+        senior-deduction-calculator, married filing separately is NOT
+        excluded from this deduction -- each spouse gets an independent
+        $10,000 cap at the single-filer thresholds. Includes a worked
+        example pinned against calc.mjs where two MFS spouses at $120k
+        MAGI each ($240k combined) get a combined $12,000 deduction vs.
+        $2,000 for the same couple filing jointly at the same combined
+        MAGI. Linked from index.html and added to the venture's
+        sitemap.xml; front-door mirror regenerated (regen.mjs --verify
+        clean after).
+      - >-
+        Verified: venture's own suite 40/40; full platform/marketing +
+        platform/pages suite 1290/1290 (one failure surfaced first --
+        the guide's FAQ JSON-LD used single quotes around 'no tax on
+        tips'/'no tax on overtime' while the visible paragraph used
+        double quotes; fixed the visible copy to match the sibling
+        comparison page's existing single-quote convention, then clean);
+        gitops/tests 613 passed/25 skipped; platform/ci unittest sweep
+        (27 modules) and agent_review's test_review (21/21) both clean;
+        checklist_coverage.py and sync_tree_counts.py clean. Merged
+        origin/main once mid-session (a llms-txt-generator comparison
+        page landing concurrently); resolved the generated front-door
+        mirror conflict via regen.mjs rather than picking a side, per
+        resolve-mirror-merge.sh. No revenue or confirmed-visitor signal
+        moved -- this is marketing-surface work on an existing
+        prototype-stage venture, not a new product or a usage reading.
+      - >-
+        CI note: Actions confirmed starved this session
+        (ci_starvation.py --run 36084953418 -> runner_id: 0, 3s, no
+        steps), so ran the full local checklist above instead of relying
+        on CI, and merged PR #5843 after it came back clean.
+    mrr_end: 0
+  - venture: senior-deduction-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added why-does-the-senior-deduction-phase-out-completely.html, the
+        venture's first guide page (surface-budget.mjs flagged it at 1
+        comparison / 0 guide pages). Answers a distinct, high-intent
+        search query -- the exact MAGI where the $6,000 senior deduction
+        reaches $0 ($175,000 single/HoH/QSS, $250,000 joint, always
+        threshold + $100,000 since $6,000 / 0.06 = $100,000) -- with
+        worked examples at four MAGI points, a table showing the
+        phase-out reaches $0 at the SAME MAGI whether one or two spouses
+        qualify, and a contrast with the auto-loan-interest-deduction-
+        calculator sibling's stepped/rounded phase-out (this one is
+        continuous, no rounding cliff). All figures pinned against
+        calc.mjs. Linked from index.html and added to the venture's
+        sitemap.xml; front-door mirror regenerated (regen.mjs --verify
+        clean after).
+      - >-
+        Verified: venture's own suite 49/49; full platform/marketing +
+        platform/pages suite 1290/1290 clean on the first run (learned
+        from the auto-loan session earlier today -- ran this suite only
+        after regen.mjs had already settled, not concurrently with it, to
+        avoid the read-during-write race platform/marketing/regen.mjs's
+        own docs warn about); gitops/tests 613 passed/25 skipped;
+        platform/ci unittest sweep (27 modules) and agent_review's
+        test_review (21/21) both clean; checklist_coverage.py and
+        sync_tree_counts.py clean.
+      - >-
+        CI note: Actions confirmed starved this session
+        (ci_starvation.py --run 36084953418 -> runner_id: 0, 3s, no
+        steps), so ran the full local checklist above instead of relying
+        on CI.
+    mrr_end: 0
