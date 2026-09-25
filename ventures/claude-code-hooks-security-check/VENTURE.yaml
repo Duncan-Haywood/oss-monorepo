@@ -1,0 +1,147 @@
+name: claude-code-hooks-security-check
+description: Free browser tool that scans the command strings inside a pasted Claude Code hooks configuration (the hooks section of settings.json, or a standalone hooks object) for known-dangerous shapes -- a remote download piped straight into a shell, a credential file read and sent over the network in the same line, environment variables dumped and sent over the network, an unguarded recursive delete of a broad path, TLS verification disabled, persistence via a shell startup file or crontab, world-writable permissions, a base64-obfuscated payload executed, and a process started detached from the hook -- since hooks execute automatically and silently on every matching tool call, with no confirmation prompt.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-25)
+#
+# Niche sourced by this session, not from a pipeline candidate list, per
+# portfolio/pipeline/README.md's "screening is done" instruction and
+# DIRECTION.md's standing invitation to graduate a genuinely new niche when
+# one clears the bars below. Distinguishing context: this session is Claude
+# Code itself, run on Claude Code's own maintainer's account, which gives
+# it unusually direct and current knowledge of hooks -- that they execute
+# shell commands automatically with no confirmation prompt, and the shapes
+# that make a hook command dangerous rather than merely malformed. This is
+# a different object and a different question from the four existing
+# AI-agent-tooling structural checkers in this portfolio
+# (claude-code-settings-check, claude-code-subagent-check,
+# mcp-config-risk-check, skill-manifest-check): those check whether a file
+# is shaped *correctly* (does a regex compile, is a field present); this
+# one assumes the JSON is well-formed and asks whether the *command text*
+# matches a known-dangerous security shape -- the same distinction the
+# portfolio already draws between a linter and a security scanner.
+#
+# duplicate_check.py (run before building, against the final description):
+#
+#   score  source                    label
+#    0.14  venture                   claude-code-settings-check
+#    0.12  venture                   mcp-config-risk-check
+#    0.11  venture                   agent-instructions-drift-check
+#    0.09  venture                   claude-code-subagent-check
+#    0.07  venture                   skill-manifest-check
+#    0.07  venture                   terraform-plan-blast-radius-check
+#    0.07  pipeline candidate        chrome-extension-permission-check
+#
+# Nothing scored >= 0.45. Read the top two anyway per the tool's own
+# instruction:
+#  - claude-code-settings-check (0.14) checks hook/permission *structure*
+#    (matcher compiles, command present, event/type name recognised,
+#    permission-rule punctuation) -- never reads what a hook's command
+#    actually does. This tool does the opposite: assumes the structure is
+#    fine and reads the command text for a security-risk shape.
+#  - mcp-config-risk-check (0.12) checks an MCP server *launch config* for
+#    risk patterns (broad shell/filesystem scope, hardcoded secrets, no
+#    version pin) -- a different object (how a server is started, not what
+#    a Claude Code hook runs) and a different vocabulary (server launch
+#    args, not shell command text).
+# Also checked git log --oneline -30 origin/main and open PRs
+# (mcp__github__search_pull_requests, "is:pr hooks security check claude")
+# for "hooks"/"security"/"claude code": zero venture-directory or open-PR
+# hits building this niche. No open PR or recent merge builds it.
+#
+# LIABILITY CONTAINMENT: every check is a deterministic, textual pattern
+# match against a command string the user pastes -- no execution of any
+# kind, no network call, no call to an LLM, and no claim that a command
+# which matches nothing is safe or that one which matches something is
+# malicious. Every finding is worded as "worth a look", never a verdict
+# (see calc.mjs's own comment on this), and the dedicated
+# why-a-clean-scan-isnt-a-safety-guarantee.html page states plainly, with
+# concrete examples in both directions, what the patterns can and can't
+# see and that a match on an ordinary command (rm -rf on a build
+# directory) is expected and not proof of malice. This is the same
+# discipline mcp-config-risk-check already uses for its own risk scan, one
+# object over.
+#
+# Bring-your-own-data compliance: the tool asserts nothing about a live,
+# time-varying vendor fact or about Claude Code's actual runtime behaviour
+# -- it classifies patterns in exactly the command text the user pastes,
+# the same discipline every structural/risk checker venture in this
+# portfolio uses.
+#
+# ETHICAL ROBUSTNESS: strictly beneficial as it scales -- it exists only
+# to help a Claude Code user (or anyone reviewing a hooks config someone
+# else wrote, e.g. before cloning a project that ships one) catch a
+# dangerous hook command before it runs unattended, with no adverse
+# incentive on our side (no affiliate link, no referral fee,
+# donations-only same as the rest of the portfolio). It is purely
+# defensive -- a read-only pattern scanner over text the user already has,
+# not a scanner of any third-party system, and it documents no technique
+# this page doesn't already need to name in order to detect it (the same
+# dual-use-tool defensiveness this portfolio already applies to its other
+# security checkers).
+#
+# JUDGMENT CALLS flagged for review:
+#  - The pattern list (11 checks across 9 categories) is this tool's own
+#    curated set of common, documented dangerous shapes, not an exhaustive
+#    taxonomy and not fetched from any live threat-intelligence source --
+#    it can miss a novel or sufficiently obfuscated shape, which is why
+#    every finding and the dedicated "why" page frame a clean scan as "no
+#    known pattern matched", never "safe".
+#  - Several patterns necessarily also match ordinary, safe commands (a
+#    project's own `rm -rf dist/` shares punctuation with `rm -rf /`; a
+#    legitimate `nohup` dev-server hook shares a shape with a persistence
+#    attempt) -- flagged explicitly as such in the UI, the README, and the
+#    "why" page rather than suppressed, because a false negative in a
+#    security tool is worse than an occasional false positive the user can
+#    dismiss in a second.
+#  - credential-file-read is suppressed when credential-exfiltration
+#    already fired for the same command, so a single read-and-send line
+#    produces one finding (the more specific, higher-severity one) instead
+#    of two describing the same fact -- a deliberate de-duplication
+#    decision, not a coverage gap (calc.test.mjs pins the behaviour).
+hypotheses:
+  - claim: A developer about to trust a hooks configuration -- their own, a teammate's, or one shipped in a cloned project -- wants known-dangerous command shapes flagged before the hooks fire unattended, and currently has no fast way to do that beyond reading every command by eye.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The credential-exfiltration and remote-pipe-to-shell categories catch the two shapes developers most want caught, because they are the ones with the highest blast radius (a stolen credential, or arbitrary remote code execution) and the least obvious tell on a quick read.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: every check is client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct visitors paste a hooks configuration and get at least one finding within 90 days.
+  - A finding's category is wrong (a false positive rate high enough to make the tool not worth using, or a documented dangerous shape it misses on a real, reported hooks config) and cannot be fixed by tightening a pattern.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/claude-code-hooks-security-check/
+  analytics: null
+
+channel_notes: >-
+  Named first-visitor channels: r/ClaudeAI and r/LocalLLaMA agent-tooling
+  threads (hook safety is an actively discussed topic there since hooks
+  shipped), Anthropic's own developer community/Discord, GitHub topic/code
+  search for repositories committing a .claude/settings.json with a hooks
+  section, HN Show threads about Claude Code tooling and agent security,
+  and organic search for "claude code hooks safe", "claude code hooks
+  security", and "is this claude code hook dangerous". The
+  claude-code-settings-check, mcp-config-risk-check, claude-code-subagent-check,
+  and skill-manifest-check footer cross-links are themselves a channel: a
+  visitor arriving at any of the five for an agent-tooling structural or
+  security check is a plausible visitor for the others too, and all five
+  now cross-link.
