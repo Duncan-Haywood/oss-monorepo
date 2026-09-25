@@ -46206,3 +46206,38 @@ entries:
         start), siblings.mjs --check (0 orphans of 378), score_ventures.py
         --check (386 scores) all clean on the tree this PR ships.
     mrr_end: 0
+  - venture: stucco-repair-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-a-flat-per-square-foot-price.html: one of the 39
+        ventures surface-budget.mjs --check reported with zero
+        generic-method comparison pages. The angle was already named in
+        calc.mjs's own header comment -- a flat "$12 a square foot" stucco
+        quote treats 40 feet of first-story hairline crack the same as 180
+        square feet of second-story EIFS torn back to the substrate -- so
+        the page pins two of the calculator's own shipped starting
+        examples (an 80 sq ft first-story one-coat delamination repair vs.
+        a 220 sq ft second-story EIFS tear-off) and shows the easy job's
+        own $38.12/sq ft rate pricing the hard job $210.24 below its own
+        break-even cost.
+      - >-
+        Regenerating the front-door mirror promoted "flat per-square-foot
+        price" into a new shared apex page (vs__flat-per-square-foot-price,
+        now shared with asphalt-sealcoat-bid-calculator's existing page of
+        the same comparison subject) -- gitops/prod/kustomization.yaml,
+        which is hand-kept rather than generated, needed the new mount
+        line added by hand or the page would have been dark, same shape
+        CLAUDE.md already records for security-txt-check (#5920).
+      - >-
+        Verified: venture's own suite 113/113; full platform/marketing +
+        platform/pages suite 1290/1290; gitops/tests 637 passed/1 skipped
+        (environmental); platform/ci unittest sweep (15 modules) and
+        agent_review's test_review (21/21) both clean; regen.mjs --verify,
+        checklist_coverage.py, sync_tree_counts.py, and surface-budget.mjs
+        --check (38 ventures now carry zero, down from 39) all clean on
+        the tree this PR ships. CI starved this session
+        (ci_starvation.py confirmed runner_id: 0 on the latest main push)
+        -- verified fully locally per CLAUDE.md's starvation checklist.
+    mrr_end: 0

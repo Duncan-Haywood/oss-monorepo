@@ -2446,6 +2446,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-wfs-cost-estimator.html, which names Walmart's own WFS Cost
   // Estimator and carries the trademark/affiliation disclaimer.
   'walmart-marketplace-calculator/vs-a-spreadsheet.html',
+  // Compares against "a flat per-square-foot price" -- the "$12 a square
+  // foot" pricing habit every stucco and EIFS repair contractor is shopped
+  // against, not a company or product this could be mistaken for. The page
+  // names no vendor or competing calculator at all -- distinct from this
+  // venture's own vs-jobber.html, which does name a product and carries its
+  // own "not affiliated" clause.
+  'stucco-repair-bid-calculator/vs-a-flat-per-square-foot-price.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
