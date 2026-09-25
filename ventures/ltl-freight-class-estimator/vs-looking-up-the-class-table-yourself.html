@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. looking up the class table yourself | LTL Freight Class Estimator</title>
+<meta name="description" content="The 18-row density-to-class table is public. The error-prone part is converting inches to cubic feet, multiplying by piece count without double-counting, and finding the right row -- not the table itself. This free calculator does the conversion and the lookup in one step.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. looking up the class table yourself">
+<meta property="og:description" content="The density-to-class table is the same either way. What a hand calculation tends to get wrong is the unit conversion and the piece-count multiplication that feed into it, not the table lookup itself.">
+<meta property="og:url" content="https://example.invalid/ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't the density-to-class table public? Why not just look it up myself?","acceptedAnswer":{"@type":"Answer","text":"The 18-row density band table is not a secret, and looking up a known density in it by hand works fine. Where a hand calculation tends to go wrong is upstream of the table: converting outside dimensions in inches to cubic feet (dividing by 1728, not 12), multiplying by piece count correctly for the whole shipment rather than one piece, and then finding the right row without an off-by-one on a boundary density. This calculator does the conversion and the lookup in one step, so there is nothing to get wrong between typing in the dimensions and reading the class."}},{"@type":"Question","name":"What does this calculator do that the table alone doesn't?","acceptedAnswer":{"@type":"Answer","text":"Past the class lookup, it states the two numbers a shipper can actually act on: how much shorter the pallet would need to be packed to reach the next class down, and how much headroom is left before a carrier's dimensioner re-rates it into the class above. Neither of those is in the table itself — they require rearranging the density formula for height, which is exactly the kind of algebra a quick manual lookup skips."}},{"@type":"Question","name":"When is looking it up by hand the better choice?","acceptedAnswer":{"@type":"Answer","text":"When you already have the density calculated and just need to check which of the 18 bands it falls in — that's a one-line table lookup and typing it into a calculator may not save real time. This calculator earns its keep when the density still has to be computed from raw dimensions and piece count, and especially when you want the repack and re-class headroom numbers the table alone doesn't give you."}}]}</script>
+<style>:root{font-family:system-ui,sans-serif;color:#202a35;background:#f4efe7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#9a4c25;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#4f5b54}section{background:#fffdf9;border:1px solid #dacfc1;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #e2d5bd;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #dacfc1;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5b625f}.fine,.note{font-size:.88rem;color:#5b625f}footer{color:#5b625f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; LTL Freight Class Estimator</a></p>
+<header>
+<h1>This calculator vs. looking up the class table yourself</h1>
+<p class="lede">The 18-row density-to-class table is public and looking a known density up in it by hand works fine. What tends to go wrong is upstream of the table: converting inches to cubic feet, multiplying by piece count, and finding the right row without an off-by-one on a boundary.</p>
+</header>
+<section>
+<h2>What each approach actually does</h2>
+<p>
+  <strong>Looking it up yourself</strong> means converting the outside
+  dimensions to cubic feet (length &times; width &times; height in inches,
+  divided by 1728), multiplying by piece count for the whole shipment,
+  dividing total weight by total cube to get density, and then scanning an
+  18-row table for the band that density falls into. None of those steps is
+  hard individually. Getting all four right, in order, without a unit slip
+  or an off-by-one on a boundary density, is where a hand calculation most
+  often drifts from the right class.
+</p>
+<p>
+  <strong>This calculator</strong> does the same conversion and lookup with
+  nothing to get wrong in between: enter outside dimensions, weight, and
+  piece count, and it returns the cube, the density, and the class band in
+  one step. It also rearranges the density formula for height to answer two
+  questions the table alone does not: how much shorter this pallet would
+  need to be packed to reach the next class down, and how much headroom is
+  left before a carrier's dimensioner re-rates it into the class above.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Is the density-to-class table itself public information?</td><td>Yes &mdash; both approaches use the same 18-row band table.</td></tr>
+<tr><td>Did I convert inches to cubic feet correctly, and multiply by the right piece count?</td><td>This calculator &mdash; those two steps are where a hand calculation is most likely to drift.</td></tr>
+<tr><td>How much shorter would this pallet need to be packed to reach the next class down?</td><td>This calculator's repack-height figure, not a manual rearrangement of the density formula.</td></tr>
+<tr><td>How much headroom is there before a carrier's dimensioner re-rates this pallet into the class above?</td><td>This calculator &mdash; the same estimate states the clearance directly.</td></tr>
+<tr><td>I already have the density calculated and just need the class band.</td><td>Either &mdash; a one-line table lookup and this calculator will agree.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Isn't the density-to-class table public? Why not just look it up myself?</h3>
+<p>The 18-row density band table is not a secret, and looking up a known density in it by hand works fine. Where a hand calculation tends to go wrong is upstream of the table: converting outside dimensions in inches to cubic feet (dividing by 1728, not 12), multiplying by piece count correctly for the whole shipment rather than one piece, and then finding the right row without an off-by-one on a boundary density. This calculator does the conversion and the lookup in one step, so there is nothing to get wrong between typing in the dimensions and reading the class.</p>
+<h3>What does this calculator do that the table alone doesn't?</h3>
+<p>Past the class lookup, it states the two numbers a shipper can actually act on: how much shorter the pallet would need to be packed to reach the next class down, and how much headroom is left before a carrier's dimensioner re-rates it into the class above. Neither of those is in the table itself &mdash; they require rearranging the density formula for height, which is exactly the kind of algebra a quick manual lookup skips.</p>
+<h3>When is looking it up by hand the better choice?</h3>
+<p>When you already have the density calculated and just need to check which of the 18 bands it falls in &mdash; that's a one-line table lookup and typing it into a calculator may not save real time. This calculator earns its keep when the density still has to be computed from raw dimensions and piece count, and especially when you want the repack and re-class headroom numbers the table alone doesn't give you.</p>
+<p class="note">
+  Open the <a href="./">LTL Freight Class Estimator</a> to estimate your own shipment.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or shipping advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and it does not replace an official NMFC classification. Verify the final class with your carrier or a qualified freight professional before booking.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+<p>Free and open source. If it saved you a round trip to a carrier, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
