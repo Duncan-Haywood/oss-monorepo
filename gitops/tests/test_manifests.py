@@ -2660,7 +2660,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # feature like camera/microphone, reliance on the deprecated
     # Feature-Policy header alone). Static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 379  # `infra/OWNER_CHECKLIST.md`'s own "N of the 379 tools" wording.
+    #
+    # 379 -> 380: `exempt-salary-threshold-checker` also graduated,
+    # concurrently and invisibly to the entries above -- a browser-local
+    # calculator checking a weekly salary against the 2026 federal FLSA
+    # white-collar exemption threshold and the higher state figure in
+    # California, Washington, Maine, Alaska, or New York (including New
+    # York's carve-out excluding the professional exemption from its
+    # higher figure). Static `index.html` only, no comparison page, from
+    # its first commit. Total re-derived here by `sync_tree_counts.py`
+    # against the fully merged tree rather than by hand.
+    total = 380  # `infra/OWNER_CHECKLIST.md`'s own "N of the 380 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

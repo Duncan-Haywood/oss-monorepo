@@ -891,7 +891,15 @@ const RELATIVE_SELF = relative(
 // `writeOptOut` gating localStorage writes, keyed under its own
 // `referrer-permissions-policy-check-usage` storage name). Exactly one
 // added `usage.mjs`, no deletions.
-const SWITCHES_IN_THE_CATALOGUE = 358;
+//
+// 358 -> 359: `exempt-salary-threshold-checker` also graduated,
+// concurrently and invisibly to the entries above -- adding one more
+// `usage.mjs` (`ventures/exempt-salary-threshold-checker/usage.mjs`), the
+// same boilerplate opt-out toggle copied from `salt-cap-calculator`
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `exempt-salary-threshold-checker-usage` storage
+// name). Exactly one added `usage.mjs`, no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 359;
 
 let counter = 0;
 function fixture(source) {
