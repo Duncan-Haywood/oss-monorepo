@@ -143,3 +143,17 @@ test('index links one hop to the brand-deal-rate-calculator sibling', () => {
   );
   assert.match(html, /brand deal rate calculator/i);
 });
+
+// patreon-fee-calculator ships in the same PR with no inbound sibling link of
+// its own -- this outbound link from an already-linked tool is what keeps it
+// off platform/pages/siblings.mjs's orphan list from its first commit, per
+// siblings-budget.json's own "shipped with an inbound sibling link from its
+// first commit" pattern.
+test('index links one hop to the patreon-fee-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/patreon-fee-calculator\/"/,
+    'index must link ../patreon-fee-calculator/ so crawlers reach that calculator in one hop',
+  );
+  assert.match(html, /patreon fee calculator/i);
+});

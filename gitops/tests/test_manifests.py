@@ -2584,7 +2584,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commit, same shape as the rest of this running count. Total
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
-    total = 370  # `infra/OWNER_CHECKLIST.md`'s own "N of the 370 tools" wording.
+    #
+    # 370 -> 371 on this merge: `patreon-fee-calculator` also graduated --
+    # a browser-local calculator finding a Patreon creator's real monthly
+    # payout from three pledge tiers after the plan's platform fee (10%
+    # Standard, or legacy 5%/8%/12% Lite/Pro/Premium) and per-charge
+    # payment processing, with a docs/comparison page showing when
+    # per-creation billing costs more in fees than monthly billing for
+    # the same total pledge. Static `index.html` plus one docs/comparison
+    # page from its first commit, same shape as the rest of this running
+    # count. Total re-derived here by `sync_tree_counts.py` against the
+    # fully merged tree rather than by hand.
+    total = 371  # `infra/OWNER_CHECKLIST.md`'s own "N of the 371 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
