@@ -52,8 +52,8 @@
 #   portfolio-front-tools-16: 134 files, 556688 bytes
 #   portfolio-front-tools-17: 122 files, 546683 bytes
 #   portfolio-front-tools-18: 104 files, 555135 bytes
-#   portfolio-front-tools-19: 119 files, 544160 bytes
-#   portfolio-front-tools-20: 127 files, 552762 bytes
+#   portfolio-front-tools-19: 120 files, 549181 bytes
+#   portfolio-front-tools-20: 128 files, 557044 bytes
 #   portfolio-front-tools-21: 78 files, 375799 bytes
 #   portfolio-front-tools-22: 50 files, 264886 bytes
 #
@@ -2593,6 +2593,7 @@ configMapGenerator:
     files:
       - soffit-fascia-bid-calculator__index.html.gz=soffit-fascia-bid-calculator__index.html.gz
       - soffit-fascia-bid-calculator__usage.mjs.gz=soffit-fascia-bid-calculator__usage.mjs.gz
+      - soffit-fascia-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=soffit-fascia-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
       - soffit-fascia-bid-calculator__vs-jobber.html.gz=soffit-fascia-bid-calculator__vs-jobber.html.gz
       - solar-pv-bid-calculator__calc.mjs.gz=solar-pv-bid-calculator__calc.mjs.gz
       - solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz=solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz
@@ -2745,6 +2746,7 @@ configMapGenerator:
       - terraform-plan-secret-exposure-check__usage.mjs.gz=terraform-plan-secret-exposure-check__usage.mjs.gz
       - terraform-plan-secret-exposure-check__vs-checkov.html.gz=terraform-plan-secret-exposure-check__vs-checkov.html.gz
       - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
+      - terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz=terraform-plan-secret-exposure-check__vs-manually-reading-the-plan-json.html.gz
       - terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz=terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz
       - tip-pool-compliance-calculator__calc.mjs.gz=tip-pool-compliance-calculator__calc.mjs.gz
       - tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz=tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz
