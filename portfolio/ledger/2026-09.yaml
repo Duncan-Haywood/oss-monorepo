@@ -44626,3 +44626,60 @@ entries:
         api.indexnow.org, so the submission did not reach IndexNow --
         unresolved from this environment, per CLAUDE.md's standing note.
     mrr_end: 0
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-filling-out-the-vpat-template-by-hand.html -- the venture had a
+        named-product comparison (vs-hiring-a-vpat-consultant.html) and a
+        guide page but zero generic-method "you could do this yourself"
+        pages, one of the ventures surface-budget.mjs flagged with room for
+        one. The angle: typing the same 50 WCAG 2.1 A/AA rows into ITI's own
+        published Word/Excel VPAT template gets the format right and has no
+        way to check what you typed, so the specific completeness gaps a
+        procurement reviewer rejects a report over (an unexplained Partially
+        Supports/Does Not Support row, a blank required header field) type
+        in silently. Worked example pinned against calc.mjs's own
+        buildReport(): 50 criteria scored 42 Supports/5 Partially
+        Supports/2 Does Not Support/1 Not Applicable, with three Partially
+        Supports rows, one Does Not Support row, and the Report Date header
+        left blank -- buildReport() reports exactly 5 completeness issues
+        (4 remarks-required, 1 header-required), none of which a hand-typed
+        template would have flagged.
+      - >-
+        Registered the page in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no competitor, only the
+        generic manual habit of filling in ITI's own template) and ran
+        node platform/marketing/regen.mjs to refresh the front-door mirror
+        (front-door-tools/kustomization.yaml, the venture's own mirror
+        shard, catalog.json, compare.html, llms.txt, sitemap.xml).
+      - >-
+        Caught and fixed a real defect during verification, not a race:
+        platform/pages/faq-visible.test.mjs failed twice, honestly, because
+        the FAQPage JSON-LD text used a plain "--" and a straight double
+        quote while the visible <h3>/<p> markup used "&mdash;" and a
+        different quote style in the same four answers -- the JSON-LD and
+        the rendered page have to match verbatim. Fixed by aligning the
+        visible copy to the JSON-LD's punctuation; re-ran clean afterward
+        (4/4).
+      - >-
+        Verified locally (CI starved -- ci_starvation.py confirmed
+        runner_id: 0 on the run this session's own earlier push produced,
+        run 36092190053): ventures/vpat-acr-generator/*.test.mjs 36/36;
+        platform/marketing + platform/pages full suite 1290/1290 (a first
+        pass showed 8 failures, reproduced identically on a second isolated
+        run before the fix above, then went to 0/0 failures after fixing
+        the FAQ markup and running regen.mjs -- not the documented
+        concurrent-regen race, an actual page defect); regen.mjs --verify
+        stale before regen, current after; checklist_coverage.py and
+        surface-budget.mjs --check both clean; gitops/tests 613 passed/25
+        skipped (environmental, per CLAUDE.md); portfolio/ledger+scoring+
+        router+usage+pipeline+infra/tests 446 passed;
+        run_workflow_locally.py --for-changes: portfolio-validate.yml
+        70/70, sibling-links-ci.yml 2/2, vpat-acr-generator-ci.yml 2/2 run
+        steps passed (remaining UNRUN/SKIPPED steps are the documented
+        base-ref/dependency-install/uses: limitations of this sandbox, not
+        failures).
+    mrr_end: 0
