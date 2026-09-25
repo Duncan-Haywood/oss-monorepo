@@ -2127,6 +2127,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // which names GrantHub/Foundant specifically and carries the trademark
   // disclaimer.
   'grant-reporting-tracker/vs-tracking-grants-in-a-spreadsheet.html',
+  // Compares against "guessing a flat rate" -- copying a round CPM figure
+  // from a blog post or a competitor's public rate card, a pricing habit
+  // every newsletter operator already has, not a company or product this
+  // could be mistaken for. Distinct from this venture's own vs-paved.html,
+  // which names Paved specifically and carries the trademark disclaimer.
+  'newsletter-sponsorship-rate-calculator/vs-guessing-a-flat-rate.html',
   // Compares against "looking up the density-to-class table yourself" -- a
   // manual lookup habit any shipper already has, not a company or product
   // this could be mistaken for. Distinct from this venture's own
@@ -2146,14 +2152,6 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // on a venture that already had one, inviting a second, duplicate
   // "vs. a spreadsheet" angle.
   'facebook-marketplace-fee-calculator/vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html',
-  // Compares against "one flat rate quoted to every sponsor" -- a pricing
-  // habit any newsletter operator can adopt on their own, not a company or
-  // product this could be mistaken for. The page's own copy says so
-  // explicitly ("names no specific product or company -- it compares
-  // against the generic habit of quoting one flat rate for every sponsor").
-  // Distinct from this venture's own vs-paved.html, which names Paved
-  // specifically and carries the trademark disclaimer.
-  'newsletter-sponsorship-rate-calculator/vs-a-flat-rate-for-every-sponsor.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
