@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 127 files, 552529 bytes
 #   portfolio-front-tools-11: 120 files, 556599 bytes
 #   portfolio-front-tools-12: 120 files, 556278 bytes
-#   portfolio-front-tools-13: 123 files, 545678 bytes
+#   portfolio-front-tools-13: 124 files, 550359 bytes
 #   portfolio-front-tools-14: 127 files, 556549 bytes
 #   portfolio-front-tools-15: 125 files, 544745 bytes
 #   portfolio-front-tools-16: 135 files, 554934 bytes
@@ -1871,6 +1871,7 @@ configMapGenerator:
       - llms-txt-generator__index.html.gz=llms-txt-generator__index.html.gz
       - llms-txt-generator__usage.mjs.gz=llms-txt-generator__usage.mjs.gz
       - llms-txt-generator__vs-a-hosted-docs-platform.html.gz=llms-txt-generator__vs-a-hosted-docs-platform.html.gz
+      - llms-txt-generator__vs-writing-llms-txt-by-hand.html.gz=llms-txt-generator__vs-writing-llms-txt-by-hand.html.gz
       - llms-txt-generator__what-is-llms-txt.html.gz=llms-txt-generator__what-is-llms-txt.html.gz
       - locksmith-bid-calculator__calc.mjs.gz=locksmith-bid-calculator__calc.mjs.gz
       - locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz=locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz
