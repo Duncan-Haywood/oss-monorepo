@@ -2133,6 +2133,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. Distinct from this venture's own vs-paved.html,
   // which names Paved specifically and carries the trademark disclaimer.
   'newsletter-sponsorship-rate-calculator/vs-guessing-a-flat-rate.html',
+  // Compares against "looking up the density-to-class table yourself" -- a
+  // manual lookup habit any shipper already has, not a company or product
+  // this could be mistaken for. Distinct from this venture's own
+  // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
+  // carries the trademark disclaimer.
+  'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
