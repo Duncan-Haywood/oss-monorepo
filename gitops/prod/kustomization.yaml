@@ -329,6 +329,7 @@ configMapGenerator:
       - vs__flat-rate-per-lineal-foot.html.gz=front-door/vs__flat-rate-per-lineal-foot.html.gz
       - vs__reading-the-workflow-yaml-by-hand.html.gz=front-door/vs__reading-the-workflow-yaml-by-hand.html.gz
       - vs__checking-headers-by-eye-in-devtools.html.gz=front-door/vs__checking-headers-by-eye-in-devtools.html.gz
+      - vs__checking-it-by-eye.html.gz=front-door/vs__checking-it-by-eye.html.gz
       - vs__mcp-scan.html.gz=front-door/vs__mcp-scan.html.gz
       - vs__assembling-one-by-hand-in-a-document-editor.html.gz=front-door/vs__assembling-one-by-hand-in-a-document-editor.html.gz
       - vs__reviewing-workflows-by-eye.html.gz=front-door/vs__reviewing-workflows-by-eye.html.gz
