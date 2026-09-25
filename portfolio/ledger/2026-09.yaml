@@ -45301,3 +45301,53 @@ entries:
         confirmed starved earlier this session (ci_starvation.py:
         runner_id: 0 on sampled jobs) -- expect the same on this PR.
     mrr_end: 0
+  - venture: wordpress-plugin-review-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled/automated session. Spent most of the session helping
+        drive two concurrent sessions' PRs (#5873 self-storage-rate-
+        increase-calculator, #5886 spray-foam-bid-calculator) to a
+        mergeable state: resolved their merge conflicts against a fast-
+        moving main (four sessions committing within 15-minute windows
+        per session_gate.py), regenerated the front-door mirror, and ran
+        run_workflow_locally.py --for-changes, which flagged what looked
+        like a live venture (salt-cap-calculator) disappearing from the
+        served catalogue. Traced it to a stale checkout rather than a
+        real regression -- another concurrent PR had added that venture
+        to main after this branch's last merge -- and confirmed with
+        check_venture_regression.py after re-merging. Both PRs were
+        ultimately merged by other concurrent sessions before this
+        session's own push landed, so no separate credit is claimed for
+        them here; recorded because the false-regression trace is the
+        kind of finding this ledger exists to capture.
+      - >-
+        Shipped a generic-method comparison page,
+        vs-manually-checking-against-the-guidelines.html, for
+        wordpress-plugin-review-check (PR #5893, merged) -- one of the
+        ventures surface-budget.mjs flagged with a named-product
+        comparison and a guide page but no generic-method page. The angle:
+        reading wordpress.org's Detailed Plugin Guidelines and re-checking
+        readme.txt/PHP files against it by eye is the default first pass,
+        and it reliably misses a cross-file Stable tag/Version mismatch
+        and a $_POST handler with no nonce check buried in a long file.
+        Worked example reuses the venture's own bundled "load example"
+        fixture, pinned directly against scan.mjs's own functions rather
+        than invented numbers. Registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT, linked from index.html, listed in
+        sitemap.xml.
+      - >-
+        Verified: venture's own suite 72/72; platform/pages/
+        clauses+faq-visible+faq-coverage+faq-duplicate 38/38; full
+        platform/marketing + platform/pages suite 1290/1290 (re-run
+        against the final merged tree, after main advanced twice during
+        this session and the branch was re-merged and re-verified each
+        time); surface-budget.mjs --check, checklist_coverage.py,
+        sync_tree_counts.py, regen.mjs --verify, and
+        check_venture_regression.py --base origin/main all clean. CI
+        starved this session (ci_starvation.py --run 36096894947 and
+        36098873708 both confirmed runner_id: 0) -- merged on the
+        strength of local verification per CLAUDE.md's starvation
+        checklist.
+    mrr_end: 0
