@@ -34,6 +34,17 @@ submission never touched — but the *reasoning* above ("every one of them runs
 in an agent sandbox [that 403s]") no longer holds as a universal claim. Read
 it as the common case through that date, not a guarantee for every session.
 
+CORRECTED AGAIN 2026-09-25: that submission had already repeated by the time
+this tool was updated for it — a second session's by-hand `--submit` also got
+a `200` (1624 URLs) — and both left this tool reporting `never` regardless,
+because "a submission leaves no trace in the tree" (below) used to mean
+nobody had built one, not that one was impossible. `indexnow.mjs --record`
+now writes `platform/ci/indexnow_manual.json`, a small committed fact (ref,
+headSha, URL count, the observed status) alongside browser_state.json's
+readings — and this file now reads it, folding a manual submission into
+`verdict` when its `headSha` matches what is actually live, the same
+freshness test the workflow-run path already applies via `covers`.
+
 So the route with egress never ran, and the route that ran had no egress, and
 **nothing anywhere said so**. A submission leaves no trace in the tree: there
 is no artifact, no commit, and IndexNow has no confirmation API. The catalogue
@@ -125,6 +136,7 @@ SERVING_BRANCH = "gh-pages"
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 INDEXNOW_SCRIPT = os.path.join(REPO_ROOT, "platform", "marketing", "indexnow.mjs")
+MANUAL_RECORD_PATH = os.path.join(REPO_ROOT, "platform", "ci", "indexnow_manual.json")
 
 # The remote-tracking ref, not the bare branch name `indexnow.mjs --ref
 # gh-pages` reads by default. `publish-pages-branch.yml` writes a *local*
@@ -294,6 +306,48 @@ def run_indexnow_dry(ref=LIVE_REF, timeout=60):
     return parsed
 
 
+def read_manual_record(path=MANUAL_RECORD_PATH):
+    """The last by-hand submission `indexnow.mjs --record` wrote, or None.
+
+    A missing or unparseable file reads as None -- no manual record exists
+    yet -- never as an error; this is an optional supplement to the
+    workflow-run reading, on the same "degrade, don't crash" terms as
+    `live_coverage`.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return None
+
+
+def _manual_announcement(record, serving):
+    """Does a manual record cover what is live now?
+
+    `record["headSha"]` is the commit `--ref` resolved to *at submission
+    time*. Comparing it to `serving["sha"]` -- the `gh-pages` tip this
+    reading just asked the API for -- is the same freshness test `_covers`
+    applies to a workflow run, so a manual submission from an older snapshot
+    is never credited for pages it never announced. A `--dir` submission
+    carries no `headSha` (see `resolveRefSha`) and never matches.
+    """
+    if not record or not serving:
+        return None
+    head_sha, serving_sha = record.get("headSha"), serving.get("sha")
+    if not head_sha or not serving_sha or head_sha != serving_sha:
+        return None
+    return {
+        "run": None,
+        "at": record.get("recordedAt"),
+        "head_sha": head_sha[:9],
+        "outcome": "success",
+        "url": None,
+        "manual": True,
+        "url_count": record.get("urlCount"),
+        "status": record.get("status"),
+    }
+
+
 def live_coverage(run_dry=None):
     """How many URLs the live snapshot would submit right now, or why not.
 
@@ -337,11 +391,13 @@ def announce_outcome(jobs):
     return "absent"
 
 
-def collect(api, limit=DEFAULT_RUN_LIMIT, run_dry=None):
+def collect(api, limit=DEFAULT_RUN_LIMIT, run_dry=None, manual_record=None):
     """The whole reading, as plain data so `--json` and `render` agree."""
     runs = read_runs(api, limit)
     serving = read_serving_branch(api)
     live = live_coverage(run_dry)
+    raw_manual = read_manual_record() if manual_record is None else manual_record
+    manual = _manual_announcement(raw_manual, serving)
 
     examined = []
     announced = None
@@ -371,6 +427,15 @@ def collect(api, limit=DEFAULT_RUN_LIMIT, run_dry=None):
             f"run {announced['run']} announced the snapshot at {announced['at']}. "
             "Accepted means the engines were asked, not that anything was indexed "
             "— IndexNow has no confirmation API and Google does not participate."
+        )
+    elif manual:
+        announced = manual
+        verdict = "announced"
+        reason = (
+            f"a by-hand `indexnow.mjs --record` submission at {manual['at']} got a real "
+            f"{manual['status']}, announcing {manual['url_count']} URL(s) at the snapshot "
+            "that is still live now (see platform/ci/indexnow_manual.json). No "
+            f"{PUBLISH_WORKFLOW} run has ever announced anything."
         )
     elif not examined:
         verdict = "never"
@@ -403,6 +468,8 @@ def collect(api, limit=DEFAULT_RUN_LIMIT, run_dry=None):
         "examined": examined[:10],
         "examined_count": len(examined),
         "live": live,
+        "manual_record": raw_manual,
+        "manual_covers": manual is not None,
     }
 
 
@@ -486,6 +553,19 @@ def render(state):
             lines.append(f"                    {chunk}")
     lines.append("")
 
+    record = state.get("manual_record")
+    if record and not state.get("manual_covers") and state["verdict"] != "announced":
+        # A record exists but its `headSha` no longer matches the live
+        # snapshot -- worth a line even though it isn't driving the verdict,
+        # so a reader can see a submission happened rather than concluding
+        # nobody has ever tried.
+        lines.append(
+            f"  manual record     STALE -- {record.get('urlCount', '?')} URL(s) recorded "
+            f"{record.get('recordedAt', '?')} at {(record.get('headSha') or '?')[:9]}, "
+            "which is not the current live snapshot. Re-run --submit --record."
+        )
+        lines.append("")
+
     if state["examined"]:
         lines.append(f"  last {len(state['examined'])} run(s) of {PUBLISH_WORKFLOW}:")
         for row in state["examined"]:
@@ -514,14 +594,14 @@ def _next_step(state):
         )
     return (
         "Try it by hand first, even from an agent sandbox: its proxy usually "
-        "403s api.indexnow.org, but not always (a 200 was observed from one "
-        "on 2026-09-24), this tool cannot see a by-hand submission either "
-        "way, and a failed attempt costs one command. The command is "
-        f"`node platform/marketing/indexnow.mjs --submit --ref {SERVING_BRANCH}`. "
-        "Otherwise announce from a host with real egress -- a GitHub Actions "
-        f"runner, or the Hetzner box once host mode is installed. {PUBLISH_WORKFLOW} "
-        "runs the same command on every merge to main once a runner is available "
-        "again."
+        "403s api.indexnow.org, but not always (a 200 was observed from two "
+        "sessions on 2026-09-24 and 2026-09-25), and a failed attempt costs "
+        "one command. Pass --record so this tool can see it: "
+        f"`node platform/marketing/indexnow.mjs --submit --record --ref {SERVING_BRANCH}`, "
+        "then commit platform/ci/indexnow_manual.json. Otherwise announce from "
+        f"a host with real egress -- a GitHub Actions runner, or the Hetzner box "
+        f"once host mode is installed. {PUBLISH_WORKFLOW} runs the same command "
+        "on every merge to main once a runner is available again."
     )
 
 

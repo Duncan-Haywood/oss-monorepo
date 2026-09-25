@@ -22,6 +22,8 @@ import {
   isEgressRefusal,
   originFromCatalog,
   resolveBaseUrl,
+  resolveRefSha,
+  writeManualRecord,
 } from './indexnow.mjs';
 import { INDEXNOW_KEY, indexNowKeyFileName } from '../pages/build.mjs';
 
@@ -523,3 +525,30 @@ test('the hint it prints is a command git accepts', () => {
   // doubled tracking name the old hint produced.
   assert.doesNotMatch(stderr, /origin\/definitely-not-a-branch-xyz/);
 });
+
+test('resolveRefSha reads a real ref\'s commit, and returns null for a bogus one', () => {
+  const sha = resolveRefSha('HEAD', null);
+  assert.match(sha, /^[0-9a-f]{40}$/);
+  assert.equal(resolveRefSha('definitely-not-a-real-ref-xyz', null), null);
+});
+
+test('resolveRefSha returns null for --dir, which has no git identity of its own', () => {
+  assert.equal(resolveRefSha('gh-pages', '/some/built/dir'), null);
+});
+
+test('writeManualRecord writes the exact record as pretty JSON', () =>
+  withFixtureDir(async (dir) => {
+    const target = path.join(dir, 'indexnow_manual.json');
+    const record = {
+      recordedAt: '2026-09-25T00:00:00.000Z',
+      ref: 'gh-pages',
+      dir: null,
+      headSha: 'a'.repeat(40),
+      urlCount: 1624,
+      sources: '378 from catalog.json, 1624 from 368 published sitemap(s)',
+      host: 'duncan-haywood.github.io',
+      status: 200,
+    };
+    await writeManualRecord(record, target);
+    assert.deepEqual(JSON.parse(await fs.readFile(target, 'utf8')), record);
+  }));

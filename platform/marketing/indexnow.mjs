@@ -55,7 +55,11 @@
  *   node platform/marketing/indexnow.mjs --submit --ref gh-pages
  *   node platform/marketing/indexnow.mjs --submit --dir /path/to/built/site
  *   node platform/marketing/indexnow.mjs --submit --dir dist --base-url https://marisstella.dev/
+ *   node platform/marketing/indexnow.mjs --submit --record   # also persist a state
+ *                                                             # file `indexnow_state.py`
+ *                                                             # can read — commit it after
  *
+
  * `--base-url` names the origin explicitly, for a publisher that is not the
  * `gh-pages` snapshot. Without it the origin is read from the artifact's own
  * `catalog.json` — see `resolveBaseUrl` for the order and for the one case
@@ -326,6 +330,36 @@ async function readCatalog(readFile) {
   return JSON.parse(await readFile('catalog.json'));
 }
 
+// Where `--record` persists a successful by-hand submission. Read by
+// `platform/ci/indexnow_state.py`, which otherwise has no way to see one: a
+// submission leaves no trace at IndexNow itself (no confirmation API), and
+// the only durable record this repo already trusts is something committed to
+// the tree — the same reason `browser_state.json` exists for browser_checks.py.
+export const MANUAL_RECORD_PATH = path.join(REPO_ROOT, 'platform', 'ci', 'indexnow_manual.json');
+
+/** The commit `ref` names, or null when reading from a plain directory (`--dir`), which has no git identity of its own. */
+export function resolveRefSha(ref, dir) {
+  if (dir) return null;
+  try {
+    return execFileSync('git', ['-C', REPO_ROOT, 'rev-parse', ref], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Persist the one fact IndexNow itself will never hand back: that this
+ * machine got a real accepted response, for this many URLs, at this ref.
+ * Only called after a genuine `2xx` — see the `--record` branch in `main` —
+ * so the file only ever states an observed status code, never a hope.
+ */
+export async function writeManualRecord(record, filePath = MANUAL_RECORD_PATH) {
+  await fs.writeFile(filePath, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
+}
+
 /**
  * Refuse to submit if the published key file does not match what this build
  * would publish. A mismatch means either the snapshot is stale (rebuild and
@@ -496,12 +530,13 @@ export async function submit(payload) {
 }
 
 function parseArgs(argv) {
-  const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null };
+  const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null, record: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--submit') args.submit = true;
     else if (argv[i] === '--ref') args.ref = argv[++i];
     else if (argv[i] === '--dir') args.dir = argv[++i];
     else if (argv[i] === '--base-url') args.baseUrl = argv[++i];
+    else if (argv[i] === '--record') args.record = true;
   }
   return args;
 }
@@ -615,5 +650,23 @@ if (isMain) {
   if (!result.ok) {
     console.error('indexnow: submission was not accepted — see status and body above.');
     process.exit(1);
+  }
+
+  if (args.record) {
+    const headSha = resolveRefSha(args.ref, args.dir);
+    await writeManualRecord({
+      recordedAt: new Date().toISOString(),
+      ref: args.dir ? null : args.ref,
+      dir: args.dir,
+      headSha,
+      urlCount: urls.length,
+      sources: `${fromCatalog.length} from catalog.json, ${sitemapNote}`,
+      host: payload.host,
+      status: result.status,
+    });
+    console.log(
+      `\nrecorded this submission to ${path.relative(REPO_ROOT, MANUAL_RECORD_PATH)} — ` +
+        'commit it so indexnow_state.py can see it.',
+    );
   }
 }

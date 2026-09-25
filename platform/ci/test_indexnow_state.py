@@ -16,6 +16,36 @@ import unittest.mock
 
 import indexnow_state as state
 
+# Every test in this file that calls `state.collect(api)` without an explicit
+# `manual_record=` must not be at the mercy of whatever
+# `platform/ci/indexnow_manual.json` happens to hold on the machine running
+# the suite -- that would make the suite's result depend on disk state no
+# test here sets up. Patch the real path away from the reader for the whole
+# module; tests that want to exercise the manual-record path either pass
+# `manual_record=` directly to `collect()` (which then never calls the reader
+# at all) or call `read_manual_record()` themselves with an explicit tmp
+# path, which this side effect still routes to the real implementation.
+_real_read_manual_record = state.read_manual_record
+
+
+def _guarded_read_manual_record(path=state.MANUAL_RECORD_PATH):
+    if path == state.MANUAL_RECORD_PATH:
+        return None
+    return _real_read_manual_record(path)
+
+
+_manual_record_patcher = unittest.mock.patch.object(
+    state, "read_manual_record", side_effect=_guarded_read_manual_record
+)
+
+
+def setUpModule() -> None:
+    _manual_record_patcher.start()
+
+
+def tearDownModule() -> None:
+    _manual_record_patcher.stop()
+
 
 def _job(runner_id, steps=None, conclusion="failure"):
     return {
@@ -236,7 +266,7 @@ class Rendering(unittest.TestCase):
         runs = [_run(1, "2026-09-11T04:15:40Z")]
         api = api_for(runs, {1: [_job(0)]}, branch=branch_commit())
         text = state.render(state.collect(api))
-        self.assertIn("indexnow.mjs --submit --ref gh-pages", text)
+        self.assertIn("indexnow.mjs --submit --record --ref gh-pages", text)
         self.assertIn("egress", text)
 
     def test_the_announced_report_does_not_claim_indexing(self) -> None:
@@ -451,6 +481,129 @@ class CollectIncludesLiveCoverage(unittest.TestCase):
         result = state.collect(api, run_dry=boom)
         self.assertEqual(result["verdict"], "announced")
         self.assertEqual(state.exit_code(result, require_announced=True), 0)
+
+
+def _manual_record(head_sha, recorded_at="2026-09-25T00:10:00.000Z", url_count=1624, status=200):
+    return {
+        "recordedAt": recorded_at,
+        "ref": "gh-pages",
+        "dir": None,
+        "headSha": head_sha,
+        "urlCount": url_count,
+        "sources": "378 from catalog.json, 1624 from 368 published sitemap(s)",
+        "host": "duncan-haywood.github.io",
+        "status": status,
+    }
+
+
+class ManualRecords(unittest.TestCase):
+    """`indexnow.mjs --record` is the only route with real egress most of the
+    time this repo has measured (CLAUDE.md's starvation history), so a
+    by-hand submission has to be able to clear `--require-announced` on its
+    own -- but only for the snapshot it actually announced.
+    """
+
+    def test_a_manual_record_at_the_live_sha_counts_as_announced(self) -> None:
+        runs = [_run(1, "2026-09-11T04:15:40Z")]
+        api = api_for(runs, {1: [_job(0)]}, branch=branch_commit(sha="deadbeef11", date="2026-09-11T04:16:35Z"))
+        record = _manual_record("deadbeef11")
+
+        result = state.collect(api, manual_record=record)
+
+        self.assertEqual(result["verdict"], "announced")
+        self.assertTrue(result["announced"]["manual"])
+        self.assertEqual(result["announced"]["url_count"], 1624)
+        self.assertEqual(result["covers"], "current")
+        self.assertEqual(state.exit_code(result, require_announced=True), 0)
+        self.assertIn("by-hand", result["reason"])
+
+    def test_a_workflow_success_is_preferred_over_a_manual_record(self) -> None:
+        """The workflow run history is the more authoritative source -- it
+        names its own run id and cannot be a stale local file. A manual
+        record must never displace it."""
+        runs = [_run(1, "2026-09-11T05:00:00Z")]
+        jobs = {
+            1: [
+                _job(
+                    1000054728,
+                    steps=[{"name": "Notify IndexNow", "conclusion": "success"}],
+                    conclusion="success",
+                )
+            ]
+        }
+        api = api_for(runs, jobs, branch=branch_commit(sha="deadbeef11", date="2026-09-11T04:16:35Z"))
+        record = _manual_record("deadbeef11")
+
+        result = state.collect(api, manual_record=record)
+
+        self.assertEqual(result["verdict"], "announced")
+        self.assertFalse(result["announced"].get("manual"))
+        self.assertEqual(result["announced"]["run"], 1)
+
+    def test_a_manual_record_at_an_older_sha_does_not_count(self) -> None:
+        runs = [_run(1, "2026-09-11T04:15:40Z")]
+        api = api_for(runs, {1: [_job(0)]}, branch=branch_commit(sha="deadbeef11"))
+        record = _manual_record("some-earlier-sha-0")
+
+        result = state.collect(api, manual_record=record)
+
+        self.assertEqual(result["verdict"], "never")
+        self.assertEqual(state.exit_code(result, require_announced=True), 1)
+        text = state.render(result)
+        self.assertIn("manual record     STALE", text)
+        self.assertIn("1624", text)
+
+    def test_a_dir_submission_carries_no_sha_and_never_counts(self) -> None:
+        """`resolveRefSha` returns null for `--dir` -- see indexnow.mjs. A
+        record with no `headSha` must never be treated as covering anything,
+        which a bare truthiness check on the live sha alone would get wrong
+        for a live sha that happened to be falsy."""
+        runs = [_run(1, "2026-09-11T04:15:40Z")]
+        api = api_for(runs, {1: [_job(0)]}, branch=branch_commit(sha="deadbeef11"))
+        record = _manual_record(None)
+
+        result = state.collect(api, manual_record=record)
+
+        self.assertEqual(result["verdict"], "never")
+
+    def test_no_serving_branch_means_no_manual_announcement_either(self) -> None:
+        runs = [_run(1, "2026-09-11T04:15:40Z")]
+        api = api_for(runs, {1: [_job(0)]}, branch=None)
+        record = _manual_record("deadbeef11")
+
+        result = state.collect(api, manual_record=record)
+
+        self.assertEqual(result["verdict"], "never")
+
+    def test_read_manual_record_degrades_on_a_missing_file(self) -> None:
+        self.assertIsNone(state.read_manual_record("/nonexistent/indexnow_manual.json"))
+
+    def test_read_manual_record_degrades_on_a_corrupt_file(self) -> None:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            handle.write("not json")
+            path = handle.name
+        try:
+            self.assertIsNone(state.read_manual_record(path))
+        finally:
+            import os
+
+            os.unlink(path)
+
+    def test_read_manual_record_round_trips_a_real_file(self) -> None:
+        import json
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+            json.dump(_manual_record("deadbeef11"), handle)
+            path = handle.name
+        try:
+            self.assertEqual(state.read_manual_record(path)["headSha"], "deadbeef11")
+        finally:
+            import os
+
+            os.unlink(path)
 
 
 if __name__ == "__main__":
