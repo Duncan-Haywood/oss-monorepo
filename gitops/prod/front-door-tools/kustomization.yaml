@@ -50,7 +50,7 @@
 #   portfolio-front-tools-14: 127 files, 547188 bytes
 #   portfolio-front-tools-15: 125 files, 555828 bytes
 #   portfolio-front-tools-16: 135 files, 553367 bytes
-#   portfolio-front-tools-17: 103 files, 553217 bytes
+#   portfolio-front-tools-17: 104 files, 556943 bytes
 #   portfolio-front-tools-18: 113 files, 543628 bytes
 #   portfolio-front-tools-19: 126 files, 553651 bytes
 #   portfolio-front-tools-20: 125 files, 554189 bytes
@@ -2384,6 +2384,7 @@ configMapGenerator:
       - sewer-hydrojet-bid-calculator__index.html.gz=sewer-hydrojet-bid-calculator__index.html.gz
       - sewer-hydrojet-bid-calculator__share.mjs.gz=sewer-hydrojet-bid-calculator__share.mjs.gz
       - sewer-hydrojet-bid-calculator__usage.mjs.gz=sewer-hydrojet-bid-calculator__usage.mjs.gz
+      - sewer-hydrojet-bid-calculator__vs-building-your-own-spreadsheet.html.gz=sewer-hydrojet-bid-calculator__vs-building-your-own-spreadsheet.html.gz
       - sewer-hydrojet-bid-calculator__vs-jobber.html.gz=sewer-hydrojet-bid-calculator__vs-jobber.html.gz
       - sewer-line-replace-bid-calculator__calc.mjs.gz=sewer-line-replace-bid-calculator__calc.mjs.gz
       - sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz=sewer-line-replace-bid-calculator__how-much-to-charge-to-replace-a-sewer-line.html.gz
