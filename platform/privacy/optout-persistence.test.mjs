@@ -843,7 +843,16 @@ const RELATIVE_SELF = relative(
 // keyed under its own `bonus-depreciation-calculator-usage` storage name).
 // Exactly one added `usage.mjs`, no deletions. Re-derived here by
 // `sync_tree_counts.py` against the fully merged tree rather than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 352;
+//
+// 352 -> 353: `salt-cap-deduction-calculator` graduated -- adding one more
+// `usage.mjs` (`ventures/salt-cap-deduction-calculator/usage.mjs`)
+// following the same opt-out toggle shape as its
+// `bonus-depreciation-calculator` sibling
+// (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
+// keyed under its own `salt-cap-deduction-calculator-usage` storage name).
+// Exactly one added `usage.mjs`, no deletions. Re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by hand.
+const SWITCHES_IN_THE_CATALOGUE = 353;
 
 let counter = 0;
 function fixture(source) {

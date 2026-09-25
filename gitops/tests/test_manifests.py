@@ -2607,7 +2607,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # commit, same shape as the rest of this running count. Total
     # re-derived here by `sync_tree_counts.py` against the fully merged
     # tree rather than by hand.
-    total = 373  # `infra/OWNER_CHECKLIST.md`'s own "N of the 373 tools" wording.
+    #
+    # 373 -> 374: `salt-cap-deduction-calculator` also graduated -- a
+    # browser-local calculator for the federal SALT itemized-deduction cap
+    # raised from $10,000 to $40,000 for tax years 2025-2029 by the OBBBA,
+    # with the 30%-of-excess-MAGI phase-down (never below a $10,000 floor)
+    # and an itemize-vs-standard-deduction marginal-benefit computation,
+    # plus a vs-estimating-the-salt-benefit-by-hand.html comparison page and
+    # a standard-deduction-interaction guide page. Static `index.html` plus
+    # two docs/comparison pages from its first commit, same shape as the
+    # rest of this running count. Total re-derived here by
+    # `sync_tree_counts.py` against the fully merged tree rather than by
+    # hand.
+    total = 374  # `infra/OWNER_CHECKLIST.md`'s own "N of the 374 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
