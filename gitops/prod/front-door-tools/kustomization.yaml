@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 142 files, 532677 bytes
+#   portfolio-front-tools-0: 143 files, 537090 bytes
 #   portfolio-front-tools-1: 91 files, 550865 bytes
 #   portfolio-front-tools-2: 144 files, 552250 bytes
 #   portfolio-front-tools-3: 131 files, 553371 bytes
@@ -51,7 +51,7 @@
 #   portfolio-front-tools-15: 125 files, 555096 bytes
 #   portfolio-front-tools-16: 134 files, 556784 bytes
 #   portfolio-front-tools-17: 113 files, 555392 bytes
-#   portfolio-front-tools-18: 112 files, 551193 bytes
+#   portfolio-front-tools-18: 113 files, 555444 bytes
 #   portfolio-front-tools-19: 128 files, 556796 bytes
 #   portfolio-front-tools-20: 120 files, 553414 bytes
 #   portfolio-front-tools-21: 98 files, 487782 bytes
@@ -143,6 +143,7 @@ configMapGenerator:
       - cam-reconciliation-check__index.html.gz=cam-reconciliation-check__index.html.gz
       - cam-reconciliation-check__share.mjs.gz=cam-reconciliation-check__share.mjs.gz
       - cam-reconciliation-check__vs-appfolio.html.gz=cam-reconciliation-check__vs-appfolio.html.gz
+      - cam-reconciliation-check__vs-square-footage-alone.html.gz=cam-reconciliation-check__vs-square-footage-alone.html.gz
       - cam-reconciliation-check__vs-yardi.html.gz=cam-reconciliation-check__vs-yardi.html.gz
       - appliance-repair-quote-calculator__calc.mjs.gz=appliance-repair-quote-calculator__calc.mjs.gz
       - appliance-repair-quote-calculator__index.html.gz=appliance-repair-quote-calculator__index.html.gz
@@ -2563,6 +2564,7 @@ configMapGenerator:
       - spray-foam-bid-calculator__index.html.gz=spray-foam-bid-calculator__index.html.gz
       - spray-foam-bid-calculator__share.mjs.gz=spray-foam-bid-calculator__share.mjs.gz
       - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
+      - spray-foam-bid-calculator__vs-a-flat-per-square-foot-price.html.gz=spray-foam-bid-calculator__vs-a-flat-per-square-foot-price.html.gz
       - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
       - sql-migration-lock-check__check.mjs.gz=sql-migration-lock-check__check.mjs.gz
       - sql-migration-lock-check__engine.mjs.gz=sql-migration-lock-check__engine.mjs.gz
