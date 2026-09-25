@@ -2405,6 +2405,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Usercentrics and carries the trademark disclaimer. Same reasoning as
   // the other generic-method pages above.
   'consent-change-record/vs-comparing-the-traces-by-eye.html',
+  // Compares against "eyeballing the feed in a spreadsheet" -- the generic
+  // visual scan any seller already does before a sync, not a company or
+  // product this could be mistaken for (it deliberately names no specific
+  // spreadsheet software). Distinct from this venture's own
+  // vs-datafeedwatch.html, which names DataFeedWatch and carries the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above.
+  'merchant-feed-check/vs-eyeballing-the-feed-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
