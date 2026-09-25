@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 134 files, 556718 bytes
 #   portfolio-front-tools-17: 111 files, 556571 bytes
 #   portfolio-front-tools-18: 114 files, 551767 bytes
-#   portfolio-front-tools-19: 125 files, 546034 bytes
+#   portfolio-front-tools-19: 126 files, 549485 bytes
 #   portfolio-front-tools-20: 119 files, 547249 bytes
 #   portfolio-front-tools-21: 96 files, 479808 bytes
 #
@@ -2690,6 +2690,7 @@ configMapGenerator:
       - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
       - terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz=terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz
       - tip-pool-compliance-calculator__calc.mjs.gz=tip-pool-compliance-calculator__calc.mjs.gz
+      - tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz=tip-pool-compliance-calculator__can-managers-be-in-a-tip-pool.html.gz
       - tip-pool-compliance-calculator__index.html.gz=tip-pool-compliance-calculator__index.html.gz
       - tip-pool-compliance-calculator__share.mjs.gz=tip-pool-compliance-calculator__share.mjs.gz
       - tip-pool-compliance-calculator__usage.mjs.gz=tip-pool-compliance-calculator__usage.mjs.gz
