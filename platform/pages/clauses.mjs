@@ -2446,6 +2446,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-wfs-cost-estimator.html, which names Walmart's own WFS Cost
   // Estimator and carries the trademark/affiliation disclaimer.
   'walmart-marketplace-calculator/vs-a-spreadsheet.html',
+  // Compares against pricing a stucco/EIFS repair by a flat rate per
+  // square foot -- the generic estimating shortcut any plastering shop
+  // already uses, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-jobber.html, which names Jobber
+  // and carries the trademark/affiliation disclaimer.
+  'stucco-repair-bid-calculator/vs-a-flat-rate-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
