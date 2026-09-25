@@ -43713,3 +43713,54 @@ entries:
         GitHub Pages snapshot after merging. Revenue and confirmed-visitor
         counts remain at zero.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        indexnow_state.py's own header records two prior sessions
+        (2026-09-24, 2026-09-25) getting a real 200 from api.indexnow.org
+        by hand, contradicting its documented assumption that an agent
+        sandbox's egress proxy always 403s that host -- but neither
+        submission left any trace the tool could read, so it still
+        reported `never` after both. Ran `indexnow.mjs --submit` by hand
+        this session: also a real 200, 1624 URLs. Rather than let a third
+        real submission vanish the same way, added `indexnow.mjs --record`
+        (writes ref, resolved headSha, URL count and the observed status to
+        platform/ci/indexnow_manual.json after a genuine 2xx) and taught
+        indexnow_state.py to read it, crediting a manual submission toward
+        `verdict` only when its headSha matches the currently live
+        gh-pages tip -- the same freshness test `covers` already applies
+        to a workflow-run announcement, so a submission for a since-
+        superseded snapshot renders as a named STALE row rather than a
+        false `announced`.
+      - >-
+        Proved the freshness check against a real race rather than a
+        synthetic one: the first --record run (1624 URLs) was flipped to
+        STALE by indexnow_state.py because a concurrent session republished
+        gh-pages in between; re-fetched and re-submitted (1625 URLs) to
+        cover the actually-live snapshot, which indexnow_state.py then
+        confirmed as `announced`. IndexNow is this catalogue's only
+        page-enumeration route that needs no owner login (pages_state.py's
+        `indexing` row: the subpath robots.txt crawlers actually read
+        belongs to a different site), so this is real distribution work,
+        not a state-tracking nicety -- 970+ pages that were never announced
+        to any engine now have been.
+      - >-
+        Verified locally before pushing: platform/marketing full suite
+        278/278, platform/pages full suite 1015/1015, platform/ci
+        unittest sweep (27/27 modules, including the new ManualRecords
+        class -- 8 new Python tests plus 3 new indexnow.mjs tests),
+        checklist_coverage.py, sync_tree_counts.py, regen.mjs --verify,
+        score_ventures.py --check, usage/validate_usage.py,
+        router/validate.py, gitops/tests (613 passed, 25 skipped -- known
+        nginx/ssh-key skips, unrelated), portfolio ledger/scoring/router/
+        usage/pipeline pytest suite (446 passed). Fast-forwarded onto
+        main three times across the session as the fleet merged
+        concurrently (dcb97f8c -> 33bcf1c -> a2458d2a), re-running the
+        fast validators after each. Did not touch a served surface
+        (no venture page changed), so the GitHub Pages snapshot needed
+        no republish. Revenue and confirmed-visitor counts remain at
+        zero; this closes one concrete gap in the only unmeasured
+        route that could move them.
+    mrr_end: 0
