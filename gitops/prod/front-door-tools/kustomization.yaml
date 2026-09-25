@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 143 files, 537087 bytes
+#   portfolio-front-tools-0: 144 files, 541257 bytes
 #   portfolio-front-tools-1: 91 files, 550874 bytes
 #   portfolio-front-tools-2: 144 files, 552254 bytes
 #   portfolio-front-tools-3: 131 files, 553300 bytes
@@ -218,6 +218,7 @@ configMapGenerator:
       - translator-project-quote__index.html.gz=translator-project-quote__index.html.gz
       - translator-project-quote__share.mjs.gz=translator-project-quote__share.mjs.gz
       - translator-project-quote__usage.mjs.gz=translator-project-quote__usage.mjs.gz
+      - translator-project-quote__vs-a-flat-per-word-rate.html.gz=translator-project-quote__vs-a-flat-per-word-rate.html.gz
       - translator-project-quote__vs-smartcat.html.gz=translator-project-quote__vs-smartcat.html.gz
       - ebay-fee-calculator__are-ebay-promoted-listings-advanced-worth-it.html.gz=ebay-fee-calculator__are-ebay-promoted-listings-advanced-worth-it.html.gz
       - ebay-fee-calculator__are-ebay-promoted-listings-worth-it.html.gz=ebay-fee-calculator__are-ebay-promoted-listings-worth-it.html.gz
