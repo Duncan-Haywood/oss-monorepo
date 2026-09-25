@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545730 bytes
-#   portfolio-front-tools-1: 92 files, 554483 bytes
-#   portfolio-front-tools-2: 144 files, 552245 bytes
-#   portfolio-front-tools-3: 131 files, 553226 bytes
-#   portfolio-front-tools-4: 141 files, 554336 bytes
-#   portfolio-front-tools-5: 124 files, 541958 bytes
-#   portfolio-front-tools-6: 128 files, 556071 bytes
-#   portfolio-front-tools-7: 139 files, 555353 bytes
-#   portfolio-front-tools-8: 120 files, 553413 bytes
-#   portfolio-front-tools-9: 136 files, 555303 bytes
-#   portfolio-front-tools-10: 133 files, 553697 bytes
-#   portfolio-front-tools-11: 121 files, 543016 bytes
-#   portfolio-front-tools-12: 119 files, 554594 bytes
-#   portfolio-front-tools-13: 120 files, 554818 bytes
-#   portfolio-front-tools-14: 126 files, 555033 bytes
-#   portfolio-front-tools-15: 131 files, 553586 bytes
-#   portfolio-front-tools-16: 133 files, 547117 bytes
-#   portfolio-front-tools-17: 127 files, 555061 bytes
-#   portfolio-front-tools-18: 103 files, 556983 bytes
-#   portfolio-front-tools-19: 119 files, 555467 bytes
-#   portfolio-front-tools-20: 128 files, 548484 bytes
-#   portfolio-front-tools-21: 97 files, 463947 bytes
-#   portfolio-front-tools-22: 50 files, 264887 bytes
+#   portfolio-front-tools-0: 145 files, 545736 bytes
+#   portfolio-front-tools-1: 92 files, 554493 bytes
+#   portfolio-front-tools-2: 144 files, 552255 bytes
+#   portfolio-front-tools-3: 131 files, 553188 bytes
+#   portfolio-front-tools-4: 141 files, 555212 bytes
+#   portfolio-front-tools-5: 125 files, 546123 bytes
+#   portfolio-front-tools-6: 128 files, 556113 bytes
+#   portfolio-front-tools-7: 139 files, 555432 bytes
+#   portfolio-front-tools-8: 120 files, 553414 bytes
+#   portfolio-front-tools-9: 136 files, 555329 bytes
+#   portfolio-front-tools-10: 133 files, 553571 bytes
+#   portfolio-front-tools-11: 121 files, 543011 bytes
+#   portfolio-front-tools-12: 119 files, 556602 bytes
+#   portfolio-front-tools-13: 120 files, 555819 bytes
+#   portfolio-front-tools-14: 127 files, 553181 bytes
+#   portfolio-front-tools-15: 131 files, 554438 bytes
+#   portfolio-front-tools-16: 135 files, 556048 bytes
+#   portfolio-front-tools-17: 127 files, 555018 bytes
+#   portfolio-front-tools-18: 103 files, 556994 bytes
+#   portfolio-front-tools-19: 119 files, 555444 bytes
+#   portfolio-front-tools-20: 128 files, 548479 bytes
+#   portfolio-front-tools-21: 97 files, 464003 bytes
+#   portfolio-front-tools-22: 50 files, 264874 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -676,6 +676,7 @@ configMapGenerator:
       - actions-self-hosted-exposure-check__index.html.gz=actions-self-hosted-exposure-check__index.html.gz
       - actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz=actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz
       - actions-self-hosted-exposure-check__usage.mjs.gz=actions-self-hosted-exposure-check__usage.mjs.gz
+      - actions-self-hosted-exposure-check__vs-reviewing-workflows-by-eye.html.gz=actions-self-hosted-exposure-check__vs-reviewing-workflows-by-eye.html.gz
       - actions-self-hosted-exposure-check__vs-stepsecurity.html.gz=actions-self-hosted-exposure-check__vs-stepsecurity.html.gz
       - actions-transitive-pin-check__analyze.mjs.gz=actions-transitive-pin-check__analyze.mjs.gz
       - actions-transitive-pin-check__check.mjs.gz=actions-transitive-pin-check__check.mjs.gz
@@ -750,12 +751,12 @@ configMapGenerator:
       - android-data-safety-check__check.mjs.gz=android-data-safety-check__check.mjs.gz
       - android-data-safety-check__index.html.gz=android-data-safety-check__index.html.gz
       - android-data-safety-check__missing-data-safety-declaration.html.gz=android-data-safety-check__missing-data-safety-declaration.html.gz
-      - android-data-safety-check__scan.mjs.gz=android-data-safety-check__scan.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - android-data-safety-check__scan.mjs.gz=android-data-safety-check__scan.mjs.gz
       - android-data-safety-check__target-api-level.html.gz=android-data-safety-check__target-api-level.html.gz
       - android-data-safety-check__target-sdk-check.mjs.gz=android-data-safety-check__target-sdk-check.mjs.gz
       - android-data-safety-check__target-sdk-scan.mjs.gz=android-data-safety-check__target-sdk-scan.mjs.gz
@@ -1774,6 +1775,9 @@ configMapGenerator:
       - hreflang-reciprocity-check__vs-checking-hreflang-tags-by-hand.html.gz=hreflang-reciprocity-check__vs-checking-hreflang-tags-by-hand.html.gz
       - hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz=hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz
       - hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz=hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz
+      - hsa-contribution-limit-calculator__calc.mjs.gz=hsa-contribution-limit-calculator__calc.mjs.gz
+      - hsa-contribution-limit-calculator__index.html.gz=hsa-contribution-limit-calculator__index.html.gz
+      - hsa-contribution-limit-calculator__usage.mjs.gz=hsa-contribution-limit-calculator__usage.mjs.gz
       - ice-dam-removal-bid-calculator__calc.mjs.gz=ice-dam-removal-bid-calculator__calc.mjs.gz
       - ice-dam-removal-bid-calculator__index.html.gz=ice-dam-removal-bid-calculator__index.html.gz
       - ice-dam-removal-bid-calculator__share.mjs.gz=ice-dam-removal-bid-calculator__share.mjs.gz
@@ -1808,14 +1812,14 @@ configMapGenerator:
       - interior-door-bid-calculator__how-much-to-charge-to-replace-interior-doors.html.gz=interior-door-bid-calculator__how-much-to-charge-to-replace-interior-doors.html.gz
       - interior-door-bid-calculator__index.html.gz=interior-door-bid-calculator__index.html.gz
       - interior-door-bid-calculator__should-i-hang-a-customer-supplied-door.html.gz=interior-door-bid-calculator__should-i-hang-a-customer-supplied-door.html.gz
-      - interior-door-bid-calculator__should-i-hang-doors-on-saturday.html.gz=interior-door-bid-calculator__should-i-hang-doors-on-saturday.html.gz
-      - interior-door-bid-calculator__usage.mjs.gz=interior-door-bid-calculator__usage.mjs.gz
-      - interior-door-bid-calculator__vs-a-flat-per-door-price.html.gz=interior-door-bid-calculator__vs-a-flat-per-door-price.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - interior-door-bid-calculator__should-i-hang-doors-on-saturday.html.gz=interior-door-bid-calculator__should-i-hang-doors-on-saturday.html.gz
+      - interior-door-bid-calculator__usage.mjs.gz=interior-door-bid-calculator__usage.mjs.gz
+      - interior-door-bid-calculator__vs-a-flat-per-door-price.html.gz=interior-door-bid-calculator__vs-a-flat-per-door-price.html.gz
       - interior-door-bid-calculator__vs-jobber.html.gz=interior-door-bid-calculator__vs-jobber.html.gz
       - ios-privacy-manifest-check__check.mjs.gz=ios-privacy-manifest-check__check.mjs.gz
       - ios-privacy-manifest-check__index.html.gz=ios-privacy-manifest-check__index.html.gz
@@ -1933,14 +1937,14 @@ configMapGenerator:
       - locksmith-bid-calculator__calc.mjs.gz=locksmith-bid-calculator__calc.mjs.gz
       - locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz=locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz
       - locksmith-bid-calculator__index.html.gz=locksmith-bid-calculator__index.html.gz
-      - locksmith-bid-calculator__share.mjs.gz=locksmith-bid-calculator__share.mjs.gz
-      - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
-      - locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz=locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - locksmith-bid-calculator__share.mjs.gz=locksmith-bid-calculator__share.mjs.gz
+      - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
+      - locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz=locksmith-bid-calculator__vs-a-flat-rate-for-every-call.html.gz
       - locksmith-bid-calculator__vs-housecall-pro.html.gz=locksmith-bid-calculator__vs-housecall-pro.html.gz
       - locksmith-bid-calculator__vs-jobber.html.gz=locksmith-bid-calculator__vs-jobber.html.gz
       - locksmith-bid-calculator__vs-workiz.html.gz=locksmith-bid-calculator__vs-workiz.html.gz
@@ -2065,13 +2069,13 @@ configMapGenerator:
       - npm-provenance-check__vs-socket.html.gz=npm-provenance-check__vs-socket.html.gz
       - npm-provenance-check__why-not-just-npm-audit-signatures.html.gz=npm-provenance-check__why-not-just-npm-audit-signatures.html.gz
       - ny-llc-transparency-act-tracker__calc.mjs.gz=ny-llc-transparency-act-tracker__calc.mjs.gz
-      - ny-llc-transparency-act-tracker__index.html.gz=ny-llc-transparency-act-tracker__index.html.gz
-      - ny-llc-transparency-act-tracker__usage.mjs.gz=ny-llc-transparency-act-tracker__usage.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ny-llc-transparency-act-tracker__index.html.gz=ny-llc-transparency-act-tracker__index.html.gz
+      - ny-llc-transparency-act-tracker__usage.mjs.gz=ny-llc-transparency-act-tracker__usage.mjs.gz
       - ny-llc-transparency-act-tracker__vs-reading-client-alerts.html.gz=ny-llc-transparency-act-tracker__vs-reading-client-alerts.html.gz
       - ny-llc-transparency-act-tracker__when-is-the-ny-llc-transparency-act-deadline.html.gz=ny-llc-transparency-act-tracker__when-is-the-ny-llc-transparency-act-deadline.html.gz
       - obsidian-plugin-review-check__check.mjs.gz=obsidian-plugin-review-check__check.mjs.gz
@@ -2201,13 +2205,13 @@ configMapGenerator:
       - pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz=pinned-actions-check__how-to-pin-a-github-action-to-a-commit-sha.html.gz
       - pinned-actions-check__index.html.gz=pinned-actions-check__index.html.gz
       - pinned-actions-check__usage.mjs.gz=pinned-actions-check__usage.mjs.gz
-      - pinned-actions-check__vs-openssf-scorecard.html.gz=pinned-actions-check__vs-openssf-scorecard.html.gz
-      - pinned-actions-check__vs-reading-the-workflow-yaml-by-hand.html.gz=pinned-actions-check__vs-reading-the-workflow-yaml-by-hand.html.gz
   - name: portfolio-front-tools-16
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pinned-actions-check__vs-openssf-scorecard.html.gz=pinned-actions-check__vs-openssf-scorecard.html.gz
+      - pinned-actions-check__vs-reading-the-workflow-yaml-by-hand.html.gz=pinned-actions-check__vs-reading-the-workflow-yaml-by-hand.html.gz
       - plantation-shutter-bid-calculator__calc.mjs.gz=plantation-shutter-bid-calculator__calc.mjs.gz
       - plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz=plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz

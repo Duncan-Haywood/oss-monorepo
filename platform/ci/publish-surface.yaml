@@ -653,6 +653,9 @@ workflows:
 - workflow: hreflang-reciprocity-check-ci.yml
   classification: none
   publishes: []
+- workflow: hsa-contribution-limit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hvac-maintenance-contract-calculator-ci.yml
   classification: none
   publishes: []

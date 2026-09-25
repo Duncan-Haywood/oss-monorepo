@@ -2734,10 +2734,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # calculator` are NOT re-added here -- both are already counted above,
     # at 382 -> 383 and 381 -> 382 respectively; a sibling merge of this
     # same conflict independently re-narrated them as new, which this
-    # resolution does not repeat. Total re-derived here by
+    # resolution does not repeat.
+    #
+    # 386 -> 387: `hsa-contribution-limit-calculator` also graduated,
+    # concurrently on `origin/main` -- a browser-local calculator computing
+    # the 2026 HSA contribution limit for self-only or family HDHP
+    # coverage, prorated by months of eligibility or the full amount under
+    # the last-month rule, plus the fixed $1,000 age-55 catch-up and an
+    # HDHP-qualification check. Static `index.html` only, no comparison
+    # page, from its first commit. Total re-derived here by
     # `sync_tree_counts.py` against the fully merged tree rather than by
     # hand.
-    total = 386  # `infra/OWNER_CHECKLIST.md`'s own "N of the 386 tools" wording.
+    total = 387  # `infra/OWNER_CHECKLIST.md`'s own "N of the 387 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
