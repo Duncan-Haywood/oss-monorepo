@@ -2133,6 +2133,27 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-smc3-fastclass.html, which names SMC³/FastClass specifically and
   // carries the trademark disclaimer.
   'ltl-freight-class-estimator/vs-looking-up-the-class-table-yourself.html',
+  // Compares against "tracking sales in a spreadsheet" -- the hand-built
+  // rate/minimum/local-pickup worksheet every Facebook Marketplace seller
+  // already has, not a company or product this could be mistaken for. The
+  // page's own copy says so explicitly ("names no specific product -- it
+  // compares against the generic method of tracking these numbers in a
+  // spreadsheet, not a competing calculator"). This is the venture's only
+  // comparison page, so there is no named-product sibling to distinguish it
+  // from -- same shape as ny-llc-transparency-act-tracker's
+  // vs-reading-client-alerts.html above. Registering this closes a gap that
+  // had surface-budget.mjs reporting "room for 1 more generic-method page"
+  // on a venture that already had one, inviting a second, duplicate
+  // "vs. a spreadsheet" angle.
+  'facebook-marketplace-fee-calculator/vs-tracking-facebook-marketplace-sales-in-a-spreadsheet.html',
+  // Compares against "one flat rate quoted to every sponsor" -- a pricing
+  // habit any newsletter operator can adopt on their own, not a company or
+  // product this could be mistaken for. The page's own copy says so
+  // explicitly ("names no specific product or company -- it compares
+  // against the generic habit of quoting one flat rate for every sponsor").
+  // Distinct from this venture's own vs-paved.html, which names Paved
+  // specifically and carries the trademark disclaimer.
+  'newsletter-sponsorship-rate-calculator/vs-a-flat-rate-for-every-sponsor.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
