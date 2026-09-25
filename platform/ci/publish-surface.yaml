@@ -191,6 +191,9 @@ workflows:
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bonus-depreciation-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: booth-rent-vs-commission-ci.yml
   classification: none
   publishes: []
@@ -825,6 +828,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: patio-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: patreon-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: paver-patio-bid-calculator-ci.yml

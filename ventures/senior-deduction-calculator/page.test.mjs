@@ -112,3 +112,49 @@ test("index links one hop to the mega-backdoor-roth-calculator sibling", () => {
     "index must link ../mega-backdoor-roth-calculator/ so crawlers reach the sibling retirement calculator in one hop",
   );
 });
+
+test("index links to the phase-out guide page, and the guide links back", () => {
+  assert.match(page("index.html"), /href="\.\/why-does-the-senior-deduction-phase-out-completely\.html"/);
+  const guide = page("why-does-the-senior-deduction-phase-out-completely.html");
+  assert.match(guide, /href="\.\/"/);
+  const sitemap = page("sitemap.xml");
+  assert.match(sitemap, /why-does-the-senior-deduction-phase-out-completely\.html/);
+});
+
+test("the phase-out guide page carries the no-warranty clause and valid FAQPage JSON-LD matching visible text", () => {
+  const guide = page("why-does-the-senior-deduction-phase-out-completely.html");
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /Nothing leaves your browser/);
+  const blocks = [...guide.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the phase-out guide page");
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(guide.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(guide.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the phase-out guide page's worked examples match calc.mjs for the exact inputs stated", async () => {
+  const { computeSeniorDeduction } = await import("./calc.mjs");
+  const guide = page("why-does-the-senior-deduction-phase-out-completely.html");
+
+  const single100k = computeSeniorDeduction({ filingStatus: "single", magi: 100000, selfQualifies: true });
+  assert.equal(single100k.deduction, 4500);
+  const single150k = computeSeniorDeduction({ filingStatus: "single", magi: 150000, selfQualifies: true });
+  assert.equal(single150k.deduction, 1500);
+  const single175k = computeSeniorDeduction({ filingStatus: "single", magi: 175000, selfQualifies: true });
+  assert.equal(single175k.deduction, 0);
+
+  const jointBoth200k = computeSeniorDeduction({ filingStatus: "joint", magi: 200000, selfQualifies: true, spouseQualifies: true });
+  assert.equal(jointBoth200k.deduction, 6000);
+  const jointBoth250k = computeSeniorDeduction({ filingStatus: "joint", magi: 250000, selfQualifies: true, spouseQualifies: true });
+  assert.equal(jointBoth250k.deduction, 0);
+  const jointOne250k = computeSeniorDeduction({ filingStatus: "joint", magi: 250000, selfQualifies: true, spouseQualifies: false });
+  assert.equal(jointOne250k.deduction, 0);
+
+  for (const amount of ["$175,000", "$250,000", "$4,500", "$1,500", "$6,000", "$12,000"]) {
+    assert.ok(guide.includes(amount), `guide page missing expected figure: ${amount}`);
+  }
+});

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub Actions secrets: inherit Check vs. reviewing workflows by eye</title>
+  <meta name="description" content="Spotting a secrets: inherit line is easy. Telling whether the call it sits on is external, and whether the job is reachable from a fork trigger declared many lines away, is the part a quick read gets wrong.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-checking-by-hand.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="GitHub Actions secrets: inherit Check vs. reviewing workflows by eye">
+  <meta property="og:description" content="A careful read catches secrets: inherit itself every time. It has a harder time with which uses: calls are external, and with connecting a job to a fork trigger declared far above it.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-secrets-inherit-check/vs-checking-by-hand.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does reviewing a workflow for secrets: inherit by eye actually catch?","acceptedAnswer":{"@type":"Answer","text":"secrets: inherit is one distinctive line, and a reviewer who knows to look for it will find every occurrence in a file without much effort. That recognition is real, and this tool starts from the same line -- it does not find a secrets: inherit call a careful reader would have missed."}},{"@type":"Question","name":"Why is telling an external reusable-workflow call from a local one easy to get wrong at a glance?","acceptedAnswer":{"@type":"Answer","text":"The difference between uses: ./.github/workflows/build.yml and uses: some-org/shared-workflows/.github/workflows/build.yml@v2 is a leading ./ and an owner/repo prefix -- easy to miss when the uses: line is long, wrapped, or several jobs removed from the secrets: inherit line it governs. A reviewer scanning quickly for the string secrets: inherit can confirm the line exists without re-checking which uses: value the surrounding job actually calls, which is exactly the distinction that decides whether the finding is secrets-inherit-external-workflow at all. This tool re-reads the uses: value for every secrets: inherit line it finds, every time."}},{"@type":"Question","name":"Why is the fork-trigger connection easy to miss even when the trigger is declared right there in the file?","acceptedAnswer":{"@type":"Answer","text":"pull_request_target and workflow_run are usually declared once, at the top of the file, under on:. The job carrying secrets: inherit can be dozens of lines below, in a workflow with several unrelated jobs. Holding \"this file's trigger is untrusted\" in mind while scanning down through every job's steps, for every workflow file in a repository, is the kind of bookkeeping that is easy to let slip -- especially on a workflow whose name or first job gives no hint that a later job is the one at risk. This tool checks the whole file's trigger against every secrets: inherit line it finds, regardless of how far apart they sit."}},{"@type":"Question","name":"Does a clean result from this tool mean my repository's secret handling is safe?","acceptedAnswer":{"@type":"Answer","text":"No. It checks two specific, well-documented secrets: inherit patterns in one workflow file at a time. It does not evaluate whether a called reusable workflow is itself trustworthy, and it does not follow a local reusable workflow to see what it in turn calls -- both real ways a repository's secret handling can still be exposed after a clean scan."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #9a3412; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #9a3412; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; GitHub Actions secrets: inherit Check</a></p>
+    <h1>GitHub Actions secrets: inherit Check vs. reviewing workflows by eye</h1>
+    <p class="lede">Finding the line <code>secrets: inherit</code> in a workflow file takes no special skill. Deciding
+      what it actually exposes -- whether the call it sits on reaches outside the repository, and whether the job is
+      one a stranger's fork can trigger -- is the part that is easy to get wrong under a quick read. This page names
+      no product or company; "reviewing by eye" is the generic habit every maintainer already has, not a competing
+      tool.</p>
+
+    <section class="card">
+      <h2>Where a careful read holds up, and where it slips</h2>
+      <p>
+        <code>secrets: inherit</code> does not hide -- it is one line, and a reviewer who knows to look for it will
+        find every instance in a file. What is harder to hold in your head while scanning a real workflow is what
+        each instance actually means. A reusable-workflow call is external only if its <code>uses:</code> value
+        names another repository (<code>owner/repo/.github/workflows/file.yml@ref</code>) rather than a local path
+        (<code>./.github/workflows/file.yml</code>) -- easy to conflate when the line wraps or sits several jobs
+        away from the <code>secrets: inherit</code> it governs. And the fork-reachability question depends on a
+        trigger declared once at the top of the file, under <code>on:</code>, which has to be carried in mind while
+        reading down through every job below it -- easy to lose track of in a workflow with several unrelated jobs,
+        especially when the risky job's name gives no hint that it is the one at risk.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Case</th><th scope="col">Reviewing by eye</th><th scope="col">This tool</th></tr></thead>
+        <tbody>
+          <tr><td>Spotting that a job uses <code>secrets: inherit</code> at all</td><td>Easy to catch -- one distinctive line</td><td>Catches it the same way</td></tr>
+          <tr><td>Telling a local reusable-workflow call (<code>./.github/workflows/file.yml</code>) from an external one (<code>owner/repo/…@ref</code>)</td><td>Easy to misread when the line wraps or sits jobs away from the <code>secrets: inherit</code> line</td><td>Re-parses the exact <code>uses:</code> value for every <code>secrets: inherit</code> line found</td></tr>
+          <tr><td>Connecting a job to a <code>pull_request_target</code>/<code>workflow_run</code> trigger declared at the top of a long file</td><td>Easy to lose track of while reading down through unrelated jobs</td><td>Checks the whole file's trigger against every <code>secrets: inherit</code> line, however far apart they sit</td></tr>
+          <tr><td>A repository with a dozen workflow files, each with its own reusable-workflow calls</td><td>Re-reading all of them for both patterns, every time a workflow changes, is tedious and easy to shortcut</td><td>Paste as many files as you have, or run <code>check.py</code> across the whole directory</td></tr>
+          <tr><td>Blocking a newly-added finding before it merges</td><td>Depends on a human noticing it in review</td><td><code>check.py --fail-on-risk</code> gives a real exit code from the same classification, wired into your own CI</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">The two are complementary, not competing: this tool does not decide whether a called workflow
+        is actually trustworthy, or whether a fork-reachable job's blast radius matters in your specific setup -- it
+        replaces the tedious, error-prone part, which is re-checking every <code>uses:</code> value and every
+        trigger declaration each time a workflow file changes.</p>
+      <p><a class="cta" href="./">Run the free secrets: inherit check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>What does reviewing a workflow for secrets: inherit by eye actually catch?</h3>
+      <p><code>secrets: inherit</code> is one distinctive line, and a reviewer who knows to look for it will find every occurrence in a file without much effort. That recognition is real, and this tool starts from the same line -- it does not find a <code>secrets: inherit</code> call a careful reader would have missed.</p>
+      <h3>Why is telling an external reusable-workflow call from a local one easy to get wrong at a glance?</h3>
+      <p>The difference between <code>uses: ./.github/workflows/build.yml</code> and <code>uses: some-org/shared-workflows/.github/workflows/build.yml@v2</code> is a leading <code>./</code> and an owner/repo prefix -- easy to miss when the <code>uses:</code> line is long, wrapped, or several jobs removed from the <code>secrets: inherit</code> line it governs. A reviewer scanning quickly for the string <code>secrets: inherit</code> can confirm the line exists without re-checking which <code>uses:</code> value the surrounding job actually calls, which is exactly the distinction that decides whether the finding is <code>secrets-inherit-external-workflow</code> at all. This tool re-reads the <code>uses:</code> value for every <code>secrets: inherit</code> line it finds, every time.</p>
+      <h3>Why is the fork-trigger connection easy to miss even when the trigger is declared right there in the file?</h3>
+      <p><code>pull_request_target</code> and <code>workflow_run</code> are usually declared once, at the top of the file, under <code>on:</code>. The job carrying <code>secrets: inherit</code> can be dozens of lines below, in a workflow with several unrelated jobs. Holding "this file's trigger is untrusted" in mind while scanning down through every job's steps, for every workflow file in a repository, is the kind of bookkeeping that is easy to let slip -- especially on a workflow whose name or first job gives no hint that a later job is the one at risk. This tool checks the whole file's trigger against every <code>secrets: inherit</code> line it finds, regardless of how far apart they sit.</p>
+      <h3>Does a clean result from this tool mean my repository's secret handling is safe?</h3>
+      <p>No. It checks two specific, well-documented <code>secrets: inherit</code> patterns in one workflow file at a time. It does not evaluate whether a called reusable workflow is itself trustworthy, and it does not follow a local reusable workflow to see what it in turn calls -- both real ways a repository's secret handling can still be exposed after a clean scan.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against secret exposure, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against anything -- it is a static page describing a generic manual-review habit, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>
