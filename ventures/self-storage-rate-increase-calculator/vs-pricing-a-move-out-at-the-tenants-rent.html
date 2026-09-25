@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. pricing a move-out at the tenant's rent | Self-Storage Rate Increase Calculator</title>
+<meta name="description" content="'If six of them leave, that's $8,000 gone' prices a move-out at the departing tenant's rent. The unit gets re-let, usually at a higher street rate, so the real cost is a fraction of that. This free, private browser calculator nets the re-let against the vacancy, concession, and turnover it actually costs -- no account, nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-pricing-a-move-out-at-the-tenants-rent.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. pricing a move-out at the tenant's rent">
+<meta property="og:description" content="On this calculator's own worked example, pricing a move-out at the tenant's rent puts the break-even at 12% of the group. Netting the re-let against vacancy, concession, and turnover puts it at 60.8% -- five times more room than the naive number shows.">
+<meta property="og:url" content="https://example.invalid/self-storage-rate-increase-calculator/vs-pricing-a-move-out-at-the-tenants-rent.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does pricing a move-out at the tenant's rent get a rate increase wrong?","acceptedAnswer":{"@type":"Answer","text":"Because the unit does not sit empty forever -- it gets re-let, usually at the facility's own street rate, which is often higher than what the departing tenant was paying. On this calculator's own worked example (42 units, $118 to $135.70, a 15% increase), pricing a move-out at the new rent over a 12-month horizon says it costs $1,772.40. Netting the re-let at street rate against the vacancy, the move-in concession, and the turnover cost puts the real figure at $272.43 -- about a sixth of the naive number, because most of what looks like lost rent comes back in with the next tenant."}},{"@type":"Question","name":"How big is the gap in the break-even move-out rate?","acceptedAnswer":{"@type":"Answer","text":"On the same worked example, pricing a move-out at the tenant's rent implies the increase only survives losing about 12.0% of the group (5.03 of 42 units) before the higher rent's total gain is wiped out. Costing each move-out properly puts the break-even at 60.8% -- five times more room. An operator using the naive number would reject or shrink an increase that the real arithmetic says can absorb far more churn than any realistic response."}},{"@type":"Question","name":"What does pricing a move-out at the tenant's rent leave out entirely?","acceptedAnswer":{"@type":"Answer","text":"The re-rent uplift: the difference between the street rate a new tenant pays and the raised rent the departing tenant would have paid. It also leaves out that the concession and turnover cost are real but comparatively small line items next to that uplift, so lumping everything into \"the rent, gone\" overstates the loss on every one of the four components it never separates."}},{"@type":"Question","name":"Is pricing a move-out at the tenant's rent ever close enough?","acceptedAnswer":{"@type":"Answer","text":"When the street rate is at or below the raised rent -- a soft local market, or a facility that has not raised its own asking rate in a while -- the re-let uplift shrinks toward zero and the naive number gets closer to the real one. The risk is trusting that closeness without checking street rate against the raised rent for this specific group, because the gap widens fast once street pulls ahead."}},{"@type":"Question","name":"Does this calculator know what to charge or what my move-out rate will be?","acceptedAnswer":{"@type":"Answer","text":"No. It has no data on your market, your tenants, or how they will respond to a letter. It takes your rent, street rate, vacancy, concession, turnover cost, and move-out assumptions, and turns them into a break-even move-out rate and a margin of safety for this specific increase -- the arithmetic pricing a move-out at the rent skips, not a forecast of what tenants will do."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#17231f;background:#e8f0ee}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#1c4f4a;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:24ch;letter-spacing:-.05em}.lede{font-size:1.05rem;max-width:64ch;color:#4a5a55}section{background:#fff;border:1px solid #c7d8d4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1420180d;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #c7d8d4;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5a55}.fine,.note{font-size:.88rem;color:#4a5a55}footer{color:#4a5a55;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Self-Storage Rate Increase Calculator</a></p>
+<header>
+<h1>This calculator vs. pricing a move-out at the tenant's rent</h1>
+<p class="lede">&ldquo;If six of them leave, that's $8,000 a year gone&rdquo; is not a cost &mdash; it is a cost with the re-let uplift silently left out, quietly making every rate increase look riskier than it is.</p>
+</header>
+<section>
+<h2>What pricing a move-out at the tenant's rent is</h2>
+<p>
+It is the mental model behind almost every gut check on a rate increase: a
+tenant leaves, so the facility loses whatever that tenant was paying,
+multiplied by however long the unit might have stayed occupied. It is easy
+to do in your head, and it is the number that makes an increase feel
+risky enough to skip.
+</p>
+<p>
+It is wrong because the unit does not sit empty for the horizon &mdash; it
+gets re-let, usually at the facility's own current street rate, which is
+often higher than what the departing tenant was paying at the old, unraised
+rent. Pricing the move-out at the rent counts the loss and never counts
+what comes back in behind it.
+</p>
+</section>
+<section>
+<h2>What this calculator is</h2>
+<p>
+This page keeps no account and sends nothing to a server. You enter the
+proposed increase, the street rate, the vacancy before a unit re-lets, the
+move-in concession, the turnover cost, and your move-out assumptions. It
+nets the re-let at street rate against the vacancy, concession, and
+turnover, and returns the real cost of one induced move-out, the
+break-even move-out rate for the whole group, and the margin of safety in
+percentage points &mdash; for this increase, not a rule of thumb about rent
+lost.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">What pricing a move-out at the rent does</th><th scope="col">What this calculator does instead</th></tr></thead>
+<tbody>
+<tr>
+<td>Counts the departing tenant's rent (or the new, raised rent) over the horizon as the whole cost of a move-out.</td>
+<td>Nets the re-let at your own street rate against that figure, so a move-out only costs what actually goes unrecovered.</td>
+</tr>
+<tr>
+<td>Has no line for the vacancy between tenants, so a fast-turning unit and a slow one look the same.</td>
+<td>Prices the days empty before re-letting as its own line, so vacancy risk shows up rather than disappearing into a flat rent figure.</td>
+</tr>
+<tr>
+<td>Folds the move-in concession and turnover cost into the same lump as the "lost" rent, or ignores them.</td>
+<td>Itemises the concession and turnover cost as their own lines, so each is visible instead of buried in a bigger, wrong number.</td>
+</tr>
+<tr>
+<td>Implies a low break-even move-out rate, because every move-out looks nearly as expensive as keeping the tenant.</td>
+<td>Reports a break-even move-out rate against the real cost, which is usually far higher &mdash; more room to send the increase than the naive number suggests.</td>
+</tr>
+<tr>
+<td>Gives no way to see how much the gap changes when street rate moves relative to the raised rent.</td>
+<td>Flags the case where the raised rent lands above your own street rate, which is exactly when the naive and real numbers converge and the risk becomes real.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section>
+<h2>One increase, two ways of costing a move-out</h2>
+<p>
+Using this calculator's own worked example: 42 units at $118, a 15%
+increase to <strong>$135.70</strong>, a $149 street rate, a 45-day vacancy,
+a one-month concession, and a $45 turnover cost, judged over 12 months.
+</p>
+<p>
+Pricing a move-out at the new rent plus ancillary income over the horizon
+puts the cost at <strong>$1,772.40</strong> per move-out. Against the
+$8,920.80 the increase is worth across the group if nobody leaves, that
+implies the increase only survives losing about <strong>5.03 of the 42
+units &mdash; 12.0%</strong> &mdash; before the higher rent's gain is wiped
+out.
+</p>
+<p>
+Netting the re-let at the $149 street rate against the vacancy, concession,
+and turnover puts the real cost of one induced move-out at
+<strong>$272.43</strong> &mdash; about a sixth of the naive figure, because
+most of what looks like lost rent comes back in with the next tenant at
+street rate. On the real number, this calculator puts the break-even
+move-out rate at <strong>60.8%</strong> of the group &mdash; a margin of
+safety of <strong>54.8 percentage points</strong>, roughly five times more
+room than the naive 12.0% break-even suggests.
+</p>
+<p>
+Nobody is being careless by reaching for the naive number first &mdash; it
+is the number a rent roll makes easy to see. The gap is the re-let uplift,
+and it is invisible until the street rate is priced against the raised
+rent directly, which is what this calculator does and a mental "rent
+times tenants" estimate cannot.
+</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Why does pricing a move-out at the tenant's rent get a rate increase wrong?</h3>
+<p>Because the unit does not sit empty forever -- it gets re-let, usually at the facility's own street rate, which is often higher than what the departing tenant was paying. On this calculator's own worked example (42 units, $118 to $135.70, a 15% increase), pricing a move-out at the new rent over a 12-month horizon says it costs $1,772.40. Netting the re-let at street rate against the vacancy, the move-in concession, and the turnover cost puts the real figure at $272.43 -- about a sixth of the naive number, because most of what looks like lost rent comes back in with the next tenant.</p>
+<h3>How big is the gap in the break-even move-out rate?</h3>
+<p>On the same worked example, pricing a move-out at the tenant's rent implies the increase only survives losing about 12.0% of the group (5.03 of 42 units) before the higher rent's total gain is wiped out. Costing each move-out properly puts the break-even at 60.8% -- five times more room. An operator using the naive number would reject or shrink an increase that the real arithmetic says can absorb far more churn than any realistic response.</p>
+<h3>What does pricing a move-out at the tenant's rent leave out entirely?</h3>
+<p>The re-rent uplift: the difference between the street rate a new tenant pays and the raised rent the departing tenant would have paid. It also leaves out that the concession and turnover cost are real but comparatively small line items next to that uplift, so lumping everything into "the rent, gone" overstates the loss on every one of the four components it never separates.</p>
+<h3>Is pricing a move-out at the tenant's rent ever close enough?</h3>
+<p>When the street rate is at or below the raised rent -- a soft local market, or a facility that has not raised its own asking rate in a while -- the re-let uplift shrinks toward zero and the naive number gets closer to the real one. The risk is trusting that closeness without checking street rate against the raised rent for this specific group, because the gap widens fast once street pulls ahead.</p>
+<h3>Does this calculator know what to charge or what my move-out rate will be?</h3>
+<p>No. It has no data on your market, your tenants, or how they will respond to a letter. It takes your rent, street rate, vacancy, concession, turnover cost, and move-out assumptions, and turns them into a break-even move-out rate and a margin of safety for this specific increase -- the arithmetic pricing a move-out at the rent skips, not a forecast of what tenants will do.</p>
+<p class="note">
+Open the <a href="./">Self-Storage Rate Increase Calculator</a> to price your own increase, or read <a href="./how-much-can-i-raise-storage-rent.html">how much you can raise storage rent</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it does not tell you what to charge, what notice your lease or your state&rsquo;s self-storage act requires before an increase takes effect, or whether raising a tenant&rsquo;s rent is a good idea. It is arithmetic on the numbers you type, and the numbers it starts with are an illustrative example rather than market data. Verify every figure against your own management software, your leases, and a qualified professional before acting on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+<p class="support">Free and open source. If it saves you a bad increase, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body>
+</html>
