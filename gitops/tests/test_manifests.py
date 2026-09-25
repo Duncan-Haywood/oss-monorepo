@@ -2668,9 +2668,18 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # California, Washington, Maine, Alaska, or New York (including New
     # York's carve-out excluding the professional exemption from its
     # higher figure). Static `index.html` only, no comparison page, from
-    # its first commit. Total re-derived here by `sync_tree_counts.py`
-    # against the fully merged tree rather than by hand.
-    total = 380  # `infra/OWNER_CHECKLIST.md`'s own "N of the 380 tools" wording.
+    # its first commit.
+    #
+    # 380 -> 381: `child-tax-credit-calculator` also graduated -- a
+    # browser-local calculator applying the permanent $2,200-per-child
+    # Child Tax Credit, the $500 Credit for Other Dependents, their
+    # combined MAGI phase-out, and the refundable Additional Child Tax
+    # Credit ceiling, plus a vs-doing-the-math-by-hand.html comparison
+    # page. Static `index.html` plus one docs/comparison page from its
+    # first commit, same shape as the rest of this running count. Total
+    # re-derived here by `sync_tree_counts.py` against the fully merged
+    # tree rather than by hand.
+    total = 381  # `infra/OWNER_CHECKLIST.md`'s own "N of the 381 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
