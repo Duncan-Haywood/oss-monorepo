@@ -18874,3 +18874,52 @@ ventures:
       are already entitled to; no scraped or personal data, nothing
       adversarial, scales with zero externality -- one filer's estimate
       does not affect another's.
+  - slug: solo-401k-contribution-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against published, dated IRS dollar limits and a
+      documented self-employment-tax formula -- a catch-up lookup by age,
+      a self-employment tax calculation, and a fixed-rate employer
+      contribution, never an inference step.
+    basis: >-
+      Screened 2026-09-28 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py scored every venture, screened-out row, and
+      pipeline candidate at or below 0.25 against the final description.
+      Distribution 6 reflects year-end seasonality: a Solo 401(k) must be
+      opened by December 31 even though the employer contribution can be
+      funded until the tax filing deadline, driving a predictable Q4
+      search spike for "solo 401k contribution limit 2026", confirmed via
+      WebSearch and WebFetch against IRS.gov's own retirement-topics page,
+      Fidelity's solo-401(k) guide, and the SSA's own 2026 COLA fact
+      sheet. Defensibility 2, the same as its nearest siblings
+      hsa-contribution-limit-calculator and mega-backdoor-roth-calculator:
+      a published IRS formula applied via arithmetic, trivially
+      replicated by any competitor reading the same sources.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: scoped explicitly to a sole proprietor or single-member
+      LLC (a different formula applies to an S-corp or partnership, stated
+      in three places -- the "what this does not cover" section, the FAQ,
+      and a standing finding on every result); every input (net profit,
+      age, deferral used elsewhere) is a figure the filer already has;
+      output is a contribution-limit estimate against published statutory
+      amounts and a documented formula, never a filed Form 5500-EZ or tax
+      return. No warranty and no-advice disclaimers appear on the page.
+      Ethics: purely informational, helps a self-employed filer size a
+      retirement contribution they are already entitled to make; no
+      scraped or personal data, nothing adversarial, scales with zero
+      externality -- one filer's calculation does not affect another's.
