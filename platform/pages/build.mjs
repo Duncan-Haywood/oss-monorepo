@@ -1469,7 +1469,22 @@ const CATEGORY_RULES = [
       // nearest sibling: both are annually-indexed IRS contribution-limit
       // lookups with an eligibility wrinkle the headline number alone
       // does not capture.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator)/.test(slug),
+      //
+      // `solo-401k-contribution-calculator` joined 2026-09-28, filed here
+      // on its first commit rather than after a spell in the catch-all --
+      // what `build.test.mjs`'s catch-all bound is for. Same "IRS
+      // dollar-limit lookup against a filer's own numbers" axis as
+      // `mega-backdoor-roth-calculator` and `hsa-contribution-limit-calculator`
+      // above it in this rule -- an annually-indexed contribution limit
+      // applied to a saver's own net self-employment earnings, never a
+      // filed election or plan-compliance determination -- just for a
+      // self-employed retirement plan instead of a W-2 employer's 401(k)
+      // or an HSA. It cross-links `mega-backdoor-roth-calculator` as its
+      // nearest sibling (both are annually-indexed IRS contribution-limit
+      // lookups with an eligibility wrinkle the headline number alone
+      // does not capture), with a reciprocal inbound link from that
+      // venture's first commit rather than shipping as an orphan.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|bonus-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator)/.test(slug),
   },
   {
     id: 'ci',

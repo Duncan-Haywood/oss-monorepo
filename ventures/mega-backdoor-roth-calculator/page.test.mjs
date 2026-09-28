@@ -145,3 +145,15 @@ test('index links one hop to the trump-account-calculator sibling', () => {
     'index must link ../trump-account-calculator/ so crawlers reach it in one hop',
   );
 });
+
+// solo-401k-contribution-calculator graduated on 2026-09-28 with no inbound
+// link of its own (a brand-new venture's first commit) -- this link is what
+// keeps it off siblings.test.mjs's committed orphan budget (0). The venture's
+// own page already links back here, so this closes the pair both ways.
+test('index links one hop to the solo-401k-contribution-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/solo-401k-contribution-calculator\/"/,
+    'index must link ../solo-401k-contribution-calculator/ so crawlers reach it in one hop',
+  );
+});

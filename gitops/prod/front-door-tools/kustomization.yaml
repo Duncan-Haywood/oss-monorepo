@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545736 bytes
-#   portfolio-front-tools-1: 92 files, 554493 bytes
-#   portfolio-front-tools-2: 144 files, 552459 bytes
-#   portfolio-front-tools-3: 131 files, 554376 bytes
-#   portfolio-front-tools-4: 141 files, 556068 bytes
-#   portfolio-front-tools-5: 126 files, 549010 bytes
-#   portfolio-front-tools-6: 128 files, 556113 bytes
-#   portfolio-front-tools-7: 139 files, 555432 bytes
-#   portfolio-front-tools-8: 120 files, 553414 bytes
-#   portfolio-front-tools-9: 136 files, 555320 bytes
-#   portfolio-front-tools-10: 133 files, 553571 bytes
-#   portfolio-front-tools-11: 122 files, 546556 bytes
-#   portfolio-front-tools-12: 119 files, 556602 bytes
-#   portfolio-front-tools-13: 120 files, 555819 bytes
-#   portfolio-front-tools-14: 127 files, 553181 bytes
-#   portfolio-front-tools-15: 131 files, 554586 bytes
-#   portfolio-front-tools-16: 134 files, 553572 bytes
-#   portfolio-front-tools-17: 127 files, 548477 bytes
-#   portfolio-front-tools-18: 102 files, 553387 bytes
-#   portfolio-front-tools-19: 117 files, 555166 bytes
-#   portfolio-front-tools-20: 130 files, 556260 bytes
-#   portfolio-front-tools-21: 102 files, 482512 bytes
-#   portfolio-front-tools-22: 50 files, 264874 bytes
+#   portfolio-front-tools-0: 145 files, 545729 bytes
+#   portfolio-front-tools-1: 92 files, 554480 bytes
+#   portfolio-front-tools-2: 144 files, 552442 bytes
+#   portfolio-front-tools-3: 131 files, 554401 bytes
+#   portfolio-front-tools-4: 141 files, 556072 bytes
+#   portfolio-front-tools-5: 126 files, 548987 bytes
+#   portfolio-front-tools-6: 128 files, 555738 bytes
+#   portfolio-front-tools-7: 139 files, 556902 bytes
+#   portfolio-front-tools-8: 121 files, 556475 bytes
+#   portfolio-front-tools-9: 136 files, 555317 bytes
+#   portfolio-front-tools-10: 133 files, 553560 bytes
+#   portfolio-front-tools-11: 122 files, 546586 bytes
+#   portfolio-front-tools-12: 119 files, 556574 bytes
+#   portfolio-front-tools-13: 120 files, 555807 bytes
+#   portfolio-front-tools-14: 127 files, 553217 bytes
+#   portfolio-front-tools-15: 131 files, 554611 bytes
+#   portfolio-front-tools-16: 134 files, 553603 bytes
+#   portfolio-front-tools-17: 127 files, 548471 bytes
+#   portfolio-front-tools-18: 102 files, 553378 bytes
+#   portfolio-front-tools-19: 117 files, 548116 bytes
+#   portfolio-front-tools-20: 128 files, 552558 bytes
+#   portfolio-front-tools-21: 107 files, 504710 bytes
+#   portfolio-front-tools-22: 50 files, 264908 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -910,6 +910,7 @@ configMapGenerator:
       - boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz=boi-reporting-exemption-checker__do-i-still-need-to-file-a-boi-report.html.gz
       - boi-reporting-exemption-checker__index.html.gz=boi-reporting-exemption-checker__index.html.gz
       - boi-reporting-exemption-checker__usage.mjs.gz=boi-reporting-exemption-checker__usage.mjs.gz
+      - boi-reporting-exemption-checker__vs-reading-fincens-guidance-yourself.html.gz=boi-reporting-exemption-checker__vs-reading-fincens-guidance-yourself.html.gz
       - boiler-replacement-bid-calculator__calc.mjs.gz=boiler-replacement-bid-calculator__calc.mjs.gz
       - boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz=boiler-replacement-bid-calculator__how-much-to-charge-to-replace-a-boiler.html.gz
       - boiler-replacement-bid-calculator__index.html.gz=boiler-replacement-bid-calculator__index.html.gz
@@ -1014,12 +1015,12 @@ configMapGenerator:
       - carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz=carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz
       - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
       - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
-      - carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz=carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz=carpet-install-bid-calculator__vs-a-flat-rate-per-yard.html.gz
       - carpet-install-bid-calculator__vs-jobber.html.gz=carpet-install-bid-calculator__vs-jobber.html.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
       - cat-adjuster-fee-calculator__calc.mjs.gz=cat-adjuster-fee-calculator__calc.mjs.gz
@@ -1158,12 +1159,12 @@ configMapGenerator:
       - coverage-drop-check__usage.mjs.gz=coverage-drop-check__usage.mjs.gz
       - coverage-drop-check__vs-a-flat-coverage-floor.html.gz=coverage-drop-check__vs-a-flat-coverage-floor.html.gz
       - coverage-drop-check__vs-codecov.html.gz=coverage-drop-check__vs-codecov.html.gz
-      - coverage-drop-check__why-did-my-pr-drop-coverage.html.gz=coverage-drop-check__why-did-my-pr-drop-coverage.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - coverage-drop-check__why-did-my-pr-drop-coverage.html.gz=coverage-drop-check__why-did-my-pr-drop-coverage.html.gz
       - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
       - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
       - cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz=cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz
@@ -2623,6 +2624,9 @@ configMapGenerator:
       - solar-pv-bid-calculator__usage.mjs.gz=solar-pv-bid-calculator__usage.mjs.gz
       - solar-pv-bid-calculator__vs-a-flat-price-per-watt.html.gz=solar-pv-bid-calculator__vs-a-flat-price-per-watt.html.gz
       - solar-pv-bid-calculator__vs-aurora-solar.html.gz=solar-pv-bid-calculator__vs-aurora-solar.html.gz
+      - solo-401k-contribution-calculator__calc.mjs.gz=solo-401k-contribution-calculator__calc.mjs.gz
+      - solo-401k-contribution-calculator__index.html.gz=solo-401k-contribution-calculator__index.html.gz
+      - solo-401k-contribution-calculator__usage.mjs.gz=solo-401k-contribution-calculator__usage.mjs.gz
       - source-map-leak-check__analyze.mjs.gz=source-map-leak-check__analyze.mjs.gz
       - source-map-leak-check__check.mjs.gz=source-map-leak-check__check.mjs.gz
       - source-map-leak-check__how-source-maps-leak-in-production.html.gz=source-map-leak-check__how-source-maps-leak-in-production.html.gz
@@ -2704,14 +2708,14 @@ configMapGenerator:
       - structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz=structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz
       - stucco-repair-bid-calculator__calc.mjs.gz=stucco-repair-bid-calculator__calc.mjs.gz
       - stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz=stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz
-      - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
-      - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
-      - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
+      - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
+      - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
       - stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=stucco-repair-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
       - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
       - subdomain-takeover-check__analyze.mjs.gz=subdomain-takeover-check__analyze.mjs.gz
@@ -2837,16 +2841,16 @@ configMapGenerator:
       - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
       - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
       - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
-      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
-      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
-      - vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz=vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz
-      - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
-      - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
+      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
+      - vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz=vendor-change-watch__how-often-to-recheck-vendor-pages.html.gz
+      - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
+      - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
       - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
