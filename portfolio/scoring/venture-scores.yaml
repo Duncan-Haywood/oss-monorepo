@@ -18923,3 +18923,40 @@ ventures:
       retirement contribution they are already entitled to make; no
       scraped or personal data, nothing adversarial, scales with zero
       externality -- one filer's calculation does not affect another's.
+  - slug: sep-ira-contribution-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every result is deterministic
+      arithmetic against published, dated IRS dollar limits and a
+      documented self-employment-tax formula.
+    basis: >-
+      Screened 2026-09-28 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      Sibling of solo-401k-contribution-calculator with the same
+      distribution reading: tax-planning seasonality drives searches for
+      "sep ira contribution limit 2026", and a SEP-IRA can be funded until
+      the filing deadline, so the query persists into spring. Defensibility
+      2, as for its siblings: a published IRS formula applied via
+      arithmetic, trivially replicated.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: scoped explicitly to a sole proprietor or single-member
+      LLC with the employee same-percentage rule stated; the planned
+      contribution is trimmed to the limit with a visible finding; output
+      is an estimate against published statutory amounts, never a filed
+      return. No warranty and no-advice disclaimers appear on the page.
+      Ethics: purely informational, helps a self-employed filer size a
+      retirement contribution they are already entitled to make; no
+      scraped or personal data, nothing adversarial.

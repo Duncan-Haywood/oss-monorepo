@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SEP-IRA Contribution Calculator — 2026, Free</title>
+  <meta name="description" content="Free calculator for the 2026 SEP-IRA contribution limit for a sole proprietor or single-member LLC — 20% of net self-employment earnings (the self-employed equivalent of the 25% plan rate), capped at $72,000, with a Solo 401(k) comparison. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="SEP-IRA Contribution Calculator — free, 2026">
+  <meta property="og:description" content="Computes the 2026 SEP-IRA contribution limit for a sole proprietor or single-member LLC: 20% of net self-employment earnings, capped at $72,000. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"SEP-IRA Contribution Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the 2026 SEP-IRA contribution limit for a sole proprietor or single-member LLC: 20% of net self-employment earnings (net profit minus half of self-employment tax), capped at $72,000, with a comparison against what a Solo 401(k) would allow. Entirely client-side; nothing is uploaded.","featureList":"2026 SEP-IRA limit, self-employment tax and net earnings calculation, 20% effective self-employed rate, $72,000 cap, Solo 401(k) comparison"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 2026 SEP-IRA contribution limit?","acceptedAnswer":{"@type":"Answer","text":"The lesser of 25% of eligible compensation or $72,000. For a self-employed owner, 25% of compensation works out to an effective 20% of net self-employment earnings, and net earnings are capped at the $360,000 compensation limit."}},{"@type":"Question","name":"How is a SEP-IRA contribution calculated for a sole proprietor?","acceptedAnswer":{"@type":"Answer","text":"Net profit minus half of self-employment tax gives net earnings from self-employment. Multiply by 20%, the self-employed equivalent of the 25% plan rate (25% divided by 1.25), because the contribution is deducted before the earnings it is measured against."}},{"@type":"Question","name":"When can I open and fund a SEP-IRA for 2026?","acceptedAnswer":{"@type":"Answer","text":"A SEP-IRA can be set up and funded up to your tax filing deadline for the year, including extensions. A Solo 401(k) employee deferral generally requires the plan to be opened by December 31."}},{"@type":"Question","name":"Is a SEP-IRA or a Solo 401(k) better for a self-employed person?","acceptedAnswer":{"@type":"Answer","text":"On the same earnings a Solo 401(k) usually allows more, because it adds an employee deferral to the same 20% employer share. A SEP-IRA is simpler to set up and never needs an annual Form 5500 filing. The calculator shows both figures side by side."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies published 2026 IRS figures to the numbers you enter, scoped to a sole proprietor or single-member LLC. It does not replace IRS Publication 560 or a qualified tax professional, and an S-corp or partnership uses a different formula."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SEP-IRA CONTRIBUTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much can you put in your SEP-IRA in 2026?</h1>
+    <p>For a sole proprietor or single-member LLC: <strong>20%</strong> of your net self-employment earnings (the self-employed version of the 25% plan rate), up to <strong>$72,000</strong> for 2026.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your business</h2>
+    <div class="grid">
+      <div>
+        <label for="net-profit">Net profit from your business in 2026 ($)</label>
+        <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 150000">
+      </div>
+      <div>
+        <label for="planned">Contribution you plan to make (leave blank for the maximum) ($)</label>
+        <input type="number" id="planned" min="0" step="1" placeholder="leave blank for max">
+      </div>
+    </div>
+    <p class="note">Net profit is your Schedule C net profit (or a
+    single-member LLC's equivalent), before this retirement contribution —
+    not gross revenue.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your net profit, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Sole proprietor / single-member LLC only.</strong> This
+      applies the net-self-employment-earnings formula for a Schedule C
+      filer. An S-corp or partnership uses a different formula (W-2 wages
+      or a K-1 allocation) and this tool does not compute it.</li>
+      <li><strong>Employees change the math.</strong> If you have eligible
+      employees, a SEP-IRA must give each of them the same percentage of
+      pay that you give yourself. This tool does not model that.</li>
+      <li><strong>Not a Schedule SE substitute.</strong> This ignores the
+      additional 0.9% Medicare surtax above $200,000/$250,000 and does not
+      account for multiple businesses or controlled-group rules.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> These limits are
+      re-indexed annually; confirm the current year's figures before
+      relying on this in a later year.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the 2026 SEP-IRA contribution limit?</h3>
+    <p>The lesser of 25% of eligible compensation or $72,000. For a self-employed owner, 25% of compensation works out to an effective 20% of net self-employment earnings, and net earnings are capped at the $360,000 compensation limit.</p>
+    <h3>How is a SEP-IRA contribution calculated for a sole proprietor?</h3>
+    <p>Net profit minus half of self-employment tax gives net earnings from self-employment. Multiply by 20%, the self-employed equivalent of the 25% plan rate (25% divided by 1.25), because the contribution is deducted before the earnings it is measured against.</p>
+    <h3>When can I open and fund a SEP-IRA for 2026?</h3>
+    <p>A SEP-IRA can be set up and funded up to your tax filing deadline for the year, including extensions. A Solo 401(k) employee deferral generally requires the plan to be opened by December 31.</p>
+    <h3>Is a SEP-IRA or a Solo 401(k) better for a self-employed person?</h3>
+    <p>On the same earnings a Solo 401(k) usually allows more, because it adds an employee deferral to the same 20% employer share. A SEP-IRA is simpler to set up and never needs an annual Form 5500 filing. The calculator shows both figures side by side.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. This tool applies published 2026 IRS figures to the numbers you enter, scoped to a sole proprietor or single-member LLC. It does not replace IRS Publication 560 or a qualified tax professional, and an S-corp or partnership uses a different formula.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own plan's terms before contributing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>limit_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Want to compare plans? The <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> adds the employee deferral and age catch-ups — usually a higher limit for an owner with no employees.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { sepIraContributionOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      netProfit: $("#net-profit"), planned: $("#planned"),
+      status: $("#form-status"), report: $("#report"), stats: $("#report-stats"),
+      resultTable: $("#result-table"), findings: $("#report-findings"),
+    };
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const planned = els.planned.value === "" ? null : Number(els.planned.value);
+      const result = sepIraContributionOutcome({
+        netProfit: Number(els.netProfit.value) || 0,
+        plannedContribution: planned,
+      });
+
+      els.stats.innerHTML = `2026 SEP-IRA contribution: <strong>${money(result.contribution)}</strong> (maximum ${money(result.maxContribution)}).`;
+
+      const rows = [
+        `<tr><th scope="row">Net self-employment earnings</th><td>${money(result.earnings)}</td></tr>`,
+        `<tr><th scope="row">20% of net earnings</th><td>${money(result.uncapped)}</td></tr>`,
+        `<tr><th scope="row">Maximum SEP-IRA contribution (after the $72,000 cap)</th><td>${money(result.maxContribution)}</td></tr>`,
+        `<tr><th scope="row"><strong>Your 2026 contribution</strong></th><td><strong>${money(result.contribution)}</strong></td></tr>`,
+        `<tr><th scope="row">For comparison: Solo 401(k) maximum, before catch-up</th><td>${money(result.solo401kMax)}</td></tr>`,
+      ];
+
+      els.resultTable.innerHTML = rows.join("");
+      renderFindings(els.findings, result.findings);
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("limit_calculated");
+      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.netProfit.value = "150000";
+      els.planned.value = "";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: $150,000 net profit — net self-employment earnings of $139,402.84, so a maximum SEP-IRA contribution of $27,880.57 (a Solo 401(k) would allow up to $52,380.57 before any catch-up).";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      els.netProfit.value = "";
+      els.planned.value = "";
+      els.report.hidden = true;
+      els.status.textContent = "Enter your net profit, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

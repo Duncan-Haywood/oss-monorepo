@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545729 bytes
-#   portfolio-front-tools-1: 92 files, 554480 bytes
-#   portfolio-front-tools-2: 144 files, 552442 bytes
-#   portfolio-front-tools-3: 131 files, 554401 bytes
-#   portfolio-front-tools-4: 141 files, 556072 bytes
-#   portfolio-front-tools-5: 126 files, 548987 bytes
-#   portfolio-front-tools-6: 128 files, 555738 bytes
-#   portfolio-front-tools-7: 139 files, 556902 bytes
-#   portfolio-front-tools-8: 121 files, 556475 bytes
-#   portfolio-front-tools-9: 136 files, 555317 bytes
-#   portfolio-front-tools-10: 133 files, 553560 bytes
-#   portfolio-front-tools-11: 122 files, 546586 bytes
-#   portfolio-front-tools-12: 119 files, 556574 bytes
-#   portfolio-front-tools-13: 120 files, 555807 bytes
-#   portfolio-front-tools-14: 127 files, 553217 bytes
-#   portfolio-front-tools-15: 130 files, 549476 bytes
-#   portfolio-front-tools-16: 134 files, 553603 bytes
-#   portfolio-front-tools-17: 127 files, 548471 bytes
-#   portfolio-front-tools-18: 102 files, 553378 bytes
-#   portfolio-front-tools-19: 117 files, 548116 bytes
-#   portfolio-front-tools-20: 128 files, 552558 bytes
-#   portfolio-front-tools-21: 107 files, 504710 bytes
-#   portfolio-front-tools-22: 50 files, 264908 bytes
+#   portfolio-front-tools-0: 145 files, 545735 bytes
+#   portfolio-front-tools-1: 92 files, 554496 bytes
+#   portfolio-front-tools-2: 144 files, 552453 bytes
+#   portfolio-front-tools-3: 131 files, 554410 bytes
+#   portfolio-front-tools-4: 141 files, 556079 bytes
+#   portfolio-front-tools-5: 126 files, 548957 bytes
+#   portfolio-front-tools-6: 128 files, 555726 bytes
+#   portfolio-front-tools-7: 139 files, 556922 bytes
+#   portfolio-front-tools-8: 121 files, 556484 bytes
+#   portfolio-front-tools-9: 136 files, 555354 bytes
+#   portfolio-front-tools-10: 133 files, 553546 bytes
+#   portfolio-front-tools-11: 122 files, 546547 bytes
+#   portfolio-front-tools-12: 119 files, 556544 bytes
+#   portfolio-front-tools-13: 120 files, 555813 bytes
+#   portfolio-front-tools-14: 127 files, 553324 bytes
+#   portfolio-front-tools-15: 130 files, 549425 bytes
+#   portfolio-front-tools-16: 134 files, 553645 bytes
+#   portfolio-front-tools-17: 129 files, 554894 bytes
+#   portfolio-front-tools-18: 103 files, 556688 bytes
+#   portfolio-front-tools-19: 117 files, 548180 bytes
+#   portfolio-front-tools-20: 128 files, 552604 bytes
+#   portfolio-front-tools-21: 107 files, 504657 bytes
+#   portfolio-front-tools-22: 50 files, 264894 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2476,13 +2476,16 @@ configMapGenerator:
       - senior-deduction-calculator__usage.mjs.gz=senior-deduction-calculator__usage.mjs.gz
       - senior-deduction-calculator__vs-estimating-the-deduction-by-hand.html.gz=senior-deduction-calculator__vs-estimating-the-deduction-by-hand.html.gz
       - senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz=senior-deduction-calculator__why-does-the-senior-deduction-phase-out-completely.html.gz
+      - sep-ira-contribution-calculator__calc.mjs.gz=sep-ira-contribution-calculator__calc.mjs.gz
+      - sep-ira-contribution-calculator__index.html.gz=sep-ira-contribution-calculator__index.html.gz
+      - sep-ira-contribution-calculator__usage.mjs.gz=sep-ira-contribution-calculator__usage.mjs.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
-      - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
   - name: portfolio-front-tools-18
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
       - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
       - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz

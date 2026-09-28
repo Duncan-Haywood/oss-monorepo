@@ -1,0 +1,63 @@
+name: sep-ira-contribution-calculator
+description: >-
+  Free browser calculator computing the 2026 SEP-IRA contribution limit for
+  a sole proprietor or single-member LLC: 20% of net self-employment
+  earnings (net profit minus half of self-employment tax, the self-employed
+  equivalent of the 25% plan rate), capped at $72,000, with a side-by-side
+  Solo 401(k) figure. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-28 in a new-venture-first session (build-now pipeline
+# empty). Sibling of solo-401k-contribution-calculator, which shipped hours
+# earlier and whose own screening note records that neither screened-out.md
+# nor ai-first-markets mentions SEP-IRA. Different plan type and formula
+# (employer-only contribution, no deferral, no catch-up) and a different
+# search query ("sep ira contribution limit 2026", "sep ira calculator self
+# employed"). Distribution channel: the same Q4/tax-deadline planning
+# search spike; unlike a Solo 401(k), a SEP-IRA can be opened and funded up
+# to the filing deadline, so the query persists into spring. No search-
+# volume tool was queried, matching the pipeline's standing caveat.
+#
+# Liability: same shape as the sibling (a numeric limit on published
+# federal figures). The main failure mode is over-contribution, so the page
+# states the sole-proprietor-only scope and the employee same-percentage
+# rule, and trims any planned amount to the limit with a visible finding.
+
+hypotheses:
+  - claim: >-
+      A self-employed owner near tax time will search "SEP IRA contribution
+      limit 2026" or "SEP IRA calculator self employed" and return to a free,
+      no-signup calculator that applies the 20% effective rate to net
+      self-employment earnings correctly, instead of applying 25% to profit
+      and over-contributing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Showing the Solo 401(k) maximum beside the SEP-IRA maximum will send a
+      meaningful share of users on to the sibling calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page applies a fixed formula to the
+  # numbers the user types in (nothing uploaded, nothing fetched). Serving
+  # one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports over-contributing (or under-contributing) based on this tool's output despite the disclaimers, at which point the disclosure wording itself needs revisiting, not just a bigger caveat.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sep-ira-contribution-calculator/
+  analytics: null

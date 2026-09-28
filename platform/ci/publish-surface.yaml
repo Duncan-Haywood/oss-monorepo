@@ -1151,6 +1151,9 @@ workflows:
 - workflow: soffit-fascia-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sep-ira-contribution-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: solar-pv-bid-calculator-ci.yml
   classification: none
   publishes: []
