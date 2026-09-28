@@ -46342,6 +46342,90 @@ entries:
         (ci_starvation.py confirmed runner_id: 0 earlier) -- verified
         fully locally per CLAUDE.md's starvation checklist.
     mrr_end: 0
+  - venture: actions-self-hosted-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page,
+        vs-reviewing-workflows-by-eye.html -- this venture was one of the
+        ~20 ventures with 0 generic-method pages per
+        platform/pages/surface-budget.mjs (only a named-product page
+        against StepSecurity's Harden-Runner and a docs page). The angle:
+        a bare self-hosted-under-pull_request_target job is easy to spot
+        by eye, but a self-hosted label buried inside a runs-on: list, a
+        second job further down the same file, workflow_run/issue_comment
+        instead of pull_request_target, a runner group, or a `${{ }}`
+        matrix expression are all easy to miss or misjudge on a
+        read-through -- worked directly from this venture's own
+        classify.mjs classification logic rather than invented examples.
+      - >-
+        Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no competitor -- distinct
+        from this venture's own vs-stepsecurity.html, which does name one
+        and carries its own trademark/affiliation clause). Linked from
+        index.html and sitemap.xml. Regenerated the front-door mirror
+        (regen.mjs), which also picked up unrelated mirror drift already
+        present on main from earlier merges this session window.
+      - >-
+        Verified: venture's own suite 46/46 (including the new page's own
+        test file); platform/marketing + platform/pages suite 1290/1290;
+        platform/pages/faq-visible.test.mjs (fleet-wide JSON-LD/visible-copy
+        check) clean; surface-budget.mjs --check clean, no venture over
+        budget; clauses.mjs clean (1647 pages/383 surfaces);
+        sync_tree_counts.py --check clean (no venture added, no count
+        drift); regen.mjs --verify clean after regenerating;
+        checklist_coverage.py clean. CI starved this session
+        (ci_starvation.py: runner_id: 0 on a recent main push) -- verified
+        fully locally per CLAUDE.md's starvation checklist.
+    mrr_end: 0
+  - venture: hreflang-reciprocity-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        vs-checking-hreflang-tags-by-hand.html (surface-budget.mjs flagged
+        it with zero generic-method pages; it only had a named-product
+        comparison against Merkle's hosted tool and a guide page).
+      - >-
+        The angle: a hreflang set that looks complete at a glance can
+        still be invalid and non-reciprocal. Worked example computed
+        directly from this venture's own buildReport(): a 4-language set
+        (en, en-uk, fr, es) with every <link> tag present and well-formed
+        reports 2 danger-level findings once actually checked -- "en-uk"
+        is not a valid ISO 3166-1 region code (the real one is "GB"), and
+        the es page never links back to en, breaking reciprocity for that
+        pair -- plus 1 notice for a missing x-default. Neither failure is
+        visible from reading the page you'd actually be looking at.
+      - >-
+        Registered in platform/pages/clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT set (names no competitor, only the
+        generic manual-review habit -- distinct from this venture's own
+        vs-merkle-hreflang-tool.html, which does name a competitor and
+        carries its own not-affiliated clause).
+      - >-
+        Also discarded a duplicate attempt at soffit-fascia-bid-
+        calculator's own generic-method comparison page this session,
+        after rebasing turned up that PR #5929 had already shipped the
+        identical page minutes earlier -- confirmed via
+        supersede_check.py-style reasoning before doing any more work on
+        it, per CLAUDE.md's Duplicate PRs section.
+      - >-
+        Verified: venture's own suite 88/88 (new comparison-page test
+        file); platform/pages/faq-visible.test.mjs 4/4 (the fleet-wide
+        JSON-LD/visible-prose consistency check -- caught and fixed a
+        real JSON-LD/visible-prose dash-encoding mismatch on this exact
+        page before it would have failed CI); surface-budget.mjs --check
+        and clauses.mjs both clean across the full catalogue. CI starved
+        this session (ci_starvation.py confirmed runner_id: 0 on a recent
+        main push) -- verified fully locally per CLAUDE.md's starvation
+        checklist, including the platform/ci unittest sweep (15 modules),
+        agent_review's test_review, pytest across
+        ledger/scoring/router/usage/pipeline/infra (446 passed), and
+        gitops/tests (637 passed, 1 skipped) -- all clean on main before
+        this change.
+    mrr_end: 0
   - venture: soffit-fascia-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -46377,6 +46461,81 @@ entries:
         runner_id: 0 on every underlying workflow run -- verified fully
         locally per CLAUDE.md's starvation checklist and said so on the
         PR before merging.
+    mrr_end: 0
+  - venture: vendor-change-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first generic-method comparison page,
+        vs-eyeballing-two-page-loads-side-by-side.html -- one of the
+        ventures surface-budget.mjs --check reported at zero
+        generic-method pages after soffit-fascia-bid-calculator and
+        stucco-repair-bid-calculator (the portfolio's only two
+        -bid-calculator ventures on that list) were shipped by this and
+        another session earlier the same hour.
+      - >-
+        Grounded the worked example in this venture's own shipped
+        examples/before.json and examples/after.json fixtures rather than
+        inventing numbers: a privacy-policy snapshot goes from "We process
+        account data to provide the service." (47 chars) to "We process
+        account and usage data to provide the service." (57 chars) a day
+        apart, which evidence.js's compare() reports as status "changed",
+        review_required true -- a ten-character clause added inside a
+        sentence that reads naturally either way, the case a person
+        skimming two page loads for a new heading or a bold notice is
+        most likely to miss. Also covered the fetch_status inconclusive
+        path (compare() refuses to call a failed fetch "unchanged"),
+        since a manual reviewer who can't reload a page tends to assume
+        the earlier capture still holds rather than noticing the fetch
+        itself failed.
+      - >-
+        Reused vs-checking-the-exit-code-yourself.html's (backup-
+        verification-evidence) color palette and section structure
+        verbatim rather than inventing new colors, since that page's own
+        header comment records two prior WCAG AA link-contrast failures
+        this portfolio shipped and fixed -- confirmed all six
+        foreground/background pairs used here clear AA (5.84:1 to
+        14.44:1) by computing WCAG relative-luminance contrast directly
+        rather than running the 20-30 minute whole-catalogue Playwright
+        sweep browser_state.py reported stale for unrelated reasons (the
+        front-door mirror regen this session's own work triggered).
+      - >-
+        Linked from index.html, added to sitemap.xml, and registered in
+        platform/pages/clauses.mjs's disclaimer-exemption set (generic
+        manual method, not a named competitor -- distinct from this
+        venture's own vs-upguard.html, which names UpGuard). Regenerated
+        the front-door mirror.
+      - >-
+        The full platform/marketing + platform/pages suite (run in the
+        background, not concurrently with any regen.mjs call this time)
+        caught a real bug this page's own venture-scoped test file
+        missed: the "Common questions" <h3>/<p> prose used double quotes
+        around three quoted phrases ('We process account data...', 'no
+        change', 'not checked') while the JSON-LD used single quotes for
+        the same text, so platform/pages/faq-visible.test.mjs -- which
+        requires the visible prose under each FAQ heading to match its
+        JSON-LD answer verbatim -- correctly failed on
+        "every authored FAQPage question and answer is visible on its
+        page". This page's own "verbatim" test had passed regardless,
+        because page.includes(answer.text) is vacuously true against the
+        page's own embedded <script type="application/ld+json"> tag,
+        which always contains the exact text it was extracted from --
+        the same latent gap as every other venture that copied this
+        test pattern, just not one that happened to matter until a
+        quote-style mismatch was actually introduced. Fixed by matching
+        the visible prose's quote style to the JSON-LD exactly; re-ran
+        faq-visible.test.mjs (4/4) and the venture's own suite (40/40)
+        clean afterward.
+      - >-
+        Verified: venture's own suite 40/40 (page.test.mjs,
+        evidence.test.js, usage.test.js, vs-upguard.test.mjs, and this
+        page's own test file); gitops/tests 613 passed/25 skipped
+        (missing-binary skips only); platform/ci unittest sweep (15
+        modules) clean; checklist_coverage.py, sync_tree_counts.py,
+        regen.mjs --verify all clean; full platform/marketing +
+        platform/pages suite 1290/1290 after the fix above (1289/1290 on
+        the run that caught it).
     mrr_end: 0
   - venture: vendor-change-evidence
     agent_spend_usd: null
@@ -46633,4 +46792,172 @@ entries:
         sweep or run_workflow_locally.py's full sweep to completion in
         this session's time budget -- named as a limitation rather than
         skipped silently.
+    mrr_end: 0
+  - venture: boi-reporting-exemption-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Discoverability follow-up on a venture that graduated with zero
+        marketing surface (index.html only, 0/1 generic-method budget per
+        surface-budget.mjs). Per DIRECTION.md's "fast scan" priority
+        order and PRODUCT_PLAYBOOK.md 5e ("one docs page per specific
+        question the niche asks"), added
+        do-i-still-need-to-file-a-boi-report.html -- a guide page
+        answering the exact search phrase this venture's own VENTURE.yaml
+        named as its distribution channel ("do I still need to file
+        BOI"). Not a fleet-parity feature: it is new, non-duplicative
+        content targeting the venture's own named channel, so it does not
+        fall under the fleet-parity-trap caution against copying a
+        sibling's feature onto a zero-usage product.
+      - >-
+        The guide covers ground index.html's own FAQ does not: the
+        2024-to-2026 rule-change timeline (why the answer kept changing
+        across the original CTA requirement, the 2025 interim exemption,
+        and this permanent 2026 rule), what a filer who already submitted
+        a 2024 report should do now (nothing -- the exemption does not
+        require undoing a prior filing, which nothing on the site had
+        said explicitly before), and whether the permanent rule could
+        reverse again. Carries its own FAQPage JSON-LD verified to match
+        its visible copy exactly (page.test.mjs), the standard
+        no-warranty/best-effort-hosting disclaimer, and reciprocal links
+        to and from index.html. Registered in sitemap.xml. No named
+        competitor, so no 5f trademark disclaimer applies.
+      - >-
+        Verified: venture's own suite 33/33 (5 new page.test.mjs
+        assertions covering the guide page's crawlability, sitemap entry,
+        back-link, and FAQ/visible-copy match). node platform/pages/
+        clauses.mjs boi-reporting-exemption-checker clean; surface-budget
+        --for boi-reporting-exemption-checker shows the new page filed as
+        a guide (no budget consumed). Ran node platform/marketing/
+        regen.mjs after merging origin/main (the front-door mirror
+        conflicted with three sibling ventures that landed concurrently
+        -- hreflang-reciprocity-check, final-paycheck-deadline-calculator,
+        freelance-writer-rate-calculator -- resolved per
+        resolve-mirror-merge.sh, then regenerated fresh from the merged
+        source tree rather than picking a side), then regen.mjs --verify
+        confirmed current. Fleet-wide, verified before the merge: node
+        --test 'ventures/**/*.test.mjs' 32006/32006; platform/pages suite
+        1015/1015; platform/marketing suite 275/275; gitops/tests 613
+        passed/25 skipped (environmental, nginx/ssh binaries not
+        installed -- documented in CLAUDE.md); checklist_coverage.py,
+        score_ventures.py --check (391 scores), validate_doc_
+        consistency.py, usage_state.py --require-honest all clean. CI
+        starved this session (ci_starvation.py confirmed runner_id: 0 on
+        main's latest commit) -- verified fully locally per CLAUDE.md's
+        starvation checklist.
+    mrr_end: 0
+  - venture: eitc-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture: a free browser calculator for the federal Earned
+        Income Tax Credit (EITC) -- the phase-in/plateau/phase-out formula
+        by number of qualifying children (0, 1, 2, 3+) and filing status,
+        the $12,200 investment income limit, the married-filing-separately
+        living-apart exception, and IRS Publication 596's own rule of
+        computing the credit twice (earned income and AGI) and keeping the
+        smaller result. Screened during a new-venture-first session
+        (session_gate.py: build-now queue empty, PROCEED, no open PRs and
+        no in-progress venture work). duplicate_check.py scored every
+        venture, screened-out row, and pipeline candidate at 0.19 or below
+        -- senior-deduction-calculator is the closest existing venture and
+        is a different federal provision (temporary age-65+ deduction vs.
+        a decades-old, mass-claimed earned-income credit). Unlike this
+        session's other new ventures, the EITC is NOT an OBBBA provision --
+        it is the largest federal anti-poverty tax credit by dollar
+        volume, claimed by tens of millions of filers every season, a
+        much larger and older search population than the narrower,
+        newer OBBBA-provision calculators this portfolio has been
+        building.
+      - >-
+        WebFetch access to irs.gov, kiplinger.com, and ustax.tools was
+        blocked by the agent egress proxy mid-research, so every dollar
+        figure was WebSearch-cross-validated across at least three
+        independent sources rather than fetched from a single primary
+        source -- including catching and resolving one direct
+        disagreement between sources ("$664" vs. "$649" for the
+        no-children maximum credit; $664 was repeated by five independent
+        sources against one, so it was used). The differentiator this
+        research surfaced: most existing free EITC calculators use earned
+        income alone, skipping IRS Publication 596's own dual-lookup
+        method (compute from earned income AND from AGI, keep the
+        smaller) -- calc.mjs implements both lookups explicitly and pins
+        the AGI-limits-the-credit case with a dedicated test.
+      - >-
+        Also derived and pinned a mechanical detail not obvious from the
+        raw figures: the phase-out THRESHOLD (where phase-out begins) is
+        the identical dollar amount for 1, 2, or 3+ qualifying children
+        ($23,890 single, $31,160 joint for 2026) -- only the phase-out
+        RATE and the completed-phaseout ceiling differ by child count, and
+        only the 0-children category has its own, lower threshold. A hand
+        calculation that assumes the threshold rises with each additional
+        child (a natural but wrong assumption) would misplace where the
+        phase-out starts for every "has children" case.
+      - >-
+        One real defect caught by the venture's own test suite before
+        shipping: eicTableLookup's phase-in/plateau boundary used `x <=
+        earnedIncomeAmount` for the phase-in branch, so looking up the
+        credit at exactly the published "earned income amount" computed
+        it via the phase-in multiplication (e.g. 13020 x 0.34 = 4426.80)
+        instead of returning the published, independently-rounded maximum
+        ($4,427) -- a one-line boundary fix (`<` instead of `<=`) so the
+        plateau branch, not the phase-in formula, owns the exact boundary
+        value.
+      - >-
+        Ships LICENSE, README, VENTURE.yaml (untested hypotheses +
+        kill_criteria), calc.mjs (21 test assertions), usage.mjs/
+        page.test.mjs (43 total for the venture), index.html with
+        FAQPage/SoftwareApplication JSON-LD matching visible copy exactly,
+        a vs-doing-the-math-by-hand.html comparison page, an opt-out local
+        usage counter honouring DNT/GPC, robots.txt/sitemap.xml, and a
+        dedicated CI workflow. Filed into build.mjs's backoffice category
+        next to its nearest sibling, child-tax-credit-calculator (both
+        federal per-household tax credits often claimed on the same
+        return), with a reciprocal footer link both ways -- 0 crawlable
+        orphans of 385. Scored in venture-scores.yaml (composite 6.5,
+        gates pass, distribution 9 -- the highest of this portfolio's
+        federal tax calculators, reflecting the EITC's much larger
+        claimant population). Registered in launched.json,
+        publish-surface.yaml, and the CI-workflow runs-on count. Checked
+        for the kustomization-mounting gap this session's earlier
+        security-txt-check PR found and documented -- this venture's
+        comparison-page subject text did not collide with a sibling
+        venture's page, so no gitops/prod/kustomization.yaml edit was
+        needed, confirmed by grepping gitops/prod/front-door/ before
+        shipping rather than assuming.
+      - >-
+        While merging `origin/main`, found and fixed two real defects
+        introduced by earlier merges this session: (1)
+        `gambling-loss-deduction-calculator` had been double-counted in
+        both `gitops/tests/test_manifests.py` and
+        `platform/privacy/optout-persistence.test.mjs`'s running-count
+        comment chains -- a merge conflict resolution had mistakenly added
+        a second entry for a venture already recorded earlier in the same
+        file. (2) `final-paycheck-deadline-calculator`'s own merge into
+        `main` left its mirror files (`gitops/prod/front-door-tools/`)
+        written but the corresponding mount line in the top-level,
+        hand-maintained `gitops/prod/front-door-tools/kustomization.yaml`
+        absent -- caused by a `git checkout --ours` during THIS merge's
+        own conflict resolution overwriting an already-regenerated
+        `front-door-tools/` directory with this branch's stale pre-merge
+        copy; `_mirrored_venture_slugs()` catching the resulting undercount
+        (384 instead of the true 385) is what surfaced it, one commit
+        short of shipping a venture nobody could reach. Fixed by
+        re-running `front-door-tools.mjs --write` and `front-door.mjs
+        --write` directly, after the `--ours` checkout rather than relying
+        on it alone, and by removing the duplicate running-count
+        paragraphs and renumbering both chains sequentially.
+      - >-
+        Verified: venture's own suite 43/43; full platform/marketing +
+        platform/pages suite 1290/1290; gitops/tests 637 passed/1 skipped
+        (environmental); platform/ci unittest sweep (15 modules) and
+        agent_review's test_review (21/21) both clean; checklist_coverage.py,
+        sync_tree_counts.py, score_ventures.py --check (392 scores),
+        siblings.mjs --check (0 orphans of 385), surface-budget.mjs
+        --check, regen.mjs --verify, router/validate.py (391 VENTURE.yaml)
+        all clean. CI starved this session (ci_starvation.py confirmed
+        runner_id: 0 earlier) -- verified fully locally per CLAUDE.md's
+        starvation checklist.
     mrr_end: 0

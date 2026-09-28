@@ -458,6 +458,9 @@ workflows:
 - workflow: einvoice-preflight-ci.yml
   classification: none
   publishes: []
+- workflow: eitc-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: electrical-panel-upgrade-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -648,6 +651,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: hreflang-reciprocity-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: hsa-contribution-limit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: hvac-maintenance-contract-calculator-ci.yml

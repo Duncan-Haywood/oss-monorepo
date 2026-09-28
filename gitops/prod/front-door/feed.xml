@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 385 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 387 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -51,6 +51,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>EITC Calculator — Free 2025/2026 Earned Income Tax Credit Estimator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/eitc-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/eitc-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the federal Earned Income Tax Credit (EITC): the phase-in, plateau, and phase-out by number of qualifying children and filing status, the investment income limit, the married-filing-separately living-apart exception, and the AGI-vs-earned-income rule most hand calculations skip. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Estate Tax Exemption Calculator — 2026 $15M OBBBA Exclusion, Free</title>
@@ -105,6 +114,15 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the OBBBA gambling loss deduction limit: your allowable Schedule A deduction is the lesser of your actual losses or 90% of your winnings, starting with 2026 tax returns. See exactly how much of your winnings becomes taxable &quot;phantom income&quot; even if you broke even or lost overall. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>HSA Contribution Limit Calculator — 2026, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hsa-contribution-limit-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hsa-contribution-limit-calculator</id>
+    <published>2026-09-25T00:00:00Z</published>
+    <updated>2026-09-25T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the 2026 HSA contribution limit — self-only $4,400 or family $8,750, the $1,000 age-55 catch-up, HDHP qualification bounds, monthly proration for partial-year eligibility, and the last-month rule&#39;s testing-period tradeoff. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>MRR Waterfall Calculator — Net &amp; Gross Revenue Retention</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free browser calculator for single-shareholder S-corp owners: compare your planned W-2 salary against a comparable-wage figure you supply, see the FICA-tax cost of closing the gap, and get a printable nine-factor documentation checklist for your own records. Runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Salary Range Posting Check — Does Your Job Ad Have One?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salary-range-posting-check/"/>
-    <id>tag:marisstella.dev,2026:tool/salary-range-posting-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Paste a job posting and pick the states it could be filled from. Instantly see whether the text appears to state a pay range, and which of those states currently require one by law, with the effective date and size threshold cited. Free, runs entirely in your browser — not legal advice.</summary>
-  </entry>
-  <entry>
-    <title>Senior Deduction Calculator — Free OBBBA $6,000 65+ Estimator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/senior-deduction-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/senior-deduction-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the new federal &#39;senior bonus&#39; deduction (One Big Beautiful Bill Act, tax years 2025-2028): up to $6,000 per qualifying taxpayer age 65+ ($12,000 if both spouses qualify), the 6%-per-dollar MAGI phase-out above $75,000 single/HOH/QSS or $150,000 joint, and the married-filing-separately exclusion. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
