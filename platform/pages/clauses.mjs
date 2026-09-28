@@ -2543,6 +2543,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // 1099-k-threshold-checker's own vs-checking-the-threshold-yourself.html
   // (a different venture; the filename is coincidentally identical).
   'exempt-salary-threshold-checker/vs-checking-the-threshold-yourself.html',
+  // Compares against checking the final-paycheck deadline by hand -- a
+  // generic method every employer/HR team already has, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above.
+  'final-paycheck-deadline-calculator/vs-checking-the-deadline-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

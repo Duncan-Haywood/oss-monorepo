@@ -47068,3 +47068,32 @@ entries:
         40/40 after the change. Regenerated the gitops/prod front-door
         mirror (regen.mjs --verify clean after).
     mrr_end: 0
+  - venture: final-paycheck-deadline-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a third generic-method comparison page this session,
+        vs-checking-the-deadline-yourself.html, for a venture that had
+        zero per surface-budget.mjs --check (32 -> 31 ventures at zero).
+        Documents three separate ways a manual check gets this wrong,
+        computed directly from calc.mjs's own finalPaycheckDeadline: (1)
+        payment-speed rules range from same-day (CA/CO/MA/NV) to
+        next-payday-only (NY/WA/IL), so a rule learned from one state and
+        reused elsewhere is wrong in one direction or the other; (2)
+        California's voluntary-quit deadline itself splits on whether
+        72+ hours' notice was given (same day vs. 3 calendar days); (3)
+        vacation/PTO payout requirements follow a completely different
+        state grouping than the payment-speed rule. Worked example (the
+        calculator's own shipped "load an example" scenario, CA voluntary
+        quit/no notice/Oct 1 2026/40h at $28) shown against the
+        notice-given and NY-fired variants: Sun Oct 4 2026 vs. Thu Oct 1
+        2026 vs. Sat Oct 10 2026, with the $1,120.00 CA PTO payout vs. NY's
+        none-required. Linked from index.html, added to sitemap.xml,
+        registered in clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT. New test
+        file (10 tests) pins the disclaimer, FAQ schema/visible-text
+        match, sitemap/index links, and all worked-example dates/amounts
+        against calc.mjs directly; venture suite 49/49 after the change.
+        Regenerated the gitops/prod front-door mirror; regen.mjs --verify
+        clean after.
+    mrr_end: 0
