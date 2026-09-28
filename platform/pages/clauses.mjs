@@ -88,6 +88,10 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "a spreadsheet, or IRS Publication 560's worksheet by
+  // hand" -- a generic method every self-employed filer already has access
+  // to, not a company or product this could be mistaken for.
+  'solo-401k-contribution-calculator/vs-a-spreadsheet.html',
   // Compares against "writing llms.txt by hand" -- a generic authoring
   // practice every site owner can do without any tool, not a company or
   // product this could be mistaken for.
