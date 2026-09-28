@@ -2518,6 +2518,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-wiz.html, which names Wiz, Inc. and carries the trademark/affiliation
   // disclaimer. Same reasoning as the other generic-method pages above.
   'oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html',
+  // Compares against "judging a quote by its headline number" -- the
+  // generic manual habit any freelancer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // sibling-tool links, which name no competitor either but also carry no
+  // comparison-page filename. Same reasoning as the other generic-method
+  // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
+  'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
