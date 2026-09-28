@@ -100,6 +100,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // an author who later added "vs. <Firm> LLP" here would be claiming this
   // exemption for a page that had become the thing it exempts.
   'ny-llc-transparency-act-tracker/vs-reading-client-alerts.html',
+  // Compares against "checking hreflang tags by hand" -- a manual review
+  // habit every site owner already has, not a company or product this
+  // could be mistaken for. Same reasoning as this venture's own
+  // vs-merkle-hreflang-tool.html, which names a real competitor and so is
+  // not in this set.
+  'hreflang-reciprocity-check/vs-checking-hreflang-tags-by-hand.html',
   // Compares against "eyeballing Settings -> Branches" -- a manual habit
   // every repository admin already has, not a company or product this
   // could be mistaken for.
@@ -2175,6 +2181,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // software vendor. Same reasoning as qsbs-exclusion-calculator's own
   // vs-doing-the-math-by-hand.html above.
   'child-tax-credit-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against working out the EITC by hand -- a generic method
+  // every filer or preparer already has access to, not a company or
+  // product this could be mistaken for. Names no tax-prep firm or
+  // software vendor. Same reasoning as child-tax-credit-calculator's own
+  // vs-doing-the-math-by-hand.html above.
+  'eitc-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.
@@ -2486,6 +2498,26 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Same reasoning as the other manual-method pages above (e.g.
   // openapi-breaking-change-check's vs-manually-reading-the-spec-diff.html).
   'vendor-change-evidence/vs-eyeballing-two-page-loads-side-by-side.html',
+  // Compares against "reading manifest.json by eye" -- the free habit any
+  // developer already has, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-lighthouse.html, which names
+  // Google's Lighthouse tool and carries the trademark/affiliation
+  // disclaimer. Same reasoning as source-map-leak-check's
+  // vs-checking-devtools-by-hand.html above.
+  'pwa-installability-check/vs-reading-the-manifest-by-eye.html',
+  // Compares against "reviewing workflow files by eye for a self-hosted
+  // runner under a risky trigger" -- the generic manual-review habit any
+  // maintainer already has, not a company or product this could be
+  // mistaken for. Distinct from this venture's own vs-stepsecurity.html,
+  // which names StepSecurity, Inc. and carries the trademark/affiliation
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'actions-self-hosted-exposure-check/vs-reviewing-workflows-by-eye.html',
+  // Compares against "reading the trust policy JSON by eye" -- the free
+  // review habit any cloud/security engineer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // vs-wiz.html, which names Wiz, Inc. and carries the trademark/affiliation
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
