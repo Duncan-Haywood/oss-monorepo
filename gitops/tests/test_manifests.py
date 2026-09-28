@@ -2742,10 +2742,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # coverage, prorated by months of eligibility or the full amount under
     # the last-month rule, plus the fixed $1,000 age-55 catch-up and an
     # HDHP-qualification check. Static `index.html` only, no comparison
-    # page, from its first commit. Total re-derived here by
-    # `sync_tree_counts.py` against the fully merged tree rather than by
-    # hand.
-    total = 387  # `infra/OWNER_CHECKLIST.md`'s own "N of the 387 tools" wording.
+    # page, from its first commit.
+    #
+    # 387 -> 388: `solo-401k-contribution-calculator` also graduated -- a
+    # browser-local calculator computing the 2026 Solo 401(k) contribution
+    # limit for a sole proprietor or single-member LLC: employee elective
+    # deferral, employer profit-sharing contribution derived from net
+    # self-employment earnings, and the combined Section 415(c) overall
+    # limit. Static `index.html` only, no comparison page, from its first
+    # commit. Total re-derived here by `sync_tree_counts.py` against the
+    # fully merged tree rather than by hand.
+    total = 388  # `infra/OWNER_CHECKLIST.md`'s own "N of the 388 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
