@@ -53,7 +53,7 @@
 #   portfolio-front-tools-17: 127 files, 548471 bytes
 #   portfolio-front-tools-18: 102 files, 553378 bytes
 #   portfolio-front-tools-19: 117 files, 548116 bytes
-#   portfolio-front-tools-20: 128 files, 552558 bytes
+#   portfolio-front-tools-20: 129 files, 556682 bytes
 #   portfolio-front-tools-21: 107 files, 504710 bytes
 #   portfolio-front-tools-22: 50 files, 264908 bytes
 #
@@ -2839,6 +2839,7 @@ configMapGenerator:
       - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
       - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
       - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
+      - vending-machine-route-margin__vs-judging-a-location-by-gross-sales-alone.html.gz=vending-machine-route-margin__vs-judging-a-location-by-gross-sales-alone.html.gz
       - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
   - name: portfolio-front-tools-21
     options:

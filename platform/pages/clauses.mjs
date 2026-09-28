@@ -2531,6 +2531,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // comparison-page filename. Same reasoning as the other generic-method
   // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
   'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
+  // Compares against "judging a location by gross sales alone" -- the
+  // generic habit any vending route operator already has (reading a DEX
+  // report or cashless dashboard's sales total), not a company or product
+  // this could be mistaken for. The page names no VMS or accounting
+  // platform; this venture's own vs-cantaloupe.html and vs-vendsoft.html
+  // are the separate named-product class and carry the trademark
+  // disclaimer. Same reasoning as the other generic-method pages above.
+  'vending-machine-route-margin/vs-judging-a-location-by-gross-sales-alone.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

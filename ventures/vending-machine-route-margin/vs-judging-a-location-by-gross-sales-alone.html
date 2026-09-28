@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. judging a location by gross sales alone</title>
+  <meta name="description" content="A location that 'did $105 in sales' can still be the losing stop on your route. This free, private browser calculator prices what gross sales hides -- commission, card fees, shrink, drive time, and machine cost -- no account, nothing uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-judging-a-location-by-gross-sales-alone.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This calculator vs. judging a location by gross sales alone">
+  <meta property="og:description" content="Gross sales tell you what a machine took in, not what it made you. Two locations with different sales, commission, and drive time can rank in the opposite order once the real costs are counted.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is gross sales a bad way to rank vending locations?","acceptedAnswer":{"@type":"Answer","text":"Because gross sales is revenue before commission, card fees, shrink, mileage, your own restock labor, and the machine's own cost are taken out -- and those five costs are not the same percentage of sales at every location. A location with a 25% commission split and a 35-minute round trip can post higher gross sales than a location with a 10% split five minutes away, and still net far less profit, because the costs that gross sales ignores are larger there."}},{"@type":"Question","name":"How big is the gap in practice?","acceptedAnswer":{"@type":"Answer","text":"Using this calculator's own arithmetic on two illustrative locations at the same restock frequency: Location A sells 60 units at $1.75 with a 25% commission, 5% shrink, and a 35-minute round trip, for $105.00 in gross sales -- 58% more than Location B's $66.50. But A's costs (commission, card fee, shrink, mileage, labor, machine share) come to $96.67 against B's $42.06, so A nets $8.33 a visit ($33.31 projected for the month) while B nets $24.44 a visit ($97.77 projected for the month) -- B, the location with the lower gross sales, makes nearly three times the monthly profit."}},{"@type":"Question","name":"Does a higher commission or longer drive always mean lower profit?","acceptedAnswer":{"@type":"Answer","text":"Not always -- a location can have a high commission or a long drive and still be the better stop if its sales volume is high enough to absorb both. The point is not that gross sales is worthless, only that it cannot tell the two cases apart on its own: two locations with different sales, commission splits, shrink, and drive time can rank in either order once actual costs are counted, and gross sales alone gives no way to know which."}},{"@type":"Question","name":"What does this calculator use instead of gross sales to judge a location?","acceptedAnswer":{"@type":"Answer","text":"Net profit per visit and projected monthly profit, after location commission, card processing fees, shrink/spoilage, drive time and mileage at your own target hourly rate, restock labor, and the machine's amortized monthly cost -- the same figures a DEX report or a cashless dashboard alone will not compute for you."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2b1d12; background: #fdf3e7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a3d1f; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #edd9bb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #8a5a20; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #8a3d1f; color: #fdf3e7; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #6b563f; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #6b563f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Vending machine route profit calculator</a></p>
+  <h1>This calculator vs. judging a location by gross sales alone</h1>
+  <p>
+    A location report that reads "$105.00 in sales this visit" looks like the
+    better stop next to one that reads "$66.50" -- until commission, card
+    fees, shrink, drive time, and the machine's own monthly cost come out.
+    Gross sales is revenue before every one of those costs, and none of them
+    is the same percentage of sales at every location: a location farther
+    from home base, or on a steeper commission split, or with more shrink,
+    can look bigger on the sales line and still be the worse stop once its
+    own costs are counted against it.
+  </p>
+  <p>
+    That makes gross sales the right number for
+    <strong>knowing what a machine took in</strong>. It cannot answer the
+    question that decides whether to keep, renegotiate, or drop a location:
+    <strong>what did this visit actually net, after everything it cost to
+    run</strong>?
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What did the machine take in since the last visit?</td>
+        <td>Gross sales -- a DEX report, a cashless dashboard, or your own count.</td>
+      </tr>
+      <tr>
+        <td>What did commission, card fees, and shrink actually take out of that?</td>
+        <td>This calculator's <a href="./#profit">per-visit breakdown</a>.</td>
+      </tr>
+      <tr>
+        <td>Was the drive worth your own time at the rate you want to earn?</td>
+        <td>This calculator's mileage and labor lines, folded into the same result.</td>
+      </tr>
+      <tr>
+        <td>Is this specific location actually profitable once the machine's own cost is counted?</td>
+        <td>This calculator's <a href="./#profit">net profit per visit</a>.</td>
+      </tr>
+      <tr>
+        <td>Does my whole route add up to my monthly income goal?</td>
+        <td>This calculator's <a href="./#routeTotal">route rollup</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Price your own location and route</a>
+  <h2>Two locations, one gross-sales ranking that flips</h2>
+  <p>
+    Run through this calculator's own arithmetic, same restock frequency for
+    both: <strong>Location A</strong> sells 60 units at $1.75 with a 25%
+    commission, a 5% shrink rate, and a 35-minute round-trip drive, for
+    <strong>$105.00</strong> in gross sales. <strong>Location B</strong>
+    sells 38 units at the same price with a 10% commission, 2% shrink, and
+    an 8-minute round trip, for <strong>$66.50</strong> -- 37% less than A
+    on the sales line alone.
+  </p>
+  <p>
+    Once commission, card fees, shrink, mileage, restock labor at $22/hr,
+    and the machine's own monthly cost are taken out, A's costs come to
+    <strong>$96.67</strong> against B's <strong>$42.06</strong>. A nets
+    <strong>$8.33</strong> for the visit (about <strong>$33.31</strong>
+    projected for the month at 4 visits); B nets <strong>$24.44</strong>
+    for the visit (about <strong>$97.77</strong> projected for the month) --
+    <strong>B, the location with 37% less gross sales, nets nearly three
+    times A's monthly profit.</strong> A gross-sales ranking would have kept
+    A and questioned B; the actual costs say the opposite.
+  </p>
+  <p class="note">
+    Not a claim about your own locations -- both are illustrative inputs to
+    this calculator's own published arithmetic, chosen to show how commission,
+    shrink, and drive time can outweigh a sales-line difference. Your own
+    numbers may rank the other way, or not flip at all; that is exactly what
+    typing them into the fields above tells you and a sales report alone
+    cannot.
+  </p>
+  <p>
+    This tool needs no account, no DEX file, and no telemetry: it is a
+    static page, the arithmetic runs in your browser, and the numbers you
+    type in stay on your device -- nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Why is gross sales a bad way to rank vending locations?</h3>
+  <p>Because gross sales is revenue before commission, card fees, shrink, mileage, your own restock labor, and the machine's own cost are taken out -- and those five costs are not the same percentage of sales at every location. A location with a 25% commission split and a 35-minute round trip can post higher gross sales than a location with a 10% split five minutes away, and still net far less profit, because the costs that gross sales ignores are larger there.</p>
+  <h3>How big is the gap in practice?</h3>
+  <p>Using this calculator's own arithmetic on two illustrative locations at the same restock frequency: Location A sells 60 units at $1.75 with a 25% commission, 5% shrink, and a 35-minute round trip, for $105.00 in gross sales -- 58% more than Location B's $66.50. But A's costs (commission, card fee, shrink, mileage, labor, machine share) come to $96.67 against B's $42.06, so A nets $8.33 a visit ($33.31 projected for the month) while B nets $24.44 a visit ($97.77 projected for the month) -- B, the location with the lower gross sales, makes nearly three times the monthly profit.</p>
+  <h3>Does a higher commission or longer drive always mean lower profit?</h3>
+  <p>Not always -- a location can have a high commission or a long drive and still be the better stop if its sales volume is high enough to absorb both. The point is not that gross sales is worthless, only that it cannot tell the two cases apart on its own: two locations with different sales, commission splits, shrink, and drive time can rank in either order once actual costs are counted, and gross sales alone gives no way to know which.</p>
+  <h3>What does this calculator use instead of gross sales to judge a location?</h3>
+  <p>Net profit per visit and projected monthly profit, after location commission, card processing fees, shrink/spoilage, drive time and mileage at your own target hourly rate, restock labor, and the machine's amortized monthly cost -- the same figures a DEX report or a cashless dashboard alone will not compute for you.</p>
+  <p class="note">
+    Open the <a href="./">Vending Machine Route Profit Calculator</a> to price your own locations, or read <a href="how-much-does-a-vending-machine-actually-make.html">how much does a vending machine actually make?</a>
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device, and the worked example above is this calculator's own arithmetic on illustrative inputs, not a claim about any real route.</p>
+    <p>MIT licensed. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
