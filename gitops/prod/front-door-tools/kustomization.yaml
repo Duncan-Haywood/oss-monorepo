@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 121 files, 556460 bytes
 #   portfolio-front-tools-9: 136 files, 555320 bytes
 #   portfolio-front-tools-10: 133 files, 553571 bytes
-#   portfolio-front-tools-11: 121 files, 543011 bytes
+#   portfolio-front-tools-11: 122 files, 546556 bytes
 #   portfolio-front-tools-12: 119 files, 556602 bytes
 #   portfolio-front-tools-13: 120 files, 555819 bytes
 #   portfolio-front-tools-14: 127 files, 553181 bytes
@@ -1621,6 +1621,7 @@ configMapGenerator:
       - freelance-writer-rate-calculator__calc.mjs.gz=freelance-writer-rate-calculator__calc.mjs.gz
       - freelance-writer-rate-calculator__index.html.gz=freelance-writer-rate-calculator__index.html.gz
       - freelance-writer-rate-calculator__usage.mjs.gz=freelance-writer-rate-calculator__usage.mjs.gz
+      - freelance-writer-rate-calculator__vs-judging-a-quote-by-its-headline-number.html.gz=freelance-writer-rate-calculator__vs-judging-a-quote-by-its-headline-number.html.gz
       - french-drain-bid-calculator__calc.mjs.gz=french-drain-bid-calculator__calc.mjs.gz
       - french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz=french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz
       - french-drain-bid-calculator__index.html.gz=french-drain-bid-calculator__index.html.gz

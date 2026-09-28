@@ -2524,6 +2524,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // above: the page's own first paragraph says it names no specific firm or
   // product, and its own test pins that sentence.
   'boi-reporting-exemption-checker/vs-reading-fincens-guidance-yourself.html',
+  // Compares against "judging a quote by its headline number" -- the
+  // generic manual habit any freelancer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // sibling-tool links, which name no competitor either but also carry no
+  // comparison-page filename. Same reasoning as the other generic-method
+  // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
+  'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
