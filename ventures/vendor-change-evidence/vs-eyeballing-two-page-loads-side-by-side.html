@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This tool vs. eyeballing two page loads side by side | Vendor Change Evidence</title>
+  <meta name="description" content="A vendor privacy page that changes 'We process account data' to 'We process account and usage data' looks the same at a glance -- ten words added inside a page of hundreds. This free, local tool diffs the two snapshots byte for byte and produces a dated record, not a glance.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-eyeballing-two-page-loads-side-by-side.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="This tool vs. eyeballing two page loads side by side">
+  <meta property="og:description" content="Ten words added to a long privacy page is invisible on a skim and undetected by a glance. This tool diffs the text byte for byte and reports content_changed, with a dated record of the review.">
+  <meta property="og:url" content="./vs-eyeballing-two-page-loads-side-by-side.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't glancing at a vendor's page again good enough?","acceptedAnswer":{"@type":"Answer","text":"It catches a rewritten page or an obviously new section, which is real and worth doing. It is unreliable for the change that actually matters most: a few words added or removed inside a page of hundreds, in a paragraph you are not specifically looking at, worded so it reads naturally either way. A privacy page that grows from 'We process account data to provide the service' to 'We process account and usage data to provide the service' looks unchanged to someone skimming for a new heading or a bold warning, because nothing about the page's shape signals that ten words moved."}},{"@type":"Question","name":"What does eyeballing two page loads actually miss, concretely?","acceptedAnswer":{"@type":"Answer","text":"On this tool's own shipped example, a vendor's privacy snapshot goes from 47 characters to 57 -- 'We process account data to provide the service.' becomes 'We process account and usage data to provide the service.' -- between two captures a day apart. A person opening the page twice and comparing them by eye, especially on a long real policy page rather than this one-sentence example, has to notice one clause changed inside surrounding text that reads naturally either way. Running this tool against the two snapshots reports status changed, review_required true, with the before and after lengths right there -- it does not need to notice, because it compares every character."}},{"@type":"Question","name":"Can eyeballing a page ever tell you something this tool can't?","acceptedAnswer":{"@type":"Answer","text":"Yes -- a human reading the page can judge whether a change matters, whether new wording is friendlier or more permissive, and whether a whole new section changes what the vendor is promising. This tool deliberately does not make that judgment; its own evidence_boundary says it reports observations and the customer decides contractual or security significance. What it replaces is not judgment but noticing -- the step where a change has to be seen before anyone can judge it."}},{"@type":"Question","name":"What happens when the page fails to load instead of actually being unchanged?","acceptedAnswer":{"@type":"Answer","text":"A person who tries to reload a vendor's page and gets a timeout, a login wall, or a CDN error page usually either notices and tries again, or -- on a routine check done quickly -- assumes the earlier capture is still good and moves on, which silently reports 'no change' when the truth is 'not checked.' This tool's compare() function checks fetch_status on both snapshots first: if either one is not ok, the result is inconclusive, not unchanged, so a failed capture can never be mistaken for a stable page."}},{"@type":"Question","name":"Does this tool fetch the vendor's page for me?","acceptedAnswer":{"@type":"Answer","text":"No. It compares two snapshots -- url, captured_at, fetch_status, and text -- that you already have, however you captured them: a saved page, a scheduled fetch, or a copy-paste. It runs entirely in your browser and sends nothing anywhere."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17212b; background: #f4f1ea; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #0b5f8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; margin: 0 0 14px; color: #123b36; max-width: 26ch; }
+    p, li { line-height: 1.5; }
+    .eyebrow { font-weight: 700; letter-spacing: .04em; font-size: .85rem; }
+    .lede { font-size: 1.05rem; max-width: 66ch; color: #3c4a47; }
+    .note, footer { font-size: .86rem; color: #52605d; }
+    .card { background: #fff; border: 1px solid #d8d3c9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123b3610; margin: 18px 0; }
+    h2 { margin-top: 0; color: #123b36; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 14px 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6e2da; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #52605d; }
+    pre { white-space: pre-wrap; background: #f4f1ea; padding: 12px; border-radius: 8px; font-size: .8rem; }
+    footer { margin-top: 28px; border-top: 1px solid #d8d3c9; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="./">&larr; Vendor Change Evidence</a></p>
+  <header>
+    <h1>This tool vs. eyeballing two page loads side by side</h1>
+    <p class="lede">Ten words added to a page of hundreds reads naturally either way. A glance cannot tell that anything moved; a byte-for-byte diff cannot miss it.</p>
+  </header>
+
+  <section class="card">
+    <h2>What eyeballing two page loads tells you</h2>
+    <p>
+      Opening a vendor's privacy or subprocessor page again and comparing it
+      to what you remember, or to a saved copy, is the cheapest, most common
+      way anyone re-reviews a vendor page, and it is not wrong to do it: a
+      whole new section, a moved heading, or an obviously rewritten
+      paragraph is exactly the kind of change a person scanning for
+      something different will catch.
+    </p>
+    <p>
+      What a glance is unreliable for is the change that matters most in
+      practice: a clause added or removed inside a paragraph that still
+      reads naturally, in a page of hundreds of words where nothing about
+      the page's shape signals that anything moved. Nobody scanning a long
+      policy page is running a word-by-word count against last month's
+      version in their head.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>A real pair, from this tool's own shipped example</h2>
+    <p>
+      This is not a hypothetical. It is the before/after snapshot pair
+      shipped with this tool's own examples, reproduced exactly:
+    </p>
+<pre>before.json (captured 2026-08-23T09:00:00Z):
+  "We process account data to provide the service."
+
+after.json  (captured 2026-08-24T09:00:00Z):
+  "We process account and usage data to provide the service."</pre>
+    <p>
+      A day apart, the same URL, the same fetch status. On a real vendor
+      page this sentence would sit inside a much longer document, and
+      "account data" quietly becoming "account and usage data" changes what
+      the vendor says it collects without changing the shape of the page at
+      all -- no new heading, no bold notice, nothing to catch the eye of
+      someone comparing the two by scrolling and scanning.
+    </p>
+    <p>
+      Running this tool against the same pair instead:
+    </p>
+<pre>{
+  "status": "changed",
+  "changes": [
+    { "kind": "content_changed", "before_length": 47, "after_length": 57 }
+  ],
+  "review_required": true,
+  "evidence_boundary": "Reports observations; the customer decides
+    contractual or security significance."
+}</pre>
+    <p>
+      The tool does not know or care whether ten extra characters matter --
+      that judgment is explicitly left to you, per its own
+      <code>evidence_boundary</code>. What it does not do is fail to notice
+      the ten characters, because it never reads for meaning; it compares
+      every character in <code>before.text</code> against every character in
+      <code>after.text</code>.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Side by side</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Eyeballing two page loads</th><th scope="col">This tool</th></tr></thead>
+        <tbody>
+          <tr><td>Catches a rewritten section or a new heading -- anything that changes the page's shape.</td><td>Catches every difference between the two texts, whether or not the page's shape changed at all.</td></tr>
+          <tr><td>A clause added inside a paragraph that still reads naturally is easy to miss on a scan.</td><td>Reports <code>content_changed</code> for a one-character difference exactly as reliably as for a rewritten page.</td></tr>
+          <tr><td>A failed page load that quietly shows a cached or stale copy can look identical to "no change".</td><td>Checks <code>fetch_status</code> on both captures first; either one not <code>ok</code> reports <code>inconclusive</code>, never a false "unchanged".</td></tr>
+          <tr><td>Leaves no record beyond a person's memory of having looked.</td><td>Produces a dated report -- URLs, capture timestamps, fetch status, and the verdict -- exportable as Markdown or JSON.</td></tr>
+          <tr><td>Free, and needs no tool beyond a browser tab.</td><td>Also free, local, and needs only the two snapshots you already have.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Using both together</h2>
+    <p>
+      Nothing here argues for skipping a read of the vendor's page --
+      judging whether a change is friendlier or more permissive, or reading
+      a whole new section for what it actually promises, is exactly the
+      kind of call this tool deliberately leaves to you. The change is
+      running the diff first, so the question stops being "did I notice
+      anything different" and starts being "here is exactly what changed;
+      does it matter":
+    </p>
+    <p class="note">
+      Open the <a href="./">Vendor Change Evidence</a> tool to diff your own
+      snapshots, or read <a href="./how-do-i-track-vendor-policy-changes.html">how
+      do I track when a vendor changes its subprocessors or privacy
+      policy</a>.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+
+    <h3>Isn't glancing at a vendor's page again good enough?</h3>
+    <p>It catches a rewritten page or an obviously new section, which is real and worth doing. It is unreliable for the change that actually matters most: a few words added or removed inside a page of hundreds, in a paragraph you are not specifically looking at, worded so it reads naturally either way. A privacy page that grows from 'We process account data to provide the service' to 'We process account and usage data to provide the service' looks unchanged to someone skimming for a new heading or a bold warning, because nothing about the page's shape signals that ten words moved.</p>
+
+    <h3>What does eyeballing two page loads actually miss, concretely?</h3>
+    <p>On this tool's own shipped example, a vendor's privacy snapshot goes from 47 characters to 57 -- 'We process account data to provide the service.' becomes 'We process account and usage data to provide the service.' -- between two captures a day apart. A person opening the page twice and comparing them by eye, especially on a long real policy page rather than this one-sentence example, has to notice one clause changed inside surrounding text that reads naturally either way. Running this tool against the two snapshots reports status <code>changed</code>, <code>review_required</code> true, with the before and after lengths right there -- it does not need to notice, because it compares every character.</p>
+
+    <h3>Can eyeballing a page ever tell you something this tool can't?</h3>
+    <p>Yes -- a human reading the page can judge whether a change matters, whether new wording is friendlier or more permissive, and whether a whole new section changes what the vendor is promising. This tool deliberately does not make that judgment; its own <code>evidence_boundary</code> says it reports observations and the customer decides contractual or security significance. What it replaces is not judgment but noticing -- the step where a change has to be seen before anyone can judge it.</p>
+
+    <h3>What happens when the page fails to load instead of actually being unchanged?</h3>
+    <p>A person who tries to reload a vendor's page and gets a timeout, a login wall, or a CDN error page usually either notices and tries again, or -- on a routine check done quickly -- assumes the earlier capture is still good and moves on, which silently reports 'no change' when the truth is 'not checked.' This tool's <code>compare()</code> function checks <code>fetch_status</code> on both snapshots first: if either one is not <code>ok</code>, the result is <code>inconclusive</code>, not <code>unchanged</code>, so a failed capture can never be mistaken for a stable page.</p>
+
+    <h3>Does this tool fetch the vendor's page for me?</h3>
+    <p>No. It compares two snapshots -- <code>url</code>, <code>captured_at</code>, <code>fetch_status</code>, and <code>text</code> -- that you already have, however you captured them: a saved page, a scheduled fetch, or a copy-paste. It runs entirely in your browser and sends nothing anywhere.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every snapshot you paste stays on this device, and this page makes no live comparison against any competing method -- it is a static page describing this tool's own shipped example and output.</p>
+    <p class="support">Free and open source. If it caught a change you would have missed, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</main>
+</body>
+</html>
