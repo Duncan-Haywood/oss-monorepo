@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 134 files, 553603 bytes
 #   portfolio-front-tools-17: 127 files, 548471 bytes
 #   portfolio-front-tools-18: 102 files, 553378 bytes
-#   portfolio-front-tools-19: 117 files, 548116 bytes
+#   portfolio-front-tools-19: 118 files, 552665 bytes
 #   portfolio-front-tools-20: 128 files, 552558 bytes
 #   portfolio-front-tools-21: 107 files, 504710 bytes
 #   portfolio-front-tools-22: 50 files, 264908 bytes
@@ -2602,6 +2602,7 @@ configMapGenerator:
       - social-preview-check__index.html.gz=social-preview-check__index.html.gz
       - social-preview-check__social-preview-fallback-rules.html.gz=social-preview-check__social-preview-fallback-rules.html.gz
       - social-preview-check__usage.mjs.gz=social-preview-check__usage.mjs.gz
+      - social-preview-check__vs-checking-tags-by-eye.html.gz=social-preview-check__vs-checking-tags-by-eye.html.gz
       - social-preview-check__vs-facebook-sharing-debugger.html.gz=social-preview-check__vs-facebook-sharing-debugger.html.gz
       - social-preview-check__vs-screamingfrog.html.gz=social-preview-check__vs-screamingfrog.html.gz
       - sod-install-bid-calculator__calc.mjs.gz=sod-install-bid-calculator__calc.mjs.gz

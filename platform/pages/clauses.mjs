@@ -2531,6 +2531,15 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // comparison-page filename. Same reasoning as the other generic-method
   // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
   'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
+  // Compares against "reading the og:/twitter: tags in view-source or
+  // DevTools' Elements panel" -- the free manual habit any web developer
+  // already has, not a company or product this could be mistaken for.
+  // Distinct from this venture's own vs-facebook-sharing-debugger.html and
+  // vs-screamingfrog.html, which each name a real product and carry the
+  // trademark/affiliation disclaimer. Same reasoning as the other
+  // generic-method pages above (e.g. source-map-leak-check's own
+  // vs-checking-devtools-by-hand.html).
+  'social-preview-check/vs-checking-tags-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
