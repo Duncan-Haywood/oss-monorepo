@@ -2490,6 +2490,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // generic-method pages above (e.g. asbestos-abatement-bid-calculator's
   // flat-rate page).
   'soffit-fascia-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "eyeballing two page loads side by side" -- the
+  // generic manual habit every vendor-risk reviewer already has, not a
+  // company or product this could be mistaken for (it names no specific
+  // tool or service). Distinct from this venture's own vs-upguard.html,
+  // which names UpGuard and carries the trademark/affiliation disclaimer.
+  // Same reasoning as the other manual-method pages above (e.g.
+  // openapi-breaking-change-check's vs-manually-reading-the-spec-diff.html).
+  'vendor-change-evidence/vs-eyeballing-two-page-loads-side-by-side.html',
   // Compares against "reading manifest.json by eye" -- the free habit any
   // developer already has, not a company or product this could be mistaken
   // for. Distinct from this venture's own vs-lighthouse.html, which names
@@ -2510,6 +2518,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-wiz.html, which names Wiz, Inc. and carries the trademark/affiliation
   // disclaimer. Same reasoning as the other generic-method pages above.
   'oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html',
+  // Compares against "judging a quote by its headline number" -- the
+  // generic manual habit any freelancer already has, not a company or
+  // product this could be mistaken for. Distinct from this venture's own
+  // sibling-tool links, which name no competitor either but also carry no
+  // comparison-page filename. Same reasoning as the other generic-method
+  // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
+  'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
