@@ -961,10 +961,17 @@ const RELATIVE_SELF = relative(
 // boilerplate opt-out toggle copied from `boi-reporting-exemption-checker`
 // (`record`/`setUsageOptOut`/`usageOptedOut` gating localStorage writes,
 // keyed under its own `hsa-contribution-limit-calculator-usage` storage
-// name). Exactly one added `usage.mjs`, no deletions. Total re-derived
-// here by `sync_tree_counts.py` against the fully merged tree rather
-// than by hand.
-const SWITCHES_IN_THE_CATALOGUE = 366;
+// name). Exactly one added `usage.mjs`, no deletions.
+//
+// 366 -> 367: `solo-401k-contribution-calculator` also graduated -- adding
+// one more `usage.mjs`, the same boilerplate opt-out toggle shape as the
+// siblings above (`record`/`setUsageOptOut`/`usageOptedOut` gating
+// localStorage writes, keyed under its own
+// `solo-401k-contribution-calculator-usage` storage name). Exactly one
+// added `usage.mjs`, no deletions. Total re-derived here by
+// `sync_tree_counts.py` against the fully merged tree rather than by
+// hand.
+const SWITCHES_IN_THE_CATALOGUE = 367;
 
 let counter = 0;
 function fixture(source) {

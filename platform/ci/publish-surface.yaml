@@ -1154,6 +1154,9 @@ workflows:
 - workflow: solar-pv-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: solo-401k-contribution-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: source-map-leak-check-ci.yml
   classification: none
   publishes: []
