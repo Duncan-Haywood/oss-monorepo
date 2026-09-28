@@ -2490,6 +2490,14 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // generic-method pages above (e.g. asbestos-abatement-bid-calculator's
   // flat-rate page).
   'soffit-fascia-bid-calculator/vs-a-flat-rate-per-lineal-foot.html',
+  // Compares against "eyeballing two page loads side by side" -- the
+  // generic manual habit every vendor-risk reviewer already has, not a
+  // company or product this could be mistaken for (it names no specific
+  // tool or service). Distinct from this venture's own vs-upguard.html,
+  // which names UpGuard and carries the trademark/affiliation disclaimer.
+  // Same reasoning as the other manual-method pages above (e.g.
+  // openapi-breaking-change-check's vs-manually-reading-the-spec-diff.html).
+  'vendor-change-evidence/vs-eyeballing-two-page-loads-side-by-side.html',
   // Compares against "reading manifest.json by eye" -- the free habit any
   // developer already has, not a company or product this could be mistaken
   // for. Distinct from this venture's own vs-lighthouse.html, which names

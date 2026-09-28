@@ -35,10 +35,10 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 145 files, 545736 bytes
 #   portfolio-front-tools-1: 92 files, 554493 bytes
-#   portfolio-front-tools-2: 144 files, 552255 bytes
-#   portfolio-front-tools-3: 131 files, 553188 bytes
-#   portfolio-front-tools-4: 141 files, 555212 bytes
-#   portfolio-front-tools-5: 125 files, 546123 bytes
+#   portfolio-front-tools-2: 144 files, 552459 bytes
+#   portfolio-front-tools-3: 131 files, 554376 bytes
+#   portfolio-front-tools-4: 141 files, 556068 bytes
+#   portfolio-front-tools-5: 126 files, 549010 bytes
 #   portfolio-front-tools-6: 128 files, 556113 bytes
 #   portfolio-front-tools-7: 139 files, 555432 bytes
 #   portfolio-front-tools-8: 120 files, 553414 bytes
@@ -410,6 +410,7 @@ configMapGenerator:
       - vendor-change-evidence__index.html.gz=vendor-change-evidence__index.html.gz
       - vendor-change-evidence__style.css.gz=vendor-change-evidence__style.css.gz
       - vendor-change-evidence__usage.js.gz=vendor-change-evidence__usage.js.gz
+      - vendor-change-evidence__vs-eyeballing-two-page-loads-side-by-side.html.gz=vendor-change-evidence__vs-eyeballing-two-page-loads-side-by-side.html.gz
       - vendor-change-evidence__vs-upguard.html.gz=vendor-change-evidence__vs-upguard.html.gz
       - public-record-watch__LICENSE.gz=public-record-watch__LICENSE.gz
       - public-record-watch__app.js.gz=public-record-watch__app.js.gz
@@ -468,12 +469,12 @@ configMapGenerator:
       - faire-wholesale-calculator__index.html.gz=faire-wholesale-calculator__index.html.gz
       - faire-wholesale-calculator__retailer.html.gz=faire-wholesale-calculator__retailer.html.gz
       - faire-wholesale-calculator__share.mjs.gz=faire-wholesale-calculator__share.mjs.gz
-      - faire-wholesale-calculator__should-i-list-during-faire-open-house.html.gz=faire-wholesale-calculator__should-i-list-during-faire-open-house.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - faire-wholesale-calculator__should-i-list-during-faire-open-house.html.gz=faire-wholesale-calculator__should-i-list-during-faire-open-house.html.gz
       - faire-wholesale-calculator__should-i-offer-faire-pay-now.html.gz=faire-wholesale-calculator__should-i-offer-faire-pay-now.html.gz
       - faire-wholesale-calculator__should-i-pay-for-faire-next-day-payout.html.gz=faire-wholesale-calculator__should-i-pay-for-faire-next-day-payout.html.gz
       - faire-wholesale-calculator__should-i-run-faire-promoted-listings.html.gz=faire-wholesale-calculator__should-i-run-faire-promoted-listings.html.gz
@@ -604,12 +605,12 @@ configMapGenerator:
       - 1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz=1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz
       - 1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz=1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz
       - 3d-print-price-calculator__calc.mjs.gz=3d-print-price-calculator__calc.mjs.gz
-      - 3d-print-price-calculator__how-much-does-a-failed-print-cost-you.html.gz=3d-print-price-calculator__how-much-does-a-failed-print-cost-you.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - 3d-print-price-calculator__how-much-does-a-failed-print-cost-you.html.gz=3d-print-price-calculator__how-much-does-a-failed-print-cost-you.html.gz
       - 3d-print-price-calculator__index.html.gz=3d-print-price-calculator__index.html.gz
       - 3d-print-price-calculator__share.mjs.gz=3d-print-price-calculator__share.mjs.gz
       - 3d-print-price-calculator__usage.mjs.gz=3d-print-price-calculator__usage.mjs.gz
@@ -750,12 +751,12 @@ configMapGenerator:
       - ai-engineering-academy__vs-omni-calculator.html.gz=ai-engineering-academy__vs-omni-calculator.html.gz
       - android-data-safety-check__check.mjs.gz=android-data-safety-check__check.mjs.gz
       - android-data-safety-check__index.html.gz=android-data-safety-check__index.html.gz
-      - android-data-safety-check__missing-data-safety-declaration.html.gz=android-data-safety-check__missing-data-safety-declaration.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - android-data-safety-check__missing-data-safety-declaration.html.gz=android-data-safety-check__missing-data-safety-declaration.html.gz
       - android-data-safety-check__scan.mjs.gz=android-data-safety-check__scan.mjs.gz
       - android-data-safety-check__target-api-level.html.gz=android-data-safety-check__target-api-level.html.gz
       - android-data-safety-check__target-sdk-check.mjs.gz=android-data-safety-check__target-sdk-check.mjs.gz
