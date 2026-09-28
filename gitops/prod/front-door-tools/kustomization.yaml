@@ -52,7 +52,7 @@
 #   portfolio-front-tools-16: 134 files, 553603 bytes
 #   portfolio-front-tools-17: 127 files, 548471 bytes
 #   portfolio-front-tools-18: 102 files, 553378 bytes
-#   portfolio-front-tools-19: 117 files, 548116 bytes
+#   portfolio-front-tools-19: 118 files, 551684 bytes
 #   portfolio-front-tools-20: 128 files, 552558 bytes
 #   portfolio-front-tools-21: 107 files, 504710 bytes
 #   portfolio-front-tools-22: 50 files, 264908 bytes
@@ -2626,6 +2626,7 @@ configMapGenerator:
       - solo-401k-contribution-calculator__calc.mjs.gz=solo-401k-contribution-calculator__calc.mjs.gz
       - solo-401k-contribution-calculator__index.html.gz=solo-401k-contribution-calculator__index.html.gz
       - solo-401k-contribution-calculator__usage.mjs.gz=solo-401k-contribution-calculator__usage.mjs.gz
+      - solo-401k-contribution-calculator__vs-irs-publication-560-by-hand.html.gz=solo-401k-contribution-calculator__vs-irs-publication-560-by-hand.html.gz
       - source-map-leak-check__analyze.mjs.gz=source-map-leak-check__analyze.mjs.gz
       - source-map-leak-check__check.mjs.gz=source-map-leak-check__check.mjs.gz
       - source-map-leak-check__how-source-maps-leak-in-production.html.gz=source-map-leak-check__how-source-maps-leak-in-production.html.gz

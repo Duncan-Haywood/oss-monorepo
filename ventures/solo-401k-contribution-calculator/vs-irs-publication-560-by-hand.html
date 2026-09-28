@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Solo 401(k) Calculator vs. IRS Publication 560 by Hand</title>
+  <meta name="description" content="Compare this free 2026 Solo 401(k) contribution calculator against the usual method: working through IRS Publication 560's worksheet by hand. Where the self-employment-tax adjustment and the 20% effective rate trip people up, and when a tax professional is still the right answer.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-irs-publication-560-by-hand.html">
+  <meta property="og:title" content="Solo 401(k) Calculator vs. IRS Publication 560 by Hand">
+  <meta property="og:description" content="What a free Solo 401(k) calculator gets right versus working the IRS Publication 560 worksheet by hand, and when a tax professional is still the better answer.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just work through IRS Publication 560 myself?", "acceptedAnswer": {"@type": "Answer", "text": "Publication 560 is the primary source and this tool does not replace it. The friction is the arithmetic: you take net profit, work out self-employment tax on 92.35% of it, halve that tax, subtract it, and then apply 20% (the effective rate for a stated 25% plan rate) to what is left. Skipping the self-employment-tax step and applying 20% or 25% to net profit overstates the employer contribution, and an overstated contribution is the mistake that can lead to an excess-contribution excise tax."}}, {"@type": "Question", "name": "Does this replace a tax professional?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies published 2026 IRS figures to the numbers you enter, for a sole proprietor or single-member LLC filing Schedule C with no W-2 wages from the business. It is not tax advice. An S-corp or partnership uses a different formula, and an unusual situation is a question for a qualified tax professional, not a web page."}}, {"@type": "Question", "name": "What if I also have a 401(k) at a W-2 job?", "acceptedAnswer": {"@type": "Answer", "text": "The employee elective-deferral limit is shared across every plan you participate in, not doubled. Enter what you have already deferred at the other job and the calculator reduces your Solo 401(k) deferral room accordingly."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #1f4a5d; line-height: 1.15; }
+    h2 { color: #1f4a5d; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to the Solo 401(k) Contribution Calculator</a></p>
+  <h1>This calculator vs. working IRS Publication 560 by hand</h1>
+
+  <p>This names no specific firm or product. It compares a free browser tool against the generic method most
+    self-employed people use: searching "solo 401k contribution limit 2026", landing on the IRS worksheet in
+    Publication 560, and working out the employer contribution with a calculator or spreadsheet of their own.</p>
+
+  <table>
+    <thead><tr><th>Question</th><th>Working Publication 560 by hand</th><th>This calculator</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Employer contribution rate</td>
+        <td>Publication 560 describes a plan rate of up to 25% of compensation, but for a sole proprietor the rate is effectively 20% of earnings net of the deduction, because the contribution is itself deducted; reading "25%" and applying it to net profit is a common slip</td>
+        <td>Applies 20% to net earnings from self-employment, so the circular calculation is already resolved</td>
+      </tr>
+      <tr>
+        <td>Self-employment tax adjustment</td>
+        <td>You compute SE tax on 92.35% of net profit (12.4% Social Security up to the $184,500 2026 wage base, 2.9% Medicare uncapped), halve it, and subtract it before applying the rate</td>
+        <td>Does each step in order and shows the intermediate figures</td>
+      </tr>
+      <tr>
+        <td>Elective deferral and catch-up</td>
+        <td>You look up the $24,500 limit and work out which catch-up applies at your age: $8,000 at 50-59 and 64+, or the SECURE 2.0 $11,250 for ages 60-63 in place of, not on top of, the standard one</td>
+        <td>Takes your age and picks the right catch-up automatically</td>
+      </tr>
+      <tr>
+        <td>Combined overall limit</td>
+        <td>Employee deferral plus employer contribution cannot exceed the Section 415(c) limit ($72,000, $80,000 or $83,250 by catch-up), and earnings above the $360,000 compensation limit are ignored</td>
+        <td>Caps the total at the overall limit and states which cap applied</td>
+      </tr>
+      <tr>
+        <td>Deferrals at a W-2 job</td>
+        <td>Easy to forget that the deferral limit is shared across plans; you subtract what the other plan already took yourself</td>
+        <td>Has an input for deferrals already made elsewhere and reduces your room</td>
+      </tr>
+      <tr>
+        <td>Authority behind the answer</td>
+        <td>IRS Publication 560 and IRS.gov are the primary source</td>
+        <td>A calculation aid, not a determination. Uses the same published figures; does not verify your plan document, which must allow the enhanced catch-up</td>
+      </tr>
+      <tr>
+        <td>Where your numbers go while you work this out</td>
+        <td>Depends on your spreadsheet or note app, which may sync to a cloud account</td>
+        <td>Held in page memory only. Nothing is uploaded and there is no server component</td>
+      </tr>
+      <tr>
+        <td>Opening or funding the plan</td>
+        <td>Your plan provider handles that</td>
+        <td>Never contacts a provider and contributes nothing; you remain responsible for the actual contribution</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Neither approach verifies your plan document or files anything for you. Both are only as good as the
+    figures you bring, and both should be checked against IRS.gov before you contribute.</p>
+
+  <h2>Common questions</h2>
+
+  <h3>Why not just work through IRS Publication 560 myself?</h3>
+  <p>Publication 560 is the primary source and this tool does not replace it. The friction is the arithmetic: you take net profit, work out self-employment tax on 92.35% of it, halve that tax, subtract it, and then apply 20% (the effective rate for a stated 25% plan rate) to what is left. Skipping the self-employment-tax step and applying 20% or 25% to net profit overstates the employer contribution, and an overstated contribution is the mistake that can lead to an excess-contribution excise tax.</p>
+
+  <h3>Does this replace a tax professional?</h3>
+  <p>No. It applies published 2026 IRS figures to the numbers you enter, for a sole proprietor or single-member LLC filing Schedule C with no W-2 wages from the business. It is not tax advice. An S-corp or partnership uses a different formula, and an unusual situation is a question for a qualified tax professional, not a web page.</p>
+
+  <h3>What if I also have a 401(k) at a W-2 job?</h3>
+  <p>The employee elective-deferral limit is shared across every plan you participate in, not doubled. Enter what you have already deferred at the other job and the calculator reduces your Solo 401(k) deferral room accordingly.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express
+      or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional.
+      IRS limits change every year &mdash; verify the current figures on IRS.gov before you contribute.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken,
+      moved, or taken offline without notice.</p>
+    <p>Use the <a href="./">Solo 401(k) Contribution Calculator</a> to work out your own limit.</p>
+  </footer>
+</body>
+</html>
