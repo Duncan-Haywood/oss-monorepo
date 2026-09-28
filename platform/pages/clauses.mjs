@@ -2187,6 +2187,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // software vendor. Same reasoning as child-tax-credit-calculator's own
   // vs-doing-the-math-by-hand.html above.
   'eitc-calculator/vs-doing-the-math-by-hand.html',
+  // Compares against prorating an HSA contribution limit by hand -- a
+  // generic method every benefits-eligible employee or preparer already
+  // has access to, not a company or product this could be mistaken for.
+  // Names no benefits-administration vendor. Same reasoning as
+  // eitc-calculator's own vs-doing-the-math-by-hand.html above.
+  'hsa-contribution-limit-calculator/vs-doing-the-math-by-hand.html',
   // Compares against "assembling one by hand in a document editor" -- a
   // generic method (a word processor or slide deck) every creator already
   // has access to, not a company or product this could be mistaken for.

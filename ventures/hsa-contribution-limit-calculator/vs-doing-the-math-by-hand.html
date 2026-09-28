@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. working out your HSA limit by hand</title>
+<meta name="description" content="Working out a prorated HSA contribution limit by hand usually goes wrong in the same places: forgetting to prorate the catch-up too, treating the last-month rule as a bonus on top of proration instead of a replacement for it, or missing the testing-period tax hit. This free calculator applies the 2026 figures the same way every time.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-doing-the-math-by-hand.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. working out your HSA limit by hand">
+<meta property="og:description" content="A hand estimate of a prorated HSA limit has a few common failure points, above all forgetting to prorate the catch-up, double-counting the last-month rule, and missing the testing-period tax hit. This calculator applies the 2026 rules the same way every time and shows the arithmetic.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What's the most common mistake prorating an HSA limit by hand?","acceptedAnswer":{"@type":"Answer","text":"Prorating the base limit by month but forgetting to prorate the $1,000 age-55 catch-up the same way. The catch-up is not a flat add-on regardless of eligible months -- for someone eligible 6 of 12 months, the catch-up is $500, not $1,000, unless the last-month rule applies instead."}},{"@type":"Question","name":"What's the second most common mistake?","acceptedAnswer":{"@type":"Answer","text":"Treating the last-month rule as a bonus stacked on top of the prorated amount rather than a full replacement for it. Electing the last-month rule swaps the prorated limit for the FULL annual limit -- it is one or the other, never both -- and it only applies if you were (or will be) HSA-eligible on December 1 of the tax year."}},{"@type":"Question","name":"What consequence gets missed most often?","acceptedAnswer":{"@type":"Answer","text":"The last-month rule's testing period. Taking the full limit under this rule requires staying HSA-eligible through December 31 of the FOLLOWING year. A hand estimate that stops at \"I qualify for the full amount\" often misses that losing eligibility before the testing period ends (for a reason other than death or disability) turns the extra amount into taxable income plus a 10% additional tax."}},{"@type":"Question","name":"What HDHP-qualification mistake gets made most often?","acceptedAnswer":{"@type":"Answer","text":"Checking only the deductible, or only the out-of-pocket maximum, instead of both. A 2026 plan needs a deductible of at least $1,700 self-only / $3,400 family AND an out-of-pocket maximum no higher than $8,500 self-only / $17,000 family -- a plan can clear one bound and still fail the other, and a plan marketed as \"high-deductible\" is not automatically HSA-qualified."}},{"@type":"Question","name":"Does this calculator know my complete eligibility situation?","acceptedAnswer":{"@type":"Answer","text":"No. Neither this calculator nor a by-hand worksheet built from this page checks for other disqualifying coverage -- a general-purpose FSA, Medicare enrollment, or being claimed as a dependent -- which can eliminate HSA eligibility even during otherwise-eligible months. Both apply the same published 2026 IRS figures to the numbers you enter; verify against IRS Publication 969 or a qualified tax professional before relying on either."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #333c46; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #ece7f2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. working out your HSA limit by hand</h1>
+<p class="lede">The headline numbers &mdash; $4,400 self-only, $8,750 family
+&mdash; are easy to find. What goes wrong by hand is prorating the catch-up
+correctly, not double-counting the last-month rule, and remembering the
+testing-period tax hit that comes with it.</p>
+
+<section class="card">
+<h2>Where a hand estimate usually goes wrong</h2>
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">Common mistake by hand</th><th scope="col">What this calculator does</th></tr></thead>
+<tbody>
+<tr><td>Prorating the catch-up</td><td>Prorates the base limit by month but applies the full $1,000 catch-up regardless.</td><td>Prorates the catch-up by the same eligible-months fraction as the base limit, unless the last-month rule applies.</td></tr>
+<tr><td>Last-month rule</td><td>Adds the full annual limit on top of the prorated amount instead of replacing it.</td><td>Treats the last-month rule as a full substitute for proration -- one or the other, never both.</td></tr>
+<tr><td>Testing-period consequence</td><td>Stops at "I qualify for the full amount" and skips the following year's requirement.</td><td>States the December 31 of the following year testing-period deadline and the 10% additional tax on lapse, whenever the rule is elected.</td></tr>
+<tr><td>HDHP qualification</td><td>Checks only the deductible, or only the out-of-pocket max, and assumes the other clears too.</td><td>Checks BOTH the minimum deductible and the maximum out-of-pocket bound before calling a plan HSA-qualified.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>N/A</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Worked example</h2>
+<p>Family coverage, HDHP-eligible for 6 of 12 months in 2026, age 55+:</p>
+<table>
+<thead><tr><th scope="col">Figure</th><th scope="col">Amount</th></tr></thead>
+<tbody>
+<tr><td>Prorated base limit</td><td>$8,750 &times; 6/12 = $4,375</td></tr>
+<tr><td>Prorated catch-up</td><td>$1,000 &times; 6/12 = $500</td></tr>
+<tr><td><strong>Total 2026 contribution limit</strong></td><td><strong>$4,875</strong></td></tr>
+</tbody>
+</table>
+<p class="note">A hand estimate that prorates only the base and leaves the
+catch-up at its full $1,000 would overstate this by $500 -- money that, if
+actually contributed, becomes an excess contribution with its own 6% excise
+tax until corrected.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What's the most common mistake prorating an HSA limit by hand?</h3>
+<p>Prorating the base limit by month but forgetting to prorate the $1,000 age-55 catch-up the same way. The catch-up is not a flat add-on regardless of eligible months -- for someone eligible 6 of 12 months, the catch-up is $500, not $1,000, unless the last-month rule applies instead.</p>
+<h3>What's the second most common mistake?</h3>
+<p>Treating the last-month rule as a bonus stacked on top of the prorated amount rather than a full replacement for it. Electing the last-month rule swaps the prorated limit for the FULL annual limit -- it is one or the other, never both -- and it only applies if you were (or will be) HSA-eligible on December 1 of the tax year.</p>
+<h3>What consequence gets missed most often?</h3>
+<p>The last-month rule's testing period. Taking the full limit under this rule requires staying HSA-eligible through December 31 of the FOLLOWING year. A hand estimate that stops at "I qualify for the full amount" often misses that losing eligibility before the testing period ends (for a reason other than death or disability) turns the extra amount into taxable income plus a 10% additional tax.</p>
+<h3>What HDHP-qualification mistake gets made most often?</h3>
+<p>Checking only the deductible, or only the out-of-pocket maximum, instead of both. A 2026 plan needs a deductible of at least $1,700 self-only / $3,400 family AND an out-of-pocket maximum no higher than $8,500 self-only / $17,000 family -- a plan can clear one bound and still fail the other, and a plan marketed as "high-deductible" is not automatically HSA-qualified.</p>
+<h3>Does this calculator know my complete eligibility situation?</h3>
+<p>No. Neither this calculator nor a by-hand worksheet built from this page checks for other disqualifying coverage -- a general-purpose FSA, Medicare enrollment, or being claimed as a dependent -- which can eliminate HSA eligibility even during otherwise-eligible months. Both apply the same published 2026 IRS figures to the numbers you enter; verify against IRS Publication 969 or a qualified tax professional before relying on either.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply published 2026 IRS figures to numbers you supply. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for confirming your own HSA eligibility before contributing. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

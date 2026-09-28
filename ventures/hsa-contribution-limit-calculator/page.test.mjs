@@ -92,6 +92,55 @@ test("no module in this venture can reach the network", () => {
   assert.doesNotMatch(html, /XMLHttpRequest/);
 });
 
+test("index links to the vs-doing-the-math-by-hand comparison page", () => {
+  assert.match(page("index.html"), /href="\.\/vs-doing-the-math-by-hand\.html"/);
+});
+
+test("the comparison page links back to the calculator and carries valid FAQPage JSON-LD matching visible text", () => {
+  const vsPage = page("vs-doing-the-math-by-hand.html");
+  assert.match(vsPage, /href="\.\/"/);
+  const blocks = [...vsPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the comparison page");
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsPage.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsPage.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the comparison page carries the no-warranty clause and is listed in the venture sitemap", () => {
+  const vsPage = page("vs-doing-the-math-by-hand.html");
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /Nothing leaves your browser/);
+  const sitemap = page("sitemap.xml");
+  assert.match(sitemap, /vs-doing-the-math-by-hand\.html/);
+});
+
+test("the comparison page's worked example matches calc.mjs's own arithmetic", async () => {
+  const vsPage = page("vs-doing-the-math-by-hand.html");
+  const { contributionLimitOutcome } = await import("./calc.mjs");
+  const result = contributionLimitOutcome({
+    coverage: "family",
+    eligibleMonths: 6,
+    age55Plus: true,
+    useLastMonthRule: false,
+  });
+  assert.equal(result.baseLimit, 4_375);
+  assert.equal(result.catchUpLimit, 500);
+  assert.equal(result.totalLimit, 4_875);
+  assert.match(vsPage, /\$4,375/);
+  assert.match(vsPage, /\$500/);
+  assert.match(vsPage, /\$4,875/);
+});
+
+test("no module in this venture's comparison page can reach the network", () => {
+  const vsPage = page("vs-doing-the-math-by-hand.html");
+  assert.doesNotMatch(vsPage, /\bfetch\(/);
+  assert.doesNotMatch(vsPage, /XMLHttpRequest/);
+});
+
 test("the worked example in the page script matches calc.mjs's own arithmetic", async () => {
   const html = page("index.html");
   const { contributionLimitOutcome } = await import("./calc.mjs");
