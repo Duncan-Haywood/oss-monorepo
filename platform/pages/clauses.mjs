@@ -2525,6 +2525,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // comparison-page filename. Same reasoning as the other generic-method
   // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
   'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
+  // Compares against "reconciling in a spreadsheet" (a VLOOKUP or a
+  // sorted-and-scanned sheet) -- a generic manual method every bookkeeper
+  // already has access to, not a company or product this could be mistaken
+  // for. Distinct from this venture's own vs-synder.html, which names
+  // Synder and carries the trademark disclaimer.
+  'payment-reconciliation-workbench/vs-reconciling-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
