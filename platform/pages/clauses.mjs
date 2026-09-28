@@ -2510,6 +2510,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // vs-wiz.html, which names Wiz, Inc. and carries the trademark/affiliation
   // disclaimer. Same reasoning as the other generic-method pages above.
   'oidc-trust-policy-check/vs-reading-the-trust-policy-by-eye.html',
+  // Compares against "reading FinCEN's own guidance" -- the primary source
+  // itself, not a company or product this could be mistaken for. Same
+  // reasoning as ny-llc-transparency-act-tracker/vs-reading-client-alerts.html
+  // above: the page's own first paragraph says it names no specific firm or
+  // product, and its own test pins that sentence.
+  'boi-reporting-exemption-checker/vs-reading-fincens-guidance-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
