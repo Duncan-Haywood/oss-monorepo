@@ -47001,3 +47001,43 @@ entries:
         submission window had only ever seen a 403'd proxy. Recorded the
         pages_state.py reading.
     mrr_end: 0
+  - venture: hsa-contribution-limit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page,
+        vs-doing-the-proration-math-by-hand.html, for a venture that had
+        zero of them per surface-budget.mjs --check (34 -> 33 ventures at
+        zero). Open-enrollment season (Oct-Dec) is exactly when someone
+        prorating a mid-year HSA eligibility change would search this. The
+        page documents a real, verified arithmetic trap in calc.mjs's own
+        contributionLimitOutcome: the age-55 catch-up is prorated by the
+        same eligible-months fraction as the base limit, which most manual
+        checks miss because the catch-up is fixed by statute (not
+        inflation-indexed) and reads as a flat add-on. Worked example
+        (family, 6/12 months, age 55+, the calculator's own shipped
+        "load example" scenario): correct total $4,875.00 vs. $5,375.00 if
+        the catch-up is left unprorated -- a $500 overstatement. Contrasted
+        against the last-month rule's own correct $9,750.00 total so the
+        two are not confused as the same mistake. All figures computed
+        from calc.mjs directly, not hand-derived. Linked from index.html,
+        added to sitemap.xml, registered in clauses.mjs's
+        COMPARISON_DISCLAIMER_EXEMPT (generic method, no competitor named).
+        New vs-doing-the-proration-math-by-hand.test.mjs (11 tests) pins
+        the disclaimer, the FAQ schema/visible-text match, the sitemap and
+        index links, and the worked-example figures against calc.mjs
+        directly; venture suite 44/44 after the change.
+      - >-
+        Re-announced the catalogue to IndexNow by hand from this sandbox
+        (`git fetch origin gh-pages && node platform/marketing/indexnow.mjs
+        --submit --ref origin/gh-pages`): `POST
+        https://api.indexnow.org/indexnow -> 200`, 1719 URLs, from the
+        `gh-pages` snapshot at `17fefe4d5` (current against `main`'s tip).
+        `ci_starvation.py --run 36460375092` confirmed `publish-pages-
+        branch.yml`'s own announce step is still starved (`runner_id: 0`,
+        4s, no steps), so the by-hand route remains the only one that has
+        ever fired. Recorded in infra_state.yaml's agent-session-egress
+        row per the established pattern (catalogue grew 1631 -> 1719 URLs
+        since the 2026-09-25 reading).
+    mrr_end: 0

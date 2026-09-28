@@ -2531,6 +2531,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // comparison-page filename. Same reasoning as the other generic-method
   // pages above (e.g. eitc-calculator's vs-doing-the-math-by-hand.html).
   'freelance-writer-rate-calculator/vs-judging-a-quote-by-its-headline-number.html',
+  // Compares against doing the HSA proration/last-month-rule arithmetic by
+  // hand -- a generic method every filer already has, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above (e.g. 1099-k-threshold-checker's own
+  // vs-checking-the-threshold-yourself.html).
+  'hsa-contribution-limit-calculator/vs-doing-the-proration-math-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

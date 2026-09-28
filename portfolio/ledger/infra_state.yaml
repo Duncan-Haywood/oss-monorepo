@@ -993,3 +993,20 @@ readings:
       https://api.indexnow.org/indexnow -> 200`, 1631 URLs). Confirms the
       by-hand route remains the only one that fires during this starvation
       window; `publish-pages-branch.yml` itself stayed starved throughout.
+      **2026-09-28: re-measured again, same by-hand route --
+      `git fetch origin gh-pages && node platform/marketing/indexnow.mjs
+      --submit --ref origin/gh-pages` succeeded** (`POST
+      https://api.indexnow.org/indexnow -> 200`, 1719 URLs from the
+      `gh-pages` snapshot at `17fefe4d5`, pushed 2026-09-28T17:47:02Z --
+      current against `main`'s tip per `pages_state.py`). `ci_starvation.py
+      --run 36460375092` (the latest completed `publish-pages-branch.yml`
+      run) confirmed `runner_id: 0`, 4s, no steps immediately beforehand, so
+      the workflow's own announce step still has not fired once. Same
+      pattern as every prior reading in this row: the by-hand route works
+      every time it is tried and `indexnow_state.py`'s catalogue-level
+      verdict stays `never` as designed, because it counts only committed
+      workflow runs. Catalogue grew from 1631 -> 1719 URLs since the
+      2026-09-25 reading (several ventures graduated since, including
+      `solo-401k-contribution-calculator` and
+      `boi-reporting-exemption-checker`). Re-announce again after further
+      catalogue growth.
