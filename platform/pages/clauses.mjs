@@ -2537,6 +2537,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // generic-method pages above (e.g. 1099-k-threshold-checker's own
   // vs-checking-the-threshold-yourself.html).
   'hsa-contribution-limit-calculator/vs-doing-the-proration-math-by-hand.html',
+  // Compares against checking the FLSA salary threshold by hand -- a
+  // generic method every employer/HR team already has, not a company or
+  // product this could be mistaken for. Same reasoning as
+  // 1099-k-threshold-checker's own vs-checking-the-threshold-yourself.html
+  // (a different venture; the filename is coincidentally identical).
+  'exempt-salary-threshold-checker/vs-checking-the-threshold-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

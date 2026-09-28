@@ -47041,3 +47041,30 @@ entries:
         row per the established pattern (catalogue grew 1631 -> 1719 URLs
         since the 2026-09-25 reading).
     mrr_end: 0
+  - venture: exempt-salary-threshold-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second generic-method comparison page this session,
+        vs-checking-the-threshold-yourself.html, for a venture that had
+        zero per surface-budget.mjs --check (33 -> 32 ventures at zero).
+        Documents a real trap in calc.mjs's own exemptionOutcome: New
+        York's higher 2026 salary figure covers only the executive and
+        administrative exemptions, not the professional exemption, so the
+        federal $684/week figure governs a professional classification
+        even in New York while the identical salary at the identical
+        office fails the threshold for an administrative classification.
+        Worked example (the checker's own shipped "load an example"
+        scenario, $900/week professional exemption in the NYC area) shown
+        against the contrasting administrative-exemption case at the same
+        salary/location: applicable threshold $684.00 (meets) vs. $1,275.00
+        (fails by $375.00) -- both figures computed directly from calc.mjs.
+        Linked from index.html, added to sitemap.xml, registered in
+        clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT (generic method, no
+        competitor named). New test file (9 tests) pins the disclaimer,
+        FAQ schema/visible-text match, sitemap/index links, and both
+        worked-example outcomes against calc.mjs directly; venture suite
+        40/40 after the change. Regenerated the gitops/prod front-door
+        mirror (regen.mjs --verify clean after).
+    mrr_end: 0
