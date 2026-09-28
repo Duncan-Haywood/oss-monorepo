@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Self-Employed Health Insurance Deduction Calculator — 2026, Free</title>
+  <meta name="description" content="Free calculator for the 2026 self-employed health insurance deduction (Schedule 1 line 17, Form 7206) for a sole proprietor or single-member LLC — premiums capped at earned income after half of self-employment tax and your retirement contribution, employer-plan months excluded, 2026 long-term-care age limits. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Self-Employed Health Insurance Deduction Calculator — free, 2026">
+  <meta property="og:description" content="Computes the 2026 self-employed health insurance deduction for a sole proprietor or single-member LLC, including self-employment tax, the earned-income cap, and long-term-care age limits. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Self-Employed Health Insurance Deduction Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the 2026 self-employed health insurance deduction (IRC 162(l), Schedule 1 line 17) for a sole proprietor or single-member LLC: qualifying premiums limited to net profit minus half of self-employment tax minus your retirement contribution, months of employer-plan eligibility excluded, and 2026 long-term-care age limits. Entirely client-side; nothing is uploaded.","featureList":"self-employment tax at 92.35% with the 2026 $184,500 wage base, earned-income cap, employer-subsidized-plan month exclusion, 2026 long-term-care age limits, retirement contribution adjustment"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the self-employed health insurance deduction?","acceptedAnswer":{"@type":"Answer","text":"It is an adjustment to income (Form 1040 Schedule 1, line 17, figured on Form 7206) for health, dental, and qualifying long-term-care premiums you pay for yourself, your spouse, and your dependents when you have net profit from your own business. It lowers income tax but not self-employment tax, and you do not need to itemize."}},{"@type":"Question","name":"What limits the deduction?","acceptedAnswer":{"@type":"Answer","text":"The deduction cannot exceed earned income from the business under which the plan is established: net profit minus the deductible half of self-employment tax minus your own SEP, SIMPLE, or Solo 401(k) contribution. It is also zero for any month you or your spouse were eligible for an employer-subsidized health plan, even if you did not enroll."}},{"@type":"Question","name":"How is self-employment tax figured here?","acceptedAnswer":{"@type":"Answer","text":"On 92.35% of net profit: 12.4% Social Security up to the 2026 wage base of $184,500 (less any W-2 Social Security wages already taxed), plus 2.9% Medicare with no cap. Half of the total is the deductible part. The additional 0.9% Medicare tax is not modelled, and there is no self-employment tax when net earnings are under $400."}},{"@type":"Question","name":"What are the 2026 long-term-care premium limits?","acceptedAnswer":{"@type":"Answer","text":"Per person, by age before the end of 2026: $500 at 40 or younger, $930 at 41 to 50, $1,860 at 51 to 60, $4,960 at 61 to 70, and $6,200 at 71 or older (Rev. Proc. 2025-32). Only the part of a premium up to the limit counts."}},{"@type":"Question","name":"Does the retirement contribution create a circular calculation?","acceptedAnswer":{"@type":"Answer","text":"Yes. A SEP or Solo 401(k) contribution depends on plan compensation, and the deduction depends on that contribution. This tool does not solve that loop: it subtracts the retirement contribution you enter, so use the amount your plan computation actually produced."}},{"@type":"Question","name":"Who is this for, and is it tax advice?","acceptedAnswer":{"@type":"Answer","text":"It is for a sole proprietor or single-member LLC filing Schedule C. Partners, members of an LLC taxed as a partnership, and more-than-2% S-corporation shareholders are treated differently and are not modelled. It is not tax advice and does not replace Form 7206, its instructions, or a qualified tax professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SELF-EMPLOYED HEALTH INSURANCE DEDUCTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of your health insurance can you deduct in 2026?</h1>
+    <p>For a sole proprietor or single-member LLC: the deduction for the
+    health, dental, and long-term-care premiums you pay is the
+    <strong>smaller of your premiums and your earned income</strong> from the
+    business — net profit minus half of self-employment tax minus your own
+    retirement contribution — and it is <strong>zero for any month</strong>
+    you or your spouse could have joined an employer-subsidized plan.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your business</h2>
+    <div class="grid">
+      <div>
+        <label for="net-profit">Net profit from your business in 2026 ($)</label>
+        <input type="number" id="net-profit" min="0" step="1" placeholder="e.g. 80000">
+      </div>
+      <div>
+        <label for="retirement">Your own SEP / SIMPLE / Solo 401(k) contribution for 2026 ($)</label>
+        <input type="number" id="retirement" min="0" step="1" placeholder="e.g. 0">
+      </div>
+      <div>
+        <label for="w2-wages">Social Security wages from any W-2 job in 2026 ($)</label>
+        <input type="number" id="w2-wages" min="0" step="1" placeholder="e.g. 0">
+      </div>
+    </div>
+    <p class="note">Net profit is your Schedule C net profit before this
+    deduction, not gross revenue. The retirement contribution is a number
+    you supply: this tool does not solve the circular link between a
+    retirement contribution and the deduction.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Health, dental, and vision premiums</h2>
+    <div class="grid">
+      <div>
+        <label for="health-premiums">Premiums paid in 2026 for you, your spouse, and dependents, excluding long-term care ($)</label>
+        <input type="number" id="health-premiums" min="0" step="1" placeholder="e.g. 9600">
+      </div>
+      <div>
+        <label for="health-months">Months eligible for an employer-subsidized health plan, yours or your spouse's (0-12)</label>
+        <input type="number" id="health-months" min="0" max="12" step="1" placeholder="0">
+      </div>
+    </div>
+    <p class="note">Include Medicare premiums you pay voluntarily. Eligibility
+    counts even if you did not enroll. This tool removes months/12 of the
+    premiums, which assumes you paid the same amount each month.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Long-term-care premiums (optional)</h2>
+    <div class="grid">
+      <div class="ltc">
+        <h3>Person 1 (you)</h3>
+        <label for="ltc1-premium">Long-term-care premium paid in 2026 ($)</label>
+        <input type="number" id="ltc1-premium" min="0" step="1" placeholder="e.g. 2500">
+        <label for="ltc1-age">Age at the end of 2026</label>
+        <input type="number" id="ltc1-age" min="0" max="120" step="1" placeholder="e.g. 55">
+        <label for="ltc1-months">Months eligible for an employer-subsidized long-term-care plan (0-12)</label>
+        <input type="number" id="ltc1-months" min="0" max="12" step="1" placeholder="0">
+      </div>
+      <div class="ltc">
+        <h3>Person 2 (spouse, optional)</h3>
+        <label for="ltc2-premium">Long-term-care premium paid in 2026 ($)</label>
+        <input type="number" id="ltc2-premium" min="0" step="1" placeholder="e.g. 2500">
+        <label for="ltc2-age">Age at the end of 2026</label>
+        <input type="number" id="ltc2-age" min="0" max="120" step="1" placeholder="e.g. 55">
+        <label for="ltc2-months">Months eligible for an employer-subsidized long-term-care plan (0-12)</label>
+        <input type="number" id="ltc2-months" min="0" max="12" step="1" placeholder="0">
+      </div>
+    </div>
+    <p class="note">2026 limits per person by age: $500 (40 or younger),
+    $930 (41-50), $1,860 (51-60), $4,960 (61-70), $6,200 (71 or older). Other
+    covered dependents are not modelled.</p>
+  </section>
+
+  <p>
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+  </p>
+  <p class="note" id="form-status">Enter your net profit and premiums, then click Calculate.</p>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <table><tbody id="result-table"></tbody></table>
+    <div id="report-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does not cover</h2>
+    <ul>
+      <li><strong>Sole proprietor / single-member LLC (Schedule C) only.</strong>
+      Partners, members of an LLC taxed as a partnership, and more-than-2%
+      S-corporation shareholders are treated differently (K-1 earnings,
+      guaranteed payments, or premiums reported in W-2 wages) and are not
+      modelled.</li>
+      <li><strong>The retirement circularity is not solved.</strong> The
+      contribution you enter is subtracted as given.</li>
+      <li><strong>Not Schedule SE or Form 7206.</strong> The additional 0.9%
+      Medicare tax, multiple businesses, Form 2555, and month-by-month
+      premium amounts are not modelled.</li>
+      <li><strong>Point-in-time 2026 figures.</strong> The wage base and
+      long-term-care limits are re-indexed annually; confirm the current
+      year's figures before relying on this in a later year. Sources: SSA
+      (2026 wage base $184,500), IRS Rev. Proc. 2025-32 (long-term-care
+      limits), and the Instructions for Form 7206.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the self-employed health insurance deduction?</h3>
+    <p>It is an adjustment to income (Form 1040 Schedule 1, line 17, figured on Form 7206) for health, dental, and qualifying long-term-care premiums you pay for yourself, your spouse, and your dependents when you have net profit from your own business. It lowers income tax but not self-employment tax, and you do not need to itemize.</p>
+    <h3>What limits the deduction?</h3>
+    <p>The deduction cannot exceed earned income from the business under which the plan is established: net profit minus the deductible half of self-employment tax minus your own SEP, SIMPLE, or Solo 401(k) contribution. It is also zero for any month you or your spouse were eligible for an employer-subsidized health plan, even if you did not enroll.</p>
+    <h3>How is self-employment tax figured here?</h3>
+    <p>On 92.35% of net profit: 12.4% Social Security up to the 2026 wage base of $184,500 (less any W-2 Social Security wages already taxed), plus 2.9% Medicare with no cap. Half of the total is the deductible part. The additional 0.9% Medicare tax is not modelled, and there is no self-employment tax when net earnings are under $400.</p>
+    <h3>What are the 2026 long-term-care premium limits?</h3>
+    <p>Per person, by age before the end of 2026: $500 at 40 or younger, $930 at 41 to 50, $1,860 at 51 to 60, $4,960 at 61 to 70, and $6,200 at 71 or older (Rev. Proc. 2025-32). Only the part of a premium up to the limit counts.</p>
+    <h3>Does the retirement contribution create a circular calculation?</h3>
+    <p>Yes. A SEP or Solo 401(k) contribution depends on plan compensation, and the deduction depends on that contribution. This tool does not solve that loop: it subtracts the retirement contribution you enter, so use the amount your plan computation actually produced.</p>
+    <h3>Who is this for, and is it tax advice?</h3>
+    <p>It is for a sole proprietor or single-member LLC filing Schedule C. Partners, members of an LLC taxed as a partnership, and more-than-2% S-corporation shareholders are treated differently and are not modelled. It is not tax advice and does not replace Form 7206, its instructions, or a qualified tax professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for completing Form 7206 yourself. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deduction_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing a retirement contribution from the same net profit? The <a href="../solo-401k-contribution-calculator/">Solo 401(k) contribution calculator</a> computes it. Planning payments? See the <a href="../quarterly-estimated-tax-calendar/">quarterly estimated tax calendar</a>, the <a href="../qbi-deduction-calculator/">QBI deduction calculator</a>, or the <a href="../hsa-contribution-limit-calculator/">HSA contribution limit calculator</a> for a different account with its own eligibility wrinkle.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { healthInsuranceDeductionOutcome, money } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const ids = ["net-profit", "retirement", "w2-wages", "health-premiums", "health-months",
+      "ltc1-premium", "ltc1-age", "ltc1-months", "ltc2-premium", "ltc2-age", "ltc2-months"];
+    const els = Object.fromEntries(ids.map((id) => [id, $("#" + id)]));
+    const status = $("#form-status"), report = $("#report");
+    const val = (id) => Number(els[id].value) || 0;
+
+    function renderFindings(container, findings) {
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const ltc = [1, 2].map((n) => ({
+        premium: val(`ltc${n}-premium`), age: val(`ltc${n}-age`), monthsEligible: val(`ltc${n}-months`),
+      })).filter((p) => p.premium > 0);
+      const r = healthInsuranceDeductionOutcome({
+        netProfit: val("net-profit"), retirementContribution: val("retirement"),
+        w2SocialSecurityWages: val("w2-wages"), healthPremiums: val("health-premiums"),
+        healthMonthsEligible: val("health-months"), ltc,
+      });
+      $("#report-stats").innerHTML = `2026 self-employed health insurance deduction (Schedule 1, line 17): <strong>${money(r.deduction)}</strong>.`;
+      $("#result-table").innerHTML = [
+        `<tr><th scope="row">Self-employment tax</th><td>${money(r.se.total)}</td></tr>`,
+        `<tr><th scope="row">Deductible half of self-employment tax</th><td>${money(r.se.deductibleHalf)}</td></tr>`,
+        `<tr><th scope="row">Earned income cap (net profit - half SE tax - retirement)</th><td>${money(r.earnedIncome)}</td></tr>`,
+        `<tr><th scope="row">Qualifying health premiums (after employer-plan months)</th><td>${money(r.healthQualifying)}</td></tr>`,
+        `<tr><th scope="row">Qualifying long-term-care premiums (after age limits)</th><td>${money(r.ltcQualifying)}</td></tr>`,
+        `<tr><th scope="row">Total qualifying premiums</th><td>${money(r.qualifyingPremiums)}</td></tr>`,
+        `<tr><th scope="row"><strong>Deduction</strong></th><td><strong>${money(r.deduction)}</strong></td></tr>`,
+      ].join("");
+      renderFindings($("#report-findings"), r.findings);
+      report.hidden = false;
+      status.textContent = "";
+      record("deduction_calculated");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      ids.forEach((id) => { els[id].value = ""; });
+      els["net-profit"].value = "80000";
+      els["health-premiums"].value = "9600";
+      els["ltc1-premium"].value = "2500";
+      els["ltc1-age"].value = "55";
+      runCalculate();
+      record("example_loaded");
+      status.textContent = "Worked example: $80,000 net profit, $9,600 health premiums, and a $2,500 long-term-care premium at age 55 (limit $1,860) — a $11,460.00 deduction, well under the $74,348.18 earned-income cap.";
+    });
+
+    $("#clear-all").addEventListener("click", () => {
+      ids.forEach((id) => { els[id].value = ""; });
+      report.hidden = true;
+      status.textContent = "Enter your net profit and premiums, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

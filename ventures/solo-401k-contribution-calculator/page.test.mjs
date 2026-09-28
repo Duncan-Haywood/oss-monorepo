@@ -113,3 +113,7 @@ test("comparison page carries disclaimers, names no product, and is linked and i
   assert.match(page("index.html"), /vs-irs-publication-560-by-hand\.html/);
   assert.match(page("sitemap.xml"), /vs-irs-publication-560-by-hand\.html/);
 });
+
+test("index links one hop to the self-employed-health-insurance-deduction-calculator sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/self-employed-health-insurance-deduction-calculator\/"/);
+});

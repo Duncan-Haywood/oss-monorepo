@@ -1,0 +1,66 @@
+name: self-employed-health-insurance-deduction-calculator
+description: >-
+  Free browser calculator for the 2026 self-employed health insurance
+  deduction (Schedule 1 line 17, Form 7206) for a sole proprietor or
+  single-member LLC: qualifying premiums capped at earned income (net profit
+  minus half of self-employment tax minus your retirement contribution),
+  months of employer-subsidized plan eligibility excluded, and the 2026
+  long-term-care age limits ($500 to $6,200). Self-employment tax uses
+  92.35% of profit, 12.4% Social Security to the $184,500 2026 wage base
+  and 2.9% Medicare. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-28 in a new-venture-first session. Nearest existing
+# ventures: solo-401k-contribution-calculator (a retirement-plan limit, the
+# input this tool asks the user to supply), qbi-deduction-calculator (a
+# different deduction), quarterly-estimated-tax-calendar (payment dates) and
+# hsa-contribution-limit-calculator (a different account). None computes
+# Schedule 1 line 17. See the duplicate_check.py result recorded in the
+# graduating commit.
+#
+# Distribution channel, named rather than assumed: searches such as "self
+# employed health insurance deduction calculator", "form 7206" and "schedule
+# 1 line 17" peak at filing season and during Q4 planning. No search-volume
+# tool was queried; magnitude is unmeasured.
+#
+# Liability: the risk is a mis-stated deduction on a filed return, so the page
+# states scope (Schedule C only; partners and 2% S-corp shareholders excluded),
+# the unsolved retirement circularity, and the even-monthly-premium
+# assumption on the page and in the README. The 2026 wage base was verified
+# against SSA and the long-term-care limits against Rev. Proc. 2025-32; the
+# deduction rules against the Instructions for Form 7206.
+
+hypotheses:
+  - claim: >-
+      A self-employed filer paying their own health premiums will search for
+      the Schedule 1 line 17 deduction and return to a free, no-signup
+      calculator that applies the earned-income cap and employer-plan-month
+      exclusion, rather than working through Form 7206 by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A filer who also funds a SEP or Solo 401(k) will use the retirement
+      contribution input to see how it lowers the earned-income cap.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a wrong deduction traced to this tool's output despite the disclaimers, at which point the disclosure wording itself needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/self-employed-health-insurance-deduction-calculator/
+  analytics: null
