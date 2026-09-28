@@ -48,7 +48,7 @@
 #   portfolio-front-tools-12: 119 files, 556602 bytes
 #   portfolio-front-tools-13: 120 files, 555819 bytes
 #   portfolio-front-tools-14: 127 files, 553181 bytes
-#   portfolio-front-tools-15: 130 files, 549451 bytes
+#   portfolio-front-tools-15: 131 files, 554586 bytes
 #   portfolio-front-tools-16: 134 files, 553572 bytes
 #   portfolio-front-tools-17: 127 files, 548477 bytes
 #   portfolio-front-tools-18: 102 files, 553387 bytes
@@ -2156,6 +2156,7 @@ configMapGenerator:
       - payment-reconciliation-workbench__index.html.gz=payment-reconciliation-workbench__index.html.gz
       - payment-reconciliation-workbench__reconcile.mjs.gz=payment-reconciliation-workbench__reconcile.mjs.gz
       - payment-reconciliation-workbench__usage.mjs.gz=payment-reconciliation-workbench__usage.mjs.gz
+      - payment-reconciliation-workbench__vs-reconciling-in-a-spreadsheet.html.gz=payment-reconciliation-workbench__vs-reconciling-in-a-spreadsheet.html.gz
       - payment-reconciliation-workbench__vs-synder.html.gz=payment-reconciliation-workbench__vs-synder.html.gz
       - payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz=payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz
       - pdf-accessibility-tag-check__engine.mjs.gz=pdf-accessibility-tag-check__engine.mjs.gz
