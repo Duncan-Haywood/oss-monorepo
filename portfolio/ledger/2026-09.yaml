@@ -46961,3 +46961,43 @@ entries:
         runner_id: 0 earlier) -- verified fully locally per CLAUDE.md's
         starvation checklist.
     mrr_end: 0
+  - venture: vendor-change-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Unstuck and merged PR #5945 (vendor-change-evidence's
+        vs-eyeballing-two-page-loads-side-by-side.html generic-method
+        comparison page), open and conflicted against main for three days.
+        supersede_check.py confirmed NOT SUPERSEDED (218 lines nowhere in
+        main) before spending any time on it -- the branch's work was
+        genuinely unshipped, not a duplicate.
+      - >-
+        Resolved the conflict by hand per CLAUDE.md's guidance rather than
+        picking a side of the generated mirror: kept both sides of the
+        append-only ledger entries (four concurrently-added ventures --
+        actions-self-hosted-exposure-check, hreflang-reciprocity-check,
+        soffit-fascia-bid-calculator, vendor-change-evidence -- none
+        dropped), merged clauses.mjs's additive exemption list, took
+        main's generated gitops/prod/ files and regenerated the mirror
+        with front-door-tools.mjs/front-door.mjs rather than hand-editing
+        any .gz shard.
+      - >-
+        Verified after merging: venture's own suite 40/40; platform/marketing
+        + platform/pages suite 1290/1290; gitops/tests 613 passed/25 skipped;
+        platform/ci unittest sweep (15 modules) clean; agent_review's
+        test_review 21/21; portfolio pytest sweep
+        (ledger/scoring/router/usage/pipeline/infra) 446/446;
+        platform/proposal 101/101; platform/privacy+webcheck 140/140 (2
+        skipped, shallow clone); checklist_coverage.py, sync_tree_counts.py,
+        regen.mjs --verify, check_ledger_only.py --staged all clean. CI
+        starved on the pushed commit (ci_starvation.py confirmed runner_id:
+        0 across every check, ~5s each) -- merged on the strength of the
+        local verification per CLAUDE.md's starvation checklist.
+      - >-
+        Refreshed the GitHub Pages branch snapshot after merging
+        (publish-branch.sh, built from e77302e6) and re-announced the
+        catalogue to IndexNow (POST -> 200, 1716 URLs) since the prior
+        submission window had only ever seen a 403'd proxy. Recorded the
+        pages_state.py reading.
+    mrr_end: 0
