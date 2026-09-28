@@ -2524,6 +2524,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // above: the page's own first paragraph says it names no specific firm or
   // product, and its own test pins that sentence.
   'boi-reporting-exemption-checker/vs-reading-fincens-guidance-yourself.html',
+  // Compares against working IRS Publication 560 by hand -- the primary
+  // source itself, not a company or product. Same reasoning as the BOI
+  // page above; the page's first paragraph says it names no specific firm.
+  'solo-401k-contribution-calculator/vs-irs-publication-560-by-hand.html',
   // Compares against "judging a quote by its headline number" -- the
   // generic manual habit any freelancer already has, not a company or
   // product this could be mistaken for. Distinct from this venture's own

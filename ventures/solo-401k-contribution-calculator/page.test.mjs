@@ -101,3 +101,15 @@ test("the worked example in the page script matches calc.mjs's own arithmetic", 
   assert.match(html, /els\.age\.value = "52"/);
   assert.match(html, /\$60,380\.57/);
 });
+
+test("comparison page carries disclaimers, names no product, and is linked and in the sitemap", () => {
+  const html = page("vs-irs-publication-560-by-hand.html");
+  assert.match(html, /This names no specific firm or product/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal, tax, or financial advice/);
+  assert.match(html, /Best-effort hosting, no SLA/);
+  assert.match(html, /application\/ld\+json/);
+  assert.doesNotMatch(html, /\bfetch\(/);
+  assert.match(page("index.html"), /vs-irs-publication-560-by-hand\.html/);
+  assert.match(page("sitemap.xml"), /vs-irs-publication-560-by-hand\.html/);
+});
