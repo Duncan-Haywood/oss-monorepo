@@ -47527,6 +47527,31 @@ entries:
         turo-host-payout-calculator. Registered score row, launch date, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: fiverr-earnings-fee-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fiverr-earnings-fee-analyzer, a data-file archetype
+        for Fiverr sellers: a browser-local tool that reads an earnings or
+        revenue CSV (file or paste; quoted fields, US and day-first dates, comma,
+        tab, semicolon and UTF-16; skipped rows reported with line and reason)
+        and shows the service fee actually observed (from a fee column or amount
+        minus earnings, an assumed percentage only when the file has neither),
+        take-home per order, net and take-home per gig, per month and per buyer,
+        repeat-buyer share, refunds and cancellations, withdrawal costs, funds
+        still clearing, a take-home-per-hour ranking only when the seller
+        supplies hours, and the break-even price for a target take-home (also
+        adjusted for the seller's refund rate). File never leaves the browser (a
+        test asserts no network calls); independent-of-Fiverr clause on the page.
+        Column names and type and status words are matched by alias with no real
+        export available, stated on the page and in VENTURE.yaml. duplicate_check
+        closest match was upwork-earnings-fee-analyzer (0.37, different platform
+        and file shape); cross-linked from the page. First visitor would come from
+        r/Fiverr and Fiverr Community threads on real take-home, and searches such
+        as "fiverr fee calculator"; not measured. Registered score row, launch
+        date, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: restaurant-delivery-commission-analyzer
     agent_spend_usd: null
     human_hours: 0
