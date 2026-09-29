@@ -1430,3 +1430,6 @@ gitops:
 - workflow: self-employment-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: stripe-churn-cohort-analyzer-ci.yml
+  classification: none
+  publishes: []
