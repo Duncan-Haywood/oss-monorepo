@@ -47930,3 +47930,26 @@ entries:
         Registered score row, launch date, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: restaurant-pos-menu-mix-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built restaurant-pos-menu-mix-analyzer: a browser-local
+        tool that reads a POS item-sales export (Toast, Square, Clover style)
+        and classifies each item Star, Plowhorse, Puzzle or Dog from menu mix
+        (70%-of-even-share rule) and contribution margin per plate (weighted
+        average), prices a typed rise with a typed volume loss on Plowhorses,
+        lists items to cut or re-promote, rolls up by category and downloads
+        CSV. Costs come from an export column, else a pasted item,cost list,
+        else a typed default flagged as a placeholder; refunds net, voided and
+        modifier rows are skipped, duplicate rows merge, zero costs are flagged.
+        Distinct from menu-engineering-calculator (manual per-dish), linked
+        reciprocally. First visitor expected from r/restaurateur and
+        r/KitchenConfidential, and searches like "menu engineering from Toast
+        report". Nothing is uploaded (a test asserts no network calls);
+        independent-of-Toast/Square/Clover clause on the page. Column names are
+        matched by alias and unverified against real exports, stated on the
+        page, README and VENTURE.yaml. Registered score row, launch date, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0

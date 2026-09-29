@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 438 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 439 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -296,6 +296,15 @@
     <summary type="text">Free analyzer for restaurants: drop in your DoorDash, Uber Eats or Grubhub payout or order-level CSV and see the real take rate per platform and per order, net after food cost and packaging, losing orders, promo return and the markup that matches in-store margin. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Restaurant POS Menu Mix Analyzer — Menu Engineering From Your Toast, Square or Clover Report</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-pos-menu-mix-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/restaurant-pos-menu-mix-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Restaurant, bar &amp; food truck pricing"/>
+    <summary type="text">Free tool for restaurant owners: drop in your POS item-sales export and see every menu item as a Star, Plowhorse, Puzzle or Dog, the dollar impact of a price rise on Plowhorses, and what to cut or re-promote. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Roth Conversion Calculator 2026 — Fill Your Tax Bracket, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/roth-conversion-bracket-fill-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/roth-conversion-bracket-fill-calculator</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Shopify payout analyzer: drop in your Shopify Payments Transactions CSV and Orders export and get a fee waterfall, net to bank per order, profit per product, discount code cost and chargeback findings. Runs in your browser, the files are never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Short-Term Rental Cleaning Fee Calculator — Free, Runs in Your Browser</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/str-cleaning-fee-pricing-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/str-cleaning-fee-pricing-calculator</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free cleaning fee calculator for Airbnb and VRBO hosts: the fee that covers your cleaner, host profit and guest total price by stay length, and whether to roll the fee into the nightly rate. Nothing uploaded.</summary>
   </entry>
 </feed>
