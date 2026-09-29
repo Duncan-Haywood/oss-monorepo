@@ -2797,7 +2797,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # report analyzer, static `index.html` plus ES modules).
     # +1: `poshmark-sales-report-analyzer` graduated (browser-local Poshmark My
     # Sales Report CSV analyzer, static `index.html` plus ES modules).
-    total = 422  # `infra/OWNER_CHECKLIST.md`'s own "N of the 422 tools" wording.
+    # +1: `patreon-members-churn-analyzer` graduated (browser-local Patreon Members export analyzer).
+    total = 423  # `infra/OWNER_CHECKLIST.md`'s own "N of the 423 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

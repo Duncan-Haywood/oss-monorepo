@@ -1025,7 +1025,8 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` under its own storage name.
 // +1: `poshmark-sales-report-analyzer` graduated -- one more boilerplate
 // `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 401;
+// +1: `patreon-members-churn-analyzer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 402;
 
 let counter = 0;
 function fixture(source) {

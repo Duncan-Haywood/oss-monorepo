@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 422 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 423 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -168,6 +168,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed July 1), check the log for audit gaps, export CSV. Works offline, data stays on your device.</summary>
+  </entry>
+  <entry>
+    <title>Patreon Members Churn Analyzer — Churn, MRR and Fees from Your Export</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/patreon-members-churn-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/patreon-members-churn-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for Patreon creators: drop in your Members export CSV and see active, declined and former patrons, MRR by tier, churn by tenure cohort, at-risk declined payments, concentration and the fee take. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Poshmark Sales Report Analyzer — Profit per Item and Brand After Fees</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the federal Child Tax Credit and Credit for Other Dependents (One Big Beautiful Bill Act, permanent from 2025): $2,200 per qualifying child, $500 per other dependent, the $50-per-$1,000 MAGI phase-out above $200,000 single or $400,000 joint, the filer-SSN requirement, and the refundable Additional Child Tax Credit ceiling. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Claude Code Hooks Security Check — scan hook commands for dangerous shapes</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-code-hooks-security-check/"/>
-    <id>tag:marisstella.dev,2026:tool/claude-code-hooks-security-check</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a Claude Code hooks configuration and see which command strings match known-dangerous shapes: a remote download piped straight into a shell, a credential file read and sent over the network, an unguarded recursive delete, TLS verification disabled, and more. Free, runs entirely in your browser, nothing uploaded.</summary>
   </entry>
 </feed>
