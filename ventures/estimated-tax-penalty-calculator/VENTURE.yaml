@@ -1,0 +1,77 @@
+name: estimated-tax-penalty-calculator
+description: >-
+  Free browser calculator for the IRS underpayment-of-estimated-tax penalty
+  (Form 2210, regular method): enter this year's expected tax, last year's
+  tax and AGI, withholding, and the dated estimated payments actually made,
+  and it applies the 90% / 100% / 110% safe harbor, the $1,000 threshold,
+  the four installments with payments applied oldest-first, and the daily
+  underpayment rate, showing the penalty per installment and the cumulative
+  catch-up owed at each due date. Entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session (build-now pipeline
+# empty). duplicate_check.py's nearest is quarterly-estimated-tax-calendar
+# (0.61): that tool is FORWARD-looking -- what to pay each quarter, real
+# due dates, an .ics export -- and its "what happens if I miss a payment"
+# page explains the penalty in prose. This one is BACKWARD-looking: it
+# computes the dollar penalty from dated, late or partial payments the way
+# Form 2210 does (payments applied to the oldest unpaid installment, daily
+# rate to the return due date), which the calendar does not. The two link
+# to each other; the searcher who has already missed a quarter ("how much
+# is my underpayment penalty", "will I owe a penalty") is a different query
+# from the one planning the year.
+#
+# Distribution: "estimated tax penalty calculator" / "Form 2210 penalty
+# calculator" is a high-intent evergreen query peaking at filing time and
+# again each quarter. Search volume was not measured with an external tool,
+# matching the pipeline's standing caveat.
+#
+# Rules (IRC 6654, Form 2210 instructions): required annual payment is the
+# smaller of 90% of current-year tax and 100% of prior-year tax (110% over
+# $150,000 prior AGI, $75,000 MFS); no penalty under $1,000 owed after
+# withholding or on zero prior-year tax; four equal installments; payments
+# applied to the earliest unpaid installment; withholding treated as paid
+# evenly. The underpayment rate is an input because the IRS republishes it
+# quarterly and this tool cannot fetch it -- the page says so and links the
+# IRS rate page.
+#
+# Liability: output is an estimate of a published IRS computation on the
+# user's own numbers, never a filed return. The page states the regular
+# method only (no Schedule AI), one rate for the whole period, and that the
+# IRS computes the final figure.
+
+hypotheses:
+  - claim: >-
+      Freelancers and 1099 earners who have missed or underpaid a quarterly
+      estimate will search for and use a free, no-signup calculator that
+      shows the dollar penalty by installment and what paying now saves,
+      rather than reading Form 2210 by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Filers who see that Q4 withholding counts as paid evenly across the
+      year will use the result to fix a shortfall with withholding instead
+      of a late estimated payment.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a wrong penalty from this tool's output despite the disclaimers, at which point the wording or the formula needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/estimated-tax-penalty-calculator/
+  analytics: null
