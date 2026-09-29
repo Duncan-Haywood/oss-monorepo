@@ -48359,3 +48359,19 @@ entries:
         score row, launch date, category rule, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: rsu-withholding-gap-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rsu-withholding-gap-calculator: a browser-local tool that takes an
+        employee's salary and RSU vest value, computes the federal income tax the
+        vest adds at 2026 brackets against the flat 22% (37% over $1M) supplemental
+        withholding, and shows the gap, bracket layering, Additional Medicare Tax,
+        an optional flat state rate, the underpayment safe harbor, and the extra
+        W-4 4(c) withholding per remaining paycheck. New niche: no sibling in
+        ventures/. Nothing uploaded. Hand-verified arithmetic only. 19 tests.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; reciprocal link from estimated-tax-penalty-calculator;
+        regenerated the mirror.
+    mrr_end: 0

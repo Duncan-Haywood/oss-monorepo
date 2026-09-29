@@ -33,31 +33,31 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 546191 bytes
-#   portfolio-front-tools-1: 92 files, 554996 bytes
-#   portfolio-front-tools-2: 144 files, 552766 bytes
-#   portfolio-front-tools-3: 131 files, 554593 bytes
-#   portfolio-front-tools-4: 142 files, 556766 bytes
-#   portfolio-front-tools-5: 121 files, 552360 bytes
-#   portfolio-front-tools-6: 129 files, 554284 bytes
-#   portfolio-front-tools-7: 131 files, 551223 bytes
-#   portfolio-front-tools-8: 127 files, 556272 bytes
-#   portfolio-front-tools-9: 125 files, 544564 bytes
-#   portfolio-front-tools-10: 138 files, 545129 bytes
-#   portfolio-front-tools-11: 117 files, 547893 bytes
-#   portfolio-front-tools-12: 119 files, 553388 bytes
-#   portfolio-front-tools-13: 116 files, 550160 bytes
-#   portfolio-front-tools-14: 118 files, 554283 bytes
-#   portfolio-front-tools-15: 120 files, 549869 bytes
-#   portfolio-front-tools-16: 127 files, 544896 bytes
-#   portfolio-front-tools-17: 126 files, 556577 bytes
-#   portfolio-front-tools-18: 131 files, 556768 bytes
-#   portfolio-front-tools-19: 112 files, 542371 bytes
-#   portfolio-front-tools-20: 103 files, 553045 bytes
-#   portfolio-front-tools-21: 122 files, 552916 bytes
-#   portfolio-front-tools-22: 121 files, 554468 bytes
+#   portfolio-front-tools-0: 145 files, 546172 bytes
+#   portfolio-front-tools-1: 92 files, 554977 bytes
+#   portfolio-front-tools-2: 144 files, 552742 bytes
+#   portfolio-front-tools-3: 131 files, 554570 bytes
+#   portfolio-front-tools-4: 142 files, 556743 bytes
+#   portfolio-front-tools-5: 121 files, 552337 bytes
+#   portfolio-front-tools-6: 129 files, 554204 bytes
+#   portfolio-front-tools-7: 131 files, 551176 bytes
+#   portfolio-front-tools-8: 127 files, 556260 bytes
+#   portfolio-front-tools-9: 125 files, 544536 bytes
+#   portfolio-front-tools-10: 138 files, 545180 bytes
+#   portfolio-front-tools-11: 117 files, 547882 bytes
+#   portfolio-front-tools-12: 119 files, 553396 bytes
+#   portfolio-front-tools-13: 116 files, 550103 bytes
+#   portfolio-front-tools-14: 118 files, 554267 bytes
+#   portfolio-front-tools-15: 120 files, 549882 bytes
+#   portfolio-front-tools-16: 127 files, 544831 bytes
+#   portfolio-front-tools-17: 126 files, 556571 bytes
+#   portfolio-front-tools-18: 129 files, 552079 bytes
+#   portfolio-front-tools-19: 116 files, 553802 bytes
+#   portfolio-front-tools-20: 103 files, 554985 bytes
+#   portfolio-front-tools-21: 123 files, 555811 bytes
+#   portfolio-front-tools-22: 121 files, 554457 bytes
 #   portfolio-front-tools-23: 118 files, 555910 bytes
-#   portfolio-front-tools-24: 59 files, 315325 bytes
+#   portfolio-front-tools-24: 59 files, 315388 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2551,6 +2551,9 @@ configMapGenerator:
       - roth-conversion-bracket-fill-calculator__calc.mjs.gz=roth-conversion-bracket-fill-calculator__calc.mjs.gz
       - roth-conversion-bracket-fill-calculator__index.html.gz=roth-conversion-bracket-fill-calculator__index.html.gz
       - roth-conversion-bracket-fill-calculator__usage.mjs.gz=roth-conversion-bracket-fill-calculator__usage.mjs.gz
+      - rsu-withholding-gap-calculator__calc.mjs.gz=rsu-withholding-gap-calculator__calc.mjs.gz
+      - rsu-withholding-gap-calculator__index.html.gz=rsu-withholding-gap-calculator__index.html.gz
+      - rsu-withholding-gap-calculator__usage.mjs.gz=rsu-withholding-gap-calculator__usage.mjs.gz
       - s-corp-reasonable-compensation-calculator__calc.mjs.gz=s-corp-reasonable-compensation-calculator__calc.mjs.gz
       - s-corp-reasonable-compensation-calculator__index.html.gz=s-corp-reasonable-compensation-calculator__index.html.gz
       - s-corp-reasonable-compensation-calculator__vs-picking-a-round-number.html.gz=s-corp-reasonable-compensation-calculator__vs-picking-a-round-number.html.gz
@@ -2564,16 +2567,16 @@ configMapGenerator:
       - saas-cac-payback-calculator__usage.mjs.gz=saas-cac-payback-calculator__usage.mjs.gz
       - salary-range-posting-check__cli.mjs.gz=salary-range-posting-check__cli.mjs.gz
       - salary-range-posting-check__engine.mjs.gz=salary-range-posting-check__engine.mjs.gz
-      - salary-range-posting-check__index.html.gz=salary-range-posting-check__index.html.gz
-      - salary-range-posting-check__share.mjs.gz=salary-range-posting-check__share.mjs.gz
-      - salary-range-posting-check__usage.mjs.gz=salary-range-posting-check__usage.mjs.gz
-      - salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz=salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz
-      - salary-range-posting-check__why-pay-range-laws-differ-by-state.html.gz=salary-range-posting-check__why-pay-range-laws-differ-by-state.html.gz
   - name: portfolio-front-tools-19
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - salary-range-posting-check__index.html.gz=salary-range-posting-check__index.html.gz
+      - salary-range-posting-check__share.mjs.gz=salary-range-posting-check__share.mjs.gz
+      - salary-range-posting-check__usage.mjs.gz=salary-range-posting-check__usage.mjs.gz
+      - salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz=salary-range-posting-check__vs-checking-each-states-law-by-hand.html.gz
+      - salary-range-posting-check__why-pay-range-laws-differ-by-state.html.gz=salary-range-posting-check__why-pay-range-laws-differ-by-state.html.gz
       - salt-cap-calculator__calc.mjs.gz=salt-cap-calculator__calc.mjs.gz
       - salt-cap-calculator__index.html.gz=salt-cap-calculator__index.html.gz
       - salt-cap-calculator__is-the-salt-deduction-worth-itemizing-for.html.gz=salt-cap-calculator__is-the-salt-deduction-worth-itemizing-for.html.gz
@@ -2685,12 +2688,12 @@ configMapGenerator:
       - shopify-discount-leakage-analyzer__calc.mjs.gz=shopify-discount-leakage-analyzer__calc.mjs.gz
       - shopify-discount-leakage-analyzer__index.html.gz=shopify-discount-leakage-analyzer__index.html.gz
       - shopify-discount-leakage-analyzer__usage.mjs.gz=shopify-discount-leakage-analyzer__usage.mjs.gz
-      - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
   - name: portfolio-front-tools-20
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
       - shopify-fee-calculator__calc.mjs.gz=shopify-fee-calculator__calc.mjs.gz
       - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
       - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
@@ -2793,12 +2796,12 @@ configMapGenerator:
       - sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz=sod-install-bid-calculator__vs-a-flat-per-square-foot-special.html.gz
       - sod-install-bid-calculator__vs-aspire.html.gz=sod-install-bid-calculator__vs-aspire.html.gz
       - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
-      - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
       - soffit-fascia-bid-calculator__index.html.gz=soffit-fascia-bid-calculator__index.html.gz
       - soffit-fascia-bid-calculator__usage.mjs.gz=soffit-fascia-bid-calculator__usage.mjs.gz
       - soffit-fascia-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=soffit-fascia-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
