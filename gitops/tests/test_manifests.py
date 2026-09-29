@@ -2803,7 +2803,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # settlement CSV analyzer, static `index.html` plus ES modules).
     # +1: `substack-subscriber-export-analyzer` graduated.
     # +1: `app-store-sales-report-analyzer` graduated.
-    total = 427  # `infra/OWNER_CHECKLIST.md`'s own "N of the 427 tools" wording.
+    # +1: `bandcamp-sales-report-analyzer` graduated.
+    total = 428  # `infra/OWNER_CHECKLIST.md`'s own "N of the 428 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

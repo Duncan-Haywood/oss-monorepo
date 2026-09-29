@@ -47731,3 +47731,22 @@ entries:
         and VENTURE.yaml. Registered score row, launch date, CI workflow and
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: bandcamp-sales-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built bandcamp-sales-report-analyzer, a data-file
+        archetype for independent artists and labels: a browser-local tool that
+        reads a Bandcamp sales report CSV (file or paste) and shows fees paid
+        and the fee rate, net by item type, release, month and country, the fee
+        drag on sales under $3, vinyl and merch profit and break-even price from
+        typed unit cost and postage, refunds, discount-code share and repeat
+        buyers. File never leaves the browser (a test asserts no network calls);
+        buyer text is turned into an anonymous number at parse; only the main
+        currency is analysed, no exchange rates; independent-of-Bandcamp clause
+        on the page. Column names are matched by alias from memory and no real
+        report was available, stated on the page, README and VENTURE.yaml.
+        Registered score row, launch date, CI workflow, reciprocal link from
+        gumroad-sales-fee-analyzer and tree counts; regenerated the mirror.
+    mrr_end: 0

@@ -1031,7 +1031,8 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` under its own storage name.
 // +1: `substack-subscriber-export-analyzer` graduated.
 // +1: `app-store-sales-report-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 406;
+// +1: `bandcamp-sales-report-analyzer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 407;
 
 let counter = 0;
 function fixture(source) {

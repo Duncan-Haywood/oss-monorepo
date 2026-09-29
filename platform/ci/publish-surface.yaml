@@ -1526,3 +1526,6 @@ gitops:
 - workflow: app-store-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: bandcamp-sales-report-analyzer-ci.yml
+  classification: none
+  publishes: []
