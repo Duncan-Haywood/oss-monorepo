@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 419 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 421 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -116,6 +116,15 @@
     <summary type="text">Free Google Ads wasted spend analyzer: drop in your search terms report CSV and see how much you spent on terms that never converted, which negative keywords are safe to add, and which converting terms deserve exact match. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
+    <title>Gumroad Sales Fee Analyzer — Your Real Take-Home per Order</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gumroad-sales-fee-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/gumroad-sales-fee-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Gumroad fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
     <title>Home Office Deduction Calculator — Simplified vs Regular, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-office-deduction-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/home-office-deduction-calculator</id>
@@ -123,6 +132,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free home office deduction calculator for the self-employed: compare the IRS simplified method ($5 per sq ft, max $1,500) with the regular Form 8829 method, including the gross income limit, depreciation and carryover. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>KDP Royalty Report Analyzer — Royalties per Book, Store and Format</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kdp-royalty-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/kdp-royalty-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free KDP royalty report analyzer for self-published authors: drop in your royalty CSV and see net royalty per book, marketplace and royalty option, refund rates, Kindle Unlimited page reads, delivery costs, a 70% price-band check and what ad spend left. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Meta Ads Fatigue Analyzer — Free Ads Manager CSV Tool</title>
@@ -152,13 +170,13 @@
     <summary type="text">Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed July 1), check the log for audit gaps, export CSV. Works offline, data stays on your device.</summary>
   </entry>
   <entry>
-    <title>Restaurant Delivery Commission Analyzer — What DoorDash Really Costs</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/restaurant-delivery-commission-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/restaurant-delivery-commission-analyzer</id>
+    <title>Poshmark Sales Report Analyzer — Profit per Item and Brand After Fees</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/poshmark-sales-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/poshmark-sales-report-analyzer</id>
     <published>2026-09-29T00:00:00Z</published>
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
-    <summary type="text">Free analyzer for restaurants: drop in your DoorDash, Uber Eats or Grubhub payout or order-level CSV and see the real take rate per platform and per order, net after food cost and packaging, losing orders, promo return and the markup that matches in-store margin. Runs in your browser, the file is never uploaded.</summary>
+    <summary type="text">Free analyzer for Poshmark sellers: load your My Sales Report CSV and see profit per item, brand and month after Poshmark&#39;s $2.95 / 20% fee, with effective fee rate, cost basis by SKU, shipping losses, days to sell and brands to stop sourcing. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Roth Conversion Calculator 2026 — Fill Your Tax Bracket, Free</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the federal Earned Income Tax Credit (EITC): the phase-in, plateau, and phase-out by number of qualifying children and filing status, the investment income limit, the married-filing-separately living-apart exception, and the AGI-vs-earned-income rule most hand calculations skip. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Estate Tax Exemption Calculator — 2026 $15M OBBBA Exclusion, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/estate-tax-exemption-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/estate-tax-exemption-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the 2026 OBBBA federal estate, gift, and GST tax exclusion -- $15,000,000 per person, up to $30,000,000 married with portability. Projects taxable estate and the flat 40% federal tax. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Excess Business Loss Calculator — 2025-2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/excess-business-loss-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/excess-business-loss-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the IRC 461(l) excess business loss limitation, now permanent under OBBBA — computes how much of a pass-through owner&#39;s net business loss is deductible this year against the 2025/2026 threshold, and how much becomes a net operating loss carryforward. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>

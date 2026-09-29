@@ -743,6 +743,9 @@ workflows:
 - workflow: kdp-royalty-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: kdp-royalty-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: kickstarter-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -992,6 +995,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: poshmark-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: poshmark-sales-report-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: pour-cost-calculator-ci.yml
@@ -1502,3 +1508,6 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
+- workflow: gumroad-sales-fee-analyzer-ci.yml
+  classification: none
+  publishes: []
