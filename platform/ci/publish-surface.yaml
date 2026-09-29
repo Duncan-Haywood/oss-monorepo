@@ -464,6 +464,9 @@ workflows:
 - workflow: ebay-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ebay-transaction-report-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: economic-nexus-threshold-tracker-ci.yml
   classification: none
   publishes: []
@@ -609,6 +612,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: garmin-world-traveler-watchface-ci.yml
+  classification: none
+  publishes: []
+- workflow: gig-driver-earnings-report-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: gig-driver-net-pay-calculator-ci.yml
@@ -1164,6 +1170,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: shopify-payments-fee-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: shopify-payout-profit-analyzer-ci.yml

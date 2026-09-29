@@ -277,6 +277,8 @@ spec:
                   name: portfolio-front-tools-21
               - configMap:
                   name: portfolio-front-tools-22
+              - configMap:
+                  name: portfolio-front-tools-23
         - name: conf
           configMap:
             name: portfolio-front-nginx

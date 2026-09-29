@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gig Driver Earnings Report Analyzer — Real Net Pay per Hour and Mile</title>
+  <meta name="description" content="Free earnings analyzer for Uber, Lyft, DoorDash and Instacart drivers: drop in your trip history CSV and see net pay per hour and per mile after vehicle cost, which app, weekday and time of day pays best, and which trips cost more to drive than they paid. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Gig Driver Earnings Report Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Net pay per hour and per mile after vehicle cost, by app, weekday and time of day, from your own trip history. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gig Driver Earnings Report Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a rideshare or delivery trip history CSV into true net pay per hour and per mile after vehicle cost, by app, weekday and time of day, and lists trips that paid less than they cost to drive. Runs entirely in your browser; the file is never uploaded.", "featureList": "Net per hour after vehicle cost, net per mile, by platform, by weekday, by time of day, unprofitable trips, best time slots"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find out what I really earn per hour driving for Uber, Lyft or DoorDash?", "acceptedAnswer": {"@type": "Answer", "text": "Export your trip or delivery history from the app (or keep a sheet with a date, earnings, tip, miles and minutes) and drop it here. The tool adds each trip's pay and tip, subtracts your cost per mile times the miles you drove, and divides by the hours. If you enter your total hours online it uses those, so waiting time between trips is counted. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "What cost per mile should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Use your own number. The IRS standard mileage rate for business use was 70 cents per mile for 2025 and is reset most years, so check the current figure; it is a rate meant to cover gas, wear, depreciation and insurance. Your real cost may be lower in a hybrid or higher in an older truck. The tool applies whatever you enter and shows how much of your pay it takes."}}, {"@type": "Question", "name": "Which platform, weekday and time of day pays best?", "acceptedAnswer": {"@type": "Answer", "text": "The tool groups your trips by app, weekday and time of day and shows net pay per trip hour and per mile for each group with at least five trips. Trip hours leave out waiting between trips, and busy hours often have more waiting, so use the ranking to decide what to test next rather than as proof."}}, {"@type": "Question", "name": "What does it not know?", "acceptedAnswer": {"@type": "Answer", "text": "Time spent online with no trip, unpaid miles to reach a pickup (unless you add a percentage for them), taxes, phone and insurance costs beyond your cost per mile, and anything not in your file. It cannot see surge you declined or trips you were not offered."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified tax adviser. It is independent of Uber, Lyft, DoorDash and every other app and is not affiliated with or endorsed by any of them."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">GIG DRIVER EARNINGS REPORT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do you really earn per hour driving, after the car?</h1>
+    <p>Drop in a <strong>trip or delivery history CSV</strong> and get <strong>net pay per hour and per mile after vehicle cost</strong>, which app, weekday and time of day pays best, and the trips that <strong>paid less than they cost to drive</strong>, without handing a mileage or earnings app access to your driver accounts.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Uber, Lyft, DoorDash, Instacart, Grubhub and every other app: not affiliated with or endorsed by any of them.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your trip history</h2>
+    <p class="note">Export from your driver app, a mileage app such as Gridwise or Everlance, or keep a sheet. Needs a <strong>Date</strong> (with a time for time-of-day results) and <strong>Earnings</strong> (or Fare, Pay, Total); <strong>Tip</strong>, <strong>Miles</strong> (or Distance), <strong>Minutes</strong> (or Duration, or Start and End times) and <strong>Platform</strong> are used when present. US and day-first dates, comma, tab and semicolon files, and UTF-16 exports are read. Rows that cannot be read are listed with a line number and reason.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the file text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Date,Platform,Earnings,Tip,Miles,Minutes"></textarea>
+    <div class="grid">
+      <div><label for="cpm">Vehicle cost per mile</label><input type="number" id="cpm" min="0" step="any" value="0.70"></div>
+      <div><label for="unit">Distance in the file is in</label><select id="unit"><option value="">Detect (miles unless the header says km)</option><option value="mi">Miles</option><option value="km">Kilometres</option></select></div>
+      <div><label for="extra">Extra unpaid miles, % of trip miles (optional)</label><input type="number" id="extra" min="0" step="any" placeholder="0 = trip miles only"></div>
+      <div><label for="online">Total hours online in this period (optional)</label><input type="number" id="online" min="0" step="any" placeholder="blank = use trip minutes"></div>
+      <div><label for="floor">Your minimum net pay per hour (optional)</label><input type="number" id="floor" min="0" step="any" placeholder="e.g. 15"></div>
+      <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
+      <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
+    </div>
+    <p class="note">The default 0.70 is the IRS 2025 business mileage rate in dollars per mile; the rate is reset most years, so enter the current one or your own real cost.</p>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste the text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By app</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">App</th><th class="n" scope="col">Trips</th><th class="n" scope="col">Paid</th><th class="n" scope="col">Vehicle cost</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net / trip</th><th class="n" scope="col">Net / hour</th><th class="n" scope="col">Net / mile</th></tr></thead><tbody id="by-platform"></tbody></table></div>
+    <h3>By weekday</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Day</th><th class="n" scope="col">Trips</th><th class="n" scope="col">Paid</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net / hour</th><th class="n" scope="col">Net / mile</th></tr></thead><tbody id="by-weekday"></tbody></table></div>
+    <h3>By time of day</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Time</th><th class="n" scope="col">Trips</th><th class="n" scope="col">Paid</th><th class="n" scope="col">Net</th><th class="n" scope="col">Net / hour</th><th class="n" scope="col">Net / mile</th></tr></thead><tbody id="by-daypart"></tbody></table></div>
+    <h3>Ten trips that paid worst after vehicle cost</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">When</th><th scope="col">App</th><th class="n" scope="col">Paid</th><th class="n" scope="col">Miles</th><th class="n" scope="col">Minutes</th><th class="n" scope="col">Net</th></tr></thead><tbody id="worst"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download app table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Income</strong> is earnings plus tip on each row (or the Total column minus the tip if there is no earnings column). Rows are trips or deliveries; total rows are skipped.</li>
+      <li><strong>Reconciles.</strong> The per-app, per-weekday and per-time rows each add up to the totals at the top.</li>
+      <li><strong>Vehicle cost</strong> is the miles on each trip, plus the extra-mile percentage you enter, times your cost per mile. Trips with no miles are charged nothing, and the page says how many.</li>
+      <li><strong>Net</strong> is income minus vehicle cost. Nothing else is subtracted.</li>
+      <li><strong>Per hour</strong> uses trip minutes, which exclude waiting between trips, unless you enter your total hours online for the period, which then drives the headline figure. Per-group rates use only trips that report minutes.</li>
+      <li><strong>Time of day and weekday</strong> are read from the file's own clock; no time zone conversion is applied. Groups with fewer than five trips are not ranked.</li>
+      <li><strong>Not modelled:</strong> taxes, phone, insurance and tolls beyond your cost per mile, trips you declined or were never offered, incentives paid separately, and anything not in the file.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find out what I really earn per hour driving for Uber, Lyft or DoorDash?</h3>
+    <p>Export your trip or delivery history from the app (or keep a sheet with a date, earnings, tip, miles and minutes) and drop it here. The tool adds each trip's pay and tip, subtracts your cost per mile times the miles you drove, and divides by the hours. If you enter your total hours online it uses those, so waiting time between trips is counted. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>What cost per mile should I use?</h3>
+    <p>Use your own number. The IRS standard mileage rate for business use was 70 cents per mile for 2025 and is reset most years, so check the current figure; it is a rate meant to cover gas, wear, depreciation and insurance. Your real cost may be lower in a hybrid or higher in an older truck. The tool applies whatever you enter and shows how much of your pay it takes.</p>
+    <h3>Which platform, weekday and time of day pays best?</h3>
+    <p>The tool groups your trips by app, weekday and time of day and shows net pay per trip hour and per mile for each group with at least five trips. Trip hours leave out waiting between trips, and busy hours often have more waiting, so use the ranking to decide what to test next rather than as proof.</p>
+    <h3>What does it not know?</h3>
+    <p>Time spent online with no trip, unpaid miles to reach a pickup (unless you add a percentage for them), taxes, phone and insurance costs beyond your cost per mile, and anything not in your file. It cannot see surge you declined or trips you were not offered.</p>
+    <h3>Is this tax or financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified tax adviser. It is independent of Uber, Lyft, DoorDash and every other app and is not affiliated with or endorsed by any of them.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business or tax decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any app.</strong> Uber, Lyft, DoorDash, Instacart, Grubhub, Gridwise and Everlance are trademarks of their respective owners. This tool is independent and is not sponsored, endorsed or connected to any of them in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Driving for a living? See the <a href="../gig-driver-net-pay-calculator/">gig driver net pay calculator</a> for one shift, the <a href="../mileage-log/">mileage log</a> for a tax-ready record, and the <a href="../mileage-deduction-method-calculator/">mileage deduction method calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const rate = (v) => (v === null ? "–" : money(v));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", unit: $("#unit").value || undefined });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
+      const cpm = $("#cpm").value === "" ? 0 : Number($("#cpm").value);
+      const r = analyze(n.trips, { costPerMile: cpm, extraMilesPct: Number($("#extra").value) || 0, onlineHours: Number($("#online").value) || null, floorPerHour: Number($("#floor").value) || null, from: day("#from"), to: day("#to") });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.trips} trips over ${s.days} day(s), ${dateStr(s.from)} to ${dateStr(s.to)}. Paid ${cur}${money(s.gross)} (tips ${cur}${money(s.tips)}), vehicle cost ${cur}${money(s.cost)} at ${cur}${money(cpm)} per mile, <strong>net ${cur}${money(s.net)}</strong>` + (s.netPerHourHeadline !== null ? ` — <strong>${cur}${money(s.netPerHourHeadline)} per hour</strong> net (${s.hourBasisIsOnline ? "your hours online" : "trip minutes only"})` : "") + (s.netPerMile !== null ? `, ${cur}${money(s.netPerMile)} net per mile` : "") + ".";
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#by-platform").innerHTML = r.byPlatform.map((p) => `<tr><th scope="row">${esc(p.label)}</th><td class="n">${p.trips}</td><td class="n">${money(p.gross)}</td><td class="n">${money(p.cost)}</td><td class="n">${money(p.net)}</td><td class="n">${money(p.netPerTrip)}</td><td class="n">${rate(p.netPerHour)}</td><td class="n">${rate(p.netPerMile)}</td></tr>`).join("");
+      const grp = (rows) => rows.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.trips}</td><td class="n">${money(g.gross)}</td><td class="n">${money(g.net)}</td><td class="n">${rate(g.netPerHour)}</td><td class="n">${rate(g.netPerMile)}</td></tr>`).join("");
+      $("#by-weekday").innerHTML = grp(r.byWeekday);
+      $("#by-daypart").innerHTML = r.byDaypart.length ? grp(r.byDaypart) : `<tr><td colspan="6">The file has dates but no times, so time of day is not available.</td></tr>`;
+      $("#worst").innerHTML = r.worst.length ? r.worst.map((t) => `<tr><td>${dateStr(t.t)}${t.hasTime ? " " + new Date(t.t).toISOString().slice(11, 16) : ""}</td><td>${esc(t.platform)}</td><td class="n">${money(t.gross)}</td><td class="n">${t.miles.toFixed(1)}</td><td class="n">${t.minutes === null ? "–" : Math.round(t.minutes)}</td><td class="n">${money(t.net)}</td></tr>`).join("") : `<tr><td colspan="6">No trip reports miles.</td></tr>`;
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.dmy) notes.push("Dates were read day-first.");
+      if (n.unit === "km") notes.push("Distances were converted from kilometres to miles.");
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.trips.length} trips.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste the text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic trips for two made-up apps. Not a real account."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const num = (v) => (v === null ? "" : v.toFixed(2));
+      const rows = ["app,trips,paid,vehicle_cost,net,net_per_trip,net_per_hour,net_per_mile"].concat(last.byPlatform.map((p) => [q(p.label), p.trips, p.gross.toFixed(2), p.cost.toFixed(2), p.net.toFixed(2), p.netPerTrip.toFixed(2), num(p.netPerHour), num(p.netPerMile)].join(",")));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" }));
+      a.download = "gig-earnings-by-app.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

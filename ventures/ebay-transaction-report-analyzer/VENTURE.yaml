@@ -1,0 +1,76 @@
+name: ebay-transaction-report-analyzer
+description: >-
+  Free browser tool that turns an eBay Seller Hub Transaction report CSV into a
+  fee waterfall, profit per item, Promoted Listings, shipping-gap, performance
+  fee and refund findings, and a monthly table. The file is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, the fourth
+# marketplace data-file analyzer after amazon-seller-profit-analyzer,
+# etsy-statement-profit-analyzer and airbnb-earnings-report-analyzer. The
+# value is the analysis paid eBay-seller tools (Sellerboard-style dashboards,
+# Zoho/QuickBooks eBay connectors, ProfitTracker-type apps, hand-built
+# spreadsheets) do, minus connecting a third party to the seller account.
+# ebay-fee-calculator models one hypothetical sale from typed inputs; this
+# derives real per-item results from the seller's own report.
+# duplicate_check.py top scores: amazon-seller-profit-analyzer 0.47 (shared
+# "seller profit analyzer" vocabulary; different marketplace, different file
+# and row types), ebay-fee-calculator 0.40 (single typed sale, no file input).
+#
+# First visitor: eBay resellers asking r/eBaySellers, r/Flipping and eBay
+# community forums how to see profit per item, what Promoted Listings really
+# cost, or why payouts are lower than sales. Search phrases "ebay transaction
+# report analyzer", "ebay profit per item spreadsheet", "how much did
+# promoted listings cost me". Volume not measured with an external tool.
+#
+# Privacy is the differentiator and the liability boundary: the file never
+# leaves the browser (a test asserts the page has no network calls), so the
+# portfolio holds no order or buyer data. Page carries an independent-of-eBay
+# trademark clause.
+#
+# Column and row-type matching was written from eBay's documented Transaction
+# report layout, not from a live account; unrecognised rows land in an
+# "other" bucket, unexplained amounts in an "adjustments" line, and
+# unreadable rows are listed with line and reason, so a format drift shows up
+# as a visible bucket rather than a wrong total.
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for a
+# donation-supported open-source repo. If the free tool earns repeat visitors,
+# the natural paid step is multi-month comparison and repricing suggestions,
+# still local-only.
+
+hypotheses:
+  - claim: >-
+      eBay sellers who want profit per item will prefer a no-signup,
+      no-API-access tool that reads their own CSV exports locally over
+      connecting a third-party app to their seller account.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing Promoted Listings, shipping-gap and refund costs as a share of
+      sales, with the per-item effect, changes ad and pricing decisions and is the
+      reason to return after each monthly download.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in file) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure from a real Transaction report, at which point the row classification or column mapping needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ebay-transaction-report-analyzer/
+  analytics: null
