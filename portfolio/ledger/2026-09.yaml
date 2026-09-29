@@ -48020,6 +48020,97 @@ entries:
         README and VENTURE.yaml. Registered score row, launch date, CI workflow
         and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: property-tax-appeal-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built property-tax-appeal-calculator: a browser-local tool
+        that adjusts comparable home sales to the subject (time drift, size,
+        rooms, lot, age) at user-set rates, flags weak comps, weights by
+        adjustment size, compares the indicated value with the market value the
+        assessment implies (assessment ratio honoured), runs a separate equity
+        test on assessed $/sq ft, and turns the gap into tax saved per year, net
+        after filing costs, break-even win probability and what a contingency
+        appeal firm would keep. New niche outside the CSV-analyzer run:
+        homeowners and small landlords, spring notice season. Nothing is
+        uploaded (a test asserts no network calls); no-warranty, not-an-appraisal
+        and independent-of-assessors clauses on the page; default rates stated as
+        rules of thumb. 33 tests. Registered score row, launch date, CI workflow
+        and tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: appointment-no-show-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built appointment-no-show-analyzer: a browser-local tool
+        that reads a booking export (Square Appointments, Acuity, Calendly,
+        Vagaro, Fresha, Booksy style) and reports no-show rate, late-cancel rate
+        (typed notice window, needs a cancelled-at column, else counted as
+        unknown notice) and revenue lost, by weekday, hour, service and lead
+        time, lists repeat no-show clients with dollars lost, and estimates what
+        a typed deposit or no-show fee would recover (fee %, share prevented and
+        share collected all flagged as the user's assumptions). Status aliases,
+        ISO / M/D/YYYY / 12-hour dates, quoted CSV, BOM, UTF-16, duplicates,
+        missing prices (service average, then a typed placeholder) handled.
+        Distinct from no-show-fee-calculator and appointment-deposit-calculator
+        (typed-number policy design), linked reciprocally in both directions.
+        First visitor expected from r/salons, r/Barber and searches like "no
+        show rate from Square Appointments export". Nothing is uploaded (a test
+        asserts no network calls); independent-of-vendors clause on the page.
+        Column names and status words are matched by alias and unverified
+        against real exports, stated on the page, README and VENTURE.yaml.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: freelancer-schedule-c-categorizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built freelancer-schedule-c-categorizer: a browser-local
+        tool that reads a bank or card CSV and sorts every transaction into an
+        IRS Schedule C line, sharing the parsing engine of its landlord sibling
+        but with its own categories and findings. Owner draws, transfers,
+        estimated-tax payments, loan principal, health insurance, retirement
+        contributions and equipment are held out of the expenses; meals count at
+        50% with the amount spent shown; deposits that look like Stripe, PayPal
+        or Etsy payouts raise a gross-receipts-versus-net warning; equipment is
+        flagged, never decided; uncategorised rows and duplicates are listed;
+        the CSV names the rule behind every row. First visitor expected from
+        r/freelance and r/smallbusiness, and searches like "bank statement to
+        Schedule C". Nothing is uploaded (a test asserts no network calls);
+        independent-of-banks-and-the-IRS clause on the page. Column names are
+        matched by alias and unverified against real exports, stated on the
+        page, README and VENTURE.yaml. Registered score row, launch date, CI
+        workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: self-employed-schedule-c-categorizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built self-employed-schedule-c-categorizer: a browser-local
+        tool that reads a bank or card CSV and sorts every transaction into an IRS
+        Schedule C line for freelancers, sole proprietors and gig workers, with
+        built-in and user keyword rules, business rules and a tax-year filter.
+        Estimated-tax payments, health insurance and retirement contributions,
+        equipment, loans and transfers are held out; meals are shown at 50
+        percent; deposits from Stripe, PayPal and marketplaces are flagged as
+        probably net of fees, with a box for the 1099 gross to show the gap;
+        equipment-like and personal-looking rows are flagged, never decided; a
+        CSV names the rule behind every row. Sibling of
+        rental-property-schedule-e-categorizer, linked to the estimated-tax,
+        mileage, home-office and 1099-K tools. First visitor expected from
+        r/freelance, r/Etsy and r/smallbusiness, and searches like "bank
+        statement to Schedule C" and "why is my 1099-K higher than my deposits".
+        Nothing is uploaded (a test asserts no network calls);
+        independent-of-banks-and-the-IRS clause on the page. Column names are
+        matched by alias and unverified against real exports, stated on the page,
+        README and VENTURE.yaml. Registered score row, launch date, CI workflow
+        and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: late-invoice-collections-kit
     agent_spend_usd: null
     human_hours: 0

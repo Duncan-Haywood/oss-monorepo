@@ -20784,6 +20784,150 @@ ventures:
       depreciation not modelled. Nothing is uploaded and no bank credential is
       requested. Ethics: helps an owner report their own rental income and
       expenses accurately.
+  - slug: property-tax-appeal-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on values the owner types in.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Property tax is
+      a large recurring bill, boards accept comparable-sales and equity
+      evidence, and the paid alternatives are contingency firms keeping a share
+      of the saving. Distribution 7: "property tax appeal" and "is my
+      assessment too high" are seasonal, high-intent searches every spring when
+      notices land; volume not measured with an external tool. Defensibility 3:
+      the arithmetic is easy to copy; the edge is the break-even and
+      contingency-firm comparison, the equity test and being free with no data
+      entered anywhere.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on user-typed figures with model and omissions
+      stated; rates are the user's and labelled rules of thumb; no appraisal,
+      no tax or legal advice, no forecast of a board ruling, no warranty,
+      independent-of-assessors clause. Ethics: helps an owner contest an
+      assessment they believe is wrong through the public process.
+  - slug: appointment-no-show-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on a booking export the owner supplies and assumptions they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Salons,
+      barbers, clinics, tutors and trainers lose real money to empty slots and
+      every scheduling app already exports the booking list; turning it into
+      "which day, hour, service and client" is a manual pivot or a paid tier.
+      Distribution 6: "no show rate from Square Appointments export" and "how
+      much do no-shows cost my salon" are recurring owner-forum queries; volume
+      not measured with an external tool. Defensibility 3: the arithmetic is
+      simple; the edge is ingesting the export, honest handling of unknown
+      notice and missing prices, and being free with no scheduling-app access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's file and editable assumptions with
+      model and omissions stated; no advice, no warranty, independent-of-the-
+      named-vendors clause, default price flagged as a placeholder and the fee
+      effect flagged as the user's assumption. Nothing is uploaded and no
+      scheduling-app credential is requested. Ethics: informational, helps an
+      owner see where slots are lost; the page says a policy change or refusing
+      a client is the owner's decision.
+  - slug: freelancer-schedule-c-categorizer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      keyword matching and arithmetic on a bank file the owner supplies.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Freelancers and
+      sole proprietors file a Schedule C every year, and sorting a year of bank
+      lines into its lines is manual or sits behind a paid bookkeeping app with
+      a bank link. Distribution 6: "bank statement to Schedule C" and
+      "categorize freelance expenses" are recurring freelancer-forum queries;
+      volume not measured with an external tool. Defensibility 3: keyword
+      sorting is easy to copy; the edge is holding out non-expenses, the
+      platform-payout and equipment flags instead of guesses, and being free with
+      no bank access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: keyword matching and arithmetic on the user's file with model
+      and omissions stated; no tax advice, no warranty, independent-of-every-
+      bank-and-the-IRS clause; equipment and mixed-use expenses flagged, never
+      decided; depreciation and home office not modelled. Nothing is uploaded
+      and no bank credential is requested. Ethics: helps a self-employed person
+      report their own income and expenses accurately.
+  - slug: self-employed-schedule-c-categorizer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      keyword matching and arithmetic on a bank file the owner supplies.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Around 30 million
+      US taxpayers file a Schedule C and sorting a year of bank lines into it is
+      manual or sits behind a bookkeeping subscription with a bank link.
+      Distribution 7: "bank statement to Schedule C", "categorize business
+      expenses csv" and "why is my 1099-K higher than my deposits" are recurring
+      freelancer and seller queries; volume not measured with an external tool.
+      Defensibility 3: keyword sorting is easy to copy; the edge is holding out
+      non-expenses, the platform-fee versus 1099 gross check, flags instead of
+      guesses, and being free with no bank access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: keyword matching and arithmetic on the user's file with model
+      and omissions stated; no tax advice, no warranty, independent-of-every-
+      bank-and-the-IRS clause; equipment versus expense and personal versus
+      business flagged, never decided; self-employment tax and depreciation not
+      modelled. Nothing is uploaded and no bank credential is requested. Ethics:
+      helps an owner report their own income and expenses accurately.
   - slug: late-invoice-collections-kit
     scores:
       ai_leverage: 1

@@ -146,6 +146,9 @@ workflows:
 - workflow: appointment-deposit-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: appointment-no-show-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1054,6 +1057,9 @@ workflows:
 - workflow: propane-delivery-route-margin-ci.yml
   classification: none
   publishes: []
+- workflow: property-tax-appeal-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: proposal-module-ci.yml
   classification: none
   publishes: []
@@ -1123,6 +1129,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: rental-property-schedule-e-categorizer-ci.yml
+  classification: none
+  publishes: []
+- workflow: freelancer-schedule-c-categorizer-ci.yml
   classification: none
   publishes: []
 - workflow: restaurant-delivery-commission-analyzer-ci.yml
@@ -1200,6 +1209,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: security-txt-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: self-employed-schedule-c-categorizer-ci.yml
   classification: none
   publishes: []
 - workflow: self-employment-tax-calculator-ci.yml
