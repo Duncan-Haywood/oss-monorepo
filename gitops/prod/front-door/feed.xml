@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 435 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 436 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -105,6 +105,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Etsy profit analyzer: drop in your Payment Account statement and Sold Order Items CSV and get a fee waterfall, profit per listing, Offsite Ads and refund findings. Runs in your browser, the files are never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>FBA Aged Inventory &amp; Storage Fee Analyzer — Hold, Mark Down or Remove, SKU by SKU</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fba-aged-inventory-fee-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/fba-aged-inventory-fee-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free tool for Amazon FBA sellers: load your Inventory Age report and see, per SKU, the storage fees and aged-inventory surcharge you will pay and whether holding, marking down or removing the stock earns more. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>FBA Reimbursement Claim Finder — Lost &amp; Damaged Inventory Amazon Never Paid For</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Stripe churn and cohort analyzer: drop in your Stripe subscriptions CSV and get MRR, new vs churned MRR, monthly churn and a cohort retention table. Runs in your browser, the file is never uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Stripe Failed Payment Recovery Analyzer — Free CSV Dunning Report</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/stripe-failed-payment-recovery-analyzer/"/>
-    <id>tag:marisstella.dev,2026:tool/stripe-failed-payment-recovery-analyzer</id>
-    <published>2026-09-29T00:00:00Z</published>
-    <updated>2026-09-29T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free Stripe failed payment recovery analyzer: drop in your Stripe payments CSV and see how much failed-payment revenue you recover, what you lose, by decline reason and how fast. Runs in your browser, the file is never uploaded.</summary>
   </entry>
 </feed>
