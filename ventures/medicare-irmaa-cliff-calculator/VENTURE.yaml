@@ -1,0 +1,57 @@
+name: medicare-irmaa-cliff-calculator
+description: >-
+  Free browser calculator for 2026 Medicare IRMAA. Takes filing status, MAGI
+  from two years ago and an optional planned Roth conversion, gain or IRA
+  distribution, and shows the Part B and Part D tier, the monthly and annual
+  surcharge, the dollars to the next cliff up and down, the cost of one dollar
+  over, how much of the planned amount fits under the tier, the two-year
+  lookback explained, all tiers, and an SSA-44 life-changing-event appeal
+  checklist with draft text. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session as a sibling to
+# aca-subsidy-cliff-calculator (same cliff-distance shape, other audience).
+# Retirees and pre-retirees doing Roth conversions have real money at stake and
+# the two-year lookback surprises them; most IRMAA tables show the tiers but not
+# distance to the cliff or room for a planned amount.
+#
+# First visitor: searches like "IRMAA 2026 brackets", "Roth conversion IRMAA",
+# "SSA-44 appeal", r/retirement, r/fatFIRE, Bogleheads. Volume not measured.
+#
+# Path to revenue (payment rails stay off): lead magnet linking to the Roth
+# conversion bracket-fill calculator. Nothing paid is built.
+#
+# Liability: applies published figures to user-typed numbers; not tax, medical
+# or legal advice; no data fetched; SSA determinations govern.
+#
+# Unverified: 2026 figures confirmed against secondary summaries of CMS
+# numbers on 2026-09-29, not the CMS notice itself; MFS-with-spouse band edges
+# follow the same summaries.
+
+hypotheses:
+  - claim: >-
+      People planning Roth conversions or asset sales will use a no-signup tool
+      that shows dollars to the next IRMAA cliff, and people with an income drop
+      will use the SSA-44 checklist.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a tier or surcharge that differs from their SSA notice for the same MAGI, at which point the table needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/medicare-irmaa-cliff-calculator/
+  analytics: null
