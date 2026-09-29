@@ -1057,9 +1057,10 @@ const RELATIVE_SELF = relative(
 // +1: `like-kind-exchange-1031-calculator` graduated.
 // +1: `aca-subsidy-cliff-calculator` graduated.
 // +1: `parcel-late-delivery-refund-finder` graduated.
+// +1: `social-security-claiming-age-calculator` graduated.
 // +1: `wage-garnishment-limit-calculator` graduated.
 // +1: `medicare-irmaa-cliff-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 436;
+const SWITCHES_IN_THE_CATALOGUE = 437;
 
 let counter = 0;
 function fixture(source) {

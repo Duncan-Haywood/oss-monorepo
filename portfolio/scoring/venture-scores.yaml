@@ -21074,6 +21074,44 @@ ventures:
       and escrow numbers never leave the browser and no servicer credential is
       requested. Ethics: helps a homeowner ask for the calculation behind their own
       payment; the letter asks for the worksheet and alleges nothing.
+  - slug: social-security-claiming-age-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the visitor types from their own SSA statement.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. People aged 58
+      to 70 make one largely irreversible decision worth tens of thousands of
+      dollars, and single-person break-even calculators answer the wrong
+      question for a married person because the survivor keeps the larger
+      check. Distribution 7: "best age to claim social security married",
+      "social security break even calculator" and "spousal vs survivor benefit"
+      are recurring queries and Bogleheads/r/retirement threads; volume not
+      measured with an external tool. Defensibility 3: the rules are public;
+      the edge is a private, no-signup household search under early-death and
+      long-life scenarios.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: illustrative estimates not advice, no warranty, independence
+      from SSA stated, rules cited from SSA's published text, omissions (income
+      tax, Medicare surcharges, earnings test, offsets) stated on the page, and
+      the page says the choice is often irreversible after twelve months. Birth
+      dates and benefit amounts never leave the browser. Ethics: helps a
+      household understand a decision it must make anyway; no product is sold
+      and no advisor referral is made.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1
