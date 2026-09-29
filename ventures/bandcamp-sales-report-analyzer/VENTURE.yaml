@@ -1,0 +1,82 @@
+name: bandcamp-sales-report-analyzer
+description: >-
+  Free browser tool that turns a Bandcamp sales report CSV into fees paid and the
+  fee rate, net by item type, release, month and country, the fee drag on small
+  sales, vinyl and merch profit and break-even price from costs the artist types,
+  refunds, discount-code share and repeat buyers. The file is read locally and
+  never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Independent musicians and
+# small labels sell digital albums, tracks, vinyl and merch on Bandcamp, and the
+# platform's sales report is one row per sale with the price, shipping, tax,
+# transaction fee and net. What it does not show is the fee rate by format, what
+# a $1 track really leaves after a fixed fee, whether a vinyl run pays after
+# manufacturing and postage, or how concentrated income is on one release.
+# Existing answers are spreadsheets and generic fee calculators that need typing
+# rows by hand.
+#
+# First visitor: independent artists and label owners on r/WeAreTheMusicMakers,
+# r/Bandcamp and DIY label forums asking "how much does Bandcamp really take" and
+# "does selling vinyl make money"; search phrases "bandcamp sales report",
+# "bandcamp fees", "bandcamp net revenue". Volume not measured with an external
+# tool.
+#
+# What makes it more than a total: fee rate is read from the file per item type
+# rather than from a published rate that changes; sales under $3 are compared to
+# the overall fee rate to show the fixed-fee drag; physical items get profit and a
+# break-even price from typed unit cost and postage; groups under five never
+# drive a suggestion; refunds are shown apart; only the main currency is
+# analysed and the rest is named, with no exchange rate applied.
+#
+# Privacy is the differentiator and the liability boundary: the file, which holds
+# buyer names and emails, never leaves the browser (a test asserts the page has no
+# network calls) and buyer text is turned into an anonymous number at parse, so
+# the portfolio holds no artist or buyer data.
+#
+# Path to revenue (payment rails stay off): lead magnet, with a tie-in to
+# gumroad-sales-fee-analyzer already published. A paid version, if usage appears,
+# is a month-over-month report diff behind an env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and typed costs, model and omissions
+# stated on the page, no tax or financial advice, no warranty,
+# independent-of-Bandcamp clause.
+#
+# Unverified: column names and item-type wording are from memory of Bandcamp
+# sales reports and matched by alias; no real report was available, so the first
+# user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Independent artists and labels will run a no-login analysis of the sales
+      report they already hold to see fee rate by format and physical profit
+      before pricing a release or ordering a pressing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing the small-sale fee drag and a break-even price for vinyl leads at
+      least one seller to change a minimum price or a pressing run, which is the
+      reason to return with each new report.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/bandcamp-sales-report-analyzer/
+  analytics: null
