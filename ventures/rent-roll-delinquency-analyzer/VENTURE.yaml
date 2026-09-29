@@ -1,0 +1,80 @@
+name: rent-roll-delinquency-analyzer
+description: >-
+  Free browser tool that turns a small landlord's rent ledger (due date, unit or
+  tenant, amount due, amount paid, date paid) into unpaid rent by age and by unit,
+  units that habitually pay late, collection and on-time rates by month, and an
+  upper bound on late fees from a fee the user types. The file is read locally
+  and never uploaded, so tenant names stay on the landlord's device.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Small landlords (2-50 units,
+# roughly the 40%+ of US rental units owned by individuals) keep rent in a
+# spreadsheet, a bank export or a light app (Avail, Cozy/Apartments.com, RentRedi,
+# TurboTenant, Buildium, QuickBooks). Those show a ledger; few answer, in one
+# view, "how much is unpaid, how old, which unit, who is chronically late, and what
+# is my collection rate". Money is the audience's: unpaid rent is direct lost
+# income, and a landlord chasing 60-day balances has a decision to make this week.
+# Existing answers: spreadsheets, full property-management suites (subscription,
+# account required, tenant data uploaded to the vendor) and accountants. Nothing
+# here is a no-signup file-in, answer-out tool.
+#
+# First visitor: r/landlord, r/realestateinvesting, BiggerPockets and local
+# landlord-association forums; search phrases "rent delinquency report", "unpaid
+# rent aging", "rent roll template", "tenant late payment tracker". Volume not
+# measured.
+#
+# What makes it more than a total: aging buckets by due date, not by month; a unit
+# is called habitually late only with three late charges and half its charges; the
+# late-fee number is labelled an upper bound with the local-law caveat next to it;
+# payments dated after the as-of day are treated as not yet made so a ledger can be
+# read as of any past date; overpayments and part-payments are reported, not hidden.
+#
+# Privacy is the liability boundary: the ledger holds tenant names and rent
+# amounts, and never leaves the browser (a test asserts no network calls), so the
+# portfolio holds no tenant data.
+#
+# Path to revenue (payment rails stay off): lead magnet for the landlord audience
+# of the security-deposit and depreciation-recapture calculators. A paid version,
+# if usage appears, is a saved multi-month history and bank-export import behind an
+# env-var switch; not built.
+#
+# Liability: arithmetic on the user's file and typed numbers, model and omissions
+# stated on the page, not legal advice (notices, late fees and part-payment rules
+# are lease- and jurisdiction-specific and are not modelled), no warranty,
+# independent-of-every-product clause.
+#
+# Unverified: column names are matched by alias and no real property-management
+# export was available; the first user report of an unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Small landlords will run a no-signup analysis of a rent ledger they already
+      keep to see unpaid rent by age and unit before deciding whom to chase.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Seeing a chronically late unit or a 60-plus-day balance leads at least one
+      landlord to act, which is the reason to return each month.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong figure, or a real export the tool cannot read, at which point the parser needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/rent-roll-delinquency-analyzer/
+  analytics: null

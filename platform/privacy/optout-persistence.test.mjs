@@ -1036,7 +1036,8 @@ const RELATIVE_SELF = relative(
 // +1: `indie-game-payout-calculator` graduated.
 // +1: `home-service-lead-roi-analyzer` graduated.
 // +1: `fba-reimbursement-claim-finder` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 413;
+// +1: `rent-roll-delinquency-analyzer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 414;
 
 let counter = 0;
 function fixture(source) {
