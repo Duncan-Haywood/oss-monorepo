@@ -47552,3 +47552,17 @@ entries:
         as "fiverr fee calculator"; not measured. Registered score row, launch
         date, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: gumroad-sales-fee-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built gumroad-sales-fee-analyzer, a sibling of the Fiverr and
+        Upwork analyzers for digital-product sellers: a browser-local tool that reads
+        a sales CSV and shows the fee actually observed, take-home per order, net per
+        product, month and buyer, repeat buyers, refunds, payout costs, pending funds
+        and the break-even price for a target take-home. File never leaves the browser;
+        independent-of-Gumroad clause; column names matched by alias with no real export
+        available, stated on the page. Registered score row, launch date, CI workflow and
+        tree counts; regenerated the mirror.
+    mrr_end: 0

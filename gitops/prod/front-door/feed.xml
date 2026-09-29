@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 418 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 419 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -114,6 +114,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Google Ads wasted spend analyzer: drop in your search terms report CSV and see how much you spent on terms that never converted, which negative keywords are safe to add, and which converting terms deserve exact match. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Gumroad Sales Fee Analyzer — Your Real Take-Home per Order</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gumroad-sales-fee-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/gumroad-sales-fee-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Gumroad fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Home Office Deduction Calculator — Simplified vs Regular, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the IRC 461(l) excess business loss limitation, now permanent under OBBBA — computes how much of a pass-through owner&#39;s net business loss is deductible this year against the 2025/2026 threshold, and how much becomes a net operating loss carryforward. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Exempt Salary Threshold Checker — Federal + State, 2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/exempt-salary-threshold-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/exempt-salary-threshold-checker</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the 2026 FLSA white-collar overtime-exemption salary threshold — checks a weekly salary against the federal $684/week figure and the higher state threshold in California, Washington, New York, Maine, or Alaska, including New York&#39;s professional-exemption carve-out. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
