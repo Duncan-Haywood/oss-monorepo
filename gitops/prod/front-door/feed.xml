@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 408 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 409 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Etsy profit analyzer: drop in your Payment Account statement and Sold Order Items CSV and get a fee waterfall, profit per listing, Offsite Ads and refund findings. Runs in your browser, the files are never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Gig Driver Earnings Report Analyzer — Real Net Pay per Hour and Mile</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gig-driver-earnings-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/gig-driver-earnings-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free earnings analyzer for Uber, Lyft, DoorDash and Instacart drivers: drop in your trip history CSV and see net pay per hour and per mile after vehicle cost, which app, weekday and time of day pays best, and which trips cost more to drive than they paid. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Google Ads Wasted Spend Analyzer — Free Search Terms Report Tool</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Referrer-Policy: unsafe-url (leaks full URLs, even on a downgrade), a missing or invalid Referrer-Policy, Permissions-Policy directives with a malformed allowlist syntax, and a wildcard allowlist on a sensitive feature like camera or microphone. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SALT Deduction Cap Calculator — 2025-2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salt-cap-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/salt-cap-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the SALT (state and local tax) itemized deduction cap under the One Big Beautiful Bill Act — applies the 2025/2026 $40,000/$40,400 cap, the 30%-of-excess-MAGI phase-out above $500,000/$505,000, and the $10,000 floor the cap can never drop below, by filing status. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
