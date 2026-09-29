@@ -1349,6 +1349,9 @@ workflows:
 - workflow: subpath-robots-check-ci.yml
   classification: none
   publishes: []
+- workflow: subscription-audit-from-statement-ci.yml
+  classification: none
+  publishes: []
 - workflow: subscription-price-impact-ci.yml
   classification: none
   publishes: []

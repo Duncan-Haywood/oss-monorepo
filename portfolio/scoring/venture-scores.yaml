@@ -20643,6 +20643,41 @@ ventures:
       Square-Clover clause, default food cost and volume loss flagged as
       placeholders. Nothing is uploaded and no POS credential is requested.
       Ethics: purely informational, helps an owner see which items earn.
+  - slug: subscription-audit-from-statement
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 2
+      distribution: 7
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on a statement the user supplies.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Audience is
+      anyone with a bank login rather than one trade, and paid subscription
+      managers want a bank connection or a share of savings. Distribution 7:
+      "find subscriptions from bank statement" and "recurring charges on credit
+      card" are perennial consumer queries and personal-finance forum
+      questions; volume not measured with an external tool. Defensibility 2:
+      recurring-charge detection is well known; the edge is being free, local
+      and needing no bank connection. Time to revenue 4: no payment rail, a
+      donation lead magnet until usage exists.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file with model and omissions
+      stated; no advice, no warranty, independent-of-every-bank clause,
+      category guesses labelled. Nothing is uploaded and no bank credential or
+      aggregator is used. Ethics: helps a person see and stop charges they may
+      have forgotten.
   - slug: rental-property-schedule-e-categorizer
     scores:
       ai_leverage: 1
