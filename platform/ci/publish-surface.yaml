@@ -1415,6 +1415,7 @@ workflows:
 - workflow: google-ads-wasted-spend-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: shopify-payout-profit-analyzer-ci.yml
 - workflow: airbnb-earnings-report-analyzer-ci.yml
 - workflow: shopify-discount-leakage-analyzer-ci.yml
   classification: none
