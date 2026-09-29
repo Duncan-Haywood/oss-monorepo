@@ -47527,3 +47527,26 @@ entries:
         turo-host-payout-calculator. Registered score row, launch date, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: poshmark-sales-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built poshmark-sales-report-analyzer, a data-file archetype
+        for Poshmark sellers: a browser-local tool that reads a My Sales Report
+        CSV (file or paste; quoted fields, US and day-first dates, comma, tab,
+        semicolon and UTF-16; skipped rows reported with line and reason) and
+        shows per-item, per-brand and per-month profit after Poshmark's fee
+        (file fee column, else the flat $2.95 under $15 / 20% schedule shared
+        with poshmark-fee-calculator and pinned equal by a test), effective fee
+        rate, cost basis from a file column or pasted SKU,cost pairs, shipping
+        discount and deduction detection, days to sell, worst and best items,
+        brands to stop sourcing (three or more costed sales and a net loss) and
+        a copyable summary. Sales with no cost are excluded from profit, not
+        counted as free. File never leaves the browser (a test asserts no
+        network calls); independent-of-Poshmark clause on the page. Column names
+        are matched by alias from memory of Poshmark's export and no real export
+        was available, stated on the page, in the README and in VENTURE.yaml.
+        Linked both ways with poshmark-fee-calculator. Registered score row,
+        launch date, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
