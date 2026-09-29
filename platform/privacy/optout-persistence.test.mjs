@@ -1049,9 +1049,10 @@ const RELATIVE_SELF = relative(
 // +1: `freelancer-schedule-c-categorizer` graduated.
 // +1: `self-employed-schedule-c-categorizer` graduated.
 // +1: `late-invoice-collections-kit` graduated.
+// +1: `print-on-demand-profit-calculator` graduated.
 // +1: `service-hourly-yield-analyzer` graduated.
 // +1: `medical-bill-error-checker` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 428;
+const SWITCHES_IN_THE_CATALOGUE = 429;
 
 let counter = 0;
 function fixture(source) {

@@ -48153,6 +48153,27 @@ entries:
         README and VENTURE.yaml. Registered score row, launch date, category
         rule, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: print-on-demand-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built print-on-demand-profit-calculator: a browser-local tool for
+        print-on-demand sellers on Etsy, Shopify and eBay. From selling price,
+        supplier item and shipping cost, refund rate, ad spend and samples it
+        computes profit per sale after platform fees (presets marked verify,
+        dated 2026-09-29), solves the price for a target margin, shows the
+        maximum ad spend per sale and break-even ROAS, a price ladder, and the
+        same sale on each platform, with a CSV download. Distinct from
+        etsy-profit-calculator, shopify-fee-calculator, ebay-fee-calculator and
+        marketplace-fee-compare (one platform or fees only, no supplier cost),
+        all linked. First visitor expected from searches "printful profit
+        calculator" and "printify profit margin calculator", and r/printondemand
+        pricing threads. Nothing is uploaded (a test asserts no network calls);
+        not-advice and independent-of-marketplaces clauses on the page. Fee
+        presets unverified, stated on the page and in VENTURE.yaml. Registered
+        score row, launch date, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: medical-bill-error-checker
     agent_spend_usd: null
     human_hours: 0
