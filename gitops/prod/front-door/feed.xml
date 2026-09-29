@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 400 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 401 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -114,6 +114,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free Stripe churn and cohort analyzer: drop in your Stripe subscriptions CSV and get MRR, new vs churned MRR, monthly churn and a cohort retention table. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Stripe Failed Payment Recovery Analyzer — Free CSV Dunning Report</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/stripe-failed-payment-recovery-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/stripe-failed-payment-recovery-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Stripe failed payment recovery analyzer: drop in your Stripe payments CSV and see how much failed-payment revenue you recover, what you lose, by decline reason and how fast. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Solo 401(k) Contribution Calculator — 2026, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Claude Code subagent definition (.claude/agents/*.md) and get every structural mistake flagged: a name that isn&#39;t kebab-case, a missing or vague description that stops automatic delegation, a tools list with an empty or unrecognized entry, an unrecognized model alias, and a near-empty system prompt. Free, runs entirely in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Claude Skill Scaffold Generator — turn a plain-language description into a starter SKILL.md</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/claude-skill-scaffold-generator/"/>
-    <id>tag:marisstella.dev,2026:tool/claude-skill-scaffold-generator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Type what a Claude Agent Skill should do and when Claude should use it, plus any scripts, references, or assets it bundles, and get a starter SKILL.md with valid YAML frontmatter and a suggested folder layout -- checked for the common authoring mistakes that keep a skill from triggering. Free, runs entirely in your browser, nothing uploaded, no model call.</summary>
   </entry>
 </feed>

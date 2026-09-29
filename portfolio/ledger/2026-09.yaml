@@ -47143,6 +47143,26 @@ entries:
         score 0.08. Registered build category, score row, launch date, CI
         workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: stripe-failed-payment-recovery-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built stripe-failed-payment-recovery-analyzer: a
+        browser-local tool that reads a Stripe payments CSV export (file or
+        paste, tolerant headers, unreadable rows reported with line and reason)
+        and pairs each failed charge with the next success on the same invoice
+        or customer inside a chosen window. Reports recovery rate, revenue
+        lost, decline reasons grouped by action (new card, retry later, do not
+        retry), time to recovery, monthly trend, largest unrecovered payments
+        and a what-if in dollars a year; every table reconciles to the same
+        totals and young failures are left out of the rate rather than counted
+        lost. File never leaves the browser. First visitor source named in
+        VENTURE.yaml: indie-SaaS communities and "stripe failed payments
+        recovery rate" searches. duplicate_check.py top score 0.28 (a
+        different problem). Registered build category, score row, launch date,
+        CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: str-cleaning-fee-pricing-calculator
     agent_spend_usd: null
     human_hours: 0

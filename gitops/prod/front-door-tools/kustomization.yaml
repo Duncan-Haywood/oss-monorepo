@@ -33,29 +33,29 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545827 bytes
-#   portfolio-front-tools-1: 92 files, 554478 bytes
-#   portfolio-front-tools-2: 144 files, 552427 bytes
-#   portfolio-front-tools-3: 131 files, 554452 bytes
-#   portfolio-front-tools-4: 141 files, 556078 bytes
-#   portfolio-front-tools-5: 128 files, 556854 bytes
-#   portfolio-front-tools-6: 128 files, 542380 bytes
-#   portfolio-front-tools-7: 136 files, 555860 bytes
-#   portfolio-front-tools-8: 121 files, 553578 bytes
-#   portfolio-front-tools-9: 136 files, 549665 bytes
-#   portfolio-front-tools-10: 136 files, 554436 bytes
-#   portfolio-front-tools-11: 122 files, 553843 bytes
-#   portfolio-front-tools-12: 120 files, 556107 bytes
-#   portfolio-front-tools-13: 117 files, 552954 bytes
-#   portfolio-front-tools-14: 126 files, 553570 bytes
-#   portfolio-front-tools-15: 129 files, 548931 bytes
-#   portfolio-front-tools-16: 132 files, 555930 bytes
-#   portfolio-front-tools-17: 134 files, 552640 bytes
-#   portfolio-front-tools-18: 104 files, 556060 bytes
-#   portfolio-front-tools-19: 116 files, 553420 bytes
-#   portfolio-front-tools-20: 126 files, 555313 bytes
-#   portfolio-front-tools-21: 124 files, 553340 bytes
-#   portfolio-front-tools-22: 69 files, 355332 bytes
+#   portfolio-front-tools-0: 145 files, 545845 bytes
+#   portfolio-front-tools-1: 92 files, 554482 bytes
+#   portfolio-front-tools-2: 144 files, 552446 bytes
+#   portfolio-front-tools-3: 131 files, 554476 bytes
+#   portfolio-front-tools-4: 141 files, 556097 bytes
+#   portfolio-front-tools-5: 128 files, 556899 bytes
+#   portfolio-front-tools-6: 128 files, 542448 bytes
+#   portfolio-front-tools-7: 136 files, 555887 bytes
+#   portfolio-front-tools-8: 121 files, 553606 bytes
+#   portfolio-front-tools-9: 136 files, 549676 bytes
+#   portfolio-front-tools-10: 136 files, 554409 bytes
+#   portfolio-front-tools-11: 122 files, 553907 bytes
+#   portfolio-front-tools-12: 120 files, 556117 bytes
+#   portfolio-front-tools-13: 117 files, 552971 bytes
+#   portfolio-front-tools-14: 126 files, 553624 bytes
+#   portfolio-front-tools-15: 129 files, 548968 bytes
+#   portfolio-front-tools-16: 132 files, 555972 bytes
+#   portfolio-front-tools-17: 134 files, 552693 bytes
+#   portfolio-front-tools-18: 104 files, 555940 bytes
+#   portfolio-front-tools-19: 116 files, 553505 bytes
+#   portfolio-front-tools-20: 125 files, 543976 bytes
+#   portfolio-front-tools-21: 120 files, 543470 bytes
+#   portfolio-front-tools-22: 77 files, 391916 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2741,6 +2741,9 @@ configMapGenerator:
       - stripe-churn-cohort-analyzer__calc.mjs.gz=stripe-churn-cohort-analyzer__calc.mjs.gz
       - stripe-churn-cohort-analyzer__index.html.gz=stripe-churn-cohort-analyzer__index.html.gz
       - stripe-churn-cohort-analyzer__usage.mjs.gz=stripe-churn-cohort-analyzer__usage.mjs.gz
+      - stripe-failed-payment-recovery-analyzer__calc.mjs.gz=stripe-failed-payment-recovery-analyzer__calc.mjs.gz
+      - stripe-failed-payment-recovery-analyzer__index.html.gz=stripe-failed-payment-recovery-analyzer__index.html.gz
+      - stripe-failed-payment-recovery-analyzer__usage.mjs.gz=stripe-failed-payment-recovery-analyzer__usage.mjs.gz
       - structured-data-drift-check__cli.mjs.gz=structured-data-drift-check__cli.mjs.gz
       - structured-data-drift-check__engine.mjs.gz=structured-data-drift-check__engine.mjs.gz
       - structured-data-drift-check__index.html.gz=structured-data-drift-check__index.html.gz
@@ -2838,15 +2841,15 @@ configMapGenerator:
       - trump-account-calculator__vs-doing-the-math-by-hand.html.gz=trump-account-calculator__vs-doing-the-math-by-hand.html.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
       - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
-      - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
-      - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
-      - tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
-      - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
   - name: portfolio-front-tools-21
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
+      - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
+      - tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz=tuckpointing-bid-calculator__vs-a-flat-rate-per-square-foot.html.gz
+      - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
       - turo-host-payout-calculator__calc.mjs.gz=turo-host-payout-calculator__calc.mjs.gz
       - turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz=turo-host-payout-calculator__how-much-does-turo-take-from-hosts.html.gz
       - turo-host-payout-calculator__index.html.gz=turo-host-payout-calculator__index.html.gz
@@ -2963,6 +2966,11 @@ configMapGenerator:
       - wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz=wedding-florist-proposal-calculator__vs-a-recipe-markup-spreadsheet.html.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
+  - name: portfolio-front-tools-22
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
@@ -2971,11 +2979,6 @@ configMapGenerator:
       - whatnot-seller-payout__calc.mjs.gz=whatnot-seller-payout__calc.mjs.gz
       - whatnot-seller-payout__how-much-does-whatnot-take-on-a-pallet.html.gz=whatnot-seller-payout__how-much-does-whatnot-take-on-a-pallet.html.gz
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
-  - name: portfolio-front-tools-22
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - whatnot-seller-payout__index.html.gz=whatnot-seller-payout__index.html.gz
       - whatnot-seller-payout__share.mjs.gz=whatnot-seller-payout__share.mjs.gz
       - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz

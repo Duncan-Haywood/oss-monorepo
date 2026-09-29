@@ -1394,6 +1394,9 @@ workflows:
 - workflow: stripe-churn-cohort-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: stripe-failed-payment-recovery-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: str-cleaning-fee-pricing-calculator-ci.yml
   classification: none
   publishes: []
