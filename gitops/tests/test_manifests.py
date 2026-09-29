@@ -2765,9 +2765,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # segregation calculator. Static `index.html` only.
     # 391 -> 392: `estimated-tax-penalty-calculator` also graduated -- a
     # browser-local Form 2210 underpayment penalty estimator. Static `index.html` only.
-    # 392 -> 393: `backdoor-roth-pro-rata-calculator` graduated (browser-local
+    # 392 -> 393: `self-employment-tax-calculator` also graduated -- a
+    # browser-local 2026 Schedule SE tax calculator. Static `index.html` only.
+    # 393 -> 394: `backdoor-roth-pro-rata-calculator` graduated (browser-local
     # Form 8606 pro-rata calculator, static `index.html` only).
-    total = 393  # `infra/OWNER_CHECKLIST.md`'s own "N of the 393 tools" wording.
+    total = 394  # `infra/OWNER_CHECKLIST.md`'s own "N of the 394 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
