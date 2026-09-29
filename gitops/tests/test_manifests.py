@@ -2763,6 +2763,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 390 -> 391: `str-tax-loophole-calculator` also graduated -- a
     # browser-local short-term-rental passive/non-passive and cost
     # segregation calculator. Static `index.html` only.
+    # 391 -> 392: `estimated-tax-penalty-calculator` also graduated -- a
+    # browser-local Form 2210 underpayment penalty estimator. Static `index.html` only.
     total = 392  # `infra/OWNER_CHECKLIST.md`'s own "N of the 392 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
