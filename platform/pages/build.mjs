@@ -941,7 +941,7 @@ const CATEGORY_RULES = [
     // the crawlable-orphan gap a new venture otherwise opens. Named by exact
     // slug prefix rather than folded into a wider pattern, for the same reason
     // as its neighbours here.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight)/.test(
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|tow-motor-club)/.test(
       slug,
     ),
   },
