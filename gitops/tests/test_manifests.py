@@ -2809,6 +2809,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `home-service-lead-roi-analyzer` graduated (browser-local lead log analyzer).
     # +1: `rent-roll-delinquency-analyzer` graduated (browser-local rent ledger analyzer).
     # +1: `fba-aged-inventory-fee-analyzer` graduated.
+    # +1: `ghost-members-export-analyzer` graduated.
     # +1: `restaurant-pos-menu-mix-analyzer` graduated (browser-local POS export analyzer).
     total = 438  # `infra/OWNER_CHECKLIST.md`'s own "N of the 438 tools" wording.
 
