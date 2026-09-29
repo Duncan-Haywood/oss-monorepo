@@ -1430,3 +1430,6 @@ gitops:
 - workflow: self-employment-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: card-surcharge-vs-cash-discount-calculator-ci.yml
+  classification: none
+  publishes: []
