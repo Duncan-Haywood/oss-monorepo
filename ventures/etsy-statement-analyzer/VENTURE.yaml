@@ -1,0 +1,71 @@
+name: etsy-statement-analyzer
+description: >-
+  Free browser tool that turns an Etsy payment account statement CSV into a
+  fee waterfall (transaction, processing, listing, Offsite Ads, Etsy Ads,
+  regulatory, shipping labels), take rate, refund cost, per-listing fees and
+  plain-language findings. The file is read locally and never uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session, a data-file archetype:
+# the value is the analysis paid Etsy seller tools (Sales Samurai, ProfitTree,
+# EverBee profit trackers) do, minus connecting a third-party app to the shop.
+# duplicate_check.py top score 0.26 (amazon-seller-profit-analyzer, a different
+# marketplace and file format); etsy-profit-calculator models one hypothetical
+# listing from typed inputs, this one derives real fees from the seller's own
+# statement rows.
+#
+# First visitor: Etsy sellers on r/EtsySellers and Etsy forums asking why
+# deposits are lower than sales, what Offsite Ads really cost, and how to get
+# profit per item out of the monthly statement; search phrases "etsy payment
+# account statement analyzer", "etsy monthly statement csv profit", "etsy
+# offsite ads fee how much". Volume not measured with an external tool.
+#
+# Privacy is the differentiator and the liability boundary: the file never
+# leaves the browser (a test asserts the page has no network calls), so the
+# portfolio holds no order or buyer data. Page carries an independent-of-Etsy
+# trademark clause.
+#
+# Column layout (Date, Type, Title, Info, Currency, Amount, Fees & Taxes, Net)
+# is from Etsy's documented monthly statement export; the parser is tolerant
+# and reports skipped rows with line and reason, but a real export has not
+# yet been run through it. That is the first thing to verify (kill criteria).
+#
+# Path to revenue (payments stay off): free tool -> lead magnet for a
+# donation-supported open-source repo. If it earns repeat visitors, the natural
+# paid step is multi-month comparison and price-to-target-margin suggestions,
+# still local-only.
+
+hypotheses:
+  - claim: >-
+      Etsy sellers will prefer a no-signup tool that reads their monthly
+      statement CSV locally over connecting a seller-tools app to their shop
+      to see true fees and profit per listing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The Offsite Ads, refund and small-order findings surface money the seller
+      did not know they were losing, which is the reason to return after each
+      monthly statement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports that a real Etsy statement export fails to parse or gives a materially wrong figure, at which point the column mapping or classification needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/etsy-statement-analyzer/
+  analytics: null

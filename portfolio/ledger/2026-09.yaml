@@ -47216,3 +47216,21 @@ entries:
         workflow, reciprocal link from amazon-fba-calculator and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: etsy-statement-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built etsy-statement-analyzer, a data-file archetype for a
+        market that already pays for this (Etsy profit trackers): a
+        browser-local tool that reads the monthly payment account statement CSV
+        (file or paste, header aliases, skipped rows reported with line and
+        reason) and derives a fee waterfall, take rate excluding shipping
+        labels, Offsite Ads and Etsy Ads share, refund cost, small-order fee
+        drag, per-listing fees on single-item orders with editable unit costs,
+        and findings. File never leaves the browser (test asserts no network
+        calls); independent-of-Etsy clause on the page. duplicate_check.py top
+        score 0.26. Column layout follows Etsy's documented export but no real
+        export has been run through it yet. Registered score row, launch date,
+        CI workflow and reciprocal link from etsy-profit-calculator.
+    mrr_end: 0

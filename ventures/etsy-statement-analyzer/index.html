@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Etsy Statement Analyzer — Free Fee and Profit Report</title>
+  <meta name="description" content="Free Etsy statement analyzer: drop in your payment account statement CSV and see your real take rate, Offsite Ads and Etsy Ads cost, refund cost and fees per listing. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Etsy Statement Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Fee waterfall, take rate and per-listing profit from an Etsy payment account statement. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Etsy Statement Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns an Etsy payment account statement CSV into a fee waterfall, take rate, Offsite Ads and refund findings and per-listing fees. Runs entirely in your browser; the file is never uploaded.", "featureList": "Fee waterfall, take rate, Offsite Ads and Etsy Ads share, refund cost, per-listing fees and profit, monthly table"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I see my real Etsy fees and profit from the payment account statement?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In Shop Manager go to Finances, Payment account, Monthly statements, download the CSV for the month (or several months, pasted together) and drop it here. The tool adds up sales, refunds and every fee line (transaction, processing, listing, Offsite Ads, Etsy Ads, regulatory, shipping labels) from the file. Nothing is uploaded; the file is read in your browser."}}, {"@type": "Question", "name": "How is the take rate worked out?", "acceptedAnswer": {"@type": "Answer", "text": "Etsy's own charges (transaction, processing, listing, advertising, regulatory fees, less credits) divided by sales in the same file. Shipping labels are shown separately because they are usually paid for by the buyer inside the sale amount."}}, {"@type": "Question", "name": "How does the tool find Offsite Ads charges?", "acceptedAnswer": {"@type": "Answer", "text": "Rows titled Offsite Ads Fee are grouped and matched to their order by order number, so you see the total, the number of orders and the share of sales. Etsy charges 12% or 15% of the order total on those sales."}}, {"@type": "Question", "name": "Why are some orders missing from the per-listing table?", "acceptedAnswer": {"@type": "Answer", "text": "The statement names an item only on the transaction fee line. Orders with exactly one item are attributed to that listing. Orders with two or more different items are counted in the totals but not attributed, because the file does not say which item earned which sale."}}, {"@type": "Question", "name": "Where do unit costs come from?", "acceptedAnswer": {"@type": "Answer", "text": "You. Etsy's statement has what Etsy paid you, not what your materials and labour cost. Type a cost per unit next to a listing or paste lines like Listing title,cost. Profit is left blank for a listing without a cost rather than counted as free."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Materials, labour and packaging you have not entered, shop-level costs, taxes and income tax, sales tax handling, buyer-paid shipping separated from item price, currency conversion, and anything outside the months you exported. Treat the result as an estimate from the file, not your books."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser."}}]}</script>
+<style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    td.neg { color: #9a3412; }
+    input.cost { width: 90px; padding: 5px 7px; text-align: right; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ETSY STATEMENT ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How much of every Etsy sale do you actually keep?</h1>
+    <p>Drop in your <strong>payment account statement</strong> and see your <strong>real take rate</strong>, what <strong>Offsite Ads</strong>, <strong>Etsy Ads</strong> and <strong>refunds</strong> cost, and the <strong>fees on each listing</strong>, without connecting a seller-tools app to your shop or sending anyone your order data.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your payment account statement</h2>
+    <p class="note">Shop Manager → Finances → Payment account → Monthly statements → Download CSV (columns “Date”, “Type”, “Title”, “Info”, “Amount”, “Fees &amp; Taxes”, “Net”). Several months can be pasted one after another.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <label for="paste">…or paste the CSV text</label>
+    <textarea id="paste" spellcheck="false" placeholder='Date,Type,Title,Info,Currency,Amount,Fees &amp; Taxes,Net,Tax Details'></textarea>
+    <label for="costs">Unit cost per listing (optional): one <code>Listing title,cost</code> per line</label>
+    <textarea id="costs" spellcheck="false" placeholder="Hand-poured Soy Candle 8oz,7.60"></textarea>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste CSV text, then click Analyze. You can type costs into the listing table afterwards too.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>Where the money goes</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Line</th><th class="n" scope="col">Amount</th><th class="n" scope="col">% of sales</th></tr></thead><tbody id="waterfall"></tbody></table></div>
+    <h3>Fees by listing</h3>
+    <p class="note">Single-item orders only. Type a unit cost to fill in profit; figures update as you type.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Listing</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Fees</th><th class="n" scope="col">Take rate</th><th class="n" scope="col">Etsy paid you</th><th class="n" scope="col">Unit cost</th><th class="n" scope="col">Profit</th><th class="n" scope="col">Margin</th></tr></thead><tbody id="listings"></tbody></table></div>
+    <h3>By month</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Month</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Sales</th><th class="n" scope="col">Refunds</th><th class="n" scope="col">Fees and labels</th><th class="n" scope="col">Net before cost of goods</th></tr></thead><tbody id="months"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download the listing table as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>Each row</strong> counts by its Net cell (or Amount if there is no Net column). Sales, refunds and every fee type are grouped by the row’s Type and Title. Deposits to your bank are payouts and are excluded; sales tax is excluded.</li>
+      <li><strong>Take rate</strong> is Etsy’s own charges, less credits, divided by sales. Shipping labels are shown separately.</li>
+      <li><strong>Per listing</strong> uses orders that contain exactly one item, found through the “Transaction fee: item” line, and adds that order’s sale, refund and fee rows by order number.</li>
+      <li><strong>Profit</strong> is what Etsy paid you on those orders minus unit cost × orders. A listing without a cost has no profit shown.</li>
+      <li><strong>Not modelled:</strong> materials and labour you have not entered, packaging, taxes, currency conversion, and anything outside the exported months.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Can I see my real Etsy fees and profit from the payment account statement?</h3>
+    <p>Yes. In Shop Manager go to Finances, Payment account, Monthly statements, download the CSV for the month (or several months, pasted together) and drop it here. The tool adds up sales, refunds and every fee line (transaction, processing, listing, Offsite Ads, Etsy Ads, regulatory, shipping labels) from the file. Nothing is uploaded; the file is read in your browser.</p>
+    <h3>How is the take rate worked out?</h3>
+    <p>Etsy's own charges (transaction, processing, listing, advertising, regulatory fees, less credits) divided by sales in the same file. Shipping labels are shown separately because they are usually paid for by the buyer inside the sale amount.</p>
+    <h3>How does the tool find Offsite Ads charges?</h3>
+    <p>Rows titled Offsite Ads Fee are grouped and matched to their order by order number, so you see the total, the number of orders and the share of sales. Etsy charges 12% or 15% of the order total on those sales.</p>
+    <h3>Why are some orders missing from the per-listing table?</h3>
+    <p>The statement names an item only on the transaction fee line. Orders with exactly one item are attributed to that listing. Orders with two or more different items are counted in the totals but not attributed, because the file does not say which item earned which sale.</p>
+    <h3>Where do unit costs come from?</h3>
+    <p>You. Etsy's statement has what Etsy paid you, not what your materials and labour cost. Type a cost per unit next to a listing or paste lines like Listing title,cost. Profit is left blank for a listing without a cost rather than counted as free.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Materials, labour and packaging you have not entered, shop-level costs, taxes and income tax, sales tax handling, buyer-paid shipping separated from item price, currency conversion, and anything outside the months you exported. Treat the result as an estimate from the file, not your books.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own records or a qualified adviser.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Etsy is a trademark of Etsy, Inc. This tool is independent and is not affiliated with, endorsed by or sponsored by Etsy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also selling on Etsy? See the <a href="../etsy-profit-calculator/">Etsy profit calculator</a> and the <a href="../where-to-sell-calculator/">where-to-sell calculator</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, normalizeRows, analyze, parseCosts, sampleCsv, sampleCosts, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let rows = [], skipped = [], last = null, costs = {};
+
+    function render() {
+      const r = last = analyze(rows, { costs });
+      if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
+      const s = r.summary, c = s.cats;
+      $("#report-stats").innerHTML = `${s.firstMonth} to ${s.lastMonth}: <strong>${money(s.sales)}</strong> of sales on ${s.orderCount} orders. Etsy kept <strong>${pct(s.takeRate)}</strong> in fees and paid you <strong>${money(s.operating)}</strong> after refunds and shipping labels`
+        + (s.profit !== null ? `; after your unit costs that leaves <strong>${money(s.profit)}</strong>.` : ".");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const line = (label, v, bold) => `<tr><th scope="row">${bold ? "<strong>" + label + "</strong>" : label}</th><td class="n${v < 0 ? " neg" : ""}">${bold ? "<strong>" + money(v) + "</strong>" : money(v)}</td><td class="n">${s.sales ? pct(v / s.sales) : "–"}</td></tr>`;
+      $("#waterfall").innerHTML = [
+        line("Sales", c.sale), line("Refunds", c.refund),
+        line("Transaction fees", c.transaction), line("Processing fees", c.processing), line("Listing and renewal fees", c.listing),
+        line("Offsite Ads fees", c["offsite-ads"]), line("Etsy Ads", c["etsy-ads"]), line("Regulatory operating fee", c.regulatory),
+        line("Fee credits", c["fee-credit"]), line("Other fees and adjustments", c["other-fees"] + c.other),
+        line("Shipping labels", c["shipping-labels"]),
+        line("Etsy paid you (before cost of goods)", s.operating, true),
+        s.anyCosted ? line("Cost of goods (entered)", -s.cogsTotal) : "",
+        s.profit !== null ? line("Profit", s.profit, true) : "",
+      ].join("");
+      $("#listings").innerHTML = r.listings.map((k) => {
+        const v = costs[k.title];
+        return `<tr><th scope="row">${esc(k.title)}</th><td class="n">${k.orders}</td><td class="n">${money(k.sales)}</td><td class="n">${money(k.fees)}</td><td class="n">${pct(k.takeRate)}</td><td class="n">${money(k.net)}</td>`
+          + `<td class="n"><input class="cost" data-title="${esc(k.title)}" inputmode="decimal" aria-label="Unit cost for ${esc(k.title)}" value="${v === undefined ? "" : v}"></td>`
+          + `<td class="n${k.profit !== null && k.profit < 0 ? " neg" : ""}">${k.profit === null ? "–" : money(k.profit)}</td><td class="n">${k.margin === null ? "–" : pct(k.margin)}</td></tr>`;
+      }).join("");
+      $("#months").innerHTML = r.months.map((m) => `<tr><th scope="row">${m.key}</th><td class="n">${m.orders}</td><td class="n">${money(m.sales)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.fees)}</td><td class="n">${money(m.net)}</td></tr>`).join("");
+      $("#skipped").textContent = skipped.length ? `${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : "") : "";
+      report.hidden = false;
+      return true;
+    }
+
+    function run(text) {
+      const n = normalizeRows(parseCsv(text));
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      rows = n.rows; skipped = n.skipped;
+      const c = parseCosts($("#costs").value);
+      costs = c.costs;
+      if (!render()) return false;
+      status.textContent = `Read ${rows.length} statement rows.` + (c.bad.length ? ` Ignored cost line(s): ${c.bad.slice(0, 5).join(", ")}.` : "");
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? await f.text() : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste CSV text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#costs").value = sampleCosts();
+      $("#file").value = "";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a small four-listing shop. Not real orders."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#costs").value = ""; $("#file").value = ""; report.hidden = true; rows = []; costs = {}; last = null; status.textContent = "Choose a file or paste CSV text, then click Analyze."; });
+    $("#listings").addEventListener("change", (e) => {
+      const el = e.target.closest("input.cost");
+      if (!el) return;
+      const t = el.value.trim();
+      const v = t === "" ? undefined : parseFloat(t.replace(/[^0-9.]/g, ""));
+      if (v === undefined || Number.isNaN(v)) delete costs[el.dataset.title]; else costs[el.dataset.title] = v;
+      render();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last || last.invalid) return;
+      const q = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+      const head = "listing,orders,sales,fees,take_rate,etsy_paid,unit_cost,profit";
+      const body = last.listings.map((k) => [q(k.title), k.orders, k.sales, k.fees, k.takeRate, k.net, costs[k.title] ?? "", k.profit ?? ""].map((v) => typeof v === "number" ? Math.round(v * 100) / 100 : v).join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([[head].concat(body).join("\n")], { type: "text/csv" }));
+      a.download = "fees-by-listing.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

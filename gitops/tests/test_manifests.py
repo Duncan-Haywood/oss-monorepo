@@ -2773,7 +2773,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # page that lints dependabot.yml; static `index.html` plus ES modules).
     # 400 -> 401: `roth-conversion-bracket-fill-calculator` graduated (browser-local
     # 2026 Roth conversion calculator, static `index.html` only).
-    total = 403  # `infra/OWNER_CHECKLIST.md`'s own "N of the 403 tools" wording.
+    total = 404  # `infra/OWNER_CHECKLIST.md`'s own "N of the 404 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
