@@ -47216,3 +47216,23 @@ entries:
         workflow, reciprocal link from amazon-fba-calculator and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: etsy-statement-profit-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built etsy-statement-profit-analyzer, the second
+        data-file archetype after amazon-seller-profit-analyzer: a
+        browser-local tool that reads the Etsy Payment Account statement (and
+        optionally Sold Order Items) and produces a fee waterfall where every
+        row lands in exactly one bucket (transaction, processing, renewals,
+        Offsite Ads, Etsy Ads, labels, refunds, credits), profit per listing
+        with editable unit costs (each order's net split across its items by
+        revenue, joined by order number), and findings (Offsite and Etsy Ads
+        share, refund rate, renewal fees, loss-makers, thin margins, fee
+        drift, concentration). Files never leave the browser (test asserts no
+        network calls); independent-of-Etsy clause on the page. Verified in
+        Chromium. Registered score row, launch date, CI workflow, reciprocal
+        link from etsy-profit-calculator and tree counts; regenerated the
+        mirror.
+    mrr_end: 0
