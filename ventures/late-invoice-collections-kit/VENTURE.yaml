@@ -1,0 +1,93 @@
+name: late-invoice-collections-kit
+description: >-
+  Free browser tool for freelancers and small agencies with an overdue invoice.
+  Type the amount, due date, client type and state and get the late fee and
+  interest owed today and on later dates (contract rate, or a state statutory
+  rate marked "verify with your state statute"), a four-step escalation
+  schedule (friendly reminder, firm notice, final demand, small-claims or
+  collections referral) with copy-ready letters filled in with your numbers, an
+  is-it-worth-suing break-even from a filing fee, time and odds you set, and a
+  download of the plan as .ics reminders and text. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. Freelancers and small
+# agencies routinely wait 30-90 days on invoices and then improvise: a
+# reminder they are embarrassed to write, a late fee they are not sure they can
+# charge, and no idea whether small claims is worth the day off. The paid
+# answers are invoicing apps (FreshBooks, Bonsai, Invoice Ninja) that send
+# automated reminders from inside the app, and collections agencies that keep a
+# third or more. Nothing free takes one overdue invoice and hands back "here is
+# what you can add today, here are the four messages and their dates, and here
+# is whether court is worth it", with no account.
+#
+# Distinct from ventures/invoice-aging-late-payer-analyzer (reads a whole
+# receivables export: who owes, who pays late) and ventures/invoice-payment-
+# terms-calculator (sets terms before invoicing): this starts after one invoice
+# is already late and ends in a dated action plan. Both are linked from the page.
+#
+# First visitor: searches like "late payment fee calculator", "invoice overdue
+# letter template", "final demand letter freelance", "is small claims worth it",
+# and r/freelance and r/smallbusiness threads asking how to chase a client who
+# went quiet. Search volume not measured.
+#
+# What makes it more than a template: the letters carry the accrued balance on
+# the day each is sent, dates are computed from the due date and editable, the
+# consumer/business split changes both wording and warnings, state interest is
+# a labelled reference the user can overwrite, and the sue-or-not step is an
+# expected-value calculation on the user's own fee, time and odds rather than a
+# verdict.
+#
+# Privacy: nothing is uploaded (a test asserts no network calls); the portfolio
+# holds no invoice or client data.
+#
+# Path to revenue (payment rails stay off): lead magnet into the aging analyzer
+# and terms calculator; GitHub Sponsors. A paid tier, if usage appears, would be
+# saved plans across invoices, local-only, behind an env-var switch; not built.
+# Not built: sending email or texts, which needs an account and consent rules.
+#
+# Liability: arithmetic and template text on user-typed numbers, model and
+# omissions stated on the page, not legal advice, no warranty,
+# independent-of-every-court-and-agency clause. State rates are only the
+# fixed legal rates the author is confident of (11 states), each with its
+# statute, dated 2026-09-29 and marked verify; floating-rate states are
+# user-supplied. Small-claims limits and fees are user-supplied with
+# placeholder defaults. Letters make no threat beyond a small-claims claim or
+# referral.
+#
+# Unverified: the state rates were written from memory of the statutes, not
+# re-checked against current text, and are labelled as such on the page; the
+# 3/14/30/45-day rhythm is a common convention, not a legal requirement.
+
+hypotheses:
+  - claim: >-
+      Freelancers with a late invoice will use a no-signup tool that hands them
+      the balance, four dated letters and a sue-or-not answer rather than
+      writing the chase emails from scratch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors download the .ics plan, so the reminders (not the letters) are
+      what brings them back on step two.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a state rate or a letter claim that is wrong, at which point the reference table or the wording needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/late-invoice-collections-kit/
+  analytics: null

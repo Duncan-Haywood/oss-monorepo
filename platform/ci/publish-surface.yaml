@@ -794,6 +794,9 @@ workflows:
 - workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: late-invoice-collections-kit-ci.yml
+  classification: none
+  publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -1227,6 +1230,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: septic-pumping-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: service-hourly-yield-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: sewer-hydrojet-bid-calculator-ci.yml

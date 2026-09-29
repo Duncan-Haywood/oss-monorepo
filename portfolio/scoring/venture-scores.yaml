@@ -20928,6 +20928,78 @@ ventures:
       business flagged, never decided; self-employment tax and depreciation not
       modelled. Nothing is uploaded and no bank credential is requested. Ethics:
       helps an owner report their own income and expenses accurately.
+  - slug: late-invoice-collections-kit
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic and template text on numbers the owner types.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Freelancers and
+      small agencies with late invoices have a real cash problem and no free,
+      account-free way to get the balance, the letters and the sue-or-not math
+      in one place. Distribution 6: "late payment fee calculator" and "invoice
+      overdue letter template" are recurring queries and r/freelance and
+      r/smallbusiness ask weekly; volume not measured with an external tool.
+      Defensibility 3: templates and interest arithmetic are easy to copy; the
+      edge is dated letters carrying the running balance, .ics reminders and a
+      break-even on the user's own numbers, free with no account.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic and templates on user-typed numbers; not legal
+      advice, no warranty, independent-of-every-court-and-agency clause. State
+      rates limited to fixed legal rates with the statute cited, dated and
+      marked verify; small-claims limits and fees user-supplied. Letters make no
+      threat beyond a small-claims claim or referral, and consumer wording is
+      softer. Ethics: helps a small seller collect money genuinely owed and
+      says to charge only what was agreed.
+  - slug: service-hourly-yield-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on an export the owner supplies and assumptions they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Businesses that
+      sell hours rank services by ticket size while a long service can earn
+      less per hour than a short cheap one; the per-hour view is a manual pivot
+      or a paid analytics tier. Distribution 6: "revenue per hour by service"
+      and "which services are most profitable" recur in owner forums; volume not
+      measured with an external tool. Defensibility 3: the arithmetic is simple;
+      the edge is ingesting the export, refusing to guess missing values, and
+      being free with no scheduling-app access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's file and editable assumptions with
+      model and omissions stated; no advice, no warranty, independent-of-the-
+      named-vendors clause, price effect flagged as the user's assumption and
+      revenue per hour stated not to be profit. Nothing is uploaded and no
+      scheduling-app credential is requested. Ethics: informational, helps an
+      owner see where their hours earn; pricing is the owner's decision.
   - slug: medical-bill-error-checker
     scores:
       ai_leverage: 1
