@@ -1038,7 +1038,7 @@ const RELATIVE_SELF = relative(
 // +1: `fba-reimbursement-claim-finder` graduated.
 // +1: `rent-roll-delinquency-analyzer` graduated.
 // +1: `fba-aged-inventory-fee-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 414;
+const SWITCHES_IN_THE_CATALOGUE = 415;
 
 let counter = 0;
 function fixture(source) {

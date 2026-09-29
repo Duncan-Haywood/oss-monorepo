@@ -47890,3 +47890,23 @@ entries:
         Registered score row, launch date, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: tow-motor-club-call-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tow-motor-club-call-calculator, a new-niche
+        calculator for independent tow and roadside operators deciding whether to
+        accept a motor-club dispatch: a truck cost-per-hour helper from the
+        operator's own payment, insurance, wage, fuel and overhead figures, then
+        cost of the job, profit, profit per truck-hour, break-even and minimum
+        acceptable payout, an accept or decline verdict against a typed margin
+        threshold and cash-call alternative, a deadhead-by-wait sensitivity table
+        and a batch mode that ranks pasted calls by profit per truck-hour.
+        Arithmetic on typed numbers only (tests assert break-even gives zero
+        profit and batch equals single-call figures); no rates or club terms are
+        built in and the page says rules vary by state and municipality;
+        independent-of-every-club clause; nothing is uploaded. Registered score
+        row, launch date, CI workflow, logistics category rule and tree counts;
+        regenerated the mirror.
+    mrr_end: 0

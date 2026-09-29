@@ -1379,6 +1379,9 @@ workflows:
 - workflow: toilet-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: tow-motor-club-call-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: translator-project-quote-ci.yml
   classification: none
   publishes: []
