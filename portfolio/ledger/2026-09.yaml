@@ -48112,6 +48112,7 @@ entries:
         and tree counts; regenerated the mirror.
     mrr_end: 0
   - venture: late-invoice-collections-kit
+  - venture: service-hourly-yield-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -48135,6 +48136,22 @@ entries:
         clauses on the page. State rates were written from memory and are
         unverified, stated on the page and in VENTURE.yaml. Registered score
         row, launch date, CI workflow and tree counts; regenerated the mirror.
+        Graduated and built service-hourly-yield-analyzer: a browser-local tool
+        that reads a booking or sales export (Square Appointments, Acuity,
+        Vagaro, Fresha, Booksy, Mindbody, Jobber style) and reports revenue per
+        booked hour by service, staff member, weekday and hour of day (summed
+        dollars over summed hours of the same bookings), flags services under a
+        typed share of the overall yield, shows no-shows as empty chair time,
+        estimates a typed price-change what-if and, given typed open hours, idle
+        hours and their yearly value. Durations read as minutes, hours, 1h 30m,
+        1:30 or from an end-time column; rows missing a price or duration are
+        left out and counted, never guessed. Distinct from
+        appointment-no-show-analyzer, which links to it. First visitor expected
+        from r/salons and r/Barber pricing threads. Nothing is uploaded (a test
+        asserts no network calls); independent-of-vendors clause on the page.
+        Column aliases are unverified against real exports, stated on the page,
+        README and VENTURE.yaml. Registered score row, launch date, category
+        rule, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
   - venture: print-on-demand-profit-calculator
     agent_spend_usd: null
