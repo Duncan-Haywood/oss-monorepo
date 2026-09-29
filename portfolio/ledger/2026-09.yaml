@@ -47851,6 +47851,65 @@ entries:
         score row, launch date, CI workflow and tree counts; regenerated the
         mirror.
     mrr_end: 0
+  - venture: rent-roll-delinquency-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rent-roll-delinquency-analyzer, a new-niche data-file
+        tool for small landlords: a browser-local tool that reads a rent ledger
+        CSV (file or paste; quoted fields, US and day-first dates, comma, tab,
+        semicolon and UTF-16; skipped rows reported with line and reason) and
+        shows unpaid rent by age bucket and by unit, habitually late units (three
+        late charges and half of a unit's charges), monthly collected and on-time
+        rates, part-payments and overpayments, and a late-fee upper bound from a
+        fee the user types, labelled with the local-law caveat. Ledger (tenant
+        names) never leaves the browser (a test asserts no network calls);
+        not-legal-advice and independent-of-every-product clauses on the page.
+        Column names matched by alias and no real export was available, stated on
+        the page, README and VENTURE.yaml. Checked in headless Chromium: example
+        loads, tables render, no page errors. Registered score row, launch date,
+        CI workflow, category rule and tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: fba-aged-inventory-fee-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built fba-aged-inventory-fee-analyzer: a browser-local tool
+        that reads the Amazon FBA Inventory Age report and, per SKU, simulates
+        storage fees and the aged-inventory surcharge month by month (oldest
+        units sell first) and compares hold, mark down 10/20/30%, remove the aged
+        units and remove everything on profit to sell-through, naming the best
+        option and its gain over holding. Flags negative margin, no-sales SKUs
+        and surcharge above storage. Fee tables (storage rates, surcharge tiers,
+        removal fee) are editable defaults typed from memory and stated as
+        unverified on the page, README and VENTURE.yaml; no real export was
+        available. Nothing is uploaded; independent-of-Amazon clause. Reciprocal
+        links from the reimbursement finder and the seller profit analyzer.
+        Registered score row, launch date, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
+  - venture: tow-motor-club-call-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built tow-motor-club-call-calculator, a new-niche
+        calculator for independent tow and roadside operators deciding whether to
+        accept a motor-club dispatch: a truck cost-per-hour helper from the
+        operator's own payment, insurance, wage, fuel and overhead figures, then
+        cost of the job, profit, profit per truck-hour, break-even and minimum
+        acceptable payout, an accept or decline verdict against a typed margin
+        threshold and cash-call alternative, a deadhead-by-wait sensitivity table
+        and a batch mode that ranks pasted calls by profit per truck-hour.
+        Arithmetic on typed numbers only (tests assert break-even gives zero
+        profit and batch equals single-call figures); no rates or club terms are
+        built in and the page says rules vary by state and municipality;
+        independent-of-every-club clause; nothing is uploaded. Registered score
+        row, launch date, CI workflow, logistics category rule and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
   - venture: restaurant-pos-menu-mix-analyzer
     agent_spend_usd: null
     human_hours: 0
