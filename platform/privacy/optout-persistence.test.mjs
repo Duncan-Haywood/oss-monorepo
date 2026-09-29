@@ -996,7 +996,11 @@ const RELATIVE_SELF = relative(
 // `usage.mjs` under its own storage name. Re-derived by `sync_tree_counts.py`.
 // 379 -> 380: `roth-conversion-bracket-fill-calculator` graduated -- one more
 // boilerplate `usage.mjs` under its own storage name.
-const SWITCHES_IN_THE_CATALOGUE = 383;
+// 382 -> 383: `etsy-statement-profit-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+// 383 -> 384: `google-ads-wasted-spend-analyzer` graduated -- one more
+// boilerplate `usage.mjs` under its own storage name.
+const SWITCHES_IN_THE_CATALOGUE = 384;
 
 let counter = 0;
 function fixture(source) {

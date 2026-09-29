@@ -2773,7 +2773,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # page that lints dependabot.yml; static `index.html` plus ES modules).
     # 400 -> 401: `roth-conversion-bracket-fill-calculator` graduated (browser-local
     # 2026 Roth conversion calculator, static `index.html` only).
-    total = 404  # `infra/OWNER_CHECKLIST.md`'s own "N of the 404 tools" wording.
+    # 403 -> 404: `etsy-statement-profit-analyzer` graduated (browser-local Etsy
+    # statement CSV analyzer, static `index.html` plus ES modules).
+    # 404 -> 405: `google-ads-wasted-spend-analyzer` graduated (browser-local Google Ads
+    # search terms report analyzer, static `index.html` plus ES modules).
+    total = 405  # `infra/OWNER_CHECKLIST.md`'s own "N of the 405 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
