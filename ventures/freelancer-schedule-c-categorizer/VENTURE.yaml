@@ -1,0 +1,89 @@
+name: freelancer-schedule-c-categorizer
+description: >-
+  Free browser tool that reads a bank or card CSV export and sorts every
+  transaction into an IRS Schedule C (Form 1040) line for freelancers and sole
+  proprietors, holding owner draws, transfers, estimated-tax payments, loan
+  principal, health insurance, retirement contributions and equipment out of
+  the expenses. Counts meals at 50%, warns that Stripe, PayPal and Etsy payouts
+  are net of fees, flags purchases that may be equipment, and downloads every
+  row with its category for a preparer. The file is read locally and never
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. About 30 million US
+# taxpayers file a Schedule C, and the work is the same every February: export
+# the bank CSV, sort a year of transactions into lines by hand, and try not to
+# deduct the things that are not expenses. The paid answers are Keeper, Found,
+# QuickBooks Self-Employed, Bench and a CPA's hourly bookkeeping, all built
+# around connecting a bank login and a subscription. Nothing free does the
+# one-off job of "here is my bank file, give me the Schedule C lines" without an
+# account and a bank link. Sibling of rental-property-schedule-e-categorizer,
+# which shares its parsing engine; the categories, rules and findings are
+# Schedule C's own.
+#
+# First visitor: r/freelance, r/smallbusiness, r/tax, indie-hacker and
+# creator forums, and searches like "bank statement to Schedule C", "categorize
+# freelance expenses csv", "what can a freelancer deduct". Search volume not
+# measured.
+#
+# What makes it more than a keyword sorter: it holds out what is NOT a Schedule
+# C expense instead of dumping it in the totals (estimated tax, owner draws,
+# card principal, health insurance, retirement); meals are counted at half;
+# platform payouts are called out as net of fees so line 1 is not understated;
+# equipment is flagged rather than expensed; nothing ambiguous is guessed, it is
+# listed as uncategorised; every row in the CSV names the rule that decided it.
+#
+# Privacy is the liability boundary: the file never leaves the browser (a test
+# asserts no network calls), so the portfolio holds no bank data and needs no
+# bank credential or aggregator.
+#
+# Path to revenue (payment rails stay off): lead magnet into the self-employment
+# tax, quarterly estimate, home office and mileage tools; GitHub Sponsors. A
+# paid tier, if usage appears, is saved rule sets and multi-year comparison,
+# local-only, behind an env-var switch; not built. Not built: bank aggregation
+# (Plaid), which needs credentials and terms review.
+#
+# Liability: arithmetic and keyword matching on the user's file, model and
+# omissions stated on the page, no tax advice, no warranty, independent-of-
+# every-bank-and-the-IRS clause, equipment and mixed-use expenses flagged and
+# never decided, depreciation and home office not modelled.
+#
+# Unverified: column names are matched by alias and no real bank export was
+# available; the Schedule C line numbers are those of the 2024-era form and the
+# page tells the reader to check their year's form. The first user report of an
+# unread file is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Freelancers will drop a year of bank CSVs into a no-signup tool to get
+      Schedule C line totals rather than build the pivot by hand or pay for a
+      bookkeeping subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Freelancers come back every tax season and add their own keyword rules, so
+      the rule box, not the built-in list, is what makes the second visit
+      faster than the first.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a materially wrong line, or a real bank export the tool cannot read, at which point the parser or the rules need revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/freelancer-schedule-c-categorizer/
+  analytics: null

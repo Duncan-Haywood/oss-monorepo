@@ -20856,3 +20856,39 @@ ventures:
       scheduling-app credential is requested. Ethics: informational, helps an
       owner see where slots are lost; the page says a policy change or refusing
       a client is the owner's decision.
+  - slug: freelancer-schedule-c-categorizer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      keyword matching and arithmetic on a bank file the owner supplies.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Freelancers and
+      sole proprietors file a Schedule C every year, and sorting a year of bank
+      lines into its lines is manual or sits behind a paid bookkeeping app with
+      a bank link. Distribution 6: "bank statement to Schedule C" and
+      "categorize freelance expenses" are recurring freelancer-forum queries;
+      volume not measured with an external tool. Defensibility 3: keyword
+      sorting is easy to copy; the edge is holding out non-expenses, the
+      platform-payout and equipment flags instead of guesses, and being free with
+      no bank access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: keyword matching and arithmetic on the user's file with model
+      and omissions stated; no tax advice, no warranty, independent-of-every-
+      bank-and-the-IRS clause; equipment and mixed-use expenses flagged, never
+      decided; depreciation and home office not modelled. Nothing is uploaded
+      and no bank credential is requested. Ethics: helps a self-employed person
+      report their own income and expenses accurately.

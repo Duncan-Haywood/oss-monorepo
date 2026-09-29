@@ -1172,6 +1172,9 @@ const CATEGORY_RULES = [
       // `rental-property-schedule-e-categorizer` sorts a landlord's bank file after the year is over
       // into tax lines: the same after-the-fact reconciliation job, next to the rent ledger reader.
       || slug === 'rental-property-schedule-e-categorizer'
+      // `freelancer-schedule-c-categorizer` is the same after-the-year bank-file reconciliation for a
+      // sole proprietor's Schedule C, filed beside its landlord sibling.
+      || slug === 'freelancer-schedule-c-categorizer'
       // `dental-ppo-writeoff-calculator` measures what a signed contract
       // actually paid over a period already billed — the same after-the-sale
       // reconciliation job as `card-processing-fee-audit` (splitting a
