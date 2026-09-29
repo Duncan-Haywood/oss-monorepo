@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dependabot Config Check — Lint dependabot.yml and Find Ecosystems It Misses</title>
+  <meta name="description" content="Paste your dependabot.yml and your repo's file list. Finds ecosystems Dependabot never updates, invalid intervals, duplicate entries, missing groups and cooldown, and writes a starter config. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Is Dependabot actually watching all of your repo?">
+  <meta property="og:description" content="Dependabot silently ignores any manifest your dependabot.yml does not list. Paste the config and a file list and see exactly which ones it skips.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dependabot Config Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Lints dependabot.yml and compares it with a repository's file list to find manifests no update entry covers. Generates a starter config. Runs in the browser or as a zero-dependency CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does Dependabot skip some of my dependencies?","acceptedAnswer":{"@type":"Answer","text":"Version updates only run for the package-ecosystem and directory pairs listed under updates:. A manifest in a directory or ecosystem that is not listed is never checked, and nothing warns you. A monorepo with a second package.json in a subfolder, or a Dockerfile added after the config was written, is the usual cause."}},{"@type":"Question","name":"Does directory: / cover subfolders?","acceptedAnswer":{"@type":"Answer","text":"No. It covers manifests in the repository root only (for github-actions it covers .github/workflows). Use one entry per folder, or the directories: key with globs such as /* or /**."}},{"@type":"Question","name":"What does a cooldown do?","acceptedAnswer":{"@type":"Answer","text":"cooldown: default-days: N holds a routine update until the release is N days old, giving the ecosystem time to yank a compromised or broken release. Security updates are not delayed."}},{"@type":"Question","name":"Why group updates?","acceptedAnswer":{"@type":"Answer","text":"Without groups: every dependency bump is its own pull request. A group with update-types: [minor, patch] folds them into one weekly PR."}},{"@type":"Question","name":"Does this tool read my repository?","acceptedAnswer":{"@type":"Answer","text":"No. You paste the config and a file list and it all runs in this browser. The check is a static comparison of the two texts: it does not know which dependencies are outdated or vulnerable, and it does not talk to GitHub."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.error { background: #fde8e8; color: #9a1c1c; }
+    .pill.warn { background: #fdf1e0; color: #92400e; }
+    .pill.info { background: #e0edf8; color: #17324a; }
+    pre { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .85rem; line-height: 1.5; overflow-x: auto; margin: 6px 0 0; white-space: pre-wrap; }
+    pre.cmd { line-height: 1.6; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error-text { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DEPENDABOT CONFIG CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is Dependabot actually watching all of your repo?</h1>
+    <p>Dependabot only updates the <code>package-ecosystem</code> and <code>directory</code> pairs your <code>dependabot.yml</code> lists. A second <code>package.json</code> in a subfolder, a <code>Dockerfile</code> added later, or a <code>go.mod</code> in a service directory is silently skipped, and there is no warning. Paste your config and your file list and this page shows exactly what is skipped, lints the config itself, and writes a starter file.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your config and your file list</h2>
+    <label for="config">.github/dependabot.yml <span class="note">(leave empty to just generate one)</span></label>
+    <textarea id="config" spellcheck="false" placeholder="version: 2&#10;updates:&#10;  - package-ecosystem: &quot;npm&quot;&#10;    directory: &quot;/&quot;&#10;    schedule:&#10;      interval: weekly"></textarea>
+    <label for="files">Repository file list <span class="note">(one path per line, e.g. the output of <code>git ls-files</code>)</span></label>
+    <textarea id="files" spellcheck="false" placeholder="package.json&#10;web/package.json&#10;Dockerfile&#10;.github/workflows/ci.yml"></textarea>
+    <p class="note">Without a file list only the config itself is linted. <code>node_modules</code>, <code>vendor</code>, <code>dist</code> and similar folders are ignored.</p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="generate">Generate starter config</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a config and a file list, then click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Line</th><th>Level</th><th>Rule</th><th>What is wrong and how to fix it</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" id="gen-card" hidden>
+    <h2>Starter dependabot.yml</h2>
+    <p class="note">One entry per ecosystem found in your file list, weekly, with a 7-day cooldown and minor/patch grouping. Save it as <code>.github/dependabot.yml</code> and adjust to taste.</p>
+    <pre id="gen-out"></pre>
+    <p><button type="button" class="secondary" id="copy">Copy</button></p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one import:</p>
+    <pre class="cmd"><code>node cli.mjs                    # check .github/dependabot.yml against the current directory
+node cli.mjs /path/to/repo      # a specific checkout
+node cli.mjs --format json      # machine-readable
+node cli.mjs --fail-on-risk     # exit 2 on any error or warning
+node cli.mjs --generate         # print a starter config for the manifests it finds</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="check.mjs" rel="noopener">check.mjs</a> from the repo. Node 18 or newer, nothing to install, no network calls. Run it with <code>--fail-on-risk</code> in your own CI so a new folder with a manifest cannot merge without an update entry.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does Dependabot skip some of my dependencies?</h3>
+    <p>Version updates only run for the <code>package-ecosystem</code> and <code>directory</code> pairs listed under <code>updates:</code>. A manifest in a directory or ecosystem that is not listed is never checked, and nothing warns you. A monorepo with a second <code>package.json</code> in a subfolder, or a <code>Dockerfile</code> added after the config was written, is the usual cause.</p>
+    <h3>Does <code>directory: /</code> cover subfolders?</h3>
+    <p>No. It covers manifests in the repository root only (for <code>github-actions</code> it covers <code>.github/workflows</code>). Use one entry per folder, or the <code>directories:</code> key with globs such as <code>/*</code> or <code>/**</code>.</p>
+    <h3>What does a cooldown do?</h3>
+    <p><code>cooldown: default-days: N</code> holds a routine update until the release is N days old, giving the ecosystem time to yank a compromised or broken release. Security updates are not delayed.</p>
+    <h3>Why group updates?</h3>
+    <p>Without <code>groups:</code> every dependency bump is its own pull request. A group with <code>update-types: [minor, patch]</code> folds them into one weekly PR.</p>
+    <h3>Does this tool read my repository?</h3>
+    <p>No. You paste the config and a file list and it all runs in this browser. The check is a static comparison of the two texts: it does not know which dependencies are outdated or vulnerable, and it does not talk to GitHub.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your dependencies are up to date or safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including whether GitHub's current Dependabot options match what it suggests. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>config_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Dependabot keeps dependencies fresh; other checks harden the pipeline that installs them. <a href="../pinned-actions-check/">Pinned Actions Check</a> flags third-party <code>uses:</code> lines referenced by a mutable tag instead of a commit SHA, and <a href="../actions-permissions-check/">Actions Permissions Check</a> flags workflows with no explicit <code>permissions:</code> block.</p>
+    <p class="support">Free and open source. If this caught a folder Dependabot was ignoring, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, generateConfig, summary, hasRisk } from "./check.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const els = { config: $("#config"), files: $("#files"), status: $("#status"), report: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"), gen: $("#gen-card"), genOut: $("#gen-out") };
+
+    const EXAMPLE_CONFIG = `version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: daily
+  - package-ecosystem: "go"
+    directory: "/api"
+    schedule:
+      interval: weekly
+  - package-ecosystem: "pip"
+    directory: "/ml"
+    open-pull-requests-limit: 0
+    schedule:
+      interval: weekly
+`;
+    const EXAMPLE_FILES = `package.json
+web/package.json
+api/go.mod
+ml/requirements.txt
+Dockerfile
+.github/workflows/ci.yml
+.github/workflows/release.yml
+README.md
+`;
+
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const paths = () => els.files.value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+
+    function run() {
+      els.gen.hidden = true;
+      if (!els.config.value.trim()) { els.status.innerHTML = '<span class="error-text">Paste a dependabot.yml first, or use Generate starter config.</span>'; return; }
+      const list = paths();
+      const r = analyze(els.config.value, list.length ? list : null);
+      els.verdict.className = "verdict" + (hasRisk(r) ? " risk" : "");
+      els.verdict.textContent = summary(r) + (list.length ? "" : " (config only: add a file list to find skipped manifests)");
+      els.rows.innerHTML = r.findings.map((f) => `<tr><td>${f.line}</td><td><span class="pill ${f.severity}">${f.severity}</span></td><td><code>${esc(f.rule)}</code></td><td>${esc(f.message)}${f.fix ? `<pre>${esc(f.fix)}</pre>` : ""}</td></tr>`).join("");
+      els.report.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+    }
+
+    function generate() {
+      const y = generateConfig(paths());
+      els.report.hidden = true;
+      if (!y) { els.status.innerHTML = '<span class="error-text">No supported manifests found in the file list. Paste your repository file list first.</span>'; els.gen.hidden = true; return; }
+      els.genOut.textContent = y; els.gen.hidden = false; els.status.textContent = "";
+      record("config_generated");
+    }
+
+    $("#check").addEventListener("click", run);
+    $("#generate").addEventListener("click", generate);
+    $("#load-example").addEventListener("click", () => {
+      els.config.value = EXAMPLE_CONFIG; els.files.value = EXAMPLE_FILES; run(); record("example_loaded");
+      els.status.textContent = "Worked example: a monorepo where web/ is not covered, the Dockerfile and the workflows are not covered, and one entry uses \"go\" instead of \"gomod\".";
+    });
+    $("#clear").addEventListener("click", () => { els.config.value = ""; els.files.value = ""; els.report.hidden = true; els.gen.hidden = true; els.status.textContent = "Paste a config and a file list, then click Check."; });
+    $("#copy").addEventListener("click", async (e) => { try { await navigator.clipboard.writeText(els.genOut.textContent); e.target.textContent = "Copied"; } catch { e.target.textContent = "Select and copy manually"; } });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const b = $("#optout"); b.textContent = "Usage counting is off"; b.disabled = true; }
+  </script>
+</body>
+</html>

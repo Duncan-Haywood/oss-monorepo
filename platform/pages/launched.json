@@ -105,6 +105,7 @@
     "deck-staining-bid-calculator": "2026-08-26",
     "delivery-app-margin-calculator": "2026-08-26",
     "dental-ppo-writeoff-calculator": "2026-09-11",
+    "dependabot-config-check": "2026-09-29",
     "dependency-confusion-check": "2026-09-07",
     "deploy-concurrency-check": "2026-09-17",
     "depop-fee-calculator": "2026-09-24",
