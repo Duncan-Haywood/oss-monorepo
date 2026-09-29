@@ -20225,3 +20225,41 @@ ventures:
       network calls) and emails are not kept in memory beyond parsing, so the
       portfolio holds no writer or subscriber data. Ethics: purely
       informational, helps a writer see their own retention.
+  - slug: ghost-members-export-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own file and the price and cost
+      assumptions they can edit.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Ghost Admin
+      shows headline member counts and growth; nothing ranks members by email
+      engagement or prices what an inactive list costs in sending and
+      member-based plan fees. Distribution 6: "ghost inactive members" and
+      "ghost members export" style threads on the Ghost forum are recurring;
+      volume not measured with an external tool. Defensibility 3: the
+      local-only stance is the differentiator against list-hygiene services
+      that want an API key or an upload.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and editable assumptions with
+      model and omissions stated; no tax or financial advice, no warranty,
+      independent-of-Ghost clause on the page; removal is only ever suggested
+      after a re-engagement email and never for paid or complimentary members.
+      The file, which holds member emails and names, never leaves the browser (a
+      test asserts no network calls) and they are not kept beyond parsing, so
+      the portfolio holds no publisher or member data. Ethics: purely
+      informational, helps a publisher keep an honest list.

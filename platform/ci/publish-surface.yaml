@@ -617,6 +617,9 @@ workflows:
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []
+- workflow: ghost-members-export-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: gig-driver-earnings-report-analyzer-ci.yml
   classification: none
   publishes: []
@@ -639,6 +642,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: gumroad-sales-fee-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: gutter-cleaning-bid-calculator-ci.yml
@@ -1310,6 +1316,9 @@ workflows:
 - workflow: subscription-price-impact-ci.yml
   classification: none
   publishes: []
+- workflow: substack-subscriber-export-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
@@ -1335,6 +1344,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tiktok-shop-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tiktok-shop-settlement-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: tip-pool-compliance-calculator-ci.yml
@@ -1514,12 +1526,3 @@ gitops:
   hosts: []
   unmet_secrets: []
   redirects: {}
-- workflow: gumroad-sales-fee-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: tiktok-shop-settlement-analyzer-ci.yml
-  classification: none
-  publishes: []
-- workflow: substack-subscriber-export-analyzer-ci.yml
-  classification: none
-  publishes: []
