@@ -20784,3 +20784,39 @@ ventures:
       depreciation not modelled. Nothing is uploaded and no bank credential is
       requested. Ethics: helps an owner report their own rental income and
       expenses accurately.
+  - slug: self-employed-schedule-c-categorizer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      keyword matching and arithmetic on a bank file the owner supplies.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Around 30 million
+      US taxpayers file a Schedule C and sorting a year of bank lines into it is
+      manual or sits behind a bookkeeping subscription with a bank link.
+      Distribution 7: "bank statement to Schedule C", "categorize business
+      expenses csv" and "why is my 1099-K higher than my deposits" are recurring
+      freelancer and seller queries; volume not measured with an external tool.
+      Defensibility 3: keyword sorting is easy to copy; the edge is holding out
+      non-expenses, the platform-fee versus 1099 gross check, flags instead of
+      guesses, and being free with no bank access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: keyword matching and arithmetic on the user's file with model
+      and omissions stated; no tax advice, no warranty, independent-of-every-
+      bank-and-the-IRS clause; equipment versus expense and personal versus
+      business flagged, never decided; self-employment tax and depreciation not
+      modelled. Nothing is uploaded and no bank credential is requested. Ethics:
+      helps an owner report their own income and expenses accurately.

@@ -1199,6 +1199,9 @@ workflows:
 - workflow: security-txt-check-ci.yml
   classification: none
   publishes: []
+- workflow: self-employed-schedule-c-categorizer-ci.yml
+  classification: none
+  publishes: []
 - workflow: self-employment-tax-calculator-ci.yml
   classification: none
   publishes: []
