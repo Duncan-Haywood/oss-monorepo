@@ -48341,3 +48341,24 @@ entries:
         score row, launch date, category rule, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: travel-nurse-contract-comparison-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built travel-nurse-contract-comparison-calculator: a browser-local tool that
+        compares up to three travel-nurse or locum contract offers by real
+        take-home pay. Taxable rate, overtime on the taxable rate only, untaxed
+        stipends (taxed if the visitor has no tax home), bonus, health premium,
+        housing and travel cost, unpaid gap weeks, a written hours guarantee and
+        stipend proration, a cancelled-shift sensitivity table, the exact taxable
+        rate a weaker offer needs to match the best, and a per-diem ceiling flag
+        from a rate the visitor types (no rate table shipped, so nothing goes
+        stale). New niche: duplicate_check.py top match 0.11. First visitor
+        expected from r/travelnursing "which offer should I take" threads and
+        searches like "travel nurse stipend calculator". Numbers never uploaded.
+        Arithmetic verified against hand calculation only, stated on the page.
+        Tax is one flat rate the visitor chooses; not tax advice. 31 tests.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
