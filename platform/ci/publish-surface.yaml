@@ -317,6 +317,9 @@ workflows:
 - workflow: cleaning-dilution-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: client-profitability-time-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: cloud-bucket-exposure-check-ci.yml
   classification: none
   publishes: []
