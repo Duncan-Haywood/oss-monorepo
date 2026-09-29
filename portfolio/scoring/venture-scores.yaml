@@ -20331,3 +20331,37 @@ ventures:
       browser (a test asserts no network calls) and buyer location and order
       fields are never read, so the portfolio holds no developer financial data.
       Ethics: purely informational, helps a developer see their own earnings.
+  - slug: home-service-lead-roi-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on rows of the user's own file and a margin they type.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Trades owners buy
+      leads at $25-$100 each and platform dashboards do not report which became
+      jobs. Distribution 7: "thumbtack roi", "is angi worth it" and "cost per
+      booked job" are recurring contractor queries and the audience gathers in
+      identifiable trade forums; volume not measured with an external tool.
+      Defensibility 3: the local-only stance and no-CRM-required are the
+      differentiators against CRM marketing-ROI modules.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's own file and a typed margin with model
+      and omissions stated; no financial advice, no warranty, independent-of-every-
+      platform clause, no claim any platform will credit a lead. The file, which
+      may hold customer names and phone numbers, never leaves the browser (a test
+      asserts no network calls), so the portfolio holds no customer data. Ethics:
+      purely informational, helps an owner see their own spend.

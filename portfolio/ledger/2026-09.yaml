@@ -47773,3 +47773,25 @@ entries:
         Registered score row, launch date, CI workflow and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: home-service-lead-roi-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built home-service-lead-roi-analyzer, a new-niche data-file
+        tool for trades owners who buy leads (Thumbtack, Angi, HomeAdvisor,
+        Google Local Services, Yelp, ads, referrals): a browser-local tool that
+        reads a lead log CSV (file or paste; quoted fields, US and day-first
+        dates, comma, tab, semicolon and UTF-16; skipped rows reported with line
+        and reason) and shows cost per lead, close rate, cost per booked job, job
+        value, break-even close rate and profit after lead cost per source,
+        service and month, names paid sources that lose money (five-lead minimum,
+        typed job margin labelled an assumption) or never booked, and lists
+        charged spam, wrong-number and repeat leads without claiming any platform
+        will credit them. File never leaves the browser (a test asserts no
+        network calls); independent-of-every-platform clause on the page. Column
+        names matched by alias and no real platform export was available, stated
+        on the page, README and VENTURE.yaml. Reciprocal link from
+        shop-rate-calculator. Registered score row, launch date, CI workflow and
+        tree counts; regenerated the mirror.
+    mrr_end: 0
