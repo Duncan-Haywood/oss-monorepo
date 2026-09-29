@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 390 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 391 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator comparing the 2026 IRS standard mileage rate (72.5 cents per mile through June 30, 76 cents from July 1) with actual vehicle expenses for a self-employed business car. See which deduction is larger and what it is worth. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Self-Employment Tax Calculator 2026 — Schedule SE, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-employment-tax-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/self-employment-tax-calculator</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free 2026 self-employment tax calculator for freelancers and sole proprietors: Social Security and Medicare, the $184,500 wage base, W-2 wages, Additional Medicare Tax, and how much of every payment to set aside. Runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Solo 401(k) Contribution Calculator — 2026, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-24T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Compare the monthly dollar cost of calling different LLM APIs (Claude, GPT, Gemini, or a custom provider) for your own workload -- modelling fresh input, cached input, and output tokens separately, since cached tokens are billed far below fresh input and usually dominate agentic workloads. Free, private, no signup.</summary>
-  </entry>
-  <entry>
-    <title>MCP Config Risk Check — audit an mcp.json for risky server settings</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mcp-config-risk-check/"/>
-    <id>tag:marisstella.dev,2026:tool/mcp-config-risk-check</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste an mcp.json, claude_desktop_config.json, or any MCP server config and get every risky pattern flagged: servers granted broad filesystem/shell access, API keys hardcoded instead of referenced from env, missing version pins, and duplicate tool names across servers. Free, private, runs entirely in your browser.</summary>
   </entry>
 </feed>

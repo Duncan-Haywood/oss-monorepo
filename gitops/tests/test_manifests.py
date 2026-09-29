@@ -2760,7 +2760,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 389 -> 390: `home-office-deduction-calculator` also graduated -- a
     # browser-local simplified-vs-regular (Form 8829) home office deduction
     # comparison. Static `index.html` only.
-    total = 390  # `infra/OWNER_CHECKLIST.md`'s own "N of the 390 tools" wording.
+    # 390 -> 391: `self-employment-tax-calculator` also graduated -- a
+    # browser-local 2026 Schedule SE tax calculator. Static `index.html` only.
+    total = 391  # `infra/OWNER_CHECKLIST.md`'s own "N of the 391 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

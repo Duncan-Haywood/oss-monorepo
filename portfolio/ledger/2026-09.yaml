@@ -47022,3 +47022,19 @@ entries:
         --verify, checklist_coverage.py, clauses.mjs, router/validate.py,
         score_ventures.py --check clean.
     mrr_end: 0
+  - venture: self-employment-tax-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built self-employment-tax-calculator: a browser-local
+        2026 Schedule SE calculator (92.35% net earnings, 12.4% Social
+        Security to the $184,500 wage base reduced by W-2 wages, 2.9%
+        Medicare, deductible half, Additional Medicare Tax by filing status,
+        marginal SE rate, percent-of-income set-aside and quarterly figure).
+        Rules verified against IRS Tax Topic 554 and SSA 2026 figures;
+        duplicate_check.py found no existing SE-tax venture. Registered build
+        category, score row, launch date, CI workflow, reciprocal link from
+        home-office-deduction-calculator, tree counts (391 tools / 370
+        switches); regenerated the mirror.
+    mrr_end: 0
