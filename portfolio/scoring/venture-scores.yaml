@@ -20507,3 +20507,72 @@ ventures:
       the portfolio holds no tenant data. Ethics: informational, helps a landlord
       see their own receivables; no tenant screening, no collection or eviction
       filing, no scoring of individuals for third parties.
+  - slug: fba-aged-inventory-fee-analyzer
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      simulation arithmetic on one report the seller supplies and fee values
+      they can edit.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. FBA sellers with
+      slow stock pay monthly storage fees and an aged-inventory surcharge that
+      rises with age, and choose between waiting, a price cut and a removal fee
+      by feel. Distribution 6: "aged inventory surcharge calculator", "should I
+      remove aged FBA inventory" and "FBA storage fee calculator" are recurring
+      seller-forum queries; volume not measured with an external tool.
+      Defensibility 3: fee arithmetic anyone can copy; the edge is month-by-month
+      oldest-first simulation, comparing four actions on profit rather than fees,
+      and being free with no account access.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on the user's file and editable assumptions with
+      model and omissions stated; no advice, no warranty, independent-of-Amazon
+      clause; fee tables are typed defaults and the page says they are
+      unverified. Nothing is uploaded and no seller credential is requested.
+      Ethics: helps a seller avoid paying fees on stock that will not sell.
+  - slug: tow-motor-club-call-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the operator types.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Independent tow
+      and roadside operators decide per dispatch whether a motor-club payout
+      covers the truck-hour; the answer today is gut feel or a spreadsheet.
+      Distribution 6: "tow truck cost per hour" and "is agero worth it" are
+      recurring operator queries and the audience gathers in identifiable
+      forums; volume not measured with an external tool. Defensibility 3:
+      local-only and no signup are the differentiators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: arithmetic on typed numbers; no rates, club terms or state rules
+      built in, and the page says rates vary by state and municipality and that
+      this is not legal, rate or financial advice, plus an independent-of-every-club
+      clause. Nothing is uploaded (a test asserts no network calls). Ethics:
+      purely informational, helps an operator see what a call pays them.
