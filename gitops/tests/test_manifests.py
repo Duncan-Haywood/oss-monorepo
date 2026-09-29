@@ -2802,7 +2802,8 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # +1: `tiktok-shop-settlement-analyzer` graduated (browser-local TikTok Shop
     # settlement CSV analyzer, static `index.html` plus ES modules).
     # +1: `substack-subscriber-export-analyzer` graduated.
-    total = 426  # `infra/OWNER_CHECKLIST.md`'s own "N of the 426 tools" wording.
+    # +1: `app-store-sales-report-analyzer` graduated.
+    total = 427  # `infra/OWNER_CHECKLIST.md`'s own "N of the 427 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

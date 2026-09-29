@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 426 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 427 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">Free Amazon seller profit analyzer: drop in your Seller Central Transaction report CSV and get profit per SKU, a fee waterfall, ad spend, refund and reimbursement findings. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
+  <entry>
+    <title>App Store Sales Report Analyzer — Proceeds, Refunds and Countries</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/app-store-sales-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/app-store-sales-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free analyzer for iOS developers: drop in your App Store Connect Summary Sales report and see net proceeds by product, country and month, refund rates, subscription renewals, and whether you show the Small Business Program rate. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Backdoor Roth Pro-Rata Calculator — Form 8606, Free</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-28T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for the 2026 Solo 401(k) contribution limit for a sole proprietor or single-member LLC — employee elective deferral (up to $24,500, or $32,500/$35,750 with catch-up), employer profit-sharing contribution (20% of net self-employment earnings), and the combined $72,000/$80,000/$83,250 overall limit. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>BOI Reporting Exemption Checker — 2026 FinCEN Rule, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/boi-reporting-exemption-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/boi-reporting-exemption-checker</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free checker for whether your company still owes a federal Corporate Transparency Act beneficial ownership report after FinCEN&#39;s August 2026 final rule permanently exempted every U.S.-formed entity. Applies to foreign-formed entities registered to do business in the U.S. Entirely client-side, nothing uploaded.</summary>
   </entry>
 </feed>
