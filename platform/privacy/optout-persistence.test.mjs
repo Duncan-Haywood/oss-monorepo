@@ -1045,7 +1045,8 @@ const RELATIVE_SELF = relative(
 // +1: `property-tax-appeal-calculator` graduated.
 // +1: `subscription-audit-from-statement` graduated.
 // +1: `restaurant-labor-cost-daypart-analyzer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 422;
+// +1: `appointment-no-show-analyzer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 423;
 
 let counter = 0;
 function fixture(source) {
