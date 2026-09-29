@@ -47458,6 +47458,30 @@ entries:
         row, launch date, CI workflow, reciprocal link and tree counts;
         regenerated the mirror.
     mrr_end: 0
+  - venture: youtube-revenue-rpm-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built youtube-revenue-rpm-analyzer, a data-file archetype
+        for YouTube creators (a large earn-more market whose only per-video
+        report is a Studio export nobody pivots; paid neighbours vidIQ and
+        TubeBuddy want channel access): a browser-local tool that reads a Studio
+        analytics export (Videos, Geography, Traffic source or by-day tables;
+        file or paste; comma, tab, semicolon, UTF-16) and shows RPM recomputed
+        per row from revenue and views, revenue concentration, the videos that
+        earn under half the median RPM with the gap sized as a labelled ceiling,
+        zero-revenue views, high-RPM low-traffic videos, impression-weighted
+        click-through gaps, RPM by video length, country share-of-views versus
+        share-of-revenue, a month-over-month trend, and a check of the rows
+        against the file's own Total row. Asserts no cause for a rate. File never
+        leaves the browser; independent-of-YouTube-and-Google clause on the page.
+        First visitor: r/NewTubers and r/PartneredYoutube RPM threads; search
+        "youtube rpm calculator". duplicate_check.py top score 0.17. Column names
+        matched by alias; no real export was available, stated in VENTURE.yaml.
+        Registered score row, launch date, CI workflow, reciprocal links and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
   - venture: amazon-ppc-search-term-analyzer
     agent_spend_usd: null
     human_hours: 0
