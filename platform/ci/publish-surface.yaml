@@ -1072,6 +1072,9 @@ workflows:
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
+- workflow: rsu-withholding-gap-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: print-on-demand-profit-calculator-ci.yml
   classification: none
   publishes: []
@@ -1617,6 +1620,9 @@ gitops:
   unmet_secrets: []
   redirects: {}
 - workflow: social-security-claiming-age-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: rmd-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: travel-nurse-contract-comparison-calculator-ci.yml

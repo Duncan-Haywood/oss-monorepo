@@ -48301,6 +48301,24 @@ entries:
         Registered score row, launch date, category rule, CI workflow and tree
         counts; regenerated the mirror.
     mrr_end: 0
+  - venture: rmd-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rmd-calculator: a browser-local required minimum
+        distribution planner. Computes the RMD from IRA and employer-plan
+        balances with the IRS Uniform Lifetime Table and SECURE 2.0 start ages,
+        projects it to a chosen age, prices delaying the first RMD to April 1
+        (two RMDs in one year), shows the QCD effect on taxable RMD, and
+        estimates the 25%/10% excise tax on a missed RMD. New niche:
+        duplicate_check.py top match 0.15. First visitor expected from searches
+        like "rmd calculator" and "should I delay my first rmd". Numbers never
+        uploaded. Arithmetic verified by hand only, stated on the page. 33 tests.
+        Reciprocal links with the Roth conversion, Medicare IRMAA and Social
+        Security calculators; registered score row, launch date, category rule,
+        CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
   - venture: wage-garnishment-limit-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -48339,6 +48357,22 @@ entries:
         2026-09-29, not the CMS notice itself. Sibling of
         aca-subsidy-cliff-calculator. 41 tests, nothing uploaded. Registered
         score row, launch date, category rule, CI workflow and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
+  - venture: rsu-withholding-gap-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built rsu-withholding-gap-calculator: a browser-local tool that takes an
+        employee's salary and RSU vest value, computes the federal income tax the
+        vest adds at 2026 brackets against the flat 22% (37% over $1M) supplemental
+        withholding, and shows the gap, bracket layering, Additional Medicare Tax,
+        an optional flat state rate, the underpayment safe harbor, and the extra
+        W-4 4(c) withholding per remaining paycheck. New niche: no sibling in
+        ventures/. Nothing uploaded. Hand-verified arithmetic only. 19 tests.
+        Registered score row, launch date, category rule, CI workflow and tree
+        counts; reciprocal link from estimated-tax-penalty-calculator;
         regenerated the mirror.
     mrr_end: 0
   - venture: travel-nurse-contract-comparison-calculator
