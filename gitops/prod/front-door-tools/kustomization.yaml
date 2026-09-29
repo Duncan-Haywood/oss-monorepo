@@ -33,30 +33,30 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 545957 bytes
-#   portfolio-front-tools-1: 92 files, 554906 bytes
-#   portfolio-front-tools-2: 144 files, 552555 bytes
-#   portfolio-front-tools-3: 131 files, 554644 bytes
-#   portfolio-front-tools-4: 140 files, 551886 bytes
-#   portfolio-front-tools-5: 123 files, 556222 bytes
-#   portfolio-front-tools-6: 134 files, 553948 bytes
-#   portfolio-front-tools-7: 136 files, 553384 bytes
-#   portfolio-front-tools-8: 122 files, 556250 bytes
-#   portfolio-front-tools-9: 135 files, 552633 bytes
-#   portfolio-front-tools-10: 134 files, 556811 bytes
-#   portfolio-front-tools-11: 119 files, 557003 bytes
-#   portfolio-front-tools-12: 118 files, 556777 bytes
-#   portfolio-front-tools-13: 121 files, 555261 bytes
-#   portfolio-front-tools-14: 119 files, 550436 bytes
-#   portfolio-front-tools-15: 130 files, 555929 bytes
-#   portfolio-front-tools-16: 125 files, 557045 bytes
-#   portfolio-front-tools-17: 136 files, 556586 bytes
-#   portfolio-front-tools-18: 121 files, 556807 bytes
-#   portfolio-front-tools-19: 103 files, 553976 bytes
-#   portfolio-front-tools-20: 124 files, 553072 bytes
-#   portfolio-front-tools-21: 124 files, 547845 bytes
-#   portfolio-front-tools-22: 97 files, 464032 bytes
-#   portfolio-front-tools-23: 53 files, 281759 bytes
+#   portfolio-front-tools-0: 145 files, 545967 bytes
+#   portfolio-front-tools-1: 92 files, 554909 bytes
+#   portfolio-front-tools-2: 144 files, 552557 bytes
+#   portfolio-front-tools-3: 131 files, 554640 bytes
+#   portfolio-front-tools-4: 140 files, 551887 bytes
+#   portfolio-front-tools-5: 123 files, 556193 bytes
+#   portfolio-front-tools-6: 134 files, 553923 bytes
+#   portfolio-front-tools-7: 136 files, 553379 bytes
+#   portfolio-front-tools-8: 122 files, 556272 bytes
+#   portfolio-front-tools-9: 135 files, 552639 bytes
+#   portfolio-front-tools-10: 134 files, 556835 bytes
+#   portfolio-front-tools-11: 119 files, 557012 bytes
+#   portfolio-front-tools-12: 118 files, 556791 bytes
+#   portfolio-front-tools-13: 121 files, 555299 bytes
+#   portfolio-front-tools-14: 119 files, 550428 bytes
+#   portfolio-front-tools-15: 130 files, 555961 bytes
+#   portfolio-front-tools-16: 125 files, 556954 bytes
+#   portfolio-front-tools-17: 136 files, 556655 bytes
+#   portfolio-front-tools-18: 121 files, 556737 bytes
+#   portfolio-front-tools-19: 103 files, 553979 bytes
+#   portfolio-front-tools-20: 124 files, 553141 bytes
+#   portfolio-front-tools-21: 125 files, 555649 bytes
+#   portfolio-front-tools-22: 99 files, 473313 bytes
+#   portfolio-front-tools-23: 53 files, 281757 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -2836,6 +2836,9 @@ configMapGenerator:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - substack-subscriber-export-analyzer__calc.mjs.gz=substack-subscriber-export-analyzer__calc.mjs.gz
+      - substack-subscriber-export-analyzer__index.html.gz=substack-subscriber-export-analyzer__index.html.gz
+      - substack-subscriber-export-analyzer__usage.mjs.gz=substack-subscriber-export-analyzer__usage.mjs.gz
       - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
       - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
       - sump-pump-bid-calculator__index.html.gz=sump-pump-bid-calculator__index.html.gz
@@ -2958,13 +2961,13 @@ configMapGenerator:
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
       - vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz=vendor-change-watch__vs-checking-vendor-pages-by-hand.html.gz
-      - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
-      - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
   - name: portfolio-front-tools-22
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
+      - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz

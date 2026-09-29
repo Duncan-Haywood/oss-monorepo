@@ -47655,3 +47655,23 @@ entries:
         patreon-fee-calculator. Registered score row, launch date, CI workflow
         and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: substack-subscriber-export-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built substack-subscriber-export-analyzer, a data-file
+        archetype for newsletter writers: a browser-local tool that reads a
+        Substack subscribers export CSV (file or paste) and shows paid, free,
+        comp and former counts, free-to-paid conversion, paid churn and
+        survival at 1, 3, 6 and 12 months, revenue by plan from typed prices,
+        annual and founding renewals due in 30, 60 and 90 days, time from
+        signup to first payment, growth by month, engaged free subscribers as
+        the upgrade pool, and a fee estimate with editable assumptions. File
+        never leaves the browser (a test asserts no network calls); emails are
+        dropped at parse; independent-of-Substack clause on the page. Column
+        names are matched by alias from memory and no real export was
+        available, stated on the page, README and VENTURE.yaml. Registered
+        score row, launch date, CI workflow and tree counts; regenerated the
+        mirror.
+    mrr_end: 0

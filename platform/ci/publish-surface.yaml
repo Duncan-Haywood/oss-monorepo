@@ -1514,3 +1514,6 @@ gitops:
 - workflow: gumroad-sales-fee-analyzer-ci.yml
   classification: none
   publishes: []
+- workflow: substack-subscriber-export-analyzer-ci.yml
+  classification: none
+  publishes: []
