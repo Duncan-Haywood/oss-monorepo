@@ -367,6 +367,8 @@ export const REVIEWED_NOT_CARRIED = {
   // named `loadedLaborRate` and says so.
   'medical-courier-route-margin':
     'overhead is a percentage of revenue, not of direct cost, and the labour rate is loaded',
+  'tow-motor-club-call-calculator':
+    'overhead is dollars per month spread over billable truck hours and margin is an accept threshold on a payout someone else set, not a price the operator quotes; wage is one driver rate',
   'pool-route-pricing':
     'labour is one "Labor cost / hour" with no burden field, and overhead is dollars per account per month',
   'custom-farm-rate-calculator':

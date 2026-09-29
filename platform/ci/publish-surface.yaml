@@ -554,6 +554,9 @@ workflows:
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fba-aged-inventory-fee-analyzer-ci.yml
+  classification: none
+  publishes: []
 - workflow: fba-reimbursement-claim-finder-ci.yml
   classification: none
   publishes: []
@@ -1377,6 +1380,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tow-motor-club-call-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: translator-project-quote-ci.yml

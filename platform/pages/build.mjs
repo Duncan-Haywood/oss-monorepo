@@ -480,7 +480,7 @@ const CATEGORY_RULES = [
     // bare `marketplace-fee-compare` alternative does not prefix-match, so
     // it would otherwise sit in the catch-all for the same reason those two
     // did.
-    test: (slug) => /^(amazon|fba-reimbursement|ebay|etsy|shopify-fee|shopify-payments-fee|shopify-discount|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
+    test: (slug) => /^(amazon|fba-|ebay|etsy|shopify-fee|shopify-payments-fee|shopify-discount|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|turo-host|kdp|whatnot|poshmark|storage-auction|stockx|twitch|freelance-platform-fee|mercari|kickstarter|depop|facebook-marketplace)/.test(slug),
   },
   {
     id: 'trades',
@@ -941,7 +941,7 @@ const CATEGORY_RULES = [
     // the crawlable-orphan gap a new venture otherwise opens. Named by exact
     // slug prefix rather than folded into a wider pattern, for the same reason
     // as its neighbours here.
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight)/.test(
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|tow-motor-club)/.test(
       slug,
     ),
   },
