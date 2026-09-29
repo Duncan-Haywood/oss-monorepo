@@ -47086,3 +47086,17 @@ entries:
         or subscription-price-impact. Registered build category, score row,
         launch date, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: saas-cac-payback-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built saas-cac-payback-calculator: a browser-local calculator for
+        SaaS founders giving simple and churn-adjusted CAC payback, LTV and
+        discounted LTV, LTV:CAC, the maximum CAC for a payback target and a
+        CAC by churn sensitivity table (iterative payback cross-checked
+        against the closed form in tests). duplicate_check.py top score 0.09.
+        Registered build category, score row, launch date, CI workflow, tree
+        counts and a reciprocal link from saas-annual-plan-discount-calculator;
+        regenerated the mirror.
+    mrr_end: 0
