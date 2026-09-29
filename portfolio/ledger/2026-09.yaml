@@ -47435,3 +47435,26 @@ entries:
         Registered score row, launch date, CI workflow, reciprocal links and
         tree counts; regenerated the mirror.
     mrr_end: 0
+  - venture: upwork-earnings-fee-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built upwork-earnings-fee-analyzer, a data-file archetype for freelancers
+        billing through Upwork (a large market whose only fee report is a raw
+        transaction CSV): a browser-local tool that reads a transaction history
+        (file or paste; US and day-first dates, comma, tab, semicolon and
+        UTF-16; hours from a column or from description text; skipped rows
+        reported with line and reason) and shows the observed service fee rate,
+        Connects, membership and withdrawal costs, refunds, take-home by
+        contract and by month, net pay per hour after each payment's own fee, and
+        findings for contracts under a target rate, income concentration and
+        withdrawal-fee drag. Asserts no fee schedule, only what the file shows.
+        File never leaves the browser; independent-of-every-platform clause on
+        the page. First visitor: r/Upwork and r/freelance fee threads; search
+        "upwork fee calculator". duplicate_check.py top score 0.36
+        (airbnb-earnings-report-analyzer). Column names matched by alias; no
+        real export was available, stated in VENTURE.yaml. Registered score
+        row, launch date, CI workflow, reciprocal link and tree counts;
+        regenerated the mirror.
+    mrr_end: 0
