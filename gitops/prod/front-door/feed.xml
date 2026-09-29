@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 406 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 409 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-29T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Airbnb Earnings Report Analyzer — Free Transaction History CSV Tool</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/airbnb-earnings-report-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/airbnb-earnings-report-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free Airbnb earnings analyzer: drop in your Transaction history CSV and see net earnings, fee share, nightly rate and occupancy per listing, which months and stay lengths earn the most, and whether your cleaning fee covers your cleaning cost. Runs in your browser, the file is never uploaded.</summary>
+  </entry>
   <entry>
     <title>Amazon Seller Profit Analyzer — Free Transaction Report Tool</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/amazon-seller-profit-analyzer/"/>
@@ -89,6 +98,15 @@
     <summary type="text">Free calculator comparing the 2026 IRS standard mileage rate (72.5 cents per mile through June 30, 76 cents from July 1) with actual vehicle expenses for a self-employed business car. See which deduction is larger and what it is worth. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Mileage Log — Free IRS-Ready Mileage Tracker in Your Browser</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/mileage-log/"/>
+    <id>tag:marisstella.dev,2026:tool/mileage-log</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free mileage log for self-employed drivers and contractors: log trips or track with GPS, price them at the IRS standard rate by date (the 2026 rate changed July 1), check the log for audit gaps, export CSV. Works offline, data stays on your device.</summary>
+  </entry>
+  <entry>
     <title>Roth Conversion Calculator 2026 — Fill Your Tax Bracket, Free</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/roth-conversion-bracket-fill-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/roth-conversion-bracket-fill-calculator</id>
@@ -123,6 +141,15 @@
     <updated>2026-09-29T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free 2026 self-employment tax calculator for freelancers and sole proprietors: Social Security and Medicare, the $184,500 wage base, W-2 wages, Additional Medicare Tax, and how much of every payment to set aside. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Shopify Discount Leakage Analyzer — Free Discount Code Profit Check</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shopify-discount-leakage-analyzer/"/>
+    <id>tag:marisstella.dev,2026:tool/shopify-discount-leakage-analyzer</id>
+    <published>2026-09-29T00:00:00Z</published>
+    <updated>2026-09-29T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Shopify discount code analyzer: drop in your orders export and see how much each code gave away, the share of its orders that must be new sales to pay for itself, refund rates by code and discounts that went to repeat customers. Runs in your browser, the file is never uploaded.</summary>
   </entry>
   <entry>
     <title>Shopify Payout Profit Analyzer — Free Fee and Profit-per-Product Tool</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-25T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Referrer-Policy: unsafe-url (leaks full URLs, even on a downgrade), a missing or invalid Referrer-Policy, Permissions-Policy directives with a malformed allowlist syntax, and a wildcard allowlist on a sensitive feature like camera or microphone. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SALT Deduction Cap Calculator — 2025-2026, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/salt-cap-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/salt-cap-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the SALT (state and local tax) itemized deduction cap under the One Big Beautiful Bill Act — applies the 2025/2026 $40,000/$40,400 cap, the 30%-of-excess-MAGI phase-out above $500,000/$505,000, and the $10,000 floor the cap can never drop below, by filing status. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Section 174A Catch-Up Deduction Calculator — 1-Year vs. 2-Year, Free</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/section-174a-catchup-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/section-174a-catchup-calculator</id>
-    <published>2026-09-25T00:00:00Z</published>
-    <updated>2026-09-25T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free calculator for the Section 174A domestic R&amp;E catch-up deduction (OBBBA, Rev. Proc. 2025-28): compares taking your entire remaining unamortized 2022-2024 R&amp;E balance in 2025 against spreading it over 2025-2026, with current-year cash tax savings, an NOL flag when a deduction exceeds taxable income, and a present-value comparison. Entirely client-side, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Auto Glass Bid Calculator — Windshield, ADAS Calibration, Mobile Fee</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/auto-glass-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/auto-glass-bid-calculator</id>
-    <published>2026-09-24T00:00:00Z</published>
-    <updated>2026-09-24T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a windshield or door-glass replacement from glass source, ADAS camera/sensor calibration, mobile trip fee, and cash vs. insurance billing — and get warned before you send a bid that forgot to price the calibration.</summary>
   </entry>
 </feed>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shopify Discount Leakage Analyzer — Free Discount Code Profit Check</title>
+  <meta name="description" content="Free Shopify discount code analyzer: drop in your orders export and see how much each code gave away, the share of its orders that must be new sales to pay for itself, refund rates by code and discounts that went to repeat customers. Runs in your browser, the file is never uploaded.">
+  <meta property="og:title" content="Shopify Discount Leakage Analyzer — free, private, CSV in your browser">
+  <meta property="og:description" content="Which discount codes pay for themselves? Break-even new-sales share, refund rate and repeat-customer give-away from your orders export. Nothing leaves your device.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Shopify Discount Leakage Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Shopify orders export into a discount report: give-away per code, the share of each code's orders that must be new sales to break even, refund rate by code and discount value that went to returning customers. Runs entirely in your browser; the file is never uploaded.", "featureList": "Discount give-away by code, break-even new-sales share, refund rate by code, repeat-customer discount share, orders that lost money, downloadable code report"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find out which Shopify discount codes are losing money?", "acceptedAnswer": {"@type": "Answer", "text": "Export your orders from Shopify (Orders, Export, CSV) and drop the file here. For each code the tool totals the discount given and the orders that used it, then works out the share of those orders that must be new sales, customers who would not otherwise have bought, for the discount to pay for itself. Add your product cost percentage to get that figure; without it the tool still shows discount given, average order value and refund rate per code."}}, {"@type": "Question", "name": "How is the break-even share calculated?", "acceptedAnswer": {"@type": "Answer", "text": "With margin m per dollar of list price (1 minus your product cost and payment fee rates), a discount of d costs d times (1 minus the fee rate) on every order. A new customer's order earns m minus that cost; a customer who would have bought anyway loses that cost. The two balance when the new-sales share equals d times (1 minus the fee rate) divided by m. If d is bigger than m, the code loses money on every order, however many are new."}}, {"@type": "Question", "name": "Does the tool upload my orders or customer emails?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab and never leaves your device. Customer emails are used only to tell whether a buyer had already ordered earlier in the same file, and are never displayed, stored or sent. There are no accounts and no store access is needed."}}, {"@type": "Question", "name": "What does the tool not see?", "acceptedAnswer": {"@type": "Answer", "text": "Whether a given customer would really have bought without the code, shipping and advertising cost, product cost that varies by item, orders outside the export's date range, and what a discount does to lifetime value. Repeat buyers are recognised only within the file, so the repeat share is a lower bound. Treat the output as leads to review, not as a verdict on a code."}}, {"@type": "Question", "name": "Is this financial or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Shopify and is not affiliated with or endorsed by it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #2a6b8e; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 12px 0 4px; }
+    .checkbox-row input { width: auto; }
+    .checkbox-row label { margin: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .95rem; color: #333c46; margin-bottom: 10px; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 120px; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    .scroll { overflow-x: auto; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
+    </style>
+</head>
+<body>
+  <header>
+    <p class="note">SHOPIFY DISCOUNT LEAKAGE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of your Shopify discount codes actually pay for themselves?</h1>
+    <p>Drop in the <strong>orders export</strong> from your Shopify admin and get, for every code, <strong>how much it gave away</strong>, <strong>the share of its orders that had to be new sales</strong> for the discount to break even, which codes bring back <strong>refunds</strong>, and how much went to <strong>customers who had already bought</strong>, without installing an app or giving anyone access to your store.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Shopify: not affiliated with or endorsed by Shopify.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your orders export</h2>
+    <p class="note">Shopify admin → Orders → Export → all orders or a date range → CSV for Excel, Numbers, or other spreadsheet programs. Needs Name, Total (or Subtotal) and Discount Code or Discount Amount; Email, Created at, Refunded Amount, Cancelled at and Financial Status are used when present. One row per line item is handled: each order is counted once. Cancelled and voided orders are left out.</p>
+    <label for="file">Choose a CSV file</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label for="paste">…or paste the export text</label>
+    <textarea id="paste" spellcheck="false" placeholder="Name,Email,Financial Status,Subtotal,Total,Discount Code,Discount Amount"></textarea>
+    <div class="grid">
+      <div><label for="cogs">Product cost, % of list price (optional)</label><input type="number" id="cogs" min="0" max="99" step="any" placeholder="e.g. 35, unlocks the break-even column"></div>
+      <div><label for="fee">Payment fee, % of amount paid</label><input type="number" id="fee" min="0" max="20" step="any" value="2.9"></div>
+      <div><label for="fixed">Fixed fee per order</label><input type="number" id="fixed" min="0" step="any" value="0.30"></div>
+      <div><label for="minorders">Fewest orders before a code gets a finding</label><input type="number" id="minorders" min="1" step="1" value="5"></div>
+    </div>
+    <p>
+      <button type="button" id="analyze">Analyze</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-all">Clear</button>
+    </p>
+    <p class="note" id="form-status">Choose a file or paste export text, then click Analyze.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <h3>By discount code</h3>
+    <p class="note">“New sales needed” is the share of a code's orders that must come from customers who would not otherwise have bought. Lower is safer; “never” means the discount is deeper than your margin.</p>
+    <div class="scroll"><table><thead><tr><th scope="col">Code</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Discount given</th><th class="n" scope="col">Avg. discount</th><th class="n" scope="col">Avg. order</th><th class="n" scope="col">Refund rate</th><th class="n" scope="col">New sales needed</th></tr></thead><tbody id="by-code"></tbody></table></div>
+    <h3>By discount depth</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Depth</th><th class="n" scope="col">Orders</th><th class="n" scope="col">Discount given</th><th class="n" scope="col">Share of discounts</th><th class="n" scope="col">Avg. order</th><th class="n" scope="col">Refund rate</th></tr></thead><tbody id="by-band"></tbody></table></div>
+    <h3>Discount value by customer type</h3>
+    <div class="scroll"><table><thead><tr><th scope="col">Customer</th><th class="n" scope="col">Discounted orders</th><th class="n" scope="col">Discount given</th><th class="n" scope="col">Share</th></tr></thead><tbody id="by-customer"></tbody></table></div>
+    <p class="note" id="skipped"></p>
+    <p><button type="button" class="secondary" id="download">Download code report as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>The model, and what it leaves out</h2>
+    <ul>
+      <li><strong>List price</strong> is the order subtotal plus the discount. The discount rate of a code is discount given divided by list price on its orders.</li>
+      <li><strong>Reconciles.</strong> Discount given across depth bands and customer types each add up to the headline discount total. An order that stacks two codes appears under each, so the code table can exceed the total, and the page says so.</li>
+      <li><strong>New sales needed</strong> is d × (1 − fee rate) ÷ m, where d is the code's discount rate and m is 1 − product cost − fee rate. It is the share of the code's orders that must come from customers who would not otherwise have bought, for the discount to earn back what it gave to the ones who would have.</li>
+      <li><strong>Lost money</strong> counts an order when list price minus discount, product cost, payment fees and refunds comes to less than zero, before shipping and advertising.</li>
+      <li><strong>Repeat buyers</strong> are matched by email within this file only, so the repeat share is a lower bound. Emails are never displayed or stored.</li>
+      <li><strong>Not modelled:</strong> whether a customer would have bought anyway, shipping and ad cost, per-item product cost, lifetime value, and orders outside the export.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I find out which Shopify discount codes are losing money?</h3>
+    <p>Export your orders from Shopify (Orders, Export, CSV) and drop the file here. For each code the tool totals the discount given and the orders that used it, then works out the share of those orders that must be new sales, customers who would not otherwise have bought, for the discount to pay for itself. Add your product cost percentage to get that figure; without it the tool still shows discount given, average order value and refund rate per code.</p>
+    <h3>How is the break-even share calculated?</h3>
+    <p>With margin m per dollar of list price (1 minus your product cost and payment fee rates), a discount of d costs d times (1 minus the fee rate) on every order. A new customer's order earns m minus that cost; a customer who would have bought anyway loses that cost. The two balance when the new-sales share equals d times (1 minus the fee rate) divided by m. If d is bigger than m, the code loses money on every order, however many are new.</p>
+    <h3>Does the tool upload my orders or customer emails?</h3>
+    <p>No. The file is read in your browser tab and never leaves your device. Customer emails are used only to tell whether a buyer had already ordered earlier in the same file, and are never displayed, stored or sent. There are no accounts and no store access is needed.</p>
+    <h3>What does the tool not see?</h3>
+    <p>Whether a given customer would really have bought without the code, shipping and advertising cost, product cost that varies by item, orders outside the export's date range, and what a discount does to lifetime value. Repeat buyers are recognised only within the file, so the repeat share is a lower bound. Treat the output as leads to review, not as a verdict on a code.</p>
+    <h3>Is this financial or business advice?</h3>
+    <p>No. It applies arithmetic to the file you provide and does not replace your own judgement or a qualified adviser. It is independent of Shopify and is not affiliated with or endorsed by it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Results are estimates that depend entirely on the file you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any business decision you make, including any discount you change or end. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with Shopify.</strong> Shopify is a trademark of Shopify Inc. This tool is independent and is not sponsored, endorsed or connected to Shopify in any way.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>csv_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also running the numbers on an online store? See the <a href="../shopify-fee-calculator/">Shopify fee calculator</a>, the <a href="../etsy-statement-profit-analyzer/">Etsy statement profit analyzer</a> and the <a href="../amazon-seller-profit-analyzer/">Amazon seller profit analyzer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeOrders, analyze, sampleCsv, codesCsv, money, pct } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    let last = null;
+
+    function run(text) {
+      const delim = detectDelimiter(text);
+      const n = normalizeOrders(parseCsv(text, delim), { decimalComma: delim === ";" });
+      if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
+      const cogs = $("#cogs").value === "" ? null : Number($("#cogs").value) / 100;
+      const fee = $("#fee").value === "" ? 0 : Number($("#fee").value) / 100;
+      const fixed = Number($("#fixed").value) || 0;
+      const minOrders = Math.max(1, Number($("#minorders").value) || 5);
+      const r = analyze(n.orders, { cogsPct: cogs, feePct: fee, fixedFee: fixed, minOrders });
+      last = r;
+      const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
+      $("#report-stats").innerHTML = `${s.orders} orders, ${cur}${money(s.gross)} at list price. <strong>${cur}${money(s.discount)} (${pct(s.discountRate)}) was given away in discounts</strong>; ${pct(s.codeShare)} of orders used one. Average order ${s.aovCode === null ? "–" : money(s.aovCode)} with a discount, ${s.aovNone === null ? "–" : money(s.aovNone)} without. Refunds: ${cur}${money(s.refunded)}.` + (s.contribution === null ? "" : ` After product cost, fees and refunds the orders left ${cur}${money(s.contribution)} before shipping and ads.`);
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      const be = (c) => (c.breakEven === null ? "–" : c.breakEven === Infinity ? "never" : pct(c.breakEven));
+      $("#by-code").innerHTML = r.byCode.map((c) => `<tr><th scope="row">${esc(c.key)}</th><td class="n">${c.orders}</td><td class="n">${money(c.discount)}</td><td class="n">${pct(c.rate)}</td><td class="n">${money(c.aov)}</td><td class="n">${pct(c.refundRate)}</td><td class="n">${be(c)}</td></tr>`).join("");
+      $("#by-band").innerHTML = r.byBand.map((b) => `<tr><th scope="row">${b.key}</th><td class="n">${b.orders}</td><td class="n">${money(b.discount)}</td><td class="n">${s.discount ? pct(b.discount / s.discount) : "–"}</td><td class="n">${b.orders ? money(b.aov) : "–"}</td><td class="n">${b.orders ? pct(b.refundRate) : "–"}</td></tr>`).join("");
+      const tot = s.returningDiscount + s.newDiscount;
+      $("#by-customer").innerHTML = s.emailed ? `<tr><th scope="row">First order seen in this file</th><td class="n">–</td><td class="n">${money(s.newDiscount)}</td><td class="n">${tot ? pct(s.newDiscount / tot) : "–"}</td></tr><tr><th scope="row">Already ordered earlier in this file</th><td class="n">${s.returningOrders}</td><td class="n">${money(s.returningDiscount)}</td><td class="n">${tot ? pct(s.returningDiscount / tot) : "–"}</td></tr>` : '<tr><td colspan="4">No email and date columns in this file, so repeat buyers cannot be identified.</td></tr>';
+      const notes = [];
+      if (n.skipped.length) notes.push(`${n.skipped.length} order(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
+      if (n.cancelled) notes.push(`${n.cancelled} cancelled or voided order(s) were left out.`);
+      if (s.stacked) notes.push(`${s.stacked} order(s) stacked several codes and appear under each, so the code rows add up to more than the total.`);
+      $("#skipped").textContent = notes.join(" ");
+      report.hidden = false;
+      status.textContent = `Read ${n.orders.length} orders.`;
+      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", async () => {
+      const f = $("#file").files[0];
+      const text = f ? decodeBuffer(await f.arrayBuffer()) : $("#paste").value;
+      if (!text.trim()) { status.textContent = "Choose a file or paste export text first."; return; }
+      if (run(text)) record("csv_analyzed");
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#paste").value = sampleCsv();
+      $("#file").value = "";
+      if (!$("#cogs").value) $("#cogs").value = "35";
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic data for a small mug shop. Not a real store."; }
+    });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste export text, then click Analyze."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([codesCsv(last)], { type: "text/csv" }));
+      a.download = "discount-code-report.csv";
+      a.click();
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

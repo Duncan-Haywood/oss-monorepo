@@ -47259,6 +47259,7 @@ entries:
         merchant-feed-check and tree counts; regenerated the mirror.
     mrr_end: 0
   - venture: shopify-payout-profit-analyzer
+  - venture: shopify-discount-leakage-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -47281,4 +47282,71 @@ entries:
         synthetic fixtures, not a real shop. duplicate_check.py top score 0.32.
         Registered score row, launch date, CI workflow, reciprocal link from
         shopify-fee-calculator and tree counts; regenerated the mirror.
+        Graduated and built shopify-discount-leakage-analyzer, a data-file
+        archetype for a market that already pays for this (Lifetimely, Triple
+        Whale, Peel): a browser-local tool that reads the Shopify orders export
+        (one row per line item grouped into orders, cancelled and voided orders
+        excluded, stacked codes split) and reports per-code discount given,
+        average discount, refund rate and the break-even share of orders that
+        must be new sales, d(1-fee)/m, or "never" when the discount is deeper
+        than the margin; discount depth bands; discount value that went to
+        customers who had already ordered (within the file, stated as a lower
+        bound); orders that lost money after product cost, fees and refunds.
+        File and customer emails never leave the browser (test asserts no
+        network calls); independent-of-Shopify clause. duplicate_check.py top
+        score 0.19. Also repaired venture-scores.yaml, where three concurrent
+        graduations had merged into one malformed block that failed
+        score_ventures.py --check on main. Registered launch date, CI
+        workflow, reciprocal link from shopify-fee-calculator and tree
+        counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: mileage-log
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built mileage-log, an installable-and-offline stateful app rather
+        than another calculator or file analyzer, aimed at a market that already
+        pays $6-15 a month (MileIQ, Everlance, TripLog): a browser mileage log
+        (odometer, typed miles or foreground GPS with jitter and accuracy
+        filtering), priced per trip date so the 2026 mid-year rate change (72.5c
+        to 76c on July 1) is applied correctly, the Schedule C Part IV split from
+        year-start and year-end odometers, audit-readiness findings (missing
+        purpose or destination, contradictory odometers, duplicates, round-number
+        logs, late entries, unlogged miles), CSV export, JSON backup and restore,
+        print view. Rates reused from the irs.gov-verified table in
+        mileage-deduction-method-calculator; every rate overridable. No network
+        calls (test asserts); GPS positions not stored. duplicate_check.py top
+        score 0.18. Verified in Chromium at phone width (add, edit, reload
+        persistence, example year). Two CSV-analyzer builds earlier in the same
+        session (etsy statement, google ads search terms) were dropped because
+        other sessions merged the same niches minutes earlier (#5983, #5985); this
+        one was checked against origin/main immediately before registering.
+        Registered score row, launch date, CI workflow, category, reciprocal link
+        from mileage-deduction-method-calculator and tree counts; regenerated the
+        mirror.
+    mrr_end: 0
+  - venture: airbnb-earnings-report-analyzer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built airbnb-earnings-report-analyzer, a data-file
+        archetype aimed at short-term-rental hosts (a market that already pays
+        Hostaway, Beyond, Stessa): a browser-local tool that reads the Airbnb
+        Transaction history CSV (file or paste; US and day-first dates, comma,
+        tab, semicolon and UTF-16 exports; payouts ignored, adjustments listed
+        apart, skipped rows reported with line and reason) and shows net
+        earnings, fee share, ADR, net per night and occupancy per listing,
+        monthly seasonality, and profit per night by length of stay after the
+        host's own turnover cost, plus a cleaning-fee-vs-cleaning-cost finding.
+        File never leaves the browser; independent-of-Airbnb clause on the
+        page. duplicate_check.py top score 0.21. Verified in Chromium against
+        a synthetic export (no real export was available; column names are
+        from memory and matched by alias, stated in VENTURE.yaml). Also
+        repaired main's venture-scores.yaml, where the google-ads score row had
+        been merged into the etsy row and score_ventures.py --check was red.
+        Registered score row, launch date, CI workflow, reciprocal links from
+        str-host-payout-calculator and str-cleaning-fee-pricing-calculator and
+        tree counts; regenerated the mirror.
     mrr_end: 0
