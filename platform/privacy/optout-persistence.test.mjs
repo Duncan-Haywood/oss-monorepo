@@ -1052,10 +1052,11 @@ const RELATIVE_SELF = relative(
 // +1: `print-on-demand-profit-calculator` graduated.
 // +1: `service-hourly-yield-analyzer` graduated.
 // +1: `medical-bill-error-checker` graduated.
+// +1: `mortgage-escrow-analysis-checker` graduated.
 // +1: `shopify-inventory-reorder-planner` graduated.
 // +1: `like-kind-exchange-1031-calculator` graduated.
 // +1: `aca-subsidy-cliff-calculator` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 432;
+const SWITCHES_IN_THE_CATALOGUE = 433;
 
 let counter = 0;
 function fixture(source) {

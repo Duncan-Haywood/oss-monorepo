@@ -1,0 +1,84 @@
+name: mortgage-escrow-analysis-checker
+description: >-
+  Free browser tool for homeowners that checks an annual mortgage escrow
+  statement against their own tax and insurance bills: the monthly payment the
+  numbers support, the largest allowed cushion (one-sixth), shortage versus
+  deficiency, whether a shortage is being collected faster than Regulation X
+  allows, whether a surplus should be refunded, a twelve-month balance
+  schedule, an insurance or tax what-if, and a draft request for the servicer's
+  escrow worksheet. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-09-29 in a new-venture-first session. duplicate_check.py: top
+# match 0.11 (unrelated), so no sibling. Escrow payment jumps after insurance and
+# property tax increases are a mass consumer pain point; the only help on offer
+# is a servicer statement that shows a projection table and calculators that
+# compute a payment from loan terms, none of which check the servicer's escrow
+# arithmetic against the borrower's own bills.
+#
+# First visitor: r/Mortgages, r/personalfinance and r/FirstTimeHomeBuyer threads
+# about escrow shortages, and searches like "why did my escrow payment go up",
+# "escrow shortage spread over 12 months", "escrow cushion limit" and "escrow
+# analysis calculator". Search volume not measured with an external tool.
+#
+# What makes it more than a calculator: it reproduces the aggregate-accounting
+# trial balance (12 CFR 1024.17), so it tells a shortage from a deficiency and
+# shows the month the balance bottoms out; it compares each figure on the
+# statement to what the borrower's own bills produce and names the rule at
+# stake; findings are ranked; the yearly figure in question is the most that
+# could be affected, never a refund estimate; the letter asks for the worksheet
+# and never alleges error or a violation.
+#
+# Privacy is the liability boundary: loan and escrow numbers never leave the
+# browser (tests assert no network calls), so the portfolio holds no financial
+# data and needs no servicer credential.
+#
+# Path to revenue (payment rails stay off): lead magnet with a natural next step
+# for mortgage-adjacent tools (property tax appeal, insurance quotes are the
+# user's own). A paid tier, if usage appears, is multi-year tracking of
+# statements and a shareable PDF report, local-only, behind an env-var switch;
+# not built. Not built: servicer integrations, which need credentials.
+#
+# Liability: results are questions, not findings; not legal, tax or financial
+# advice; the regulation is cited by section and read from the CFPB's published
+# text; the model leaves out the servicer's worksheet, state law and loan
+# documents, stated on the page.
+#
+# Unverified: the arithmetic has been run against invented statements and hand
+# calculation only, and deposit-before-disbursement ordering within a month is
+# an assumption. The first real statement that disagrees is the priority fix.
+
+hypotheses:
+  - claim: >-
+      Homeowners facing an escrow payment jump will enter the numbers from a
+      no-signup tool that splits bills from shortage recovery and names what to
+      ask the servicer, rather than accepting the new payment or paying for
+      advice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The what-if panel is what brings people back: they test an insurance quote
+      or a tax appeal against their payment before switching.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a real statement whose figures the tool contradicts on a point of arithmetic, at which point the model (ordering, cushion handling) needs revisiting.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/mortgage-escrow-analysis-checker/
+  analytics: null

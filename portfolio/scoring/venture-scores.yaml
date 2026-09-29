@@ -21036,6 +21036,44 @@ ventures:
       never leaves the browser and no portal credential is requested. Ethics:
       helps a patient ask for a correct bill through the provider's own review;
       the letter asks questions and a collections hold and alleges nothing.
+  - slug: mortgage-escrow-analysis-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model in the product, deliberately. Every figure is deterministic
+      arithmetic on numbers the homeowner types from their own statement.
+    basis: >-
+      Screened 2026-09-29 per portfolio/pipeline/README.md's scoring process;
+      full write-up in this venture's own VENTURE.yaml comment. Escrow payment
+      jumps after tax and insurance increases are a mass consumer pain and the
+      statement offers a projection table, not an explanation; loan-payment
+      calculators do not check the servicer's escrow arithmetic. Distribution 7:
+      "why did my escrow payment go up", "escrow shortage spread over 12 months"
+      and "escrow cushion limit" are recurring queries and r/Mortgages threads;
+      volume not measured with an external tool. Defensibility 3: the rule is
+      public regulation; the edge is a private, no-signup checker that tells a
+      shortage from a deficiency, ranks the questions and drafts the request.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: results are questions not findings, no legal, tax or financial
+      advice, no warranty, independence stated, regulation cited by section from
+      the CFPB's published text, model limits (servicer worksheet, state law, loan
+      documents) documented on the page, amount in question never presented as a
+      refund, and the page says to keep paying the billed amount while asking. Loan
+      and escrow numbers never leave the browser and no servicer credential is
+      requested. Ethics: helps a homeowner ask for the calculation behind their own
+      payment; the letter asks for the worksheet and alleges nothing.
   - slug: print-on-demand-profit-calculator
     scores:
       ai_leverage: 1
