@@ -797,6 +797,9 @@ workflows:
 - workflow: late-invoice-collections-kit-ci.yml
   classification: none
   publishes: []
+- workflow: print-on-demand-profit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -831,6 +834,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: mcp-supply-chain-watch-ci.yml
+  classification: none
+  publishes: []
+- workflow: medical-bill-error-checker-ci.yml
   classification: none
   publishes: []
 - workflow: medical-courier-route-margin-ci.yml
@@ -1227,6 +1233,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: septic-pumping-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: service-hourly-yield-analyzer-ci.yml
   classification: none
   publishes: []
 - workflow: sewer-hydrojet-bid-calculator-ci.yml

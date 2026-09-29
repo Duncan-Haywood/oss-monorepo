@@ -48112,6 +48112,7 @@ entries:
         and tree counts; regenerated the mirror.
     mrr_end: 0
   - venture: late-invoice-collections-kit
+  - venture: service-hourly-yield-analyzer
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -48135,6 +48136,64 @@ entries:
         clauses on the page. State rates were written from memory and are
         unverified, stated on the page and in VENTURE.yaml. Registered score
         row, launch date, CI workflow and tree counts; regenerated the mirror.
+        Graduated and built service-hourly-yield-analyzer: a browser-local tool
+        that reads a booking or sales export (Square Appointments, Acuity,
+        Vagaro, Fresha, Booksy, Mindbody, Jobber style) and reports revenue per
+        booked hour by service, staff member, weekday and hour of day (summed
+        dollars over summed hours of the same bookings), flags services under a
+        typed share of the overall yield, shows no-shows as empty chair time,
+        estimates a typed price-change what-if and, given typed open hours, idle
+        hours and their yearly value. Durations read as minutes, hours, 1h 30m,
+        1:30 or from an end-time column; rows missing a price or duration are
+        left out and counted, never guessed. Distinct from
+        appointment-no-show-analyzer, which links to it. First visitor expected
+        from r/salons and r/Barber pricing threads. Nothing is uploaded (a test
+        asserts no network calls); independent-of-vendors clause on the page.
+        Column aliases are unverified against real exports, stated on the page,
+        README and VENTURE.yaml. Registered score row, launch date, category
+        rule, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: print-on-demand-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built print-on-demand-profit-calculator: a browser-local tool for
+        print-on-demand sellers on Etsy, Shopify and eBay. From selling price,
+        supplier item and shipping cost, refund rate, ad spend and samples it
+        computes profit per sale after platform fees (presets marked verify,
+        dated 2026-09-29), solves the price for a target margin, shows the
+        maximum ad spend per sale and break-even ROAS, a price ladder, and the
+        same sale on each platform, with a CSV download. Distinct from
+        etsy-profit-calculator, shopify-fee-calculator, ebay-fee-calculator and
+        marketplace-fee-compare (one platform or fees only, no supplier cost),
+        all linked. First visitor expected from searches "printful profit
+        calculator" and "printify profit margin calculator", and r/printondemand
+        pricing threads. Nothing is uploaded (a test asserts no network calls);
+        not-advice and independent-of-marketplaces clauses on the page. Fee
+        presets unverified, stated on the page and in VENTURE.yaml. Registered
+        score row, launch date, CI workflow and tree counts; regenerated the mirror.
+    mrr_end: 0
+  - venture: medical-bill-error-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and built medical-bill-error-checker: a browser-local tool that
+        reads an itemized medical bill CSV and flags possible duplicate lines,
+        once-a-day codes billed twice, lab-panel components billed with the panel
+        (80053, 80048, 80061, 85025, 93000; a distinct-service modifier downgrades
+        to information), two levels of one visit family on a date, and lines whose
+        charge less paid less adjustment differs from patient responsibility, then
+        drafts a billing-review request with a collections hold. Amount in
+        question capped at the bill total and labelled not a refund. New niche:
+        duplicate_check.py top match 0.19. First visitor expected from
+        r/personalfinance and r/HealthInsurance dispute threads and searches like
+        "how to check medical bill for errors". Bill never uploaded (a test asserts
+        no network calls); CPT trademark and independence stated. Column aliases
+        and the rule lists are unverified against real exports and by a certified
+        coder, stated on the page. 49 tests. Registered score row, launch date,
+        category rule, CI workflow and tree counts; regenerated the mirror.
     mrr_end: 0
   - venture: shopify-inventory-reorder-planner
     agent_spend_usd: null
